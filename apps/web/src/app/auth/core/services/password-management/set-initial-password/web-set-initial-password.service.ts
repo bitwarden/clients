@@ -14,12 +14,12 @@ import {
   OrgInviteKind,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -47,7 +47,7 @@ export class WebSetInitialPasswordService
     private routerService: RouterService,
     private configService: ConfigService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-    protected registerSdkService: RegisterSdkService,
+    protected ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     protected unlockService: UnlockService,
   ) {
     super(
@@ -63,7 +63,7 @@ export class WebSetInitialPasswordService
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   }

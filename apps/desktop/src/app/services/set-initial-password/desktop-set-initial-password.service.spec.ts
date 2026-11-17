@@ -17,14 +17,12 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
@@ -58,7 +56,7 @@ describe("DesktopSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let messagingService: MockProxy<MessagingService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let registerSdkService: MockProxy<RegisterSdkService>;
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
   let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
@@ -75,7 +73,7 @@ describe("DesktopSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     messagingService = mock<MessagingService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    registerSdkService = mock<RegisterSdkService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
     unlockService = mock<UnlockService>();
 
     sut = new DesktopSetInitialPasswordService(
@@ -92,7 +90,7 @@ describe("DesktopSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       messagingService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
@@ -116,11 +114,9 @@ describe("DesktopSetInitialPasswordService", () => {
     let masterKeyEncryptedUserKey: [UserKey, EncString];
 
     let keyPair: [string, EncString];
-    let keysRequest: KeysRequest;
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
-    let setPasswordRequest: SetPasswordRequest;
 
     beforeEach(() => {
       // Mock function parameters
@@ -144,21 +140,11 @@ describe("DesktopSetInitialPasswordService", () => {
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
         userDecryptionOptionsSubject,
-      );
-
-      setPasswordRequest = new SetPasswordRequest(
-        credentials.newServerMasterKeyHash,
-        masterKeyEncryptedUserKey[1].encryptedString,
-        credentials.newPasswordHint,
-        credentials.orgSsoIdentifier,
-        keysRequest,
-        credentials.kdfConfig,
       );
     });
 
@@ -173,6 +159,8 @@ describe("DesktopSetInitialPasswordService", () => {
       keyService.userPrivateKey$.mockReturnValue(of(null));
       keyService.userPublicKey$.mockReturnValue(of(null));
       legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
+
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({ encryptionVersion: "V1" });
     }
 
     describe("given the initial password was successfully set", () => {
@@ -184,7 +172,7 @@ describe("DesktopSetInitialPasswordService", () => {
         await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledTimes(1);
         expect(messagingService.send).toHaveBeenCalledTimes(1);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -201,7 +189,7 @@ describe("DesktopSetInitialPasswordService", () => {
 
         // Assert
         await expect(promise).rejects.toThrow();
-        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
         expect(messagingService.send).not.toHaveBeenCalled();
       });
     });

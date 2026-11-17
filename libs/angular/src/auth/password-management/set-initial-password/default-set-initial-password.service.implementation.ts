@@ -1,4 +1,4 @@
-import { concatMap, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -14,20 +14,17 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
-import { SsoJitProvisionFinishPasswordRequest } from "@bitwarden/common/auth/models/request/sso-jit-provision-finish-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
-  MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -41,7 +38,6 @@ import {
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -67,7 +63,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-    protected registerSdkService: RegisterSdkService,
+    protected ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     protected unlockService: UnlockService,
   ) {}
 
@@ -165,49 +161,75 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
-    // ============================================================
-    // PM-42990 — ROLLBACK NOTE
-    // ============================================================
-    // This code builds the request from a master password hash. The caller
-    // computes that hash in SetInitialPasswordComponent.
-    //
-    // This method does not build authentication data or unlock data.
-    //
-    // This exists because the set-password endpoint needs the old shape for
-    // 3 releases, to stay compatible with self hosted servers.
-    //
-    // BUILD: Move the hash and key computation back into this method. Build
-    // the request from authentication data and unlock data, not a hash.
-    //
-    // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
-    // below. Delete newMasterKey and newServerMasterKeyHash from
-    // SetInitialPasswordCredentials and PasswordInputResult. See
-    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
-    // refactor.
-    // ============================================================
-    const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
-      masterKeyEncryptedUserKey[1].encryptedString,
-      newPasswordHint,
-      orgSsoIdentifier,
-      keysRequest,
+    // Set master password unlock data for unlock path pointed to with
+    // MasterPasswordUnlockData feature development
+    // (requires: password, salt, kdf, userKey).
+    // As migration to this strategy continues, both unlock paths need supported.
+    // [PM-28494]: The unlock data is set to state below so that an immediate lock/unlock with the
+    // new password does not fail before sync completes.
+    const masterPasswordUnlock = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      newPassword,
       kdfConfig,
+      salt,
+      masterKeyEncryptedUserKey[0],
     );
 
-    if (
-      acceptOrganizationInvite != null &&
-      userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER
-    ) {
-      // The pm-34429-invite-link-auto-confirm flag is on. The new endpoint lets the caller choose
-      // whether the organization invite is accepted. Only servers that serve the flag have this
-      // endpoint, so it does not need the legacy request shape above.
-      await this.postSsoJitProvisionFinishPassword(
-        credentials,
-        masterKeyEncryptedUserKey[0],
-        keysRequest,
+    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+      assertNonNullish(keysRequest, "keysRequest", "Could not set password.");
+
+      const masterPasswordAuthentication =
+        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+          newPassword,
+          kdfConfig,
+          salt,
+        );
+
+      // The SSO JIT provision finish service chooses the endpoint from the
+      // pm-34429-invite-link-auto-confirm flag.
+      const result = await this.ssoJitProvisionFinishService.finishPassword({
+        userId,
+        orgId,
+        orgSsoIdentifier,
+        newPassword,
+        newPasswordHint,
+        salt,
+        resetPasswordAutoEnroll,
         acceptOrganizationInvite,
-      );
+        v1Keys: { masterPasswordAuthentication, masterPasswordUnlock, keys: keysRequest },
+      });
+      if (result.encryptionVersion !== "V1") {
+        throw new Error("Unexpected V2 SSO JIT provisioning result. Could not set password.");
+      }
     } else {
+      // ============================================================
+      // PM-42990 — ROLLBACK NOTE
+      // ============================================================
+      // This code builds the request from a master password hash. The caller
+      // computes that hash in SetInitialPasswordComponent.
+      //
+      // This path (non-JIT users) does not build the request from authentication
+      // data or unlock data. The JIT path does.
+      //
+      // This exists because the set-password endpoint needs the old shape for
+      // 3 releases, to stay compatible with self hosted servers.
+      //
+      // BUILD: Move the hash and key computation back into this method. Build
+      // the request from authentication data and unlock data, not a hash.
+      //
+      // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
+      // below. Delete newMasterKey and newServerMasterKeyHash from
+      // SetInitialPasswordCredentials and PasswordInputResult. See
+      // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+      // refactor.
+      // ============================================================
+      const request = new SetPasswordRequest(
+        newServerMasterKeyHash,
+        masterKeyEncryptedUserKey[1].encryptedString,
+        newPasswordHint,
+        orgSsoIdentifier,
+        keysRequest,
+        kdfConfig,
+      );
       await this.masterPasswordApiService.setPassword(request);
     }
 
@@ -217,19 +239,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     // User now has a password so update account decryption options in state
     await this.updateAccountDecryptionProperties(kdfConfig, userId);
 
-    // Set master password unlock data for unlock path pointed to with
-    // MasterPasswordUnlockData feature development
-    // (requires: password, salt, kdf, userKey).
-    // As migration to this strategy continues, both unlock paths need supported.
-    // Several invocations in this file become redundant and can be removed once
-    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
-    await this.setMasterPasswordUnlockData(
-      newPassword,
-      salt,
-      kdfConfig,
-      masterKeyEncryptedUserKey[0],
-      userId,
-    );
+    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlock, userId);
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
@@ -327,39 +337,26 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       }
     }
 
-    const { newPasswordHint, orgSsoIdentifier, orgId, resetPasswordAutoEnroll, newPassword, salt } =
-      credentials;
-
-    const organizationKeys = await this.organizationApiService.getKeys(orgId);
+    const organizationKeys = await this.organizationApiService.getKeys(credentials.orgId);
     if (organizationKeys == null) {
       throw new Error("Organization keys response is null.");
     }
 
-    const registerResult = await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          return await ref.value
-            .auth()
-            .registration()
-            .post_keys_for_jit_password_registration({
-              org_id: asUuid<SdkOrganizationId>(orgId),
-              org_public_key: organizationKeys.publicKey,
-              master_password: newPassword,
-              master_password_hint: newPasswordHint,
-              salt: salt,
-              organization_sso_identifier: orgSsoIdentifier,
-              user_id: asUuid<SdkUserId>(userId),
-              reset_password_enroll: resetPasswordAutoEnroll,
-              accept_organization_invite: credentials.acceptOrganizationInvite,
-            });
-        }),
-      ),
-    );
+    const result = await this.ssoJitProvisionFinishService.finishPassword({
+      userId,
+      orgId: credentials.orgId,
+      orgSsoIdentifier: credentials.orgSsoIdentifier,
+      newPassword: credentials.newPassword,
+      newPasswordHint: credentials.newPasswordHint,
+      salt: credentials.salt,
+      resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+      acceptOrganizationInvite: credentials.acceptOrganizationInvite,
+      orgPublicKey: organizationKeys.publicKey,
+    });
+    if (result.encryptionVersion !== "V2") {
+      throw new Error("Unexpected V1 SSO JIT provisioning result.");
+    }
+    const registerResult = result.registration;
 
     if (!("V2" in registerResult.account_cryptographic_state)) {
       throw new Error("Unexpected V2 account cryptographic state");
@@ -536,76 +533,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // TODO Remove KDF state https://bitwarden.atlassian.net/browse/PM-30661
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-  }
-
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   *
-   * As part of [PM-28494], adding this setting path to accommodate the changes that are
-   * emerging with pm-23246-unlock-with-master-password-unlock-data.
-   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
-   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
-   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
-   */
-  private async setMasterPasswordUnlockData(
-    password: string,
-    salt: MasterPasswordSalt,
-    kdfConfig: KdfConfig,
-    userKey: UserKey,
-    userId: UserId,
-  ): Promise<void> {
-    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-      password,
-      kdfConfig,
-      salt,
-      userKey,
-    );
-
-    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
-  }
-
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   *
-   * Finishes SSO JIT provisioning for a V1 encryption user through
-   * `sso-jit-provision-finish/password`. Unlike `accounts/set-password`, this endpoint lets the
-   * caller choose whether the organization invite is accepted.
-   */
-  private async postSsoJitProvisionFinishPassword(
-    credentials: SetInitialPasswordCredentials,
-    userKey: UserKey,
-    keysRequest: KeysRequest | null,
-    acceptOrganizationInvite: boolean,
-  ): Promise<void> {
-    assertNonNullish(keysRequest, "keysRequest", "Could not finish SSO JIT provisioning.");
-
-    const { newPassword, kdfConfig, salt, newPasswordHint, orgSsoIdentifier } = credentials;
-
-    const authenticationData: MasterPasswordAuthenticationData =
-      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-        newPassword,
-        kdfConfig,
-        salt,
-      );
-
-    const unlockData: MasterPasswordUnlockData =
-      await this.masterPasswordService.makeMasterPasswordUnlockData(
-        newPassword,
-        kdfConfig,
-        salt,
-        userKey,
-      );
-
-    const request = new SsoJitProvisionFinishPasswordRequest(
-      authenticationData,
-      unlockData,
-      newPasswordHint,
-      orgSsoIdentifier,
-      keysRequest,
-      acceptOrganizationInvite,
-    );
-
-    await this.masterPasswordApiService.postSsoJitProvisionFinishPassword(request);
   }
 
   /**

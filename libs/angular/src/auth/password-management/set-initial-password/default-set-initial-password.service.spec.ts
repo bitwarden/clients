@@ -2,7 +2,7 @@
 import "core-js/proposals/explicit-resource-management";
 
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -22,8 +22,11 @@ import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
-import { SsoJitProvisionFinishPasswordRequest } from "@bitwarden/common/auth/models/request/sso-jit-provision-finish-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import {
+  SsoJitProvisionFinishPasswordData,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -35,8 +38,6 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -53,8 +54,8 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import {
-  AuthClient,
-  BitwardenClient,
+  JitMasterPasswordRegistrationResponse,
+  SignedPublicKey,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
@@ -85,7 +86,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let unlockService: MockProxy<UnlockService>;
-  const registerSdkService = mock<RegisterSdkService>();
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
 
   let userId: UserId;
   let userKey: UserKey;
@@ -106,6 +107,7 @@ describe("DefaultSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     unlockService = mock<UnlockService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
 
     userId = "userId" as UserId;
     userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -125,7 +127,7 @@ describe("DefaultSetInitialPasswordService", () => {
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
@@ -159,6 +161,9 @@ describe("DefaultSetInitialPasswordService", () => {
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
     let setPasswordRequest: SetPasswordRequest;
+
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
 
     let enrollmentRequest: OrganizationUserResetPasswordEnrollmentRequest;
 
@@ -206,10 +211,43 @@ describe("DefaultSetInitialPasswordService", () => {
         credentials.kdfConfig,
       );
 
+      authenticationData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+      unlockData = new MasterPasswordUnlockData(
+        credentials.salt,
+        credentials.kdfConfig,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
       enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
       enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
       enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
     });
+
+    function expectedFinishData(
+      overrides: Partial<SsoJitProvisionFinishPasswordData> = {},
+    ): SsoJitProvisionFinishPasswordData {
+      return {
+        userId,
+        orgId: credentials.orgId,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
+        newPassword: credentials.newPassword,
+        newPasswordHint: credentials.newPasswordHint,
+        salt: credentials.salt,
+        resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+        acceptOrganizationInvite: credentials.acceptOrganizationInvite,
+        v1Keys: {
+          masterPasswordAuthentication: authenticationData,
+          masterPasswordUnlock: unlockData,
+          keys: keysRequest,
+        },
+        ...overrides,
+      };
+    }
 
     interface MockConfig {
       userType: SetInitialPasswordUserType;
@@ -226,6 +264,15 @@ describe("DefaultSetInitialPasswordService", () => {
     };
 
     function setupMocks(config: MockConfig = defaultMockConfig) {
+      // Mock master password data values
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+
+      // Mock SSO JIT provision finish values
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({ encryptionVersion: "V1" });
+
       // Mock makeMasterKeyEncryptedUserKey() values
       if (config.userHasUserKey) {
         keyService.userKey$.mockReturnValue(of(userKey));
@@ -308,18 +355,24 @@ describe("DefaultSetInitialPasswordService", () => {
       describe("given the user has an existing local key pair", () => {
         it("should NOT create a brand new key pair for the user", async () => {
           // Arrange
-          setPasswordRequest.keys = {
-            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
-            publicKey: Utils.fromBufferToB64(existingUserPublicKey),
-          };
-
           setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
 
           // Act
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData({
+              v1Keys: {
+                masterPasswordAuthentication: authenticationData,
+                masterPasswordUnlock: unlockData,
+                keys: {
+                  encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
+                  publicKey: Utils.fromBufferToB64(existingUserPublicKey),
+                },
+              },
+            }),
+          );
           expect(keyService.userPrivateKey$).toHaveBeenCalledWith(userId);
           expect(keyService.userPublicKey$).toHaveBeenCalledWith(userId);
           expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(
@@ -339,7 +392,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
         });
       });
 
@@ -352,7 +407,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
         });
       });
 
@@ -367,7 +424,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
         // Assert
         await expect(promise).rejects.toThrow("keyPair not found. Could not set password.");
-        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
       it("should throw if an encrypted private key is not found", async () => {
@@ -383,7 +440,7 @@ describe("DefaultSetInitialPasswordService", () => {
         await expect(promise).rejects.toThrow(
           "encrypted private key not found. Could not set password.",
         );
-        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
       describe("given the initial password has been successfully set", () => {
@@ -395,7 +452,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
           expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
             ForceSetPasswordReason.None,
             userId,
@@ -410,7 +469,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
           expect(userDecryptionOptionsService.setUserDecryptionOptionsById).toHaveBeenCalledWith(
             userId,
             userDecryptionOptions,
@@ -430,7 +491,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
           ).toHaveBeenCalledWith(
@@ -451,7 +514,9 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData(),
+          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -495,7 +560,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+              expectedFinishData(),
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
@@ -515,7 +582,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await expect(promise).rejects.toThrow(
               "Organization keys response is null. Could not handle reset password auto enroll.",
             );
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+              expectedFinishData(),
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).not.toHaveBeenCalled();
@@ -542,8 +611,8 @@ describe("DefaultSetInitialPasswordService", () => {
                 await expect(promise).rejects.toThrow(
                   "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
                 );
-                expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
-                  setPasswordRequest,
+                expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+                  expectedFinishData(),
                 );
                 expect(
                   organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
@@ -564,7 +633,9 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+              expectedFinishData(),
+            );
             expect(
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).not.toHaveBeenCalled();
@@ -572,54 +643,68 @@ describe("DefaultSetInitialPasswordService", () => {
         });
       });
 
+      it("should finish SSO JIT provisioning through the SSO JIT provision finish service, not the legacy set-password endpoint", async () => {
+        // Arrange
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+        );
+        expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          credentials.newPassword,
+          credentials.kdfConfig,
+          credentials.salt,
+          masterKeyEncryptedUserKey[0],
+        );
+        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+          expectedFinishData(),
+        );
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+      });
+
+      it("should set the same master password unlock data to state that it sent to the server", async () => {
+        // Arrange
+        setupMocks();
+
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledTimes(1);
+        expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+          unlockData,
+          userId,
+        );
+      });
+
+      it("should throw and NOT change local state when the SSO JIT provision finish service returns a V2 result", async () => {
+        // Arrange
+        setupMocks();
+        ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+          encryptionVersion: "V2",
+          registration: {} as JitMasterPasswordRegistrationResponse,
+        });
+
+        // Act
+        const promise = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "Unexpected V2 SSO JIT provisioning result. Could not set password.",
+        );
+        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+      });
+
       describe("given acceptOrganizationInvite", () => {
-        let authenticationData: MasterPasswordAuthenticationData;
-        let unlockData: MasterPasswordUnlockData;
-
-        beforeEach(() => {
-          authenticationData = {
-            salt: credentials.salt,
-            kdf: credentials.kdfConfig,
-            masterPasswordAuthenticationHash:
-              "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
-          };
-          unlockData = new MasterPasswordUnlockData(
-            credentials.salt,
-            credentials.kdfConfig,
-            "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
-          );
-          masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
-            authenticationData,
-          );
-          masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
-        });
-
-        function expectedFinishRequest(acceptOrganizationInvite: boolean) {
-          return new SsoJitProvisionFinishPasswordRequest(
-            authenticationData,
-            unlockData,
-            credentials.newPasswordHint,
-            credentials.orgSsoIdentifier,
-            keysRequest,
-            acceptOrganizationInvite,
-          );
-        }
-
-        it("should use the legacy set-password endpoint when acceptOrganizationInvite is undefined", async () => {
-          // Arrange
-          credentials.acceptOrganizationInvite = undefined;
-          setupMocks();
-
-          // Act
-          await sut.setInitialPassword(credentials, userType, userId);
-
-          // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordApiService.postSsoJitProvisionFinishPassword).not.toHaveBeenCalled();
-        });
-
-        [true, false].forEach((acceptOrganizationInvite) => {
-          it(`should finish SSO JIT provisioning through the new endpoint when acceptOrganizationInvite is ${acceptOrganizationInvite}`, async () => {
+        [undefined, true, false].forEach((acceptOrganizationInvite) => {
+          it(`should pass acceptOrganizationInvite (${acceptOrganizationInvite}) to the SSO JIT provision finish service`, async () => {
             // Arrange
             credentials.acceptOrganizationInvite = acceptOrganizationInvite;
             setupMocks();
@@ -628,28 +713,8 @@ describe("DefaultSetInitialPasswordService", () => {
             await sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
-              credentials.newPassword,
-              credentials.kdfConfig,
-              credentials.salt,
-            );
-            expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-              credentials.newPassword,
-              credentials.kdfConfig,
-              credentials.salt,
-              masterKeyEncryptedUserKey[0],
-            );
-            expect(masterPasswordApiService.postSsoJitProvisionFinishPassword).toHaveBeenCalledWith(
-              expectedFinishRequest(acceptOrganizationInvite),
-            );
-            expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
-            expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
-              ForceSetPasswordReason.None,
-              userId,
-            );
-            expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
-              userId,
-              masterKeyEncryptedUserKey[0],
+            expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+              expectedFinishData({ acceptOrganizationInvite }),
             );
           });
         });
@@ -679,39 +744,21 @@ describe("DefaultSetInitialPasswordService", () => {
           await sut.setInitialPassword(credentials, userType, userId);
 
           // Assert
-          expect(masterPasswordApiService.postSsoJitProvisionFinishPassword).toHaveBeenCalledWith(
-            expectedFinishRequest(false),
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData({ acceptOrganizationInvite: false }),
           );
           expect(
             organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
           ).not.toHaveBeenCalled();
         });
 
-        it("should send the existing local key pair to the new endpoint instead of creating a new key pair", async () => {
-          // Arrange
-          credentials.acceptOrganizationInvite = false;
-          setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
-
-          // Act
-          await sut.setInitialPassword(credentials, userType, userId);
-
-          // Assert
-          const request: SsoJitProvisionFinishPasswordRequest =
-            masterPasswordApiService.postSsoJitProvisionFinishPassword.mock.calls[0][0];
-          expect(request.keys).toEqual({
-            publicKey: Utils.fromBufferToB64(existingUserPublicKey),
-            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
-          });
-          expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
-        });
-
-        it("should NOT change local state or enroll in account recovery when the new endpoint fails", async () => {
+        it("should NOT change local state or enroll in account recovery when the SSO JIT provision finish service fails", async () => {
           // Arrange
           credentials.acceptOrganizationInvite = true;
           credentials.resetPasswordAutoEnroll = true;
           setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
           const error = new Error("request failed");
-          masterPasswordApiService.postSsoJitProvisionFinishPassword.mockRejectedValue(error);
+          ssoJitProvisionFinishService.finishPassword.mockRejectedValue(error);
 
           // Act
           const promise = sut.setInitialPassword(credentials, userType, userId);
@@ -749,7 +796,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordApiService.postSsoJitProvisionFinishPassword).not.toHaveBeenCalled();
+          expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
         });
       });
 
@@ -1068,15 +1115,6 @@ describe("DefaultSetInitialPasswordService", () => {
   });
 
   describe("initializePasswordJitPasswordUserV2Encryption()", () => {
-    let mockSdkRef: {
-      value: MockProxy<BitwardenClient>;
-      [Symbol.dispose]: jest.Mock;
-    };
-    let mockSdk: {
-      take: jest.Mock;
-    };
-    let mockRegistration: jest.Mock;
-
     const userId = "d4e2e3a1-1b5e-4c3b-8d7a-9f8e7d6c5b4a" as UserId;
     const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" as OrganizationId;
 
@@ -1089,16 +1127,11 @@ describe("DefaultSetInitialPasswordService", () => {
       salt: "user@example.com" as unknown as MasterPasswordSalt,
     };
 
-    const orgKeys: OrganizationKeysResponse = {
-      publicKey: "org-public-key-base64",
-      privateKey: "org-private-key-encrypted",
-    } as OrganizationKeysResponse;
-
     const sdkRegistrationResult = {
       account_cryptographic_state: {
         V2: {
           private_key: makeEncString().encryptedString!,
-          signed_public_key: "test-signed-public-key",
+          signed_public_key: "test-signed-public-key" as SignedPublicKey,
           signing_key: makeEncString().encryptedString!,
           security_state: "test-security-state",
         },
@@ -1113,35 +1146,39 @@ describe("DefaultSetInitialPasswordService", () => {
         salt: "user@example.com" as unknown as MasterPasswordSalt,
       },
       user_key: makeSymmetricCryptoKey(64).keyB64,
-    };
+    } as JitMasterPasswordRegistrationResponse;
+
+    const orgKeys = {
+      publicKey: "org-public-key-base64",
+      privateKey: "org-private-key-encrypted",
+    } as OrganizationKeysResponse;
+
+    function expectedFinishData(
+      overrides: Partial<SsoJitProvisionFinishPasswordData> = {},
+    ): SsoJitProvisionFinishPasswordData {
+      return {
+        userId,
+        orgId: credentials.orgId,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
+        newPassword: credentials.newPassword,
+        newPasswordHint: credentials.newPasswordHint,
+        salt: credentials.salt,
+        resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+        acceptOrganizationInvite: credentials.acceptOrganizationInvite,
+        orgPublicKey: orgKeys.publicKey,
+        ...overrides,
+      };
+    }
 
     beforeEach(() => {
       jest.clearAllMocks();
 
-      mockSdkRef = {
-        value: mock<BitwardenClient>(),
-        [Symbol.dispose]: jest.fn(),
-      };
-
-      mockSdkRef.value.auth.mockReturnValue({
-        registration: jest.fn().mockReturnValue({
-          post_keys_for_jit_password_registration: jest.fn(),
-        }),
-      } as unknown as AuthClient);
-
-      mockSdk = {
-        take: jest.fn().mockReturnValue(mockSdkRef),
-      };
-
-      registerSdkService.registerClient$.mockReturnValue(
-        of(mockSdk) as unknown as Observable<Rc<BitwardenClient>>,
-      );
-
       organizationApiService.getKeys.mockResolvedValue(orgKeys);
 
-      mockRegistration = mockSdkRef.value.auth().registration()
-        .post_keys_for_jit_password_registration as unknown as jest.Mock;
-      mockRegistration.mockResolvedValue(sdkRegistrationResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+        encryptionVersion: "V2",
+        registration: sdkRegistrationResult,
+      });
 
       const mockUserDecryptionOpts = new UserDecryptionOptions({ hasMasterPassword: false });
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
@@ -1153,19 +1190,8 @@ describe("DefaultSetInitialPasswordService", () => {
       await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
-
-      expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
-      expect(mockRegistration).toHaveBeenCalledWith(
-        expect.objectContaining({
-          org_id: credentials.orgId,
-          org_public_key: orgKeys.publicKey,
-          master_password: credentials.newPassword,
-          master_password_hint: credentials.newPasswordHint,
-          salt: credentials.salt,
-          organization_sso_identifier: credentials.orgSsoIdentifier,
-          user_id: userId,
-          reset_password_enroll: credentials.resetPasswordAutoEnroll,
-        }),
+      expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+        expectedFinishData(),
       );
 
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
@@ -1201,32 +1227,20 @@ describe("DefaultSetInitialPasswordService", () => {
       );
     });
 
-    describe("accept_organization_invite", () => {
-      it.each([true, false])(
-        "should pass acceptOrganizationInvite (%s) to the SDK as accept_organization_invite",
+    describe("acceptOrganizationInvite", () => {
+      it.each([undefined, true, false])(
+        "should pass acceptOrganizationInvite (%s) to the SSO JIT provision finish service",
         async (acceptOrganizationInvite) => {
           await sut.initializePasswordJitPasswordUserV2Encryption(
             { ...credentials, acceptOrganizationInvite },
             userId,
           );
 
-          expect(mockRegistration).toHaveBeenCalledWith(
-            expect.objectContaining({
-              accept_organization_invite: acceptOrganizationInvite,
-            }),
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expectedFinishData({ acceptOrganizationInvite }),
           );
         },
       );
-
-      it("should pass accept_organization_invite as undefined to the SDK when acceptOrganizationInvite is undefined", async () => {
-        await sut.initializePasswordJitPasswordUserV2Encryption(
-          { ...credentials, acceptOrganizationInvite: undefined },
-          userId,
-        );
-
-        const request = mockRegistration.mock.calls[0][0];
-        expect(request.accept_organization_invite).toBeUndefined();
-      });
 
       it("should leave the account recovery enrollment decision to the SDK when acceptOrganizationInvite is false", async () => {
         await sut.initializePasswordJitPasswordUserV2Encryption(
@@ -1236,11 +1250,8 @@ describe("DefaultSetInitialPasswordService", () => {
 
         // The SDK skips enrollment when accept_organization_invite is false, so the client
         // passes both values unchanged and does not enroll on its own.
-        expect(mockRegistration).toHaveBeenCalledWith(
-          expect.objectContaining({
-            reset_password_enroll: true,
-            accept_organization_invite: false,
-          }),
+        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+          expectedFinishData({ resetPasswordAutoEnroll: true, acceptOrganizationInvite: false }),
         );
         expect(
           organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
@@ -1270,7 +1281,7 @@ describe("DefaultSetInitialPasswordService", () => {
         await expect(promise).rejects.toThrow(`${field} is required.`);
 
         expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
       it("should not throw when the optional acceptOrganizationInvite is undefined", async () => {
@@ -1279,7 +1290,7 @@ describe("DefaultSetInitialPasswordService", () => {
           userId,
         );
 
-        expect(mockRegistration).toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalled();
       });
 
       it("should throw error when userId is null", async () => {
@@ -1288,12 +1299,12 @@ describe("DefaultSetInitialPasswordService", () => {
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, nullUserId);
 
         await expect(promise).rejects.toThrow("User ID is required.");
-        expect(organizationApiService.getKeys).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
     });
 
     describe("organization API error handling", () => {
-      it("should throw when organizationApiService.getKeys returns null", async () => {
+      it("should throw and NOT call the SSO JIT provision finish service when organizationApiService.getKeys returns null", async () => {
         organizationApiService.getKeys.mockResolvedValue(
           null as unknown as OrganizationKeysResponse,
         );
@@ -1301,52 +1312,56 @@ describe("DefaultSetInitialPasswordService", () => {
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
         await expect(promise).rejects.toThrow("Organization keys response is null.");
-        expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
-      it("should throw when organizationApiService.getKeys rejects", async () => {
+      it("should throw and NOT call the SSO JIT provision finish service when organizationApiService.getKeys rejects", async () => {
         const apiError = new Error("API network error");
         organizationApiService.getKeys.mockRejectedValue(apiError);
 
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
-        await expect(promise).rejects.toThrow("API network error");
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        await expect(promise).rejects.toThrow(apiError);
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
     });
 
-    describe("SDK error handling", () => {
-      it("should throw when SDK is not available", async () => {
-        organizationApiService.getKeys.mockResolvedValue(orgKeys);
-        registerSdkService.registerClient$.mockReturnValue(
-          of(null) as unknown as Observable<Rc<BitwardenClient>>,
-        );
+    describe("SSO JIT provision finish error handling", () => {
+      it("should throw and NOT change local state when the SSO JIT provision finish service fails", async () => {
+        const error = new Error("SDK crypto operation failed");
+        ssoJitProvisionFinishService.finishPassword.mockRejectedValue(error);
 
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
-        await expect(promise).rejects.toThrow("SDK not available");
+        await expect(promise).rejects.toThrow(error);
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       });
 
-      it("should throw when SDK registration fails", async () => {
-        const sdkError = new Error("SDK crypto operation failed");
-
-        organizationApiService.getKeys.mockResolvedValue(orgKeys);
-        mockRegistration.mockRejectedValue(sdkError);
+      it("should throw and NOT change local state when the SSO JIT provision finish service returns a V1 result", async () => {
+        ssoJitProvisionFinishService.finishPassword.mockResolvedValue({ encryptionVersion: "V1" });
 
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
-        await expect(promise).rejects.toThrow("SDK crypto operation failed");
+        await expect(promise).rejects.toThrow("Unexpected V1 SSO JIT provisioning result.");
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
       });
     });
 
     it("should throw when account_cryptographic_state is not V2", async () => {
-      const invalidResult = {
-        ...sdkRegistrationResult,
-        account_cryptographic_state: { V1: {} } as unknown as WrappedAccountCryptographicState,
-      };
-
-      mockRegistration.mockResolvedValue(invalidResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+        encryptionVersion: "V2",
+        registration: {
+          ...sdkRegistrationResult,
+          account_cryptographic_state: { V1: {} } as unknown as WrappedAccountCryptographicState,
+        },
+      });
 
       const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
