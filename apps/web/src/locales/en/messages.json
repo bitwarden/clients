@@ -1877,6 +1877,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "clearAll": {
     "message": "Clear all"
   },
@@ -6728,6 +6732,15 @@
       }
     }
   },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
   "createdSharedFolderId": {
     "message": "Created shared folder $ID$.",
     "placeholders": {
@@ -8961,6 +8974,10 @@
     "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Are you sure you want to delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Deletion date"
   },
@@ -9559,6 +9576,12 @@
   },
   "defaultKeyboardShortcutPolicyHint": {
     "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Always ask before filling"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
   },
   "invalidShortcut": {
     "message": "Invalid shortcut"
@@ -13680,6 +13703,28 @@
   "recoverAccount": {
     "message": "Recover account"
   },
+  "recover": {
+    "message": "Recover",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Recover account for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "No actions for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
   },
@@ -16594,9 +16639,16 @@
     "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "generatorNudgeTitle": {
     "message": "Quickly create passwords"
@@ -17411,8 +17463,8 @@
   "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17420,17 +17472,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { RoboFormCsvImporter } from "./roboform-csv-importer";
@@ -11,7 +14,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataNoFolder);
     expect(result != null).toBe(true);
 
@@ -23,7 +26,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data with folders", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataFolder);
     expect(result != null).toBe(true);
 
@@ -32,7 +35,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data totp", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataNoFolder);
     expect(result != null).toBe(true);
 
@@ -40,7 +43,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data custom fields", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataNoFolder);
     expect(result != null).toBe(true);
 
@@ -51,7 +54,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data secure note", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataNoFolder);
     expect(result != null).toBe(true);
     expect(result.ciphers[3].type).toBe(CipherType.SecureNote);
@@ -60,7 +63,7 @@ describe("Roboform CSV Importer", () => {
   });
 
   it("should parse CSV data with folder hierarchy", async () => {
-    const importer = new RoboFormCsvImporter();
+    const importer = new RoboFormCsvImporter(mock<LogService>());
     const result = await importer.parse(dataWithFolderHierarchy);
     expect(result != null).toBe(true);
 
