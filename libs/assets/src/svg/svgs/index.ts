@@ -94,7 +94,6 @@ export * from "./report-breach.icon";
 export * from "./report-exposed-passwords.icon";
 export * from "./report-unsecured-websites.icon";
 export * from "./restricted-view";
-export * from "./secrets-manager-alt";
 export { default as SecretsManagerLogo } from "./secrets-manager";
 export * from "./search-folder";
 export * from "./security";

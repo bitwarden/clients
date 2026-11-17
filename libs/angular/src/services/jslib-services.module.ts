@@ -22,13 +22,11 @@ import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultNewDeviceVerificationComponentService,
-  DefaultRegistrationFinishService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   NewDeviceVerificationComponentService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
@@ -61,6 +59,7 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  LoginCapability,
   SdkCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
@@ -473,6 +472,10 @@ import {
 } from "../auth/password-management/change-password";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import {
+  DefaultRegistrationFinishService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+} from "../auth/registration";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
@@ -840,7 +843,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService, ConfigService],
+    deps: [SdkService, LogService],
   }),
   safeProvider({
     provide: CollectionService,
@@ -1668,6 +1671,28 @@ const safeProviders: SafeProvider[] = [
       unlockService: UnlockService,
     ) => new LockCapability(accountService, authService, lockService, unlockService),
     deps: [AccountServiceAbstraction, AuthServiceAbstraction, LockService, UnlockService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (
+      loginStrategyService: LoginStrategyServiceAbstraction,
+      loginSuccessHandlerService: LoginSuccessHandlerService,
+      router: Router,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+    ) =>
+      new LoginCapability(
+        loginStrategyService,
+        loginSuccessHandlerService,
+        router,
+        platformUtilsService,
+      ),
+    deps: [
+      LoginStrategyServiceAbstraction,
+      LoginSuccessHandlerService,
+      Router,
+      PlatformUtilsServiceAbstraction,
+    ],
     multi: true,
   }),
   safeProvider({

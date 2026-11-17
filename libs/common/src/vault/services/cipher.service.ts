@@ -46,7 +46,7 @@ import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherUpdateRoute } from "../enums/cipher-update-route";
 import { CipherData } from "../models/data/cipher.data";
-import { LocalData } from "../models/data/local.data";
+import { LocalData, toSdkLocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
@@ -59,7 +59,6 @@ import { hydrateCiphersWithLocalData } from "../utils/hydrate-ciphers-with-local
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
-  DECRYPTED_CIPHERS,
   ENCRYPTED_CIPHERS,
   FAILED_DECRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
@@ -152,16 +151,15 @@ export class CipherService implements CipherServiceAbstraction {
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
-    return combineLatest([
+    // `localData` stays out of this stream. It changes on every autofill and would decrypt the
+    // whole vault again, so it is attached to the decrypted views below instead.
+    const decrypted$ = combineLatest([
       this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
       this.keyService.cipherDecryptionKeys$(userId, true),
     ]).pipe(
-      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-      map(([cipherDataState, localData]) =>
-        Object.values(cipherDataState).map(
-          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-        ),
+      filter(([cipherDataState, keys]) => cipherDataState != null && keys != null),
+      map(([cipherDataState]) =>
+        Object.values(cipherDataState).map((cipherData) => new Cipher(cipherData)),
       ),
       tap(() => {
         decryptMeasurement = this.logService.startMeasurement(
@@ -180,6 +178,12 @@ export class CipherService implements CipherServiceAbstraction {
       }),
       map(([decrypted]) => decrypted),
     );
+
+    // Emits on `localData` changes too, so the popup and `FillCipherPolicy.changed$` see the
+    // last-used ordering without a new decrypt.
+    return combineLatest([decrypted$, this.localData$(userId)]).pipe(
+      map(([views, localData]) => this.attachLocalData(views, localData)),
+    );
   }, this.clearCipherViewsForUser$);
 
   /**
@@ -197,6 +201,17 @@ export class CipherService implements CipherServiceAbstraction {
       map((views) => this.excludeRestricted(views)),
     );
   }, this.clearCipherViewsForUser$);
+
+  /** Re-attaches the client-only `localData` the SDK can't know about, without decrypting again. */
+  private attachLocalData(
+    views: CipherListView[],
+    localData: Record<CipherId, LocalData>,
+  ): CipherListView[] {
+    return views.map((view) => {
+      const data = view.id == null ? null : localData[uuidAsString(view.id) as CipherId];
+      return data == null ? view : { ...view, localData: toSdkLocalData(data) };
+    });
+  }
 
   /** Overloaded so a caller's array type is kept rather than widened to an array of the union. */
   private excludeRestricted(views: CipherView[] | null): CipherView[] | null;
@@ -229,15 +244,6 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }, this.clearCipherViewsForUser$);
 
-  async setDecryptedCipherCache(value: CipherView[], userId: UserId) {
-    // Sometimes we might prematurely decrypt the vault and that will result in no ciphers
-    // if we cache it then we may accidentally return it when it's not right, we'd rather try decryption again.
-    // We still want to set null though, that is the indicator that the cache isn't valid and we should do decryption.
-    if (value == null || value.length !== 0) {
-      await this.setDecryptedCiphers(value, userId);
-    }
-  }
-
   async setFailedDecryptedCiphers(cipherViews: CipherView[], userId: UserId) {
     await this.stateProvider.setUserState(FAILED_DECRYPTED_CIPHERS, cipherViews, userId);
   }
@@ -261,27 +267,15 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }
 
-  private async setDecryptedCiphers(value: CipherView[], userId: UserId) {
-    const measurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      PERF_TRACK,
-      "setDecryptedCiphers",
-    );
-    const cipherViews: { [id: string]: CipherView } = {};
-    value?.forEach((c) => {
-      cipherViews[c.id] = c;
-    });
-    await this.stateProvider.setUserState(DECRYPTED_CIPHERS, cipherViews, userId);
-    measurement.finish([["Items", value?.length ?? 0]]);
-  }
-
   async clearCache(userId?: UserId): Promise<void> {
     const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
     userId ??= activeUserId;
-    await this.clearDecryptedCiphersState(userId);
 
-    // Force the cached cipherView$ observable(s) to emit a null value
+    // Force the cached cipherView$ observable(s) to emit a null value. Before the state write
+    // below: a decrypt that finishes while it runs must not be overwritten by the null after,
+    // which would leave the views null until the ciphers change again.
     this.clearCipherViewsForUser$.next(userId);
+    await this.clearDecryptedCiphersState(userId);
   }
 
   /**
@@ -358,19 +352,15 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Like {@link getAllDecrypted} but keeps restricted ciphers, and fills the decrypted-cipher cache.
+   * Like {@link getAllDecrypted} but keeps restricted ciphers. Decrypts on every call: the decrypted
+   * vault is not cached in state, which would keep every password decrypted for as long as the
+   * vault is unlocked (in the extension, in session storage too).
    * Everything except {@link cipherViewsIncludingRestricted$} must go through {@link getAllDecrypted}.
    */
   private async getAllDecryptedIncludingRestricted(userId: UserId): Promise<CipherView[]> {
-    const decCiphers = await this.getDecryptedCiphers(userId);
-    if (decCiphers != null && decCiphers.length !== 0) {
-      return decCiphers;
-    }
-
     // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
     // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
     // sees it, matching the legacy and list-view decryption paths.
-    // (Note, the cached views above are already hydrated)
     let localData: Record<CipherId, LocalData> | undefined;
 
     // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience
@@ -398,7 +388,6 @@ export class CipherService implements CipherServiceAbstraction {
         this.getLocaleSortingFunction(),
       );
 
-      await this.setDecryptedCipherCache(sortedSuccesses, userId);
       await this.setFailedDecryptedCiphers(result.failures, userId);
 
       return sortedSuccesses;
@@ -426,12 +415,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     return result;
-  }
-
-  private async getDecryptedCiphers(userId: UserId) {
-    return Object.values(
-      await firstValueFrom(this.decryptedCiphersState(userId).state$.pipe(map((c) => c ?? {}))),
-    );
   }
 
   /**
@@ -476,25 +459,77 @@ export class CipherService implements CipherServiceAbstraction {
     defaultMatch: UriMatchStrategySetting = null,
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]> {
-    return await firstValueFrom(
-      this.cipherViews$(userId).pipe(
-        filter((c) => c != null),
-        switchMap(
-          async (ciphers) =>
-            await this.filterCiphersForUrl<CipherView>(
-              ciphers,
-              url,
-              includeOtherTypes,
-              defaultMatch,
-              overrideNeverMatchStrategy,
-            ),
-        ),
-      ),
+    // Matches on list views, then fully decrypts the matches only: callers such as the badge
+    // count run on every tab change, and a full decrypt of the vault would keep every password
+    // decrypted in memory.
+    const listViews = await this.loadedListViews(userId);
+    const matches = await this.filterCiphersForUrl(
+      listViews,
+      url,
+      includeOtherTypes,
+      defaultMatch,
+      overrideNeverMatchStrategy,
+    );
+
+    return this.decryptIds(
+      userId,
+      matches.filter((view) => view.id != null).map((view) => uuidAsString(view.id!)),
     );
   }
 
   async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
-    return this.decryptedForIds(this.cipherViews$(userId), ids);
+    await this.loadedListViews(userId);
+    return this.decryptIds(userId, ids);
+  }
+
+  /**
+   * List views once decrypted, which also means the encrypted ciphers and keys are loaded.
+   * Excludes restricted ciphers, like {@link cipherListViews$}.
+   */
+  private async loadedListViews(userId: UserId): Promise<CipherListView[]> {
+    const views = await firstValueFrom(
+      this.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
+    );
+    return views.filter((view) => !CipherViewLikeUtils.isRestricted(view));
+  }
+
+  /**
+   * Full views of the ciphers `ids`, in that order, decrypted on demand from the encrypted
+   * state. Excludes restricted ciphers, like {@link cipherViews$}.
+   */
+  private async decryptIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const [encrypted, localData] = await Promise.all([
+      firstValueFrom(this.ciphers$(userId)),
+      firstValueFrom(this.localData$(userId)),
+    ]);
+
+    const ciphers: Cipher[] = [];
+    for (const id of ids) {
+      const data = encrypted[id as CipherId];
+      if (data == null) {
+        continue;
+      }
+
+      ciphers.push(new Cipher(data, localData[id as CipherId]));
+    }
+
+    const decryptable = await this.excludeCiphersMissingOrgKey(ciphers, userId);
+    const [successes, failures] = await this.cipherEncryptionService.decryptManyLegacy(
+      decryptable,
+      userId,
+    );
+    if (failures.length > 0) {
+      this.logService.warning(`Failed to decrypt ${failures.length} requested ciphers.`);
+    }
+    const views = new Map(
+      hydrateCiphersWithLocalData(successes, localData).map((view) => [view.id, view]),
+    );
+
+    return this.excludeRestricted(ids.map((id) => views.get(id)).filter((view) => view != null));
   }
 
   /** @inheritdoc */
@@ -575,12 +610,19 @@ export class CipherService implements CipherServiceAbstraction {
     type: CipherType[],
     userId: UserId,
   ): Promise<CipherView[]> {
-    const ciphers = await this.getAllDecrypted(userId);
-    return ciphers
-      .filter(
-        (cipher) => cipher.deletedDate == null && !cipher.isArchived && type.includes(cipher.type),
-      )
-      .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
+    // Picks the type on list views, so only ciphers of that type are fully decrypted.
+    const listViews = (await this.loadedListViews(userId)).filter(
+      (cipher) =>
+        !CipherViewLikeUtils.isDeleted(cipher) &&
+        !CipherViewLikeUtils.isArchived(cipher) &&
+        type.includes(CipherViewLikeUtils.getType(cipher)),
+    );
+
+    const ciphers = await this.decryptIds(
+      userId,
+      listViews.filter((view) => view.id != null).map((view) => uuidAsString(view.id!)),
+    );
+    return ciphers.sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
 
   async getAllFromApiForOrganization(
@@ -736,20 +778,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.localDataState(userId).update(() => ciphersLocalData);
-
-    const decryptedCipherCache = await this.getDecryptedCiphers(userId);
-    if (!decryptedCipherCache) {
-      return;
-    }
-
-    for (let i = 0; i < decryptedCipherCache.length; i++) {
-      const cached = decryptedCipherCache[i];
-      if (cached.id === id) {
-        cached.localData = ciphersLocalData[id as CipherId];
-        break;
-      }
-    }
-    await this.setDecryptedCiphers(decryptedCipherCache, userId);
   }
 
   async updateLastLaunchedDate(id: string, userId: UserId): Promise<void> {
@@ -763,20 +791,6 @@ export class CipherService implements CipherServiceAbstraction {
     ciphersLocalData[id as CipherId] = { lastLaunched: currentTime, lastUsedDate: currentTime };
 
     await this.localDataState(userId).update(() => ciphersLocalData);
-
-    const decryptedCipherCache = await this.getDecryptedCiphers(userId);
-    if (!decryptedCipherCache) {
-      return;
-    }
-
-    for (let i = 0; i < decryptedCipherCache.length; i++) {
-      const cached = decryptedCipherCache[i];
-      if (cached.id === id) {
-        cached.localData = ciphersLocalData[id as CipherId];
-        break;
-      }
-    }
-    await this.setDecryptedCiphers(decryptedCipherCache, userId);
   }
 
   async saveNeverDomain(domain: string): Promise<void> {
@@ -1540,13 +1554,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * @returns a SingleUserState for the decrypted ciphers
-   */
-  private decryptedCiphersState(userId: UserId) {
-    return this.stateProvider.getUser(userId, DECRYPTED_CIPHERS);
-  }
-
-  /**
    * @returns a SingleUserState for the add/edit cipher info
    */
   private addEditCipherInfoState(userId: UserId) {
@@ -1719,7 +1726,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async clearDecryptedCiphersState(userId: UserId) {
-    await this.setDecryptedCiphers(null, userId);
     await this.setFailedDecryptedCiphers(null, userId);
     this.clearSortedCiphers();
   }

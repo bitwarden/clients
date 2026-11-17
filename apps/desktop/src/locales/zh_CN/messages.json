@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "桌面 App",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "桌面 App $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1236,7 +1237,7 @@
     "message": "此项目受到限制。您的更改未被保存。"
   },
   "controlledAccess": {
-    "message": "受控访问"
+    "message": "受控的访问权限"
   },
   "overwritePasswordConfirmation": {
     "message": "确定要覆盖当前密码吗？"
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 个项目",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "全部"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "已禁用"
   },
+  "removeAuth": {
+    "message": "移除密码或电子邮箱验证"
+  },
+  "removedAuth": {
+    "message": "密码或电子邮箱验证已移除"
+  },
+  "removeAuthConfirmation": {
+    "message": "确定要从此 Send 中移除密码或电子邮箱验证要求吗？"
+  },
   "removePassword": {
     "message": "移除密码"
+  },
+  "removeEmailVerification": {
+    "message": "移除电子邮箱验证"
   },
   "removedPassword": {
     "message": "密码已移除"
   },
-  "removePasswordConfirmation": {
-    "message": "确定要移除此密码吗？"
+  "removedEmailVerification": {
+    "message": "电子邮箱验证已移除"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "确定要从此 Send 中移除密码要求吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "确定要从此 Send 中移除电子邮箱验证要求吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "已达最大访问次数"
@@ -5630,10 +5655,10 @@
     "message": "发生错误。请检查您的凭据，然后重试。"
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "仅支持使用密码登录。"
+    "message": "仅支持带密码的登录。"
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "仅支持使用密码登录。请重试或使用其他导入方式。"
+    "message": "仅支持带密码的登录。请重试或使用其他导入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
@@ -6587,7 +6612,7 @@
     "message": "输入快捷键"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "包含一个或两个以下修饰键：Ctrl、Alt、Win，以及一个字母键。"
+    "message": "包含以下修饰键中的一个或两个：Ctrl、Alt、Win，以及一个字母键。"
   },
   "invalidShortcut": {
     "message": "无效的快捷键"
@@ -7352,8 +7377,8 @@
   "makeACopy": {
     "message": "创建副本"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "您不能将属于多个集合的项目导入到「我的项目」"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "您不能将属于多个集合的项目导入「我的项目」"
   },
   "driversLicenseDetails": {
     "message": "驾驶证详细信息"

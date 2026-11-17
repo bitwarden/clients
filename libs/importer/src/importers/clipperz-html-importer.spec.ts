@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType } from "@bitwarden/common/vault/enums";
 
 import { ClipperzHtmlImporter } from "./clipperz-html-importer";
@@ -22,7 +25,7 @@ describe("ClipperzHtmlImporter", () => {
   let importer: ClipperzHtmlImporter;
 
   beforeEach(() => {
-    importer = new ClipperzHtmlImporter();
+    importer = new ClipperzHtmlImporter(mock<LogService>());
   });
 
   it("imports an export whose XHTML DOCTYPE carries a PUBLIC identifier", async () => {

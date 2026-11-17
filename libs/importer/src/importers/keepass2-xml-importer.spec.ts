@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -12,13 +15,13 @@ import {
 
 describe("KeePass2 Xml Importer", () => {
   it("should parse XML data", async () => {
-    const importer = new KeePass2XmlImporter();
+    const importer = new KeePass2XmlImporter(mock<LogService>());
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
   });
 
   it("parse XML should contains folders", async () => {
-    const importer = new KeePass2XmlImporter();
+    const importer = new KeePass2XmlImporter(mock<LogService>());
     const folder = new FolderView();
     folder.name = "Folder2";
     const actual = [folder];
@@ -28,7 +31,7 @@ describe("KeePass2 Xml Importer", () => {
   });
 
   it("parse XML should contains login details", async () => {
-    const importer = new KeePass2XmlImporter();
+    const importer = new KeePass2XmlImporter(mock<LogService>());
     const result = await importer.parse(TestData);
     expect(result.ciphers[0].login.uri != null).toBe(true);
     expect(result.ciphers[0].login.username != null).toBe(true);
@@ -36,20 +39,20 @@ describe("KeePass2 Xml Importer", () => {
   });
 
   it("should return error with missing root tag", async () => {
-    const importer = new KeePass2XmlImporter();
+    const importer = new KeePass2XmlImporter(mock<LogService>());
     const result = await importer.parse(TestData1);
     expect(result.errorMessage).toBe("Missing `KeePassFile > Root` node.");
   });
 
   it("should return error with missing KeePassFile tag", async () => {
-    const importer = new KeePass2XmlImporter();
+    const importer = new KeePass2XmlImporter(mock<LogService>());
     const result = await importer.parse(TestData2);
     expect(result.success).toBe(false);
   });
 
   describe("protected fields handling", () => {
     it("should import protected custom fields as hidden fields", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataWithProtectedFields);
 
       expect(result.success).toBe(true);
@@ -75,7 +78,7 @@ describe("KeePass2 Xml Importer", () => {
     });
 
     it("should import long protected fields as hidden fields (not appended to notes)", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataWithProtectedFields);
 
       const cipher = result.ciphers[0];
@@ -91,7 +94,7 @@ describe("KeePass2 Xml Importer", () => {
     });
 
     it("should import multiline protected fields as hidden fields (not appended to notes)", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataWithProtectedFields);
 
       const cipher = result.ciphers[0];
@@ -107,7 +110,7 @@ describe("KeePass2 Xml Importer", () => {
     });
 
     it("should not append protected custom fields to notes", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataWithProtectedFields);
 
       const cipher = result.ciphers[0];
@@ -118,7 +121,7 @@ describe("KeePass2 Xml Importer", () => {
 
   describe("duplicate String keys", () => {
     it("preserves displaced Password values as hidden fields", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataDuplicateKeys);
 
       const cipher = result.ciphers[0];
@@ -131,7 +134,7 @@ describe("KeePass2 Xml Importer", () => {
     });
 
     it("preserves displaced UserName, Title and otp values as custom fields", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataDuplicateKeys);
 
       const cipher = result.ciphers[0];
@@ -149,7 +152,7 @@ describe("KeePass2 Xml Importer", () => {
     });
 
     it("appends duplicate URL keys to the uri list", async () => {
-      const importer = new KeePass2XmlImporter();
+      const importer = new KeePass2XmlImporter(mock<LogService>());
       const result = await importer.parse(TestDataDuplicateKeys);
 
       const uris = result.ciphers[0].login.uris;

@@ -136,16 +136,15 @@ export class VaultPopupItemsService {
       map((a) => a?.id),
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
-        merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+        this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(
+          filter((ciphers) => ciphers != null),
           debounceTime(0),
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
-          switchMap(() =>
+          switchMap((ciphers) =>
             combineLatest([
-              this.cipherService
-                .cipherListViewsIncludingRestricted$(userId)
-                .pipe(filter((ciphers) => ciphers != null)),
+              of(ciphers),
               this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
               this.restrictedItemTypesService.restricted$,
             ]),

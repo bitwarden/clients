@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SecretService, SecretVersionService, SecretVersionView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -31,10 +32,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-
-import { SecretVersionView } from "../../models/view/secret-version.view";
-import { SecretVersionService } from "../secret-version.service";
-import { SecretService } from "../secret.service";
 
 export interface SecretVersionDialogParams {
   organizationId: string;

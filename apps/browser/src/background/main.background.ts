@@ -424,6 +424,7 @@ import {
   isNotificationsSupported,
 } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
+import { ListViewsAnnouncerService } from "../vault/background/list-views-announcer.service";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
 import CommandsBackground from "./commands.background";
@@ -1043,7 +1044,6 @@ export default class MainBackground {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1438,6 +1438,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1587,6 +1588,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
     const logoutService = new DefaultLogoutService(
@@ -2416,6 +2418,11 @@ export default class MainBackground {
     await this.autofillBadgeUpdaterService.init();
     await this.clipboardNotificationBadgeUpdaterService.init();
     await this.atRiskCipherUpdaterService.init();
+    new ListViewsAnnouncerService(
+      this.accountService,
+      this.cipherService,
+      this.messagingService,
+    ).init();
   }
 
   generatePasswordToClipboard = () => {

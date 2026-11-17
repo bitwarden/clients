@@ -17,11 +17,36 @@ import { AvatarColor, AvatarDefaultColors, getAvatarDefaultColor } from "./avata
 export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
 const sizeClasses: Record<AvatarSize, string[]> = {
-  "2xl": ["tw-size-16", "tw-min-w-16"],
-  xl: ["tw-size-14", "tw-min-w-14"],
-  lg: ["tw-size-11", "tw-min-w-11"],
-  base: ["tw-size-8", "tw-min-w-8"],
-  sm: ["tw-size-6", "tw-min-w-6"],
+  "2xl": [
+    "tw-size-16",
+    "tw-min-w-16",
+    "[--avatar-status-r:0.5rem]",
+    "[--avatar-status-cutout:0.625rem]",
+  ],
+  xl: [
+    "tw-size-14",
+    "tw-min-w-14",
+    "[--avatar-status-r:0.375rem]",
+    "[--avatar-status-cutout:0.5rem]",
+  ],
+  lg: [
+    "tw-size-11",
+    "tw-min-w-11",
+    "[--avatar-status-r:0.3125rem]",
+    "[--avatar-status-cutout:0.4375rem]",
+  ],
+  base: [
+    "tw-size-8",
+    "tw-min-w-8",
+    "[--avatar-status-r:0.25rem]",
+    "[--avatar-status-cutout:0.3125rem]",
+  ],
+  sm: [
+    "tw-size-6",
+    "tw-min-w-6",
+    "[--avatar-status-r:0.1875rem]",
+    "[--avatar-status-cutout:0.25rem]",
+  ],
 };
 
 /**
@@ -76,7 +101,7 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-inline-block tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover] [&.tw-test-focus-visible_svg]:tw-bg-[--avatar-bg-hover]",
+      "tw-relative tw-inline-block tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover] [&.tw-test-focus-visible_svg]:tw-bg-[--avatar-bg-hover]",
     "[class]": "sizeClass()",
     "[style.--avatar-bg]": "avatarColors().bg",
     "[style.--avatar-bg-hover]": "avatarColors().bgHover",

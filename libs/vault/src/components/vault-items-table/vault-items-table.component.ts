@@ -91,8 +91,9 @@ import {
   VaultItemFilterOption,
 } from "../../tokens/vault-item-filter.token";
 import { isRowActivationClick } from "../../utils/row-activation";
-import { sharedFolderName } from "../../utils/shared-folder-name";
+import { sharedFolderDisplayName, sharedFolderName } from "../../utils/shared-folder-name";
 import {
+  folderValues,
   idString,
   matchesFavorite,
   matchesFolder,
@@ -102,6 +103,7 @@ import {
   matchesVault,
   MY_VAULT,
   NO_FOLDER,
+  sharedFolderValues,
 } from "../../utils/vault-filter-predicates";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
@@ -597,12 +599,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
-  /** Each collection's own name, without its parent path — see {@link sharedFolderName}. */
+  /** Each shared folder's display name — see {@link sharedFolderLabel}. */
   private readonly collectionNames = computed(() =>
     this.nameMap(
       this.collections().map((collection) => ({
         id: collection.id,
-        name: sharedFolderName(collection),
+        name: this.sharedFolderLabel(collection),
       })),
     ),
   );
@@ -1072,9 +1074,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Row IDs each option admits, from one live `matches$` call per row list. A change keeps the old
    * map until the new one lands, so the table stays filtered meanwhile. A failed read lets every
    * row pass: an error reaching the signal would rethrow inside `bit-table-v2`'s filter.
-   *
-   * PAM's implementation reads one access state per restricted row. A batch `cipher_access_state`
-   * in the SDK would make that one call per list.
    */
   private readonly contributedMatches: Signal<
     ReadonlyMap<string, ReadonlySet<CipherId>> | undefined
@@ -1109,27 +1108,40 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    *
    * The search term is the one filter it doesn't read off `values`: `SearchService` is
    * asynchronous and set-based, so the term is resolved to a set of matching ids out of band by
-   * {@link cipherSearchMatches} and consulted here. Reading that signal is what makes the table
-   * re-filter when a search resolves.
+   * {@link cipherSearchMatches} and consulted here. A new predicate when a search resolves is
+   * what makes the table re-filter.
    *
-   * Declared as a field arrow function so its reference stays stable across change detection.
+   * The signals are read once here, not inside the predicate: the table calls the predicate for
+   * every row on each filter change, and a signal read costs more than the test it feeds.
    */
-  protected readonly filter = (cipher: C, values: VaultItemsTableFilters): boolean =>
-    this.matchesSearch(cipher) &&
-    matchesType(cipher, values.type) &&
-    matchesFavorite(cipher, values.favorites) &&
-    matchesVault(cipher, values.vault) &&
-    matchesMyItems(cipher, values.myItems, this.defaultCollectionId()) &&
-    matchesSharedFolder(cipher, values.sharedFolder) &&
-    matchesFolder(cipher, values.folder) &&
-    this.matchesContributed(cipher, values);
+  protected readonly filter = computed(() => {
+    const searchMatches = this.searchMatches();
+    const myItemsCollectionId = this.defaultCollectionId();
+    return (cipher: C, values: VaultItemsTableFilters): boolean =>
+      this.matchesSearch(cipher, searchMatches) &&
+      matchesType(cipher, values.type) &&
+      matchesFavorite(cipher, values.favorites) &&
+      matchesVault(cipher, values.vault) &&
+      matchesMyItems(cipher, values.myItems, myItemsCollectionId) &&
+      matchesSharedFolder(cipher, values.sharedFolder) &&
+      matchesFolder(cipher, values.folder) &&
+      this.matchesContributed(cipher, values);
+  });
+
+  /**
+   * The chips whose options `bit-table-v2` counts in one pass. Each entry must agree with the
+   * chip's matcher in {@link filter}.
+   */
+  protected readonly optionValues = {
+    [VAULT_FILTER_KEYS.sharedFolder]: sharedFolderValues,
+    [VAULT_FILTER_KEYS.folder]: folderValues,
+  };
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
    * searchable term is active, so every row passes — see {@link cipherSearchMatches}.
    */
-  private matchesSearch(cipher: C): boolean {
-    const matches = this.searchMatches();
+  private matchesSearch(cipher: C, matches: ReadonlySet<string> | undefined): boolean {
     return matches === undefined || matches.has(String(cipher.id));
   }
 
@@ -1271,6 +1283,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
+   * A shared folder's display name (see {@link sharedFolderDisplayName}) without its parent path
+   * (see {@link sharedFolderName}).
+   */
+  private sharedFolderLabel(collection: CollectionView): string {
+    return sharedFolderName({ name: sharedFolderDisplayName(collection, this.i18nService) });
+  }
+
+  /**
    * Builds the shared folder tree via {@link getNestedCollectionTree}, the same name-delimited
    * nesting used for the collections sidebar — so a collection whose parent path is missing
    * (or belongs to a different organization) nests and sorts identically here and there, rather
@@ -1288,7 +1308,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ): FilterOptionNode<CollectionId>[] {
     const toNode = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
       value: node.node.id,
-      label: sharedFolderName(node.node),
+      label: this.sharedFolderLabel(node.node),
       options: node.children.map(toNode),
     });
     return getNestedCollectionTree([...sharedFolders])
