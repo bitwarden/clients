@@ -97,6 +97,11 @@ type GroupColumn = ColumnName<GroupRow, "actions">;
 
 const SORTABLE_COLUMNS: readonly GroupColumn[] = ["details", "collectionChips"];
 
+function sameCollections(a: readonly string[], b: readonly string[] | undefined): boolean {
+  const other = b ?? [];
+  return a.length === other.length && a.every((id) => other.includes(id));
+}
+
 function isSortableColumn(value: string | undefined): value is GroupColumn {
   return SORTABLE_COLUMNS.some((column) => column === value);
 }
@@ -174,10 +179,13 @@ export class GroupsV2Component {
     ),
   );
 
-  protected readonly initialFilters = computed<Partial<GroupFilters>>(() => ({
-    search: this.route.snapshot.queryParams.search ?? "",
-    collections: this.storedTableState()?.collections,
-  }));
+  protected readonly initialFilters = computed<Partial<GroupFilters>>(() => {
+    const collections = this.storedTableState()?.collections;
+    return {
+      search: this.route.snapshot.queryParams.search ?? "",
+      ...(collections != null && { collections }),
+    };
+  });
 
   protected readonly sort = signal<SortState<GroupColumn>>({ direction: "asc" });
 
@@ -258,6 +266,8 @@ export class GroupsV2Component {
 
   private readonly sortRestored = signal(false);
 
+  private readonly filterRestored = signal(false);
+
   constructor() {
     effect(() => {
       this.rows.set(this.fetchedRows() ?? []);
@@ -304,7 +314,15 @@ export class GroupsV2Component {
     effect(() => {
       const collections = this.tableRef()?.filterValues()?.collections;
       const organizationId = this.organizationId();
-      if (collections == null || organizationId == null || !this.sortRestored()) {
+      const stored = this.storedTableState();
+      if (collections == null || organizationId == null || stored == null) {
+        return;
+      }
+      if (!this.filterRestored()) {
+        if (!sameCollections(collections, stored.collections)) {
+          return;
+        }
+        this.filterRestored.set(true);
         return;
       }
       void this.tableState.update(organizationId, { collections: [...collections] });

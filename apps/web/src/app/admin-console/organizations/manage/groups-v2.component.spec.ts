@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -21,6 +21,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import { GroupAddEditDialogResultType } from "./group-add-edit";
+import { GroupsTableState, GroupsV2TableStateService } from "./groups-v2-table-state.service";
 import { GroupsV2Component } from "./groups-v2.component";
 
 describe("GroupsV2Component", () => {
@@ -38,6 +39,10 @@ describe("GroupsV2Component", () => {
   let mockLogService: MockProxy<LogService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockAccountService: FakeAccountService;
+
+  /** The stored view a test wants restored; swap before `createComponent()`. */
+  let storedState$: Observable<GroupsTableState>;
+  let mockTableStateService: MockProxy<GroupsV2TableStateService>;
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
@@ -97,6 +102,12 @@ describe("GroupsV2Component", () => {
 
     mockAccountService = mockAccountServiceWith(userId);
 
+    storedState$ = of({});
+    mockTableStateService = mock<GroupsV2TableStateService>();
+    // Read lazily so a test can swap `storedState$` after this setup runs.
+    mockTableStateService.state$.mockImplementation(() => storedState$);
+    mockTableStateService.update.mockResolvedValue(undefined);
+
     await TestBed.configureTestingModule({
       imports: [GroupsV2Component],
       schemas: [NO_ERRORS_SCHEMA],
@@ -112,6 +123,7 @@ describe("GroupsV2Component", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: GroupsV2TableStateService, useValue: mockTableStateService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -149,6 +161,60 @@ describe("GroupsV2Component", () => {
     fixture.detectChanges();
     await fixture.whenStable();
   }
+
+  describe("restoring the stored table view", () => {
+    /**
+     * The stored state loads asynchronously, so the component renders at least once before it
+     * arrives. `initialFilters` must not claim the `collections` key during that window: the
+     * table seeds each chip the first time its key is present, so an eagerly-included
+     * `undefined` would seed the chip empty and block the stored value forever.
+     */
+    it("omits the collections key until the stored state loads", async () => {
+      const stored = new Subject<GroupsTableState>();
+      storedState$ = stored;
+      createComponent();
+      await detectAndFlush();
+
+      expect("collections" in (component as any).initialFilters()).toBe(false);
+
+      stored.next({ collections: ["col-eng"] });
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().collections).toEqual(["col-eng"]);
+    });
+
+    it("seeds the collections filter from the stored state", async () => {
+      storedState$ = of({ collections: ["col-eng"] });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().collections).toEqual(["col-eng"]);
+    });
+
+    it("leaves the collections key off when nothing is stored", async () => {
+      storedState$ = of({});
+      createComponent();
+      await detectAndFlush();
+
+      expect("collections" in (component as any).initialFilters()).toBe(false);
+    });
+
+    it("restores the stored sort", async () => {
+      storedState$ = of({ sortColumn: "details", sortDirection: "desc" as const });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).sort()).toEqual({ column: "details", direction: "desc" });
+    });
+
+    it("ignores a stored sort column that no longer exists", async () => {
+      storedState$ = of({ sortColumn: "removedColumn", sortDirection: "desc" as const });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).sort().column).toBeUndefined();
+    });
+  });
 
   describe("filterGroups", () => {
     const group = makeGroup({
