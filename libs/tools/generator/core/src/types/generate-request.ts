@@ -10,6 +10,12 @@ export type GenerateRequest = RequireExactlyOne<
 > & {
   profile?: GeneratorProfile;
 
+  /** Settings that replace parts of the profile's stored settings. They apply only when
+   *  the request resolves to `algorithm`; a `type` request resolves to the user's
+   *  preferred algorithm. Policy still applies.
+   */
+  settings?: { algorithm: CredentialAlgorithm; values: object };
+
   /** Traces the origin of the generation request. This parameter is
    *  copied to the generated credential.
    *

@@ -14,6 +14,7 @@ export * from "./passphrase-generation-options";
 export * from "./passphrase-generator-policy";
 export * from "./password-generation-options";
 export * from "./password-generator-policy";
+export * from "./site-password-settings";
 export * from "./policy-configuration";
 export * from "./subaddress-generator-options";
 export * from "./word-options";

@@ -26,6 +26,7 @@ import { anyComplete, memoizedMap } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 
 import { CredentialGeneratorService } from "../abstractions";
+import { fromPasswordRequest } from "../engine/sdk-password-randomizer";
 import {
   CredentialAlgorithm,
   Profile,
@@ -36,6 +37,7 @@ import {
   CredentialType,
   AlgorithmMetadata,
 } from "../metadata";
+import { constrain } from "../policies/constrain";
 import { CredentialGeneratorProviders } from "../providers";
 import { GenerateRequest } from "../types";
 import { isAlgorithmRequest, isTypeRequest } from "../types/metadata-request";
@@ -128,14 +130,39 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
       ),
     );
 
+    // settings sent with a request replace parts of the stored settings, but only for the
+    // algorithm they name; policy still applies
+    const requestSettings$ = zip([request$, metadata$, settings$]).pipe(
+      concatMap(([{ settings: override, profile }, metadata, settings]) =>
+        override?.algorithm === metadata.id
+          ? this.policy$(metadata, { account$ }, profile).pipe(
+              first(),
+              map(
+                (constraints) => constrain(constraints, { ...settings, ...override.values }).state,
+              ),
+            )
+          : of(settings),
+      ),
+    );
+
     // generation proper
-    const generate$ = zip([request$, settings$, engine$]).pipe(
+    const generate$ = zip([request$, engine$, requestSettings$]).pipe(
       tap(([request]) => this.log.debug(request, "generating credential")),
-      concatMap(([request, settings, engine]) => engine.generate(request, settings)),
+      concatMap(([request, engine, settings]) => engine.generate(request, settings)),
       takeUntil(anyComplete([settings$])),
     );
 
     return generate$;
+  }
+
+  async passwordRules(rules: string) {
+    try {
+      const client = await this.provide.generator.sdk();
+      return fromPasswordRequest(client.generator().password_rules(rules));
+    } catch (error: unknown) {
+      this.log.error({ rules, error: String(error) }, "password rules rejected");
+      return null;
+    }
   }
 
   algorithms$(type: CredentialType, dependencies: BoundDependency<"account", Account>) {

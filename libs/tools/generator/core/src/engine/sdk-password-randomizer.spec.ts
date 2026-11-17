@@ -134,6 +134,41 @@ describe("SdkPasswordRandomizer", () => {
       });
     });
 
+    it("passes a website's custom characters and max-consecutive through to the SDK", async () => {
+      const { client, generator } = createMockClient();
+      generator.password.mockReturnValue("generated-password");
+
+      const settings: PasswordGenerationOptions = {
+        length: 16,
+        ambiguous: true,
+        uppercase: true,
+        minUppercase: 1,
+        lowercase: true,
+        minLowercase: 1,
+        number: true,
+        minNumber: 1,
+        special: false,
+        minSpecial: 0,
+        customRequiredChars: "-_",
+        customAllowedChars: ".-_",
+        maxConsecutive: 2,
+      };
+      const sdk = new SdkPasswordRandomizer(
+        () => Promise.resolve(client),
+        () => 0,
+      );
+
+      await sdk.generate({ algorithm: Algorithm.password }, settings);
+
+      expect(generator.password).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customRequiredChars: "-_",
+          customAllowedChars: ".-_",
+          maxConsecutive: 2,
+        }),
+      );
+    });
+
     it("calls client.generator().passphrase with the converted PassphraseGeneratorRequest", async () => {
       const { client, generator } = createMockClient();
       generator.passphrase.mockReturnValue("generated-passphrase");

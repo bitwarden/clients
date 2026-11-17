@@ -69,4 +69,13 @@ export type PasswordGenerationOptions = Partial<PasswordGeneratorSettings> & {
    * to ensure `minLength` is at least as large as the sum of the other minimums.
    */
   minLength?: number;
+
+  /** From a website's password rules: at least one of these characters appears in the output. */
+  customRequiredChars?: string;
+
+  /** From a website's password rules: these characters may appear in the output. */
+  customAllowedChars?: string;
+
+  /** From a website's password rules: the most identical characters allowed in a row. */
+  maxConsecutive?: number;
 };

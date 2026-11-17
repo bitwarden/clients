@@ -503,6 +503,15 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "usingWebsitePasswordRules": {
+    "message": "Using $WEBSITE$ password rules",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
   "passwordGenerated": {
     "message": "Password generated"
   },
