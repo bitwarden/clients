@@ -190,8 +190,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Input({ required: true }) index: number;
 
   /**
-   * When true, URIs prefixed with the desktop app scheme are recognized as desktop apps: a dropdown
-   * of desktop app names labeled "Desktop app". When false, they're shown like any other URI, as a
+   * When true, desktop app rows (see `desktopAppRow`) are shown as desktop apps: a dropdown of
+   * desktop app names labeled "Desktop app". When false, they're shown like any other URI, as a
    * "Website (URI)" text input. Should only be true when the WindowsDesktopAutotypeGA feature flag
    * is enabled.
    */
@@ -230,7 +230,11 @@ export class UriOptionComponent implements ControlValueAccessor {
     }
   }
 
-  /** Returns true if this URI is a desktop app pairing */
+  /**
+   * Returns true if this row is shown as a desktop app: desktop apps are recognized, the row was
+   * created as a desktop app row, and its URI starts with the desktop app scheme. The URI may not
+   * be a valid pairing.
+   */
   protected get isAppUri(): boolean {
     return (
       this.recognizeDesktopApps() &&
