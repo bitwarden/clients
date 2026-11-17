@@ -11,6 +11,7 @@ import {
   switchMap,
   throwError,
   MonoTypeOperatorFunction,
+  Subscription,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,6 +30,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
@@ -91,6 +93,12 @@ export type NativeWindowObject = {
   userHandle?: number[];
 };
 
+/**
+ * Sent by the main process when the user closes the app window while it is in
+ * modal mode, i.e. while a ceremony is showing its UI in it.
+ */
+const MODAL_WINDOW_CLOSED = new CommandDefinition("modalWindowClosed");
+
 /** A ceremony that can be refused because of its RP ID. */
 export type RpIdNotAllowedOperation = "registration" | "assertion";
 
@@ -152,6 +160,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
     private domainSettingsService: DomainSettingsService,
+    private messageListener: MessageListener,
   ) {}
   private currentSession: any;
 
@@ -184,6 +193,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.userVerificationService,
       this.passwordRepromptService,
       this.domainSettingsService,
+      this.messageListener,
     );
 
     this.currentSession = session;
@@ -204,6 +214,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
     private domainSettingsService: DomainSettingsService,
+    private messageListener: MessageListener,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -234,6 +245,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * already had open untouched.
    */
   private uiShown = false;
+
+  /**
+   * Cancels the ceremony if the user closes the window while it shows our UI.
+   */
+  private windowClosedSubscription: Subscription | undefined;
 
   // Method implementation
   async pickCredential(
@@ -610,6 +626,9 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * own `finally`. Safe to call more than once.
    */
   async hideUi(): Promise<void> {
+    this.windowClosedSubscription?.unsubscribe();
+    this.windowClosedSubscription = undefined;
+
     // Always clear modal mode so the app can never get stuck in it. The main
     // process only restyles the window on the modal -> standard transition, so
     // this is inert when the ceremony never entered modal mode.
@@ -633,6 +652,17 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     showTrafficButtons: boolean = false,
     disableRedirect?: boolean,
   ): Promise<void> {
+    this.windowClosedSubscription ??= this.messageListener
+      .messages$(MODAL_WINDOW_CLOSED)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.logService.info(
+          "[DesktopFido2UserInterfaceSession]",
+          "Window closed while showing UI. Aborting the request.",
+        );
+        this.abortController.abort("Operation cancelled");
+      });
+
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
     await this.accountService.setShowHeader(showTrafficButtons);

@@ -22,13 +22,11 @@ import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultNewDeviceVerificationComponentService,
-  DefaultRegistrationFinishService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   NewDeviceVerificationComponentService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
@@ -484,6 +482,10 @@ import {
 } from "../auth/password-management/change-password";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import {
+  DefaultRegistrationFinishService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+} from "../auth/registration";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
@@ -751,7 +753,6 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       logService: LogService,
       cipherEncryptionService: CipherEncryptionService,
-      messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
     ) =>
       new CipherService(
@@ -768,7 +769,6 @@ const safeProviders: SafeProvider[] = [
         accountService,
         logService,
         cipherEncryptionService,
-        messagingService,
         cipherSdkService,
       ),
     deps: [
@@ -785,7 +785,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       CipherEncryptionService,
-      MessagingServiceAbstraction,
       CipherSdkService,
     ],
   }),
@@ -854,7 +853,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService, ConfigService],
+    deps: [SdkService, LogService],
   }),
   safeProvider({
     provide: CollectionService,

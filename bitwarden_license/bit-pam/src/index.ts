@@ -66,6 +66,7 @@ export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
+export { unactivatedApprovedRequest } from "./helpers/unactivated-approved-request";
 export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";

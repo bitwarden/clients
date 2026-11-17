@@ -43,11 +43,24 @@ export async function lockAll(
   }
 
   // Armed before the click, so the crash cannot be missed.
-  const crashed = window.waitForEvent("crash", { timeout: CRASH_TIMEOUT_MS });
+  const reload = watchReload(window);
   await clickMenuItem(app, MenuItem.LockAll);
-  await crashed;
 
-  const reloaded = await reloadedWindow();
+  const reloaded = await reload();
   await new LockScreen(reloaded).waitUntilShown();
   return reloaded;
+}
+
+/**
+ * Waits for the process reload of the next lock, wherever it comes from, e.g. the extension
+ * through shared unlock. Call before locking; the returned function resolves to the reloaded
+ * window, since `window` is dead after the crash.
+ */
+export function watchReload(window: Page): () => Promise<Page> {
+  const crashed = window.waitForEvent("crash", { timeout: CRASH_TIMEOUT_MS });
+
+  return async () => {
+    await crashed;
+    return reloadedWindow();
+  };
 }

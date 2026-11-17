@@ -16,6 +16,7 @@ import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth
 import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { RegistrationFinishService as RegistrationFinishServiceAbstraction } from "@bitwarden/angular/auth/registration";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -36,7 +37,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   LoginComponentService,
   LoginDecryptionOptionsService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";

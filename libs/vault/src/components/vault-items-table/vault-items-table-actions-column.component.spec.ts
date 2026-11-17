@@ -319,6 +319,23 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     });
   });
 
+  describe("disabled actions", () => {
+    it("disables the menu item when disabled returns true for the row", () => {
+      const run = jest.fn();
+      host.ciphers.set([loginCipher()]);
+      host.rowActions.set([
+        { id: "disabled", label: "Disabled", icon: "bwi-lock", disabled: () => true, run },
+        { id: "enabled", label: "Enabled", icon: "bwi-lock", run },
+      ]);
+      fixture.detectChanges();
+
+      const [disabled, enabled] = openMenu(0);
+
+      expect(disabled.disabled).toBe(true);
+      expect(enabled.disabled).toBe(false);
+    });
+  });
+
   describe("the launch button", () => {
     it("offers Launch for a cipher with a launchable uri", () => {
       host.ciphers.set([withUri("https://example.com")]);

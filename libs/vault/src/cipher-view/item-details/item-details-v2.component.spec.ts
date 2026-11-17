@@ -11,7 +11,10 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -116,6 +119,20 @@ describe("ItemDetailsV2Component", () => {
     expect(itemDetailsList[1].nativeElement.textContent.trim()).toContain(collection.name);
     expect(itemDetailsList[2].nativeElement.textContent.trim()).toContain(collection2.name);
     expect(itemDetailsList[3].nativeElement.textContent.trim()).toContain(folder.name);
+  });
+
+  it("names the member's own My items collection from i18n rather than its stored name", () => {
+    const myItems = Object.assign(
+      new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "My Items",
+      }),
+      { type: CollectionTypes.DefaultUserCollection },
+    );
+
+    expect(component.getItemName(myItems)).toBe("myItemsV2");
+    expect(component.getAriaLabel(myItems)).toBe("collectionAriaLabel myItemsV2");
   });
 
   describe("getAriaLabel", () => {

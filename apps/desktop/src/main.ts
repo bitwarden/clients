@@ -154,7 +154,11 @@ export class Main {
       });
     }
 
-    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
+    // logService is created below, but flushes only run from timers after construction.
+    const storageBackend = new CachedBackend(
+      new ElectronStoreBackend(app.getPath("userData")),
+      (error) => this.logService.error("Failed to write the storage file, will retry", error),
+    );
 
     // Main has no ConfigService, so it reads the cached server configs straight from the store.
     let flightRecorderEnabled = false;
