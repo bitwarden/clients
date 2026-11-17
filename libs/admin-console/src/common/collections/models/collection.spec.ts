@@ -58,7 +58,7 @@ describe("Collection", () => {
     expect(collection).toEqual({
       id: "id",
       organizationId: "orgId",
-      name: { encryptedString: "encName", encryptionType: 0 },
+      name: { encryptedString: "encName" },
       externalId: "extId",
       readOnly: true,
       manage: true,

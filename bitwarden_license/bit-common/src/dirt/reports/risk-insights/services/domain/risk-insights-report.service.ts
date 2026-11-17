@@ -175,7 +175,7 @@ export class RiskInsightsReportService {
           // Return an empty report and summary if response is falsy
           return of(null as unknown as RiskInsightsData);
         }
-        if (!response.contentEncryptionKey || response.contentEncryptionKey.data == "") {
+        if (!response.contentEncryptionKey?.encryptedString) {
           return throwError(() => new Error("Report key not found"));
         }
         if (!response.reportData) {

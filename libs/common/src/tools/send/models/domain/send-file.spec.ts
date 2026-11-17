@@ -34,7 +34,7 @@ describe("SendFile", () => {
       id: "id",
       size: "1100",
       sizeName: "1.1 KB",
-      fileName: { encryptedString: "encFileName", encryptionType: 0 },
+      fileName: { encryptedString: "encFileName" },
     });
   });
 
