@@ -510,11 +510,17 @@ export class Fido2Background implements Fido2BackgroundInterface {
         try {
           return await callback(data!, tab, abortController);
         } finally {
-          if (tab.id != null) {
-            await BrowserApi.focusTab(tab.id);
-          }
-          if (tab.windowId != null) {
-            await BrowserApi.focusWindow(tab.windowId);
+          // Hand focus back to the page once the passkey UI is done, but only when the page was
+          // the active tab when it made the request and the request was not aborted. A request
+          // from a background tab, or one the page cancels itself (e.g. a conditional mediation
+          // request), must not pull its tab or window to the front.
+          if (tab.active === true && !abortController.signal.aborted) {
+            if (tab.id != null) {
+              await BrowserApi.focusTab(tab.id);
+            }
+            if (tab.windowId != null) {
+              await BrowserApi.focusWindow(tab.windowId);
+            }
           }
         }
       });

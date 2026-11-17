@@ -86,6 +86,7 @@ describe("Fido2Background", () => {
       id: 123,
       url: "https://example.com",
       windowId: 456,
+      active: true,
     });
     senderMock = mock<chrome.runtime.MessageSender>({ id: "1", tab: tabMock });
     getSenderFrameUrlSpy = jest
@@ -663,6 +664,52 @@ describe("Fido2Background", () => {
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
+      });
+
+      it("does not focus the tab or window when the request comes from a background tab", async () => {
+        const backgroundTab = mock<chrome.tabs.Tab>({
+          id: 124,
+          url: "https://example.com",
+          windowId: 456,
+          active: false,
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(
+          message,
+          mock<chrome.runtime.MessageSender>({ id: "1", tab: backgroundTab }),
+        );
+        await flushPromises();
+
+        expect(fido2ClientService.assertCredential).toHaveBeenCalled();
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not focus the tab or window when the page aborts the request", async () => {
+        const abortedController = mock<AbortController>({
+          signal: mock<AbortSignal>({ aborted: true }),
+        });
+        abortManagerMock.runWithAbortController.mockImplementation((_requestId, runner) =>
+          runner(abortedController),
+        );
+        fido2ClientService.assertCredential.mockRejectedValue(new Error("aborted"));
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(fido2ClientService.assertCredential).toHaveBeenCalled();
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
       });
 
       it("requests a browser fallback when an enclosing frame's domain is excluded", async () => {
