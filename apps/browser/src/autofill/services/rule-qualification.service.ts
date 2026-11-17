@@ -280,18 +280,26 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    */
   private dispatchIframeFallbacks(rule: FormContent[]): void {
     for (const iframeSrc of this.deriveIframeFallbackTargets(rule)) {
-      void sendExtensionMessage("runFillAssistHeuristicFallback", { iframeSrc }).catch(() => {
-        // Swallow rejections from the background relay. The parent frame's
-        // own bypass still runs; the child dispatch is best-effort.
-      });
+      void sendExtensionMessage("runFillAssistHeuristicFallback", { iframeSrc }).catch(
+        (error: unknown) => {
+          // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+          console.warn(
+            `[RuleQualificationService] Failed to dispatch fallback for iframe ${iframeSrc}:`,
+            error,
+          );
+        },
+      );
     }
   }
 
   /**
    * Walks the rule's declared selectors for `>>>` entries whose first segment
    * resolves to an iframe in the parent's DOM. Returns the set of unique
-   * `iframe.src` values. Deduped so a rule declaring the same iframe across
-   * multiple alternatives only fires one dispatch per child frame.
+   * iframe URLs. Prefers the iframe's current `contentDocument.location.href`
+   * over its initial `.src` so same-origin iframes that have navigated via
+   * SPA stay aligned with the key `routeTargetedFieldsToFrame` uses. Deduped
+   * so a rule declaring the same iframe across multiple alternatives only
+   * fires one dispatch per child frame.
    */
   private deriveIframeFallbackTargets(rule: FormContent[]): Set<string> {
     const targets = new Set<string>();
@@ -304,8 +312,12 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         continue;
       }
       const element = document.querySelector(firstSegment);
-      if (element instanceof HTMLIFrameElement && element.src) {
-        targets.add(element.src);
+      if (!(element instanceof HTMLIFrameElement)) {
+        continue;
+      }
+      const iframeSrc = element.contentDocument?.location?.href || element.src;
+      if (iframeSrc) {
+        targets.add(iframeSrc);
       }
     }
     return targets;

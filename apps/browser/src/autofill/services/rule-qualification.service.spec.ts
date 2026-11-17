@@ -830,10 +830,11 @@ describe("DefaultRuleQualificationService", () => {
       expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
     });
 
-    it("does not dispatch when the iframe has no src", async () => {
+    it("does not dispatch when neither contentDocument.location.href nor iframe.src is available", async () => {
       const iframe = document.createElement("iframe");
       iframe.id = "login";
-      // Explicitly leave .src empty (srcdoc or about:blank scenario).
+      Object.defineProperty(iframe, "src", { value: "", configurable: true });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
       document.body.append(iframe);
 
       const rule: FormContent[] = [
@@ -879,7 +880,40 @@ describe("DefaultRuleQualificationService", () => {
       expect(collectService.getPageDetails).not.toHaveBeenCalled();
     });
 
-    it("swallows rejections from sendExtensionMessage without breaking the miss path", async () => {
+    it("prefers contentDocument.location.href over iframe.src when both are available", async () => {
+      // Matches the key `routeTargetedFieldsToFrame` uses so both paths reach
+      // the same frame when a same-origin iframe has navigated after load.
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      Object.defineProperty(iframe, "src", {
+        value: "https://stale.example.com/page",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", {
+        value: { location: { href: "https://current.example.com/page" } },
+        configurable: true,
+      });
+      document.body.append(iframe);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["iframe#login >>> #user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://current.example.com/page" },
+      );
+    });
+
+    it("logs a warning when sendExtensionMessage rejects but still completes the miss path", async () => {
       const iframe = document.createElement("iframe");
       iframe.id = "login";
       iframe.src = "https://child.example.com/login";
@@ -897,12 +931,20 @@ describe("DefaultRuleQualificationService", () => {
       jest
         .mocked(autofillUtils.sendExtensionMessage)
         .mockRejectedValueOnce(new Error("relay unavailable"));
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
       const result = await service.qualifyRule("https://example.com", rule);
+      // Promise.catch handler runs on a microtask; flush it before assertions.
+      await Promise.resolve();
 
       // Parent's own bypass still runs and returns the structural fallback.
       expect(result).toMatchObject({ kind: "fallback", missReason: "structural" });
       expect(collectService.collectHeuristicPageDetailsBypass).toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to dispatch fallback for iframe"),
+        expect.any(Error),
+      );
+      warnSpy.mockRestore();
     });
   });
 
