@@ -25,7 +25,7 @@ test("creates an account from the verification email link", async ({ page, play 
     password: randomUUID(),
   };
 
-  // When they sign up, follow the emailed link and set a master password
+  // When they start registration, follow the emailed link and set a master password
   await registerThroughEmailVerification(page, play, registrant);
 
   // Then they land on their new vault, unlocked
@@ -36,7 +36,7 @@ test("creates an account from the verification email link", async ({ page, play 
 });
 
 test("logs in with the master password set at registration", async ({ page, play }) => {
-  // Given an account created through signup, then logged out
+  // Given an account created through registration, then logged out
   const registrant = {
     email: play.mangle("returning-user@example.com"),
     name: "Returning User",
@@ -69,10 +69,10 @@ test("shows the check email screen for an email that already has an account", as
   const { email } = seededAccount(user);
   const registration = new RegistrationPage(page);
 
-  // When someone starts signup with its email
+  // When someone starts registration with its email
   await registration.open();
   await registration.start({ email, name: "Someone Else" });
 
-  // Then signup answers as it does for a new email, so it does not reveal the account
+  // Then registration answers as it does for a new email, so it does not reveal the account
   await expect(registration.checkEmailMessage).toContainText(email);
 });

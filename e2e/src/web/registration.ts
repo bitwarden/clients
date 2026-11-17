@@ -11,7 +11,7 @@ const POST_REGISTRATION_URL = new RegExp(`#\\/vault|${SETUP_EXTENSION_URL.source
 const POST_REGISTRATION_TIMEOUT_MS = 60_000;
 
 /**
- * Registers a new account through web signup and the verification email link, leaving the
+ * Registers a new account through web registration and the verification email link, leaving the
  * page on the new account's vault. The play's server must track play ids to delete the account.
  */
 export async function registerThroughEmailVerification(

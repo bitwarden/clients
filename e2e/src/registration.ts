@@ -1,6 +1,6 @@
 import { Locator, Page, Response } from "@playwright/test";
 
-const SIGNUP_PATH = "/#/signup";
+const REGISTRATION_START_PATH = "/#/signup";
 
 const EMAIL_INPUT = "registration-start-email-input";
 const NAME_INPUT = "registration-start-name-input";
@@ -22,7 +22,7 @@ export type Registrant = {
 };
 
 /**
- * Drives the signup screens of any client: the email step and the master password step. Both
+ * Drives the registration screens of any client: the email step and the master password step. Both
  * are the same shared components (libs/angular/src/auth/registration) everywhere.
  */
 export class RegistrationPage {
@@ -49,9 +49,9 @@ export class RegistrationPage {
     this.createAccountButton = page.getByTestId(CREATE_ACCOUNT_BUTTON);
   }
 
-  /** Opens signup by URL. Web only: desktop and browser reach it from the login page. */
+  /** Opens registration by URL. Web only: desktop and browser reach it from the login page. */
   async open() {
-    await this.page.goto(SIGNUP_PATH);
+    await this.page.goto(REGISTRATION_START_PATH);
   }
 
   /**

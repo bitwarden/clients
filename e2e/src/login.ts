@@ -59,7 +59,7 @@ export class LoginPage {
     }
   }
 
-  /** Follows the login page's link to signup. */
+  /** Follows the login page's link to registration. */
   async createAccount() {
     await this.page.getByTestId(CREATE_ACCOUNT_LINK).click();
   }

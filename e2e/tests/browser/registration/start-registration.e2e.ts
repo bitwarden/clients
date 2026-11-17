@@ -10,10 +10,10 @@ test("sends the verification email through the self-hosted server", async ({ pop
   const login = new LoginPage(popup);
   await login.selectServer(WEB_VAULT_URL);
 
-  // When a registrant submits the email step of signup
+  // When a registrant submits the email step of registration
   await login.createAccount();
   const registration = new RegistrationPage(popup);
-  const email = `signup-${randomUUID()}@example.com`;
+  const email = `registration-${randomUUID()}@example.com`;
   const response = await registration.start({ email, name: "New User" });
 
   // Then that server accepts it, and the extension asks the registrant to check their email
