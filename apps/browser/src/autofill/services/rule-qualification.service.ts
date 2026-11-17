@@ -284,7 +284,9 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         (error: unknown) => {
           // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
           console.warn(
-            `[RuleQualificationService] Failed to dispatch fallback for iframe ${iframeSrc}:`,
+            // Hostname only. URL paths and queries can carry OAuth state,
+            // session, or SSO tokens.
+            `[RuleQualificationService] Failed to dispatch fallback for iframe ${URL.canParse(iframeSrc) ? new URL(iframeSrc).hostname : "<unparseable>"}:`,
             error,
           );
         },
@@ -293,29 +295,27 @@ export class DefaultRuleQualificationService implements RuleQualificationService
   }
 
   /**
-   * Walks the rule's declared selectors for `>>>` entries whose first segment
-   * resolves to an iframe in the parent's DOM. Returns the set of unique
-   * iframe URLs. Prefers the iframe's current `contentDocument.location.href`
-   * over its initial `.src` so same-origin iframes that have navigated via
-   * SPA stay aligned with the key `routeTargetedFieldsToFrame` uses. Deduped
-   * so a rule declaring the same iframe across multiple alternatives only
-   * fires one dispatch per child frame.
+   * Walks the rule's declared selectors for `>>>` entries that cross an
+   * iframe boundary and returns the set of unique iframe URLs. Uses the
+   * shared `findIframeCrossing`, which descends shadow roots until it reaches
+   * an iframe segment, so iframes nested behind a shadow host (e.g.
+   * `my-host >>> iframe#login >>> #user`) are included — matching what
+   * `tryRouteIframeCrossing` does on the hit path.
+   *
+   * Prefers the iframe's current `contentDocument.location.href` over its
+   * initial `.src` so same-origin iframes that have navigated via SPA stay
+   * aligned with the key `routeTargetedFieldsToFrame` uses. Deduped so a rule
+   * declaring the same iframe across multiple alternatives only fires one
+   * dispatch per child frame.
    */
   private deriveIframeFallbackTargets(rule: FormContent[]): Set<string> {
     const targets = new Set<string>();
     for (const selector of this.flattenDeclaredSelectors(rule)) {
-      if (!selector.includes(">>>")) {
+      const iframeElement = this.domQueryService.findIframeCrossing(selector)?.iframeElement;
+      if (!iframeElement) {
         continue;
       }
-      const firstSegment = selector.split(">>>")[0].trim();
-      if (!firstSegment) {
-        continue;
-      }
-      const element = document.querySelector(firstSegment);
-      if (!(element instanceof HTMLIFrameElement)) {
-        continue;
-      }
-      const iframeSrc = element.contentDocument?.location?.href || element.src;
+      const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
       if (iframeSrc) {
         targets.add(iframeSrc);
       }

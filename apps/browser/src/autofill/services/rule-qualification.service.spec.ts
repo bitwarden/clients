@@ -693,26 +693,31 @@ describe("DefaultRuleQualificationService", () => {
 
     it("dispatches once per unique first-hop iframe on a structural miss", async () => {
       const iframeA = document.createElement("iframe");
-      iframeA.id = "login-a";
       iframeA.src = "https://child-a.example.com/login";
       const iframeB = document.createElement("iframe");
-      iframeB.id = "login-b";
       iframeB.src = "https://child-b.example.com/login";
-      document.body.append(iframeA, iframeB);
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
           fields: {
-            username: ["iframe#login-a >>> #user"],
-            password: ["iframe#login-b >>> #pass"],
+            // Non-iframe field fails to resolve → structural miss.
+            username: ["#nonexistent-user"],
+            password: ["iframe#login-a >>> #pass", "iframe#login-b >>> #pass"],
           },
         },
       ];
 
-      // Force a structural miss.
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) => {
+        if (selector === "iframe#login-a >>> #pass") {
+          return { iframeElement: iframeA, innerSelector: "#pass" };
+        }
+        if (selector === "iframe#login-b >>> #pass") {
+          return { iframeElement: iframeB, innerSelector: "#pass" };
+        }
+        return null;
+      });
 
       await service.qualifyRule("https://example.com", rule);
 
@@ -729,22 +734,24 @@ describe("DefaultRuleQualificationService", () => {
 
     it("dedupes dispatches when multiple selectors name the same iframe", async () => {
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
       iframe.src = "https://child.example.com/login";
-      document.body.append(iframe);
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
           fields: {
-            username: ["iframe#login >>> #user"],
-            password: ["iframe#login >>> #pass"],
+            username: ["#nonexistent-user"],
+            password: ["iframe#login >>> #user", "iframe#login >>> #pass"],
           },
         },
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector.startsWith("iframe#login >>>")
+          ? { iframeElement: iframe, innerSelector: selector.split(">>>")[1].trim() }
+          : null,
+      );
 
       await service.qualifyRule("https://example.com", rule);
 
@@ -757,9 +764,7 @@ describe("DefaultRuleQualificationService", () => {
 
     it("dispatches on an in_scope_extras miss too", async () => {
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
       iframe.src = "https://child.example.com/login";
-      document.body.append(iframe);
 
       const form = document.createElement("form");
       const user = document.createElement("input");
@@ -772,8 +777,8 @@ describe("DefaultRuleQualificationService", () => {
         {
           category: "login" as FormPurposeCategory,
           fields: {
-            // Rule declares one iframe selector (triggers dispatch derivation)
-            // plus two direct selectors (resolve to the form, in-scope extras fires).
+            // String alternatives: first resolves locally, iframe alt enters
+            // declared-selector walk for dispatch derivation.
             username: ["#user", "iframe#login >>> #user"],
             password: ["#pass"],
           },
@@ -783,7 +788,11 @@ describe("DefaultRuleQualificationService", () => {
       domQueryService.queryDeepSelector.mockImplementation((selector) =>
         selector === "#user" ? user : selector === "#pass" ? pass : null,
       );
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "iframe#login >>> #user"
+          ? { iframeElement: iframe, innerSelector: "#user" }
+          : null,
+      );
 
       const result = await service.qualifyRule("https://example.com", rule);
 
@@ -794,11 +803,40 @@ describe("DefaultRuleQualificationService", () => {
       );
     });
 
-    it("does not dispatch when a >>> selector's first segment is not an iframe (shadow DOM)", async () => {
-      const shadowHost = document.createElement("gi-login");
-      shadowHost.className = "hydrated";
-      document.body.append(shadowHost);
+    it("dispatches to iframes nested behind a shadow root", async () => {
+      // `findIframeCrossing` descends shadow boundaries until it reaches an
+      // iframe segment. A rule like `shadow-host >>> iframe#login >>> #user`
+      // crosses an iframe boundary and must dispatch, matching what the hit
+      // path does via `tryRouteIframeCrossing`.
+      const iframe = document.createElement("iframe");
+      iframe.src = "https://child.example.com/login";
 
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            username: ["#nonexistent-user"],
+            password: ["shadow-host >>> iframe#login >>> #pass"],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "shadow-host >>> iframe#login >>> #pass"
+          ? { iframeElement: iframe, innerSelector: "#pass" }
+          : null,
+      );
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://child.example.com/login" },
+      );
+    });
+
+    it("does not dispatch when no selector crosses an iframe boundary (pure shadow DOM)", async () => {
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
@@ -807,6 +845,7 @@ describe("DefaultRuleQualificationService", () => {
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
+      // Pure shadow DOM chain, no iframe boundary.
       domQueryService.findIframeCrossing.mockReturnValue(null);
 
       await service.qualifyRule("https://example.com", rule);
@@ -832,20 +871,25 @@ describe("DefaultRuleQualificationService", () => {
 
     it("does not dispatch when neither contentDocument.location.href nor iframe.src is available", async () => {
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
       Object.defineProperty(iframe, "src", { value: "", configurable: true });
       Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
-      document.body.append(iframe);
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
-          fields: { username: ["iframe#login >>> #user"] },
+          fields: {
+            username: ["#nonexistent-user"],
+            password: ["iframe#login >>> #pass"],
+          },
         },
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "iframe#login >>> #pass"
+          ? { iframeElement: iframe, innerSelector: "#pass" }
+          : null,
+      );
 
       await service.qualifyRule("https://example.com", rule);
 
@@ -856,19 +900,24 @@ describe("DefaultRuleQualificationService", () => {
       // The collect service's cache-mutating methods must not fire during
       // dispatch derivation. The derivation is a pure DOM read.
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
       iframe.src = "https://child.example.com/login";
-      document.body.append(iframe);
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
-          fields: { username: ["iframe#login >>> #user"] },
+          fields: {
+            username: ["#nonexistent-user"],
+            password: ["iframe#login >>> #pass"],
+          },
         },
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "iframe#login >>> #pass"
+          ? { iframeElement: iframe, innerSelector: "#pass" }
+          : null,
+      );
 
       await service.qualifyRule("https://example.com", rule);
 
@@ -884,7 +933,6 @@ describe("DefaultRuleQualificationService", () => {
       // Matches the key `routeTargetedFieldsToFrame` uses so both paths reach
       // the same frame when a same-origin iframe has navigated after load.
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
       Object.defineProperty(iframe, "src", {
         value: "https://stale.example.com/page",
         configurable: true,
@@ -893,17 +941,23 @@ describe("DefaultRuleQualificationService", () => {
         value: { location: { href: "https://current.example.com/page" } },
         configurable: true,
       });
-      document.body.append(iframe);
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
-          fields: { username: ["iframe#login >>> #user"] },
+          fields: {
+            username: ["#nonexistent-user"],
+            password: ["iframe#login >>> #pass"],
+          },
         },
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "iframe#login >>> #pass"
+          ? { iframeElement: iframe, innerSelector: "#pass" }
+          : null,
+      );
 
       await service.qualifyRule("https://example.com", rule);
 
@@ -913,21 +967,28 @@ describe("DefaultRuleQualificationService", () => {
       );
     });
 
-    it("logs a warning when sendExtensionMessage rejects but still completes the miss path", async () => {
+    it("logs a hostname-only warning when sendExtensionMessage rejects but still completes the miss path", async () => {
       const iframe = document.createElement("iframe");
-      iframe.id = "login";
-      iframe.src = "https://child.example.com/login";
-      document.body.append(iframe);
+      // Full URL with a sensitive-looking path and query to prove the log
+      // strips everything but the hostname.
+      iframe.src = "https://child.example.com/callback?state=abc123&code=def456";
 
       const rule: FormContent[] = [
         {
           category: "login" as FormPurposeCategory,
-          fields: { username: ["iframe#login >>> #user"] },
+          fields: {
+            username: ["#nonexistent-user"],
+            password: ["iframe#login >>> #pass"],
+          },
         },
       ];
 
       domQueryService.queryDeepSelector.mockReturnValue(null);
-      domQueryService.findIframeCrossing.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockImplementation((selector) =>
+        selector === "iframe#login >>> #pass"
+          ? { iframeElement: iframe, innerSelector: "#pass" }
+          : null,
+      );
       jest
         .mocked(autofillUtils.sendExtensionMessage)
         .mockRejectedValueOnce(new Error("relay unavailable"));
@@ -940,10 +1001,12 @@ describe("DefaultRuleQualificationService", () => {
       // Parent's own bypass still runs and returns the structural fallback.
       expect(result).toMatchObject({ kind: "fallback", missReason: "structural" });
       expect(collectService.collectHeuristicPageDetailsBypass).toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to dispatch fallback for iframe"),
-        expect.any(Error),
-      );
+
+      const [warnMessage] = warnSpy.mock.calls[0];
+      expect(warnMessage).toContain("child.example.com");
+      expect(warnMessage).not.toContain("state=abc123");
+      expect(warnMessage).not.toContain("code=def456");
+      expect(warnMessage).not.toContain("/callback");
       warnSpy.mockRestore();
     });
   });
