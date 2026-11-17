@@ -7789,5 +7789,13 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "itemSendDeletedItemCalloutTitle": {
+    "message": "Shared item deleted",
+    "description": "The title of the callout shown when an item-type Send's item has been deleted."
+  },
+  "itemSendDeletedItemCalloutBody": {
+    "message": "The item that this Send shares has been deleted. Access to this Send has been removed, and the Send itself will be removed soon by automated cleanup.",
+    "description": "The body of the callout shown when an item-type Send's item has been deleted. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
