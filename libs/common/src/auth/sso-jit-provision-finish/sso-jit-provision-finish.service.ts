@@ -1,6 +1,7 @@
 import {
   JitMasterPasswordRegistrationResponse,
   KeyConnectorRegistrationResult,
+  TdeRegistrationResponse,
 } from "@bitwarden/sdk-internal";
 
 import { SetKeyConnectorKeyRequest } from "../../key-management/key-connector/models/set-key-connector-key.request";
@@ -11,6 +12,7 @@ import {
 } from "../../key-management/master-password/types/master-password.types";
 import { KeysRequest } from "../../models/request/keys.request";
 import { UserId } from "../../types/guid";
+import { TrustedDeviceKeysRequest } from "../services/devices/requests/trusted-device-keys.request";
 
 /**
  * The result of one `finish*` method. `V1` means the API service sent the client-made keys. `V2`
@@ -100,6 +102,53 @@ export type SsoJitProvisionFinishKeyConnectorResult =
   SsoJitProvisionFinishResult<KeyConnectorRegistrationResult>;
 
 /**
+ * Keys that the client makes for a V1 encryption trusted device user. The SDK makes its own keys
+ * for V2.
+ */
+export interface SsoJitProvisionFinishTrustedDeviceV1Keys {
+  /** The user's asymmetric key pair */
+  keys: KeysRequest;
+  /**
+   * The user key encapsulated with the organization public key. Required unless
+   * `acceptOrganizationInvite` is `false`, because the server enrolls the user in account recovery
+   * when it accepts the invite.
+   */
+  accountRecoveryKey?: string;
+  /** The keys that trust the current device. Set only when `trustDevice` is `true`. */
+  deviceKeys?: TrustedDeviceKeysRequest;
+}
+
+export interface SsoJitProvisionFinishTrustedDeviceData {
+  userId: UserId;
+  orgId: string;
+  /**
+   * The identifier of the current device. The V2 path and the legacy V1 device request use it.
+   * The `sso-jit-provision-finish/trusted-device` endpoint reads the device from the access token.
+   */
+  deviceIdentifier: string;
+  /** Whether the user chose to trust the current device. */
+  trustDevice: boolean;
+  /**
+   * Whether the server moves the organization membership from Invited to Accepted, and enrolls the
+   * user in account recovery. `undefined` means accept.
+   */
+  acceptOrganizationInvite?: boolean;
+  /**
+   * The organization public key (B64). Required when the V2 encryption flag is on: the SDK uses
+   * it to make the account recovery key.
+   */
+  orgPublicKey?: string;
+  /**
+   * Required when the V2 encryption flag is off. Must not be set when the flag is on.
+   * See {@link SsoJitProvisionFinishTrustedDeviceV1Keys}.
+   */
+  v1Keys?: SsoJitProvisionFinishTrustedDeviceV1Keys;
+}
+
+export type SsoJitProvisionFinishTrustedDeviceResult =
+  SsoJitProvisionFinishResult<TdeRegistrationResponse>;
+
+/**
  * Finishes SSO JIT provisioning for a new organization member. Each method covers one member
  * decryption type, and reads its own V2 encryption flag.
  *
@@ -134,4 +183,19 @@ export abstract class SsoJitProvisionFinishService {
   abstract finishKeyConnector(
     data: SsoJitProvisionFinishKeyConnectorData,
   ): Promise<SsoJitProvisionFinishKeyConnectorResult>;
+
+  /**
+   * Sends the trusted device encryption keys to the server.
+   * - `pm-27279-v2-registration-tde-jit` on: the SDK makes the V2 keys and sends them. Requires
+   *   `orgPublicKey`. The result contains the SDK registration response, with the device key.
+   * - Flag off: sends the V1 keys in `data.v1Keys` through {@link SsoJitProvisionFinishApiService}.
+   *   Requires `accountRecoveryKey` unless `acceptOrganizationInvite` is `false`. Requires
+   *   `deviceKeys` exactly when `trustDevice` is `true`.
+   *
+   * This method does not write local state or store the device key. The caller does that after
+   * this method returns.
+   */
+  abstract finishTrustedDevice(
+    data: SsoJitProvisionFinishTrustedDeviceData,
+  ): Promise<SsoJitProvisionFinishTrustedDeviceResult>;
 }

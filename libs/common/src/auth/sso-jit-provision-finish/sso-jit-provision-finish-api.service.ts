@@ -2,10 +2,24 @@ import { ApiService } from "../../abstractions/api.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { UserId } from "../../types/guid";
 import { SetPasswordRequest } from "../models/request/set-password.request";
+import { assertNonNullish } from "../utils";
 
 import { SsoJitProvisionFinishPasswordRequest } from "./sso-jit-provision-finish-password.request";
 import { SsoJitProvisionFinishSetKeyConnectorKeyRequest } from "./sso-jit-provision-finish-set-key-connector-key.request";
+import { SsoJitProvisionFinishTrustedDeviceRequest } from "./sso-jit-provision-finish-trusted-device.request";
+
+/**
+ * Data that only the legacy trusted device requests use. The new endpoint reads the user and the
+ * device from the access token.
+ *
+ * TODO PM-34429: Remove when the pm-34429-invite-link-auto-confirm flag is removed.
+ */
+export interface SsoJitProvisionFinishTrustedDeviceLegacyContext {
+  userId: UserId;
+  deviceIdentifier: string;
+}
 
 /**
  * Sends the client-made keys that finish SSO JIT provisioning for a V1 encryption user. Each
@@ -69,6 +83,59 @@ export class SsoJitProvisionFinishApiService {
           true,
           false,
         ),
+    );
+  }
+
+  /**
+   * Finishes SSO JIT trusted device provisioning.
+   * - Flag on: POSTs the request to `/sso-jit-provision-finish/trusted-device`.
+   * - Flag off: sends the legacy requests in this order, and stops at the first failure:
+   *   1. `POST /accounts/keys`
+   *   2. `PUT /organizations/{orgId}/users/{userId}/reset-password-enrollment`
+   *   3. `PUT /devices/{deviceIdentifier}/keys`, only when `request.deviceKeys` is set
+   *
+   *   The legacy requests always enroll the user in account recovery, so they require
+   *   `request.accountRecoveryKey`. This method checks it before it sends any request.
+   */
+  async postTrustedDevice(
+    request: SsoJitProvisionFinishTrustedDeviceRequest,
+    legacy: SsoJitProvisionFinishTrustedDeviceLegacyContext,
+  ): Promise<void> {
+    await this.sendWithInviteLinkAutoConfirm(
+      () =>
+        this.apiService.send(
+          "POST",
+          "/sso-jit-provision-finish/trusted-device",
+          request,
+          true,
+          false,
+        ),
+      async () => {
+        const accountRecoveryKey = request.accountRecoveryKey;
+        assertNonNullish(
+          accountRecoveryKey,
+          "accountRecoveryKey",
+          "The legacy trusted device requests always enroll the user in account recovery. Could not finish SSO JIT provisioning.",
+        );
+
+        await this.apiService.send("POST", "/accounts/keys", request.keys, true, false);
+        await this.apiService.send(
+          "PUT",
+          `/organizations/${request.organizationId}/users/${legacy.userId}/reset-password-enrollment`,
+          { resetPasswordKey: accountRecoveryKey },
+          true,
+          false,
+        );
+        if (request.deviceKeys != null) {
+          await this.apiService.send(
+            "PUT",
+            `/devices/${legacy.deviceIdentifier}/keys`,
+            request.deviceKeys,
+            true,
+            true,
+          );
+        }
+      },
     );
   }
 

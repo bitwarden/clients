@@ -16,11 +16,14 @@ import {
 import { KeysRequest } from "../../models/request/keys.request";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { UserId } from "../../types/guid";
 import { SetPasswordRequest } from "../models/request/set-password.request";
+import { TrustedDeviceKeysRequest } from "../services/devices/requests/trusted-device-keys.request";
 
 import { SsoJitProvisionFinishApiService } from "./sso-jit-provision-finish-api.service";
 import { SsoJitProvisionFinishPasswordRequest } from "./sso-jit-provision-finish-password.request";
 import { SsoJitProvisionFinishSetKeyConnectorKeyRequest } from "./sso-jit-provision-finish-set-key-connector-key.request";
+import { SsoJitProvisionFinishTrustedDeviceRequest } from "./sso-jit-provision-finish-trusted-device.request";
 
 describe("SsoJitProvisionFinishApiService", () => {
   let apiService: MockProxy<ApiService>;
@@ -294,6 +297,160 @@ describe("SsoJitProvisionFinishApiService", () => {
     });
   });
 
+  describe("postTrustedDevice", () => {
+    const userId = "user-id" as UserId;
+    const orgId = "org-id";
+    const deviceIdentifier = "device-identifier";
+    const legacy = { userId, deviceIdentifier };
+    const keys = new KeysRequest("publicKey", "encryptedPrivateKey");
+    const deviceKeys = new TrustedDeviceKeysRequest(
+      "encryptedUserKey",
+      "encryptedPublicKey",
+      "encryptedPrivateKey",
+    );
+
+    function directInviteRequest(withDeviceKeys = true) {
+      return new SsoJitProvisionFinishTrustedDeviceRequest(
+        keys,
+        orgId,
+        true,
+        "accountRecoveryKey",
+        withDeviceKeys ? deviceKeys : undefined,
+      );
+    }
+
+    function openInviteRequest(withDeviceKeys = true) {
+      return new SsoJitProvisionFinishTrustedDeviceRequest(
+        keys,
+        orgId,
+        false,
+        undefined,
+        withDeviceKeys ? deviceKeys : undefined,
+      );
+    }
+
+    describe("given the pm-34429-invite-link-auto-confirm flag is on", () => {
+      beforeEach(() => {
+        setInviteLinkAutoConfirm(true);
+      });
+
+      it.each([
+        ["a direct invite", directInviteRequest],
+        ["an open invite", openInviteRequest],
+      ])(
+        "should POST one request to /sso-jit-provision-finish/trusted-device for %s",
+        async (_, makeRequest) => {
+          // Arrange
+          const trustedDeviceRequest = makeRequest();
+
+          // Act
+          await sut.postTrustedDevice(trustedDeviceRequest, legacy);
+
+          // Assert
+          expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+            FeatureFlag.InviteLinkAutoConfirm,
+          );
+          expect(apiService.send).toHaveBeenCalledTimes(1);
+          expect(apiService.send).toHaveBeenCalledWith(
+            "POST",
+            "/sso-jit-provision-finish/trusted-device",
+            trustedDeviceRequest,
+            true,
+            false,
+          );
+        },
+      );
+
+      it("should log and rethrow when the request fails", async () => {
+        // Arrange
+        const error = new Error("request failed");
+        apiService.send.mockRejectedValue(error);
+
+        // Act
+        const promise = sut.postTrustedDevice(directInviteRequest(), legacy);
+
+        // Assert
+        await expect(promise).rejects.toThrow(error);
+        expect(logService.error).toHaveBeenCalledWith(error);
+      });
+    });
+
+    describe("given the pm-34429-invite-link-auto-confirm flag is off", () => {
+      beforeEach(() => {
+        setInviteLinkAutoConfirm(false);
+      });
+
+      it("should send the account keys, the account recovery enrollment, and the device keys, in that order", async () => {
+        // Act
+        await sut.postTrustedDevice(directInviteRequest(), legacy);
+
+        // Assert
+        expect(apiService.send).toHaveBeenCalledTimes(3);
+        expect(apiService.send).toHaveBeenNthCalledWith(
+          1,
+          "POST",
+          "/accounts/keys",
+          keys,
+          true,
+          false,
+        );
+        expect(apiService.send).toHaveBeenNthCalledWith(
+          2,
+          "PUT",
+          `/organizations/${orgId}/users/${userId}/reset-password-enrollment`,
+          { resetPasswordKey: "accountRecoveryKey" },
+          true,
+          false,
+        );
+        expect(apiService.send).toHaveBeenNthCalledWith(
+          3,
+          "PUT",
+          `/devices/${deviceIdentifier}/keys`,
+          deviceKeys,
+          true,
+          true,
+        );
+      });
+
+      it("should NOT send the device keys when the user did not trust the device", async () => {
+        // Act
+        await sut.postTrustedDevice(directInviteRequest(false), legacy);
+
+        // Assert
+        expect(apiService.send).toHaveBeenCalledTimes(2);
+        expect(apiService.send.mock.calls.map((call) => call[1])).toEqual([
+          "/accounts/keys",
+          `/organizations/${orgId}/users/${userId}/reset-password-enrollment`,
+        ]);
+      });
+
+      it("should throw before any request when the account recovery key is missing, because the legacy requests always enroll", async () => {
+        // Arrange: an open invite has no account recovery key.
+
+        // Act
+        const promise = sut.postTrustedDevice(openInviteRequest(), legacy);
+
+        // Assert
+        await expect(promise).rejects.toThrow("accountRecoveryKey is null or undefined.");
+        expect(apiService.send).not.toHaveBeenCalled();
+      });
+
+      it("should stop at the first failed request, and log and rethrow", async () => {
+        // Arrange
+        const error = new Error("request failed");
+        apiService.send.mockRejectedValueOnce(error);
+
+        // Act
+        const promise = sut.postTrustedDevice(directInviteRequest(), legacy);
+
+        // Assert
+        await expect(promise).rejects.toThrow(error);
+        expect(apiService.send).toHaveBeenCalledTimes(1);
+        expect(logService.error).toHaveBeenCalledWith(error);
+      });
+    });
+  });
+
   describe("SsoJitProvisionFinishSetKeyConnectorKeyRequest", () => {
     it("should serialize to the server request shape", () => {
       // Arrange
@@ -319,6 +476,56 @@ describe("SsoJitProvisionFinishApiService", () => {
           orgIdentifier: "orgIdentifier",
           keys: { publicKey: "publicKey", encryptedPrivateKey: "encryptedPrivateKey" },
         },
+        acceptOrganizationInvite: false,
+      });
+    });
+  });
+
+  describe("SsoJitProvisionFinishTrustedDeviceRequest", () => {
+    const keys = new KeysRequest("publicKey", "encryptedPrivateKey");
+
+    it("should serialize a direct invite with the account recovery key and the device keys", () => {
+      // Act
+      const body = JSON.parse(
+        JSON.stringify(
+          new SsoJitProvisionFinishTrustedDeviceRequest(
+            keys,
+            "org-id",
+            true,
+            "accountRecoveryKey",
+            new TrustedDeviceKeysRequest(
+              "encryptedUserKey",
+              "encryptedPublicKey",
+              "encryptedPrivateKey",
+            ),
+          ),
+        ),
+      );
+
+      // Assert
+      expect(body).toEqual({
+        keys: { publicKey: "publicKey", encryptedPrivateKey: "encryptedPrivateKey" },
+        organizationId: "org-id",
+        acceptOrganizationInvite: true,
+        accountRecoveryKey: "accountRecoveryKey",
+        deviceKeys: {
+          encryptedUserKey: "encryptedUserKey",
+          encryptedPublicKey: "encryptedPublicKey",
+          encryptedPrivateKey: "encryptedPrivateKey",
+        },
+      });
+    });
+
+    it("should omit the account recovery key and the device keys for an open invite on an untrusted device", () => {
+      // Act
+      const body = JSON.parse(
+        JSON.stringify(new SsoJitProvisionFinishTrustedDeviceRequest(keys, "org-id", false)),
+      );
+
+      // Assert
+      expect(body).toEqual({
+        keys: { publicKey: "publicKey", encryptedPrivateKey: "encryptedPrivateKey" },
+        organizationId: "org-id",
         acceptOrganizationInvite: false,
       });
     });

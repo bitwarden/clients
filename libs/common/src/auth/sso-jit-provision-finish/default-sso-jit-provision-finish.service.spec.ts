@@ -12,6 +12,7 @@ import {
   BitwardenClient,
   JitMasterPasswordRegistrationResponse,
   KeyConnectorRegistrationResult,
+  TdeRegistrationResponse,
 } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
@@ -27,16 +28,20 @@ import { ConfigService } from "../../platform/abstractions/config/config.service
 import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk.service";
 import { Rc } from "../../platform/misc/reference-counting/rc";
 import { UserId } from "../../types/guid";
+import { TrustedDeviceKeysRequest } from "../services/devices/requests/trusted-device-keys.request";
 
 import { DefaultSsoJitProvisionFinishService } from "./default-sso-jit-provision-finish.service";
 import { SsoJitProvisionFinishApiService } from "./sso-jit-provision-finish-api.service";
 import { SsoJitProvisionFinishPasswordRequest } from "./sso-jit-provision-finish-password.request";
 import { SsoJitProvisionFinishSetKeyConnectorKeyRequest } from "./sso-jit-provision-finish-set-key-connector-key.request";
+import { SsoJitProvisionFinishTrustedDeviceRequest } from "./sso-jit-provision-finish-trusted-device.request";
 import {
   SsoJitProvisionFinishKeyConnectorData,
   SsoJitProvisionFinishKeyConnectorV1Keys,
   SsoJitProvisionFinishPasswordData,
   SsoJitProvisionFinishPasswordV1Keys,
+  SsoJitProvisionFinishTrustedDeviceData,
+  SsoJitProvisionFinishTrustedDeviceV1Keys,
 } from "./sso-jit-provision-finish.service";
 
 describe("DefaultSsoJitProvisionFinishService", () => {
@@ -79,7 +84,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     configService.getFeatureFlag.mockImplementation(async (flag) => flags[flag] ?? false);
   }
 
-  /** Mocks the SDK registration client. Returns the dispose spy and the registration methods. */
+  /** Mocks the SDK registration client. Returns the dispose spy and the three registration methods. */
   function mockRegistrationClient() {
     const sdkRef = {
       value: mock<BitwardenClient>(),
@@ -88,6 +93,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     const registrationClient = {
       post_keys_for_jit_password_registration: jest.fn(),
       post_keys_for_key_connector_registration: jest.fn(),
+      post_keys_for_tde_registration: jest.fn(),
     };
     sdkRef.value.auth.mockReturnValue({
       registration: jest.fn().mockReturnValue(registrationClient),
@@ -548,6 +554,333 @@ describe("DefaultSsoJitProvisionFinishService", () => {
 
         // Act
         const promise = sut.finishKeyConnector(kcData);
+
+        // Assert
+        await expect(promise).rejects.toThrow(error);
+      });
+    });
+  });
+
+  describe("finishTrustedDevice", () => {
+    const deviceIdentifier = "device-identifier";
+    const keys = new KeysRequest("publicKey", "encryptedPrivateKey");
+    const deviceKeys = new TrustedDeviceKeysRequest(
+      "encryptedUserKey",
+      "encryptedPublicKey",
+      "encryptedPrivateKey",
+    );
+
+    /** V1 keys for a direct invite on a trusted device. */
+    function directInviteV1Keys(): SsoJitProvisionFinishTrustedDeviceV1Keys {
+      return { keys, accountRecoveryKey: "accountRecoveryKey", deviceKeys };
+    }
+
+    /** V1 keys for an open invite on a trusted device. No account recovery key. */
+    function openInviteV1Keys(): SsoJitProvisionFinishTrustedDeviceV1Keys {
+      return { keys, deviceKeys };
+    }
+
+    let tdeData: SsoJitProvisionFinishTrustedDeviceData;
+
+    beforeEach(() => {
+      tdeData = { userId, orgId, deviceIdentifier, trustDevice: true };
+    });
+
+    describe("given the pm-27279-v2-registration-tde-jit flag is off (V1)", () => {
+      beforeEach(() => {
+        setFlags({ [FeatureFlag.PM27279_V2RegistrationTdeJit]: false });
+      });
+
+      it("should read the TDE V2 flag, not the master password or Key Connector V2 flags", async () => {
+        // Arrange
+        setFlags({
+          [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: true,
+          [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: true,
+          [FeatureFlag.PM27279_V2RegistrationTdeJit]: false,
+        });
+        tdeData.acceptOrganizationInvite = true;
+        tdeData.v1Keys = directInviteV1Keys();
+
+        // Act
+        const result = await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(result).toEqual({ encryptionVersion: "V1" });
+        expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM27279_V2RegistrationTdeJit,
+        );
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+      });
+
+      it("should send a direct invite with the account recovery key and the device keys", async () => {
+        // Arrange
+        tdeData.acceptOrganizationInvite = true;
+        tdeData.v1Keys = directInviteV1Keys();
+
+        // Act
+        await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).toHaveBeenCalledWith(
+          new SsoJitProvisionFinishTrustedDeviceRequest(
+            keys,
+            orgId,
+            true,
+            "accountRecoveryKey",
+            deviceKeys,
+          ),
+          { userId, deviceIdentifier },
+        );
+      });
+
+      it("should send an open invite without an account recovery key", async () => {
+        // Arrange
+        tdeData.acceptOrganizationInvite = false;
+        tdeData.v1Keys = openInviteV1Keys();
+
+        // Act
+        await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).toHaveBeenCalledWith(
+          new SsoJitProvisionFinishTrustedDeviceRequest(keys, orgId, false, undefined, deviceKeys),
+          { userId, deviceIdentifier },
+        );
+      });
+
+      it("should accept the organization invite when acceptOrganizationInvite is undefined, to match the SDK", async () => {
+        // Arrange
+        tdeData.acceptOrganizationInvite = undefined;
+        tdeData.v1Keys = directInviteV1Keys();
+
+        // Act
+        await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).toHaveBeenCalledWith(
+          new SsoJitProvisionFinishTrustedDeviceRequest(
+            keys,
+            orgId,
+            true,
+            "accountRecoveryKey",
+            deviceKeys,
+          ),
+          { userId, deviceIdentifier },
+        );
+      });
+
+      it.each([
+        ["a direct invite", true],
+        ["no invite decision", undefined],
+      ])(
+        "should throw and NOT call the API service when the account recovery key is missing for %s (%s), because the server enrolls the user",
+        async (_, acceptOrganizationInvite) => {
+          // Arrange
+          tdeData.acceptOrganizationInvite = acceptOrganizationInvite;
+          tdeData.v1Keys = openInviteV1Keys();
+
+          // Act
+          const promise = sut.finishTrustedDevice(tdeData);
+
+          // Assert
+          await expect(promise).rejects.toThrow("accountRecoveryKey is null or undefined.");
+          expect(ssoJitProvisionFinishApiService.postTrustedDevice).not.toHaveBeenCalled();
+        },
+      );
+
+      it("should NOT send device keys when the user did not trust the device", async () => {
+        // Arrange
+        tdeData.trustDevice = false;
+        tdeData.acceptOrganizationInvite = true;
+        tdeData.v1Keys = { keys, accountRecoveryKey: "accountRecoveryKey" };
+
+        // Act
+        await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).toHaveBeenCalledWith(
+          new SsoJitProvisionFinishTrustedDeviceRequest(
+            keys,
+            orgId,
+            true,
+            "accountRecoveryKey",
+            undefined,
+          ),
+          { userId, deviceIdentifier },
+        );
+      });
+
+      it.each([
+        ["trustDevice is true and deviceKeys is missing", true, undefined],
+        ["trustDevice is false and deviceKeys is set", false, deviceKeys],
+      ])(
+        "should throw and NOT call the API service when %s",
+        async (_, trustDevice, v1DeviceKeys) => {
+          // Arrange
+          tdeData.trustDevice = trustDevice;
+          tdeData.acceptOrganizationInvite = true;
+          tdeData.v1Keys = {
+            keys,
+            accountRecoveryKey: "accountRecoveryKey",
+            deviceKeys: v1DeviceKeys,
+          };
+
+          // Act
+          const promise = sut.finishTrustedDevice(tdeData);
+
+          // Assert
+          await expect(promise).rejects.toThrow(
+            "deviceKeys must be set only when trustDevice is true. Could not finish SSO JIT provisioning.",
+          );
+          expect(ssoJitProvisionFinishApiService.postTrustedDevice).not.toHaveBeenCalled();
+        },
+      );
+
+      it("should throw and NOT call the API service when v1Keys is missing", async () => {
+        // Arrange
+        tdeData.v1Keys = undefined;
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "v1Keys is null or undefined. Could not finish SSO JIT provisioning.",
+        );
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).not.toHaveBeenCalled();
+      });
+
+      it("should rethrow when the API service fails", async () => {
+        // Arrange
+        tdeData.v1Keys = directInviteV1Keys();
+        const error = new Error("request failed");
+        ssoJitProvisionFinishApiService.postTrustedDevice.mockRejectedValue(error);
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        await expect(promise).rejects.toThrow(error);
+      });
+    });
+
+    describe("given the pm-27279-v2-registration-tde-jit flag is on (V2)", () => {
+      const orgPublicKey = "org-public-key-base64";
+      const registration = { user_key: "user-key" } as TdeRegistrationResponse;
+      let dispose: jest.Mock;
+      let postKeys: jest.Mock;
+
+      beforeEach(() => {
+        setFlags({ [FeatureFlag.PM27279_V2RegistrationTdeJit]: true });
+        tdeData.orgPublicKey = orgPublicKey;
+        const client = mockRegistrationClient();
+        dispose = client.dispose;
+        postKeys = client.registrationClient.post_keys_for_tde_registration;
+        postKeys.mockResolvedValue(registration);
+      });
+
+      it("should register through the SDK and return a V2 result with the SDK response", async () => {
+        // Act
+        const result = await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(result).toEqual({ encryptionVersion: "V2", registration });
+        expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
+        expect(postKeys).toHaveBeenCalledWith({
+          org_id: orgId,
+          org_public_key: orgPublicKey,
+          user_id: userId,
+          device_identifier: deviceIdentifier,
+          trust_device: true,
+          accept_organization_invite: undefined,
+        });
+        expect(dispose).toHaveBeenCalled();
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        ["no invite decision", undefined],
+        ["a direct invite", true],
+        ["an open invite", false],
+      ])(
+        "should pass acceptOrganizationInvite to the SDK unchanged for %s (%s), because the SDK chooses the endpoint",
+        async (_, acceptOrganizationInvite) => {
+          // Arrange
+          tdeData.acceptOrganizationInvite = acceptOrganizationInvite;
+
+          // Act
+          await sut.finishTrustedDevice(tdeData);
+
+          // Assert
+          expect(postKeys).toHaveBeenCalledWith(
+            expect.objectContaining({ accept_organization_invite: acceptOrganizationInvite }),
+          );
+        },
+      );
+
+      it.each([true, false])("should pass trustDevice (%s) to the SDK", async (trustDevice) => {
+        // Arrange
+        tdeData.trustDevice = trustDevice;
+
+        // Act
+        await sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        expect(postKeys).toHaveBeenCalledWith(
+          expect.objectContaining({ trust_device: trustDevice }),
+        );
+      });
+
+      it("should throw and NOT call the SDK when orgPublicKey is missing", async () => {
+        // Arrange
+        tdeData.orgPublicKey = undefined;
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "orgPublicKey is null or undefined. Could not finish SSO JIT provisioning.",
+        );
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+      });
+
+      it("should throw and make no network call when v1Keys is set, because the caller already did V1 work", async () => {
+        // Arrange
+        tdeData.v1Keys = directInviteV1Keys();
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        await expect(promise).rejects.toThrow(
+          "v1Keys must not be set when V2 encryption is on. Could not finish SSO JIT provisioning.",
+        );
+        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishApiService.postTrustedDevice).not.toHaveBeenCalled();
+      });
+
+      it("should throw when the SDK is not available", async () => {
+        // Arrange
+        registerSdkService.registerClient$.mockReturnValue(
+          of(null) as unknown as Observable<Rc<BitwardenClient>>,
+        );
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
+
+        // Assert
+        await expect(promise).rejects.toThrow("SDK not available");
+      });
+
+      it("should rethrow when SDK registration fails", async () => {
+        // Arrange
+        const error = new Error("SDK crypto operation failed");
+        postKeys.mockRejectedValue(error);
+
+        // Act
+        const promise = sut.finishTrustedDevice(tdeData);
 
         // Assert
         await expect(promise).rejects.toThrow(error);

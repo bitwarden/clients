@@ -5,6 +5,7 @@ import {
   KeyConnectorRegistrationResult,
   OrganizationId as SdkOrganizationId,
   RegistrationClient,
+  TdeRegistrationResponse,
   UserId as SdkUserId,
 } from "@bitwarden/sdk-internal";
 
@@ -18,12 +19,15 @@ import { assertNonNullish } from "../utils";
 import { SsoJitProvisionFinishApiService } from "./sso-jit-provision-finish-api.service";
 import { SsoJitProvisionFinishPasswordRequest } from "./sso-jit-provision-finish-password.request";
 import { SsoJitProvisionFinishSetKeyConnectorKeyRequest } from "./sso-jit-provision-finish-set-key-connector-key.request";
+import { SsoJitProvisionFinishTrustedDeviceRequest } from "./sso-jit-provision-finish-trusted-device.request";
 import {
   SsoJitProvisionFinishKeyConnectorData,
   SsoJitProvisionFinishKeyConnectorResult,
   SsoJitProvisionFinishPasswordData,
   SsoJitProvisionFinishPasswordResult,
   SsoJitProvisionFinishService,
+  SsoJitProvisionFinishTrustedDeviceData,
+  SsoJitProvisionFinishTrustedDeviceResult,
 } from "./sso-jit-provision-finish.service";
 
 const ERROR_CONTEXT = "Could not finish SSO JIT provisioning.";
@@ -57,6 +61,17 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     return { encryptionVersion: "V1" };
   }
 
+  async finishTrustedDevice(
+    data: SsoJitProvisionFinishTrustedDeviceData,
+  ): Promise<SsoJitProvisionFinishTrustedDeviceResult> {
+    if (await this.isV2(FeatureFlag.PM27279_V2RegistrationTdeJit, data)) {
+      return { encryptionVersion: "V2", registration: await this.finishTrustedDeviceV2(data) };
+    }
+
+    await this.finishTrustedDeviceV1(data);
+    return { encryptionVersion: "V1" };
+  }
+
   /**
    * Reads the V2 encryption flag for one decryption type.
    *
@@ -67,7 +82,8 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
   private async isV2(
     flag:
       | FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration
-      | FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration,
+      | FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration
+      | FeatureFlag.PM27279_V2RegistrationTdeJit,
     data: { v1Keys?: unknown },
   ): Promise<boolean> {
     const v2 = await this.configService.getFeatureFlag(flag);
@@ -165,6 +181,58 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
         data.orgSsoIdentifier,
         data.acceptOrganizationInvite,
       ),
+    );
+  }
+
+  private async finishTrustedDeviceV1(data: SsoJitProvisionFinishTrustedDeviceData): Promise<void> {
+    assertNonNullish(data.v1Keys, "v1Keys", ERROR_CONTEXT);
+    const { keys, accountRecoveryKey, deviceKeys } = data.v1Keys;
+
+    // Matches the SDK, which accepts the invite when no value is given.
+    const acceptOrganizationInvite = data.acceptOrganizationInvite ?? true;
+
+    // The server enrolls the user in account recovery when it accepts the invite.
+    if (acceptOrganizationInvite) {
+      assertNonNullish(accountRecoveryKey, "accountRecoveryKey", ERROR_CONTEXT);
+    }
+
+    if (data.trustDevice !== (deviceKeys != null)) {
+      throw new Error(`deviceKeys must be set only when trustDevice is true. ${ERROR_CONTEXT}`);
+    }
+
+    const request = new SsoJitProvisionFinishTrustedDeviceRequest(
+      keys,
+      data.orgId,
+      acceptOrganizationInvite,
+      accountRecoveryKey,
+      deviceKeys,
+    );
+
+    await this.ssoJitProvisionFinishApiService.postTrustedDevice(request, {
+      userId: data.userId,
+      deviceIdentifier: data.deviceIdentifier,
+    });
+  }
+
+  /**
+   * The SDK chooses the endpoint from the `pm-34429-invite-link-auto-confirm` flag. When the
+   * invite is accepted, the SDK also enrolls the user in account recovery.
+   */
+  private async finishTrustedDeviceV2(
+    data: SsoJitProvisionFinishTrustedDeviceData,
+  ): Promise<TdeRegistrationResponse> {
+    const orgPublicKey = data.orgPublicKey;
+    assertNonNullish(orgPublicKey, "orgPublicKey", ERROR_CONTEXT);
+
+    return await this.withRegistrationClient(data.userId, (registrationClient) =>
+      registrationClient.post_keys_for_tde_registration({
+        org_id: asUuid<SdkOrganizationId>(data.orgId),
+        org_public_key: orgPublicKey,
+        user_id: asUuid<SdkUserId>(data.userId),
+        device_identifier: data.deviceIdentifier,
+        trust_device: data.trustDevice,
+        accept_organization_invite: data.acceptOrganizationInvite,
+      }),
     );
   }
 }
