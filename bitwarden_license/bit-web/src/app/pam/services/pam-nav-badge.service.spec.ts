@@ -8,7 +8,7 @@ import {
   DefaultAccessRefreshService,
 } from "@bitwarden/bit-pam";
 import type { AccessRequestStatus, AccessRequestView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { AccessBadgeTickerService, MyAccessRequestsService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -85,16 +85,19 @@ describe("DefaultPamNavBadgeService", () => {
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     approvalsApi.listInbox.mockResolvedValue([]);
 
+    const ticker = { ticks$ } as unknown as AccessBadgeTickerService;
+    const accountService = {
+      activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }),
+    } as unknown as AccountService;
     service = new DefaultPamNavBadgeService(
-      requestsApi,
+      // The real one, so the caller's half reads through it as in the app.
+      new MyAccessRequestsService(requestsApi, accessRefresh, accountService, ticker, logService),
       approvalsApi,
       approvalPrivileges,
       accessEvents,
       accessRefresh,
-      { ticks$ } as unknown as AccessBadgeTickerService,
-      {
-        activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }),
-      } as unknown as AccountService,
+      ticker,
+      accountService,
       { organizations$: () => organizations$ } as unknown as OrganizationService,
       configService,
       logService,
@@ -350,6 +353,8 @@ describe("DefaultPamNavBadgeService", () => {
     expect(inboxPush$.observed).toBe(true);
 
     subscription.unsubscribe();
+    // The shared requests read lets go a task later, for a consumer swapping its inputs.
+    await settle();
 
     expect(push$.observed).toBe(false);
     expect(inboxPush$.observed).toBe(false);

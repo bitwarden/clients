@@ -250,8 +250,8 @@
     "@angular-devkit/build-angular": {
       "jest-environment-jsdom": "30.4.1"
     },
-    "tmp": ">=0.2.4",
-    "vite": "^7.3.6"
+    "tmp": "0.2.7",
+    "vite": "7.3.7"
   },
   "engines": {
     "node": ">=24.17.0",
