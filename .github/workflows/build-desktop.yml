@@ -195,10 +195,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -385,10 +385,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -563,10 +563,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: windows-2022
     needs:
       - setup
@@ -962,10 +962,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: windows-2022
     needs: setup
     permissions:
@@ -1304,10 +1304,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: macos-15
     needs:
       - setup
@@ -1557,11 +1557,11 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
             browser_artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
             browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1861,10 +1861,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -2114,14 +2114,14 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
             browser_artifact_prefix: "oss-"
             build_number_suffix: ""
           # Both variants upload to the same TestFlight app, so the commercial
           # build needs its own build number (e.g. 3456 vs 3456.1).
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
             browser_artifact_prefix: "bit-"
             build_number_suffix: ".1"
     runs-on: macos-15
@@ -2553,7 +2553,7 @@ jobs:
       - name: Download deb artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/artifacts/linux/deb
 
       - name: Install deps
@@ -2595,7 +2595,7 @@ jobs:
       - name: Download appimage artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
 
       - name: Install deps
@@ -2635,7 +2635,7 @@ jobs:
       - name: Download appimage artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
 
       - name: Install deps
@@ -2689,7 +2689,7 @@ jobs:
       - name: Download flatpak artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
+          name: oss-com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
           path: apps/desktop/artifacts/linux/flatpak/
 
       - name: Install deps
@@ -2740,7 +2740,7 @@ jobs:
       - name: Download snap artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
+          name: oss-bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
           path: apps/desktop/artifacts/linux/snap
 
       - name: Install deps
@@ -2783,7 +2783,7 @@ jobs:
       - name: Download dmg artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/artifacts/macos/dmg
 
       - name: Install dmg
@@ -2839,7 +2839,7 @@ jobs:
       - name: Download portable artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: oss-Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/artifacts/windows/portable
 
       - name: Run Portable exe
