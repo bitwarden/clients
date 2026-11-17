@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -38,13 +39,13 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should return error with missing root tag", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(InvalidRootNodeData);
     expect(result.errorMessage).toBe("Missing `passwordfile` node.");
   });
 
   it("should return error with invalid export version", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(InvalidVersionData);
     expect(result.errorMessage).toBe(
       "Unsupported export version detected - (only 17.0 is supported)",
@@ -52,20 +53,20 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should return error if file is marked as encrypted", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(EncryptedFileData);
     expect(result.errorMessage).toBe("Encrypted Password Depot files are not supported.");
   });
 
   it("should return error with missing passwords node tag", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(MissingPasswordsNodeData);
     expect(result.success).toBe(false);
     expect(result.errorMessage).toBe("Missing `passwordfile > passwords` node.");
   });
 
   it("should parse groups nodes into folders", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const folder = new FolderView();
     folder.name = "tempDB";
 
@@ -80,7 +81,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse password type into logins", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(PasswordTestData);
 
     expect(result.ciphers.length).toEqual(3);
@@ -97,7 +98,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse any unmapped fields as custom fields", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(PasswordTestData);
 
     expect(result.ciphers.length).toEqual(3);
@@ -122,7 +123,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse credit cards", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(CreditCardTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -141,7 +142,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse identity type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(IdentityTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -165,7 +166,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse RDP type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(RDPTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -181,7 +182,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse software license into secure notes", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(SoftwareLicenseTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -212,7 +213,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse team viewer into login type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(TeamViewerTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -231,7 +232,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse putty into login type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(PuttyTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -256,7 +257,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
   describe("should parse banking item type into login type", () => {
     it("with new item types feature flag OFF", async () => {
-      const importer = new PasswordDepot17XmlImporter(configService);
+      const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
       const result = await importer.parse(BankingTestData);
 
       expect(result.ciphers.length).toEqual(1);
@@ -295,7 +296,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
-      const importer = new PasswordDepot17XmlImporter(configService);
+      const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
       const result = await importer.parse(BankingTestData);
 
       expect(result.ciphers.length).toEqual(2);
@@ -356,7 +357,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse information into secure note type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(InformationTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -368,7 +369,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse certificate into login type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(CertificateTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -383,7 +384,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse encrypted file into login type", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(EncryptedFileTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -398,7 +399,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse document type into secure note", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(DocumentTestData);
 
     expect(result.ciphers.length).toEqual(1);
@@ -416,7 +417,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse favourites and set them on the target item", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(PasswordTestData);
 
     expect(result.ciphers.length).toEqual(3);
@@ -434,7 +435,7 @@ describe("Password Depot 17 Xml Importer", () => {
   });
 
   it("should parse groups nodes into collections when importing into an organization", async () => {
-    const importer = new PasswordDepot17XmlImporter(configService);
+    const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     importer.organizationId = "someOrgId" as OrganizationId;
     const collection = new CollectionView({
       name: "tempDB",

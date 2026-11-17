@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Aplikácia (URI)"
+  "desktopApp": {
+    "message": "Desktopová aplikácia",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Aplikácia (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktopová aplikácia $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 položka",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Všetko"
   },
@@ -2516,7 +2521,7 @@
     "message": "Vybrané"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "vybrané",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Zakázané"
   },
+  "removeAuth": {
+    "message": "Odstrániť overenie heslom alebo e-mailom"
+  },
+  "removedAuth": {
+    "message": "Overenie heslom alebo e-mailom bolo odstránené"
+  },
+  "removeAuthConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla alebo overenie e-mailom?"
+  },
   "removePassword": {
     "message": "Odstrániť heslo"
+  },
+  "removeEmailVerification": {
+    "message": "Odstrániť overenie e-mailom"
   },
   "removedPassword": {
     "message": "Heslo bolo odstránené"
   },
-  "removePasswordConfirmation": {
-    "message": "Naozaj chcete odstrániť heslo?"
+  "removedEmailVerification": {
+    "message": "Overenie e-mailom bolo odstránené"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na overenie e-mailom?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Bol dosiahnutý maximálny počet prístupov"
@@ -4440,7 +4465,7 @@
     "message": "Organizácia nie je dôveryhodná"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Pre bezpečnosť vášho účtu stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
+    "message": "Pre bezpečnosť vášho účtu stačí overiť, že ste tomuto používateľovi udelili núdzový prístup, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
   },
   "orgTrustWarning": {
     "message": "Pre bezpečnosť vášho účtu pokračujte, iba ak ste členom organizácie, máte povolenú obnovu účtu a odtlačok sa zhoduje s odtlačkom organizácie."
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Vytvoriť kópiu"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   },
   "driversLicenseDetails": {
