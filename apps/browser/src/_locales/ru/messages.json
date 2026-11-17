@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Создать аккаунт"
   },
+  "welcomeToBitwarden": {
+    "message": "Добро пожаловать в Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Создайте аккаунт или авторизуйтесь"
+  },
   "newToBitwarden": {
     "message": "Впервые на Bitwarden?"
   },
@@ -3837,14 +3843,14 @@
     "message": "Скопировать ссылку на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Удалить пароль"
+  "removeAuth": {
+    "message": "Удалить пароль или подтверждение по email"
   },
   "delete": {
     "message": "Удалить"
   },
-  "removedPassword": {
-    "message": "Пароль удален"
+  "removedAuth": {
+    "message": "Пароль или подтверждение по email удалены"
   },
   "deletedSend": {
     "message": "Send удалена",
@@ -3857,8 +3863,28 @@
   "disabled": {
     "message": "Отключено"
   },
-  "removePasswordConfirmation": {
-    "message": "Вы уверены, что хотите удалить пароль?"
+  "removeAuthConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля или подтверждения по email для этой Send?"
+  },
+  "removePassword": {
+    "message": "Удалить пароль"
+  },
+  "removeEmailVerification": {
+    "message": "Удалить подтверждение по email"
+  },
+  "removedPassword": {
+    "message": "Пароль удален"
+  },
+  "removedEmailVerification": {
+    "message": "Подтверждение по email удалено"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование подтверждения по email для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Удалить Send",
@@ -7052,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8865,5 +8892,429 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобренный доступ пока не начался."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобренный доступ уже истек."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Этот запрос пока не одобрен."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Одновременно активный доступ к этому элементу может иметь только 1 пользователь. Повторите попытку после завершения текущего доступа."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "У вас уже есть ожидающий запрос на этот элемент."
+  },
+  "pamLeaseExpires": {
+    "message": "Истекает $DATE$ в $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Истекает сегодня в $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Начать доступ"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Доступ начат."
+  },
+  "pamStartLeaseError": {
+    "message": "Не удалось запустить доступ."
+  },
+  "pamEndLeaseButton": {
+    "message": "Завершить доступ"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Завершить доступ?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Это действие немедленно аннулирует ваш доступ. Это действие не может быть отменено."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Доступ прекращен."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Продлить доступ"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Продлить доступ"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Продолжительность продления"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Доступ расширен."
+  },
+  "pamExtendLeaseError": {
+    "message": "Не удалось расширить доступ."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Ваш доступ истек до того, как его удалось продлить. Запрос сохранен в вашей истории."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Ожидает подтверждения"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недоступен"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готов к использованию"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Активный доступ • Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Скоро закончится •Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Запрос на доступ ожидает утверждения"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Отправлено только сейчас"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Отправлено $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привилегированные учетные данные"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Необходима лицензия на привилегированное управление",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Запрос на использование"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1m left",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Контролируемый доступ"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Используется"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Скоро закончится"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Ваш доступ завершен"
+  },
+  "pamEndedBannerBody": {
+    "message": "Срок действия этих учетных данных истек. Эти учетные данные будут ротированы после окончания вашего доступа."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Вы не можете запросить доступ прямо сейчас"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правило доступа к этим учетным данным не разрешает запросы из вашей текущей сети или в данный момент."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готов к использованию"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Вы можете получить доступ к этим учетным данным до $TIME$ сегодня.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Вы можете получить доступ к этим учетным данным до $TIME$ $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Учетные данные остаются замаскированными до тех пор, пока не будет предоставлен доступ."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Вы можете запросить доступ"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Вам нужна лицензия привилегированного управления для использования этого элемента",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Запрос на доступ недоступен, пока у вас нет лицензии.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Попросите администратора активировать лицензию.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Требуется лицензия привилегированного управления. Попросите администратора активировать вашу лицензию.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Доступ до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Доступ до $DURATION$, мгновенное утверждение, если вы соответствуете условиям",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Запросить доступ"
+  },
+  "pamRequestSlotTaken": {
+    "message": "В данный момент к этому элементу доступ имеет другой пользователь. Вы можете запросить доступ, но не сможете приступить к работе, пока он не закончит."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "В данный момент к этому элементу доступ имеет другой пользователь. Вы можете запросить доступ, но приступить к работе с ним сможете только в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Отменить запрос"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Запрос отменен"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Отправить запрос"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Как долго вам это необходимо?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "После одобрения вы получите уведомление. Счет времени начнется только после того, как вы начнете использовать эти учетные данные."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Детали запроса"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Дата начала"
+  },
+  "requestAccessModalStart": {
+    "message": "Время начала"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Дата окончания"
+  },
+  "requestAccessModalEnd": {
+    "message": "Время окончания"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Окончание должно быть после начала."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (сейчас)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Собственное время…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Индивидуальные дата и время окончания…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показать рекомендуемое время начала"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Вернуться к предлагаемой продолжительности"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$ до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Запрос на доступ на срок $DURATION$: с $START$ по $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Запрошенное время уже истекло. Выберите более поздние дату или время."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Время не может превышать $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Зачем вам это нужно?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Зачем вам это нужно?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "например, при ежеквартальном аудите необходимо выполнить несколько запросов только для чтения"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Виден вашему утверждающему и сохраняется в журнале аудита."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Виден вашему утверждающему и сохраняется в журнале аудита."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Не удалось запросить доступ. Попробуйте еще раз."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Доступ разрешен. Нажмите Начать доступ, чтобы приступить."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Доступ запрошен"
   }
 }

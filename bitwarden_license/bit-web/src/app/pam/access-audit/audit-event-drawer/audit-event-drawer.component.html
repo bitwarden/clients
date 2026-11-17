@@ -6,7 +6,7 @@
         bitBadge
         variant="warning"
         class="tw-ms-2"
-        [bitTooltip]="'pamAuditIncompleteTooltip' | i18n"
+        [bitTooltip]="'pamAuditOutcomeUnconfirmedTooltip' | i18n"
         >{{ "pamAuditIncomplete" | i18n }}</span
       >
     }
@@ -16,7 +16,9 @@
     <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-4">
       <div>
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "timestamp" | i18n }}</dt>
-        <dd class="tw-m-0" data-testid="drawer-timestamp">{{ row.occurredAt | date: "long" }}</dd>
+        <dd class="tw-m-0" data-testid="drawer-timestamp">
+          {{ row.occurredAt | timestamp: "second" }}
+        </dd>
       </div>
 
       <div>
@@ -97,14 +99,16 @@
       </div>
 
       <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "collection" | i18n }}</dt>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "sharedFolder" | i18n }}
+        </dt>
         <dd class="tw-m-0 tw-break-words" data-testid="drawer-collection">
           @if (collectionRoute; as route) {
             <a
               bitLink
               id="pam-audit-event-drawer_link_collection"
               [routerLink]="route"
-              [queryParams]="{ collectionId: row.collectionId }"
+              [queryParams]="{ sharedFolderId: row.collectionId }"
               (click)="closeDrawer()"
               >{{ row.collectionName }}</a
             >
@@ -144,9 +148,9 @@
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnDuration" | i18n }}</dt>
         <dd class="tw-m-0" data-testid="drawer-duration">
           @if (row.duration; as duration) {
-            {{ duration.key | i18n: duration.value }}
+            {{ duration }}
           } @else if (row.extendedUntil) {
-            {{ "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "medium") }}
+            {{ "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | timestamp) }}
           } @else {
             <span class="tw-text-muted">—</span>
           }

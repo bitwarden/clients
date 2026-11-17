@@ -13,7 +13,9 @@ import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-
  *   drops the action in production.
  * - `label` is fixed. For a label that depends on the row, add one action per label and pick
  *   with `show`.
- * - Contributed actions go after the built-in actions and before the Delete group.
+ * - Web and desktop place contributed actions after the built-in actions and before the Delete
+ *   group. The browser popup places them at the top of the menu, after View.
+ * - The browser popup's menu has no icons or upgrade badge, so it ignores `icon` and `premiumGated`.
  * - Contributed actions do not reach the bulk action bar.
  *
  * Single token for now. Widen to `multi` when a second feature contributes.

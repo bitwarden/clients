@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "অ্যাপ (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "অ্যাপ (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "সব"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "নিষ্ক্রিয়"
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "পাসওয়ার্ড সরান"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "পাসওয়ার্ড সরানো হয়েছে"
   },
-  "removePasswordConfirmation": {
-    "message": "আপনি কি নিশ্চিত যে আপনি পাসওয়ার্ড সরাতে চান?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "সর্বোচ্চ অ্যাক্সেস সংখ্যা পৌঁছেছে"
@@ -7352,8 +7377,8 @@
   "makeACopy": {
     "message": "একটি কপি তৈরি করুন"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "আপনি একাধিক সংগ্রহের অংশ এমন আইটেমগুলি আমার আইটেমে আমদানি করতে পারবেন না"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "লাইসেন্স বিবরণ"

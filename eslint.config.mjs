@@ -294,20 +294,7 @@ export default tseslint.config(
     rules: {
       "no-restricted-syntax": [
         "error",
-        {
-          message:
-            "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
-          // This selector covers events like chrome.storage.onChange & chrome.runtime.onMessage
-          selector:
-            "CallExpression > [object.object.object.name='chrome'][property.name='addListener']",
-        },
-        {
-          message:
-            "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
-          // This selector covers events like chrome.storage.local.onChange
-          selector:
-            "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
-        },
+        ...safariAddListenerSyntaxRules(),
         // This block owns the non-background browser files; the background block below covers the rest, so
         // together they follow these methods everywhere without a third, colliding `no-restricted-syntax` block.
         doAutoFillSyntaxRule(),
@@ -326,6 +313,52 @@ export default tseslint.config(
         "error",
         doAutoFillSyntaxRule(),
         unsafeAutofillTabWithCipherSyntaxRule(),
+      ],
+    },
+  },
+  // Autofill reads ciphers only through `FillCipherPolicy`. A later block replaces the
+  // `no-restricted-syntax` options of an earlier one, so these blocks repeat the entries of the two
+  // blocks above for the same Autofill files and add `fillCipherPolicySyntaxRules`.
+  {
+    files: ["apps/browser/src/autofill/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/services/default-fill-cipher-policy.ts", // The policy wraps `CipherService`.
+      "apps/browser/src/**/*.spec.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": ["error", ...fillCipherPolicySyntaxRules()],
+    },
+  },
+  {
+    files: ["apps/browser/src/autofill/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
+      "apps/browser/src/**/background/**/*.ts",
+      "apps/browser/src/autofill/services/default-fill-cipher-policy.ts",
+      "apps/browser/src/**/*.spec.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...safariAddListenerSyntaxRules(),
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+        ...fillCipherPolicySyntaxRules(),
+      ],
+    },
+  },
+  {
+    files: ["apps/browser/src/autofill/**/background/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
+      "apps/browser/src/**/*.spec.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+        ...fillCipherPolicySyntaxRules(),
       ],
     },
   },
@@ -400,15 +433,27 @@ export default tseslint.config(
     },
   },
   {
+    files: ["bitwarden_license/bit-sm/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
+      ]),
+    },
+  },
+  {
     files: ["apps/**/*.ts"],
     rules: {
       // Catches static imports
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -418,6 +463,7 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
@@ -438,6 +484,7 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
@@ -453,9 +500,11 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -735,6 +784,7 @@ export default tseslint.config(
     files: [
       "libs/**/*.ts",
       "bitwarden_license/bit-common/src/**/*.ts",
+      "bitwarden_license/bit-sm/src/**/*.ts",
       "bitwarden_license/bit-pam/src/**/*.ts",
       "bitwarden_license/bit-pam-components/src/**/*.ts",
     ],
@@ -881,6 +931,51 @@ function buildNoRestrictedImports(
         ...(additionalForbiddenPatterns.length > 0 ? [{ group: additionalForbiddenPatterns }] : []),
         ...(allowLegacyCrypto ? [] : [LEGACY_CRYPTO_RESTRICTED_PATTERN]),
       ],
+    },
+  ];
+}
+
+/**
+ * `no-restricted-syntax` entries that flag native `addListener` calls on `chrome` events.
+ * @returns {any[]}
+ */
+function safariAddListenerSyntaxRules() {
+  const message =
+    "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead";
+  return [
+    {
+      message,
+      // This selector covers events like chrome.storage.onChange & chrome.runtime.onMessage
+      selector:
+        "CallExpression > [object.object.object.name='chrome'][property.name='addListener']",
+    },
+    {
+      message,
+      // This selector covers events like chrome.storage.local.onChange
+      selector:
+        "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
+    },
+  ];
+}
+
+/**
+ * `no-restricted-syntax` entries that flag `CipherService` lookups (`cipherService.x` and
+ * `this.cipherService.x`) that Autofill must make through `FillCipherPolicy`.
+ * @returns {any[]}
+ */
+function fillCipherPolicySyntaxRules() {
+  const lookups =
+    "/^(getAllDecrypted|getAllDecryptedForUrl|getNextCipherForUrl|getNextCardCipher|getNextIdentityCipher|getLastLaunchedForUrl|getLastUsedForUrl|updateLastUsedIndexForUrl|ciphers\\$|cipherViews\\$)$/";
+  const message =
+    "Autofill looks up ciphers through FillCipherPolicy with a CipherUse, not through CipherService. See fill-cipher-policy.ts.";
+  return [
+    {
+      selector: `MemberExpression[object.name='cipherService'][property.name=${lookups}]`,
+      message,
+    },
+    {
+      selector: `MemberExpression[object.type='MemberExpression'][object.property.name='cipherService'][property.name=${lookups}]`,
+      message,
     },
   ];
 }

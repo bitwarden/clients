@@ -20,9 +20,12 @@ const ROTATED_ATTEMPT: AttemptView = {
   ordinal: 1,
   startedAt: STARTED_AT,
   duration: { hours: 0, minutes: 0, seconds: 42 },
-  running: false,
   statusLabelKey: "pamRotationAttemptStatusRotated",
-  divergentFailureReason: null,
+  resultLabelKey: "pamRotationAttemptResultSucceeded",
+  failed: false,
+  connectorName: "East datacenter",
+  causeLabelKey: null,
+  failureReason: null,
 };
 
 /** A scheduled rotation that succeeded on its first attempt. */
@@ -34,14 +37,17 @@ const SUCCEEDED: JobView = {
   statusLabelKey: "pamRotationJobStatusSucceeded",
   statusVariant: "success",
   failed: false,
+  retrySucceeded: false,
   running: false,
   startedAt: STARTED_AT,
   createdAt: STARTED_AT,
+  displayStartedAt: STARTED_AT,
   duration: { hours: 0, minutes: 0, seconds: 42 },
   attempts: [ROTATED_ATTEMPT],
   attemptsUniform: false,
   causeLabelKey: null,
   reportedReason: null,
+  details: { key: "pamRotationDetailNone" },
   syncStateLabelKey: null,
   syncStateIndeterminate: false,
   sessionTerminationLabelKey: null,
@@ -49,6 +55,14 @@ const SUCCEEDED: JobView = {
 };
 
 const LDAP_INVALID_CREDENTIALS = "ldap_bind: LDAP result code 49 (invalidCredentials)";
+
+const FAILED_ATTEMPT: AttemptView = {
+  ...ROTATED_ATTEMPT,
+  statusLabelKey: "pamRotationAttemptStatusErrored",
+  resultLabelKey: "pamRotationAttemptResultFailed",
+  failed: true,
+  failureReason: LDAP_INVALID_CREDENTIALS,
+};
 
 /** Three attempts, the second of which failed for a different reason than the final one. */
 const FAILED: JobView = {
@@ -60,27 +74,22 @@ const FAILED: JobView = {
   failed: true,
   duration: { hours: 0, minutes: 6, seconds: 15 },
   attempts: [
+    FAILED_ATTEMPT,
     {
-      ...ROTATED_ATTEMPT,
-      id: attemptId("1"),
-      statusLabelKey: "pamRotationAttemptStatusErrored",
-    },
-    {
-      ...ROTATED_ATTEMPT,
+      ...FAILED_ATTEMPT,
       id: attemptId("2"),
       ordinal: 2,
       startedAt: "2026-08-18T09:02:00.000Z",
       duration: { hours: 0, minutes: 1, seconds: 3 },
-      statusLabelKey: "pamRotationAttemptStatusErrored",
-      divergentFailureReason: "target_unreachable: dial tcp 10.0.4.12:636: i/o timeout",
+      causeLabelKey: "pamRotationAttemptCauseTargetUnreachable",
+      failureReason: "target_unreachable: dial tcp 10.0.4.12:636: i/o timeout",
     },
     {
-      ...ROTATED_ATTEMPT,
+      ...FAILED_ATTEMPT,
       id: attemptId("3"),
       ordinal: 3,
       startedAt: "2026-08-18T09:06:00.000Z",
       duration: { hours: 0, minutes: 0, seconds: 15 },
-      statusLabelKey: "pamRotationAttemptStatusErrored",
     },
   ],
   causeLabelKey: "pamRotationFailureCauseInvalidCredentials",
@@ -88,17 +97,20 @@ const FAILED: JobView = {
   syncStateLabelKey: "pamRotationSyncStateTargetUnchanged",
 };
 
+const CONNECTOR_PANIC = "connector_panic: unexpected EOF reading sealed payload";
+
 /** Every attempt failed alike, with a reason no cause is recognised for. */
 const FAILED_UNIFORM: JobView = {
   ...FAILED,
   id: jobId("j3"),
   attempts: FAILED.attempts.map((attempt): AttemptView => ({
     ...attempt,
-    divergentFailureReason: null,
+    causeLabelKey: null,
+    failureReason: CONNECTOR_PANIC,
   })),
   attemptsUniform: true,
   causeLabelKey: null,
-  reportedReason: "connector_panic: unexpected EOF reading sealed payload",
+  reportedReason: CONNECTOR_PANIC,
   syncStateLabelKey: null,
 };
 
@@ -114,7 +126,7 @@ const SYNC_INDETERMINATE: JobView = {
 const IN_PROGRESS: JobView = {
   ...SUCCEEDED,
   id: jobId("j5"),
-  statusLabelKey: "pamRotationJobStatusClaimed",
+  statusLabelKey: "pamRotationAttemptInProgress",
   statusVariant: "secondary",
   running: true,
   duration: null,
@@ -122,8 +134,8 @@ const IN_PROGRESS: JobView = {
     {
       ...ROTATED_ATTEMPT,
       duration: null,
-      running: true,
       statusLabelKey: "pamRotationAttemptStatusExecuting",
+      resultLabelKey: "pamRotationAttemptStatusExecuting",
     },
   ],
 };

@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { of } from "rxjs";
 
 import type { AccessDecisionVerdict, AccessRequestView } from "@bitwarden/bit-pam";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
@@ -56,6 +58,7 @@ describe("DecideDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [DecideDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close } },
         {
@@ -96,11 +99,9 @@ describe("DecideDialogComponent", () => {
     expect(summary.textContent).toContain("Meridian Group");
     expect(summary.textContent).toContain("Production");
     expect(summary.textContent).toContain("Grace");
-    expect(summary.textContent).toContain("grace@example.com");
+    expect(summary.textContent).not.toContain("grace@example.com");
     expect(fieldValue("pam-request-summary_value_reason")).toContain("prod incident");
-    expect(fieldValue("pam-request-summary_value_access-requested")).toContain(
-      "pamInboxDuration1Hour",
-    );
+    expect(fieldValue("pam-request-summary_value_access-requested")).toContain("1 hour");
   });
 
   it("renders nothing for an organization that did not resolve", async () => {
@@ -147,7 +148,7 @@ describe("DecideDialogComponent", () => {
     });
   });
 
-  it("confirms with no comment at all when approving — it stays optional", async () => {
+  it("confirms with no comment at all when approving, it stays optional", async () => {
     await create("approve");
 
     await component["confirm"]();
@@ -233,6 +234,16 @@ describe("DecideDialogComponent", () => {
 
       expect(component["confirmDisabled"]()).toBe(true);
       expect(component["formGroup"].controls.comment.invalid).toBe(true);
+    });
+
+    it("styles Deny as a solid destructive button, set apart at the footer's far edge", async () => {
+      await create("approve");
+
+      const deny = fixture.nativeElement.querySelector(
+        "#pam-decide-dialog_button_switch-to-deny",
+      ) as HTMLButtonElement;
+      expect(deny.getAttribute("buttonType")).toBe("danger");
+      expect(deny.className).toContain("tw-ms-auto");
     });
 
     it("moves focus onto the reason field, which the removed button would otherwise strand", async () => {
