@@ -3,11 +3,20 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { FormContent, FormPurposeCategory } from "@bitwarden/common/autofill/types";
 
 import AutofillPageDetails from "../models/autofill-page-details";
+import * as autofillUtils from "../utils";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { DefaultRuleQualificationService } from "./rule-qualification.service";
+
+jest.mock("../utils", () => {
+  const utils = jest.requireActual("../utils");
+  return {
+    ...utils,
+    sendExtensionMessage: jest.fn().mockResolvedValue(undefined),
+  };
+});
 
 describe("DefaultRuleQualificationService", () => {
   let collectService: MockProxy<CollectAutofillContentService>;
@@ -59,6 +68,8 @@ describe("DefaultRuleQualificationService", () => {
 
   beforeEach(() => {
     document.body.innerHTML = "";
+    jest.mocked(autofillUtils.sendExtensionMessage).mockClear();
+    jest.mocked(autofillUtils.sendExtensionMessage).mockResolvedValue(undefined);
 
     collectService = mock<CollectAutofillContentService>();
     collectService.collectHeuristicPageDetailsBypass.mockResolvedValue(samplePageDetails);
@@ -660,6 +671,238 @@ describe("DefaultRuleQualificationService", () => {
       const result = await service.qualifyRule("https://example.com", rule);
 
       expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+  });
+
+  describe("qualifyRule — iframe fallback dispatch", () => {
+    it("does not dispatch on the happy path (proceedTargeted)", async () => {
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      form.append(user, pass);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
+    });
+
+    it("dispatches once per unique first-hop iframe on a structural miss", async () => {
+      const iframeA = document.createElement("iframe");
+      iframeA.id = "login-a";
+      iframeA.src = "https://child-a.example.com/login";
+      const iframeB = document.createElement("iframe");
+      iframeB.id = "login-b";
+      iframeB.src = "https://child-b.example.com/login";
+      document.body.append(iframeA, iframeB);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            username: ["iframe#login-a >>> #user"],
+            password: ["iframe#login-b >>> #pass"],
+          },
+        },
+      ];
+
+      // Force a structural miss.
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledTimes(2);
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://child-a.example.com/login" },
+      );
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://child-b.example.com/login" },
+      );
+    });
+
+    it("dedupes dispatches when multiple selectors name the same iframe", async () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      iframe.src = "https://child.example.com/login";
+      document.body.append(iframe);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            username: ["iframe#login >>> #user"],
+            password: ["iframe#login >>> #pass"],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledTimes(1);
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://child.example.com/login" },
+      );
+    });
+
+    it("dispatches on an in_scope_extras miss too", async () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      iframe.src = "https://child.example.com/login";
+      document.body.append(iframe);
+
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      const extra = document.createElement("input");
+      form.append(user, pass, extra);
+      document.body.append(form);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            // Rule declares one iframe selector (triggers dispatch derivation)
+            // plus two direct selectors (resolve to the form, in-scope extras fires).
+            username: ["#user", "iframe#login >>> #user"],
+            password: ["#pass"],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      const result = await service.qualifyRule("https://example.com", rule);
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "in_scope_extras" });
+      expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith(
+        "runFillAssistHeuristicFallback",
+        { iframeSrc: "https://child.example.com/login" },
+      );
+    });
+
+    it("does not dispatch when a >>> selector's first segment is not an iframe (shadow DOM)", async () => {
+      const shadowHost = document.createElement("gi-login");
+      shadowHost.className = "hydrated";
+      document.body.append(shadowHost);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["gi-login.hydrated >>> input#user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
+    });
+
+    it("does not dispatch when the iframe selector resolves to nothing", async () => {
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["iframe#missing >>> #user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
+    });
+
+    it("does not dispatch when the iframe has no src", async () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      // Explicitly leave .src empty (srcdoc or about:blank scenario).
+      document.body.append(iframe);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["iframe#login >>> #user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      expect(autofillUtils.sendExtensionMessage).not.toHaveBeenCalled();
+    });
+
+    it("does not touch field caches when deriving iframe targets (SD-M3.5-2)", async () => {
+      // The collect service's cache-mutating methods must not fire during
+      // dispatch derivation. The derivation is a pure DOM read.
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      iframe.src = "https://child.example.com/login";
+      document.body.append(iframe);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["iframe#login >>> #user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", rule);
+
+      // The bypass call is permitted (and expected) on the miss path, but
+      // nothing else on the collect service's write surface should fire
+      // during derivation itself.
+      expect(collectService.setRuleQualificationService).not.toHaveBeenCalled();
+      expect(collectService.applyExternalTargetedFields).not.toHaveBeenCalled();
+      expect(collectService.getPageDetails).not.toHaveBeenCalled();
+    });
+
+    it("swallows rejections from sendExtensionMessage without breaking the miss path", async () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login";
+      iframe.src = "https://child.example.com/login";
+      document.body.append(iframe);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["iframe#login >>> #user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+      domQueryService.findIframeCrossing.mockReturnValue(null);
+      jest
+        .mocked(autofillUtils.sendExtensionMessage)
+        .mockRejectedValueOnce(new Error("relay unavailable"));
+
+      const result = await service.qualifyRule("https://example.com", rule);
+
+      // Parent's own bypass still runs and returns the structural fallback.
+      expect(result).toMatchObject({ kind: "fallback", missReason: "structural" });
+      expect(collectService.collectHeuristicPageDetailsBypass).toHaveBeenCalled();
     });
   });
 

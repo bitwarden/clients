@@ -1,6 +1,7 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
 import { FormFieldElement } from "../types";
+import { sendExtensionMessage } from "../utils";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -25,6 +26,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     const domain = new URL(url).hostname;
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
+      this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
@@ -38,6 +40,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     const extras = await this.checkInScopeExtras(matchedRule, structural.inScopeForms);
     if (!extras.ok) {
+      this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass(
           structural.inScopeForms,
@@ -259,5 +262,52 @@ export class DefaultRuleQualificationService implements RuleQualificationService
       return false;
     }
     return !this.domElementVisibilityService.isElementHiddenByCss(element as HTMLElement);
+  }
+
+  /**
+   * Fires `runFillAssistHeuristicFallback` once per unique first-hop iframe
+   * named by the rule's `>>>` selectors. The background relay resolves each
+   * `iframeSrc` to a `frameId` and routes to that one frame.
+   *
+   * Pure DOM read of the rule's selector strings and parent-frame iframe
+   * elements. Does not invoke `resolveTargetedFields` or
+   * `buildAutofillFieldsData`, so `autofillFieldElements` and
+   * `autofillFieldsByOpid` remain untouched on this step.
+   *
+   * Shadow DOM `>>>` selectors whose first segment resolves to a custom
+   * element or shadow host are filtered out by the `HTMLIFrameElement`
+   * check. Only iframe boundaries produce a dispatch.
+   */
+  private dispatchIframeFallbacks(rule: FormContent[]): void {
+    for (const iframeSrc of this.deriveIframeFallbackTargets(rule)) {
+      void sendExtensionMessage("runFillAssistHeuristicFallback", { iframeSrc }).catch(() => {
+        // Swallow rejections from the background relay. The parent frame's
+        // own bypass still runs; the child dispatch is best-effort.
+      });
+    }
+  }
+
+  /**
+   * Walks the rule's declared selectors for `>>>` entries whose first segment
+   * resolves to an iframe in the parent's DOM. Returns the set of unique
+   * `iframe.src` values. Deduped so a rule declaring the same iframe across
+   * multiple alternatives only fires one dispatch per child frame.
+   */
+  private deriveIframeFallbackTargets(rule: FormContent[]): Set<string> {
+    const targets = new Set<string>();
+    for (const selector of this.flattenDeclaredSelectors(rule)) {
+      if (!selector.includes(">>>")) {
+        continue;
+      }
+      const firstSegment = selector.split(">>>")[0].trim();
+      if (!firstSegment) {
+        continue;
+      }
+      const element = document.querySelector(firstSegment);
+      if (element instanceof HTMLIFrameElement && element.src) {
+        targets.add(element.src);
+      }
+    }
+    return targets;
   }
 }
