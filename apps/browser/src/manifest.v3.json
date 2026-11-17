@@ -175,7 +175,7 @@
   "__firefox__browser_specific_settings": {
     "gecko": {
       "id": "{446900e4-71c2-419f-a6a7-df9c091e268b}",
-      "strict_min_version": "91.0"
+      "strict_min_version": "141.0"
     }
   },
   "__firefox__sidebar_action": {
