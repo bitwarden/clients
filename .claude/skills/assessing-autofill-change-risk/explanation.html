@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assessing Autofill Change Risk</title>
+    <style>
+      :root {
+        --bg: #fafaf9;
+        --fg: #1c1917;
+        --muted: #57534e;
+        --card: #ffffff;
+        --line: #e7e5e4;
+        --accent: #2563eb;
+        --accent-bg: #eff6ff;
+        --warn: #b45309;
+        --warn-bg: #fffbeb;
+        --code: #f5f5f4;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #1c1917;
+          --fg: #f5f5f4;
+          --muted: #a8a29e;
+          --card: #292524;
+          --line: #44403c;
+          --accent: #60a5fa;
+          --accent-bg: #1e293b;
+          --warn: #fbbf24;
+          --warn-bg: #3a2a0a;
+          --code: #44403c;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.55 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+      }
+      h1 {
+        font-size: 1.7rem;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 36px 0 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--line);
+      }
+      p.lede {
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+      code {
+        background: var(--code);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.88em;
+      }
+      .flow {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .step {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 16px;
+      }
+      .step b {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .step span {
+        color: var(--muted);
+        font-size: 0.93rem;
+      }
+      .step.check {
+        border-color: var(--accent);
+        background: var(--accent-bg);
+      }
+      .arrow {
+        text-align: center;
+        color: var(--muted);
+        line-height: 1;
+        padding: 4px 0;
+      }
+      .num {
+        display: inline-block;
+        min-width: 22px;
+        height: 22px;
+        line-height: 22px;
+        text-align: center;
+        border-radius: 11px;
+        background: var(--accent);
+        color: var(--bg);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.93rem;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .marker {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin: 10px 0;
+      }
+      .marker small {
+        color: var(--muted);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .callout {
+        background: var(--warn-bg);
+        border: 1px solid var(--warn);
+        border-radius: 8px;
+        padding: 12px 16px;
+      }
+      .callout h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+        color: var(--warn);
+      }
+      ul {
+        padding-left: 20px;
+      }
+      li {
+        margin: 4px 0;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>assessing-autofill-change-risk</h1>
+      <p class="lede">
+        Rates one finished Autofill PR on <code>bitwarden/clients</code>, says how much human review
+        it needs and which risk tag fits, with evidence for each answer, and logs whether you
+        accepted or corrected the rating.
+      </p>
+
+      <h2>Workflow</h2>
+      <div class="flow">
+        <div class="step">
+          <b><span class="num">1</span>Scope the PR</b
+          ><span
+            >Fetches the baseline skill, reads the PR, and widens only to imports, consumers and
+            tests the PR touches.</span
+          >
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step check">
+          <b>Checkpoint 0 - Scope</b
+          ><span>You confirm the file list before evidence collection.</span>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step">
+          <b><span class="num">2</span>Collect evidence for every factor</b
+          ><span
+            >Baseline factors from <code>assessing-change-risk</code> plus six Autofill factors.
+            Each answer is yes, no or unknown with a path and line. No level yet.</span
+          >
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step check">
+          <b>Checkpoint 1 - Evidence</b><span>You correct any answer before scoring.</span>
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step">
+          <b><span class="num">3</span>Apply the rubric in a fresh subagent</b
+          ><span
+            >The subagent sees only the evidence and the rules. Baseline level and review rules run
+            unchanged, then Autofill rules and the external-contribution rule can only raise the
+            requirement. It ends with a recommended tag.</span
+          >
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step check">
+          <b>Checkpoint 2 - Assessment</b
+          ><span
+            >Level, review requirement, what raised it, and any factor that still needs a team
+            decision. You accept the rating or correct it.</span
+          >
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step">
+          <b><span class="num">4</span>Log the outcome</b
+          ><span
+            >An accepted rating gets a one-line entry. A correction also records what produced the
+            rating and whether the evidence or the rule was wrong.</span
+          >
+        </div>
+        <div class="arrow">↓</div>
+        <div class="step check">
+          <b>Checkpoint 3 - Calibration</b
+          ><span
+            >You confirm the entry before it's appended to
+            <code>references/calibration.md</code>.</span
+          >
+        </div>
+      </div>
+
+      <h2>Inputs and outputs</h2>
+      <div class="table-wrap">
+        <table>
+          <tr>
+            <th>Inputs</th>
+            <th>Outputs (in your output folder)</th>
+          </tr>
+          <tr>
+            <td>
+              <ul>
+                <li>PR number on <code>bitwarden/clients</code> (one per run)</li>
+                <li>Output folder outside the clients checkout</li>
+                <li>
+                  Optional evidence you already have, such as a
+                  <code>community-pr-repro</code> report
+                </li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li><code>&lt;pr&gt;/baseline-skill.md</code></li>
+                <li><code>&lt;pr&gt;/scope.md</code></li>
+                <li><code>&lt;pr&gt;/evidence.md</code></li>
+                <li>
+                  <code>&lt;pr&gt;/assessment.md</code> (JSON in the marketplace skill's shape, plus
+                  Autofill fields)
+                </li>
+                <li>
+                  One line in <code>references/calibration.md</code> per run, plus
+                  <code>&lt;pr&gt;/correction.md</code> when you correct the rating
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Autofill factors</h2>
+      <div class="table-wrap">
+        <table>
+          <tr>
+            <th>Factor</th>
+            <th>Yes when the change...</th>
+          </tr>
+          <tr>
+            <td><code>vault-data-exposure</code></td>
+            <td>
+              sends new or more user data into the page, sends full models, sends data early, or
+              adds a Bitwarden marker the page can see
+            </td>
+          </tr>
+          <tr>
+            <td><code>content-script-dependencies</code></td>
+            <td>
+              adds a third-party package or a new import chain to a content script bundle, including
+              a barrel reached through a narrow import
+            </td>
+          </tr>
+          <tr>
+            <td><code>page-cost</code></td>
+            <td>adds hot-path work, skips teardown, or alters the page DOM beyond rendering</td>
+          </tr>
+          <tr>
+            <td><code>intent-and-policy</code></td>
+            <td>
+              changes when autofill acts without user interaction, a default, page-signal handling,
+              or organization policy
+            </td>
+          </tr>
+          <tr>
+            <td><code>origin-matching</code></td>
+            <td>changes how fills are gated on URI match</td>
+          </tr>
+          <tr>
+            <td><code>injected-ui-integrity</code></td>
+            <td>
+              changes how the inline menu or notification bar is positioned, shown or protected
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Questions to answer at the start</h2>
+      <p>
+        The skill asks these once, writes the answers in place, and then runs as a normal skill.
+      </p>
+      <div class="marker">
+        <small>Sources</small>Should the Autofill factors cite <code>principles.md</code> (still in
+        review in PR 24688) as team policy, or label it "proposed" until it merges, and with what
+        label text?
+      </div>
+      <div class="marker">
+        <small>Escalation list</small>Which paths must always get an Autofill engineer's review, and
+        which of those count as <code>core-paths</code> that nothing can lower?
+      </div>
+      <div class="marker">
+        <small>Step 2</small>What read-only way does the team use to see a content script bundle's
+        module graph, if any?
+      </div>
+      <div class="marker">
+        <small>Step 2</small>Which kinds of change carry no Autofill risk on their own, such as
+        test-only or docs-only PRs? These let a PR clear without "can't tell" answers.
+      </div>
+      <div class="marker">
+        <small>Step 3</small>Which GitHub labels does the team use for review risk, and which fits
+        each review requirement?
+      </div>
+      <div class="marker">
+        <small>Step 3</small>For each Autofill factor, what minimum review requirement has the team
+        agreed on? Factors without agreement are reported as needing a team decision.
+      </div>
+
+      <h2>How Audrey's materials shaped it</h2>
+      <ul>
+        <li>
+          <b>Evidence and rubric are separate steps.</b> Her health reviewer observes and records,
+          and her regulators apply a rubric without reading code. Step 2 collects evidence only, and
+          Step 3 scores it in a fresh subagent that never sees the PR.
+        </li>
+        <li>
+          <b>Bounded scope.</b> Step 1 widens to imports, consumers, shared abstractions and tests,
+          the same limit her health review uses.
+        </li>
+        <li>
+          <b>Escalate when information is missing.</b> Her regulators return Escalate when
+          information is missing. Here a factor with no agreed tier goes to
+          <code>needs_team_decision</code> and marks the result provisional.
+        </li>
+        <li>
+          <b>Her investment levels are left out.</b> Proceed, Light, Deep, Structural and Escalate
+          size solution work before implementation. This skill rates a finished PR, so it uses the
+          marketplace levels (low to critical) and review requirements.
+        </li>
+      </ul>
+
+      <h2>Settled and open</h2>
+      <div class="table-wrap">
+        <table>
+          <tr>
+            <th>Settled in sources</th>
+            <th>Open for the team</th>
+          </tr>
+          <tr>
+            <td>
+              <ul>
+                <li>
+                  Marketplace baseline rules, including "unknown counts as yes" and "nothing lowers
+                  core paths"
+                </li>
+                <li>
+                  Content scripts avoid Angular, use Lit, and tear down listeners
+                  (<code>.claude/rules/autofill-content-scripts.md</code>)
+                </li>
+                <li>Agreed on Slack to build a separate Autofill skill first and merge later</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Whether <code>principles.md</code> is policy yet (PR 24688 is open)</li>
+                <li>
+                  Requiring engineer review for any new content script package (Audrey's PR comment,
+                  a proposal)
+                </li>
+                <li>
+                  Narrow vs barrel import guidance (reworded during review, so the skill traces the
+                  import graph)
+                </li>
+                <li>Always-review paths and the factor-to-tier list</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Constraints</h2>
+      <div class="callout">
+        <h3>Keep in mind</h3>
+        <ul>
+          <li>Read-only. No checkout, build, writes to <code>clients</code>, or GitHub posts.</li>
+          <li>
+            One PR per run. Calibrate with at least one PR the team calls higher risk and one it
+            calls lower risk.
+          </li>
+          <li>
+            A passing repro test proves one behavior. It can support <code>confidence</code> for
+            that behavior only.
+          </li>
+          <li>
+            Autofill rules only raise the review requirement. They never change a baseline answer.
+          </li>
+          <li>A PR from a fork always gets at least partial review.</li>
+          <li>The skill recommends a tag and never applies it.</li>
+          <li>
+            Deferred: CI or GitHub Action wiring, applying the tag, automatic merge, combining with
+            the marketplace skill, and plan-time assessment.
+          </li>
+        </ul>
+      </div>
+    </main>
+  </body>
+</html>
