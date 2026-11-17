@@ -6,7 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AsyncActionsModule,
   ButtonModule,
-  CalloutModule,
   DialogModule,
   FormFieldModule,
   SelectModule,
@@ -21,7 +20,6 @@ import { BulkMoveDialogComponent } from "./bulk-move-dialog/bulk-move-dialog.com
     JslibModule,
     AsyncActionsModule,
     ButtonModule,
-    CalloutModule,
     DialogModule,
     FormFieldModule,
     SelectModule,

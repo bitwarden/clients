@@ -21,13 +21,6 @@
         }
       </bit-select>
     </bit-form-field>
-    @if (someAlreadyInFolder()) {
-      <bit-callout type="info">
-        {{
-          (noFolderSelected() ? "someItemsAlreadyHaveNoFolder" : "someItemsAlreadyInFolder") | i18n
-        }}
-      </bit-callout>
-    }
   </span>
   <ng-container bitDialogFooter>
     <button

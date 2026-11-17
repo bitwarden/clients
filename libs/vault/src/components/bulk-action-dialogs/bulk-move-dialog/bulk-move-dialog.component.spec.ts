@@ -89,17 +89,6 @@ describe("BulkMoveDialogComponent", () => {
     expect(component.saveDisabled()).toBe(true);
   });
 
-  it("shows the callout only when some items are already in the chosen folder", () => {
-    const component = view(create([{ id: "a", folderId: "work" }, { id: "b" }]));
-
-    component.formGroup.controls.folderId.setValue("work");
-    expect(component.someAlreadyInFolder()).toBe(true);
-    expect(component.noFolderSelected()).toBe(false);
-
-    component.formGroup.controls.folderId.setValue("family");
-    expect(component.someAlreadyInFolder()).toBe(false);
-  });
-
   it("moves only the items not already in the chosen folder", async () => {
     const component = view(
       create([{ id: "a", folderId: "work" }, { id: "b", folderId: "family" }, { id: "c" }]),

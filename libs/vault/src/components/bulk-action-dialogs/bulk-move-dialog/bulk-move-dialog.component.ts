@@ -101,13 +101,6 @@ export class BulkMoveDialogComponent {
 
   protected readonly saveDisabled = computed(() => this.ciphersToMove().length === 0);
 
-  protected readonly noFolderSelected = computed(() => this.folderId() === NO_FOLDER_ID);
-
-  protected readonly someAlreadyInFolder = computed(() => {
-    const moving = this.ciphersToMove().length;
-    return moving > 0 && moving < this.ciphers.length;
-  });
-
   protected cancel() {
     this.close(BulkMoveDialogResult.Canceled);
   }
