@@ -1007,12 +1007,15 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [
-                {
-                  category: FormPurposeCategories.AccountLogin,
-                  fields: { oneTimeCode: [["#otp-0", "#otp-1", "#otp-2"]] },
-                },
-              ],
+              result: {
+                targetingRules: [
+                  {
+                    category: FormPurposeCategories.AccountLogin,
+                    fields: { oneTimeCode: [["#otp-0", "#otp-1", "#otp-2"]] },
+                  },
+                ],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);
