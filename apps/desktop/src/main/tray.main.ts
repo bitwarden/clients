@@ -14,9 +14,6 @@ import { isDev } from "../utils";
 import { RendererTeardownMain } from "./renderer-teardown.main";
 import { WindowMain } from "./window.main";
 
-// Tray menu item that is only enabled while the active account is unlocked.
-const LockVaultMenuItemId = "lockVault";
-
 export class TrayMain {
   contextMenu: Menu;
 
@@ -173,14 +170,6 @@ export class TrayMain {
     // Only the main window carries the renderer worth destroying.
     if (win !== this.windowMain.win || !this.rendererTeardown.tryTearDown()) {
       win.hide();
-      return;
-    }
-
-    // Destroying the renderer locks the vault, and the renderer is what keeps this item in sync.
-    const lockVault = this.contextMenu?.getMenuItemById(LockVaultMenuItemId);
-    if (lockVault != null) {
-      lockVault.enabled = false;
-      this.updateContextMenu();
     }
   }
 
