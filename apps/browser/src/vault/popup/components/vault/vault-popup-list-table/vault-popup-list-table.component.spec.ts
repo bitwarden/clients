@@ -901,6 +901,39 @@ describe("VaultPopupListTableComponent", () => {
       expect(noFolderOption?.count()).toBe(1);
     });
 
+    it("counts each folder with its subtree, against the other chips", () => {
+      const parent = { id: "f-1", name: "Parent" } as FolderView;
+      const child = { id: "f-2", name: "Parent/Child" } as FolderView;
+      cipherTypes$.next([
+        { value: CipherType.Login, label: "Login" },
+        { value: CipherType.Card, label: "Card" },
+      ]);
+      folders$.next([
+        { value: parent, label: "Parent", children: [{ value: child, label: "Child" }] },
+      ]);
+      filteredCiphers$.next([
+        makeCipher({ id: "a", folderId: "f-1" }),
+        makeCipher({ id: "b", folderId: "f-2" }),
+        makeCipher({ id: "c", folderId: "f-2", type: CipherType.Card }),
+        makeCipher({ id: "d" }),
+      ]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      const folderCounts = () =>
+        Object.fromEntries(
+          ((chipFor("folder") as FilterMenuComponent)["allOptions"]() as FilterOptionRow[]).map(
+            (option) => [option.value(), option.count()],
+          ),
+        );
+
+      expect(folderCounts()).toEqual({ "f-1": 3, "f-2": 2 });
+
+      (chipFor("cipherType") as FilterMenuComponent).setValue(CipherType.Login);
+      fixture.detectChanges();
+
+      expect(folderCounts()).toEqual({ "f-1": 2, "f-2": 1 });
+    });
+
     it("flattens nested folder options into one option per node", () => {
       const parent = { id: "f-1", name: "Parent" } as FolderView;
       const child = { id: "f-2", name: "Parent/Child" } as FolderView;
