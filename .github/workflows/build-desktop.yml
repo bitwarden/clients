@@ -319,6 +319,15 @@ jobs:
         run: |
           node build.js --target=x86_64-unknown-linux-gnu --release
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application
         run: npm run dist:${{ matrix.variant }}:lin
 
@@ -521,6 +530,15 @@ jobs:
             exit 1
           fi
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application
         env:
           # Snapcraft environment variables to bypass LXD requirement on ARM64
@@ -720,6 +738,16 @@ jobs:
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set update feed URL
+        shell: bash
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -1123,6 +1151,16 @@ jobs:
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set update feed URL
+        shell: bash
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.beta.json > electron-builder.beta.json.tmp
+          mv electron-builder.beta.json.tmp electron-builder.beta.json
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -1817,6 +1855,15 @@ jobs:
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application (dist)
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
@@ -2069,6 +2116,15 @@ jobs:
           $APP_STORE_CONNECT_AUTH_KEY
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.beta.json > electron-builder.beta.json.tmp
+          mv electron-builder.beta.json.tmp electron-builder.beta.json
 
       # pack:mac:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
