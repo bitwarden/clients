@@ -119,7 +119,7 @@ describe("DefaultPamNavBadgeService", () => {
     expect(seen.at(-1)).toBe(2);
   });
 
-  it("drops to zero once an extended access is ended (PAM-408)", async () => {
+  it("never counts an applied extension, before or after its lease ends (PAM-408)", async () => {
     // The original request was activated; the applied extension mints no lease of its own, so it
     // never gains a `producedLeaseId` and must not read as an approval still to start.
     const original = {
