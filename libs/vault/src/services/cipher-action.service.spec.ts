@@ -11,7 +11,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  RestrictedCipherWriteError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -35,7 +38,9 @@ function makeCipher(
     favorite: boolean;
     isDeleted: boolean;
     isArchived: boolean;
+    collectionIds: string[];
     organizationId: string;
+    partial: boolean;
     reprompt: CipherRepromptType;
     type: CipherType;
   }> = {},
@@ -160,6 +165,27 @@ describe("CipherActionService", () => {
       await service.toggleFavorite(makeCipher());
 
       await expect(successPromise).resolves.toBeUndefined();
+    });
+
+    it("shows the restricted-item toast and does not emit when the save is refused", async () => {
+      cipherService.getFullCipherView.mockResolvedValue(makeCipher() as CipherView);
+      cipherService.updateWithServer.mockRejectedValue(new RestrictedCipherWriteError());
+      const emitted = jest.fn();
+      service.cipherModified$.subscribe(emitted);
+
+      await service.toggleFavorite(makeCipher());
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "restrictedItemChangeRefused" }),
+      );
+      expect(emitted).not.toHaveBeenCalled();
+    });
+
+    it("rethrows other save errors", async () => {
+      cipherService.getFullCipherView.mockResolvedValue(makeCipher() as CipherView);
+      cipherService.updateWithServer.mockRejectedValue(new Error("network"));
+
+      await expect(service.toggleFavorite(makeCipher())).rejects.toThrow("network");
     });
   });
 
@@ -476,6 +502,29 @@ describe("CipherActionService", () => {
 
       expect(logService.error).toHaveBeenCalled();
       await expect(successPromise).resolves.toBeUndefined();
+    });
+
+    it("shows an error toast when delete throws", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("server error"));
+
+      await service.delete(makeCipher());
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "deleteItemError" }),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "deletedItem" }),
+      );
+    });
+
+    it("names the reason when a restricted cipher's delete is refused", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+
+      await service.delete(makeCipher({ partial: true }));
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "restrictedItemChangeRefused" }),
+      );
     });
 
     it("emits cipherModified$ after deleting", async () => {

@@ -614,6 +614,38 @@ export class BrowserApi {
   }
 
   /**
+   * Resolves the URL currently loaded in the frame a runtime message came from.
+   *
+   * `frame.url` takes precedence over `tab.url` because a sub-frame's document is not the tab's.
+   * `frame.url` takes precedence over `sender.url` because the sender's value is pinned to the
+   * frame URI when the port was opened, so it does not follow same-document navigations.
+   *
+   * @param sender - The sender of the runtime message.
+   */
+  static async getSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
+  }
+
+  /**
    * Gets all frames associated with a tab.
    *
    * @param tabId - The id of the tab to get the frames for.

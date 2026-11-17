@@ -2,12 +2,13 @@
 // @ts-strict-ignore
 import {
   Component,
-  computed,
   EventEmitter,
   HostListener,
+  Inject,
   inject,
   Input,
   OnInit,
+  Optional,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -18,8 +19,6 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -39,6 +38,8 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VaultRowAccessActionsService } from "./vault-row-access-actions.service";
+import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -52,18 +53,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
-  private readonly quickCopyIconFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
-    { initialValue: false },
-  );
-
-  private readonly quickCopyActionsSetting = toSignal(
+  protected readonly showQuickCopyActions = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
-  );
-
-  protected readonly showQuickCopyActions = computed(
-    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
   );
 
   protected RowHeightClass = RowHeightClass;
@@ -102,6 +94,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() viewingOrgVault: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() canEditCipher: boolean;
@@ -164,7 +159,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
-    private configService: ConfigService,
+    @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: VaultRowLeaseBadge | null,
+    @Optional() protected accessActions: VaultRowAccessActionsService | null,
   ) {}
 
   /**
@@ -231,6 +227,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.getLaunchUri(this.cipher);
   }
 
+  /** A gated row withholds every other action, so the menu surfaces launch on its own. */
+  protected get showLaunchInMenu() {
+    return this.isPartial && this.canLaunch;
+  }
+
   protected get subtitle() {
     return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
@@ -241,6 +242,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get decryptionFailure() {
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
+  /**
+   * True for a PAM-gated ("partial") cipher, whose sensitive fields the server suppressed. The
+   * row is read-only: not selectable and offering no modify action.
+   */
+  protected get isPartial() {
+    return CipherViewLikeUtils.isRestricted(this.cipher);
   }
 
   protected get showAssignToCollections() {
@@ -385,9 +394,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get showFavorite() {
     if (
-      (!this.viewingOrgVault &&
-        CipherViewLikeUtils.isArchived(this.cipher) &&
-        !this.userCanArchive) ||
+      this.viewingOrgVault ||
+      (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) ||
       CipherViewLikeUtils.isDeleted(this.cipher)
     ) {
       return false;

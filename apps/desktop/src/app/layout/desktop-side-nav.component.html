@@ -4,9 +4,15 @@
   <ng-content select="bit-nav-logo" ngProjectAs="bit-nav-logo"></ng-content>
   <ng-content></ng-content>
 
-  @if (vfo1FoundationEnabled()) {
-    <ng-container slot="account">
+  <ng-container slot="callout">
+    @if (vfo1FoundationEnabled()) {
+      <vault-tour-callout />
+    }
+  </ng-container>
+
+  <ng-container slot="account">
+    @if (vfo1FoundationEnabled()) {
       <app-account-switcher-v2 [expanded]="sideNavService.open()" menuPosition="above-start" />
-    </ng-container>
-  }
+    }
+  </ng-container>
 </bit-side-nav>

@@ -26,11 +26,7 @@ import {
 import { Cart } from "@bitwarden/pricing";
 import { UserId } from "@bitwarden/user-core";
 
-import {
-  AccountBillingClient,
-  PreviewInvoiceClient,
-  SubscriberBillingClient,
-} from "../../../../clients";
+import { AccountBillingClient, SubscriberBillingClient } from "../../../../clients";
 import {
   BillingAddress,
   MaskedPaymentMethod,
@@ -56,19 +52,10 @@ export type PaymentFormValues = {
   };
 };
 
-export interface InvoicePreview {
-  tax: number;
-  total: number;
-  credit: number;
-  newPlanProratedMonths: number;
-  newPlanProratedAmount?: number;
-}
-
 @Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
     private subscriberBillingClient: SubscriberBillingClient,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private i18nService: I18nService,
@@ -78,25 +65,7 @@ export class PremiumOrgUpgradeService {
     private invoicePreviewService: InvoicePreviewService,
   ) {}
 
-  async previewProratedInvoice(
-    planDetails: PremiumOrgUpgradePlanDetails,
-    billingAddress: BillingAddress,
-  ): Promise<InvoicePreview> {
-    const tier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(planDetails.tier);
-
-    const invoicePreviewResponse =
-      await this.previewInvoiceClient.previewProrationForPremiumUpgrade(tier, billingAddress);
-
-    return {
-      tax: invoicePreviewResponse.tax,
-      total: invoicePreviewResponse.total,
-      credit: invoicePreviewResponse.credit,
-      newPlanProratedMonths: invoicePreviewResponse.newPlanProratedMonths,
-      newPlanProratedAmount: invoicePreviewResponse.newPlanProratedAmount,
-    };
-  }
-
-  /** Flag-on counterpart of {@link previewProratedInvoice}: returns the server-built cart for the upgrade. */
+  /** Returns the server-built cart for the upgrade. */
   async previewInvoiceCart(
     planDetails: PremiumOrgUpgradePlanDetails,
     billingAddress: BillingAddress,

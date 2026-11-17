@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
@@ -27,6 +27,10 @@ export class CollectionView implements View, ITreeNodeObject {
   assigned: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
+  /** True when this collection's data could not be decrypted; fields dependent on decryption are empty. */
+  decryptionFailure: boolean = false;
+  /** True when an enabled PAM access rule gates the collection's items. Derived by the server. */
+  hasEnabledAccessRule: boolean = false;
 
   private _name: string;
 
@@ -132,7 +136,8 @@ export class CollectionView implements View, ITreeNodeObject {
     try {
       view.name = await encryptService.decryptString(collection.name, key);
     } catch (e) {
-      view.name = "[error: cannot decrypt]";
+      view.name = DECRYPT_ERROR;
+      view.decryptionFailure = true;
       // eslint-disable-next-line no-console
       console.error("[CollectionView] Error decrypting collection name", e);
     }
@@ -144,6 +149,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = collection.manage;
     view.type = collection.type;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     return view;
   }
 
@@ -167,6 +173,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.type = collection.type;
     view.assigned = collection.assigned;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     return view;
   }
 
@@ -200,6 +207,32 @@ export class CollectionView implements View, ITreeNodeObject {
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
     view.type = sdkView.type;
+    view.hasEnabledAccessRule = sdkView.hasEnabledAccessRule ?? false;
+
+    return view;
+  }
+
+  /**
+   * Creates a placeholder CollectionView for a collection the SDK could not decrypt.
+   * `name` falls back to {@link DECRYPT_ERROR} and `decryptionFailure` is set so the item is
+   * still shown rather than silently dropped from the list.
+   */
+  static fromFailedDecryption(collection: Collection): CollectionView {
+    const view = new CollectionView({
+      id: collection.id,
+      organizationId: collection.organizationId,
+      name: DECRYPT_ERROR,
+    });
+
+    view.externalId = collection.externalId;
+    view.readOnly = collection.readOnly;
+    view.hidePasswords = collection.hidePasswords;
+    view.manage = collection.manage;
+    view.type = collection.type;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
+    view.assigned = true;
+    view.decryptionFailure = true;
 
     return view;
   }
@@ -220,6 +253,7 @@ export class CollectionView implements View, ITreeNodeObject {
       readOnly: this.readOnly,
       manage: this.manage,
       type: this.type,
+      hasEnabledAccessRule: this.hasEnabledAccessRule,
     };
   }
 

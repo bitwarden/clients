@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -8,8 +6,6 @@ import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
@@ -18,22 +14,27 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {
-  tokenRequest: WebAuthnLoginTokenRequest;
-  credentials: WebAuthnLoginCredentials;
+  readonly tokenRequest: WebAuthnLoginTokenRequest;
+  readonly credentials: WebAuthnLoginCredentials;
+
+  constructor(fields: WebAuthnLoginStrategyData) {
+    this.tokenRequest = fields.tokenRequest;
+    this.credentials = fields.credentials;
+  }
 
   static fromJSON(obj: Jsonify<WebAuthnLoginStrategyData>): WebAuthnLoginStrategyData {
-    return Object.assign(new WebAuthnLoginStrategyData(), obj, {
+    return new WebAuthnLoginStrategyData({
       tokenRequest: WebAuthnLoginTokenRequest.fromJSON(obj.tokenRequest),
       credentials: WebAuthnLoginCredentials.fromJSON(obj.credentials),
     });
   }
 }
 
-export class WebAuthnLoginStrategy extends LoginStrategy {
-  protected cache: BehaviorSubject<WebAuthnLoginStrategyData>;
+export class WebAuthnLoginStrategy extends LoginStrategy<WebAuthnLoginStrategyData> {
+  protected cache: BehaviorSubject<WebAuthnLoginStrategyData | undefined>;
 
   constructor(
-    data: WebAuthnLoginStrategyData,
+    data: WebAuthnLoginStrategyData | undefined,
     private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -43,14 +44,12 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
   }
 
   async logIn(credentials: WebAuthnLoginCredentials) {
-    const data = new WebAuthnLoginStrategyData();
-    data.credentials = credentials;
-    data.tokenRequest = new WebAuthnLoginTokenRequest(
+    const tokenRequest = new WebAuthnLoginTokenRequest(
       credentials.token,
       credentials.deviceResponse,
       await this.buildDeviceRequest(),
     );
-    this.cache.next(data);
+    this.cache.next(new WebAuthnLoginStrategyData({ tokenRequest, credentials }));
 
     const [authResult] = await this.startLogIn();
     return authResult;
@@ -64,7 +63,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions?.webAuthnPrfOption) {
-      const credentials = this.cache.value.credentials;
+      const { credentials } = this.getLoginStrategyDataOrThrow();
 
       // confirm we still have the prf key
       if (!credentials.prfKey) {
@@ -81,7 +80,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
 
       // decrypt user key with private key
       const userKey = await this.encryptService.decapsulateKeyUnsigned(
-        new EncString(webAuthnPrfOption.encryptedUserKey.encryptedString),
+        webAuthnPrfOption.encryptedUserKey,
         privateKey,
       );
 

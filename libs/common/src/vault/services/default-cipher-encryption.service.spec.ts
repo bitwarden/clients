@@ -562,6 +562,25 @@ describe("DefaultCipherEncryptionService", () => {
       );
       expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);
     });
+
+    it("decrypts in batches of 250 to bound SDK memory", async () => {
+      const ciphers = Array.from(
+        { length: 600 },
+        () => ({ toSdkCipher: () => ({}) }) as unknown as Cipher,
+      );
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_with_failures.mockResolvedValue({ successes: [], failures: [] });
+
+      await cipherEncryptionService.decryptManyWithFailures(ciphers, userId);
+
+      const batches = mockSdkClient
+        .vault()
+        .ciphers()
+        .decrypt_list_with_failures.mock.calls.map(([batch]: [unknown[]]) => batch.length);
+      expect(batches).toEqual([250, 250, 100]);
+    });
   });
 
   describe("decryptAttachmentContent", () => {

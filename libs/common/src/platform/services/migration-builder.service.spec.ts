@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { LogService, Measurement } from "@bitwarden/logging";
 import { MigrationHelper } from "@bitwarden/state";
 
 import { FakeStorageService } from "../../../spec/fake-storage.service";
@@ -94,7 +95,7 @@ describe("MigrationBuilderService", () => {
       const helper = new MigrationHelper(
         startingStateVersion,
         new FakeStorageService(startingState),
-        mock(),
+        mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
         "general",
         clientType,
       );

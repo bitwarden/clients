@@ -7,7 +7,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { ImportOption, ImportType } from "../../models";
+import { ImportOption, UpgradeImportType } from "../../models";
 
 import { ImportSourceSelectComponent } from "./import-source-select.component";
 
@@ -32,22 +32,21 @@ jest.mock("../../models", () => {
     // Featured vs. remaining is no longer a per-option flag — it's derived from real
     // membership in PICKER_FEATURED_PASSWORD_MANAGER_ORDER, so these ids are chosen to match
     // that real list rather than set via an override here.
-    importOptions: [
+    importUpgradeOptions: [
       buildOption({ id: "chromecsv", name: "Chrome", isBrowser: true }),
       buildOption({ id: "firefoxcsv", name: "Firefox (csv)", isBrowser: true }),
-      buildOption({ id: "1password1pux", name: "1Password (1pux/json)" }),
+      buildOption({ id: "1password", name: "1Password" }),
       buildOption({ id: "lastpasscsv", name: "LastPass" }),
       // Squished (no space) on purpose: displayNameFor's real value ("Zoho Vault", with a
       // space) diverges from this raw name — for the search-matches-display-name test below.
       buildOption({ id: "zohovaultcsv", name: "ZohoVault" }),
-      buildOption({ id: "keepassxcsv", name: "KeePassX (csv)" }),
       buildOption({ id: "keepercsv", name: "Keeper (csv)" }),
       buildOption({ id: "keeperjson", name: "Keeper (json)" }),
       // Real id with a real picker vendor-metadata entry that has no icon — for the
       // generic-icon-tile-fallback test below. (Not "gnomejson": that vendor gained real art
       // as part of the SVG conversion, so it no longer exercises the fallback path.)
       buildOption({ id: "passworddragonxml", name: "Password Dragon" }),
-      // Deliberately not a real ImportType — no entry in the real picker vendor metadata map at
+      // Deliberately not a real UpgradeImportType — no entry in the real picker vendor metadata map at
       // all, for the exclusion test below. Using a fake id here (rather than a
       // real-but-currently-uncovered one) keeps that test from silently passing for the wrong
       // reason if that id ever gets a real metadata entry added later.
@@ -119,7 +118,7 @@ describe("ImportSourceSelectComponent", () => {
   it("enables and emits Continue after a real click, not just FormControl.setValue", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
 
     const chrome = radioInputs()[0];
@@ -131,8 +130,15 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
-  it("renders the breadcrumb label above the card", () => {
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain("importSourceBreadcrumb");
+  // Web and the extension load Tailwind's preflight, which gives every heading and paragraph a
+  // bottom margin that `noMargin` doesn't remove. Only explicit classes keep the header's spacing
+  // the same as desktop's and as Figma's.
+  it("sets the header's margins explicitly: none under the title, 16px under the subtitle", () => {
+    const title = fixture.nativeElement.querySelector("h2") as HTMLElement;
+    const subtitle = title.nextElementSibling as HTMLElement;
+
+    expect(title.classList).toContain("tw-mb-0");
+    expect(subtitle.classList).toContain("tw-mb-4");
   });
 
   it("renders every browser, regardless of featured-password-manager status", () => {
@@ -143,7 +149,7 @@ describe("ImportSourceSelectComponent", () => {
     const labels = cardLabels();
     expect(labels).toEqual(expect.arrayContaining(["1Password", "LastPass"]));
     expect(labels).not.toContain("Zoho Vault");
-    expect(labels).not.toContain("KeePassX");
+    expect(labels).not.toContain("Password Dragon");
   });
 
   it("shows a clean vendor display name, not ImportOption.name's format suffix", () => {
@@ -175,7 +181,7 @@ describe("ImportSourceSelectComponent", () => {
     showAllButton.nativeElement.click();
     fixture.detectChanges();
 
-    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "KeePassX"]));
+    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "Password Dragon"]));
   });
 
   it("relabels Show all to Show less once the disclosure is open, and back again", () => {
@@ -214,27 +220,73 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).toEqual(["Zoho Vault"]);
   });
 
-  it("keeps a single source of truth for the disclosure's open state across search and manual toggle", () => {
-    component["searchControl"].setValue("zoho");
-    fixture.detectChanges();
-    expect(cardLabels()).toContain("Zoho Vault");
+  describe("while searching", () => {
+    function headings(): string[] {
+      return fixture.debugElement
+        .queryAll(By.css("p[bitTypography=h6]"))
+        .map((el) => (el.nativeElement.textContent ?? "").trim());
+    }
 
-    // Manually collapsing while a search is active must actually take effect, not be silently
-    // overridden by the search-driven default on the next change detection pass.
-    const showAllButton = fixture.debugElement.query(By.css("button[bitLink]"));
-    showAllButton.nativeElement.click();
-    fixture.detectChanges();
+    const showAllButton = () => fixture.debugElement.query(By.css("button[bitLink]"));
 
-    expect(cardLabels()).not.toContain("Zoho Vault");
-    const disclosure = fixture.debugElement.query(By.css("bit-disclosure"));
-    expect((disclosure.nativeElement as HTMLElement).classList).toContain("tw-hidden");
+    function search(text: string) {
+      component["searchControl"].setValue(text);
+      fixture.detectChanges();
+    }
+
+    it("labels password managers that only match from the Show all list", () => {
+      search("zoho");
+
+      expect(cardLabels()).toEqual(["Zoho Vault"]);
+      expect(headings()).toEqual(["importSourcePasswordManagers"]);
+    });
+
+    it("labels password managers that only match from the featured list", () => {
+      search("lastpass");
+
+      expect(headings()).toEqual(["importSourcePasswordManagers"]);
+    });
+
+    it("labels only the categories that have matches", () => {
+      search("chrome");
+
+      expect(headings()).toEqual(["importSourceBrowsers"]);
+    });
+
+    it("hides Show all/Show less, whichever list the matches come from", () => {
+      search("zoho");
+      expect(showAllButton()).toBeNull();
+
+      search("lastpass");
+      expect(showAllButton()).toBeNull();
+
+      search("pass");
+      expect(showAllButton()).toBeNull();
+    });
+
+    it("shows every match from both lists without truncation", () => {
+      search("pass");
+
+      expect(cardLabels()).toEqual(
+        expect.arrayContaining(["1Password", "LastPass", "Password Dragon"]),
+      );
+    });
+
+    it("brings Show all back once the search is cleared", () => {
+      search("zoho");
+      search("");
+
+      expect(showAllButton()).not.toBeNull();
+      expect(showAllButton().nativeElement.textContent).toContain("importSourceShowAll");
+      expect(cardLabels()).not.toContain("Zoho Vault");
+    });
   });
 
   it("keeps a selection made from Show all visible after the search that revealed it is cleared", () => {
     component["searchControl"].setValue("zoho");
     fixture.detectChanges();
 
-    component["sourceControl"].setValue("zohovaultcsv" as ImportType);
+    component["sourceControl"].setValue("zohovaultcsv" as UpgradeImportType);
     fixture.detectChanges();
 
     component["searchControl"].setValue("");
@@ -256,7 +308,7 @@ describe("ImportSourceSelectComponent", () => {
     fixture.detectChanges();
     expect(cardLabels()).not.toContain("Zoho Vault");
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
 
     expect(cardLabels()).not.toContain("Zoho Vault");
@@ -275,10 +327,10 @@ describe("ImportSourceSelectComponent", () => {
       .nativeElement as HTMLButtonElement;
     expect(continueButton.getAttribute("aria-disabled")).toBe("true");
 
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
     expect(continueButton.getAttribute("aria-disabled")).toBeNull();
 
@@ -286,11 +338,52 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
+  describe("initialSource", () => {
+    function renderWith(source?: UpgradeImportType): ComponentFixture<ImportSourceSelectComponent> {
+      const seeded = TestBed.createComponent(ImportSourceSelectComponent);
+      if (source) {
+        seeded.componentRef.setInput("initialSource", source);
+      }
+      seeded.detectChanges();
+      return seeded;
+    }
+
+    const checkedCards = (seeded: ComponentFixture<ImportSourceSelectComponent>) =>
+      seeded.debugElement
+        .queryAll(By.css("input[type=radio]"))
+        .map((el) => el.nativeElement as HTMLInputElement)
+        .filter((radio) => radio.checked)
+        .map((radio) => (radio.closest("bit-form-control-card")?.textContent ?? "").trim());
+
+    it("preselects nothing without it", () => {
+      expect(checkedCards(renderWith())).toEqual([]);
+    });
+
+    it("preselects a featured vendor and enables Continue", () => {
+      const seeded = renderWith("lastpasscsv" as UpgradeImportType);
+      const continueButton = seeded.debugElement.query(By.css("button[bitButton]"))
+        .nativeElement as HTMLButtonElement;
+      const emitted: UpgradeImportType[] = [];
+      seeded.componentInstance.continue.subscribe((id) => emitted.push(id));
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("LastPass")]);
+      expect(continueButton.getAttribute("aria-disabled")).toBeNull();
+      continueButton.click();
+      expect(emitted).toEqual(["lastpasscsv"]);
+    });
+
+    it("opens Show all and preselects a vendor from the remaining list", () => {
+      const seeded = renderWith("zohovaultcsv" as UpgradeImportType);
+
+      expect(checkedCards(seeded)).toEqual([expect.stringContaining("Zoho Vault")]);
+    });
+  });
+
   it("re-disables Continue when the selected card is filtered out by search", () => {
     const continueButton = fixture.debugElement.query(By.css("button[bitButton]"))
       .nativeElement as HTMLButtonElement;
 
-    component["sourceControl"].setValue("chromecsv" as ImportType);
+    component["sourceControl"].setValue("chromecsv" as UpgradeImportType);
     fixture.detectChanges();
     expect(continueButton.getAttribute("aria-disabled")).toBeNull();
 
@@ -300,7 +393,7 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).not.toContain("Chrome");
     expect(continueButton.getAttribute("aria-disabled")).toBe("true");
 
-    const emitted: ImportType[] = [];
+    const emitted: UpgradeImportType[] = [];
     component.continue.subscribe((id) => emitted.push(id));
     continueButton.click();
     expect(emitted).toEqual([]);
@@ -322,7 +415,7 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   it("swaps to the dark-mode icon variant for vendors that have one, and back again", () => {
-    // "1password1pux" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
+    // "1password" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
     const onePasswordIcon = () =>
       fixture.debugElement
         .queryAll(By.css("bit-form-control-card"))

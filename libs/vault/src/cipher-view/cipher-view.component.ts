@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, resource } from "@angular/core";
+import { Component, computed, inject, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -29,6 +29,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { CalloutModule, SearchModule, TypographyModule } from "@bitwarden/components";
+
+import { CIPHER_VIEW_BANNER, CipherViewBanner } from "../tokens/cipher-view-banner.token";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -76,6 +78,11 @@ export class CipherViewComponent {
    */
   readonly cipher = input.required<CipherView>();
 
+  /** Host-provided banner below the cipher's details; null when unprovided. */
+  protected readonly bannerComponent: CipherViewBanner | null = inject(CIPHER_VIEW_BANNER, {
+    optional: true,
+  });
+
   /**
    * Observable version of the cipher input
    */
@@ -109,6 +116,15 @@ export class CipherViewComponent {
    * situations where the cipher contents are not editable)
    */
   readonly hideChangePasswordLink = input<boolean>(false);
+  /**
+   * Optional input for explicitly disabling the item history section of cipher details
+   */
+  readonly hideItemHistory = input<boolean>(false);
+  /**
+   * Optional input for hiding the expired card callout (used where the viewer cannot act on it,
+   * such as a card shared with them through a Send)
+   */
+  readonly hideExpiredCardWarning = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -222,7 +238,7 @@ export class CipherViewComponent {
 
   readonly cardIsExpired = computed(() => {
     const cipher = this.cipher();
-    if (cipher == null) {
+    if (cipher == null || this.hideExpiredCardWarning()) {
       return false;
     }
     return isCardExpired(cipher.card);

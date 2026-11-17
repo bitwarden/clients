@@ -12,7 +12,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -20,14 +19,13 @@ import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Cart } from "@bitwarden/pricing";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import {
-  PreviewInvoiceClient,
-  SubscriberBillingClient,
-} from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 
 // NOTE: ChangePlanDialogComponent must be imported before OrganizationWarningsService.
 // The component injects OrganizationWarningsService, which in turn imports
@@ -184,17 +182,23 @@ const mockSubscriberBillingClient: Partial<SubscriberBillingClient> = {
   getBillingAddress: () => Promise.resolve({ country: "US", postalCode: "12345" } as any),
   getPaymentMethod: () => Promise.resolve(null),
 };
-const mockPreviewInvoiceClient: Partial<PreviewInvoiceClient> = {
-  previewTaxForOrganizationSubscriptionPlanChange: () =>
-    Promise.resolve({ tax: 0, total: mockPlans[3].PasswordManager.basePrice } as any),
-};
 const mockBillingNotificationService: Partial<BillingNotificationService> = {
   handleError: () => {},
 };
 const mockOrganizationWarningsService: Partial<OrganizationWarningsService> = {
   refreshInactiveSubscriptionWarning: () => {},
 };
-const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
+const mockCart: Cart = {
+  passwordManager: {
+    seats: { translationKey: "passwordManagerPlanPrice", quantity: 1, cost: 300 },
+  },
+  cadence: "annually",
+  estimatedTax: 0,
+  total: 300,
+};
+const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
+  previewPlanChangeCart: () => Promise.resolve(mockCart),
+};
 
 export default {
   title: "Billing/Organizations/Change Plan Dialog",
@@ -218,9 +222,8 @@ export default {
         { provide: AccountService, useValue: mockAccountService },
         { provide: BillingNotificationService, useValue: mockBillingNotificationService },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
-        { provide: ConfigService, useValue: mockConfigService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     }),
     applicationConfig({

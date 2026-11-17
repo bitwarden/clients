@@ -11,6 +11,7 @@ import {
   switchMap,
   throwError,
   MonoTypeOperatorFunction,
+  Subscription,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,6 +30,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
@@ -92,6 +94,15 @@ export type NativeWindowObject = {
 };
 
 /**
+ * Sent by the main process when the user closes the app window while it is in
+ * modal mode, i.e. while a ceremony is showing its UI in it.
+ */
+const MODAL_WINDOW_CLOSED = new CommandDefinition("modalWindowClosed");
+
+/** A ceremony that can be refused because of its RP ID. */
+export type RpIdNotAllowedOperation = "registration" | "assertion";
+
+/**
  * RxJS operator that mirrors the source but errors with the signal's abort
  * `reason` if `signal` fires before the source settles, unsubscribing the
  * source (and any timers it holds, e.g. `timeout`) immediately.
@@ -115,6 +126,28 @@ function throwOnAbort<T>(signal: AbortSignal): MonoTypeOperatorFunction<T> {
     );
 }
 
+/**
+ * Thrown when the vault already holds a credential the relying party asked to
+ * exclude, after the user has been shown the "passkey already exists" message.
+ */
+export class ExcludedCredentialMatched extends Error {
+  constructor() {
+    super("The vault already contains an excluded credential");
+    this.name = "ExcludedCredentialMatched";
+  }
+}
+
+/**
+ * Thrown when the vault holds none of the credentials the request asked for,
+ * e.g. a passkey deleted since the OS last synced its credential list.
+ */
+export class CredentialNotFound extends Error {
+  constructor() {
+    super("The vault does not contain the requested credential");
+    this.name = "CredentialNotFound";
+  }
+}
+
 export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<NativeWindowObject> {
   constructor(
     private authService: AuthService,
@@ -127,6 +160,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
     private domainSettingsService: DomainSettingsService,
+    private messageListener: MessageListener,
   ) {}
   private currentSession: any;
 
@@ -159,6 +193,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.userVerificationService,
       this.passwordRepromptService,
       this.domainSettingsService,
+      this.messageListener,
     );
 
     this.currentSession = session;
@@ -179,6 +214,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
     private domainSettingsService: DomainSettingsService,
+    private messageListener: MessageListener,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -201,12 +237,19 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
 
+  private credentialNotFoundDismissedSubject = new Subject<void>();
+
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
    * complete without any UI at all, and those must leave a window the user
    * already had open untouched.
    */
   private uiShown = false;
+
+  /**
+   * Cancels the ceremony if the user closes the window while it shows our UI.
+   */
+  private windowClosedSubscription: Subscription | undefined;
 
   // Method implementation
   async pickCredential(
@@ -579,12 +622,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * Returns the app to the state it was in before this ceremony showed any UI,
    * leaving a window the user already had open untouched when no UI was shown.
    *
-   * `pickCredential` and `confirmNewCredential` wait for a result and call this
-   * from their own `finally`. `informExcludedCredential` doesn't: it returns as
-   * soon as the message is on screen, so the component showing that message
-   * calls this when the user dismisses it. Safe to call more than once.
+   * Each ceremony that shows UI waits for it to finish and calls this from its
+   * own `finally`. Safe to call more than once.
    */
   async hideUi(): Promise<void> {
+    this.windowClosedSubscription?.unsubscribe();
+    this.windowClosedSubscription = undefined;
+
     // Always clear modal mode so the app can never get stuck in it. The main
     // process only restyles the window on the modal -> standard transition, so
     // this is inert when the ceremony never entered modal mode.
@@ -608,6 +652,17 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     showTrafficButtons: boolean = false,
     disableRedirect?: boolean,
   ): Promise<void> {
+    this.windowClosedSubscription ??= this.messageListener
+      .messages$(MODAL_WINDOW_CLOSED)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.logService.info(
+          "[DesktopFido2UserInterfaceSession]",
+          "Window closed while showing UI. Aborting the request.",
+        );
+        this.abortController.abort("Operation cancelled");
+      });
+
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
     await this.accountService.setShowHeader(showTrafficButtons);
@@ -672,13 +727,107 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
   }
 
+  /**
+   * Shows the user that their vault already holds an excluded credential, waits
+   * for them to dismiss the message, then rejects so the relying party learns
+   * the reason too.
+   *
+   * The OS collects the user's consent to create a credential before calling
+   * us, so a timeout still reports the match. A cancelled request reports the
+   * cancellation instead.
+   *
+   * @throws {ExcludedCredentialMatched} once the message is dismissed or times out.
+   */
   async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
     this.logService.debug("informExcludedCredential", existingCipherIds);
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
 
     // make the cipherIds available to the UI.
     this.availableCipherIdsSubject.next(existingCipherIds);
 
-    await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
+    try {
+      await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
+
+      // The component reports dismissal through `notifyConfirmCreateCredential`.
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.confirmCredentialSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
+    throw new ExcludedCredentialMatched();
+  }
+
+  /**
+   * The operation that was refused because of its RP ID, for the UI to show.
+   * Set by {@link informRpIdNotAllowed}.
+   */
+  rpIdNotAllowedOperation: RpIdNotAllowedOperation | undefined;
+
+  /**
+   * Shows the user that passkeys for this RP ID can't be created or used from
+   * the vault, waits for them to dismiss the message, then rejects.
+   *
+   * The OS has already collected the user's consent before calling us, so
+   * without this message the request would fail with no explanation.
+   *
+   * @throws {DOMException} `NotAllowedError` once the message is dismissed or
+   * times out.
+   */
+  async informRpIdNotAllowed(operation: RpIdNotAllowedOperation): Promise<never> {
+    this.logService.debug("informRpIdNotAllowed", this.windowObject.rpId, operation);
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
+
+    this.rpIdNotAllowedOperation = operation;
+
+    try {
+      await this.showUi("/fido2-rp-id-not-allowed", this.windowObject.windowXy, false);
+
+      // The component reports dismissal through `notifyConfirmCreateCredential`.
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.confirmCredentialSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
+    throw new DOMException(
+      `Passkeys for RP ID ${this.windowObject.rpId} are not allowed`,
+      "NotAllowedError",
+    );
   }
 
   async ensureUnlockedVault(): Promise<void> {
@@ -736,8 +885,55 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
   }
 
+  /**
+   * Notifies the session that the user dismissed the "no passkeys found" message.
+   */
+  notifyCredentialNotFoundDismissed(): void {
+    this.credentialNotFoundDismissedSubject.next();
+    this.credentialNotFoundDismissedSubject.complete();
+  }
+
+  /**
+   * Shows the user that their vault holds none of the requested credentials,
+   * waits for them to dismiss the message, then rejects so the OS learns the
+   * reason too.
+   *
+   * A timeout still reports the missing credential. A cancelled request reports
+   * the cancellation instead.
+   *
+   * @throws {CredentialNotFound} once the message is dismissed or times out.
+   */
   async informCredentialNotFound(): Promise<void> {
     this.logService.debug("informCredentialNotFound");
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
+
+    try {
+      await this.showUi("/fido2-credential-not-found", this.windowObject.windowXy, false);
+
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.credentialNotFoundDismissedSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
+    throw new CredentialNotFound();
   }
 
   async close() {

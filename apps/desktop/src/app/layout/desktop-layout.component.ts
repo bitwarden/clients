@@ -57,6 +57,12 @@ export class DesktopLayoutComponent {
     { initialValue: false },
   );
 
+  // TODO: remove once pm-35053-import-upgrade is retired
+  protected readonly importUpgradeEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.ImportUpgrade),
+    { initialValue: false },
+  );
+
   protected readonly isMacOs = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
   protected openGenerator() {

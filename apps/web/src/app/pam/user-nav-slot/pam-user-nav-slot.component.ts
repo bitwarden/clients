@@ -1,24 +1,23 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, switchMap } from "rxjs";
+import { combineLatest, map, of, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { NavigationModule } from "@bitwarden/components";
+import { BadgeModule, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-/**
- * Renders the "Access requests" nav item in the individual user side nav when
- * {@link FeatureFlag.Pam} is on and the user belongs to a PAM-enabled organization (`usePam`).
- */
+import { PamNavBadgeService } from "../pam-nav-badge.service";
+
+/** "Access requests" nav item in the individual user side nav, badged with the pending count. */
 @Component({
   selector: "app-pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",
   host: { class: "tw-contents" },
-  imports: [I18nPipe, NavigationModule],
+  imports: [BadgeModule, I18nPipe, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PamUserNavSlotComponent {
@@ -38,5 +37,10 @@ export class PamUserNavSlotComponent {
       map(([pamEnabled, memberOfPamOrg]) => pamEnabled && memberOfPamOrg),
     ),
     { initialValue: false },
+  );
+
+  protected readonly badgeCount = toSignal(
+    inject(PamNavBadgeService, { optional: true })?.count$ ?? of(0),
+    { initialValue: 0 },
   );
 }

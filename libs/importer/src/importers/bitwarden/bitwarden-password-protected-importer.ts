@@ -2,17 +2,15 @@
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
-  Argon2KdfConfig,
   EncryptService,
   EncString,
   KdfConfig,
-  KdfType,
   KeyGenerationService,
-  PBKDF2KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import {
@@ -25,6 +23,7 @@ import { ImportResult } from "../../models/import-result";
 import { Importer } from "../importer";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
+import { kdfConfigFromPasswordProtectedExport } from "./password-protected-kdf-config";
 
 export class BitwardenPasswordProtectedImporter
   extends BitwardenEncryptedJsonImporter
@@ -40,8 +39,9 @@ export class BitwardenPasswordProtectedImporter
     private keyGenerationService: KeyGenerationService,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
+    logService: LogService,
   ) {
-    super(keyService, encryptService, i18nService, cipherService, accountService);
+    super(keyService, encryptService, i18nService, cipherService, accountService, logService);
   }
 
   async parse(data: string): Promise<ImportResult> {
@@ -62,9 +62,17 @@ export class BitwardenPasswordProtectedImporter
       return result;
     }
 
+    // Bound the attacker-controlled KDF parameters before any key derivation allocates for them.
+    const kdfConfig = kdfConfigFromPasswordProtectedExport(parsedData);
+    if (kdfConfig == null) {
+      result.success = false;
+      result.errorMessage = this.i18nService.t("importUnsupportedKdfSettings");
+      return result;
+    }
+
     // File is password-protected
     const password = await this.promptForPassword_callback();
-    if (!(await this.checkPassword(parsedData, password))) {
+    if (!(await this.checkPassword(parsedData, password, kdfConfig))) {
       result.success = false;
       result.errorMessage = this.i18nService.t("invalidFilePassword");
       return result;
@@ -78,15 +86,11 @@ export class BitwardenPasswordProtectedImporter
   private async checkPassword(
     jdoc: BitwardenPasswordProtectedFileFormat,
     password: string,
+    kdfConfig: KdfConfig,
   ): Promise<boolean> {
     if (this.isNullOrWhitespace(password)) {
       return false;
     }
-
-    const kdfConfig: KdfConfig =
-      jdoc.kdfType === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(jdoc.kdfIterations)
-        : new Argon2KdfConfig(jdoc.kdfIterations, jdoc.kdfMemory, jdoc.kdfParallelism);
 
     this.key = await this.keyGenerationService.deriveVaultExportKey(password, jdoc.salt, kdfConfig);
 
@@ -100,16 +104,16 @@ export class BitwardenPasswordProtectedImporter
     }
   }
 
+  /**
+   * Checks the fields that are not KDF parameters; those are validated by
+   * {@link kdfConfigFromPasswordProtectedExport}.
+   */
   private cannotParseFile(jdoc: BitwardenPasswordProtectedFileFormat): boolean {
     return (
       !jdoc ||
       !jdoc.encrypted ||
       !jdoc.passwordProtected ||
       !jdoc.salt ||
-      !jdoc.kdfIterations ||
-      typeof jdoc.kdfIterations !== "number" ||
-      jdoc.kdfType == null ||
-      KdfType[jdoc.kdfType] == null ||
       !jdoc.encKeyValidation_DO_NOT_EDIT ||
       !jdoc.data
     );

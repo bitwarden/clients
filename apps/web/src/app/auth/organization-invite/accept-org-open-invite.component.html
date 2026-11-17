@@ -4,6 +4,50 @@
       <bit-spinner variant="primary" [title]="'loading' | i18n"></bit-spinner>
     </div>
   }
+  @case (AcceptOrgOpenInviteViewState.EmailVerificationOtp) {
+    <form [formGroup]="emailVerificationOtpForm" [bitSubmit]="submitEmailVerificationOtp">
+      <bit-form-field>
+        <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="code"
+          appInputVerbatim
+          autocomplete="one-time-code"
+          (paste)="onEmailVerificationOtpPaste($event)"
+          id="accept-org-open-invite_input_verification-code"
+          data-testid="accept-org-open-invite-otp-input"
+        />
+      </bit-form-field>
+
+      <div class="tw-flex tw-flex-col tw-gap-3">
+        <button
+          bitButton
+          bitFormButton
+          type="submit"
+          buttonType="primary"
+          block
+          id="accept-org-open-invite_button_verify"
+          data-testid="accept-org-open-invite-otp-submit"
+        >
+          {{ "verify" | i18n }}
+        </button>
+
+        <button
+          bitButton
+          type="button"
+          buttonType="secondary"
+          block
+          [disabled]="emailVerificationOtpRequestPending()"
+          (click)="resendEmailVerificationOtp()"
+          id="accept-org-open-invite_button_resend-code"
+          data-testid="accept-org-open-invite-otp-resend"
+        >
+          {{ "resendCode" | i18n }}
+        </button>
+      </div>
+    </form>
+  }
   @case (AcceptOrgOpenInviteViewState.Error) {
     <p data-testid="accept-org-open-invite-error-message">
       {{ errorBody() }}

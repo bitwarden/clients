@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { InjectionToken } from "@angular/core";
 
 declare const tag: unique symbol;
@@ -10,5 +8,5 @@ declare const tag: unique symbol;
  * This is solved by assigning T to an arbitrary private property.
  */
 export class SafeInjectionToken<T> extends InjectionToken<T> {
-  private readonly [tag]: T;
+  declare private readonly [tag]: T;
 }

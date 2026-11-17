@@ -5,12 +5,12 @@ use std::{
 };
 
 use autofill_provider::{
-    CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
-    TimedCallback, UserVerification, WindowDetails,
+    BitwardenError, CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse,
+    Position, TimedCallback, UserVerification, WindowDetails,
 };
 use desktop_core::autofill::create_context_string;
 use win_webauthn::{
-    plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
+    plugin::{PluginError, PluginMakeCredentialRequest, PluginMakeCredentialResponse},
     CborParser, CborValue, CtapTransport,
 };
 
@@ -100,8 +100,7 @@ pub fn make_credential(
 
     // Send registration request
     let passkey_response =
-        send_registration_request(ipc_client, registration_request, cancellation_token)
-            .map_err(|err| format!("Registration request failed: {err}"))?;
+        send_registration_request(ipc_client, registration_request, cancellation_token)?;
     tracing::debug!("Registration response received: {:?}", passkey_response);
 
     // Create proper WebAuthn response from passkey_response
@@ -117,7 +116,7 @@ fn send_registration_request(
     ipc_client: &dyn IpcClient,
     request: PasskeyRegistrationRequest,
     cancellation_token: Receiver<()>,
-) -> Result<PasskeyRegistrationResponse, String> {
+) -> Result<PasskeyRegistrationResponse, Box<dyn std::error::Error>> {
     tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}",
         request.rp_id, request.user_handle.len(), request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
 
@@ -132,7 +131,14 @@ fn send_registration_request(
             CallbackError::Timeout => "Registration request timed out".to_string(),
             CallbackError::Cancelled => "Registration request cancelled".to_string(),
         })?
-        .map_err(|err| err.to_string());
+        .map_err(|err| -> Box<dyn std::error::Error> {
+            match err {
+                BitwardenError::ExcludedCredentialMatched => {
+                    Box::new(PluginError::ExcludedCredentialMatched)
+                }
+                err => format!("Registration request failed: {err}").into(),
+            }
+        });
     if response.is_ok() {
         tracing::debug!("Requesting credential sync after registering a new credential.");
         ipc_client.send_native_status("request-sync".to_string(), "".to_string());
@@ -190,9 +196,57 @@ fn create_make_credential_response(
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+
     use win_webauthn::CborWriter;
 
-    use super::create_make_credential_response;
+    use super::*;
+    use crate::ipc::test_util::FailingIpcClient;
+
+    fn registration_request() -> PasskeyRegistrationRequest {
+        PasskeyRegistrationRequest {
+            rp_id: "example.com".to_string(),
+            user_handle: vec![1, 2, 3],
+            user_name: "user@example.com".to_string(),
+            client_data_hash: vec![0; 32],
+            excluded_credentials: vec![vec![4, 5, 6]],
+            user_verification: UserVerification::Preferred,
+            supported_algorithms: vec![-7],
+            client_window: WindowDetails {
+                position: Position { x: 0, y: 0 },
+                handle: None,
+            },
+            context: "context".to_string(),
+        }
+    }
+
+    fn send_failing_registration(error: fn() -> BitwardenError) -> Box<dyn std::error::Error> {
+        let (_cancel_tx, cancel_rx) = mpsc::channel();
+        send_registration_request(
+            &FailingIpcClient { error },
+            registration_request(),
+            cancel_rx,
+        )
+        .expect_err("registration should fail")
+    }
+
+    #[test]
+    fn reports_an_excluded_credential_match_as_a_plugin_error() {
+        let err = send_failing_registration(|| BitwardenError::ExcludedCredentialMatched);
+
+        assert!(matches!(
+            err.downcast_ref::<PluginError>(),
+            Some(PluginError::ExcludedCredentialMatched)
+        ));
+    }
+
+    #[test]
+    fn reports_other_registration_failures_as_generic_errors() {
+        let err = send_failing_registration(|| BitwardenError::Internal("boom".to_string()));
+
+        assert!(err.downcast_ref::<PluginError>().is_none());
+        assert!(err.to_string().contains("boom"));
+    }
 
     fn build_attestation_object(fmt: &str, auth_data: &[u8]) -> Vec<u8> {
         let mut buf = Vec::new();

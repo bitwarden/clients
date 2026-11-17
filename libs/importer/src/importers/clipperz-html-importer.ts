@@ -8,7 +8,10 @@ import { Importer } from "./importer";
 export class ClipperzHtmlImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
-    const doc = this.parseXml(data);
+    // Clipperz exports are XHTML, but the only thing read out of them is the textarea's text
+    // content. Parsing as HTML gets the same result without the XML parser rejecting the export's
+    // XHTML DOCTYPE, and HTML parsing never resolves DTDs or entities.
+    const doc = this.parseHtml(data);
     if (doc == null) {
       result.success = false;
       return Promise.resolve(result);

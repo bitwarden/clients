@@ -26,6 +26,7 @@ import {
   VaultScopeType,
 } from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 
 type TrailCrumb = {
   key: string;
@@ -121,7 +122,11 @@ export class VaultBreadcrumbsComponent {
     return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
   });
 
-  private readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
+  /** The selected folder's own name, without its parent path — see {@link sharedFolderName}. */
+  private readonly currentFolderName = computed(() => {
+    const node = this.sharedFolderNode()?.node;
+    return node ? sharedFolderName(node) : "";
+  });
 
   /** Ancestors of the selected folder, from org root to immediate parent. Current folder excluded. */
   private readonly collectionBreadcrumbs = computed((): CollectionView[] => {
@@ -154,10 +159,10 @@ export class VaultBreadcrumbsComponent {
       ...this.collectionBreadcrumbs().map((folder): TrailCrumb => ({
         key: folder.id,
         icon: "bwi-shared-folder",
-        label: folder.name,
+        label: sharedFolderName(folder),
         route: this.sharedFolderRoute(folder),
       })),
-      this.currentCrumb("shared-folder", "bwi-shared-folder", this.sharedFolderName()),
+      this.currentCrumb("shared-folder", "bwi-shared-folder", this.currentFolderName()),
     ];
   });
 

@@ -28,9 +28,9 @@ export class DesktopFido2MacOsUserVerificationService extends DesktopFido2UserVe
 
   protected messageKey(operation: Fido2UserVerificationOperation): string {
     return {
-      registration: "confirmPasskeyRegistrationMacOS",
-      overwrite: "confirmPasskeyOverwriteMacOS",
-      assertion: "confirmPasskeyAssertionMacOS",
+      registration: "confirmPasskeyRegistrationMfaMacOS",
+      overwrite: "confirmPasskeyOverwriteMfaMacOS",
+      assertion: "confirmPasskeyAssertionMfaMacOS",
     }[operation];
   }
 }

@@ -286,6 +286,28 @@ export const WithIcons: Story = {
   },
 };
 
+export const Truncated: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4 tw-p-2 tw-w-64">
+        <a bitLink truncate href="#">Anchor with a really long name that does not fit</a>
+        <a bitLink truncate href="#" startIcon="bwi-star" endIcon="bwi-external-link">
+          Anchor with icons and a really long name that does not fit
+        </a>
+        <button type="button" bitLink truncate>Button with a really long name that does not fit</button>
+        <a bitLink truncate href="#">Short</a>
+        <a bitLink href="#">Without truncate, a really long name that does not fit wraps or overflows</a>
+      </div>
+    `,
+  }),
+  parameters: {
+    controls: {
+      exclude: ["linkType"],
+      hideNoControlsWarning: true,
+    },
+  },
+};
+
 export const Inactive: Story = {
   render: (args) => ({
     props: {

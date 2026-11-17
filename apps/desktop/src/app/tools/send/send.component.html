@@ -14,12 +14,12 @@
     (editSend)="onEditSend($event)"
     (copySend)="onCopySend($event)"
     (deleteSend)="onDeleteSend($event)"
-    (removePassword)="onRemovePassword($event)"
+    (removeAuth)="onRemoveAuth($event)"
   >
     <tools-new-send-dropdown-v2
       slot="empty-button"
       [hideIcon]="true"
-      [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+      buttonType="secondary"
       (addSend)="addSend($event)"
     />
   </tools-send-list>

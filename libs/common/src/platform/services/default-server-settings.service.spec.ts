@@ -44,4 +44,24 @@ describe("DefaultServerSettingsService", () => {
       });
     });
   });
+
+  describe("isOpenInviteLinkEmailVerificationDisabled$", () => {
+    it("returns true when open invite link email verification is disabled", () => {
+      const mockSettings = new ServerSettings({ disableOpenInviteLinkEmailVerification: true });
+      configServiceMock.serverSettings$ = of(mockSettings);
+
+      service.isOpenInviteLinkEmailVerificationDisabled$.subscribe((isDisabled: boolean) => {
+        expect(isDisabled).toBe(true);
+      });
+    });
+
+    it("returns false when open invite link email verification is enabled", () => {
+      const mockSettings = new ServerSettings({ disableOpenInviteLinkEmailVerification: false });
+      configServiceMock.serverSettings$ = of(mockSettings);
+
+      service.isOpenInviteLinkEmailVerificationDisabled$.subscribe((isDisabled: boolean) => {
+        expect(isDisabled).toBe(false);
+      });
+    });
+  });
 });

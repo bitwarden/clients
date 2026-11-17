@@ -1,0 +1,15 @@
+<div
+  class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-pt-4 tw-text-center"
+  role="status"
+  tabindex="-1"
+>
+  <bit-spinner size="base" />
+  <div>
+    @if (titleKey(); as key) {
+      <p bitTypography="body1" class="tw-mb-3 tw-font-semibold" noMargin>{{ key | i18n }}</p>
+    }
+    @if (bodyKey(); as key) {
+      <p bitTypography="body1" noMargin class="tw-mb-0">{{ key | i18n }}</p>
+    }
+  </div>
+</div>

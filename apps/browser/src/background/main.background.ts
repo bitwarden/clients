@@ -29,16 +29,12 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
-  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
   DefaultLoginStrategySessionTimeoutService,
-  LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
 import {
@@ -48,15 +44,11 @@ import {
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
-import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -69,6 +61,11 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
+import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -205,6 +202,8 @@ import { SystemNotificationsService } from "@bitwarden/common/platform/system-no
 import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/provider";
+import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
@@ -214,11 +213,9 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -230,11 +227,11 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DefaultEndUserNotificationService,
   EndUserNotificationService,
@@ -250,6 +247,7 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -298,7 +296,7 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
-import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { FlightRecorderLogRecorder, limitPerformanceMeasurements } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
@@ -338,15 +336,19 @@ import {
 
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
-import { ExtensionLockService } from "../auth/services/extension-lock.service";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
+import {
+  FillAssistEventReceiver,
+  NoopFillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -365,20 +367,24 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
 import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
+import { DefaultFillCipherPolicy } from "../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
+import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserProcessReloadService } from "../key-management/browser-process-reload.service";
+import { ExtensionLockService } from "../key-management/lock/services/extension-lock.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
@@ -418,6 +424,7 @@ import {
   isNotificationsSupported,
 } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
+import { ListViewsAnnouncerService } from "../vault/background/list-views-announcer.service";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
 import CommandsBackground from "./commands.background";
@@ -447,6 +454,8 @@ export default class MainBackground {
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
+  revealedCipherService: RevealedCipherService;
+  fillCipherPolicy: FillCipherPolicy;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -487,7 +496,6 @@ export default class MainBackground {
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
-  newPolicyService: InternalNewPolicyService;
   sendService: InternalSendServiceAbstraction;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
@@ -542,8 +550,8 @@ export default class MainBackground {
   // an erased annotation would leave the channel ambient
   readonly #intraprocessMessageSender: IntraprocessMessageSender;
   // Retained because `OverlayBackground` is constructed lazily, outside this constructor's scope.
-  // `private` suffices here: a listener only reads, so reaching it grants no way to publish.
-  private messageListener: MessageListener;
+  // Public, unlike the sender: a listener only reads, so reaching it grants no way to publish.
+  readonly messageListener: MessageListener;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -589,7 +597,6 @@ export default class MainBackground {
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
-  loginToAutoFill: CipherView = null;
   organizationUserService: OrganizationUserService;
   organizationUserApiService: OrganizationUserApiService;
   autoConfirmService: AutomaticUserConfirmationService;
@@ -601,6 +608,7 @@ export default class MainBackground {
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
   private runtimeBackground: RuntimeBackground;
+  private fillAssistEventReceiver: FillAssistEventReceiver;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
 
@@ -617,9 +625,28 @@ export default class MainBackground {
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
   private phishingDetectionService: PhishingDetectionService;
 
-  constructor() {
-    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
+  /** @param overrides Services the commercial build supplies in place of the OSS defaults. */
+  constructor(overrides?: {
+    revealedCipherService?: (deps: {
+      stateProvider: StateProvider;
+      accountService: AccountServiceAbstraction;
+      authService: AuthServiceAbstraction;
+      cipherService: CipherServiceAbstraction;
+      messageSender: MessageSender;
+      logService: LogServiceAbstraction;
+    }) => RevealedCipherService;
+    fillCipherPolicy?: (deps: {
+      cipherService: CipherServiceAbstraction;
+      revealedCipherService: RevealedCipherService;
+    }) => FillCipherPolicy;
+  }) {
+    // Downstream services receive this callback and invoke it directly instead of
+    // going through LogoutService, so the log line that lives in DefaultLogoutService
+    // is mirrored here to cover this path.
+    const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) => {
+      this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
+    };
 
     const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
@@ -763,6 +790,47 @@ export default class MainBackground {
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
+      this.appIdService,
+      this.logService,
+    );
+
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
@@ -821,6 +889,7 @@ export default class MainBackground {
       this.messagingService,
       () => this.vaultTimeoutSettingsService,
       () => this.ipcService,
+      this.platformUtilsService,
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
@@ -834,6 +903,7 @@ export default class MainBackground {
       this.stateProvider,
       this.accountCryptographicStateService,
       browserBiometricsService,
+      this.sdkService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -859,20 +929,15 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
-
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
     );
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
 
-    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
-
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,
       this.accountService,
-      this.newPolicyService,
       () => this.sdkService,
     );
 
@@ -916,17 +981,12 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
-      this.newPolicyService,
       this.apiService,
       this.accountService,
     );
@@ -948,6 +1008,7 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -966,43 +1027,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      // The dev source replaces host acquisition rather than layering on top of it. Left running,
-      // the reader would find no policy on the developer's machine and clear the pushed profile.
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      this.managedSettingsService = devManagedSettingsService;
-    } else {
-      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-      this.managedConfigReader = new BrowserManagedConfigReader(
-        this.managedSettingsService,
-        this.logService,
-      );
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      this.managedSettingsService,
-      this.appIdService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1028,6 +1052,7 @@ export default class MainBackground {
       this.i18nService,
       this.stateProvider,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.pinService = new PinService(this.sdkService);
@@ -1046,6 +1071,8 @@ export default class MainBackground {
       this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
+      this.sdkService,
       this.autoUnlockService,
       this.messagingService,
       this.messageListener,
@@ -1145,6 +1172,7 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.ssoLoginService = new SsoLoginService(
@@ -1188,7 +1216,6 @@ export default class MainBackground {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 
@@ -1206,15 +1233,29 @@ export default class MainBackground {
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
-      this.messagingService,
       this.cipherSdkService,
     );
+    this.revealedCipherService =
+      overrides?.revealedCipherService?.({
+        stateProvider: this.stateProvider,
+        accountService: this.accountService,
+        authService: this.authService,
+        cipherService: this.cipherService,
+        messageSender: this.messagingService,
+        logService: this.logService,
+      }) ?? new NoopRevealedCipherService();
+    this.fillCipherPolicy =
+      overrides?.fillCipherPolicy?.({
+        cipherService: this.cipherService,
+        revealedCipherService: this.revealedCipherService,
+      }) ?? new DefaultFillCipherPolicy(this.cipherService);
     this.folderService = new FolderService(
       this.keyService,
       this.encryptService,
       this.i18nService,
       this.cipherService,
       this.stateProvider,
+      this.logService,
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 
@@ -1244,7 +1285,6 @@ export default class MainBackground {
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
-      this.configService,
       this.legacyCompatKeyService,
     );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
@@ -1255,27 +1295,17 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
       this.sdkService,
       this.sendDecryptionService,
     );
-    const legacySendApiService = new SendApiService(
+    this.sendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
       this.sendService,
       this.logService,
-    );
-    this.sendApiService = new SendApiServiceSelector(
-      this.configService,
-      legacySendApiService,
-      new SendSdkApiService(
-        this.sdkService,
-        legacySendApiService,
-        this.sendService,
-        this.accountService,
-        this.logService,
-        this.sendDecryptionService,
-      ),
+      this.sdkService,
+      this.accountService,
+      this.sendDecryptionService,
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
@@ -1293,7 +1323,6 @@ export default class MainBackground {
       this.collectionService,
       this.messagingService,
       this.policyService,
-      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,
@@ -1362,7 +1391,7 @@ export default class MainBackground {
       this.animationControlService,
       this.autofillLifecycleService,
     );
-    this.autofillOrchestrator = new AutofillOrchestrator(
+    this.autofillOrchestrator = new DefaultAutofillOrchestrator(
       this.autofillLifecycleService,
       this.autofillService,
       this.autofillSettingsService,
@@ -1370,6 +1399,7 @@ export default class MainBackground {
       this.platformUtilsService,
       () => this.updateOverlayCiphers(),
       this.logService,
+      this.fillCipherPolicy,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1408,6 +1438,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1501,7 +1532,6 @@ export default class MainBackground {
       this.authService,
       this.webPushConnectionService,
       this.authRequestAnsweringService,
-      this.configService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1558,9 +1588,14 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService);
+    const logoutService = new DefaultLogoutService(
+      this.messagingService,
+      this.logService,
+      this.sdkService,
+    );
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1575,6 +1610,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
       this,
     );
 
@@ -1588,6 +1624,11 @@ export default class MainBackground {
       this.lockService,
       logoutService,
     );
+
+    // TODO: Update or remove this temporary note during fill assist M6. This receiver
+    // is an M3.5 placeholder. M6 will replace this with the real consumer. The emitter,
+    // message shape, and receiver interface stay stable across the swap.
+    this.fillAssistEventReceiver = new NoopFillAssistEventReceiver(this.logService);
 
     this.runtimeBackground = new RuntimeBackground(
       this,
@@ -1607,6 +1648,7 @@ export default class MainBackground {
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
+      this.fillAssistEventReceiver,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
@@ -1663,16 +1705,19 @@ export default class MainBackground {
       this.fido2Background,
       this.#intraprocessMessageSender,
       this.messageListener,
+      this.fillCipherPolicy,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
+      this.accountService,
+      this.fillCipherPolicy,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       this.logService,
-      this.autofillService,
+      this.autofillLifecycleService,
       this.scriptInjectorService,
       this.authService,
       this.platformUtilsService,
@@ -1691,21 +1736,19 @@ export default class MainBackground {
         await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
       },
       async (tab, cipher) => {
-        this.loginToAutoFill = cipher;
         if (tab == null) {
           return;
         }
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        BrowserApi.tabSendMessage(tab, {
-          command: "collectPageDetails",
-          tab: tab,
-          sender: "contextMenu",
-        });
+        // The user chose this cipher from the context menu, so a fill that placed nothing is
+        // mitigated by copying its code. See `autofill.design.md`, "Outcomes".
+        const result = await this.autofillOrchestrator.autofillTabWithCipher(tab, cipher);
+        if (shouldAutoCopyTotp(result)) {
+          this.platformUtilsService.copyToClipboard(result.totp);
+        }
       },
+      (tabId, frameId) => this.autofillOrchestrator.collectAutofillTriage(tabId, frameId),
       this.authService,
-      this.cipherService,
       this.totpService,
       this.eventCollectionService,
       this.userVerificationService,
@@ -1713,6 +1756,7 @@ export default class MainBackground {
       this.autofillTriageService,
       new WebmapperDraftService(this.stateProvider),
       this.#intraprocessMessageSender,
+      this.fillCipherPolicy,
     );
 
     this.contextMenusBackground = new ContextMenusBackground(
@@ -1756,16 +1800,19 @@ export default class MainBackground {
       this.authService,
       this.cipherService,
       this.accountService,
+      this.fillCipherPolicy,
     );
 
     if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
       this.webRequestBackground = new WebRequestBackground(
         this.platformUtilsService,
-        this.cipherService,
+        this.fillCipherPolicy,
         this.authService,
         this.accountService,
         chrome.webRequest,
-        this.configService,
+        this.autofillSettingsService,
+        this.eventCollectionService,
+        this.logService,
       );
     }
 
@@ -1773,6 +1820,7 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.revealedCipherService,
     );
 
     this.phishingDataService = new PhishingDataService(
@@ -1814,6 +1862,7 @@ export default class MainBackground {
       this.sharedUnlockSettingsService,
       this.unlockService,
       this.configService,
+      this.stateProvider,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
@@ -1845,6 +1894,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
+    limitPerformanceMeasurements();
     this.containerService.attachToGlobal(self);
 
     // Acquired first so no consumer can observe an empty profile that acquisition would have
@@ -1861,6 +1911,11 @@ export default class MainBackground {
     const accounts = await firstValueFrom(this.accountService.accounts$);
     const userIds = Object.keys(accounts) as UserId[];
     await this.tokenService.cleanupTokenStorage(userIds);
+
+    // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+    await this.ipcContentScriptManagerService.init();
+    await this.ipcService.init();
+    await this.sharedUnlockPeerService.start();
 
     for (const userId of userIds) {
       try {
@@ -1895,12 +1950,14 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    await this.webRequestBackground?.startListening();
+    this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
+    // TODO: PM-44635 - Use AccountSwitcherService.resolveActiveAccount() from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const active = await firstValueFrom(this.accountService.activeAccount$);
     if (active != null) {
       const authStatus = await firstValueFrom(
@@ -1913,9 +1970,6 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
-    await this.ipcContentScriptManagerService.init();
-    await this.ipcService.init();
-    await this.sharedUnlockPeerService.start();
     this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {
@@ -2018,8 +2072,6 @@ export default class MainBackground {
         this.messagingService.send("locked", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
-        await this.refreshMenu();
-        await this.updateOverlayCiphers();
         await this.syncService.fullSync(false);
       }
     } finally {
@@ -2048,6 +2100,8 @@ export default class MainBackground {
 
     await this.eventUploadService.uploadEvents(userBeingLoggedOut);
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // @bitwarden/common/auth/account-switcher, which never picks a logged-out account.
     const newActiveUser =
       userBeingLoggedOut === activeUserId
         ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
@@ -2120,29 +2174,6 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     );
     return currentVaultTimeout == VaultTimeoutStringType.Never ? false : true;
-  }
-
-  async collectPageDetailsForContentScript(tab: any, sender: string, frameId: number = null) {
-    if (tab == null || !tab.id) {
-      return;
-    }
-
-    const options: any = {};
-    if (frameId != null) {
-      options.frameId = frameId;
-    }
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(
-      tab,
-      {
-        command: "collectPageDetails",
-        tab: tab,
-        sender: sender,
-      },
-      options,
-    );
   }
 
   /**
@@ -2348,15 +2379,17 @@ export default class MainBackground {
       this.accountService,
       this.generatorHistoryService,
       this.credentialGeneratorService,
+      this.autofillOrchestrator,
       this.configService,
       this.#intraprocessMessageSender,
       this.messageListener,
+      this.fillCipherPolicy,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
       this.badgeService,
       this.accountService,
-      this.cipherService,
+      this.fillCipherPolicy,
       this.badgeSettingsService,
       this.logService,
     );
@@ -2385,6 +2418,11 @@ export default class MainBackground {
     await this.autofillBadgeUpdaterService.init();
     await this.clipboardNotificationBadgeUpdaterService.init();
     await this.atRiskCipherUpdaterService.init();
+    new ListViewsAnnouncerService(
+      this.accountService,
+      this.cipherService,
+      this.messagingService,
+    ).init();
   }
 
   generatePasswordToClipboard = () => {

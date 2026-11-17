@@ -60,6 +60,7 @@ const chips: ChipGroupItem[] = [
 describe("ChipGroupComponent", () => {
   let fixture: ComponentFixture<ChipGroupComponent>;
   let selected: ChipGroupItem[];
+  let dismissed: ChipGroupItem[];
 
   // Every geometry read in JSDOM returns zero, so packing can never be exercised
   // against real layout. Report fixed widths per element role instead, which keeps
@@ -78,7 +79,7 @@ describe("ChipGroupComponent", () => {
     Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
       const width = this.hasAttribute("bitoverflowtrigger")
         ? TRIGGER_WIDTH
-        : this.hasAttribute("bit-chip-action")
+        : this.hasAttribute("bit-chip-action") || this.tagName === "BIT-CHIP"
           ? CHIP_WIDTH
           : 0;
       return {
@@ -116,14 +117,20 @@ describe("ChipGroupComponent", () => {
         {
           provide: I18nService,
           useFactory: () =>
-            new I18nMockService({ showMore: "Show more", showMoreCount: "Show more" }),
+            new I18nMockService({
+              showMore: "Show more",
+              showMoreCount: "Show more",
+              removeItem: (name?: string) => `Remove ${name}`,
+            }),
         },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChipGroupComponent);
     selected = [];
+    dismissed = [];
     fixture.componentInstance.chipSelect.subscribe((chip) => selected.push(chip));
+    fixture.componentInstance.chipDismiss.subscribe((chip) => dismissed.push(chip));
   });
 
   /** The chip buttons in the visible row, excluding the trailing overflow trigger. */
@@ -283,6 +290,23 @@ describe("ChipGroupComponent", () => {
       flush();
     }));
 
+    it("never hands focus to a chip element the consumer just removed", fakeAsync(() => {
+      const four = [...chips, { id: "archived", label: "Archived", variant: "subtle" as const }];
+      fixture.componentRef.setInput("chips", four);
+      settle();
+      triggerChip().focus();
+
+      // Removing a chip destroys the last chip element while the remeasure hides the trigger;
+      // focusing that destroyed element drops focus on `document.body`.
+      const focusSpy = jest.spyOn(HTMLElement.prototype, "focus");
+      fixture.componentRef.setInput("chips", [four[0], four[1], four[3]]);
+      settle();
+      flush();
+
+      expect(focusSpy.mock.contexts.filter((el) => !(el as HTMLElement).isConnected)).toEqual([]);
+      focusSpy.mockRestore();
+    }));
+
     it("leaves focus alone when it sits outside the group", fakeAsync(() => {
       const outside = document.createElement("button");
       document.body.appendChild(outside);
@@ -293,6 +317,144 @@ describe("ChipGroupComponent", () => {
 
       expect(document.activeElement).toBe(outside);
       outside.remove();
+      flush();
+    }));
+  });
+
+  describe("dismissible", () => {
+    const rowDismissButtons = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-chip [bit-chip-dismiss-button]"))
+        .map((el) => el.nativeElement as HTMLButtonElement);
+
+    const popoverDismissButtons = () =>
+      Array.from(
+        document.querySelectorAll<HTMLButtonElement>(
+          ".cdk-overlay-container bit-chip [bit-chip-dismiss-button]",
+        ),
+      );
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("dismissible", true);
+    });
+
+    it("emits chipDismiss, not chipSelect, from a row chip's dismiss button", () => {
+      fixture.componentRef.setInput("chips", chips);
+      fixture.detectChanges();
+
+      rowDismissButtons()[1].click();
+
+      expect(dismissed).toEqual([chips[1]]);
+      expect(selected).toEqual([]);
+    });
+
+    it("ignores clicks on a chip's body", () => {
+      fixture.componentRef.setInput("chips", chips);
+      fixture.detectChanges();
+
+      (fixture.debugElement.query(By.css("bit-chip")).nativeElement as HTMLElement).click();
+
+      expect(selected).toEqual([]);
+      expect(dismissed).toEqual([]);
+    });
+
+    /** Dismisses a popover chip and removes it from the input, as a consumer would. */
+    const dismissFromPopover = (index: number) => {
+      const button = popoverDismissButtons()[index];
+      button.focus();
+      button.click();
+      fixture.componentRef.setInput(
+        "chips",
+        fixture.componentInstance.chips().filter((chip) => !dismissed.includes(chip)),
+      );
+      settle();
+    };
+
+    it("keeps the popover open and focuses the next chip when one of several is dismissed", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+
+      dismissFromPopover(0);
+
+      expect(dismissed).toEqual([chips[1]]);
+      expect(popoverIsOpen()).toBe(true);
+      expect(popoverDismissButtons()).toHaveLength(1);
+      expect(document.activeElement).toBe(popoverDismissButtons()[0]);
+      flush();
+    }));
+
+    it("focuses the previous chip when the last one in the popover is dismissed", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+
+      dismissFromPopover(1);
+
+      expect(dismissed).toEqual([chips[2]]);
+      expect(popoverIsOpen()).toBe(true);
+      expect(document.activeElement).toBe(popoverDismissButtons()[0]);
+      flush();
+    }));
+
+    it("closes the popover and focuses the row once a dismissal lets every chip fit", fakeAsync(() => {
+      // Three chips need the trigger and overflow two; two chips fit without it.
+      containerWidth = TWO_CHIP_WIDTH;
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+      expect(popoverDismissButtons()).toHaveLength(2);
+
+      dismissFromPopover(0);
+      tick();
+      fixture.detectChanges();
+
+      expect(popoverIsOpen()).toBe(false);
+      expect(document.activeElement).toBe(rowDismissButtons()[1]);
+      flush();
+    }));
+
+    it("closes the popover when its only chip is dismissed", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips.slice(0, 2));
+      settle();
+      triggerChip().click();
+      fixture.detectChanges();
+
+      popoverDismissButtons()[0].click();
+      fixture.detectChanges();
+
+      expect(dismissed).toEqual([chips[1]]);
+      expect(popoverIsOpen()).toBe(false);
+      flush();
+    }));
+
+    it("moves focus to the overflow trigger when a focused dismiss button is packed away", fakeAsync(() => {
+      containerWidth = TWO_CHIP_WIDTH;
+      fixture.componentRef.setInput("chips", chips.slice(0, 2));
+      settle();
+
+      rowDismissButtons()[1].focus();
+
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+
+      expect(document.activeElement).toBe(triggerChip());
+      flush();
+    }));
+
+    it("moves focus to a row chip's dismiss button when the focused trigger is hidden", fakeAsync(() => {
+      fixture.componentRef.setInput("chips", chips);
+      settle();
+
+      triggerChip().focus();
+
+      fixture.componentRef.setInput("chips", [chips[0]]);
+      settle();
+
+      expect(document.activeElement).toBe(rowDismissButtons()[0]);
       flush();
     }));
   });

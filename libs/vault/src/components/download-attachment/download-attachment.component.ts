@@ -3,10 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -47,12 +43,10 @@ export class DownloadAttachmentComponent {
 
   constructor(
     private readonly i18nService: I18nService,
-    private readonly apiService: ApiService,
     private readonly fileDownloadService: FileDownloadService,
     private readonly toastService: ToastService,
     private readonly stateProvider: StateProvider,
     private readonly cipherService: CipherService,
-    private readonly configService: ConfigService,
     private readonly cipherSdkService: CipherSdkService,
   ) {}
 
@@ -111,46 +105,24 @@ export class DownloadAttachmentComponent {
     attachment: AttachmentView,
     userId: UserId,
   ): Promise<string | undefined> {
-    const useSdk = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk),
-    );
-
     if (!attachment.id) {
       return undefined;
     }
 
     try {
-      if (useSdk) {
-        return await this.cipherSdkService.getAttachmentDownloadUrl(
-          cipherId as CipherId,
-          attachment.id,
-          userId,
-          this.downloadOptions(),
-        );
-      }
-
-      const response = this.admin()
-        ? await this.apiService.getAttachmentDataAdmin(cipherId, attachment.id)
-        : await this.apiService.getAttachmentData(
-            cipherId,
-            attachment.id,
-            this.emergencyAccessId(),
-          );
-      return response.url;
+      return await this.cipherSdkService.getAttachmentDownloadUrl(
+        cipherId as CipherId,
+        attachment.id,
+        userId,
+        this.downloadOptions(),
+      );
     } catch (e) {
-      if (e instanceof ErrorResponse && e.statusCode === 404) {
-        return attachment.url;
-      }
       if (
-        useSdk &&
         (isCipherAdminGetAttachmentDownloadUrlError(e) ||
           isCipherGetAttachmentDownloadUrlError(e)) &&
         e.variant === "NotFound"
       ) {
         return attachment.url;
-      }
-      if (e instanceof ErrorResponse) {
-        throw new Error(e.getSingleMessage());
       }
       throw e;
     }

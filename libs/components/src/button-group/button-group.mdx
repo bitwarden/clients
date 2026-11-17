@@ -1,0 +1,43 @@
+import { Meta, Canvas, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./button-group.stories";
+
+<Meta of={stories} />
+
+# Button Group
+
+Groups related buttons, such as the actions above a table, with consistent spacing.
+
+## Default
+
+<Canvas of={stories.Default} />
+
+<Controls />
+
+## Full width
+
+Pass `fullWidth` to have the buttons share the container's width equally.
+
+```html
+<bit-button-group fullWidth> ...buttons here... </bit-button-group>
+```
+
+<Canvas of={stories.FullWidth} />
+
+## Vertical
+
+<Canvas of={stories.Vertical} />
+
+## Auto
+
+With `orientation="auto"`, the buttons stay in a row while they fit and all stack once they don't.
+Give the group a definite width, such as a block container or `tw-w-full`; inside a shrink-to-fit
+parent it has no room to measure against.
+
+```html
+<bit-button-group orientation="auto" fullWidth> ...buttons here... </bit-button-group>
+```
+
+<Canvas of={stories.AutoFits} />
+
+<Canvas of={stories.AutoStacked} />

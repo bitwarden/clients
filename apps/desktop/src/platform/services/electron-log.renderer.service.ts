@@ -13,33 +13,15 @@ export class ElectronLogRendererService extends BaseLogService {
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
-    this.tee(level, message, ...optionalParams);
+    super.write(level, message, ...optionalParams);
 
     if (this.filter != null && this.filter(level)) {
       return;
     }
 
-    /* eslint-disable no-console */
     ipc.platform
       .log(level, message, ...optionalParams)
+      // eslint-disable-next-line no-console
       .catch((e) => console.log("Error logging", e));
-
-    /* eslint-disable no-console */
-    switch (level) {
-      case LogLevelType.Debug:
-        console.debug(message, ...optionalParams);
-        break;
-      case LogLevelType.Info:
-        console.info(message, ...optionalParams);
-        break;
-      case LogLevelType.Warning:
-        console.warn(message, ...optionalParams);
-        break;
-      case LogLevelType.Error:
-        console.error(message, ...optionalParams);
-        break;
-      default:
-        break;
-    }
   }
 }

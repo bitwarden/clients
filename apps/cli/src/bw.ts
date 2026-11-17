@@ -2,6 +2,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import { program } from "commander";
 
+import { exitAfterCommand } from "./exit-after-command";
 import { OssServeConfigurator } from "./oss-serve-configurator";
 import { registerOssPrograms } from "./register-oss-programs";
 import { ServeProgram } from "./serve.program";
@@ -37,6 +38,8 @@ async function main() {
     process.removeListener("exit", dispose);
     dispose();
   }
+
+  exitAfterCommand();
 }
 
 // Node does not support top-level await statements until ES2022, esnext, etc which we don't use yet

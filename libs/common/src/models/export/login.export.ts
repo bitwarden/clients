@@ -15,6 +15,7 @@ export class LoginExport {
     req.username = "jdoe";
     req.password = "myp@ssword123";
     req.totp = "JBSWY3DPEHPK3PXP";
+    req.httpAuthenticationEnabled = false;
     req.fido2Credentials = [];
     return req;
   }
@@ -26,6 +27,7 @@ export class LoginExport {
     view.username = req.username;
     view.password = req.password;
     view.totp = req.totp;
+    view.httpAuthenticationEnabled = req.httpAuthenticationEnabled;
     if (req.fido2Credentials != null) {
       view.fido2Credentials = req.fido2Credentials.map((key) => Fido2CredentialExport.toView(key));
     }
@@ -39,6 +41,7 @@ export class LoginExport {
     domain.username = req.username != null ? new EncString(req.username) : undefined;
     domain.password = req.password != null ? new EncString(req.password) : undefined;
     domain.totp = req.totp != null ? new EncString(req.totp) : undefined;
+    domain.httpAuthenticationEnabled = req.httpAuthenticationEnabled;
     if (req.fido2Credentials != null) {
       domain.fido2Credentials = req.fido2Credentials.map((f2) =>
         Fido2CredentialExport.toDomain(f2),
@@ -52,6 +55,8 @@ export class LoginExport {
   username?: string;
   password?: string;
   totp?: string;
+  /** Not encrypted in account-encrypted exports, matching how legacy-format ciphers store it. */
+  httpAuthenticationEnabled?: boolean;
   fido2Credentials?: Fido2CredentialExport[];
 
   constructor(o?: LoginView | LoginDomain) {
@@ -70,5 +75,6 @@ export class LoginExport {
     this.username = safeGetString(o.username);
     this.password = safeGetString(o.password);
     this.totp = safeGetString(o.totp);
+    this.httpAuthenticationEnabled = o.httpAuthenticationEnabled;
   }
 }

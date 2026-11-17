@@ -19,9 +19,22 @@
     [collections]="resolvedCollections()"
     [folder]="folder()"
     [hideOwner]="isAdminConsole()"
+    [isAdminConsole]="isAdminConsole()"
   >
     <ng-content select="[slot=button]"></ng-content>
   </app-item-details-v2>
+
+  @if (bannerComponent) {
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: {
+          cipher: cipher(),
+          isAdminConsole: isAdminConsole(),
+        }
+      "
+    />
+  }
 
   <!-- LOGIN CREDENTIALS -->
   @if (hasLogin()) {
@@ -98,5 +111,7 @@
   }
 
   <!-- ITEM HISTORY SECTION -->
-  <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  @if (!hideItemHistory()) {
+    <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  }
 }

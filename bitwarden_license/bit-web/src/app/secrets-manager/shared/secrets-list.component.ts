@@ -10,11 +10,11 @@ import {
   input,
   output,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import { SecretListView, SecretService, SecretView } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
@@ -29,10 +29,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
-import { SecretListView } from "../models/view/secret-list.view";
-import { SecretView } from "../models/view/secret.view";
-import { SecretService } from "../secrets/secret.service";
-
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
@@ -41,10 +37,6 @@ import { SecretService } from "../secrets/secret.service";
 })
 export class SecretsListComponent implements OnDestroy {
   private readonly configService = inject(ConfigService);
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
 
   protected readonly dataSource = new TableDataSource<SecretListView>();
 

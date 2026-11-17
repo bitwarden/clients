@@ -1,8 +1,13 @@
 import { Jsonify } from "type-fest";
 
-import { MemberDecryptionType } from "../../../auth/enums/sso";
-import { ProductTierType } from "../../../billing/enums";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import {
+  MemberDecryptionType,
+  OrganizationUserStatusType,
+  OrganizationUserType,
+  ProductTierType,
+  ProviderType,
+} from "@bitwarden/sdk-internal";
+
 import { PermissionsApi } from "../api/permissions.api";
 import { ProfileOrganizationResponse } from "../response/profile-organization.response";
 
@@ -28,30 +33,31 @@ export class OrganizationData {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number;
-  maxCollections: number;
+  seats: number | null;
+  maxCollections: number | null;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string;
+  identifier: string | null;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string;
+  organizationUserId: string | null;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
-  providerName: string;
+  providerId: string | null;
+  providerName: string | null;
   providerType?: ProviderType;
   isProviderUser: boolean;
   isMember: boolean;
-  familySponsorshipFriendlyName: string;
+  familySponsorshipFriendlyName: string | null;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string;
+  keyConnectorUrl: string | null;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -99,6 +105,7 @@ export class OrganizationData {
     this.useSecretsManager = response.useSecretsManager;
     this.usePasswordManager = response.usePasswordManager;
     this.usePam = response.usePam;
+    this.accessPam = response.accessPam;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = response.useAutomaticUserConfirmation;
     this.selfHost = response.selfHost;

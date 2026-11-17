@@ -21,6 +21,7 @@ import {
   Subject,
   takeUntil,
   tap,
+  timeout,
 } from "rxjs";
 
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
@@ -28,7 +29,6 @@ import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
   AuthRequestServiceAbstraction,
-  LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -36,6 +36,7 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
@@ -62,6 +63,12 @@ import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 
 import { routerTransition } from "./app-routing.animations";
+
+/**
+ * How long a "locked" message waits for the popup to see its user become active. The
+ * background switches accounts, then sends "locked", which can arrive first.
+ */
+const ACTIVE_USER_SYNC_TIMEOUT_MS = 1_000;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -177,7 +184,7 @@ export class AppComponent implements OnInit, OnDestroy {
               return;
             }
 
-            if (msg.userId !== this.activeUserId) {
+            if (!(await this.becomesActiveUser(msg.userId))) {
               this.logService.error(
                 `'locked' message received with userId ${msg.userId} but active userId is ${this.activeUserId}.`,
               );
@@ -287,6 +294,21 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((state) => {
         this.routerAnimations = state;
       });
+  }
+
+  /**
+   * Whether `userId` is, or within a moment becomes, the popup's active user. Switching to a
+   * locked account sends "locked" right after the switch, which can reach the popup before
+   * its active account updates. Messages for other users, e.g. from lock all, resolve false.
+   */
+  private async becomesActiveUser(userId: UserId): Promise<boolean> {
+    return await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        filter((account) => account?.id === userId),
+        map(() => true),
+        timeout({ first: ACTIVE_USER_SYNC_TIMEOUT_MS, with: () => of(false) }),
+      ),
+    );
   }
 
   ngOnDestroy(): void {

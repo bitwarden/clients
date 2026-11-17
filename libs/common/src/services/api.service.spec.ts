@@ -1,15 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { ObservedValueOf, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 import { newGuid } from "@bitwarden/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { EventRequest } from "../dirt/event-logs";
 import { EventType } from "../dirt/event-logs/enums/event-type.enum";
 import { DeviceType } from "../enums";
@@ -21,6 +19,7 @@ import {
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
@@ -1271,6 +1270,38 @@ describe("ApiService", () => {
     });
   });
 
+  describe("getSync", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue({});
+
+      await sut.getSync(userId);
+
+      expect(send).toHaveBeenCalledWith(
+        "GET",
+        expect.stringContaining("/sync"),
+        null,
+        expectedAuth,
+        true,
+      );
+    });
+  });
+
+  describe("getAccountRevisionDate", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue(1);
+
+      await sut.getAccountRevisionDate(userId);
+
+      expect(send).toHaveBeenCalledWith("GET", "/accounts/revision-date", null, expectedAuth, true);
+    });
+  });
+
   describe("postEventsCollect", () => {
     beforeEach(() => {
       environmentService.environment$ = of({
@@ -1305,6 +1336,173 @@ describe("ApiService", () => {
       await expect(sut.postEventsCollect(events)).resolves.toEqual(
         events.slice(EventUploadBatchSize),
       );
+    });
+  });
+
+  describe("postAttachmentFile", () => {
+    const uploadOptions: UploadOptions = { onProgress: jest.fn() };
+
+    beforeAll(() => {
+      // jsdom doesn't ship Request
+      (globalThis as any).Request = class {
+        constructor(
+          public url: string,
+          public init?: unknown,
+        ) {}
+      };
+    });
+
+    afterAll(() => {
+      delete (globalThis as any).Request;
+    });
+
+    beforeEach(() => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+    });
+
+    it("throws InsecureUrlNotAllowedError when onProgress is set and the API URL is not https", async () => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "http://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      const nativeXMLHttpRequest = jest.fn();
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).rejects.toThrow(InsecureUrlNotAllowedError);
+
+      expect(nativeXMLHttpRequest).not.toHaveBeenCalled();
+    });
+
+    it("throws when the progress-reporting XHR upload returns a non-success status", async () => {
+      const nativeXMLHttpRequest = jest.fn().mockResolvedValue({
+        status: 400,
+        json: () => Promise.resolve({ message: "Attachment too large" }),
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).rejects.toMatchObject({ message: "Attachment too large" });
+    });
+
+    it("returns the response when the progress-reporting XHR upload succeeds", async () => {
+      const response = {
+        status: 201,
+      } satisfies Partial<Response> as Response;
+      const nativeXMLHttpRequest = jest.fn().mockResolvedValue(response);
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData(), uploadOptions),
+      ).resolves.toBe(response);
+    });
+
+    it("falls back to send() (which already throws on failure) when no onProgress callback is given", async () => {
+      const nativeXMLHttpRequest = jest.fn();
+      sut.nativeXMLHttpRequest = nativeXMLHttpRequest;
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: "Attachment too large" }),
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await expect(
+        sut.postAttachmentFile("cipher-id", "attachment-id", new FormData()),
+      ).rejects.toMatchObject({ message: "Attachment too large" });
+
+      expect(nativeXMLHttpRequest).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("nativeXMLHttpRequest", () => {
+    const originalXMLHttpRequest = globalThis.XMLHttpRequest;
+
+    beforeAll(() => {
+      // jsdom doesn't ship Response
+      (globalThis as any).Response = class {
+        constructor(
+          public body: unknown,
+          public init: { status: number; headers: Headers },
+        ) {}
+        get status() {
+          return this.init.status;
+        }
+        get headers() {
+          return this.init.headers;
+        }
+      };
+    });
+
+    afterAll(() => {
+      delete (globalThis as any).Response;
+    });
+
+    afterEach(() => {
+      globalThis.XMLHttpRequest = originalXMLHttpRequest;
+    });
+
+    function stubXhr(status: number, responseHeaders: string, body: string) {
+      class FakeXhr {
+        responseType = "";
+        response: ArrayBuffer;
+        status = status;
+        upload = {} as XMLHttpRequestUpload;
+        onload: () => void;
+        onerror: () => void;
+        open = jest.fn();
+        setRequestHeader = jest.fn();
+        getAllResponseHeaders = () => responseHeaders;
+        send = () => {
+          this.response = new TextEncoder().encode(body).buffer as ArrayBuffer;
+          this.onload();
+        };
+      }
+      globalThis.XMLHttpRequest = FakeXhr as unknown as typeof XMLHttpRequest;
+    }
+
+    const request = {
+      method: "POST",
+      url: "https://example.com/upload",
+      headers: new Headers(),
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+    } satisfies Partial<Request> as Request;
+
+    it("propagates the XHR response headers onto the returned Response", async () => {
+      stubXhr(400, "Content-Type: application/json\r\nX-Custom: a:b\r\n", "{}");
+
+      const response = await sut.nativeXMLHttpRequest(request, jest.fn());
+
+      expect(response.status).toBe(400);
+      expect(response.headers.get("content-type")).toBe("application/json");
+      expect(response.headers.get("x-custom")).toBe("a:b");
+    });
+
+    it("resolves with empty headers when the XHR exposes none", async () => {
+      stubXhr(201, "", "");
+
+      const response = await sut.nativeXMLHttpRequest(request, jest.fn());
+
+      expect(response.status).toBe(201);
+      expect(response.headers.get("content-type")).toBeNull();
     });
   });
 });

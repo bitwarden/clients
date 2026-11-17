@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { action } from "storybook/actions";
@@ -15,22 +15,18 @@ import { BitwardenToastrGlobalConfig, ToastModule } from "./toast.module";
 import { ToastOptions, ToastService } from "./toast.service";
 
 const toastServiceExampleTemplate = `
-  <button bitButton type="button" (click)="toastService.showToast(toastOptions)">Show Toast</button>
+  <button bitButton type="button" (click)="toastService.showToast(toastOptions())">Show Toast</button>
 `;
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
   imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  toastOptions?: ToastOptions;
+  readonly toastOptions = input<ToastOptions>();
 
-  constructor(protected toastService: ToastService) {}
+  protected readonly toastService = inject(ToastService);
 }
 
 export default {

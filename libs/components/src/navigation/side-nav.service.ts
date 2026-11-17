@@ -1,5 +1,7 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { Observable, fromEvent, map, startWith } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { NavigationEnd, Router } from "@angular/router";
+import { Observable, filter, fromEvent, map, startWith } from "rxjs";
 
 import { getRootFontSizePx, pxToRem } from "../shared";
 
@@ -69,6 +71,8 @@ export class SideNavService {
   /** Owns the width and decides what is persisted. This service never writes to disk itself. */
   private readonly widthService = inject(SideNavWidthService);
 
+  private readonly router = inject(Router);
+
   /** True once the saved width has been read from disk, so callers can tell startup from a resize. */
   readonly widthHydrated = this.widthService.hydrated;
 
@@ -83,6 +87,19 @@ export class SideNavService {
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
     this.rootFontSizePx = getRootFontSizePx();
+
+    // vfo1 top-level groups have no route, so a navigation means the user picked a page.
+    // Some layouts render the nav only after navigation ends, so the component would miss it.
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (this.version() === "vfo1" && this.isOverlay()) {
+          this.open.set(false);
+        }
+      });
   }
 
   /**

@@ -1,6 +1,8 @@
 use std::path::Path;
 
-use desktop_core::ipc::{MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE};
+use desktop_core::ipc::{
+    announcement::ClientAnnouncement, MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE,
+};
 use futures::{FutureExt, SinkExt, StreamExt};
 use tokio_util::codec::LengthDelimitedCodec;
 use tracing::{debug, error, info, level_filters::LevelFilter};
@@ -94,9 +96,15 @@ async fn main() {
     //
     // Chrome on Linux and Mac:
     // - Origin of the extension that started it (in the form `chrome-extension://[ID]`).
+    //
+    // CLI:
+    // - `--client=cli`
 
     let args: Vec<_> = std::env::args().skip(1).collect();
     info!(?args, "Process args");
+
+    let announcement = ClientAnnouncement::from_args(&args);
+    info!(%announcement, "Announcing client");
 
     // Setup two channels, one for sending messages to the desktop application (`out`) and one for
     // receiving messages from the desktop application (`in`)
@@ -104,7 +112,7 @@ async fn main() {
     let (out_send, mut out_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
 
     let mut handle = tokio::spawn(
-        desktop_core::ipc::client::connect(sock_path, out_send, in_recv)
+        desktop_core::ipc::client::connect(sock_path, announcement, out_send, in_recv)
             .map(|r| r.map_err(|e| e.to_string())),
     );
 

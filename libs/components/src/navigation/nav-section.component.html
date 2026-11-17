@@ -9,7 +9,7 @@
     [class.tw-sr-only]="!open"
   >
     @if (icon()) {
-      <bit-icon [name]="icon()"></bit-icon>
+      <bit-icon class="tw-text-base/none" [name]="icon()"></bit-icon>
     }
     <span>{{ label() }}</span>
   </div>

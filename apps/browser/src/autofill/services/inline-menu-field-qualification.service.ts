@@ -1106,11 +1106,33 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    const testedValues = [field.htmlID, field.htmlName, field.placeholder];
+    // WHATWG autofill tokens. Catches sites with a show password toggle
+    // that flips the type to text while preserving autocomplete.
+    if (
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteCurrentPassword,
+      ) ||
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteNewPassword,
+      )
+    ) {
+      return true;
+    }
+
+    const testedValues = [
+      field.htmlID,
+      field.htmlName,
+      field.placeholder,
+      field["label-aria"],
+      field["label-tag"],
+      field["label-top"],
+    ];
     for (let i = 0; i < testedValues.length; i++) {
       const attributeValueToMatch = testedValues[i];
 
-      if (!attributeValueToMatch) {
+      if (typeof attributeValueToMatch !== "string" || !attributeValueToMatch) {
         continue;
       }
 
@@ -1134,7 +1156,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     // Removes all whitespace, _ and - characters
     const cleanedValue = value.toLowerCase().replace(/[\s_-]/g, "");
 
-    if (cleanedValue.indexOf("password") < 0) {
+    if (!AutoFillConstants.PasswordFieldNameTokens.some((t) => cleanedValue.indexOf(t) > -1)) {
       return false;
     }
 

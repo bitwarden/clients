@@ -1,7 +1,15 @@
 import { ElementRef, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { animationFrameScheduler, fromEvent, of } from "rxjs";
-import { auditTime, distinctUntilChanged, map, scan, startWith, switchMap } from "rxjs/operators";
+import { animationFrameScheduler, combineLatest, fromEvent, merge, of } from "rxjs";
+import {
+  auditTime,
+  distinctUntilChanged,
+  filter,
+  map,
+  scan,
+  startWith,
+  switchMap,
+} from "rxjs/operators";
 
 /** Which way the user is currently moving through a scrollable region. */
 export type ScrollDirection = "up" | "down";
@@ -64,7 +72,8 @@ const nativeElement = (
  * Track the direction a scrollable element is being scrolled.
  *
  * Takes an element rather than a `CdkScrollable` so that it also works with regions marked by
- * `bitScrollLayoutHost`, which is not a `CdkScrollable`.
+ * `bitScrollLayoutHost`, which is not a `CdkScrollable`. Holds its direction while the scrollbar is
+ * dragged.
  *
  * @param scrollable The element to observe. Reports `"up"` while it is nullish or not scrollable.
  * @param options See {@link ScrollDirectionOptions}
@@ -84,15 +93,37 @@ export const scrollDirection = (
 
   const element$ = toObservable(scrollable).pipe(map(nativeElement));
 
+  // Watched from creation, since the scroller may only resolve after a drag begins. `scrollend`
+  // covers Chrome skipping `pointerup` after a scrollbar drag.
+  const pressed$ = toObservable(
+    toSignal(
+      merge(
+        fromEvent(document, "pointerdown", { capture: true }).pipe(map((event) => event.target)),
+        merge(
+          fromEvent(window, "pointerup"),
+          fromEvent(window, "pointercancel"),
+          fromEvent(document, "scrollend", { capture: true }),
+        ).pipe(map((): null => null)),
+      ),
+      { initialValue: null },
+    ),
+  );
+
   const direction$ = element$.pipe(
     switchMap((element) => {
       if (!element) {
         return of<ScrollDirection>("up");
       }
 
-      return fromEvent(element, "scroll").pipe(
+      const scroll$ = fromEvent(element, "scroll").pipe(
         auditTime(0, animationFrameScheduler),
         startWith(null),
+      );
+
+      return combineLatest([scroll$, pressed$]).pipe(
+        // A press on the scroller itself is a scrollbar drag, where a collapse would shift the track
+        // under the pointer and jump the offset. Release re-evaluates from where the drag began.
+        filter(([, pressed]) => pressed !== element),
         map(() => ({
           top: element.scrollTop,
           maxTop: element.scrollHeight - element.clientHeight,

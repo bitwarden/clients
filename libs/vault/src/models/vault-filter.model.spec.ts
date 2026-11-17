@@ -10,6 +10,7 @@ import { VaultFilter } from "./vault-filter.model";
 import {
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
 } from "./vault-filter.type";
@@ -286,6 +287,27 @@ describe("VaultFilter", () => {
 
         expect(result).toBe(true);
       });
+    });
+  });
+
+  describe("controlled access", () => {
+    const privileged = new TreeNode<ControlledAccessFilter>(
+      { id: "privileged", name: "Privileged" },
+      null,
+    );
+
+    it("reads the selected option's id", () => {
+      const filter = new VaultFilter({ selectedControlledAccessNode: privileged });
+
+      expect(filter.controlledAccessId).toBe("privileged");
+    });
+
+    it("clears the option on resetFilter", () => {
+      const filter = new VaultFilter({ selectedControlledAccessNode: privileged });
+
+      filter.resetFilter();
+
+      expect(filter.controlledAccessId).toBeUndefined();
     });
   });
 });

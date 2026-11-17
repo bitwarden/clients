@@ -22,6 +22,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RestrictedCipherWriteError } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -38,6 +39,7 @@ import {
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
+import { CipherFormHTTPAuthenticationService } from "../services/cipher-form-http-authentication.service";
 import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
@@ -63,6 +65,9 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     },
     {
       provide: CipherFormCacheService,
+    },
+    {
+      provide: CipherFormHTTPAuthenticationService,
     },
   ],
   imports: [
@@ -416,10 +421,19 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       successToast = "itemRestored";
     }
 
-    const savedCipher = await this.addEditFormService.saveCipher(
-      this.updatedCipherView,
-      this.config,
-    );
+    let savedCipher: CipherView;
+    try {
+      savedCipher = await this.addEditFormService.saveCipher(this.updatedCipherView, this.config);
+    } catch (e) {
+      if (e instanceof RestrictedCipherWriteError) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("restrictedItemChangeRefused"),
+        });
+        return;
+      }
+      throw e;
+    }
 
     // Clear the cache after successful save
     this.cipherFormCacheService.clearCache();

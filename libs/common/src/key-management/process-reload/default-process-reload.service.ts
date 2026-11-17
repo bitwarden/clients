@@ -58,14 +58,24 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     return false;
   }
 
-  /** An ephemeral (after-first-unlock) pin cannot survive a process reload, so it blocks one. */
+  /**
+   * An ephemeral (after-first-unlock) pin envelope lives in memory and cannot survive a
+   * process reload, so any account holding one blocks it, not just the active account.
+   */
   private async isAnyPinInAfuMode(): Promise<boolean> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
-    if (userId == null) {
-      return false;
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+
+    for (const userId of Object.keys(accounts ?? {}) as UserId[]) {
+      if ((await this.pinService.getPinLockType(userId)) !== "AfterFirstUnlock") {
+        continue;
+      }
+
+      if (await this.pinService.isPinDecryptionAvailable(userId)) {
+        return true;
+      }
     }
 
-    return (await this.pinService.getPinLockType(userId)) === "AfterFirstUnlock";
+    return false;
   }
 
   /**
@@ -89,6 +99,8 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       return;
     }
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // ../../auth/account-switcher, which never picks a logged-out account.
     const nextUser = await firstValueFrom(
       this.accountService.nextUpAccount$.pipe(getOptionalUserId),
     );

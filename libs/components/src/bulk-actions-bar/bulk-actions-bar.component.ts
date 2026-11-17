@@ -37,6 +37,7 @@ import {
   revealForMeasurement,
 } from "../overflow-list";
 import { BitTableV2Component } from "../table/v2/table-v2.component";
+import { injectModifierKey } from "../utils";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
 import { BulkActionComponent } from "./bulk-action.component";
@@ -159,9 +160,9 @@ export class BulkActionsBarComponent {
   readonly compact = signal(true);
 
   // Seeded from navigator so the first announcement (which can fire before any
-  // keypress) has a sensible label; `handleShortcut` upgrades this to ground
-  // truth as soon as a real Cmd/Ctrl-bearing keydown is observed.
-  private readonly modifierKey = signal<"Command" | "Ctrl">(this.detectInitialModifier());
+  // keypress) has a sensible label; upgraded to ground truth as soon as a real
+  // Cmd/Ctrl-bearing keydown is observed.
+  private readonly modifierKey = injectModifierKey();
 
   protected readonly announcement = computed(() => {
     if (this.effectiveCount() === 0) {
@@ -380,15 +381,6 @@ export class BulkActionsBarComponent {
   }
 
   protected handleShortcut(event: KeyboardEvent): void {
-    // Real keydown events are the source of truth for the announcement
-    // label, overriding the navigator-based initial guess. Runs even when
-    // hidden so the label is primed before the first announcement.
-    if (event.metaKey && !event.ctrlKey) {
-      this.modifierKey.set("Command");
-    } else if (event.ctrlKey && !event.metaKey) {
-      this.modifierKey.set("Ctrl");
-    }
-
     if (!this.visible()) {
       return;
     }
@@ -429,12 +421,6 @@ export class BulkActionsBarComponent {
 
   private isFocusable(el: HTMLElement): boolean {
     return !el.hasAttribute("disabled") && el.tabIndex !== -1;
-  }
-
-  private detectInitialModifier(): "Command" | "Ctrl" {
-    const nav = this.document.defaultView?.navigator;
-    const isMac = nav?.platform?.startsWith("Mac") || /Macintosh/.test(nav?.userAgent ?? "");
-    return isMac ? "Command" : "Ctrl";
   }
 
   protected readonly elementWithDividerClasses = [

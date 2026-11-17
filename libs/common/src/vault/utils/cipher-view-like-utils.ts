@@ -178,7 +178,7 @@ export class CipherViewLikeUtils {
     switch (this.getType(cipher)) {
       case CipherType.BankAccount: {
         const bankAccountSubtitle = this.bankAccountSubtitle(cipher, i18nService);
-        return bankAccountSubtitle ?? baseSubtitle;
+        return bankAccountSubtitle ?? "";
       }
       default:
         return baseSubtitle;
@@ -415,6 +415,18 @@ export class CipherViewLikeUtils {
   static decryptionFailure = (cipher: CipherViewLike): boolean => {
     return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
   };
+
+  /**
+   * @returns `true` for a restricted cipher: the server withheld its secrets, so the view has only
+   *   the name, login URIs and metadata. Default cipher streams exclude these; see
+   *   `cipherListViewsIncludingRestricted$`.
+   */
+  static isRestricted = (cipher: CipherViewLike): boolean => {
+    return "partial" in cipher ? !!cipher.partial : false;
+  };
+
+  /** @deprecated Use {@link isRestricted}. */
+  static isPartial = CipherViewLikeUtils.isRestricted;
 
   /**
    * Returns the notes from the cipher.

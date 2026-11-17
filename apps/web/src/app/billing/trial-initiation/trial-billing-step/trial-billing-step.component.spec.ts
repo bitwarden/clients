@@ -1,7 +1,7 @@
 // These are disabled until we can migrate to signals and remove the use of @Input properties in mocked child components
 /* eslint-disable @angular-eslint/prefer-signals */
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, flushMicrotasks, TestBed } from "@angular/core/testing";
 import { FormBuilder, FormControl } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, mockReset } from "jest-mock-extended";
@@ -12,15 +12,20 @@ import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-import { DiscountTypes } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
 } from "@bitwarden/web-vault/app/billing/payment/components";
+import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { SubscriptionDiscountService } from "@bitwarden/web-vault/app/billing/services/subscription-discount.service";
 
-import { TrialBillingStepComponent } from "./trial-billing-step.component";
+import {
+  OrganizationCreatedEvent,
+  TrialBillingStepComponent,
+} from "./trial-billing-step.component";
 import { TrialBillingStepService } from "./trial-billing-step.service";
+import { TrialPreviewCartComponent } from "./trial-preview-cart.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +53,16 @@ class MockEnterPaymentMethodComponent {
   }
 
   tokenize = jest.fn().mockResolvedValue({ token: "tok_test", type: "card" });
+}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "billing-cart-summary",
+  template: "",
+  standalone: true,
+})
+class MockCartSummaryComponent {
+  @Input() cart: Cart | undefined;
 }
 
 @Component({
@@ -81,7 +96,25 @@ describe("TrialBillingStepComponent", () => {
   const mockTrialBillingStepService = mock<TrialBillingStepService>();
   const mockSubscriptionDiscountService = mock<SubscriptionDiscountService>();
   const mockToastService = mock<ToastService>();
+  const mockBillingNotificationService = mock<BillingNotificationService>();
   const mockI18nService = { t: jest.fn((key: string) => key) };
+
+  const mockCart = {
+    passwordManager: {
+      seats: { translationKey: "passwordManagerPlanPrice", quantity: 10, cost: 72 },
+    },
+    cadence: "annually",
+    estimatedTax: 153.6,
+    total: 2073.6,
+  } as Cart;
+
+  // A direct purchase: the shape the preview cart prices.
+  const mockDirectPurchase = {
+    organization: { name: "Test Org", email: "test@example.com" },
+    product: "passwordManager" as const,
+    tier: "enterprise" as const,
+    length: 0,
+  };
 
   const mockFamiliesDiscount: SubscriptionDiscount = {
     stripeCouponId: "coupon-families",
@@ -115,15 +148,16 @@ describe("TrialBillingStepComponent", () => {
     mockReset(mockTrialBillingStepService);
     mockReset(mockSubscriptionDiscountService);
     mockReset(mockToastService);
+    mockReset(mockBillingNotificationService);
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
-    mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(
-      discountSubject$.asObservable(),
-    );
     mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
     mockSubscriptionDiscountService.isDiscountExpiredError.mockReturnValue(false);
     mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40 }));
-    mockTrialBillingStepService.getCosts.mockResolvedValue({ tax: 0, total: 40 });
+    // The component subscribes immediately; the discount-badge tests drive the subject.
+    mockTrialBillingStepService.getEligibleDiscounts$.mockReturnValue(
+      discountSubject$.asObservable(),
+    );
 
     // Spy on static methods before component instantiation
     jest
@@ -138,6 +172,9 @@ describe("TrialBillingStepComponent", () => {
       providers: [
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: TrialBillingStepService, useValue: mockTrialBillingStepService },
+        { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
+        { provide: BillingNotificationService, useValue: mockBillingNotificationService },
       ],
     })
       .overrideComponent(TrialBillingStepComponent, {
@@ -147,11 +184,13 @@ describe("TrialBillingStepComponent", () => {
         },
         add: {
           imports: [MockEnterPaymentMethodComponent, MockEnterBillingAddressComponent],
-          providers: [
-            { provide: TrialBillingStepService, useValue: mockTrialBillingStepService },
-            { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
-          ],
         },
+      })
+      // The real preview cart renders so the parent's @ViewChild gate resolves; stub only its
+      // cart-summary grandchild.
+      .overrideComponent(TrialPreviewCartComponent, {
+        remove: { imports: [CartSummaryComponent] },
+        add: { imports: [MockCartSummaryComponent] },
       })
       .compileComponents();
 
@@ -226,6 +265,128 @@ describe("TrialBillingStepComponent", () => {
     }));
   });
 
+  describe("preview cart wiring", () => {
+    it("shows the preview cart when trial length is 0 without PamBillingSupport", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("billing-cart-summary")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("#price")).toBeNull();
+      // The cart summary is the price authority here, so the radios drop their plan prices.
+      expect(fixture.nativeElement.textContent).not.toContain("$40.00");
+    }));
+
+    it("does not throw on the first render and keeps submit disabled until the preview has a value", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      expect(() => fixture.detectChanges()).not.toThrow();
+      const submit = () => fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit().getAttribute("aria-disabled")).toBe("true");
+
+      flushMicrotasks();
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(component["canSubmit"]()).toBe(true);
+      expect(submit().getAttribute("aria-disabled")).not.toBe("true");
+    }));
+
+    it("disables submit while the preview cart is erroring", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockRejectedValue(new Error("preview failed"));
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+      flushMicrotasks();
+
+      expect(component["canSubmit"]()).toBe(false);
+      // bit-button reflects disabled as aria-disabled, not the native attribute.
+      const submit = fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit.getAttribute("aria-disabled")).toBe("true");
+    }));
+
+    it("disables submit while the preview cart is loading", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockReturnValue(new Promise<Cart>(() => {}));
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+      flushMicrotasks();
+
+      expect(component["canSubmit"]()).toBe(false);
+      const submit = fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit.getAttribute("aria-disabled")).toBe("true");
+    }));
+
+    it("hides the header discount badges when the preview cart is showing", fakeAsync(() => {
+      // The cart summary renders its own discount badges, so the header would double up.
+      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+      mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
+
+      fixture.componentRef.setInput("trial", mockFamiliesTrial);
+      fixture.detectChanges();
+      discountSubject$.next([mockFamiliesDiscount]);
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(component["cartDiscounts"]()).toEqual([mockUiDiscount]);
+      expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeNull();
+    }));
+
+    it("shows cadence prices and discount badges when trial length > 0", fakeAsync(() => {
+      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+
+      fixture.componentRef.setInput("trial", { ...mockDirectPurchase, length: 7 });
+      fixture.detectChanges();
+      discountSubject$.next([mockFamiliesDiscount]);
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeNull();
+      expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeTruthy();
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("$40.00"); // annual radio keeps its plan price
+      expect(text).toContain("$2.00"); // monthly radio keeps its plan price
+    }));
+  });
+
+  describe("plan pricing", () => {
+    it("asks for privileged-controls-inclusive pricing when the trial selected it", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", {
+        ...mockDirectPurchase,
+        privilegedControls: { seats: 1 },
+      });
+      fixture.detectChanges();
+
+      expect(mockTrialBillingStepService.getPrices$).toHaveBeenCalledWith(
+        "passwordManager",
+        "enterprise",
+        true,
+      );
+    }));
+
+    it("asks for plan-only pricing when the trial has no privileged controls", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+
+      expect(mockTrialBillingStepService.getPrices$).toHaveBeenCalledWith(
+        "passwordManager",
+        "enterprise",
+        false,
+      );
+    }));
+  });
+
   describe("submit — coupon error recovery", () => {
     const setupSubmit = (discounts: any[]) => {
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
@@ -234,9 +395,9 @@ describe("TrialBillingStepComponent", () => {
       // Mock the signal directly after detectChanges (avoids @ViewChild reset issues)
       (component as any).eligibleDiscounts = jest.fn(() => discounts);
 
-      // Mock enterPaymentMethodComponent after final detectChanges
+      // Mock the enterPaymentMethodComponent view-child signal after final detectChanges
       Object.defineProperty(component, "enterPaymentMethodComponent", {
-        value: { tokenize: jest.fn().mockResolvedValue({ token: "tok", type: "card" }) },
+        value: () => ({ tokenize: jest.fn().mockResolvedValue({ token: "tok", type: "card" }) }),
         configurable: true,
         writable: true,
       });
@@ -316,6 +477,46 @@ describe("TrialBillingStepComponent", () => {
         expect.anything(),
         [],
       );
+    });
+  });
+
+  describe("submit — plan description", () => {
+    const setupSubmit = () => {
+      fixture.componentRef.setInput("trial", mockTeamsTrial);
+      fixture.detectChanges();
+
+      Object.defineProperty(component, "enterPaymentMethodComponent", {
+        value: () => ({ tokenize: jest.fn().mockResolvedValue({ token: "tok", type: "card" }) }),
+        configurable: true,
+        writable: true,
+      });
+
+      component["formGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+        taxId: "",
+        line1: "",
+        line2: "",
+        city: "",
+        state: "",
+      });
+
+      mockTrialBillingStepService.startTrial.mockResolvedValue({ id: "org-123" } as any);
+    };
+
+    it("describes the selected monthly cadence, not the annual default", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+
+      component["formGroup"].controls.cadence.setValue("monthly");
+
+      let emitted: OrganizationCreatedEvent | undefined;
+      component["organizationCreated"].subscribe((e) => (emitted = e));
+
+      await component["submit"]();
+
+      expect(emitted?.planDescription).toContain("monthly");
+      expect(emitted?.planDescription).not.toContain("annual");
     });
   });
 });
