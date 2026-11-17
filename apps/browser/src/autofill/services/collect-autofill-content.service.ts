@@ -338,7 +338,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
-        // Blocklisted; return empty page details, skip heuristics
+        // Blocklisted; return empty page details, skip heuristics. Flipping
+        // the flag keeps the child-frame fallback handler from running a
+        // bypass that would clear `pageTargetingRules` and override the
+        // blocklist.
+        this.resolvedFields = true;
         return this.getFormattedPageDetails({}, []);
       }
       return this.getTargetedPageDetails(targetingRules);

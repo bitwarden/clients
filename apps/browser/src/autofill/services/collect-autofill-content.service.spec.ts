@@ -639,6 +639,28 @@ describe("CollectAutofillContentService", () => {
 
         expect(collectAutofillContentService["resolvedFields"]).toBe(true);
       });
+
+      it("flips resolvedFields to true when the blocklist short-circuits getPageDetails", async () => {
+        // Prevents a later `runFillAssistHeuristicFallback` dispatch from the
+        // parent frame from running a bypass that would clear
+        // `pageTargetingRules` and override the blocklist.
+        expect(collectAutofillContentService["resolvedFields"]).toBe(false);
+
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: string) => {
+            if (command === "getUrlAutofillTargetingRules") {
+              return Promise.resolve({
+                result: { targetingRules: [], ruleFailureFallback: false },
+              });
+            }
+            return Promise.resolve(undefined);
+          });
+
+        await collectAutofillContentService.getPageDetails();
+
+        expect(collectAutofillContentService["resolvedFields"]).toBe(true);
+      });
     });
 
     describe("hasResolvedTargetedFields", () => {
