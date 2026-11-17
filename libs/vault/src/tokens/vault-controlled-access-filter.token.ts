@@ -9,7 +9,6 @@ export const PRIVILEGED_FILTER_ID = "privileged";
 export const PENDING_FILTER_ID = "pending";
 export const READY_FILTER_ID = "ready";
 export const ACTIVE_FILTER_ID = "active";
-export const UNAVAILABLE_FILTER_ID = "unavailable";
 
 /** One child of the "Controlled access" group, already localized by the host that supplies it. */
 export type ControlledAccessFilterOption = {
