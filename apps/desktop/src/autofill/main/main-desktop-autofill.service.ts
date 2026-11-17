@@ -53,6 +53,11 @@ export class DesktopAutofillMain {
     private windowMain: WindowMain,
   ) {}
 
+  /** Whether the OS autofill / passkey provider is serving requests. */
+  get active(): boolean {
+    return this.enabled;
+  }
+
   /**
    * Safely sends a message to the renderer, buffering it if the server isn't ready yet
    */
