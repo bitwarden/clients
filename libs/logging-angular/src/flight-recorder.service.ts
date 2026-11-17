@@ -6,7 +6,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { FlightRecorder } from "@bitwarden/logging";
 
 /** Process label for events produced by this client's Angular context. */
-function angularContextProcess(clientType: ClientType): string | undefined {
+function angularContextProcess(clientType: ClientType | undefined): string | undefined {
   switch (clientType) {
     case ClientType.Browser:
       return "browser-popup";
@@ -30,7 +30,8 @@ export class FlightRecorderService extends FlightRecorder {
   constructor() {
     super(
       SdkLoadService.Ready,
-      angularContextProcess(inject(PlatformUtilsService).getClientType()),
+      // Optional so consumers' tests need not provide it. Without it, local events stay unlabeled.
+      angularContextProcess(inject(PlatformUtilsService, { optional: true })?.getClientType()),
     );
   }
 }

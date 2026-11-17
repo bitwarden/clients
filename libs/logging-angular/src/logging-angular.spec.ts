@@ -55,6 +55,22 @@ describe("FlightRecorderService", () => {
 
     expect(event.process).toBe(process);
   });
+
+  it("leaves this context's events unlabeled without PlatformUtilsService", async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    mockRead.mockResolvedValue([
+      { timestamp: 1000, level: "INFO", target: "typescript", message: "local", fields: {} },
+    ]);
+
+    const [event] = await TestBed.inject(FlightRecorderService).read();
+
+    expect(event.process).toBeUndefined();
+  });
 });
 
 describe("FlightRecorderLogRecorderService", () => {
