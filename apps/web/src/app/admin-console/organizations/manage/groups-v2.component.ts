@@ -99,7 +99,10 @@ const SORTABLE_COLUMNS: readonly GroupColumn[] = ["details", "collectionChips"];
 
 function sameCollections(a: readonly string[], b: readonly string[] | undefined): boolean {
   const other = b ?? [];
-  return a.length === other.length && a.every((id) => other.includes(id));
+  if (a.length !== other.length) {
+    return false;
+  }
+  return a.every((id) => other.includes(id));
 }
 
 function isSortableColumn(value: string | undefined): value is GroupColumn {
