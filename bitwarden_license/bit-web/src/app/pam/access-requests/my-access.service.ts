@@ -170,10 +170,7 @@ export class MyAccessService {
       switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
     );
 
-    // The refresh service, not the bare push: it also carries mutations made elsewhere in this
-    // client, so a cancel, start or end from the request dialog or the vault updates the tabs and
-    // their counts even when the push is missed (PAM-408). This service's own announcements are
-    // skipped, since each of its mutations already patched or reloaded the state.
+    // Not the bare push: local changes elsewhere must refresh too; own echoes skipped.
     const refresh$ = this.accessRefresh.accessChanged$().pipe(filter(() => !this.announcing));
 
     merge(refresh$, lapsed$)
