@@ -46,6 +46,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
       return { encryptionVersion: "V2", registration: await this.finishPasswordV2(data) };
     }
 
+    // TODO: Remove the V1 path with https://bitwarden.atlassian.net/browse/PM-27327
     await this.finishPasswordV1(data);
     return { encryptionVersion: "V1" };
   }
@@ -57,6 +58,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
       return { encryptionVersion: "V2", registration: await this.finishKeyConnectorV2(data) };
     }
 
+    // TODO: Remove the V1 path with https://bitwarden.atlassian.net/browse/PM-27328
     await this.finishKeyConnectorV1(data);
     return { encryptionVersion: "V1" };
   }
@@ -68,6 +70,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
       return { encryptionVersion: "V2", registration: await this.finishTrustedDeviceV2(data) };
     }
 
+    // TODO: Remove the V1 path with https://bitwarden.atlassian.net/browse/PM-27329
     await this.finishTrustedDeviceV1(data);
     return { encryptionVersion: "V1" };
   }
@@ -78,6 +81,9 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
    * The caller read the same flag earlier, and did V1 work if it was off. When the flag is on but
    * the caller sent V1 keys, this method throws before any network call. Then the server does not
    * get V2 keys while the client holds V1 keys.
+   *
+   * TODO: Remove this method, the `V1` result, and `SsoJitProvisionFinishApiService` when
+   * PM-27327 (master password), PM-27328 (Key Connector), and PM-27329 (trusted device) have removed all V1 paths. Each `finish*` method then calls the SDK only.
    */
   private async isV2(
     flag:
@@ -114,6 +120,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     );
   }
 
+  /** TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27327 (V1 JIT master password registration). */
   private async finishPasswordV1(data: SsoJitProvisionFinishPasswordData): Promise<void> {
     assertNonNullish(data.v1Keys, "v1Keys", ERROR_CONTEXT);
 
@@ -156,6 +163,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     );
   }
 
+  /** TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration). */
   private async finishKeyConnectorV1(data: SsoJitProvisionFinishKeyConnectorData): Promise<void> {
     assertNonNullish(data.v1Keys, "v1Keys", ERROR_CONTEXT);
 
@@ -184,6 +192,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     );
   }
 
+  /** TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27329 (V1 TDE registration). */
   private async finishTrustedDeviceV1(data: SsoJitProvisionFinishTrustedDeviceData): Promise<void> {
     assertNonNullish(data.v1Keys, "v1Keys", ERROR_CONTEXT);
     const { keys, accountRecoveryKey, deviceKeys } = data.v1Keys;

@@ -17,6 +17,8 @@ import { TrustedDeviceKeysRequest } from "../services/devices/requests/trusted-d
 /**
  * The result of one `finish*` method. `V1` means the API service sent the client-made keys. `V2`
  * means the SDK made and sent the keys. The caller writes local state from `registration`.
+ *
+ * TODO: Remove the `V1` member when PM-27327 (master password), PM-27328 (Key Connector), and PM-27329 (trusted device) have removed all V1 paths.
  */
 export type SsoJitProvisionFinishResult<TRegistration> =
   { encryptionVersion: "V1" } | { encryptionVersion: "V2"; registration: TRegistration };
@@ -24,6 +26,8 @@ export type SsoJitProvisionFinishResult<TRegistration> =
 /**
  * Keys that the client makes for a V1 encryption master password user. The SDK makes its own keys
  * for V2.
+ *
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27327 (V1 JIT master password registration).
  */
 export interface SsoJitProvisionFinishPasswordV1Keys {
   masterPasswordAuthentication: MasterPasswordAuthenticationData;
@@ -58,6 +62,8 @@ export interface SsoJitProvisionFinishPasswordData {
   /**
    * Required when the V2 encryption flag is off. Must not be set when the flag is on.
    * See {@link SsoJitProvisionFinishPasswordV1Keys}.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27327.
    */
   v1Keys?: SsoJitProvisionFinishPasswordV1Keys;
 }
@@ -68,6 +74,8 @@ export type SsoJitProvisionFinishPasswordResult =
 /**
  * Keys that the client makes for a V1 encryption Key Connector user. The SDK makes its own keys
  * for V2.
+ *
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
  */
 export interface SsoJitProvisionFinishKeyConnectorV1Keys {
   /**
@@ -94,6 +102,8 @@ export interface SsoJitProvisionFinishKeyConnectorData {
   /**
    * Required when the V2 encryption flag is off. Must not be set when the flag is on.
    * See {@link SsoJitProvisionFinishKeyConnectorV1Keys}.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328.
    */
   v1Keys?: SsoJitProvisionFinishKeyConnectorV1Keys;
 }
@@ -104,6 +114,8 @@ export type SsoJitProvisionFinishKeyConnectorResult =
 /**
  * Keys that the client makes for a V1 encryption trusted device user. The SDK makes its own keys
  * for V2.
+ *
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27329 (V1 TDE registration).
  */
 export interface SsoJitProvisionFinishTrustedDeviceV1Keys {
   /** The user's asymmetric key pair */
@@ -141,6 +153,8 @@ export interface SsoJitProvisionFinishTrustedDeviceData {
   /**
    * Required when the V2 encryption flag is off. Must not be set when the flag is on.
    * See {@link SsoJitProvisionFinishTrustedDeviceV1Keys}.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27329.
    */
   v1Keys?: SsoJitProvisionFinishTrustedDeviceV1Keys;
 }
@@ -166,6 +180,8 @@ export abstract class SsoJitProvisionFinishService {
    * - Flag off: sends the V1 keys in `data.v1Keys` through {@link SsoJitProvisionFinishApiService}.
    *
    * This method does not write local state. The caller writes local state from the result.
+   *
+   * TODO: Remove the flag and the V1 path with https://bitwarden.atlassian.net/browse/PM-27327.
    */
   abstract finishPassword(
     data: SsoJitProvisionFinishPasswordData,
@@ -179,6 +195,8 @@ export abstract class SsoJitProvisionFinishService {
    * - Flag off: sends the V1 keys in `data.v1Keys` through {@link SsoJitProvisionFinishApiService}.
    *
    * This method does not write local state. The caller writes local state from the result.
+   *
+   * TODO: Remove the flag and the V1 path with https://bitwarden.atlassian.net/browse/PM-27328.
    */
   abstract finishKeyConnector(
     data: SsoJitProvisionFinishKeyConnectorData,
@@ -194,6 +212,8 @@ export abstract class SsoJitProvisionFinishService {
    *
    * This method does not write local state or store the device key. The caller does that after
    * this method returns.
+   *
+   * TODO: Remove the flag and the V1 path with https://bitwarden.atlassian.net/browse/PM-27329.
    */
   abstract finishTrustedDevice(
     data: SsoJitProvisionFinishTrustedDeviceData,

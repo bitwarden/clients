@@ -6,6 +6,8 @@ import { TrustedDeviceKeysRequest } from "../services/devices/requests/trusted-d
  * user in an organization that uses trusted device encryption. Combines the bodies of
  * `POST /accounts/keys`, `PUT /organizations/{orgId}/users/{userId}/reset-password-enrollment`, and
  * `PUT /devices/{identifier}/keys`. The server reads the device from the access token.
+ *
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27329 (V1 TDE registration).
  */
 export class SsoJitProvisionFinishTrustedDeviceRequest {
   /**

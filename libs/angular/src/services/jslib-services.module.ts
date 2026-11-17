@@ -2138,6 +2138,8 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultPasswordPreloginService,
     deps: [PasswordPreloginApiService, SdkService, ConfigService],
   }),
+  // TODO: Remove when PM-27327 (master password), PM-27328 (Key Connector), and PM-27329 (trusted
+  // device) have removed all V1 SSO JIT provisioning paths.
   safeProvider({
     provide: SsoJitProvisionFinishApiService,
     useClass: SsoJitProvisionFinishApiService,

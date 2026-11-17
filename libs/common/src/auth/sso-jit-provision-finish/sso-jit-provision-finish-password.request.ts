@@ -10,6 +10,8 @@ import { KeysRequest } from "../../models/request/keys.request";
  *
  * `acceptOrganizationInvite` controls whether the server moves the organization membership from
  * Invited to Accepted.
+ *
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27327 (V1 JIT master password registration).
  */
 export class SsoJitProvisionFinishPasswordRequest {
   constructor(

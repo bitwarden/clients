@@ -14,7 +14,7 @@ import { SsoJitProvisionFinishTrustedDeviceRequest } from "./sso-jit-provision-f
  * Data that only the legacy trusted device requests use. The new endpoint reads the user and the
  * device from the access token.
  *
- * TODO PM-34429: Remove when the pm-34429-invite-link-auto-confirm flag is removed.
+ * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-40052, which removes the pm-34429-invite-link-auto-confirm flag.
  */
 export interface SsoJitProvisionFinishTrustedDeviceLegacyContext {
   userId: UserId;
@@ -23,12 +23,18 @@ export interface SsoJitProvisionFinishTrustedDeviceLegacyContext {
 
 /**
  * Sends the client-made keys that finish SSO JIT provisioning for a V1 encryption user. Each
- * method covers one member decryption type. Can be removed when we move to v2 encryption.
+ * method covers one member decryption type.
  *
  * Each method reads the `pm-34429-invite-link-auto-confirm` flag. When the flag is on, the method
  * posts to the `/sso-jit-provision-finish/*` endpoint, and the server uses
  * `acceptOrganizationInvite`. When the flag is off, the method sends the legacy request(s), and
  * the server always accepts the organization invite.
+ *
+ * TODO: Remove this class when PM-27327 (master password), PM-27328 (Key Connector), and PM-27329 (trusted device) have removed all V1 paths. Each method can go
+ * with its own ticket.
+ *
+ * TODO: Remove the legacy requests with https://bitwarden.atlassian.net/browse/PM-40052, which removes the
+ * pm-34429-invite-link-auto-confirm flag.
  */
 export class SsoJitProvisionFinishApiService {
   constructor(
@@ -41,11 +47,14 @@ export class SsoJitProvisionFinishApiService {
    * Finishes SSO JIT master password provisioning.
    * - Flag on: POSTs the request to `/sso-jit-provision-finish/password`.
    * - Flag off: converts the request to the legacy shape and POSTs it to `/accounts/set-password`.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27327 (V1 JIT master password registration).
    */
   async postPassword(request: SsoJitProvisionFinishPasswordRequest): Promise<void> {
     await this.sendWithInviteLinkAutoConfirm(
       () =>
         this.apiService.send("POST", "/sso-jit-provision-finish/password", request, true, false),
+      // TODO: Remove the legacy request with https://bitwarden.atlassian.net/browse/PM-40052
       () => {
         const legacyRequest = SetPasswordRequest.newConstructor(
           request.masterPasswordAuthentication,
@@ -64,6 +73,8 @@ export class SsoJitProvisionFinishApiService {
    * Connector server before this call.
    * - Flag on: POSTs the request to `/sso-jit-provision-finish/key-connector`.
    * - Flag off: POSTs `request.keyConnectorKeys` to `/accounts/set-key-connector-key`.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
    */
   async postKeyConnector(request: SsoJitProvisionFinishSetKeyConnectorKeyRequest): Promise<void> {
     await this.sendWithInviteLinkAutoConfirm(
@@ -75,6 +86,7 @@ export class SsoJitProvisionFinishApiService {
           true,
           false,
         ),
+      // TODO: Remove the legacy request with https://bitwarden.atlassian.net/browse/PM-40052
       () =>
         this.apiService.send(
           "POST",
@@ -96,6 +108,9 @@ export class SsoJitProvisionFinishApiService {
    *
    *   The legacy requests always enroll the user in account recovery, so they require
    *   `request.accountRecoveryKey`. This method checks it before it sends any request.
+   *
+   * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27329 (V1 TDE registration). Remove the `legacy` parameter with
+   * https://bitwarden.atlassian.net/browse/PM-40052.
    */
   async postTrustedDevice(
     request: SsoJitProvisionFinishTrustedDeviceRequest,
@@ -110,6 +125,7 @@ export class SsoJitProvisionFinishApiService {
           true,
           false,
         ),
+      // TODO: Remove the legacy requests with https://bitwarden.atlassian.net/browse/PM-40052
       async () => {
         const accountRecoveryKey = request.accountRecoveryKey;
         assertNonNullish(
@@ -145,7 +161,7 @@ export class SsoJitProvisionFinishApiService {
    */
   private async sendWithInviteLinkAutoConfirm(
     send: () => Promise<unknown>,
-    // TODO PM-34429: Remove the legacy path when the pm-34429-invite-link-auto-confirm flag is removed.
+    // TODO: Remove `sendLegacy` and the flag read with https://bitwarden.atlassian.net/browse/PM-40052
     sendLegacy: () => Promise<unknown>,
   ): Promise<void> {
     const inviteLinkAutoConfirm = await this.configService.getFeatureFlag(
