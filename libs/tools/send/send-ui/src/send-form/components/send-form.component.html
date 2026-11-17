@@ -14,6 +14,11 @@
   @if (!loading) {
     @let isItemTypeSend = sendFormService.sendFormConfig.sendType === SendType.Item;
     @if (isItemTypeSend) {
+      @if (itemSendItemDeleted | async) {
+        <bit-callout type="info" [title]="'itemSendDeletedItemCalloutTitle' | i18n">
+          {{ "itemSendDeletedItemCalloutBody" | i18n }}
+        </bit-callout>
+      }
       <app-item-details-v2
         [cipher]="sendFormService.originalSendView()?.data.data"
         [showEmptyDetails]="false"

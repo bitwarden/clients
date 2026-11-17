@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { AsyncPipe } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -10,19 +11,24 @@ import {
   output,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
+import { combineLatest, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
   ButtonModule,
+  CalloutComponent,
   CardComponent,
   CopyClickDirective,
   FormFieldModule,
@@ -59,6 +65,8 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     ButtonModule,
     CardComponent,
     ItemDetailsV2Component,
+    AsyncPipe,
+    CalloutComponent,
   ],
 })
 export class SendFormComponent implements AfterViewInit {
@@ -112,12 +120,33 @@ export class SendFormComponent implements AfterViewInit {
     () => this.sendFormService.originalSendView()?.disabled ?? false,
   );
 
+  /**
+   * Detects whether an item Send's cipher has been deleted, which means that the Send
+   * itself will be deleted the next time the cleanup job runs.
+   */
+  protected itemSendItemDeleted = combineLatest([
+    toObservable(this.sendFormService.originalSendView),
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.cipherService.cipherViews$(userId)),
+    ),
+  ]).pipe(
+    map(([sendView, cipherViews]) => {
+      if (sendView?.type !== SendType.Item || !sendView.data?.metadata?.itemId) {
+        return false;
+      }
+      return !cipherViews.some((cv) => cv.id === sendView.data?.metadata?.itemId);
+    }),
+  );
+
   constructor(
     protected sendFormService: SendFormService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private envService: EnvironmentService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
   ) {
     // We need to reinitialize the form any time the config input changes
     effect(() => {
