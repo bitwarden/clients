@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { runOrThrow } from "../process";
 
-import { SshKey } from "./keys";
+import { SshKey, SshKeyType } from "./keys";
 
 export const SSH_HOST = "127.0.0.1";
 
@@ -49,16 +49,20 @@ export class SshServer {
     private readonly sshd: ChildProcess,
   ) {}
 
-  /** Starts sshd with its host key and config in `dir`. */
-  static async start(dir: string, authorizedKeys: SshKey[]): Promise<SshServer> {
-    const hostKey = join(dir, "ssh_host_ed25519_key");
-    await runOrThrow("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-f", hostKey]);
+  /** Starts sshd with a `hostKeyType` host key, its files in `dir`. */
+  static async start(
+    dir: string,
+    authorizedKeys: SshKey[],
+    hostKeyType: SshKeyType = SshKeyType.Ed25519,
+  ): Promise<SshServer> {
+    const hostKey = join(dir, `ssh_host_${hostKeyType}_key`);
+    await runOrThrow("ssh-keygen", ["-q", "-t", hostKeyType, "-N", "", "-f", hostKey]);
 
-    const authorizedKeysFile = join(dir, "authorized_keys");
+    const authorizedKeysFile = join(dir, `authorized_keys_${hostKeyType}`);
     writeFileSync(authorizedKeysFile, authorizedKeys.map((key) => key.publicKey).join("\n") + "\n");
 
     // Unprivileged: no PAM, and no ownership checks on the temp dir.
-    const config = join(dir, "sshd_config");
+    const config = join(dir, `sshd_config_${hostKeyType}`);
     writeFileSync(
       config,
       [

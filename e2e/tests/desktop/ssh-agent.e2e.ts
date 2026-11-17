@@ -21,7 +21,8 @@ const SIGNED_CONTENTS = "signed by the Bitwarden SSH agent\n";
 const KEY_TYPES = Object.values(SshKeyType);
 
 let dir: string;
-let server: SshServer | undefined;
+// One server per host key type, started on first use.
+const servers = new Map<SshKeyType, SshServer>();
 let keys: Map<SshKeyType, SshKey>;
 let ssh: SshClient;
 
@@ -30,7 +31,7 @@ test.beforeAll(() => {
 });
 
 test.afterAll(() => {
-  server?.stop();
+  servers.forEach((server) => server.stop());
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -58,12 +59,22 @@ test.beforeEach(async ({ app, window, agentSocket }) => {
     )
     .toBe(KEY_TYPES.length);
 
-  // The server trusts the keys the account's vault holds.
-  server ??= await SshServer.start(dir, [...keys.values()]);
-  ssh = new SshClient(dir, agentSocket, server);
+  ssh = new SshClient(dir, agentSocket, await serverWith(SshKeyType.Ed25519));
 });
 
 const keyOf = (type: SshKeyType) => keys.get(type)!;
+
+/** The server with a `hostKeyType` host key, trusting the keys the account's vault holds. */
+async function serverWith(hostKeyType: SshKeyType): Promise<SshServer> {
+  const existing = servers.get(hostKeyType);
+  if (existing != null) {
+    return existing;
+  }
+
+  const server = await SshServer.start(dir, [...keys.values()], hostKeyType);
+  servers.set(hostKeyType, server);
+  return server;
+}
 
 for (const type of KEY_TYPES) {
   test.describe(type, () => {
@@ -100,6 +111,30 @@ for (const type of KEY_TYPES) {
 
       // When ssh logs in with agent forwarding, and from there logs in again
       const login = ssh.loginForwarded(key);
+
+      // Then the user authorizes the first login, and the second as forwarded
+      await approval.authorize(key, SshRequestOrigin.Local);
+      await approval.authorize(key, SshRequestOrigin.Forwarded);
+
+      const result = await login;
+      expect(result.code, result.stderr).toBe(0);
+    });
+  });
+}
+
+// The agent parses the server's host key from each session bind, so every host key type
+// must work, for a direct and a forwarded login.
+for (const hostKeyType of KEY_TYPES) {
+  test.describe(`${hostKeyType} host key`, () => {
+    test("authenticates through a forwarded agent", async ({ approval, agentSocket }) => {
+      // The agent rejects ECDSA host keys in session binds, so it cannot flag the forward.
+      test.fail(hostKeyType === SshKeyType.Ecdsa, "ECDSA host keys are not yet supported");
+
+      const key = keyOf(SshKeyType.Ed25519);
+      const client = new SshClient(dir, agentSocket, await serverWith(hostKeyType));
+
+      // When ssh logs in with agent forwarding, and from there logs in again
+      const login = client.loginForwarded(key);
 
       // Then the user authorizes the first login, and the second as forwarded
       await approval.authorize(key, SshRequestOrigin.Local);
