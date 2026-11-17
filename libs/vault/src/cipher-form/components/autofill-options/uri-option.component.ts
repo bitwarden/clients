@@ -216,7 +216,13 @@ export class UriOptionComponent implements ControlValueAccessor {
   @Output()
   remove = new EventEmitter<void>();
 
-  protected showMatchDetection = false;
+  /** Whether the user opened the match detection options with the toggle */
+  private matchDetectionOpen = false;
+
+  /** Whether the match detection options are shown. Desktop apps don't use match detection. */
+  protected get showMatchDetection(): boolean {
+    return this.matchDetectionOpen && !this.isAppUri;
+  }
 
   /** The most recent match strategy, used to restore it when a change is declined or cancelled */
   private lastMatchDetection: UriMatchStrategySetting = null;
@@ -224,8 +230,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
 
   protected toggleMatchDetection() {
-    this.showMatchDetection = !this.showMatchDetection;
-    if (this.showMatchDetection) {
+    this.matchDetectionOpen = !this.matchDetectionOpen;
+    if (this.matchDetectionOpen) {
       setTimeout(() => this.matchDetectionSelect?.select()?.focus(), 0);
     }
   }
