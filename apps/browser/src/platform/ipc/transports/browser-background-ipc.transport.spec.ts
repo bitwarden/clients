@@ -10,6 +10,7 @@ function createPort() {
   const disconnectListeners: (() => void)[] = [];
   const port = {
     postMessage: jest.fn(),
+    disconnect: jest.fn(),
     onMessage: {
       addListener: jest.fn((listener) => messageListeners.push(listener)),
       removeListener: jest.fn(),
@@ -79,12 +80,17 @@ describe("BrowserBackgroundIpcTransport", () => {
     expect(chrome.runtime.connect).toHaveBeenLastCalledWith({ name: IPC_FOREGROUND_PORT_NAME });
   });
 
-  it("keeps the existing port when woken while connected", () => {
+  it("replaces the existing port when woken while connected", async () => {
     transport.init();
 
     incomingMessage({ command: IPC_FOREGROUND_WAKE_COMMAND });
+    await transport.send(toBackground);
 
-    expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
+    expect(ports[0].port.disconnect).toHaveBeenCalled();
+    expect(ports[0].port.onMessage.removeListener).toHaveBeenCalled();
+    expect(chrome.runtime.connect).toHaveBeenCalledTimes(2);
+    expect(ports[0].port.postMessage).not.toHaveBeenCalled();
+    expect(ports[1].port.postMessage).toHaveBeenCalled();
   });
 
   it("ignores unrelated runtime messages", () => {

@@ -15,12 +15,13 @@ const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
  */
 export class BrowserBackgroundIpcTransport {
   private port?: chrome.runtime.Port;
+  private releasePort?: () => void;
 
   constructor(private receive: (message: IncomingMessage) => void) {}
 
   /**
    * Connects to the background so the page is addressable before it sends anything, and
-   * reconnects when a restarted background asks open pages to connect.
+   * reconnects whenever a starting background asks open pages to connect.
    */
   init() {
     BrowserApi.messageListener("platform.ipc.wake", (message: unknown) => {
@@ -28,7 +29,10 @@ export class BrowserBackgroundIpcTransport {
         return;
       }
 
-      this.connect();
+      // A page that connected before the background started accepting ports holds a port the
+      // background never registered. Replace it, even though that also replaces a port that
+      // connected just after.
+      this.reconnect();
     });
 
     this.connect();
@@ -54,6 +58,13 @@ export class BrowserBackgroundIpcTransport {
     }
   }
 
+  private reconnect() {
+    const port = this.port;
+    this.releasePort?.();
+    port?.disconnect();
+    this.connect();
+  }
+
   private connect(): chrome.runtime.Port {
     if (this.port != null) {
       return this.port;
@@ -75,12 +86,17 @@ export class BrowserBackgroundIpcTransport {
       );
     };
 
-    const onDisconnect = () => {
+    const release = () => {
       BrowserApi.removeListener(port.onMessage, onMessage);
       BrowserApi.removeListener(port.onDisconnect, onDisconnect);
       if (this.port === port) {
         this.port = undefined;
+        this.releasePort = undefined;
       }
+    };
+
+    const onDisconnect = () => {
+      release();
 
       // Suppress error message
       void chrome.runtime.lastError;
@@ -90,6 +106,7 @@ export class BrowserBackgroundIpcTransport {
     BrowserApi.addListener(port.onDisconnect, onDisconnect);
 
     this.port = port;
+    this.releasePort = release;
     return port;
   }
 }
