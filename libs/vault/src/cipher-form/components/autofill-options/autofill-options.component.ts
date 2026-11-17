@@ -228,12 +228,15 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   /**
-   * Shares the URI match strategies with the HTTP authentication setting. These are the strategies
-   * the URIs are saved with, because HTTP authentication is checked against the saved cipher.
+   * Shares the URI match strategies with the HTTP authentication setting. These are the URIs and
+   * strategies the cipher is saved with, because HTTP authentication is checked against the saved
+   * cipher.
    */
   private publishUriMatchStrategies() {
     this.httpAuthenticationService.updateUriMatchStrategies(
-      this.uriControls.map((control) => this.savedMatchDetection(control.value) ?? null),
+      this.uriControls
+        .filter((control) => isSavedUri(control.value))
+        .map((control) => this.savedMatchDetection(control.value) ?? null),
     );
   }
 

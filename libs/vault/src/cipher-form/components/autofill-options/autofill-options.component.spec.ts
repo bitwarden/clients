@@ -407,8 +407,12 @@ describe("AutofillOptionsComponent", () => {
         uri: "https://example.com",
         matchDetection: UriMatchStrategy.Exact,
       });
-
       await component.addDesktopAppUriFromUser();
+
+      component.autofillOptionsForm.controls.uris.at(1).setValue({
+        uri: createPairingUri("Notepad"),
+        matchDetection: UriMatchStrategy.Never,
+      });
 
       expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
         UriMatchStrategy.Exact,
@@ -861,6 +865,29 @@ describe("AutofillOptionsComponent", () => {
 
       expect(getSavedUris()).toEqual([
         Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
+      ]);
+    });
+
+    it("does not share a desktop app URI with no desktop app with HTTP authentication", () => {
+      gaFeatureFlagSubject.next(false);
+      fixture = TestBed.createComponent(AutofillOptionsComponent);
+      getInitialCipherView.mockReturnValueOnce({
+        login: Object.assign(new LoginView(), {
+          uris: [
+            Object.assign(new LoginUriView(), {
+              uri: "https://example.com",
+              match: UriMatchStrategy.Exact,
+            }),
+            Object.assign(new LoginUriView(), { uri: DESKTOP_APP_URI_PREFIX, match: null }),
+          ],
+        }),
+      });
+
+      fixture.detectChanges();
+
+      // With the feature flag off, it would be shared with the default match strategy
+      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+        UriMatchStrategy.Exact,
       ]);
     });
   });
