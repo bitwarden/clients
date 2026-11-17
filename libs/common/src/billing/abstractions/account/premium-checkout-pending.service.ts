@@ -1,6 +1,6 @@
 import { UserId } from "../../../types/guid";
 
-/** Context recorded when external checkout launches; `featureNameKey` names the feature the user upgraded for. */
+/** Context recorded when external checkout launches */
 export type PremiumCheckoutPending = { featureNameKey?: string };
 
 /**
@@ -14,7 +14,7 @@ export abstract class PremiumCheckoutPendingService {
   /** Records that the user was sent to external checkout, with optional feature context. */
   abstract markCheckoutLaunched(userId: UserId, context?: PremiumCheckoutPending): Promise<void>;
 
-  /** Reads the pending checkout without clearing it; `null` when none is pending. */
+  /** Reads the pending checkout record without clearing it; `null` when none is pending. */
   abstract getCheckoutPending(userId: UserId): Promise<PremiumCheckoutPending | null>;
 
   /** Clears any pending checkout. */
