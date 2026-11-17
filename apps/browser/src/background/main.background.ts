@@ -424,6 +424,7 @@ import {
   isNotificationsSupported,
 } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
+import { ListViewsAnnouncerService } from "../vault/background/list-views-announcer.service";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
 import CommandsBackground from "./commands.background";
@@ -549,8 +550,8 @@ export default class MainBackground {
   // an erased annotation would leave the channel ambient
   readonly #intraprocessMessageSender: IntraprocessMessageSender;
   // Retained because `OverlayBackground` is constructed lazily, outside this constructor's scope.
-  // `private` suffices here: a listener only reads, so reaching it grants no way to publish.
-  private messageListener: MessageListener;
+  // Public, unlike the sender: a listener only reads, so reaching it grants no way to publish.
+  readonly messageListener: MessageListener;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -626,6 +627,14 @@ export default class MainBackground {
 
   /** @param overrides Services the commercial build supplies in place of the OSS defaults. */
   constructor(overrides?: {
+    revealedCipherService?: (deps: {
+      stateProvider: StateProvider;
+      accountService: AccountServiceAbstraction;
+      authService: AuthServiceAbstraction;
+      cipherService: CipherServiceAbstraction;
+      messageSender: MessageSender;
+      logService: LogServiceAbstraction;
+    }) => RevealedCipherService;
     fillCipherPolicy?: (deps: {
       cipherService: CipherServiceAbstraction;
       revealedCipherService: RevealedCipherService;
@@ -990,7 +999,6 @@ export default class MainBackground {
       this.stateService,
       this.tokenService,
     );
-    this.revealedCipherService = new NoopRevealedCipherService();
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -1036,7 +1044,6 @@ export default class MainBackground {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1226,9 +1233,17 @@ export default class MainBackground {
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
-      this.messagingService,
       this.cipherSdkService,
     );
+    this.revealedCipherService =
+      overrides?.revealedCipherService?.({
+        stateProvider: this.stateProvider,
+        accountService: this.accountService,
+        authService: this.authService,
+        cipherService: this.cipherService,
+        messageSender: this.messagingService,
+        logService: this.logService,
+      }) ?? new NoopRevealedCipherService();
     this.fillCipherPolicy =
       overrides?.fillCipherPolicy?.({
         cipherService: this.cipherService,
@@ -1423,6 +1438,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1572,6 +1588,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
     const logoutService = new DefaultLogoutService(
@@ -2401,6 +2418,11 @@ export default class MainBackground {
     await this.autofillBadgeUpdaterService.init();
     await this.clipboardNotificationBadgeUpdaterService.init();
     await this.atRiskCipherUpdaterService.init();
+    new ListViewsAnnouncerService(
+      this.accountService,
+      this.cipherService,
+      this.messagingService,
+    ).init();
   }
 
   generatePasswordToClipboard = () => {

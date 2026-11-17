@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Skrivbordsapp",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Skrivbordsapp $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Alla"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Inaktiverad"
   },
+  "removeAuth": {
+    "message": "Ta bort lösenords- eller e-postverifiering"
+  },
+  "removedAuth": {
+    "message": "Verifiering med lösenord eller e-post har tagits bort"
+  },
+  "removeAuthConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på verifiering med lösenord eller e-post från detta Send?"
+  },
   "removePassword": {
     "message": "Ta bort lösenord"
+  },
+  "removeEmailVerification": {
+    "message": "Ta bort e-postverifiering"
   },
   "removedPassword": {
     "message": "Tog bort lösenord"
   },
-  "removePasswordConfirmation": {
-    "message": "Är du säker på att du vill ta bort lösenordet?"
+  "removedEmailVerification": {
+    "message": "E-postverifieringen har tagits bort"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Vill du verkligen ta bort lösenordskravet från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på e-postverifiering från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Det maximala antalet åtkomster har uppnåtts"
@@ -4772,31 +4797,31 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "Välj valv",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Välj plats",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "Välj ett valv"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "Välj en plats"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "Välj var de här posterna ska importeras."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Mina poster",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
-    "message": "Visible only to you"
+    "message": "Endast synlig för dig"
   },
   "importMyItemsOwnedBy": {
-    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "message": "Ägs av $ORGANIZATION$, men är endast synlig för dig",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4805,16 +4830,16 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "Organisationsvalv"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "Delat med en person"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "Familjevalv"
   },
   "importMoveAllItemsIntoSharedFolderA": {
-    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
     "placeholders": {
       "organization": {
@@ -4824,7 +4849,7 @@
     }
   },
   "importMoveAllItemsIntoSharedFolderAn": {
-    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
     "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
     "placeholders": {
       "organization": {
@@ -4834,13 +4859,13 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+    "message": "Flytta allt till en överordnad mapp. Den nästlade mappstrukturen behålls."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "En delad mapp krävs."
   },
   "importIntoOrganization": {
-    "message": "Items will be imported into $ORGANIZATION$.",
+    "message": "Posterna importeras till $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4849,10 +4874,10 @@
     }
   },
   "importMoveAllItemsIntoSharedFolder": {
-    "message": "Move all items into a shared folder"
+    "message": "Flytta alla poster till en delad mapp"
   },
   "importNoSharedFoldersForOrg": {
-    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "message": "Det går inte att importera poster till $ORGANIZATION$ utan en delad mapp, och du hanterar ingen sådan där. Välj en annan plats.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4861,7 +4886,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "Importera $COUNT$ poster",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4870,10 +4895,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "Importera 1 post"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "Importera till $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4882,10 +4907,10 @@
     }
   },
   "importDataMayBeShared": {
-    "message": "Your data may be shared with members of this organization."
+    "message": "Dina data kan delas med medlemmar i den här organisationen."
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "$ORGANIZATION$ tillåter inte att du importerar $ITEM_TYPES$. Om de ingår i importen hoppas de över.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4898,39 +4923,39 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "inloggningar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "säkra anteckningar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "kort",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "identiteter",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "SSH-nycklar",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "bankkonton",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "körkort",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "pass",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "goToAccessIntelligence": {
-    "message": "Go to Access Intelligence"
+    "message": "Gå till Access Intelligence"
   },
   "chooseFile": {
     "message": "Välj fil"
@@ -7352,8 +7377,8 @@
   "makeACopy": {
     "message": "Gör en kopia"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Du kan inte importera objekt till Mina objekt som ingår i flera samlingar"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Det går inte att importera poster till Mina poster som ingår i flera samlingar."
   },
   "driversLicenseDetails": {
     "message": "Körkortsuppgifter"
