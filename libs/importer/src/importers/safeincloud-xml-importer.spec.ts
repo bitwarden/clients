@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -18,7 +21,7 @@ describe("SafeInCloud Xml Importer", () => {
   let importer: SafeInCloudXmlImporter;
 
   beforeEach(() => {
-    importer = new SafeInCloudXmlImporter();
+    importer = new SafeInCloudXmlImporter(mock<LogService>());
   });
 
   it("parses the fixture successfully", async () => {

@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Uygulama (URI)"
+  "desktopApp": {
+    "message": "Masaüstü uygulaması",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Uygulama (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Masaüstü uygulaması $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 kayıt",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Tümü"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Devre dışı"
   },
+  "removeAuth": {
+    "message": "Parolayı veya e-posta doğrulamasını kaldır"
+  },
+  "removedAuth": {
+    "message": "Parola veya e-posta doğrulaması kaldırıldı"
+  },
+  "removeAuthConfirmation": {
+    "message": "Bu Send'den parola veya e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?"
+  },
   "removePassword": {
     "message": "Parolayı kaldır"
+  },
+  "removeEmailVerification": {
+    "message": "E-posta doğrulamasını kaldır"
   },
   "removedPassword": {
     "message": "Parola kaldırıldı"
   },
-  "removePasswordConfirmation": {
-    "message": "Parolayı kaldırmak istediğinizden emin misiniz?"
+  "removedEmailVerification": {
+    "message": "E-posta doğrulaması kaldırıldı"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bu Send'den parola gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bu Send'den e-posta doğrulaması gereksinimini kaldırmak istediğinizden emin misiniz?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Maksimum erişim sayısına ulaşıldı"
@@ -7352,8 +7377,8 @@
   "makeACopy": {
     "message": "Kopya oluştur"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Birden fazla koleksiyonun parçası olan kayıtlar Kayıtlarım içerisine içe aktarılamaz"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Birden fazla koleksiyonda bulunan kayıtları Kayıtlarım'a içe aktaramazsınız"
   },
   "driversLicenseDetails": {
     "message": "Ehliyet bilgileri"
