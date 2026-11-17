@@ -9,30 +9,28 @@ export const SshKeyType = Object.freeze({
 } as const);
 export type SshKeyType = (typeof SshKeyType)[keyof typeof SshKeyType];
 
-// The key's algorithm, as the first field of a public key line names it.
+// Maps the public key enum to the SSH public-key naming.
 const ALGORITHM_PREFIXES: Record<SshKeyType, string> = {
   [SshKeyType.Ed25519]: "ssh-ed25519",
   [SshKeyType.Ecdsa]: "ecdsa-sha2-",
   [SshKeyType.Rsa]: "ssh-rsa",
 };
 
-/** A vault SSH key, as the agent offers it. Its private half never leaves the agent. */
 export type SshKey = {
   type: SshKeyType;
   /** The vault item's name, which the agent offers as the key's comment. */
   name: string;
-  /** e.g. `ssh-ed25519 AAAA… name`. */
+  /** e.g. `ssh-ed25519 AAAA... mykey`. */
   publicKey: string;
   /** Selects the key from an agent, e.g. `ssh -o IdentityFile=<publicKeyPath>`. */
   publicKeyPath: string;
 };
 
 /**
- * The first key of each type in `ssh-add -L` output, e.g.
- * `ssh-ed25519 AAAAC3Nz… My SSH key`. Writes each public key to `dir`, so OpenSSH tools can
- * pin it.
+ * Maps the ssh keys that are loaded in the agent to a map of key-type to key. The test account
+ * should have exactly one key per key-type.
  */
-export function keysByType(listed: string, dir: string): Map<SshKeyType, SshKey> {
+export function prepareKeys(listed: string, dir: string): Map<SshKeyType, SshKey> {
   const keys = new Map<SshKeyType, SshKey>();
 
   for (const line of listed.split("\n")) {

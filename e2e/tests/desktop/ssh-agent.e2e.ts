@@ -6,14 +6,12 @@ import { DesktopSettings } from "../../src/desktop/settings";
 import { expect, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
 import { disableFlags, FeatureFlag } from "../../src/feature-flags";
 import { LoginPage } from "../../src/login";
-import { keysByType, SshKey, SshKeyType } from "../../src/ssh/keys";
-import { listAgentKeys, SshClient } from "../../src/ssh/ssh-client";
+import { prepareKeys, SshKey, SshKeyType } from "../../src/ssh/keys";
+import { SshClient } from "../../src/ssh/ssh-client";
 import { SshServer } from "../../src/ssh/ssh-server";
 
 /**
- * The desktop SSH agent serves the vault's SSH keys to OpenSSH's own tools, asking the user
- * to approve each use. The test account's vault holds an ED25519, an ECDSA and an RSA key, and
- * every test pins one, so a test can only pass with the key it names.
+ * Test the desktop SSH agent with a real openssh server.
  */
 
 const VAULT_URL = /#\/vault/;
@@ -53,7 +51,7 @@ test.beforeEach(async ({ app, window, agentSocket }) => {
   await expect
     .poll(
       async () => {
-        keys = keysByType((await listAgentKeys(agentSocket)).stdout, dir);
+        keys = prepareKeys((await SshClient.listAgentKeys(agentSocket)).stdout, dir);
         return keys.size;
       },
       { message: "The test account needs an ED25519, an ECDSA and an RSA SSH key" },

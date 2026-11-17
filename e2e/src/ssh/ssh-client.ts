@@ -6,18 +6,11 @@ import { ProcessResult, run } from "../process";
 import { SshKey } from "./keys";
 import { SSH_HOST, SshServer } from "./ssh-server";
 
-// The namespace `ssh-keygen -Y` signs files in; the agent reports it to the app.
 const FILE_NAMESPACE = "file";
 const SIGNER = "e2e@example.com";
 
-/** `ssh-add -L`: the public keys the agent on `agentSocket` offers. */
-export async function listAgentKeys(agentSocket: string): Promise<ProcessResult> {
-  return run("ssh-add", ["-L"], { env: { SSH_AUTH_SOCK: agentSocket } });
-}
-
 /**
- * OpenSSH's client tools, pointed at one agent socket and one server. They read no user
- * config, keys or known hosts, so only the agent can authenticate.
+ * An openssh client pointed at the local server.
  *
  *   ssh ──agent socket──▶ desktop SSH agent ──approval──▶ app window
  *    │
@@ -32,6 +25,11 @@ export class SshClient {
     private readonly server: SshServer,
   ) {
     this.knownHosts = join(dir, "known_hosts");
+  }
+
+  /** `ssh-add -L`: the public keys the agent on `agentSocket` offers. */
+  static async listAgentKeys(agentSocket: string): Promise<ProcessResult> {
+    return run("ssh-add", ["-L"], { env: { SSH_AUTH_SOCK: agentSocket } });
   }
 
   /** Logs in to the server with `key` from the agent, and logs out. */

@@ -1,6 +1,5 @@
 import { spawn } from "node:child_process";
 
-/** What an OpenSSH tool printed, and how it exited. */
 export type ProcessResult = { code: number | null; stdout: string; stderr: string };
 
 export type RunOptions = {
@@ -9,7 +8,6 @@ export type RunOptions = {
   input?: string;
 };
 
-// Long enough for a test to answer the app's approval dialog, short enough to fail a hung run.
 const RUN_TIMEOUT_MS = 60_000;
 
 /**
