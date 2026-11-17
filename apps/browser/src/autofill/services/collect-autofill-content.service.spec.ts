@@ -114,6 +114,54 @@ describe("CollectAutofillContentService", () => {
         });
     });
 
+    it.each<[string, string, boolean]>([
+      ["hidden", "password", true],
+      ["password", "hidden", true],
+      ["hidden", "text", true],
+      ["text", "button", true],
+      ["text", "password", true],
+      ["hidden", "password", false],
+      ["password", "hidden", false],
+    ])(
+      "updates cached membership after an observed input type change from %s to %s (other field: %s)",
+      async (before, after, withAccount) => {
+        jest.useFakeTimers();
+        document.body.innerHTML = `<form>${withAccount ? '<input id="account">' : ""}<input id="changing" type="${before}"></form>`;
+        jest.spyOn(domElementVisibilityService, "isElementViewable").mockResolvedValue(true);
+        const collector = new CollectAutofillContentService(
+          domElementVisibilityService,
+          new DomQueryService(),
+        );
+        jest.spyOn(collector as any, "sendExtensionMessage").mockResolvedValue({ result: null });
+        collector.startMonitoring();
+        const input = document.getElementById("changing")!;
+        const expected = (type: string) =>
+          type === "hidden" || type === "button"
+            ? undefined
+            : expect.objectContaining({ htmlID: "changing", type });
+        const readChangingField = async () =>
+          (await collector.getPageDetails()).fields.find((field) => field.htmlID === "changing");
+        const changeType = async (type: string) => {
+          input.setAttribute("type", type);
+          collector["handleMutationObserverMutation"](collector["mutationObserver"].takeRecords());
+          await jest.advanceTimersByTimeAsync(1500);
+        };
+        try {
+          expect(await readChangingField()).toEqual(expected(before));
+          await changeType(after);
+          expect(await readChangingField()).toEqual(expected(after));
+          // Check a second cached read as well as the first rebuild.
+          expect(await readChangingField()).toEqual(expected(after));
+          await changeType(before);
+          expect(await readChangingField()).toEqual(expected(before));
+          expect(await readChangingField()).toEqual(expected(before));
+        } finally {
+          collector.stopMonitoring();
+          jest.useRealTimers();
+        }
+      },
+    );
+
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
