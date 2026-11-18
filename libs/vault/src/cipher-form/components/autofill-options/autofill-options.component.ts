@@ -267,7 +267,6 @@ export class AutofillOptionsComponent implements OnInit {
       this.addUri(
         {
           uri: uri.uri,
-          // Desktop app URIs load with the match strategy they're saved with, so the form holds it
           matchDetection: this.savedMatchDetection(uri.uri, uri.match),
         },
         false,
