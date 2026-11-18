@@ -597,13 +597,9 @@
                         >
                         <span
                           id="passkey-provider-state"
-                          class="tw-inline-flex tw-items-center tw-rounded-full tw-border tw-px-1.5 tw-text-xs/5 tw-font-medium"
-                          [class.tw-border-border-success-soft]="passkeyProviderState()?.enabled"
-                          [class.tw-bg-bg-success-soft]="passkeyProviderState()?.enabled"
-                          [class.tw-text-fg-success-strong]="passkeyProviderState()?.enabled"
-                          [class.tw-border-border-base]="!passkeyProviderState()?.enabled"
-                          [class.tw-bg-bg-secondary]="!passkeyProviderState()?.enabled"
-                          [class.tw-text-fg-body]="!passkeyProviderState()?.enabled"
+                          bitBadge
+                          size="small"
+                          [variant]="passkeyProviderState()?.enabled ? 'success' : 'subtle'"
                           data-testid="settings-passkey-provider-state"
                         >
                           {{ (passkeyProviderState()?.enabled ? "turnedOn" : "turnedOff") | i18n }}
