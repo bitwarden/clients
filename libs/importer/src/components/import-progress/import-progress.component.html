@@ -1,0 +1,15 @@
+<div
+  class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-py-8 tw-text-center"
+  role="status"
+  tabindex="-1"
+>
+  <bit-spinner size="base" />
+  <div class="tw-flex tw-flex-col tw-gap-1">
+    <p class="tw-mb-0 tw-text-lg tw-leading-6 tw-font-medium tw-text-fg-heading">
+      {{ heading() }}
+    </p>
+    @if (description(); as text) {
+      <p bitTypography="body2" noMargin class="tw-mb-0 tw-text-fg-body">{{ text }}</p>
+    }
+  </div>
+</div>

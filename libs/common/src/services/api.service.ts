@@ -57,7 +57,6 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -297,10 +296,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postAccountLicense(data: FormData): Promise<any> {
     return this.send("POST", "/accounts/license", data, true, false);
-  }
-
-  postAccountKeys(request: KeysRequest): Promise<any> {
-    return this.send("POST", "/accounts/keys", request, true, false);
   }
 
   postAccountVerifyEmail(): Promise<any> {

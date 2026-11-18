@@ -6,6 +6,7 @@ export {
   HIDDEN_IMPORT_TYPE_IDS,
 } from "./import-options";
 export { ImportResult } from "./import-result";
+export { ImportedFile } from "./imported-file";
 export { ImportRecordError, ImportRecordErrorReason } from "./import-record-error";
 export {
   CredentialKind,
