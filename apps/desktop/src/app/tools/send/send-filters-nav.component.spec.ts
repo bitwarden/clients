@@ -6,6 +6,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -40,7 +41,13 @@ describe("SendFiltersNavComponent", () => {
   let filterFormValueSubject: BehaviorSubject<{ sendType: SendType | null }>;
   let mockSendListFiltersService: Partial<SendListFiltersService>;
   let mockSendPolicyService: Partial<SendPolicyService>;
-  const allowedSendTypes = new BehaviorSubject<SendType[]>([SendType.Text, SendType.File]);
+  let mockConfigService: Partial<ConfigService>;
+  const allowedSendTypes = new BehaviorSubject<SendType[]>([
+    SendType.Text,
+    SendType.File,
+    SendType.Item,
+  ]);
+  const vfo1FoudationFF = new BehaviorSubject<boolean>(false);
 
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
@@ -64,8 +71,14 @@ describe("SendFiltersNavComponent", () => {
       filters$: filterFormValueSubject.asObservable(),
     };
 
+    // Reset allowed Send types and feature flag for every test
+    allowedSendTypes.next([SendType.Text, SendType.File, SendType.Item]);
+    vfo1FoudationFF.next(false);
     mockSendPolicyService = {
       allowedSendTypes$: allowedSendTypes,
+    };
+    mockConfigService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(vfo1FoudationFF),
     };
 
     await TestBed.configureTestingModule({
@@ -106,6 +119,10 @@ describe("SendFiltersNavComponent", () => {
         {
           provide: SendPolicyService,
           useValue: mockSendPolicyService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compileComponents();
@@ -237,12 +254,25 @@ describe("SendFiltersNavComponent", () => {
     });
   });
 
-  it("shows Send nav item instead of group when Send type is restricted by policy", async () => {
+  it("shows Send nav item instead of group when Send type is restricted by policy to a single type", async () => {
     expect(fixture.debugElement.children.length).toEqual(1);
     expect(fixture.debugElement.children[0].name).toEqual("bit-nav-group");
     expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
 
     allowedSendTypes.next([SendType.Text]);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.children.length).toEqual(1);
+    expect(fixture.debugElement.children[0].name).toEqual("bit-nav-item");
+    expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
+  });
+
+  it("shows Send nav item instead of group when VFO1Foundation feature flag is enabled", async () => {
+    expect(fixture.debugElement.children.length).toEqual(1);
+    expect(fixture.debugElement.children[0].name).toEqual("bit-nav-group");
+    expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
+
+    vfo1FoudationFF.next(true);
     fixture.detectChanges();
 
     expect(fixture.debugElement.children.length).toEqual(1);
