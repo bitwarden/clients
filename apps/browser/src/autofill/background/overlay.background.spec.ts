@@ -1,6 +1,6 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -46,11 +46,16 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
-import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import {
+  CredentialGeneratorService,
+  GenerateRequest,
+  PasswordGenerationOptions,
+} from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
+import { sitePasswordSettings } from "../../tools/password-rules/site-password-settings";
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillOverlayElement,
@@ -103,6 +108,8 @@ import {
 } from "./abstractions/overlay.background";
 import { OverlayBackground } from "./overlay.background";
 
+jest.mock("../../tools/password-rules/site-password-settings");
+
 describe("OverlayBackground", () => {
   const generatedPassword = "generated-password";
   const mockUserId = Utils.newGuid() as UserId;
@@ -136,6 +143,7 @@ describe("OverlayBackground", () => {
   let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
   let totpService: MockProxy<TotpService>;
   let generatorService: MockProxy<CredentialGeneratorService>;
+  let generateRequests: GenerateRequest[];
   let generatorHistoryService: MockProxy<GeneratorHistoryService>;
   let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
   let overlayBackground: OverlayBackground;
@@ -253,11 +261,14 @@ describe("OverlayBackground", () => {
     generatorService.preferredAlgorithm$.mockReturnValue(
       of({ capabilities: { autogenerate: true } } as any),
     );
+    generateRequests = [];
     generatorService.generate$.mockImplementation(({ on$ }) =>
       on$.pipe(
+        tap((request) => generateRequests.push(request)),
         map((request) => new GeneratedCredential(generatedPassword, "password", new Date())),
       ),
     );
+    jest.mocked(sitePasswordSettings).mockResolvedValue(null);
     generatorHistoryService = mock<GeneratorHistoryService>();
     generatorHistoryService.track.mockResolvedValue(null);
     autofillOrchestrator = mock<AutofillOrchestrator>();
@@ -4475,6 +4486,48 @@ describe("OverlayBackground", () => {
           expect.any(Date),
         );
       });
+
+      describe("website password rules", () => {
+        beforeEach(() => {
+          listMessageConnectorSpy.sender = mock<chrome.runtime.MessageSender>({
+            tab: { id: 1, url: "https://www.example.com/signup" },
+          });
+        });
+
+        it("adds the tab's website rules to the request", async () => {
+          const settings = { length: 20, special: true } as PasswordGenerationOptions;
+          jest.mocked(sitePasswordSettings).mockResolvedValue({ website: "example.com", settings });
+
+          sendPortMessage(listMessageConnectorSpy, {
+            command: "refreshGeneratedPassword",
+            portKey,
+          });
+          await flushPromises();
+
+          expect(sitePasswordSettings).toHaveBeenCalledWith(
+            "https://www.example.com/signup",
+            generatorService,
+          );
+          expect(generateRequests).toContainEqual({
+            source: PasswordGenerateRequestSource.InlineMenu,
+            type: "password",
+            settings: { algorithm: "password", values: settings },
+          });
+        });
+
+        it("sends the request unchanged when the website has no rules", async () => {
+          sendPortMessage(listMessageConnectorSpy, {
+            command: "refreshGeneratedPassword",
+            portKey,
+          });
+          await flushPromises();
+
+          expect(generateRequests).toContainEqual({
+            source: PasswordGenerateRequestSource.InlineMenu,
+            type: "password",
+          });
+        });
+      });
     });
 
     describe("fillGeneratedPassword", () => {
@@ -4690,6 +4743,37 @@ describe("OverlayBackground", () => {
 
       expect(generatorService.generate$).toHaveBeenCalled();
     });
+
+    it("generates a password that follows the website's rules when the inline menu opens", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const settings = { length: 20 } as PasswordGenerationOptions;
+      jest.mocked(sitePasswordSettings).mockResolvedValue({
+        website: "jest-testing-website.com",
+        settings,
+      });
+      const focusedFieldData = createFocusedFieldDataMock({
+        inlineMenuFillType: CipherType.Login,
+        accountCreationFieldType: InlineMenuAccountCreationFieldType.Password,
+      });
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+      await initOverlayElementPorts();
+      await flushPromises();
+
+      expect(sitePasswordSettings).toHaveBeenCalledWith(
+        "https://jest-testing-website.com",
+        generatorService,
+      );
+      expect(generateRequests).toContainEqual({
+        source: PasswordGenerateRequestSource.InlineMenuInit,
+        type: "password",
+        settings: { algorithm: "password", values: settings },
+      });
+    });
   });
 
   describe("credential pipeline history tracking", () => {
@@ -4697,9 +4781,9 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       overlayBackground["requestGeneratedPassword$"].next({
-        source: PasswordGenerateRequestSource.InlineMenuInit,
-        type: "password",
-      } as any);
+        request: { source: PasswordGenerateRequestSource.InlineMenuInit, type: "password" },
+        tab: undefined,
+      });
       await flushPromises();
 
       expect(generatorHistoryService.track).toHaveBeenCalledWith(
@@ -4714,9 +4798,9 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       overlayBackground["requestGeneratedPassword$"].next({
-        source: PasswordGenerateRequestSource.InlineMenu,
-        type: "password",
-      } as any);
+        request: { source: PasswordGenerateRequestSource.InlineMenu, type: "password" },
+        tab: undefined,
+      });
       await flushPromises();
 
       expect(generatorHistoryService.track).toHaveBeenCalledWith(
