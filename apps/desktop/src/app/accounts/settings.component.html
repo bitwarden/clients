@@ -534,89 +534,96 @@
               }
             </bit-card-segmented>
           </div>
-          @if (showDuckDuckGoIntegrationOption || showPasskeyProviderSetting()) {
+          @if (showDuckDuckGoIntegrationOption) {
             <div role="group" class="tw-mb-8" aria-labelledby="settings-browsers-header">
               <ng-container
                 *ngTemplateOutlet="
                   groupHeader;
                   context: {
                     id: 'settings-browsers-header',
-                    title: 'browsersAndPasskeysHeader',
+                    title: 'browsersHeader',
                   }
                 "
               />
               <bit-card-segmented>
-                @if (showDuckDuckGoIntegrationOption) {
-                  <div class="tw-p-4">
-                    <bit-form-control disableMargin>
-                      <span class="tw-flex tw-items-center tw-gap-2">
-                        <bit-switch
-                          formControlName="enableDuckDuckGoBrowserIntegration"
-                          (change)="saveDdgBrowserIntegration()"
-                        />
-                        <ng-container
-                          *ngTemplateOutlet="
-                            switchState;
-                            context: { on: form.value.enableDuckDuckGoBrowserIntegration }
-                          "
-                        />
-                      </span>
-                      <bit-label>{{ "enableDuckDuckGoBrowserIntegration" | i18n }}</bit-label>
-                      <bit-hint>{{ "enableDuckDuckGoBrowserIntegrationDesc" | i18n }}</bit-hint>
-                    </bit-form-control>
-                  </div>
-                }
-
-                @if (showPasskeyProviderSetting()) {
-                  <div class="tw-p-4">
-                    <div
-                      role="group"
-                      aria-labelledby="passkey-provider-label"
-                      class="tw-flex tw-items-start tw-gap-3"
-                    >
+                <div class="tw-p-4">
+                  <bit-form-control disableMargin>
+                    <span class="tw-flex tw-items-center tw-gap-2">
+                      <bit-switch
+                        formControlName="enableDuckDuckGoBrowserIntegration"
+                        (change)="saveDdgBrowserIntegration()"
+                      />
+                      <ng-container
+                        *ngTemplateOutlet="
+                          switchState;
+                          context: { on: form.value.enableDuckDuckGoBrowserIntegration }
+                        "
+                      />
+                    </span>
+                    <bit-label>{{ "enableDuckDuckGoBrowserIntegration" | i18n }}</bit-label>
+                    <bit-hint>{{ "enableDuckDuckGoBrowserIntegrationDesc" | i18n }}</bit-hint>
+                  </bit-form-control>
+                </div>
+              </bit-card-segmented>
+            </div>
+          }
+          @if (showPasskeyProviderSetting()) {
+            <div role="group" class="tw-mb-8" aria-labelledby="settings-passkeys-header">
+              <ng-container
+                *ngTemplateOutlet="
+                  groupHeader;
+                  context: {
+                    id: 'settings-passkeys-header',
+                    title: 'passkeysHeader',
+                  }
+                "
+              />
+              <bit-card-segmented>
+                <div class="tw-p-4">
+                  <!-- The state is owned by the operating system, so it is plain text next to a button rather than a switch. -->
+                  <div
+                    role="group"
+                    aria-labelledby="passkey-provider-label"
+                    class="tw-flex tw-items-start tw-justify-between tw-gap-4"
+                    data-testid="settings-passkey-provider-row"
+                  >
+                    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-ps-4">
                       <span
-                        class="tw-flex tw-h-5 tw-w-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
+                        id="passkey-provider-label"
+                        bitTypography="body2"
+                        class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                        >{{ "passkeyProvider" | i18n }}</span
                       >
-                        <bit-icon name="bwi-passkey" />
+                      <span id="passkey-provider-desc" class="tw-text-xs tw-text-fg-body-subtle">{{
+                        "passkeyProviderDesc" | i18n
+                      }}</span>
+                      <span id="passkey-provider-link-hint" class="tw-sr-only">{{
+                        "mayOpenSystemSettings" | i18n
+                      }}</span>
+                    </div>
+                    <div class="tw-flex tw-flex-none tw-items-center tw-gap-3">
+                      <span
+                        id="passkey-provider-state"
+                        class="tw-text-sm tw-font-semibold"
+                        [class.tw-text-fg-brand]="passkeyProviderState()?.enabled"
+                        [class.tw-text-fg-body-subtle]="!passkeyProviderState()?.enabled"
+                        data-testid="settings-passkey-provider-state"
+                      >
+                        {{ (passkeyProviderState()?.enabled ? "turnedOn" : "turnedOff") | i18n }}
                       </span>
-                      <span class="tw-flex tw-flex-col tw-items-start tw-gap-1">
-                        <span class="tw-flex tw-items-center tw-gap-2">
-                          <span
-                            id="passkey-provider-label"
-                            bitTypography="body2"
-                            class="tw-leading-5 tw-font-medium tw-text-fg-heading"
-                          >
-                            {{ "passkeyProvider" | i18n }}
-                          </span>
-                          @if (passkeyProviderState()?.enabled) {
-                            <span bitBadge variant="success" size="small">{{
-                              "turnedOn" | i18n
-                            }}</span>
-                          } @else {
-                            <span bitBadge variant="subtle" size="small">{{
-                              "turnedOff" | i18n
-                            }}</span>
-                          }
-                        </span>
-                        <span id="passkey-provider-desc" class="tw-text-xs tw-text-fg-body-subtle">
-                          {{ "passkeyProviderDesc" | i18n }}
-                        </span>
-                        <span id="passkey-provider-link-hint" class="tw-sr-only">
-                          {{ "mayOpenSystemSettings" | i18n }}
-                        </span>
-                        <button
-                          type="button"
-                          bitLink
-                          class="tw-text-sm"
-                          aria-describedby="passkey-provider-desc passkey-provider-link-hint"
-                          (click)="managePasskeyProvider()"
-                        >
-                          {{ "manageInSystemSettings" | i18n }}
-                        </button>
-                      </span>
+                      <button
+                        type="button"
+                        bitButton
+                        buttonType="secondary"
+                        size="small"
+                        aria-describedby="passkey-provider-desc passkey-provider-link-hint"
+                        (click)="managePasskeyProvider()"
+                      >
+                        {{ "manageInSystemSettings" | i18n }}
+                      </button>
                     </div>
                   </div>
-                }
+                </div>
               </bit-card-segmented>
             </div>
           }

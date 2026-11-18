@@ -1548,7 +1548,7 @@ describe("SettingsComponent", () => {
       fixture.debugElement.query(By.css('[aria-labelledby="passkey-provider-label"]'));
 
     const manageInSystemSettingsLink = () =>
-      passkeyProviderSetting().query(By.css("button[bitLink]"));
+      passkeyProviderSetting().query(By.css("button[bitButton]"));
 
     it("is visible when the app is registered", async () => {
       createComponent(DeviceType.MacOsDesktop);
@@ -1583,6 +1583,26 @@ describe("SettingsComponent", () => {
       await init();
 
       expect(passkeyProviderSetting().nativeElement.textContent).toContain(status);
+      expect(
+        passkeyProviderSetting()
+          .query(By.css("[data-testid='settings-passkey-provider-state']"))
+          .nativeElement.textContent.trim(),
+      ).toBe(status);
+      expect(manageInSystemSettingsLink().nativeElement.textContent).toContain(
+        "manageInSystemSettings",
+      );
+      expect(passkeyProviderSetting().query(By.css("bit-switch"))).toBeNull();
+    });
+
+    it("calls managePasskeyProvider once when the button is clicked", async () => {
+      await createRegisteredComponent(true);
+      const manage = jest.spyOn(component as any, "managePasskeyProvider");
+
+      manageInSystemSettingsLink().nativeElement.click();
+      await new Promise(process.nextTick);
+
+      expect(manage).toHaveBeenCalledTimes(1);
+      expect(desktopAutofillService.openCredentialProviderSettings).toHaveBeenCalledTimes(1);
     });
 
     it("refreshes the status when the window regains focus", async () => {

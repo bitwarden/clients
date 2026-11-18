@@ -2879,6 +2879,12 @@
   "browsersAndPasskeysHeader": {
     "message": "Browsers and passkeys"
   },
+  "browsersHeader": {
+    "message": "Browsers"
+  },
+  "passkeysHeader": {
+    "message": "Passkeys"
+  },
   "syncHeader": {
     "message": "Sync"
   },

@@ -52,7 +52,6 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
-  BadgeComponent,
   ButtonModule,
   CalloutModule,
   DialogModule,
@@ -106,7 +105,6 @@ type SettingsPage = "security" | "vault" | "general" | "integrations" | "advance
     },
   ],
   imports: [
-    BadgeComponent,
     ButtonModule,
     CalloutModule,
     DialogModule,
