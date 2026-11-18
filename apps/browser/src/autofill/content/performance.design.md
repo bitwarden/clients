@@ -14,7 +14,7 @@ Content scripts run in an **isolated world** — a separate JavaScript execution
 
 - We share the main thread with the page. Any work we do delays the page's rendering, event handlers, and layout operations.
 - The mutation observer callback is synchronous. Until it returns, the browser cannot perform layout, paint, or run other microtasks.
-- We are guests. The page's performance is not ours to degrade.
+- We are guests. The page's performance is not ours to degrade (see [We are guests on the page](../principles.md#we-are-guests-on-the-page)).
 
 The mutation observer is the most critical hot path. It processes batches of DOM mutations, and each batch can contain hundreds of records. The observer fires during or immediately after DOM manipulation, which often coincides with the browser wanting to perform layout and paint. Every microsecond we spend in the callback is a microsecond added to a potentially already-long frame.
 
