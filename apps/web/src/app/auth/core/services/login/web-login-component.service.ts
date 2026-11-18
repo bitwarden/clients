@@ -141,7 +141,7 @@ export class WebLoginComponentService
         }
         await this.router.navigate([SsoLoginFailedRoute], {
           queryParams: {
-            kind: SsoLoginFailedErrorKind.InviteAcceptanceRequired,
+            kind: SsoLoginFailedErrorKind.OrgMembershipRequired,
             organizationName: params.organizationName,
           },
         });

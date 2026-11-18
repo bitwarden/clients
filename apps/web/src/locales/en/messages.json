@@ -8249,6 +8249,18 @@
       }
     }
   },
+  "couldntCompleteLogin": {
+    "message": "Couldn't complete login"
+  },
+  "ssoOrgInviteRequiredContactAdmin": {
+    "message": "You need to be invited to $ORGANIZATION_NAME$ in order to join and view its Bitwarden vault. Contact your admin for help.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "ssoNoSeatsAvailableMessage": {
     "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
   },

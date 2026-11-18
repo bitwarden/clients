@@ -247,13 +247,12 @@ describe("WebLoginComponentService", () => {
 
     // All three SSO redirect error codes share the same client-side match handler
     // (server intent differs but "match invite → auto-progress" is identical) and the
-    // same no-match behavior: redirect to the terminal /sso-login-failed page. Only the
-    // `kind` query param differs, and the two "invite required" codes deliberately share
-    // one kind so the page doesn't reveal whether the user has a pending invite or no
-    // membership at all. `describe.each` enforces parity for the shared shape.
+    // same no-match behavior: redirect to the terminal /sso-login-failed page. The
+    // `kind` query param differs, so each code renders its own copy. `describe.each`
+    // enforces parity for the shared shape.
     describe.each([
       { errorCode: "ssoOrgInviteAcceptanceRequired", expectedKind: "invite-acceptance-required" },
-      { errorCode: "ssoOrgMembershipRequired", expectedKind: "invite-acceptance-required" },
+      { errorCode: "ssoOrgMembershipRequired", expectedKind: "org-membership-required" },
       {
         errorCode: "ssoStagedOrgUserInviteAcceptanceRequired",
         expectedKind: "staged-org-user-direct-invite-sent",

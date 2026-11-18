@@ -1,6 +1,6 @@
 import { Params } from "@angular/router";
 
-import { EmailCodeSentIcon, ExpiredIcon } from "@bitwarden/assets/svg";
+import { AccountWarning, EmailCodeSentIcon, ExpiredIcon } from "@bitwarden/assets/svg";
 
 import { SsoLoginFailedErrorKind } from "./sso-login-failed-error-kind.type";
 import { SsoLoginFailedUi } from "./sso-login-failed-ui.type";
@@ -25,6 +25,17 @@ export function getSsoLoginFailedUi(
         },
         bodyMessage: {
           key: "checkYourEmailToFinishJoiningOrg",
+          placeholders: [qParams.organizationName ?? ""],
+        },
+      };
+    case SsoLoginFailedErrorKind.OrgMembershipRequired:
+      return {
+        anonLayoutData: {
+          pageTitle: { key: "couldntCompleteLogin" },
+          pageIcon: AccountWarning,
+        },
+        bodyMessage: {
+          key: "ssoOrgInviteRequiredContactAdmin",
           placeholders: [qParams.organizationName ?? ""],
         },
       };
