@@ -1,14 +1,15 @@
-import { combineLatest, delay, distinctUntilChanged, mergeMap, of, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, mergeMap, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Tab } from "../../platform/badge/badge-browser-api";
 import { BadgeService } from "../../platform/badge/badge.service";
 import { BadgeStatePriority } from "../../platform/badge/priority";
+
+import { CipherUse, FillCipherPolicy } from "./abstractions/fill-cipher-policy";
 
 const StateName = "autofill-badge-updater";
 
@@ -16,14 +17,16 @@ export class AutofillBadgeUpdaterService {
   constructor(
     private badgeService: BadgeService,
     private accountService: AccountService,
-    private cipherService: CipherService,
+    private fillCipherPolicy: FillCipherPolicy,
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     private logService: LogService,
   ) {}
 
   init() {
-    const ciphers$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => (account?.id ? this.cipherService.ciphers$(account?.id) : of([]))),
+    const ciphersChanged$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account?.id ? this.fillCipherPolicy.changed$(account.id) : of(undefined),
+      ),
     );
 
     this.badgeService.setState(StateName, (tab) => {
@@ -31,7 +34,7 @@ export class AutofillBadgeUpdaterService {
         account: this.accountService.activeAccount$,
         enableBadgeCounter:
           this.badgeSettingsService.enableBadgeCounter$.pipe(distinctUntilChanged()),
-        ciphers: ciphers$.pipe(delay(100)), // Delay to allow cipherService.getAllDecryptedForUrl to pick up changes
+        ciphersChanged: ciphersChanged$,
       }).pipe(
         mergeMap(async ({ account, enableBadgeCounter }) => {
           if (!account || !enableBadgeCounter) {
@@ -55,7 +58,9 @@ export class AutofillBadgeUpdaterService {
       return;
     }
 
-    const ciphers = tab.url ? await this.cipherService.getAllDecryptedForUrl(tab.url, userId) : [];
+    const ciphers = tab.url
+      ? await this.fillCipherPolicy.ciphersForUrl(tab.url, userId, CipherUse.Badge)
+      : [];
     const cipherCount = ciphers.length;
 
     if (cipherCount === 0) {

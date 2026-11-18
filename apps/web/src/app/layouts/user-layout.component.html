@@ -28,8 +28,8 @@
       </bit-nav-section>
 
       <bit-nav-section [label]="'manage' | i18n">
-        <vault-manage-nav />
         <app-pam-user-nav-slot />
+        <vault-manage-nav />
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>

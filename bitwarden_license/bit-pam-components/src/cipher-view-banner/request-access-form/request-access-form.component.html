@@ -1,0 +1,133 @@
+@if (loadingRequestForm()) {
+  <!-- Shaped like the form, so the sheet keeps its height when the pre-check returns. -->
+  <section class="tw-flex tw-flex-col tw-gap-2" data-testid="request-form-skeleton">
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    <h3 bitTypography="body2" noMargin class="tw-font-medium tw-text-fg-heading">
+      {{ "requestAccessModalDetailsHeading" | i18n }}
+    </h3>
+    <div
+      class="tw-flex tw-flex-col tw-gap-4 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6"
+      aria-hidden="true"
+    >
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <bit-skeleton class="tw-my-1 tw-h-3 tw-w-1/3" />
+        <bit-skeleton class="tw-h-10" />
+        <bit-skeleton class="tw-my-1 tw-h-2 tw-w-2/3" />
+      </div>
+      <div class="tw-flex tw-flex-col tw-gap-2">
+        <bit-skeleton class="tw-my-1 tw-h-3 tw-w-1/3" />
+        <bit-skeleton class="tw-h-20" />
+        <bit-skeleton-text [lines]="2" />
+      </div>
+    </div>
+  </section>
+} @else if (requestMode() !== null) {
+  @if (slotContention(); as contention) {
+    <p bitTypography="body2" class="tw-m-0 tw-flex tw-items-start tw-gap-2">
+      <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
+      <span>
+        @if (contention.freesAt) {
+          {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | timestamp) }}
+        } @else {
+          {{ "pamRequestSlotTaken" | i18n }}
+        }
+      </span>
+    </p>
+  }
+
+  <section class="tw-flex tw-flex-col tw-gap-2">
+    <h3
+      bitTypography="body2"
+      noMargin
+      class="tw-font-medium tw-text-fg-heading"
+      data-testid="request-sheet-details-heading"
+    >
+      {{ "requestAccessModalDetailsHeading" | i18n }}
+    </h3>
+    <div
+      class="tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6"
+    >
+      @if (requestMode() === "automatic") {
+        <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalDurationV2" | i18n }}</bit-label>
+            <select
+              bitInput
+              formControlName="durationSeconds"
+              required
+              id="pam-cipher-view-banner_select_duration"
+            >
+              @for (option of durationOptions(); track option.seconds) {
+                <option [value]="option.seconds">{{ option.seconds | durationLong }}</option>
+              }
+            </select>
+            <bit-hint>{{ "requestAccessModalDurationHint" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalReasonOptionalV2" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              rows="3"
+              formControlName="reason"
+              [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
+              id="pam-cipher-view-banner_textarea_automatic-reason"
+            ></textarea>
+            <button
+              type="button"
+              bitSuffix
+              bitIconButton="bwi-clone"
+              [label]="'copy' | i18n"
+              [bitAction]="copyReasonFromAutomatic"
+              id="pam-cipher-view-banner_button_automatic-reason-copy"
+            ></button>
+            <bit-hint>{{ "requestAccessModalAutomaticReasonHintV2" | i18n }}</bit-hint>
+          </bit-form-field>
+        </form>
+      } @else {
+        <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+          <app-pam-request-window-fields
+            formControlName="window"
+            [durationOptions]="durationOptions()"
+            [defaultSeconds]="defaultSeconds()"
+            [maxWindowSeconds]="maxWindowSeconds()"
+            [openedAt]="requestOpenedAt()"
+          />
+
+          <bit-form-field>
+            <bit-label>{{ "requestAccessModalReasonRequiredV2" | i18n }}</bit-label>
+            <textarea
+              bitInput
+              rows="3"
+              formControlName="reason"
+              required
+              [placeholder]="'requestAccessModalReasonPlaceholderV2' | i18n"
+              id="pam-cipher-view-banner_textarea_human-reason"
+            ></textarea>
+            <button
+              type="button"
+              bitSuffix
+              bitIconButton="bwi-clone"
+              [label]="'copy' | i18n"
+              [bitAction]="copyReasonFromHuman"
+              id="pam-cipher-view-banner_button_human-reason-copy"
+            ></button>
+            <bit-hint>{{ "requestAccessModalHumanReasonHintV2" | i18n }}</bit-hint>
+          </bit-form-field>
+        </form>
+      }
+    </div>
+  </section>
+}
+
+@if (requestError(); as error) {
+  <p
+    bitTypography="helper"
+    role="alert"
+    class="tw-m-0 tw-flex tw-items-start tw-gap-2 tw-text-danger"
+    data-testid="request-error"
+  >
+    <bit-icon name="bwi-error" class="tw-mt-0.5" />
+    <span>{{ error }}</span>
+  </p>
+}

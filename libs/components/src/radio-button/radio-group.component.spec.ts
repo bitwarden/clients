@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -37,35 +37,34 @@ describe("FormControlGroupComponent (radio mode)", () => {
   });
 
   it("should select second element when setting selected to second", async () => {
-    testAppComponent.selected = "second";
+    testAppComponent.selected.set("second");
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(buttonElements[1].selected).toBe(true);
+    expect(buttonElements[1].selected()).toBe(true);
   });
 
   it("should not select second element when setting selected to third", async () => {
-    testAppComponent.selected = "third";
+    testAppComponent.selected.set("third");
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(buttonElements[1].selected).toBe(false);
+    expect(buttonElements[1].selected()).toBe(false);
   });
 
   it("should emit new value when changing selection by clicking on radio button", async () => {
-    testAppComponent.selected = "first";
+    testAppComponent.selected.set("first");
     fixture.detectChanges();
     await fixture.whenStable();
 
     radioButtons[1].click();
 
-    expect(testAppComponent.selected).toBe("second");
+    expect(testAppComponent.selected()).toBe("second");
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app",
   template: `
     <bit-radio-group [(ngModel)]="selected">
@@ -77,5 +76,5 @@ describe("FormControlGroupComponent (radio mode)", () => {
   imports: [FormsModule, RadioButtonModule],
 })
 class TestAppComponent {
-  selected?: string;
+  readonly selected = signal<string | undefined>(undefined);
 }

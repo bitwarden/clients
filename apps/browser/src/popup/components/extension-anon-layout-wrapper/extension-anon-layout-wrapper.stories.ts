@@ -1,4 +1,10 @@
-import { importProvidersFrom, Component } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  importProvidersFrom,
+  inject,
+  signal,
+} from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import {
   Meta,
@@ -161,27 +167,24 @@ type Story = StoryObj<ExtensionAnonLayoutWrapperComponent>;
 
 // Default Example
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
   standalone: false,
 })
 class DefaultPrimaryOutletExampleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
   standalone: false,
 })
 class DefaultSecondaryOutletExampleComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
   standalone: false,
@@ -274,9 +277,8 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   showLogo: false,
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-dynamic-content-example-component",
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
@@ -284,18 +286,15 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   standalone: false,
 })
 export class DynamicContentExampleComponent {
-  initialData = true;
+  private readonly extensionAnonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
-  constructor(private extensionAnonLayoutWrapperDataService: AnonLayoutWrapperDataService) {}
+  private readonly showingInitialData = signal(true);
 
   toggleData() {
-    if (this.initialData) {
-      this.extensionAnonLayoutWrapperDataService.setAnonLayoutWrapperData(changedData);
-    } else {
-      this.extensionAnonLayoutWrapperDataService.setAnonLayoutWrapperData(initialData);
-    }
-
-    this.initialData = !this.initialData;
+    this.extensionAnonLayoutWrapperDataService.setAnonLayoutWrapperData(
+      this.showingInitialData() ? changedData : initialData,
+    );
+    this.showingInitialData.update((showing) => !showing);
   }
 }
 

@@ -51,4 +51,21 @@ describe("ServerSettings", () => {
       expect(settings.disableEmailVerification).toBe(false);
     });
   });
+
+  describe("disableOpenInviteLinkEmailVerification", () => {
+    it("defaults disableOpenInviteLinkEmailVerification to false", () => {
+      const settings = new ServerSettings();
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(false);
+    });
+
+    it("sets disableOpenInviteLinkEmailVerification to true when provided", () => {
+      const settings = new ServerSettings({ disableOpenInviteLinkEmailVerification: true });
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(true);
+    });
+
+    it("sets disableOpenInviteLinkEmailVerification to false when provided", () => {
+      const settings = new ServerSettings({ disableOpenInviteLinkEmailVerification: false });
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(false);
+    });
+  });
 });

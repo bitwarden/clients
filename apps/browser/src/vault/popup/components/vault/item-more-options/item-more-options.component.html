@@ -18,6 +18,19 @@
           {{ "view" | i18n }}
         </button>
       }
+      @for (action of contributedActions; track action.id) {
+        @if (action.show?.(cipher) ?? true) {
+          <button
+            type="button"
+            bitMenuItem
+            [variant]="action.variant ?? 'primary'"
+            [disabled]="action.disabled?.(cipher) ?? false"
+            (click)="action.run(cipher)"
+          >
+            {{ action.label }}
+          </button>
+        }
+      }
       <button type="button" bitMenuItem (click)="toggleFavorite()">
         {{ favoriteText | i18n }}
       </button>
@@ -27,20 +40,22 @@
         </button>
       }
       @if (canEdit && canViewPassword) {
-        @if (canClone$ | async) {
+        @if ((canClone$ | async) && allows(RestrictedCipherAction.Clone)) {
           <a bitMenuItem (click)="clone()">
             {{ "clone" | i18n }}
           </a>
         }
-        @if (canAssignCollections$ | async) {
+        @if ((canAssignCollections$ | async) && allows(RestrictedCipherAction.AssignCollections)) {
           <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">
             {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </a>
         }
       }
-      <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
-        {{ "shareViaLink" | i18n }}
-      </a>
+      @if (!isLocked && allows(RestrictedCipherAction.Share)) {
+        <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+          {{ "shareViaLink" | i18n }}
+        </a>
+      }
       @if (canArchive$ | async) {
         <button type="button" bitMenuItem (click)="archive()">
           {{ "archiveVerb" | i18n }}
@@ -61,7 +76,7 @@
         </button>
       }
     }
-    @if (canDelete$ | async) {
+    @if ((canDelete$ | async) && allows(RestrictedCipherAction.Delete)) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>

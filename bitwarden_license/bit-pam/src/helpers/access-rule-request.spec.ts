@@ -75,7 +75,7 @@ describe("accessRuleToRequest", () => {
     expect(req.enabled).toBe(true);
   });
 
-  it("preserves allowsExtensions and maxExtensionDurationSeconds — a bulk-toggle must not silently disable extensions", () => {
+  it("preserves allowsExtensions and maxExtensionDurationSeconds, a bulk-toggle must not silently disable extensions", () => {
     const req = accessRuleToRequest(
       rule({ allowsExtensions: true, maxExtensionDurationSeconds: 7200 }),
       true,

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
@@ -44,8 +45,11 @@ import {
 } from "./types/onepassword-1pux-importer-types";
 
 export class OnePassword1PuxImporter extends BaseImporter implements Importer {
-  constructor(private configService: ConfigService) {
-    super();
+  constructor(
+    private configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
   }
 
   result = new ImportResult();

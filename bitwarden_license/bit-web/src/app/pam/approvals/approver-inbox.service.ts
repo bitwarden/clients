@@ -32,6 +32,7 @@ import {
   AccessNameResolverService,
   ResolvedNames,
   emptyResolvedNames,
+  organizationNameFor,
 } from "../access-requests/access-name-resolver.service";
 import {
   MyAccessRequestRow,
@@ -41,8 +42,19 @@ import {
 } from "../access-requests/my-access-row";
 
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
+import {
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+} from "./approver-row";
 import { isActionableInboxRequest } from "./inbox-request-filter";
-import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./managed-lease-row";
+import {
+  ManagedLeaseRow,
+  isLiveManagedLease,
+  isUnstartedApproval,
+  toManagedLeaseRow,
+} from "./managed-lease-row";
 
 /**
  * Data service for the approver surfaces, provided on the shell route so the tabs share one
@@ -137,6 +149,34 @@ export class ApproverInboxService {
     }),
   );
 
+  /**
+   * The Approvals tab's rows: requests awaiting a decision, approvals not yet started, then the
+   * leases running now. An approval leaves once its window ends unstarted, and a lease once it
+   * ends; the tab clamps both against a live clock as well.
+   */
+  readonly approverRows$: Observable<ApproverRow[]> = combineLatest([
+    this.inboxRows$,
+    this._history$,
+    this._names$,
+    this.activeLeaseRows$,
+    this._renderedAt$,
+  ]).pipe(
+    map(([pending, history, names, leases, now]) => [
+      ...pending.map(fromApprovalRow),
+      ...history
+        .filter(
+          (request) =>
+            isUnstartedApproval(request) &&
+            // An approved extension mints no lease of its own; it moves its parent's end instead.
+            request.extensionOfLeaseId == null &&
+            Date.parse(request.leaseNotAfter) > now.getTime(),
+        )
+        .map((request) => fromUnstartedApproval(request, names, this.locale))
+        .sort((a, b) => a.windowStartMs - b.windowStartMs),
+      ...leases.map((lease) => fromManagedLease(lease, this.locale)),
+    ]),
+  );
+
   /** The request ids on managed collections, the only History rows the caller may act on. */
   readonly managedIds$: Observable<Set<string>> = this._history$.pipe(
     map((requests) => new Set(requests.map((request) => uuidAsString(request.id)))),
@@ -227,6 +267,24 @@ export class ApproverInboxService {
       throw e;
     }
     this.accessRefresh.notifyAccessChanged();
+  }
+
+  /**
+   * The requester and organization of a managed request, for the withdraw-approval dialog. Null
+   * when the request is not one the caller manages.
+   */
+  managedRequestParties(
+    requestId: string,
+  ): { requesterName: string; organizationName: string | null } | null {
+    const request = this._history$.value.find((r) => uuidAsString(r.id) === requestId);
+    if (request == null) {
+      return null;
+    }
+    return {
+      requesterName:
+        request.requesterName || request.requesterEmail || uuidAsString(request.requesterId),
+      organizationName: organizationNameFor(request, this._names$.value),
+    };
   }
 
   /**

@@ -6,8 +6,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   INVITE_LINK_CALLOUT_DISK,
   StateProvider,
@@ -36,7 +34,6 @@ export const INVITE_LINK_CALLOUT_DISMISSED_KEY = new UserKeyDefinition<Organizat
 @Injectable({ providedIn: "root" })
 export class InviteLinkCalloutService {
   private accountService = inject(AccountService);
-  private configService = inject(ConfigService);
   private stateProvider = inject(StateProvider);
   private memberDialogManager = inject(MemberDialogManagerService);
   private organizationMembersService = inject(OrganizationMembersService);
@@ -87,10 +84,6 @@ export class InviteLinkCalloutService {
     }
 
     if (!organization.useInviteLinks) {
-      return;
-    }
-
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.InviteLinkNotification))) {
       return;
     }
 

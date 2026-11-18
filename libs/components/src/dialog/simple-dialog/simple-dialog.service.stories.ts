@@ -1,5 +1,5 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { getAllByRole, userEvent } from "storybook/test";
@@ -15,9 +15,8 @@ interface Animal {
   animal: string;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button type="button" bitButton (click)="openSimpleDialog()">Open Simple Dialog</button>
     <button type="button" bitButton (click)="openNonDismissableWithPrimaryButtonDialog()">
@@ -30,7 +29,7 @@ interface Animal {
   imports: [ButtonModule],
 })
 class StoryDialogComponent {
-  dialogService = inject(DialogService);
+  private readonly dialogService = inject(DialogService);
 
   openSimpleDialog() {
     this.dialogService.open(SimpleDialogContentComponent, {
@@ -62,9 +61,8 @@ class StoryDialogComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-simple-dialog>
       <span bitDialogTitle>Dialog Title</span>
@@ -84,17 +82,12 @@ class StoryDialogComponent {
   imports: [ButtonModule, DialogModule],
 })
 class SimpleDialogContentComponent {
-  dialogRef = inject(DialogRef);
-  private data = inject<Animal>(DIALOG_DATA);
-
-  get animal() {
-    return this.data?.animal;
-  }
+  protected readonly dialogRef = inject(DialogRef);
+  protected readonly animal = inject<Animal>(DIALOG_DATA)?.animal;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-simple-dialog>
       <span bitDialogTitle>Dialog Title</span>
@@ -113,17 +106,12 @@ class SimpleDialogContentComponent {
   imports: [ButtonModule, DialogModule],
 })
 class NonDismissableWithPrimaryButtonContentComponent {
-  dialogRef = inject(DialogRef);
-  private data = inject<Animal>(DIALOG_DATA);
-
-  get animal() {
-    return this.data?.animal;
-  }
+  protected readonly dialogRef = inject(DialogRef);
+  protected readonly animal = inject<Animal>(DIALOG_DATA)?.animal;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-simple-dialog>
       <span bitDialogTitle>Dialog Title</span>
@@ -137,12 +125,8 @@ class NonDismissableWithPrimaryButtonContentComponent {
   imports: [ButtonModule, DialogModule],
 })
 class NonDismissableWithNoButtonsContentComponent {
-  dialogRef = inject(DialogRef);
-  private data = inject<Animal>(DIALOG_DATA);
-
-  get animal() {
-    return this.data?.animal;
-  }
+  protected readonly dialogRef = inject(DialogRef);
+  protected readonly animal = inject<Animal>(DIALOG_DATA)?.animal;
 }
 
 export default {

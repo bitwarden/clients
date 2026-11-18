@@ -112,7 +112,7 @@ describe("DefaultOrganizationUserService", () => {
     it("should confirm a user successfully", (done) => {
       service.confirmUser(mockOrganization, mockUserId, mockPublicKey).subscribe({
         next: () => {
-          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
 
           expect(encryptService.encryptString).toHaveBeenCalledWith(
             mockDefaultCollectionName,
@@ -162,7 +162,7 @@ describe("DefaultOrganizationUserService", () => {
     it("should bulk confirm users successfully", (done) => {
       service.bulkConfirmUsers(mockOrganization, mockUserIdsWithKeys).subscribe({
         next: (response) => {
-          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
 
           expect(encryptService.encryptString).toHaveBeenCalledWith(
             mockDefaultCollectionName,
@@ -194,7 +194,7 @@ describe("DefaultOrganizationUserService", () => {
     it("should build a restore request with encrypted collection name", (done) => {
       service.buildRestoreUserRequest(mockOrganization).subscribe({
         next: (request) => {
-          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
           expect(encryptService.encryptString).toHaveBeenCalledWith(
             mockDefaultCollectionName,
             mockOrgKey,
@@ -218,7 +218,7 @@ describe("DefaultOrganizationUserService", () => {
     it("should restore a user successfully", (done) => {
       service.restoreUser(mockOrganization, mockUserId).subscribe({
         next: () => {
-          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
           expect(encryptService.encryptString).toHaveBeenCalledWith(
             mockDefaultCollectionName,
             mockOrgKey,
@@ -257,7 +257,7 @@ describe("DefaultOrganizationUserService", () => {
     it("should bulk restore users successfully", (done) => {
       service.bulkRestoreUsers(mockOrganization, mockUserIds).subscribe({
         next: (response) => {
-          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
           expect(encryptService.encryptString).toHaveBeenCalledWith(
             mockDefaultCollectionName,
             mockOrgKey,
@@ -331,7 +331,7 @@ describe("DefaultOrganizationUserService", () => {
 
         service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
-            expect(i18nService.t).toHaveBeenCalledWith("myItems");
+            expect(i18nService.t).toHaveBeenCalledWith("myItemsV2");
             expect(encryptService.encryptString).toHaveBeenCalledWith(
               mockDefaultCollectionName,
               mockOrgKey,

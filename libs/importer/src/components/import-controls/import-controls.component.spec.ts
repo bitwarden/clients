@@ -37,11 +37,12 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
+import { ImportErrorDialogComponent, ImportSkippedItemsDialogComponent } from "../dialog";
 import {
-  ImportErrorDialogComponent,
-  ImportSkippedItemsDialogComponent,
-  ImportSuccessDialogComponent,
-} from "../dialog";
+  DialogImportOutcomePresenter,
+  ImportConfirmationDialogComponent,
+  ImportOutcomePresenter,
+} from "../import-confirmation";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
 import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
@@ -98,6 +99,7 @@ describe("ImportControlsComponent", () => {
     { provide: LogService, useValue: logService },
     { provide: LiveAnnouncer, useValue: liveAnnouncer },
     { provide: DialogService, useValue: dialogService },
+    { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
     { provide: ToastService, useValue: toastService },
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },
@@ -457,7 +459,7 @@ describe("ImportControlsComponent", () => {
       const callout = root.querySelector("bit-callout");
       expect(callout).toBeTruthy();
       expect(callout?.textContent?.trim().endsWith(".")).toBe(false);
-      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-sm");
+      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-md");
       expect(root.querySelector("bit-select")?.textContent).toContain("selectProfile");
       expect(
         byId("importer-controls_button_import-manually-instead").nativeElement.getAttribute(
@@ -1824,6 +1826,15 @@ describe("ImportControlsComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("(required)");
     });
 
+    it("lets the pasted contents textarea span the full width", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      const textarea: HTMLElement = byId("importer-controls_textarea_file-contents").nativeElement;
+      expect(textarea.closest("bit-form-field")!.classList).not.toContain("tw-max-w-md");
+    });
+
     it("also treats whitespace-only paste content as required-but-missing, not just a truly empty string", async () => {
       await setup("dashlane", ClientType.Web);
 
@@ -2170,6 +2181,20 @@ describe("ImportControlsComponent", () => {
         password.compareDocumentPosition(upload) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     });
+
+    it("caps the format dropdown and KeePass master password at the bounded-input width (tw-max-w-md), but not the file upload", async () => {
+      await setup("keepass", ClientType.Web);
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+
+      const fieldOf = (id: string) =>
+        (byId(id).nativeElement as HTMLElement).closest("bit-form-field")!.classList;
+
+      expect(fieldOf("importer-controls_select_format-choice")).toContain("tw-max-w-md");
+      expect(fieldOf("importer-controls_input_kdbx-password")).toContain("tw-max-w-md");
+      const upload: HTMLElement = byId("importer-controls_input_file").nativeElement;
+      expect(upload.querySelector("bit-form-field")!.classList).not.toContain("tw-max-w-md");
+    });
   });
 
   describe("Bitwarden file password", () => {
@@ -2402,6 +2427,19 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_input_file-password")).toBeTruthy();
       expect(byId("importer-controls_input_file")).toBeFalsy();
       expect(importService.getImporter).not.toHaveBeenCalled();
+    });
+
+    it("caps the file password field at the bounded-input width (tw-max-w-md)", async () => {
+      await setup("bitwarden", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      await component().submit();
+      fixture.detectChanges();
+
+      const input: HTMLElement = byId("importer-controls_input_file-password").nativeElement;
+      expect(input.closest("bit-form-field")!.classList).toContain("tw-max-w-md");
     });
 
     it("swaps the subtitle on the password card and shows no hint under the field", async () => {
@@ -3079,7 +3117,7 @@ describe("ImportControlsComponent", () => {
       expect(importService.importWithSdk).not.toHaveBeenCalled();
 
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
-      importService.importWithSdk.mockResolvedValue({} as any);
+      importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 0 });
 
       await component().submit();
       expect(importService.importWithSdk).toHaveBeenCalledWith(
@@ -3132,7 +3170,11 @@ describe("ImportControlsComponent", () => {
         arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
-      importService.importWithSdk.mockResolvedValue({} as any);
+      importService.importWithSdk.mockResolvedValue({
+        ciphers: [{ type: CipherType.Login, count: 2 }],
+        folders: 0,
+        collections: 0,
+      });
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -3149,8 +3191,40 @@ describe("ImportControlsComponent", () => {
       expect(importService.getImporter).not.toHaveBeenCalled();
       expect(continueSpy).toHaveBeenCalledTimes(1);
       expect(dialogService.open).toHaveBeenCalledWith(
-        ImportSuccessDialogComponent,
-        expect.objectContaining({ data: { sdkSummary: {} } }),
+        ImportConfirmationDialogComponent,
+        expect.objectContaining({
+          data: {
+            summary: { total: 2, rows: [{ icon: "globe", labelKey: "typeLogin", count: 2 }] },
+            importedFile: { name: "export.kdbx" },
+          },
+        }),
+      );
+    });
+
+    it("credits the result to the account active when Continue was pressed, even if the account changes while it runs", async () => {
+      const account$ = new BehaviorSubject({ id: "test-user-id" } as unknown as Account);
+      accountService.activeAccount$ = account$;
+      await setup("keepass", ClientType.Web);
+      component().formGroup.controls.file.setValue({
+        name: "export.kdbx",
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      } as unknown as File);
+      component().formGroup.controls.kdbxPassword.setValue("hunter2");
+      importService.importWithSdk.mockImplementation(() => {
+        account$.next({ id: "other-user-id" } as unknown as Account);
+        return Promise.resolve({
+          ciphers: [{ type: CipherType.Login, count: 1 }],
+          folders: 0,
+          collections: 0,
+        });
+      });
+      const present = jest.spyOn(DialogImportOutcomePresenter.prototype, "present");
+
+      await component().onContinue();
+
+      expect(present).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ userId: "test-user-id" }),
       );
     });
 
@@ -3283,9 +3357,12 @@ describe("ImportControlsComponent", () => {
         undefined,
         false,
       );
+      // A direct import has no file to delete, so no tip.
       expect(dialogService.open).toHaveBeenCalledWith(
-        ImportSuccessDialogComponent,
-        expect.objectContaining({ data: { importResult: result } }),
+        ImportConfirmationDialogComponent,
+        expect.objectContaining({
+          data: { summary: { total: 0, rows: [] }, importedFile: undefined },
+        }),
       );
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });
@@ -3637,10 +3714,26 @@ describe("ImportControlsComponent", () => {
         contents: "a,b",
         filePassword: null,
         itemTypeCounts: { [CipherType.Login]: 2, [CipherType.Card]: 1 },
+        importedFile: { name: "export.csv" },
       });
       expect(syncService.fullSync).not.toHaveBeenCalled();
       expect(dialogService.open).not.toHaveBeenCalled();
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("stages pasted text without a file name, even when a file was chosen earlier", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["x"], "earlier.csv"));
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("a,b");
+      importService.getImporter.mockReturnValue({} as any);
+      importService.parse.mockResolvedValue(new ImportResult());
+
+      await component().onContinue();
+
+      expect(stagingService.current()).toEqual(
+        expect.objectContaining({ kind: "file", contents: "a,b", importedFile: undefined }),
+      );
     });
 
     it("keeps the password the importer asked for, so location selection doesn't ask again", async () => {
@@ -3738,6 +3831,7 @@ describe("ImportControlsComponent", () => {
         format: "keepasskdbx",
         file: new Uint8Array([1, 2, 3]),
         credentials: { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
+        importedFile: { name: "export.kdbx" },
       });
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });

@@ -87,6 +87,9 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+      await this.sharedUnlockPeerService.start();
+
       // For each acct, we must await the process of unlocking with the never-lock key
       // if it is set, to avoid race conditions of any code trying to access the user key
       // from mem. A failure to unlock one account leaves that account locked rather than
@@ -122,7 +125,6 @@ export class InitService {
       containerService.attachToGlobal(this.win);
       this.automationDriver.attachToGlobal(this.win);
 
-      await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();

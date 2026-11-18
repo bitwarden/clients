@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
@@ -73,6 +74,7 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   { provide: AccessRuleSdkService, useValue: {} },
   { provide: ToastService, useValue: { showToast: jest.fn() } },
   { provide: I18nService, useValue: i18nFake },
+  { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
   { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
   { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
   {
@@ -85,7 +87,7 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   ...overrides,
 ];
 
-describe("AccessRuleEditComponent — default/max duration coupling", () => {
+describe("AccessRuleEditComponent: default/max duration coupling", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
 
@@ -142,7 +144,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
   });
 });
 
-describe("AccessRuleEditComponent — page furniture", () => {
+describe("AccessRuleEditComponent: page furniture", () => {
   const render = async (
     state: RouteState,
     existing?: AccessRuleView,
@@ -272,7 +274,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     const hint = control.querySelector("bit-hint");
     expect(hint).not.toBeNull();
     expect(hint!.textContent!.replace(/\s+/g, " ").trim()).toBe(
-      "pamAccessRuleApprovers: pamAccessRuleApproversCollectionManagers",
+      "pamAccessRuleApprovers: pamAccessRuleApproversSharedFolderManagers",
     );
   });
 
@@ -309,7 +311,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
   });
 });
 
-describe("AccessRuleEditComponent — load, collections, and submit", () => {
+describe("AccessRuleEditComponent: load, collections, and submit", () => {
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
   let pamApi: {
@@ -548,7 +550,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
     expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: { key: "pamAccessRuleDeleteConfirmDescription" },
+        content: { key: "pamAccessRuleDeleteConfirmDescriptionSharedFolder" },
       }),
     );
     expect(pamApi.deleteAccessRule).toHaveBeenCalledWith(
@@ -642,7 +644,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(showToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: "error",
-        message: "pamAccessRuleCollectionsLoadError",
+        message: "pamAccessRuleSharedFoldersLoadError",
       }),
     );
     expect(component["collectionsLoading"]()).toBe(false);
@@ -693,7 +695,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 });
 
-describe("AccessRuleEditComponent — governed collections filter", () => {
+describe("AccessRuleEditComponent: governed collections filter", () => {
   let component: AccessRuleEditComponent;
 
   const ORG_COLLECTIONS = [
@@ -861,7 +863,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   });
 });
 
-describe("AccessRuleEditComponent — form states", () => {
+describe("AccessRuleEditComponent: form states", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
@@ -899,6 +901,7 @@ describe("AccessRuleEditComponent — form states", () => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
@@ -993,9 +996,9 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(rendered).not.toContain("exceptionStackTrace");
       expect(rendered).not.toContain("status code 400");
       expect(rendered).not.toContain("AccessRuleWriteValidator.cs");
-      expect(rendered).toContain("pamAccessRuleErrorCollectionsGoverned");
+      expect(rendered).toContain("pamAccessRuleErrorSharedFoldersGoverned");
       expect(controls().collections.errors).toEqual({
-        serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+        serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
       });
     });
 
@@ -1029,7 +1032,7 @@ describe("AccessRuleEditComponent — form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGovernedNamed Engineering" },
         });
         expect(fixture.nativeElement.textContent).toContain("Engineering");
       });
@@ -1045,7 +1048,7 @@ describe("AccessRuleEditComponent — form states", () => {
 
         expect(controls().collections.errors).toEqual({
           serverError: {
-            message: "pamAccessRuleErrorCollectionsGovernedNamed Engineering, Finance",
+            message: "pamAccessRuleErrorSharedFoldersGovernedNamed Engineering, Finance",
           },
         });
       });
@@ -1060,7 +1063,7 @@ describe("AccessRuleEditComponent — form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGovernedNamed Finance" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGovernedNamed Finance" },
         });
       });
 
@@ -1074,7 +1077,7 @@ describe("AccessRuleEditComponent — form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
         });
       });
 
@@ -1087,7 +1090,7 @@ describe("AccessRuleEditComponent — form states", () => {
         await submitAndRender();
 
         expect(controls().collections.errors).toEqual({
-          serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+          serverError: { message: "pamAccessRuleErrorSharedFoldersGoverned" },
         });
       });
     });

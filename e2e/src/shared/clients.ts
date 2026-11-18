@@ -1,7 +1,7 @@
 import { BrowserContext, expect, Page } from "@playwright/test";
 
 import { CURRENT_ACCOUNT_BUTTON } from "../browser/account-switcher";
-import { extensionShutdown, popupUrl, reachLoginPage, reopenPopup } from "../browser/fixtures";
+import { popupUrl, reachLoginPage, reopenPopup, watchShutdown } from "../browser/fixtures";
 import { enableFlags, FeatureFlag } from "../feature-flags";
 import { LoginPage, logInToWebVault } from "../login";
 
@@ -36,13 +36,13 @@ export async function logInToExtension(
   const url = await popupUrl(context);
   await enableFlags(popup, flags);
 
-  const shutdown = extensionShutdown(context);
+  const shutdown = await watchShutdown(context);
   // `chrome` only exists in extension pages, which the test types do not describe. The reload
   // may close the page before `evaluate` returns.
   await popup
     .evaluate(() => (globalThis as any).chrome.runtime.reload())
     .catch((): void => undefined);
-  await shutdown;
+  await shutdown();
 
   const reopened = await reopenPopup(context, url);
   await reachLoginPage(reopened);
@@ -113,9 +113,9 @@ export async function lockExtension(
   extension: Extension,
   lock: () => Promise<void>,
 ): Promise<Extension> {
-  const shutdown = extensionShutdown(context);
+  const shutdown = await watchShutdown(context);
   await lock();
-  await shutdown;
+  await shutdown();
 
   const popup = await reopenPopup(context, extension.url);
   await popup.waitForURL(LOCK_URL);

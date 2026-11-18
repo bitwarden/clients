@@ -247,9 +247,7 @@ step encodes as part of the existing work and reads `byteLength` off the result.
 serialize would also have allocated a second copy of the largest artifact in the flow, which is the
 memory behavior under investigation.
 
-This applies to the file storage path only. With that flag off the report is encrypted inline as a
-single string instead, and that path carries no instrumentation at all, so nothing measures or
-re-encodes the large report there either.
+Reports are always persisted through the file storage path, so this applies to every save.
 
 #### The health checks are measured as one batch
 
@@ -311,9 +309,6 @@ save returns as soon as the upload resolves, and no read path checks the validat
 
 **A page open that migrates legacy blobs is not separable from one that does not.** Both emit
 `Load: page initialized`, but the migrating run also performs a full save inside that window.
-
-**The inline persistence path is not instrumented.** Only the file storage path carries
-measurements. This gap closes when the inline path is removed.
 
 ---
 

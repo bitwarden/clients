@@ -3,7 +3,7 @@
  * reordering one changes every downloaded file. Items outside the exporter's vault export no name.
  */
 export type AuditExport = {
-  /** ISO 8601 UTC rather than the table's local time, since the file is opened anywhere. */
+  /** ISO 8601 on the table's local clock, with the UTC offset so the file names one instant. */
   timestamp: string;
   /** The event label as the table shows it. */
   event: string;
@@ -18,7 +18,7 @@ export type AuditExport = {
   accessConnectorName: string;
   /** Localized as the Duration cell renders it. */
   grantedDuration: string;
-  /** A `LeaseExtended` event's new lease end, in ISO 8601 UTC; empty on every other kind. */
+  /** A `LeaseExtended` event's new lease end, written like `timestamp`; empty on every other kind. */
   extendedUntil: string;
   detail: string;
   automated: boolean;

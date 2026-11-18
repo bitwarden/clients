@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
 
@@ -10,9 +10,8 @@ import { CalloutModule } from "../../../callout";
 import { I18nMockService } from "../../../utils/i18n-mock.service";
 import { DialogModule } from "../../dialog.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (group of dialogs; track group) {
       <div>
@@ -27,16 +26,19 @@ import { DialogModule } from "../../dialog.module";
       </div>
     }
 
-    @if (showCallout) {
-      <bit-callout [type]="calloutType" title="Dialog Close Result">
-        {{ dialogCloseResult }}
+    @if (dialogCloseResult() !== undefined) {
+      <bit-callout [type]="dialogCloseResult() ? 'success' : 'info'" title="Dialog Close Result">
+        {{ dialogCloseResult() }}
       </bit-callout>
     }
   `,
   imports: [ButtonModule, CalloutModule, DialogModule],
 })
 class StoryDialogComponent {
-  protected dialogs: { title: string; dialogs: SimpleDialogOptions[] }[] = [
+  readonly dialogService = inject(DialogService);
+  private readonly i18nService = inject(I18nService);
+
+  protected readonly dialogs: { title: string; dialogs: SimpleDialogOptions[] }[] = [
     {
       title: "Regular",
       dialogs: [
@@ -124,24 +126,10 @@ class StoryDialogComponent {
     },
   ];
 
-  showCallout = false;
-  calloutType = "info";
-  dialogCloseResult?: boolean;
-
-  constructor(
-    public dialogService: DialogService,
-    private i18nService: I18nService,
-  ) {}
+  protected readonly dialogCloseResult = signal<boolean | undefined>(undefined);
 
   async openSimpleConfigurableDialog(opts: SimpleDialogOptions) {
-    this.dialogCloseResult = await this.dialogService.openSimpleDialog(opts);
-
-    this.showCallout = true;
-    if (this.dialogCloseResult) {
-      this.calloutType = "success";
-    } else {
-      this.calloutType = "info";
-    }
+    this.dialogCloseResult.set(await this.dialogService.openSimpleDialog(opts));
   }
 }
 

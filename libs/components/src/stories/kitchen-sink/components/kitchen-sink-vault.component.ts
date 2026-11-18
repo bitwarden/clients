@@ -4,6 +4,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+import { ButtonGroupComponent } from "../../../button-group";
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
@@ -22,6 +23,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   selector: "bit-kitchen-sink-vault",
   imports: [
     KitchenSinkSharedModule,
+    ButtonGroupComponent,
     KitchenSinkTableComponent,
     KitchenSinkTableV2Component,
     KitchenSinkToggleListComponent,
@@ -36,19 +38,24 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         <bit-kitchen-sink-table></bit-kitchen-sink-table>
       }
 
-      <button
-        type="button"
-        bitButton
-        (click)="openDialog()"
-        [bitPopoverAnchorFor]="tourStep2"
-        [popoverOpen]="tourService.tourStep() === 2"
-        [spotlight]="true"
-        [position]="'below-start'"
-      >
-        Open Dialog
-      </button>
-      <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
-      <button type="button" bitButton [bitMenuTriggerFor]="focusMenu">Open Dialog from Menu</button>
+      <bit-button-group class="tw-mt-4" orientation="auto">
+        <button
+          type="button"
+          bitButton
+          (click)="openDialog()"
+          [bitPopoverAnchorFor]="tourStep2"
+          [popoverOpen]="tourService.tourStep() === 2"
+          [spotlight]="true"
+          [position]="'below-start'"
+        >
+          Open Dialog
+        </button>
+        <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
+        <button type="button" bitButton [bitMenuTriggerFor]="focusMenu">
+          Open Dialog from Menu
+        </button>
+        <button bitButton type="button" (click)="tourService.startTour()">Start Tour</button>
+      </bit-button-group>
       <bit-menu #focusMenu>
         <button type="button" bitMenuItem (click)="openDialog()">Open Dialog</button>
         <button type="button" bitMenuItem (click)="openDialogWithAutofocus()">
@@ -56,7 +63,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         </button>
         <button type="button" bitMenuItem (click)="openSimpleDialog()">Open Simple Dialog</button>
       </bit-menu>
-      <button bitButton type="button" (click)="tourService.startTour()">Start Tour</button>
     </bit-section>
     <bit-section>
       <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>

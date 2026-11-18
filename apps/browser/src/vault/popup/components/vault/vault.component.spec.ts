@@ -53,6 +53,7 @@ import {
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { ImportConfirmationPopupService } from "../../../../tools/popup/settings/import/import-confirmation-popup.service";
 import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
@@ -330,6 +331,7 @@ describe("VaultComponent", () => {
   };
 
   const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
+  const importConfirmationPopupSvc = mock<ImportConfirmationPopupService>();
 
   const premiumUpsellSvc = {
     showUpsell: jest.fn().mockReturnValue(false),
@@ -345,6 +347,9 @@ describe("VaultComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // No import result is pending unless a test says so.
+    importConfirmationPopupSvc.conditionallyOpen.mockReset();
+    importConfirmationPopupSvc.conditionallyOpen.mockResolvedValue(false);
     premiumUpsellSvc.showUpsell.mockReturnValue(false);
     routeParams$.next(convertToParamMap({}));
     vaultNav$.next({ vaults: [], organizationDataOwnership: false });
@@ -399,7 +404,7 @@ describe("VaultComponent", () => {
         { provide: VaultPopupListTableFiltersService, useValue: listTableFiltersSvc },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
-        { provide: ActivatedRoute, useValue: { paramMap: routeParams$ } },
+        { provide: ActivatedRoute, useValue: { paramMap: routeParams$, data: of({}) } },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AutofillService, useValue: mock<AutofillService>() },
         {
@@ -416,6 +421,10 @@ describe("VaultComponent", () => {
         {
           provide: ImportUpgradeNavigationService,
           useValue: importUpgradeNavigationSvc,
+        },
+        {
+          provide: ImportConfirmationPopupService,
+          useValue: importConfirmationPopupSvc,
         },
         {
           provide: SearchService,
@@ -692,6 +701,21 @@ describe("VaultComponent", () => {
         fixture.destroy();
       }));
 
+      /** The organization and its "My items" are two destinations, so the switcher renders. */
+      it("drops the title for a lone organization with My items", fakeAsync(() => {
+        vaultNav$.next({
+          vaults: [{ id: "org-1", defaultUserCollectionId: "my-items-1" }],
+          organizationDataOwnership: true,
+        });
+
+        const fixture = createWithFlag(true);
+
+        expect(title(fixture)).toBe("");
+
+        flush();
+        fixture.destroy();
+      }));
+
       it("keeps the title with the flag off", fakeAsync(() => {
         vaultNav$.next({
           vaults: [{ id: "user-1" }, { id: "org-1" }],
@@ -942,6 +966,19 @@ describe("VaultComponent", () => {
     expect(DecryptionFailureDialogComponent.open).toHaveBeenCalledWith(expect.any(Object), {
       cipherIds: ["a", "c"],
     });
+
+    flush();
+  }));
+
+  it("ngOnInit shows the active user's own result of an import that finished in a tab", fakeAsync(() => {
+    importConfirmationPopupSvc.conditionallyOpen.mockClear();
+    activeAccount$.next({ id: "user-xyz" });
+
+    void component.ngOnInit();
+    tick();
+
+    expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledTimes(1);
+    expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledWith("user-xyz");
 
     flush();
   }));
@@ -1371,6 +1408,63 @@ describe("VaultComponent", () => {
           darkImgSrc: expect.stringContaining("new-experience.dark.png"),
         }),
       );
+    }));
+
+    it("holds the dialog back on an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(true);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("opens the dialog when there was no import result to show", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalled();
+    }));
+
+    it("looks for an import result only after data ownership enforcement has finished", fakeAsync(() => {
+      let finish!: () => void;
+      (vaultItemsTransferSvc.enforceOrganizationDataOwnership as jest.Mock).mockReturnValueOnce(
+        new Promise<void>((resolve) => (finish = resolve)),
+      );
+
+      initVault();
+
+      expect(importConfirmationPopupSvc.conditionallyOpen).not.toHaveBeenCalled();
+
+      finish();
+      tick();
+
+      expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledTimes(1);
+    }));
+
+    it("leaves the nudge undismissed on an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen.mockResolvedValueOnce(true);
+
+      initVault();
+
+      expect(nudgesSvc.dismissNudge).not.toHaveBeenCalledWith(
+        NudgeType.Vfo1NewExperience,
+        expect.anything(),
+      );
+    }));
+
+    it("opens the dialog on the next open, after an open that showed the result of an import", fakeAsync(() => {
+      importConfirmationPopupSvc.conditionallyOpen
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
+
+      initVault();
+
+      expect(newExperienceDialogSpy).not.toHaveBeenCalled();
+
+      initVault();
+
+      expect(newExperienceDialogSpy).toHaveBeenCalledTimes(1);
     }));
 
     it("leaves dismissing the nudge to the dialog's actions", fakeAsync(() => {
