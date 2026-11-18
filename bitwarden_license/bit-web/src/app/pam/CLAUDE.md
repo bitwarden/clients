@@ -345,7 +345,8 @@ PAM reaches non-commercial code only through injection tokens, each injected
 binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
 `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the vault table's "Controlled access" chip and
 column, over the same state reads), and
-`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
+`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name;
+`GovernedSharedFolderIconComponent`, in `bit-pam-components` so desktop binds it too). In `apps/web`:
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows;
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a

@@ -7,7 +7,12 @@
   banner (`VAULT_GATED_COLLECTION_BANNER`, the shared `GatedCollectionBannerComponent`), the
   Controlled access column (`VAULT_ITEM_COLUMN`, `controlledAccessColumn`) and the row menu
   (`VAULT_ROW_ACTIONS`, see `vault/`), and `RevealedCipherService` with
-  `DesktopRevealedCipherService` (see `vault/`). Not filled: the shared-folder lock decoration.
+  `DesktopRevealedCipherService` (see `vault/`), and the shared-folder lock
+  (`SHARED_FOLDER_DECORATION`, the shared `GovernedSharedFolderIconComponent`, the same component
+  the web vault binds). The lock reads only `FeatureFlag.Pam` and the collection's server-derived
+  `hasEnabledAccessRule`, so it needs no license or access-rule read and shows the same for every
+  member; the desktop shared-folders page renders the shared `vault-shared-folders` list, which
+  honours the token.
 - `pam-shell.routes.ts` and `pam-shell.component.*`: the `/pam` shell with Approvals, My requests and
   History tabs (`bit-tab-nav-bar` in the desktop header's `tabs` slot). `MyAccessService`,
   `ApproverInboxService` and `AccessNameResolverService` are provided on the shell route so the tabs

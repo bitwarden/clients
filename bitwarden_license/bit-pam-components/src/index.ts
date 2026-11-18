@@ -130,6 +130,7 @@ export { accessRuleSummaryKeys, rulesGoverningCollection } from "./helpers/acces
 export { GatedRequestActionsService } from "./services/gated-request-actions.service";
 export { gatedCollection, type GatedCollection } from "./services/gated-collection";
 export { GovernedCollectionsService } from "./services/governed-collections.service";
+export { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
 export { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 export { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 export { LeaseExtensionService } from "./services/lease-extension.service";

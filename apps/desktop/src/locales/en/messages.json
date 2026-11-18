@@ -8501,6 +8501,9 @@
   "pamRequestToUse": {
     "message": "Request to use"
   },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
   "pamSharedFolderRequiresRequest": {
     "message": "Items in this Shared folder require a request.",
     "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
