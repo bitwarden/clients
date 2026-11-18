@@ -1,9 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, Observable } from "rxjs";
 
-import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/state";
 
 import {
   NewAccountNudgeService,
