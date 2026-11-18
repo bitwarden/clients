@@ -174,10 +174,10 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
   it("carries over restricted types the UI does not manage", async () => {
     const component = await setup({
       enabled: true,
-      data: { restrictedTypes: [CipherType.Card, CipherType.SecureNote] },
+      data: { restrictedTypes: [CipherType.Card, CipherType.Login] },
     });
     component.data.controls[CipherType.Card].setValue(true);
 
-    expect(component.buildRequestData()).toEqual({ restrictedTypes: [CipherType.SecureNote] });
+    expect(component.buildRequestData()).toEqual({ restrictedTypes: [CipherType.Login] });
   });
 });

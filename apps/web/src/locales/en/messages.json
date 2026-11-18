@@ -4526,6 +4526,42 @@
       }
     }
   },
+  "existingSecureNoteWillBeHidden": {
+    "message": "$COUNT$ existing secure note will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingSecureNotesWillBeHidden": {
+    "message": "$COUNT$ existing secure notes will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingSshKeyWillBeHidden": {
+    "message": "$COUNT$ existing SSH key will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "existingSshKeysWillBeHidden": {
+    "message": "$COUNT$ existing SSH keys will be hidden from member vaults.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },

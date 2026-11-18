@@ -72,6 +72,18 @@ const MANAGED_ITEM_TYPES: readonly ManagedItemType[] = [
     hiddenKey: { one: "existingPassportWillBeHidden", other: "existingPassportsWillBeHidden" },
     requiresNewItemTypes: true,
   },
+  {
+    cipherType: CipherType.SecureNote,
+    labelKey: "typeSecureNote",
+    hiddenKey: { one: "existingSecureNoteWillBeHidden", other: "existingSecureNotesWillBeHidden" },
+    requiresNewItemTypes: false,
+  },
+  {
+    cipherType: CipherType.SshKey,
+    labelKey: "typeSshKey",
+    hiddenKey: { one: "existingSshKeyWillBeHidden", other: "existingSshKeysWillBeHidden" },
+    requiresNewItemTypes: false,
+  },
 ];
 
 /**
