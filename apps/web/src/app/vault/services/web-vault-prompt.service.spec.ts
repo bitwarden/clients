@@ -19,6 +19,8 @@ import {
   NewExperienceDialogResult,
   NewExperienceDialogService,
   VaultItemsTransferService,
+  NewItemTypesAnnouncementService,
+  Vfo1TourCalloutService,
 } from "@bitwarden/vault";
 
 import {
@@ -55,6 +57,8 @@ describe("WebVaultPromptService", () => {
   const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
   const sideNavOpen = signal(false);
   const tourRunning = signal(false);
+  const releaseNewItemTypesCoachmark = jest.fn().mockResolvedValue(undefined);
+  let calloutShown$: BehaviorSubject<boolean>;
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
@@ -70,12 +74,18 @@ describe("WebVaultPromptService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     tourRunning.set(false);
+    calloutShown$ = new BehaviorSubject(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
+        {
+          provide: NewItemTypesAnnouncementService,
+          useValue: { release: releaseNewItemTypesCoachmark },
+        },
+        { provide: Vfo1TourCalloutService, useValue: { show$: () => calloutShown$ } },
         WebVaultPromptService,
         { provide: UnifiedUpgradePromptService, useValue: { displayUpgradePromptConditionally } },
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
@@ -156,6 +166,38 @@ describe("WebVaultPromptService", () => {
       expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
       expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
       expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("new item types coachmark", () => {
+    it("releases it for this session when no other prompt showed", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(false);
+    });
+
+    it("defers it when a prompt showed", async () => {
+      conditionallyShowWelcomeDialog.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
+    });
+
+    it("defers it when the extension prompt showed", async () => {
+      conditionallyPromptUserForExtension.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
+    });
+
+    it("defers it while the redesign tour callout shows", async () => {
+      calloutShown$.next(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
     });
   });
 

@@ -2,7 +2,7 @@ import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import { NewItemTypesAnnouncementService } from "../../services/new-item-types-announcement.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
 
@@ -20,6 +21,14 @@ import {
   AddItemDialogData,
   AddItemDialogResult,
 } from "./add-item-dialog.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badgedTypes$: of([]),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 describe("AddItemDialogComponent", () => {
   let fixture: ComponentFixture<AddItemDialogComponent>;
@@ -36,6 +45,7 @@ describe("AddItemDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AddItemDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DialogRef, useValue: dialogRef },
         { provide: DIALOG_DATA, useFactory: () => dialogData },

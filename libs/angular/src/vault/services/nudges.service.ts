@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -44,6 +44,8 @@ export const NudgeType = {
   PremiumUpgrade: "premium-upgrade",
   Vfo1NewExperience: "vfo1-new-experience",
   Vfo1Walkthrough: "vfo1-walkthrough",
+  /** Coachmark on the Add button and "New" badges for the new item types */
+  NewItemTypesAnnouncement: "new-item-types-announcement",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -153,6 +155,18 @@ export class NudgesService {
       ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
       : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
     await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
+  }
+
+  /**
+   * Update part of a nudge's status, keeping the rest as stored
+   * @param nudge
+   * @param userId
+   * @param status
+   */
+  async updateNudgeStatus(nudge: NudgeType, userId: UserId, status: Partial<NudgeStatus>) {
+    const service = this.getNudgeService(nudge);
+    const current = await firstValueFrom(service.nudgeStatus$(nudge, userId));
+    await service.setNudgeStatus(nudge, { ...current, ...status }, userId);
   }
 
   /**

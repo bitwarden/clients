@@ -9409,5 +9409,32 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "newItemTypesAvailable": {
+    "message": "New item types available!"
+  },
+  "newItemTypeAvailable": {
+    "message": "New item type available!"
+  },
+  "addBankAccountsLicensesAndPassports": {
+    "message": "Add bank accounts, licenses, and passports to your vault."
+  },
+  "addBankAccountsAndLicenses": {
+    "message": "Add bank accounts and licenses to your vault."
+  },
+  "addBankAccountsAndPassports": {
+    "message": "Add bank accounts and passports to your vault."
+  },
+  "addLicensesAndPassports": {
+    "message": "Add licenses and passports to your vault."
+  },
+  "addBankAccounts": {
+    "message": "Add bank accounts to your vault."
+  },
+  "addLicenses": {
+    "message": "Add licenses to your vault."
+  },
+  "addPassports": {
+    "message": "Add passports to your vault."
   }
 }

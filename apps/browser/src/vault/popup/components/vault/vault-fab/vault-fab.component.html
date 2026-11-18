@@ -6,7 +6,12 @@
     [vaultFab]="'bwi-plus'"
     [label]="'addItem' | i18n"
     (click)="navigateToNewItemPage()"
+    [bitPopoverAnchorFor]="newItemTypesCoachmark.popover()"
+    [popoverOpen]="newItemTypesCoachmark.open()"
+    (popoverOpenChange)="newItemTypesCoachmark.openChange($event)"
+    position="above-end"
   ></button>
+  <vault-new-item-types-coachmark #newItemTypesCoachmark />
 } @else {
   <!-- Button content is set via `label` input -->
   <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->

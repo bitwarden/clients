@@ -71,6 +71,7 @@ import {
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
   NewExperienceDialogService,
+  NewItemTypesAnnouncementService,
   offersVaultChoice,
   resolveVaultScope,
   routeVaultScope,
@@ -306,6 +307,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly newExperienceDialogService = inject(NewExperienceDialogService);
+  private readonly newItemTypesAnnouncementService = inject(NewItemTypesAnnouncementService);
   private readonly vaultTourService = inject(VaultPopupTourService);
 
   /** The account's vaults; `undefined` until they load. */
@@ -518,7 +520,32 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.readySubject.next(true);
 
-    await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
+    const newExperienceShown = await this.openNewExperienceDialog(
+      this.activeUserId,
+      onboardingWelcomeDismissed,
+    );
+    // Spotlights depend on the vault's ciphers, so wait for them to load
+    await firstValueFrom(
+      this.vaultPopupLoadingService.loading$.pipe(filter((loading) => !loading)),
+    );
+    const spotlightShown = await firstValueFrom(this.vaultSpotlightShown$());
+    await this.newItemTypesAnnouncementService.release(
+      !onboardingWelcomeDismissed || newExperienceShown || spotlightShown,
+    );
+  }
+
+  /** Whether an onboarding or Premium spotlight is showing on the vault page */
+  private vaultSpotlightShown$(): Observable<boolean> {
+    return combineLatest([
+      this.showPremiumSpotlight$,
+      this.showHasItemsVaultSpotlight$,
+      this.showEmptyVaultSpotlight$,
+    ]).pipe(
+      map(
+        ([premium, hasItems, emptyVault]) =>
+          premium || hasItems || (emptyVault && this.vaultState === VaultState.Empty),
+      ),
+    );
   }
 
   /**
@@ -529,9 +556,12 @@ export class VaultComponent implements OnInit, OnDestroy {
    * been introduced to the product is not told what changed about it. The remaining rules are
    * shared with web and desktop, and live in {@link NewExperienceDialogService}.
    */
-  private async openNewExperienceDialog(userId: UserId, onboardingWelcomeDismissed: boolean) {
+  private async openNewExperienceDialog(
+    userId: UserId,
+    onboardingWelcomeDismissed: boolean,
+  ): Promise<boolean> {
     if (!onboardingWelcomeDismissed) {
-      return;
+      return false;
     }
 
     const result = await this.newExperienceDialogService.conditionallyOpen(userId, {
@@ -539,10 +569,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
     });
     if (result !== NewExperienceDialogResult.Explore) {
-      return;
+      return result !== null;
     }
 
     await this.vaultTourService.start(userId);
+    return true;
   }
 
   ngOnDestroy() {

@@ -20,7 +20,12 @@
           ></bit-icon-tile>
           {{ item.labelKey | i18n }}
           <div slot="secondary">{{ item.subtitleKey | i18n }}</div>
-          <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
+          <div slot="end" class="tw-flex tw-items-center tw-gap-2">
+            @if (item.badged) {
+              <span bitBadge variant="primary" size="small">{{ "new" | i18n }}</span>
+            }
+            <bit-icon name="bwi-angle-right" class="tw-text-main bwi-lg" />
+          </div>
         </button>
       </bit-item>
     </li>

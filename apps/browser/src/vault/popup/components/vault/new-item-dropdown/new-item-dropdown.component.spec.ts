@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,11 +20,20 @@ import {
 import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
+import { NewItemTypesAnnouncementService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { NewItemDropdownComponent, NewItemInitialValues } from "./new-item-dropdown.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badgedTypes$: of([]),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 describe("NewItemDropdownComponent", () => {
   let component: NewItemDropdownComponent;
@@ -74,6 +83,7 @@ describe("NewItemDropdownComponent", () => {
         NewItemDropdownComponent,
       ],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: DialogService, useValue: dialogServiceMock },
