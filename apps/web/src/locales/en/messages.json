@@ -19275,7 +19275,7 @@
     }
   },
   "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",

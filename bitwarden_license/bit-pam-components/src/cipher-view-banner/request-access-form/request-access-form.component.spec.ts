@@ -262,6 +262,19 @@ describe("RequestAccessFormComponent", () => {
       });
     });
 
+    it("caps an auto-approved rule with no maximum at the longest offered duration", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ maxDurationSeconds: 365 * 86_400, defaultDurationSeconds: 3600 }),
+      );
+      await create();
+
+      expect(component.terms()).toEqual({
+        maxSeconds: 86_400,
+        messageKey: "pamRequestAccessBannerMaxDurationAutomatic",
+      });
+      expect(Math.max(...component["durationOptions"]().map((o) => o.seconds))).toBe(86_400);
+    });
+
     describe("when another member holds the single-active-lease slot", () => {
       it("warns with the time the slot frees, in place of the immediate-access copy", async () => {
         requestsApi.preCheck.mockResolvedValue(

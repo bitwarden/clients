@@ -65,6 +65,16 @@ export function requestDurationOptions(
   return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
+/**
+ * The longest duration the requester's picker offers, which is what an auto-approved request can
+ * actually get. Under a rule with no cap that is the longest preset (or a longer default), not the
+ * server's ceiling.
+ */
+export function maxRequestDurationSeconds(maxSeconds: number, defaultSeconds: number): number {
+  const options = requestDurationOptions(maxSeconds, defaultSeconds);
+  return options.length > 0 ? options[options.length - 1].seconds : maxSeconds;
+}
+
 /** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number }> = [
   { seconds: 30 * 60 },
