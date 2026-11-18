@@ -12,6 +12,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -62,6 +63,7 @@ describe("ImportUpgradeService", () => {
       mock<RestrictedItemTypesService>(),
       configService,
       mock<SdkService>(),
+      mock<LogService>(),
     );
   });
 
@@ -247,6 +249,7 @@ describe("ImportUpgradeService", () => {
         restrictedItemTypesService,
         configService,
         mock<SdkService>(),
+        mock<LogService>(),
       );
       importService["handleIndividualImport"] = jest.fn();
       importService["handleOrganizationalImport"] = jest.fn();

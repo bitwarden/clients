@@ -39,6 +39,7 @@ import {
   ImportUpgradeServiceAbstraction,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
+import { DialogImportOutcomePresenter, ImportOutcomePresenter } from "../import-confirmation";
 import { KeeperAuthDialogComponent } from "../keeper/dialog/keeper-auth-dialog.component";
 import {
   KEEPER_SSO_TAB_MONITOR,
@@ -133,6 +134,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
     { provide: LogService, useValue: mock<LogService>() },
     { provide: LiveAnnouncer, useValue: mock<LiveAnnouncer>() },
     { provide: DialogService, useValue: dialogService },
+    { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
     { provide: ToastService, useValue: toastService },
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },

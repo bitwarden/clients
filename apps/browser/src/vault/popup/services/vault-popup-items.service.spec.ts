@@ -24,8 +24,6 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
-import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   RestrictedCipherType,
@@ -61,8 +59,7 @@ describe("VaultPopupItemsService", () => {
     mockSignal: WritableSignal<string | null>;
   };
 
-  let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
-  let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
+  let cipherList$: BehaviorSubject<CipherView[]>;
   let failedToDecryptCiphersSubject: BehaviorSubject<CipherView[]>;
 
   const cipherServiceMock = mock<CipherService>();
@@ -109,22 +106,14 @@ describe("VaultPopupItemsService", () => {
     cipherList[2].favorite = true;
     cipherList[3].favorite = true;
 
-    const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
+    cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
     cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
       cipherList$.asObservable(),
     );
 
-    ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>({});
-    localDataSubject = new BehaviorSubject<Record<CipherId, LocalData>>({});
     failedToDecryptCiphersSubject = new BehaviorSubject<CipherView[]>([]);
 
-    cipherServiceMock.ciphers$.mockImplementation((userId: UserId) =>
-      ciphersSubject.asObservable(),
-    );
-    cipherServiceMock.localData$.mockImplementation((userId: UserId) =>
-      localDataSubject.asObservable(),
-    );
     cipherServiceMock.failedToDecryptCiphers$.mockImplementation((userId: UserId) =>
       failedToDecryptCiphersSubject.asObservable(),
     );
@@ -239,26 +228,12 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  it("should update cipher list when cipherService.ciphers$ emits", async () => {
+  it("should update cipher list when cipherService.cipherListViewsIncludingRestricted$ emits", async () => {
     const tracker = new ObservableTracker(service.autoFillCiphers$);
 
     await tracker.expectEmission();
 
-    ciphersSubject.next({});
-
-    await tracker.expectEmission();
-
-    // Should only emit twice
-    expect(tracker.emissions.length).toBe(2);
-    await expect(tracker.pauseUntilReceived(3)).rejects.toThrow("Timeout exceeded");
-  });
-
-  it("should update cipher list when cipherService.localData$ emits", async () => {
-    const tracker = new ObservableTracker(service.autoFillCiphers$);
-
-    await tracker.expectEmission();
-
-    localDataSubject.next({});
+    cipherList$.next(cipherList$.value);
 
     await tracker.expectEmission();
 
@@ -383,7 +358,6 @@ describe("VaultPopupItemsService", () => {
 
     it("lists restricted ciphers", async () => {
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([restrictedRow()]));
-      ciphersSubject.next({});
 
       const ciphers = await firstValueFrom(service.filteredCiphers$);
 
@@ -397,7 +371,6 @@ describe("VaultPopupItemsService", () => {
       const revealed = Object.assign(new CipherView(), { id: "restricted" as CipherId });
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([row]));
       revealed$.next(new Map([["restricted" as CipherId, revealed]]));
-      ciphersSubject.next({});
 
       const [shown] = await firstValueFrom(service.filteredCiphers$);
 
@@ -411,7 +384,6 @@ describe("VaultPopupItemsService", () => {
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
         of([deletedRow, deleted]),
       );
-      ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
 
@@ -507,7 +479,6 @@ describe("VaultPopupItemsService", () => {
       const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of(ciphers));
-      ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
@@ -526,7 +497,6 @@ describe("VaultPopupItemsService", () => {
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
         of([personalCipher, memberOrgCipher, revokedOrgCipher]),
       );
-      ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.map((c) => c.organizationId)).toEqual([undefined, "org1"]);
@@ -657,11 +627,11 @@ describe("VaultPopupItemsService", () => {
       expect(tracked.emissions[1]).toBe(false);
     });
 
-    it("should cycle when cipherService.ciphers$ emits", async () => {
+    it("should cycle when cipherService.cipherListViewsIncludingRestricted$ emits", async () => {
       await trackedCiphers.expectEmission();
       // Restart tracking
       tracked = new ObservableTracker(service.loading$);
-      ciphersSubject.next({});
+      cipherList$.next(cipherList$.value);
 
       await trackedCiphers.pauseUntilReceived(2);
 

@@ -69,6 +69,27 @@ The avatar color can be set 3 ways. The color is generated using the following o
 
 <Canvas of={stories.ColorByText} />
 
+## Status
+
+Project a status [berry](?path=/docs/component-library-berry--docs) into the `status` slot, choosing
+the variant that fits the status. The avatar sizes it and places it in the top end corner.
+
+```html
+<bit-avatar text="Walt Walterson" size="2xl">
+  <bit-berry
+    slot="status"
+    type="status"
+    variant="success"
+    role="img"
+    [attr.aria-label]="'online' | i18n"
+  ></bit-berry>
+</bit-avatar>
+```
+
+<Canvas of={stories.Status} />
+
 ## Accessibility
 
 Avatar background color should have 3.1:1 contrast with its background.
+
+Give the status indicator an accessible name, since color alone doesn't convey its meaning.

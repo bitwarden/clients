@@ -61,6 +61,7 @@ import {
   PrivilegedControlsAdjustSubscriptionComponent,
   PrivilegedControlsSubscriptionOptions,
 } from "./privileged-controls-adjust-subscription.component";
+import { PrivilegedControlsPurchaseComponent } from "./privileged-controls-purchase.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
 import {
   openRestartSubscriptionDialog,
@@ -116,6 +117,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     AdjustSubscription,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
+    PrivilegedControlsPurchaseComponent,
     PrivilegedControlsAdjustSubscriptionComponent,
     ErrorCardComponent,
     CalloutComponent,
@@ -329,6 +331,38 @@ export class OrganizationSubscriptionCloudComponent {
     );
   });
 
+  private readonly pamBillingSupportEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
+    { initialValue: false },
+  );
+
+  /** Privileged Controls itself; without it the product is reachable nowhere, so no Contact sales call to action. */
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
+  /**
+   * Determines if the "Privileged Controls purchase" section should be shown.
+   * @returns True if the section should be displayed, false otherwise.
+   */
+  readonly showPrivilegedControlsPurchase = computed(() => {
+    const org = this.organization();
+    const subscription = this.organizationSubscription();
+    const plan = subscription?.plan;
+    if (org == null || subscription == null || plan == null) {
+      return false;
+    }
+    return (
+      !org.hasProvider &&
+      this.pamBillingSupportEnabled() &&
+      this.pamEnabled() &&
+      !subscription.usePam &&
+      plan.productTier === ProductTierType.Enterprise &&
+      plan.PrivilegedControls != null &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
   /**
    * Determines if the "Adjust Secrets Manager" section should be shown.
    * @returns True if the section should be displayed, false otherwise.
@@ -346,16 +380,6 @@ export class OrganizationSubscriptionCloudComponent {
       hasAdditionalSeatsOption &&
       !this.isSubscriptionCanceledOrPendingCancellation()
     );
-  });
-
-  private readonly pamBillingSupportEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-    { initialValue: false },
-  );
-
-  /** Privileged Controls itself; without it the product is reachable nowhere, so no Contact sales call to action. */
-  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
-    initialValue: false,
   });
 
   /** Self-serve Privileged Controls: seat and limit adjustment, shown only while PAM billing support is on. */

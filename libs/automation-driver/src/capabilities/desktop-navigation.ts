@@ -14,4 +14,14 @@ export class DesktopNavigationCapability extends AutomationCapability {
   openSettings(): void {
     this.messagingService.send("openSettings");
   }
+
+  /** Opens the change master password dialog. */
+  openChangePasswordDialog(): void {
+    this.messagingService.send("openChangePasswordDialog");
+  }
+
+  /** Opens the devices dialog. */
+  openDevicesDialog(): void {
+    this.messagingService.send("openDevicesDialog");
+  }
 }

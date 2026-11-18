@@ -11,11 +11,10 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
-  InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
   MembersTableV2 = "pm-37463-members-table-v2",
+  OrganizationMembershipSdk = "pm-41568-org-memberships-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -60,12 +59,9 @@ export enum FeatureFlag {
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
-  EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
   ImportUpgrade = "pm-35053-import-upgrade",
@@ -101,6 +97,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  SmCli = "sm-2107-cli",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -125,11 +122,10 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
-  [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
   [FeatureFlag.MembersTableV2]: FALSE,
+  [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -197,11 +193,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
-  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
@@ -211,6 +204,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.SmCli]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,

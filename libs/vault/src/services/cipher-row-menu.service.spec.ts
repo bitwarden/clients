@@ -779,7 +779,14 @@ describe("CipherRowMenuService", () => {
     );
 
     it.each(cases)("%s follows the revealed-cipher policy", (actionId, overrides) => {
-      const revealedAllowed = new Set([...allowed, "edit", "attachments"]);
+      const revealedAllowed = new Set([
+        ...allowed,
+        "edit",
+        "attachments",
+        "delete",
+        "permanentlyDelete",
+        "restore",
+      ]);
       revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
 
       expect(
