@@ -44,6 +44,7 @@ export const NudgeType = {
   PremiumUpgrade: "premium-upgrade",
   Vfo1NewExperience: "vfo1-new-experience",
   Vfo1Walkthrough: "vfo1-walkthrough",
+  Vfo1FolderNestingCallout: "vfo1-folder-nesting-callout",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -99,6 +100,7 @@ export class NudgesService {
     [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
     [NudgeType.Vfo1NewExperience]: this.vfo1OnboardingNudgeService,
     [NudgeType.Vfo1Walkthrough]: this.vfo1OnboardingNudgeService,
+    [NudgeType.Vfo1FolderNestingCallout]: this.vfo1OnboardingNudgeService,
   };
 
   /**
