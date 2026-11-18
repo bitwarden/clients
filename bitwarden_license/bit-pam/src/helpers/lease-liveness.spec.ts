@@ -1,6 +1,8 @@
+import { firstValueFrom, of, Subject, toArray } from "rxjs";
+
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 
-import { liveActiveLease } from "./lease-liveness";
+import { liveActiveLease, rereadOnLapse } from "./lease-liveness";
 
 const NOW = Date.parse("2026-01-01T15:00:00.000Z");
 
@@ -39,5 +41,21 @@ describe("liveActiveLease", () => {
     } as unknown as CipherAccessStateView;
 
     expect(liveActiveLease(state, NOW)).toBeUndefined();
+  });
+});
+
+describe("rereadOnLapse", () => {
+  it("judges the first read by the given clock, not the wall clock", async () => {
+    const ticks$ = new Subject<number>();
+    const read = jest.fn(() => of(stateWithLease(NOW + 1_000)));
+
+    // The given clock is already past the end, so nothing waits on a tick.
+    const states = await firstValueFrom(
+      rereadOnLapse(read, ticks$, () => NOW + 2_000).pipe(toArray()),
+    );
+
+    expect(states).toHaveLength(1);
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(ticks$.observed).toBe(false);
   });
 });

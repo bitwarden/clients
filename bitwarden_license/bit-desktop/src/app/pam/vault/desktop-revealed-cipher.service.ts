@@ -26,7 +26,6 @@ import {
   AccessLeaseSdkService,
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -35,6 +34,8 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+
+import { DesktopAccessBadgeTickerService } from "../desktop-access-badge-ticker.service";
 
 /** A revealed view and the end of the lease it was revealed under, in ms. */
 type Entry = { view: CipherView; endsAt: number };
@@ -62,7 +63,7 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
   constructor(
     private readonly accessRequestSdkService: AccessRequestSdkService,
     private readonly accessRefreshService: AccessRefreshService,
-    private readonly ticker: AccessBadgeTickerService,
+    private readonly ticker: DesktopAccessBadgeTickerService,
     private readonly accessLeaseSdkService: AccessLeaseSdkService,
     private readonly accountService: AccountService,
     authService: AuthService,
@@ -94,12 +95,20 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
         switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)),
       )
       .subscribe((nowMs) => this.dropLapsed(nowMs));
+
+    // A jump in the wall clock, or a sleep, leaves the lease clock unsure how much time passed, so
+    // every held view must be confirmed by the server again or go.
+    this.ticker.clockJumps$.subscribe(() =>
+      this.ngZone.run(() => {
+        void this.revalidateAll();
+      }),
+    );
   }
 
   revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {
     return this.entries$.pipe(
       map((all) => {
-        const nowMs = Date.now();
+        const nowMs = this.ticker.now();
         const views = new Map<CipherId, CipherView>();
         all.get(userId)?.forEach((entry, cipherId) => {
           if (entry.endsAt > nowMs) {
@@ -120,7 +129,7 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
 
   get(userId: UserId, cipherId: CipherId): CipherView | undefined {
     const entry = this.entries$.value.get(userId)?.get(cipherId);
-    return entry != null && entry.endsAt > Date.now() ? entry.view : undefined;
+    return entry != null && entry.endsAt > this.ticker.now() ? entry.view : undefined;
   }
 
   async getOrReveal(userId: UserId, cipherId: CipherId): Promise<CipherView | null> {
@@ -193,8 +202,8 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
         );
 
       return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-        switchMap(() => rereadOnLapse(read$, this.ticker.ticks$)),
-        map((state) => liveActiveLease(state, Date.now())?.notAfter ?? null),
+        switchMap(() => rereadOnLapse(read$, this.ticker.ticks$, () => this.ticker.now())),
+        map((state) => liveActiveLease(state, this.ticker.now())?.notAfter ?? null),
         distinctUntilChanged(),
         this.inAngularZone(),
       );
@@ -236,6 +245,25 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
       this.logService.error(error);
       return null;
     }
+  }
+
+  /**
+   * Confirms every held view with the server, as `refresh` does: a fresh state read (a failed one
+   * holds nothing, unlike the read behind `displayView$`) and a fresh `leasedCipher` read. A view
+   * that cannot be confirmed, offline included, is dropped; so is any held for an inactive user.
+   */
+  private async revalidateAll(): Promise<void> {
+    const held = [...this.entries$.value].flatMap(([userId, entries]) =>
+      [...entries.keys()].map((cipherId) => ({ userId, cipherId })),
+    );
+    await Promise.all(
+      held.map(({ userId, cipherId }) =>
+        this.refresh(userId, cipherId).catch((error: unknown) => {
+          this.logService.error(error);
+          this.drop(userId, cipherId);
+        }),
+      ),
+    );
   }
 
   /** Runs on the shared clock, outside the zone. Re-enters it only to drop a view. */
