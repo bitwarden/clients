@@ -8858,7 +8858,7 @@
     "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
   "fillLoginPopUpPromptsWarning": {
-    "message": "Some websites ask for your login in a browser pop-up prompt. Be aware that malicious sites can trigger prompts without your knowledge, which may expose your credentials.",
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
     "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
   "fillLoginPopUpPromptsHelpArticleSignpost": {
