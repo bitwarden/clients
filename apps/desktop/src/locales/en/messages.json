@@ -8508,6 +8508,10 @@
     "message": "Items in this Shared folder require a request.",
     "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
+  "pamSharedFolderUnlicensed": {
+    "message": "You need a Privileged Controls license to use items in this Shared folder. Ask your admin to activate your license.",
+    "description": "Callout shown when a shared folder governed by an access rule is opened by a member who has no Privileged Controls license, so they cannot request access. Says why and what to do next. 'Privileged Controls' is a product name and should not be translated. 'Shared folder' is the product name for a collection and stays capitalised."
+  },
   "pamStartLeaseButton": {
     "message": "Start access"
   },

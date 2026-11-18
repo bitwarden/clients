@@ -4,8 +4,8 @@
   `PamNavBadgeService`, the SDK services, the access event and refresh services, and the shared vault
   tokens (`CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`, `VAULT_ITEM_FILTER`). Modeled on the browser
   popup's and the web vault's `providePam()`. It also fills the vault seams: the gated shared-folder
-  banner (`VAULT_GATED_COLLECTION_BANNER`, the shared `GatedCollectionBannerComponent`), the
-  Controlled access column (`VAULT_ITEM_COLUMN`, `controlledAccessColumn`) and the row menu
+  banner (`VAULT_GATED_COLLECTION_BANNER`, `DesktopGatedCollectionBannerComponent`, see `vault/`),
+  the Controlled access column (`VAULT_ITEM_COLUMN`, `controlledAccessColumn`) and the row menu
   (`VAULT_ROW_ACTIONS`, see `vault/`), and `RevealedCipherService` with
   `DesktopRevealedCipherService` (see `vault/`), and the shared-folder lock
   (`SHARED_FOLDER_DECORATION`, the shared `GovernedSharedFolderIconComponent`, the same component
@@ -13,6 +13,11 @@
   `hasEnabledAccessRule`, so it needs no license or access-rule read and shows the same for every
   member; the desktop shared-folders page renders the shared `vault-shared-folders` list, which
   honours the token.
+- Unlicensed members (`unlicensedForPam`: a `usePam` organization, `accessPam === false`) get no
+  request form anywhere. The shared `CipherViewBannerComponent` shows its unlicensed card on the
+  open item; `vault/desktop-gated-collection-banner.component.*` shows `pamSharedFolderUnlicensed`
+  on a governed shared folder, read off the synced collection's `hasEnabledAccessRule`, and the
+  shared `GatedCollectionBannerComponent` for everyone else.
 - `pam-shell.routes.ts` and `pam-shell.component.*`: the `/pam` shell with Approvals, My requests and
   History tabs (`bit-tab-nav-bar` in the desktop header's `tabs` slot). `MyAccessService`,
   `ApproverInboxService` and `AccessNameResolverService` are provided on the shell route so the tabs

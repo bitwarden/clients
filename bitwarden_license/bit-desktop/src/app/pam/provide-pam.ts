@@ -25,7 +25,6 @@ import {
   ControlledAccessVaultFilterService,
   controlledAccessColumn,
   controlledAccessItemFilter,
-  GatedCollectionBannerComponent,
   GatedRequestActionsService,
   GovernedCollectionsService,
   GovernedSharedFolderIconComponent,
@@ -64,6 +63,7 @@ import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notifica
 import { DesktopPamNotifier } from "./notifications/desktop-pam-notifier";
 import { PamNotificationStateService } from "./notifications/pam-notification-state.service";
 import { PamNotificationsSettingComponent } from "./notifications/pam-notifications-setting.component";
+import { DesktopGatedCollectionBannerComponent } from "./vault/desktop-gated-collection-banner.component";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
@@ -182,7 +182,7 @@ export function provideDesktopPam(): SafeProvider[] {
     }),
     safeProvider({
       provide: VAULT_GATED_COLLECTION_BANNER,
-      useValue: GatedCollectionBannerComponent,
+      useValue: DesktopGatedCollectionBannerComponent,
     }),
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
