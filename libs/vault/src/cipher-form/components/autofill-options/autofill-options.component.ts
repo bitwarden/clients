@@ -211,24 +211,17 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autotypeGaEnabled$
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.saveDesktopAppUrisWithNeverMatch();
-        // Match strategies shared before the feature flag was read don't use Never yet
-        this.publishUriMatchStrategies();
-      });
+      .subscribe(() => this.saveDesktopAppUrisWithNeverMatch());
 
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
   }
 
-  /**
-   * Shares the URI match strategies with the HTTP authentication setting. These are the strategies
-   * the URIs are saved with, because HTTP authentication is checked against the saved cipher.
-   */
+  /** Shares the current URI match strategies with the HTTP authentication setting */
   private publishUriMatchStrategies() {
     this.httpAuthenticationService.updateUriMatchStrategies(
-      this.uriControls.map((control) => this.savedMatchDetection(control.value) ?? null),
+      this.uriControls.map((control) => control.value?.matchDetection ?? null),
     );
   }
 
