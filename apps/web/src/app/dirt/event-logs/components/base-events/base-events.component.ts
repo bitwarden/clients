@@ -215,9 +215,10 @@ export abstract class BaseEventsComponent implements OnDestroy {
         options.disableLink = !this.canUseSM;
         options.linkableMemberIds = linkableMemberIds;
         options.getOrganizationName = (ev) => this.getOrganizationName(ev);
+        const user = this.getUserName(r, userId);
+        options.getUserName = () => user?.name;
 
         const eventInfo = await this.eventService.getEventInfo(r, options);
-        const user = this.getUserName(r, userId);
         const userName = user != null ? user.name : this.i18nService.t("unknown");
 
         return new EventView({

@@ -1264,24 +1264,27 @@ export class EventService {
         );
         break;
       case EventType.Collection_Created:
-        msg = this.i18nService.t("createdSharedFolderId", this.formatCollectionId(ev));
-        humanReadableMsg = this.i18nService.t(
+        [msg, humanReadableMsg] = this.sharedFolderMessages(
+          ev,
+          options,
           "createdSharedFolderId",
-          this.getShortId(ev.collectionId),
+          "addedSharedFolderIdWithUser",
         );
         break;
       case EventType.Collection_Updated:
-        msg = this.i18nService.t("editedSharedFolderId", this.formatCollectionId(ev));
-        humanReadableMsg = this.i18nService.t(
+        [msg, humanReadableMsg] = this.sharedFolderMessages(
+          ev,
+          options,
           "editedSharedFolderId",
-          this.getShortId(ev.collectionId),
+          "editedSharedFolderIdWithUser",
         );
         break;
       case EventType.Collection_Deleted:
-        msg = this.i18nService.t("deletedSharedFolderId", this.formatCollectionId(ev));
-        humanReadableMsg = this.i18nService.t(
+        [msg, humanReadableMsg] = this.sharedFolderMessages(
+          ev,
+          options,
           "deletedSharedFolderId",
-          this.getShortId(ev.collectionId),
+          "deletedSharedFolderIdWithUser",
         );
         break;
       case EventType.OrganizationUser_Revoked: {
@@ -1835,6 +1838,27 @@ export class EventService {
     return options.getOrganizationName?.(ev);
   }
 
+  /** Shared folder event copy, naming the acting member when resolvable. */
+  private sharedFolderMessages(
+    ev: EventResponse,
+    options: EventOptions,
+    legacyKey: string,
+    withUserKey: string,
+  ): [string, string] {
+    const shortId = this.getShortId(ev.collectionId);
+    const userName = options.getUserName?.(ev);
+    if (userName == null) {
+      return [
+        this.i18nService.t(legacyKey, this.formatCollectionId(ev)),
+        this.i18nService.t(legacyKey, shortId),
+      ];
+    }
+    return [
+      this.i18nService.t(withUserKey, this.escapeHtml(userName), this.formatCollectionId(ev)),
+      this.i18nService.t(withUserKey, userName, shortId),
+    ];
+  }
+
   private escapeHtml(unsafe: string): string {
     if (!unsafe) {
       return unsafe;
@@ -1886,4 +1910,6 @@ export class EventOptions {
   // string because a single batch of events can span multiple organizations (e.g. the provider
   // events page, where each row references a different client organization).
   getOrganizationName?: (ev: EventResponse) => string | undefined;
+  // Resolves the acting member's display name for event copy that names who made the change.
+  getUserName?: (ev: EventResponse) => string | undefined;
 }

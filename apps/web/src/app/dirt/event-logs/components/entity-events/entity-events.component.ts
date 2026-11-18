@@ -309,6 +309,8 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     // than links that would resolve to nothing on click.
     options.linkableMemberIds = collectLinkableMemberIds(this.orgUsersUserIdMap);
     options.getOrganizationName = () => this.organizationName;
+    options.getUserName = (ev) =>
+      this.showUser ? this.resolveMember(ev, ev.actingUserId ?? ev.userId)?.name : undefined;
 
     this.continuationToken = response.continuationToken;
     const events: EventView[] = await Promise.all(
