@@ -220,26 +220,21 @@ describe("AdditionalOptionsSectionComponent", () => {
       ).toBeNull();
     });
 
-    it("shows the HTTP authentication setting in the Safari extension", () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
-      platformUtilsService.isSafari.mockReturnValue(true);
+    it.each([
+      ["the Safari extension", ClientType.Browser, true],
+      ["the web vault", ClientType.Web, false],
+      ["the web vault opened in Safari", ClientType.Web, true],
+      ["the desktop app", ClientType.Desktop, false],
+      ["the CLI", ClientType.Cli, false],
+    ])("hides the HTTP authentication setting in %s", (_, clientType, isSafari) => {
+      platformUtilsService.getClientType.mockReturnValue(clientType);
+      platformUtilsService.isSafari.mockReturnValue(isSafari);
       const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
       localFixture.detectChanges();
 
       expect(
         localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).not.toBeNull();
-    });
-
-    it("shows the HTTP authentication setting in the web vault opened in Safari", () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Web);
-      platformUtilsService.isSafari.mockReturnValue(true);
-      const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
-      localFixture.detectChanges();
-
-      expect(
-        localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).not.toBeNull();
+      ).toBeNull();
     });
 
     it("shows no hint under the setting", () => {

@@ -8,6 +8,8 @@ import { firstValueFrom, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -52,6 +54,7 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private dialogService = inject(DialogService);
+  private platformUtilsService = inject(PlatformUtilsService);
 
   additionalOptionsForm = this.formBuilder.group({
     notes: [null as string],
@@ -64,16 +67,25 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   );
 
   /**
+   * True in the browser extensions that answer HTTP authentication challenges: every browser
+   * extension except Safari, which doesn't support them. Other clients store the setting with the
+   * login but never act on it, so they don't show it.
+   */
+  private readonly clientAnswersHTTPAuthentication =
+    this.platformUtilsService.getClientType() === ClientType.Browser &&
+    !this.platformUtilsService.isSafari();
+
+  /**
    * True when the HTTP authentication setting is shown: for logins, while HTTP authentication is
-   * available. It is shown on every client that edits logins, including the Safari extension, which can't
-   * answer HTTP authentication challenges itself. The cipher-level controls are also gated behind a dev
-   * flag until every cipher format saves the setting.
+   * available, in a client that answers HTTP authentication challenges. The cipher-level controls are
+   * also gated behind a dev flag until every cipher format saves the setting.
    */
   protected readonly showHTTPAuthenticationCipherSetting = toSignal(
     this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
       map(
         (httpAuthenticationAvailable) =>
           httpAuthenticationAvailable &&
+          this.clientAnswersHTTPAuthentication &&
           devFlagEnabled("httpAuthenticationCipherControls") &&
           this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),

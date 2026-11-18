@@ -1,0 +1,51 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'appName' | i18n"></popup-header>
+
+  <div class="tw-p-2">
+    <h1 bitTypography="h4">{{ "fillLoginPopUpPromptsHeading" | i18n }}</h1>
+
+    <bit-section>
+      <bit-section-header>
+        <h2 id="http-authentication_heading_choose-login" bitTypography="h6">
+          {{ "fillLoginPopUpPromptsChooseLogin" | i18n: requestOrigin() }}
+        </h2>
+      </bit-section-header>
+      <ul
+        class="tw-m-0 tw-list-none tw-p-0"
+        aria-labelledby="http-authentication_heading_choose-login"
+      >
+        @for (cipher of ciphers(); track cipher.id) {
+          <li>
+            <bit-item>
+              <button
+                #loginButton
+                bit-item-content
+                type="button"
+                [disabled]="submitting()"
+                [attr.id]="'http-authentication_button_select-' + cipher.id"
+                (click)="selectCipher(cipher)"
+              >
+                <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+                <span data-testid="item-name">{{ cipher.name }}</span>
+                <ng-container slot="secondary">{{ cipher.login.username }}</ng-container>
+              </button>
+            </bit-item>
+          </li>
+        }
+      </ul>
+    </bit-section>
+  </div>
+
+  <popup-footer slot="footer">
+    <button
+      id="http-authentication_button_use-browser-instead"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [disabled]="submitting()"
+      (click)="useBrowserPrompt()"
+    >
+      {{ "fillLoginPopUpPromptsUseBrowserInstead" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

@@ -7748,24 +7748,5 @@
         "example": "4"
       }
     }
-  },
-  "fillLoginPopUpPromptsLabel": {
-    "message": "Fill browser login pop-up prompts",
-    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
-  },
-  "fillLoginPopUpPromptsTitle": {
-    "message": "Filling pop-up prompts",
-    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
-  },
-  "fillLoginPopUpPromptsWarning": {
-    "message": "Some websites ask for your login in a browser pop-up prompt. Be aware that malicious sites can trigger prompts without your knowledge, which may expose your credentials.",
-    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
-  },
-  "fillLoginPopUpPromptsHelpArticleSignpost": {
-    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
-    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
-  },
-  "turnOn": {
-    "message": "Turn on"
   }
 }
