@@ -2846,6 +2846,78 @@
   "additionalTouchIdSettings": {
     "message": "Additional Touch ID settings"
   },
+  "unlockMethodsHeader": {
+    "message": "Unlock methods"
+  },
+  "clipboardHeader": {
+    "message": "Clipboard"
+  },
+  "vaultDisplayHeader": {
+    "message": "Vault display"
+  },
+  "appearanceHeader": {
+    "message": "Appearance"
+  },
+  "startupHeader": {
+    "message": "Startup and background"
+  },
+  "integrationsHeader": {
+    "message": "Integrations"
+  },
+  "autotypeHeader": {
+    "message": "Autotype"
+  },
+  "privacyHeader": {
+    "message": "Privacy"
+  },
+  "advancedHeader": {
+    "message": "Advanced"
+  },
+  "sshAgentHeader": {
+    "message": "SSH agent"
+  },
+  "browsersAndPasskeysHeader": {
+    "message": "Browsers and passkeys"
+  },
+  "syncHeader": {
+    "message": "Sync"
+  },
+  "syncVaultHeading": {
+    "message": "Vault sync"
+  },
+  "lastSyncLabel": {
+    "message": "Last sync:"
+  },
+  "settingsNavAccount": {
+    "message": "Account settings"
+  },
+  "settingsNavDevice": {
+    "message": "Device settings"
+  },
+  "settingsScopeAccountDesc": {
+    "message": "These settings apply to the account you're using now."
+  },
+  "settingsScopeDeviceDesc": {
+    "message": "These settings apply to all accounts on this device."
+  },
+  "performanceHeader": {
+    "message": "Performance"
+  },
+  "requireMasterPasswordOnAppRestartDescVfo1": {
+    "message": "Helps prevent other apps on your computer from unlocking Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarningVfo1": {
+    "message": "When this is off, other apps on your computer may be able to unlock Bitwarden and access your saved passwords."
+  },
+  "enableHardwareAccelerationDescVfo1": {
+    "message": "Turn off only if you have display issues. Requires restart."
+  },
+  "allowScreenshotsDescVfo1": {
+    "message": "Allow Bitwarden to be captured in screenshots and remote desktop sessions. Turning this off may block Bitwarden on some external displays."
+  },
+  "enableAutotypeShortcutPreviewVfo1": {
+    "message": "Enable autotype shortcut (feature preview)"
+  },
   "touchIdConsentMessage": {
     "message": "unlock your vault"
   },

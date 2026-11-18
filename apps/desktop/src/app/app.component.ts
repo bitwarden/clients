@@ -252,7 +252,12 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "openSettings": {
-            SettingsDialogComponent.open(this.dialogService);
+            // remove when VFO1 flag is removed: keep only the router navigation
+            if (await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation)) {
+              await this.router.navigate(["/settings"]);
+            } else {
+              SettingsDialogComponent.open(this.dialogService);
+            }
             break;
           }
           case "openTroubleshootingDialog":

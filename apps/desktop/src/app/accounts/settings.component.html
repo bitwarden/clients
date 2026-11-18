@@ -1,0 +1,779 @@
+<ng-template #switchState let-on="on">
+  <!-- Visible On/Off text so state never relies on colour alone; the switch itself carries the accessible state. -->
+  <span
+    aria-hidden="true"
+    class="tw-min-w-8 tw-text-sm tw-font-semibold"
+    [class.tw-text-fg-brand]="on"
+    [class.tw-text-fg-body-subtle]="!on"
+    data-testid="settings-switch-state"
+  >
+    {{ (on ? "turnedOn" : "turnedOff") | i18n }}
+  </span>
+</ng-template>
+
+<ng-template #groupHeader let-id="id" let-title="title">
+  <h3 [id]="id" bitTypography="h6" class="tw-mb-3 tw-px-1 tw-font-semibold tw-text-fg-heading">
+    {{ title | i18n }}
+  </h3>
+</ng-template>
+
+<ng-template #navItem let-p="p">
+  <button
+    type="button"
+    [id]="'settings_button_nav-' + p.id"
+    [attr.aria-current]="page() === p.id ? 'page' : null"
+    class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-lg tw-border-none tw-px-3 tw-py-2.5 tw-text-start tw-text-sm tw-font-medium tw-cursor-pointer hover:tw-bg-bg-secondary"
+    [class.tw-bg-bg-brand-softer]="page() === p.id"
+    [class.tw-text-fg-brand]="page() === p.id"
+    [class.tw-bg-transparent]="page() !== p.id"
+    [class.tw-text-fg-body]="page() !== p.id"
+    (click)="page.set(p.id)"
+  >
+    <bit-icon [name]="p.icon" />
+    {{ p.labelKey | i18n }}
+  </button>
+</ng-template>
+
+<bit-page>
+  <app-header>
+    <button
+      type="button"
+      id="settings_button_close"
+      bitIconButton="bwi-close"
+      buttonType="subtleGhost"
+      [label]="'close' | i18n"
+      (click)="close()"
+      data-testid="settings-close"
+    ></button>
+  </app-header>
+
+  <form
+    [formGroup]="form"
+    class="tw-flex tw-min-h-0 tw-flex-1 tw-flex-col tw-gap-6 md:tw-flex-row md:tw-gap-8"
+    data-testid="settings"
+  >
+    <nav
+      [attr.aria-label]="'settings' | i18n"
+      class="tw-flex tw-flex-none tw-flex-col tw-gap-6 md:tw-w-56"
+    >
+      <div class="tw-flex tw-flex-col tw-gap-1" role="group" aria-labelledby="settings-nav-account">
+        <div
+          id="settings-nav-account"
+          class="tw-px-3 tw-pb-1 tw-text-xs tw-font-semibold tw-text-fg-body-subtle"
+        >
+          {{ "settingsNavAccount" | i18n }}
+        </div>
+        @for (p of accountPages; track p.id) {
+          <ng-container *ngTemplateOutlet="navItem; context: { p: p }" />
+        }
+      </div>
+      <div class="tw-flex tw-flex-col tw-gap-1" role="group" aria-labelledby="settings-nav-app">
+        <div
+          id="settings-nav-app"
+          class="tw-px-3 tw-pb-1 tw-text-xs tw-font-semibold tw-text-fg-body-subtle"
+        >
+          {{ "settingsNavDevice" | i18n }}
+        </div>
+        @for (p of appPages; track p.id) {
+          <ng-container *ngTemplateOutlet="navItem; context: { p: p }" />
+        }
+      </div>
+    </nav>
+
+    <div class="tw-min-w-0 tw-flex-1 tw-overflow-y-auto tw-pb-8">
+      <!-- Settings rows: label/hint on the left, switch + state text on the right. -->
+      <div
+        class="tw-max-w-2xl [&_bit-form-control>label]:tw-w-full [&_bit-form-control>label]:tw-flex-row-reverse [&_bit-form-control>label]:tw-justify-between"
+      >
+        <div [hidden]="page() !== 'security'">
+          <h2 bitTypography="h3" class="tw-mb-1">{{ "security" | i18n }}</h2>
+          <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
+            {{ "settingsScopeAccountDesc" | i18n }}
+          </p>
+          <section class="tw-mb-8" aria-labelledby="settings-session-timeout-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-session-timeout-header',
+                  title: 'sessionTimeoutHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <bit-session-timeout-settings
+                  [refreshTimeoutActionSettings]="refreshTimeoutSettings$"
+                />
+              </div>
+            </bit-card-segmented>
+          </section>
+          @if (pinEnabled() || form.value.pin || supportsBiometric()) {
+            <section class="tw-mb-8" aria-labelledby="settings-unlock-methods-header">
+              <ng-container
+                *ngTemplateOutlet="
+                  groupHeader;
+                  context: {
+                    id: 'settings-unlock-methods-header',
+                    title: 'unlockMethodsHeader',
+                  }
+                "
+              />
+              <bit-card-segmented>
+                @if (pinEnabled() || form.value.pin) {
+                  <div class="tw-p-4">
+                    <bit-form-control disableMargin>
+                      <span class="tw-flex tw-items-center tw-gap-2">
+                        <bit-switch formControlName="pin" data-testid="settings-pin-checkbox" />
+                        <ng-container
+                          *ngTemplateOutlet="switchState; context: { on: form.value.pin }"
+                        />
+                      </span>
+                      <bit-label>{{ "unlockWithPin" | i18n }}</bit-label>
+                    </bit-form-control>
+                  </div>
+                }
+
+                @if (supportsBiometric()) {
+                  <div class="tw-p-4">
+                    <bit-form-control disableMargin>
+                      <span class="tw-flex tw-items-center tw-gap-2">
+                        <bit-switch
+                          formControlName="biometric"
+                          data-testid="settings-biometric-checkbox"
+                        />
+                        <ng-container
+                          *ngTemplateOutlet="switchState; context: { on: form.value.biometric }"
+                        />
+                      </span>
+                      <bit-label>{{ biometricText | i18n }}</bit-label>
+                    </bit-form-control>
+                  </div>
+
+                  @if (
+                    form.value.biometric &&
+                    (isWindows || isLinux) &&
+                    (userHasMasterPassword() || (form.value.pin && userHasPinSet()))
+                  ) {
+                    <div class="tw-p-4" data-testid="settings-biometric-child-row">
+                      <div class="tw-ps-4">
+                        <bit-form-control disableMargin>
+                          <span class="tw-flex tw-items-center tw-gap-2">
+                            <bit-switch formControlName="requireMasterPasswordOnAppRestart" />
+                            <ng-container
+                              *ngTemplateOutlet="
+                                switchState;
+                                context: { on: form.value.requireMasterPasswordOnAppRestart }
+                              "
+                            />
+                          </span>
+                          <bit-label>
+                            @if (pinEnabled()) {
+                              {{ "requireMasterPasswordOrPinOnAppRestart" | i18n }}
+                            } @else {
+                              {{ "requireMasterPasswordOnAppRestart" | i18n }}
+                            }
+                          </bit-label>
+                          <bit-hint>{{
+                            "requireMasterPasswordOnAppRestartDescVfo1" | i18n
+                          }}</bit-hint>
+                        </bit-form-control>
+                      </div>
+
+                      @if (!form.value.requireMasterPasswordOnAppRestart) {
+                        <bit-callout type="warning" [title]="null" class="tw-mt-4 tw-block">
+                          {{ "requireMasterPasswordOnAppRestartWarningVfo1" | i18n }}
+                        </bit-callout>
+                      }
+                    </div>
+                  }
+
+                  @if (form.value.biometric && isMac) {
+                    <div class="tw-p-4" data-testid="settings-biometric-child-row">
+                      <div class="tw-ps-4">
+                        <bit-form-control disableMargin>
+                          <span class="tw-flex tw-items-center tw-gap-2">
+                            <bit-switch
+                              formControlName="autoPromptBiometrics"
+                              (change)="updateAutoPromptBiometrics()"
+                            />
+                            <ng-container
+                              *ngTemplateOutlet="
+                                switchState;
+                                context: { on: form.value.autoPromptBiometrics }
+                              "
+                            />
+                          </span>
+                          <bit-label>{{ "autoPromptTouchId" | i18n }}</bit-label>
+                        </bit-form-control>
+                      </div>
+                    </div>
+                  }
+                }
+              </bit-card-segmented>
+            </section>
+          }
+        </div>
+        <div [hidden]="page() !== 'vault'">
+          <h2 bitTypography="h3" class="tw-mb-1">{{ "vault" | i18n }}</h2>
+          <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
+            {{ "settingsScopeAccountDesc" | i18n }}
+          </p>
+          <section class="tw-mb-8" aria-labelledby="settings-sync-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: { id: 'settings-sync-header', title: 'syncHeader' }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-4">
+                <div>
+                  <div bitTypography="body2" class="tw-font-medium tw-text-fg-heading">
+                    {{ "syncVaultHeading" | i18n }}
+                  </div>
+                  <div class="tw-text-sm tw-text-fg-body-subtle" data-testid="settings-last-sync">
+                    {{ "lastSyncLabel" | i18n }} {{ lastSyncText() }}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="settings_button_sync-now"
+                  bitButton
+                  buttonType="secondary"
+                  size="small"
+                  [loading]="syncing()"
+                  (click)="syncNow()"
+                >
+                  {{ "syncNow" | i18n }}
+                </button>
+              </div>
+            </bit-card-segmented>
+          </section>
+          <section class="tw-mb-8" aria-labelledby="settings-clipboard-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-clipboard-header',
+                  title: 'clipboardHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <div
+                  class="tw-flex tw-items-start tw-justify-between tw-gap-4"
+                  data-testid="settings-select-row"
+                >
+                  <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col" aria-hidden="true">
+                    <span
+                      bitTypography="body2"
+                      class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                      >{{ "clearClipboard" | i18n }}</span
+                    >
+                    <span class="tw-text-xs tw-text-fg-body-subtle">{{
+                      "clearClipboardDesc" | i18n
+                    }}</span>
+                  </div>
+                  <!-- The visible text on the left is aria-hidden; the label and hint below are visually hidden so the select keeps its accessible name and description. -->
+                  <bit-form-field disableMargin class="tw-w-48 tw-flex-none">
+                    <bit-label class="tw-sr-only">{{ "clearClipboard" | i18n }}</bit-label>
+                    <bit-select formControlName="clearClipboard" [items]="clearClipboardOptions" />
+                    <bit-hint class="tw-sr-only">{{ "clearClipboardDesc" | i18n }}</bit-hint>
+                  </bit-form-field>
+                </div>
+              </div>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch
+                      formControlName="minimizeOnCopyToClipboard"
+                      (change)="saveMinOnCopyToClipboard()"
+                    />
+                    <ng-container
+                      *ngTemplateOutlet="
+                        switchState;
+                        context: { on: form.value.minimizeOnCopyToClipboard }
+                      "
+                    />
+                  </span>
+                  <bit-label>{{ "minimizeOnCopyToClipboard" | i18n }}</bit-label>
+                  <bit-hint>{{ "minimizeOnCopyToClipboardDesc" | i18n }}</bit-hint>
+                </bit-form-control>
+              </div>
+            </bit-card-segmented>
+          </section>
+        </div>
+        <div [hidden]="page() !== 'general'">
+          <h2 bitTypography="h3" class="tw-mb-1">{{ "general" | i18n }}</h2>
+          <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
+            {{ "settingsScopeDeviceDesc" | i18n }}
+          </p>
+          <section class="tw-mb-8" aria-labelledby="settings-appearance-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-appearance-header',
+                  title: 'appearanceHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <div
+                  class="tw-flex tw-items-start tw-justify-between tw-gap-4"
+                  data-testid="settings-select-row"
+                >
+                  <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col" aria-hidden="true">
+                    <span
+                      bitTypography="body2"
+                      class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                      >{{ "theme" | i18n }}</span
+                    >
+                    <span class="tw-text-xs tw-text-fg-body-subtle">{{ "themeDesc" | i18n }}</span>
+                  </div>
+                  <!-- The visible text on the left is aria-hidden; the label and hint below are visually hidden so the select keeps its accessible name and description. -->
+                  <bit-form-field disableMargin class="tw-w-48 tw-flex-none">
+                    <bit-label class="tw-sr-only">{{ "theme" | i18n }}</bit-label>
+                    <bit-select formControlName="theme" [items]="themeOptions" />
+                    <bit-hint class="tw-sr-only">{{ "themeDesc" | i18n }}</bit-hint>
+                  </bit-form-field>
+                </div>
+              </div>
+              <div class="tw-p-4">
+                <div
+                  class="tw-flex tw-items-start tw-justify-between tw-gap-4"
+                  data-testid="settings-select-row"
+                >
+                  <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col" aria-hidden="true">
+                    <span
+                      bitTypography="body2"
+                      class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                      >{{ "language" | i18n }}</span
+                    >
+                    <span class="tw-text-xs tw-text-fg-body-subtle">{{
+                      "languageDesc" | i18n
+                    }}</span>
+                  </div>
+                  <!-- The visible text on the left is aria-hidden; the label and hint below are visually hidden so the select keeps its accessible name and description. -->
+                  <bit-form-field disableMargin class="tw-w-48 tw-flex-none">
+                    <bit-label class="tw-sr-only">{{ "language" | i18n }}</bit-label>
+                    <bit-select formControlName="locale" [items]="localeOptions" />
+                    <bit-hint class="tw-sr-only">{{ "languageDesc" | i18n }}</bit-hint>
+                  </bit-form-field>
+                </div>
+              </div>
+            </bit-card-segmented>
+          </section>
+          <section class="tw-mb-8" aria-labelledby="settings-vault-display-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-vault-display-header',
+                  title: 'vaultDisplayHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch formControlName="enableFavicons" (change)="saveFavicons()" />
+                    <ng-container
+                      *ngTemplateOutlet="switchState; context: { on: form.value.enableFavicons }"
+                    />
+                  </span>
+                  <bit-label>
+                    {{ "showIconsChangePasswordUrls" | i18n }}
+                    <vault-permit-cipher-details-popover slot="end" />
+                  </bit-label>
+                </bit-form-control>
+              </div>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch
+                      formControlName="showQuickCopyActions"
+                      (change)="saveQuickCopyActions()"
+                    />
+                    <ng-container
+                      *ngTemplateOutlet="
+                        switchState;
+                        context: { on: form.value.showQuickCopyActions }
+                      "
+                    />
+                  </span>
+                  <bit-label>
+                    {{ "showQuickCopyActionsInVault" | i18n }}
+                    <show-quick-copy-actions-details-popover slot="end" />
+                  </bit-label>
+                </bit-form-control>
+              </div>
+            </bit-card-segmented>
+          </section>
+          <section class="tw-mb-8" aria-labelledby="settings-startup-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: { id: 'settings-startup-header', title: 'startupHeader' }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch
+                      formControlName="runInBackground"
+                      (change)="saveRunInBackground()"
+                    />
+                    <ng-container
+                      *ngTemplateOutlet="switchState; context: { on: form.value.runInBackground }"
+                    />
+                  </span>
+                  <bit-label>{{ runInBackgroundText }}</bit-label>
+                  <bit-hint>{{ runInBackgroundDescText }}</bit-hint>
+                </bit-form-control>
+              </div>
+              @if (showOpenAtLoginOption) {
+                <div class="tw-p-4">
+                  <bit-form-control disableMargin>
+                    <span class="tw-flex tw-items-center tw-gap-2">
+                      <bit-switch formControlName="openAtLogin" (change)="saveOpenAtLogin()" />
+                      <ng-container
+                        *ngTemplateOutlet="switchState; context: { on: form.value.openAtLogin }"
+                      />
+                    </span>
+                    <bit-label>{{ "openAtLogin" | i18n }}</bit-label>
+                    <bit-hint>{{ "openAtLoginDesc" | i18n }}</bit-hint>
+                  </bit-form-control>
+                </div>
+              }
+            </bit-card-segmented>
+          </section>
+        </div>
+        <div [hidden]="page() !== 'integrations'">
+          <h2 bitTypography="h3" class="tw-mb-1">{{ "integrationsHeader" | i18n }}</h2>
+          <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
+            {{ "settingsScopeDeviceDesc" | i18n }}
+          </p>
+          <section class="tw-mb-8" aria-labelledby="settings-ssh-agent-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-ssh-agent-header',
+                  title: 'sshAgentHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch formControlName="enableSshAgent" (change)="saveSshAgent()" />
+                    <ng-container
+                      *ngTemplateOutlet="switchState; context: { on: form.value.enableSshAgent }"
+                    />
+                  </span>
+                  <bit-label>{{ "enableSshAgent" | i18n }}</bit-label>
+                  <bit-hint>{{ "enableSshAgentDesc" | i18n }}</bit-hint>
+                </bit-form-control>
+              </div>
+
+              @if (form.value.enableSshAgent) {
+                <div class="tw-p-4">
+                  <div
+                    class="tw-flex tw-items-start tw-justify-between tw-gap-4"
+                    data-testid="settings-select-row"
+                  >
+                    <div
+                      class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-ps-4"
+                      aria-hidden="true"
+                    >
+                      <span
+                        bitTypography="body2"
+                        class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                        >{{ "sshAgentPromptBehavior" | i18n }}</span
+                      >
+                      <span class="tw-text-xs tw-text-fg-body-subtle">{{
+                        "sshAgentPromptBehaviorDesc" | i18n
+                      }}</span>
+                    </div>
+                    <!-- The visible text on the left is aria-hidden; the label and hint below are visually hidden so the select keeps its accessible name and description. -->
+                    <bit-form-field disableMargin class="tw-w-48 tw-flex-none">
+                      <bit-label class="tw-sr-only">{{
+                        "sshAgentPromptBehavior" | i18n
+                      }}</bit-label>
+                      <bit-select
+                        formControlName="sshAgentPromptBehavior"
+                        [items]="sshAgentPromptBehaviorOptions"
+                      />
+                      <bit-hint class="tw-sr-only">{{
+                        "sshAgentPromptBehaviorDesc" | i18n
+                      }}</bit-hint>
+                    </bit-form-field>
+                  </div>
+                </div>
+              }
+            </bit-card-segmented>
+          </section>
+          @if (showDuckDuckGoIntegrationOption || showPasskeyProviderSetting()) {
+            <section class="tw-mb-8" aria-labelledby="settings-browsers-header">
+              <ng-container
+                *ngTemplateOutlet="
+                  groupHeader;
+                  context: {
+                    id: 'settings-browsers-header',
+                    title: 'browsersAndPasskeysHeader',
+                  }
+                "
+              />
+              <bit-card-segmented>
+                @if (showDuckDuckGoIntegrationOption) {
+                  <div class="tw-p-4">
+                    <bit-form-control disableMargin>
+                      <span class="tw-flex tw-items-center tw-gap-2">
+                        <bit-switch
+                          formControlName="enableDuckDuckGoBrowserIntegration"
+                          (change)="saveDdgBrowserIntegration()"
+                        />
+                        <ng-container
+                          *ngTemplateOutlet="
+                            switchState;
+                            context: { on: form.value.enableDuckDuckGoBrowserIntegration }
+                          "
+                        />
+                      </span>
+                      <bit-label>{{ "enableDuckDuckGoBrowserIntegration" | i18n }}</bit-label>
+                      <bit-hint>{{ "enableDuckDuckGoBrowserIntegrationDesc" | i18n }}</bit-hint>
+                    </bit-form-control>
+                  </div>
+                }
+
+                @if (showPasskeyProviderSetting()) {
+                  <div class="tw-p-4">
+                    <div
+                      role="group"
+                      aria-labelledby="passkey-provider-label"
+                      class="tw-flex tw-items-start tw-gap-3"
+                    >
+                      <span
+                        class="tw-flex tw-h-5 tw-w-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
+                      >
+                        <bit-icon name="bwi-passkey" />
+                      </span>
+                      <span class="tw-flex tw-flex-col tw-items-start tw-gap-1">
+                        <span class="tw-flex tw-items-center tw-gap-2">
+                          <span
+                            id="passkey-provider-label"
+                            bitTypography="body2"
+                            class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+                          >
+                            {{ "passkeyProvider" | i18n }}
+                          </span>
+                          @if (passkeyProviderState()?.enabled) {
+                            <span bitBadge variant="success" size="small">{{
+                              "turnedOn" | i18n
+                            }}</span>
+                          } @else {
+                            <span bitBadge variant="subtle" size="small">{{
+                              "turnedOff" | i18n
+                            }}</span>
+                          }
+                        </span>
+                        <span id="passkey-provider-desc" class="tw-text-xs tw-text-fg-body-subtle">
+                          {{ "passkeyProviderDesc" | i18n }}
+                        </span>
+                        <span id="passkey-provider-link-hint" class="tw-sr-only">
+                          {{ "mayOpenSystemSettings" | i18n }}
+                        </span>
+                        <button
+                          type="button"
+                          bitLink
+                          class="tw-text-sm"
+                          aria-describedby="passkey-provider-desc passkey-provider-link-hint"
+                          (click)="managePasskeyProvider()"
+                        >
+                          {{ "manageInSystemSettings" | i18n }}
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                }
+              </bit-card-segmented>
+            </section>
+          }
+          @if (showEnableAutotype() || showEnableAutotypeGa()) {
+            <section class="tw-mb-8" aria-labelledby="settings-autotype-header">
+              <ng-container
+                *ngTemplateOutlet="
+                  groupHeader;
+                  context: {
+                    id: 'settings-autotype-header',
+                    title: 'autotypeHeader',
+                  }
+                "
+              />
+              <bit-card-segmented>
+                @if (showEnableAutotype()) {
+                  <div class="tw-p-4">
+                    <bit-form-control disableMargin>
+                      <span class="tw-flex tw-items-center tw-gap-2">
+                        <bit-switch
+                          formControlName="enableAutotype"
+                          (change)="saveEnableAutotype()"
+                        />
+                        <ng-container
+                          *ngTemplateOutlet="
+                            switchState;
+                            context: { on: form.value.enableAutotype }
+                          "
+                        />
+                      </span>
+                      <bit-label>
+                        <span class="tw-flex tw-items-center tw-gap-2">
+                          {{ "enableAutotypeShortcutPreviewVfo1" | i18n }}
+                          <code>{{ form.value.autotypeShortcut }}</code>
+                          <app-premium-badge />
+                        </span>
+                      </bit-label>
+                      @if (form.value.enableAutotype) {
+                        <bit-hint>
+                          <b>{{ "important" | i18n }}</b>
+                          {{ "enableAutotypeShortcutDescription" | i18n }}
+                          <a
+                            class="tw-cursor-pointer"
+                            bitLink
+                            tabindex="0"
+                            (click)="saveAutotypeShortcut(); $event.preventDefault()"
+                            (keydown.enter)="saveAutotypeShortcut(); $event.preventDefault()"
+                          >
+                            {{ "editShortcut" | i18n }}
+                          </a>
+                        </bit-hint>
+                      }
+                    </bit-form-control>
+                  </div>
+                }
+
+                @if (showEnableAutotypeGa()) {
+                  <div class="tw-p-4">
+                    <bit-form-control disableMargin>
+                      <span class="tw-flex tw-items-center tw-gap-2">
+                        <bit-switch
+                          formControlName="enableAutotypeGa"
+                          (change)="saveEnableAutotypeGa()"
+                        />
+                        <ng-container
+                          *ngTemplateOutlet="
+                            switchState;
+                            context: { on: form.value.enableAutotypeGa }
+                          "
+                        />
+                      </span>
+                      <bit-label>
+                        <span class="tw-flex tw-items-center tw-gap-2">
+                          {{ "enableAutotypeGaShortcut" | i18n }}
+                          <code>{{ form.value.autotypeGaShortcut }}</code>
+                          <app-premium-badge />
+                        </span>
+                      </bit-label>
+                      @if (form.value.enableAutotypeGa) {
+                        <bit-hint>
+                          <b>{{ "important" | i18n }}</b>
+                          {{ "enableAutotypeShortcutDescription" | i18n }}
+                          <a
+                            class="tw-cursor-pointer"
+                            bitLink
+                            tabindex="0"
+                            (click)="saveAutotypeGaShortcut(); $event.preventDefault()"
+                            (keydown.enter)="saveAutotypeGaShortcut(); $event.preventDefault()"
+                          >
+                            {{ "editShortcut" | i18n }}
+                          </a>
+                        </bit-hint>
+                      }
+                    </bit-form-control>
+                  </div>
+                }
+              </bit-card-segmented>
+            </section>
+          }
+        </div>
+        <div [hidden]="page() !== 'advanced'">
+          <h2 bitTypography="h3" class="tw-mb-1">{{ "advancedHeader" | i18n }}</h2>
+          <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
+            {{ "settingsScopeDeviceDesc" | i18n }}
+          </p>
+          @if (!isLinux) {
+            <section class="tw-mb-8" aria-labelledby="settings-privacy-header">
+              <ng-container
+                *ngTemplateOutlet="
+                  groupHeader;
+                  context: {
+                    id: 'settings-privacy-header',
+                    title: 'privacyHeader',
+                  }
+                "
+              />
+              <bit-card-segmented>
+                <div class="tw-p-4">
+                  <bit-form-control disableMargin>
+                    <span class="tw-flex tw-items-center tw-gap-2">
+                      <bit-switch
+                        formControlName="allowScreenshots"
+                        (change)="savePreventScreenshots()"
+                      />
+                      <ng-container
+                        *ngTemplateOutlet="
+                          switchState;
+                          context: { on: form.value.allowScreenshots }
+                        "
+                      />
+                    </span>
+                    <bit-label>{{ "allowScreenshots" | i18n }}</bit-label>
+                    <bit-hint>{{ "allowScreenshotsDescVfo1" | i18n }}</bit-hint>
+                  </bit-form-control>
+                </div>
+              </bit-card-segmented>
+            </section>
+          }
+          <section class="tw-mb-8" aria-labelledby="settings-performance-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-performance-header',
+                  title: 'performanceHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              <div class="tw-p-4">
+                <bit-form-control disableMargin>
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <bit-switch
+                      formControlName="enableHardwareAcceleration"
+                      (change)="saveHardwareAcceleration()"
+                    />
+                    <ng-container
+                      *ngTemplateOutlet="
+                        switchState;
+                        context: { on: form.value.enableHardwareAcceleration }
+                      "
+                    />
+                  </span>
+                  <bit-label>{{ "enableHardwareAcceleration" | i18n }}</bit-label>
+                  <bit-hint>{{ "enableHardwareAccelerationDescVfo1" | i18n }}</bit-hint>
+                </bit-form-control>
+              </div>
+            </bit-card-segmented>
+          </section>
+        </div>
+      </div>
+    </div>
+  </form>
+</bit-page>

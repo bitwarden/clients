@@ -50,6 +50,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LockService } from "@bitwarden/unlock";
 
+import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
 import { AppComponent } from "./app.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 
@@ -231,6 +232,27 @@ describe("AppComponent (desktop)", () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+  });
+
+  describe("openSettings message", () => {
+    it("opens the legacy settings dialog when the VFO1 foundation flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await dispatchMessage({ command: "openSettings" });
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(dialogService.open).toHaveBeenCalledWith(SettingsDialogComponent);
+      expect(router.navigate).not.toHaveBeenCalledWith(["/settings"]);
+    });
+
+    it("navigates to the settings page when the VFO1 foundation flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await dispatchMessage({ command: "openSettings" });
+
+      expect(router.navigate).toHaveBeenCalledWith(["/settings"]);
+      expect(dialogService.open).not.toHaveBeenCalledWith(SettingsDialogComponent);
+    });
   });
 
   describe("importVault message", () => {
