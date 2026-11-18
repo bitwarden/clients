@@ -26,7 +26,9 @@ import {
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -38,7 +40,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -96,6 +97,18 @@ import { VaultPopupTourService } from "../../../services/vault-popup-tour.servic
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 // Real `CipherView` instances rather than hand-mocked shapes: the row reads derived values (e.g. the
 // `subTitle` getter that surfaces a login's username) straight off the model, so building the actual

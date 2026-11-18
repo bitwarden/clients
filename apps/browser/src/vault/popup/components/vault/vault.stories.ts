@@ -16,7 +16,9 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -31,7 +33,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { buildTestOrganization } from "@bitwarden/common/spec";
 import {
   CipherId,
   CollectionId,
@@ -94,6 +95,18 @@ import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 // `NewItemDropdownComponent.ngOnInit` reaches for `chrome.windows`, which is undefined outside the
 // extension runtime, so the popup header throws while rendering. A stub reporting a single active

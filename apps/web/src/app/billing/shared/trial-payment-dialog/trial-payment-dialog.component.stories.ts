@@ -5,6 +5,9 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
@@ -12,7 +15,6 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
@@ -32,6 +34,18 @@ import { PlanCardService } from "../../services/plan-card.service";
 import { PlanCardComponent } from "../plan-card/plan-card.component";
 
 import { TrialPaymentDialogComponent } from "./trial-payment-dialog.component";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 const ORG_ID = "org-1" as OrganizationId;
 
