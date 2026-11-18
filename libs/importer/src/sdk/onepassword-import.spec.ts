@@ -35,10 +35,7 @@ describe("onePasswordErrorDisplay", () => {
       "OnePasswordInvalidSignInAddress",
       { field: "signInAddress", messageKey: "enterValidSignInAddress" },
     ],
-    [
-      "OnePasswordUnsupported",
-      { field: "email", messageKey: "onePasswordOnlyPasswordLoginTryAgain" },
-    ],
+    ["OnePasswordUnsupported", { field: "email", messageKey: "onePasswordUnsupportedSignIn" }],
   ])("marks %s on the field the user can correct", (variant, display) => {
     expect(onePasswordErrorDisplay(importError(variant))).toEqual(display);
   });
@@ -49,11 +46,30 @@ describe("onePasswordErrorDisplay", () => {
     });
   });
 
-  it("shows any other SDK failure in a toast", () => {
-    expect(onePasswordErrorDisplay(importError("OnePasswordNetwork"))).toEqual({
-      messageKey: "onePasswordImportError",
+  it("shows a device denied on another device in a toast that says so", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordDenied"))).toEqual({
+      messageKey: "onePasswordSsoDeviceDenied",
     });
   });
+
+  it("shows running out of verification codes in a toast that says so", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordVerificationCodeFailed"))).toEqual({
+      messageKey: "onePasswordSsoTooManyWrongCodes",
+    });
+  });
+
+  it("shows nothing when the user canceled", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordCanceled"))).toBeUndefined();
+  });
+
+  it.each<ImportError["variant"]>(["OnePasswordNetwork", "OnePasswordInternal"])(
+    "shows any other SDK failure, like %s, in a toast",
+    (variant) => {
+      expect(onePasswordErrorDisplay(importError(variant))).toEqual({
+        messageKey: "onePasswordImportError",
+      });
+    },
+  );
 
   it("shows an error that did not come from the SDK in a toast", () => {
     expect(onePasswordErrorDisplay(otherError(new Error("failed")))).toEqual({
