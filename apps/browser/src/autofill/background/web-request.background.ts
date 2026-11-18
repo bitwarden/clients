@@ -1,6 +1,5 @@
 import {
   catchError,
-  combineLatest,
   distinctUntilChanged,
   filter,
   firstValueFrom,
@@ -27,7 +26,6 @@ import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
@@ -226,41 +224,16 @@ export function shouldAnswerAuthChallenge(
   return isTopLevelNavigationOrSameOriginSubresource(details, requestUrl);
 }
 
-/** The settings that let a login answer an HTTP auth challenge for the active user. */
-interface HTTPAuthenticationResponseSettings {
-  /** The user's global setting is on, so every eligible login may answer. */
-  globalSettingEnabled: boolean;
-  /** Eligible logins with HTTP authentication turned on in their own settings may answer. */
-  loginSettingEnabled: boolean;
-}
-
-const NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS: HTTPAuthenticationResponseSettings = Object.freeze({
-  globalSettingEnabled: false,
-  loginSettingEnabled: false,
-});
-
-function anyHTTPAuthenticationResponseSettingEnabled(
-  settings: HTTPAuthenticationResponseSettings,
-): boolean {
-  return settings.globalSettingEnabled || settings.loginSettingEnabled;
-}
-
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
   private isSafari: boolean;
   private listenersRegistered = false;
-  private responseSettingsSubscription?: Subscription;
+  private httpAuthenticationAvailableSubscription?: Subscription;
   /** Emits the id of each request that completes or fails while the listeners are registered. */
   private readonly requestEnded$ = new Subject<string>();
   /** Emits when the listeners are removed, so open popouts resolve without credentials. */
   private readonly listenersUnregistered$ = new Subject<void>();
-
-  /**
-   * The login-level setting is honored only in builds that show its cipher form controls, so a value
-   * stored by another client has no effect where the user can't see or change it.
-   */
-  private readonly loginSettingHonored = devFlagEnabled("httpAuthenticationCipherControls");
 
   constructor(
     platformUtilsService: PlatformUtilsService,
@@ -277,10 +250,8 @@ export default class WebRequestBackground {
   }
 
   /**
-   * Keeps the handler that answers HTTP auth challenges with a matching vault credential
-   * registered only while the active user's global setting is on, or while logins can turn
-   * HTTP authentication on in their own settings. Which logins may answer is checked when a
-   * challenge arrives.
+   * Keeps the handler that answers HTTP auth challenges registered only while HTTP authentication
+   * is available for the active user. Which logins are offered is checked when a challenge arrives.
    *
    * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
    */
@@ -292,84 +263,61 @@ export default class WebRequestBackground {
       return;
     }
 
-    this.responseSettingsSubscription?.unsubscribe();
-    this.responseSettingsSubscription = this.responseSettings$()
-      .pipe(map(anyHTTPAuthenticationResponseSettingEnabled), distinctUntilChanged())
-      .subscribe((anyResponseSettingEnabled) => {
-        if (anyResponseSettingEnabled) {
+    this.httpAuthenticationAvailableSubscription?.unsubscribe();
+    this.httpAuthenticationAvailableSubscription = this.httpAuthenticationAvailable$().subscribe(
+      (httpAuthenticationAvailable) => {
+        if (httpAuthenticationAvailable) {
           this.registerListeners();
         } else {
           this.unregisterListeners();
         }
-      });
+      },
+    );
   }
 
   /**
-   * Emits the settings that let a login answer an HTTP auth challenge for the active user: the
-   * user's global setting, and whether the login-level setting is honored, which needs HTTP
-   * authentication to be available and the login-level controls to be shown in this build.
+   * Emits `true` only when HTTP authentication is available for the active user.
    *
-   * Fails closed: no active user, or an error resolving either setting, emits both as off.
+   * Fails closed: no active user, or an error resolving availability, emits `false`.
    */
-  private responseSettings$(): Observable<HTTPAuthenticationResponseSettings> {
-    // The settings are resolved inside a `switchMap` on the active account so that an
-    // error is caught for that account alone and the settings are resolved again on
+  private httpAuthenticationAvailable$(): Observable<boolean> {
+    // Availability is resolved inside a `switchMap` on the active account so that an
+    // error is caught for that account alone and availability is resolved again on
     // the next account change; catching downstream would end the subscription and
     // leave the listeners unregistered for the life of the background context.
     return this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
         userId == null
-          ? of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)
-          : combineLatest([
-              this.autofillSettingsService.resolvedEnableBasicAuthResponse$,
-              this.loginSettingHonored
-                ? this.autofillSettingsService.httpAuthenticationAvailable$
-                : of(false),
-            ]).pipe(
-              map(
-                ([
-                  globalSettingEnabled,
-                  loginSettingEnabled,
-                ]): HTTPAuthenticationResponseSettings => ({
-                  globalSettingEnabled: globalSettingEnabled === true,
-                  loginSettingEnabled: loginSettingEnabled === true,
-                }),
-              ),
-              catchError(() => of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)),
+          ? of(false)
+          : this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
+              map((available) => available === true),
+              catchError(() => of(false)),
             ),
       ),
-      catchError(() => of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)),
-      distinctUntilChanged(
-        (previous, current) =>
-          previous.globalSettingEnabled === current.globalSettingEnabled &&
-          previous.loginSettingEnabled === current.loginSettingEnabled,
-      ),
+      catchError(() => of(false)),
+      distinctUntilChanged(),
     );
   }
 
   /**
-   * The settings that let a login answer an HTTP auth challenge for the active user, when that
-   * user is still the given one once the settings have been read. The settings follow whichever
-   * user is active, so a change of active user during the read would otherwise apply one user's
-   * settings to another user's vault.
+   * Whether HTTP authentication is available for the active user, and that user is still the
+   * given one once availability has been read. Availability follows whichever user is active, so
+   * a change of active user during the read would otherwise apply one user's availability to
+   * another user's vault.
    *
    * Fails closed on error.
    */
-  private async responseSettingsForUser(
-    userId: UserId,
-  ): Promise<HTTPAuthenticationResponseSettings> {
+  private async httpAuthenticationAvailableForUser(userId: UserId): Promise<boolean> {
     try {
-      const settings = await firstValueFrom(this.responseSettings$());
+      const available = await firstValueFrom(this.httpAuthenticationAvailable$());
       const activeUserIdAfterCheck = await firstValueFrom(
         this.accountService.activeAccount$.pipe(getOptionalUserId),
       );
 
-      return activeUserIdAfterCheck === userId
-        ? settings
-        : NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS;
+      return available && activeUserIdAfterCheck === userId;
     } catch {
-      return NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS;
+      return false;
     }
   }
 
@@ -447,10 +395,8 @@ export default class WebRequestBackground {
     }
 
     // Listener removal trails the state it reacts to, so a challenge can arrive
-    // after the active account changes to one with no response setting enabled.
-    const responseSettings = await this.responseSettingsForUser(activeUserId);
-
-    if (!anyHTTPAuthenticationResponseSettingEnabled(responseSettings)) {
+    // after the active account changes to one without HTTP authentication available.
+    if (!(await this.httpAuthenticationAvailableForUser(activeUserId))) {
       return {};
     }
 
@@ -461,11 +407,7 @@ export default class WebRequestBackground {
     }
 
     try {
-      const candidates = await this.getCandidateCiphers(
-        details.url,
-        activeUserId,
-        responseSettings,
-      );
+      const candidates = await this.getCandidateCiphers(details.url, activeUserId);
 
       if (candidates.length === 0) {
         return {};
@@ -480,12 +422,10 @@ export default class WebRequestBackground {
         return {};
       }
 
-      // The user, settings, lock state and vault can all change while the popout is open, so each is
-      // checked again and the selected login is looked up afresh rather than held, decrypted, for
-      // the life of the popout.
-      const settingsAfterSelection = await this.responseSettingsForUser(activeUserId);
-
-      if (!anyHTTPAuthenticationResponseSettingEnabled(settingsAfterSelection)) {
+      // The user, availability, lock state and vault can all change while the popout is open, so
+      // each is checked again and the selected login is looked up afresh rather than held,
+      // decrypted, for the life of the popout.
+      if (!(await this.httpAuthenticationAvailableForUser(activeUserId))) {
         return {};
       }
 
@@ -497,9 +437,9 @@ export default class WebRequestBackground {
         return {};
       }
 
-      const cipher = (
-        await this.getCandidateCiphers(details.url, activeUserId, settingsAfterSelection)
-      ).find((candidate) => candidate.id === selectedCipherId);
+      const cipher = (await this.getCandidateCiphers(details.url, activeUserId)).find(
+        (candidate) => candidate.id === selectedCipherId,
+      );
       const username = cipher?.login?.username;
       const password = cipher?.login?.password;
 
@@ -525,14 +465,10 @@ export default class WebRequestBackground {
   }
 
   /**
-   * The logins that may be offered for a challenge: those matching the request URL, and, unless the
-   * global setting is on, only those with HTTP authentication turned on in their own settings.
+   * The logins that may be offered for a challenge: those matching the request URL with HTTP
+   * authentication turned on in their own settings.
    */
-  private async getCandidateCiphers(
-    url: string,
-    userId: UserId,
-    settings: HTTPAuthenticationResponseSettings,
-  ): Promise<CipherView[]> {
+  private async getCandidateCiphers(url: string, userId: UserId): Promise<CipherView[]> {
     // Each URI is matched by its own strategy; a URI using "Default" is matched as Host, so it is
     // never matched more loosely than the challenging host.
     const ciphers = await this.fillCipherPolicy.ciphersForUrl(
@@ -543,10 +479,7 @@ export default class WebRequestBackground {
     );
 
     return (ciphers ?? []).filter(
-      (cipher) =>
-        isEligibleForHTTPAuthentication(cipher) &&
-        (settings.globalSettingEnabled ||
-          (settings.loginSettingEnabled && hasOptedInToHTTPAuthentication(cipher))),
+      (cipher) => isEligibleForHTTPAuthentication(cipher) && hasOptedInToHTTPAuthentication(cipher),
     );
   }
 

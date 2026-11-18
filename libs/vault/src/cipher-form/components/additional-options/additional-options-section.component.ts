@@ -10,7 +10,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import {
   CardComponent,
@@ -77,8 +76,7 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
   /**
    * True when the HTTP authentication setting is shown: for logins, while HTTP authentication is
-   * available, in a client that answers HTTP authentication challenges. The cipher-level controls are
-   * also gated behind a dev flag until every cipher format saves the setting.
+   * available, in a client that answers HTTP authentication challenges.
    */
   protected readonly showHTTPAuthenticationCipherSetting = toSignal(
     this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
@@ -86,7 +84,6 @@ export class AdditionalOptionsSectionComponent implements OnInit {
         (httpAuthenticationAvailable) =>
           httpAuthenticationAvailable &&
           this.clientAnswersHTTPAuthentication &&
-          devFlagEnabled("httpAuthenticationCipherControls") &&
           this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
     ),

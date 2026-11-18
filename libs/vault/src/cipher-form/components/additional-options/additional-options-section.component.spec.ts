@@ -7,7 +7,6 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -20,13 +19,6 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
 import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
-
-jest.mock("@bitwarden/common/platform/misc/flags", () => ({
-  ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
-  devFlagEnabled: jest.fn(),
-}));
-
-const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -64,9 +56,6 @@ describe("AdditionalOptionsSectionComponent", () => {
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
     httpAuthenticationAvailable$ = new BehaviorSubject(true);
-    mockDevFlagEnabled.mockImplementation(
-      (flag: string) => flag === "httpAuthenticationCipherControls",
-    );
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.httpAuthenticationAvailable$ = httpAuthenticationAvailable$;
     dialogService = mock<DialogService>();
@@ -186,7 +175,7 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     const flushPromises = () => fixture.whenStable();
 
-    it("shows the HTTP authentication setting for login items when HTTP authentication is available and the dev flag is on", () => {
+    it("shows the HTTP authentication setting for login items when HTTP authentication is available", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).not.toBeNull();
@@ -197,17 +186,6 @@ describe("AdditionalOptionsSectionComponent", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).toBeNull();
-    });
-
-    it("hides the HTTP authentication setting when the cipher controls dev flag is off", () => {
-      mockDevFlagEnabled.mockReturnValue(false);
-      const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
-      localFixture.detectChanges();
-
-      expect(mockDevFlagEnabled).toHaveBeenCalledWith("httpAuthenticationCipherControls");
-      expect(
-        localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).toBeNull();
     });
 
     it("hides the HTTP authentication setting for items other than logins", () => {

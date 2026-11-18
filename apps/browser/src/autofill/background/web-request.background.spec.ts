@@ -12,7 +12,6 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -44,13 +43,6 @@ jest.mock("../utils/http-authentication-popout", () => ({
   closeAllHttpAuthenticationPopouts: jest.fn(),
 }));
 
-jest.mock("@bitwarden/common/platform/misc/flags", () => ({
-  ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
-  devFlagEnabled: jest.fn(),
-}));
-
-const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
-
 type WebRequestEventMock = {
   addListener: jest.Mock;
   removeListener: jest.Mock;
@@ -75,7 +67,6 @@ describe("WebRequestBackground", () => {
   let logService: ReturnType<typeof mock<LogService>>;
   let activeAccount$: BehaviorSubject<Account | null>;
   let httpAuthenticationAvailable$: BehaviorSubject<boolean>;
-  let globalSetting$: BehaviorSubject<boolean>;
   let webRequest: {
     onAuthRequired: WebRequestEventMock;
     onCompleted: WebRequestEventMock;
@@ -121,16 +112,9 @@ describe("WebRequestBackground", () => {
     accountService = mock<AccountService>();
     accountService.activeAccount$ = activeAccount$;
 
-    // By default only the login-level setting applies: the global setting is off and the
-    // login-level controls are shown.
-    mockDevFlagEnabled.mockImplementation(
-      (flag: string) => flag === "httpAuthenticationCipherControls",
-    );
     httpAuthenticationAvailable$ = new BehaviorSubject<boolean>(true);
-    globalSetting$ = new BehaviorSubject<boolean>(false);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.httpAuthenticationAvailable$ = httpAuthenticationAvailable$;
-    autofillSettingsService.resolvedEnableBasicAuthResponse$ = globalSetting$;
 
     eventCollectionService = mock<EventCollectionService>();
     eventCollectionService.collect.mockResolvedValue(undefined);
@@ -298,63 +282,6 @@ describe("WebRequestBackground", () => {
 
       expectListenersRegistered(1);
       expectListenersUnregistered(1);
-    });
-
-    describe("with the global setting", () => {
-      it("keeps listeners registered while either setting applies", () => {
-        globalSetting$.next(true);
-        webRequestBackground.startListening();
-
-        httpAuthenticationAvailable$.next(false);
-        expectListenersUnregistered(0);
-
-        globalSetting$.next(false);
-        expectListenersUnregistered(1);
-      });
-
-      it("registers listeners when only the global setting is on", () => {
-        httpAuthenticationAvailable$.next(false);
-        globalSetting$.next(true);
-
-        webRequestBackground.startListening();
-
-        expectListenersRegistered(1);
-      });
-
-      it("registers listeners from the global setting when the login-level controls are hidden", () => {
-        mockDevFlagEnabled.mockReturnValue(false);
-        globalSetting$.next(true);
-        webRequestBackground = createWebRequestBackground();
-
-        webRequestBackground.startListening();
-
-        expectListenersRegistered(1);
-      });
-
-      it("does not register listeners or read availability when only the login-level setting would apply and its controls are hidden", () => {
-        let availabilitySubscribed = false;
-        autofillSettingsService.httpAuthenticationAvailable$ = defer(() => {
-          availabilitySubscribed = true;
-          return of(true);
-        });
-        mockDevFlagEnabled.mockReturnValue(false);
-        webRequestBackground = createWebRequestBackground();
-
-        webRequestBackground.startListening();
-
-        expectListenersRegistered(0);
-        expect(availabilitySubscribed).toBe(false);
-      });
-
-      it("does not register listeners when resolving the global setting errors", () => {
-        const erroringGlobalSetting$ = new Subject<boolean>();
-        autofillSettingsService.resolvedEnableBasicAuthResponse$ = erroringGlobalSetting$;
-
-        webRequestBackground.startListening();
-        erroringGlobalSetting$.error(new Error("state unavailable"));
-
-        expectListenersRegistered(0);
-      });
     });
   });
 
@@ -1107,95 +1034,6 @@ describe("WebRequestBackground", () => {
 
         expect(openedPopouts[0].cipherIds).toEqual(["first-eligible-id", "second-eligible-id"]);
         expectAnswered();
-      });
-
-      describe("with the global setting on", () => {
-        beforeEach(() => {
-          globalSetting$.next(true);
-        });
-
-        it("answers with a login that has HTTP authentication off in its own settings", async () => {
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
-              httpAuthenticationEnabled: false,
-            }),
-          ]);
-
-          await triggerAuthRequired();
-
-          expectAnswered();
-        });
-
-        it("still declines a login with no URIs", async () => {
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
-              uris: [],
-              httpAuthenticationEnabled: false,
-            }),
-          ]);
-
-          await triggerAuthRequired();
-
-          expectDeclined();
-        });
-
-        it("offers logins with and without their own setting on", async () => {
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password", "opted-in-id", null),
-            createCipher("john.doe@example.com", "other-fake-password", "opted-out-id", null, {
-              httpAuthenticationEnabled: false,
-            }),
-          ]);
-
-          await triggerAuthRequired();
-
-          expect(openedPopouts[0].cipherIds).toEqual(["opted-in-id", "opted-out-id"]);
-          expectAnswered();
-        });
-      });
-
-      describe("when the login-level controls are hidden", () => {
-        /** Starts a handler built while the dev flag for the login-level controls is off. */
-        const startListeningWithLoginControlsHidden = () => {
-          mockDevFlagEnabled.mockReturnValue(false);
-          webRequest.onAuthRequired.addListener.mockClear();
-          webRequestBackground = createWebRequestBackground();
-          webRequestBackground.startListening();
-        };
-
-        it("answers with any eligible login while the global setting is on", async () => {
-          globalSetting$.next(true);
-          startListeningWithLoginControlsHidden();
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password", "cipher-id", null, {
-              httpAuthenticationEnabled: false,
-            }),
-          ]);
-
-          await triggerAuthRequired();
-
-          expectAnswered();
-        });
-
-        it("ignores a login's own setting while the global setting is off", async () => {
-          globalSetting$.next(true);
-          startListeningWithLoginControlsHidden();
-          // The handler is captured from the registration while the global setting was on,
-          // then invoked as a challenge already in flight would be.
-          const handleAuthRequired = webRequest.onAuthRequired.addListener.mock.calls[0][0];
-          globalSetting$.next(false);
-          cipherService.getAllDecryptedForUrl.mockResolvedValue([
-            createCipher("jane.doe@example.com", "fake-password"),
-          ]);
-
-          await handleAuthRequired(
-            buildAuthRequiredDetails({ url, requestId: "request-1" }),
-            callback,
-          );
-
-          expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
-          expectDeclined();
-        });
       });
     });
 
