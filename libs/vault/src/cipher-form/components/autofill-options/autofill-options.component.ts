@@ -267,7 +267,8 @@ export class AutofillOptionsComponent implements OnInit {
       this.addUri(
         {
           uri: uri.uri,
-          matchDetection: uri.match,
+          // Desktop app URIs load with the match strategy they're saved with, so the form holds it
+          matchDetection: this.savedMatchDetection({ uri: uri.uri, matchDetection: uri.match }),
         },
         false,
         false,
@@ -384,7 +385,9 @@ export class AutofillOptionsComponent implements OnInit {
 
   /**
    * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
-   * user doesn't change the URIs.
+   * user doesn't change the URIs. Desktop app rows also get it in the form, for when the feature flag
+   * is read after they load. Desktop app URIs typed into a website row keep the form's strategy until
+   * they're saved.
    */
   private saveDesktopAppUrisWithNeverMatch() {
     const matchChanged = this.uriControls.some(
@@ -393,9 +396,22 @@ export class AutofillOptionsComponent implements OnInit {
         (control.value?.matchDetection ?? null),
     );
 
-    if (matchChanged) {
-      this.updateUriFields();
+    if (!matchChanged) {
+      return;
     }
+
+    for (const control of this.uriControls) {
+      if (this.desktopAppRows.has(control)) {
+        control.setValue(
+          { ...control.value, matchDetection: this.savedMatchDetection(control.value) ?? null },
+          { emitEvent: false },
+        );
+      }
+    }
+
+    this.updateUriFields();
+    // The match strategies changed without emitting value changes
+    this.publishUriMatchStrategies();
   }
 
   /** Reorder the controls to match the new order after a "drop" event */

@@ -316,6 +316,56 @@ describe("LoginUriView", () => {
         expect(actual).toBe(false);
       });
     });
+
+    describe("using a desktop app uri", () => {
+      const pairingUri = "desktopapp://autotype?version=1.0.0&data=e30";
+
+      it.each([
+        UriMatchStrategy.Domain,
+        UriMatchStrategy.Host,
+        UriMatchStrategy.Exact,
+        UriMatchStrategy.StartsWith,
+        UriMatchStrategy.RegularExpression,
+      ])("does not match its own host with match strategy %s", (match) => {
+        const uri = uriFactory(match, pairingUri);
+
+        expect(uri.matchesUri("https://autotype/", new Set())).toBe(false);
+        expect(uri.matchesUri("http://autotype/login", new Set())).toBe(false);
+      });
+
+      it("does not match when it uses the default match strategy and the default is Host", () => {
+        const uri = uriFactory(null, pairingUri);
+
+        expect(uri.matchesUri("https://autotype/", new Set(), UriMatchStrategy.Host)).toBe(false);
+      });
+
+      it("does not match when the Never match strategy is overridden", () => {
+        const uri = uriFactory(UriMatchStrategy.Never, pairingUri);
+
+        expect(uri.matchesUri("https://autotype/", new Set(), undefined, true)).toBe(false);
+      });
+
+      it("does not match itself", () => {
+        const uri = uriFactory(UriMatchStrategy.Exact, pairingUri);
+
+        expect(uri.matchesUri(pairingUri, new Set())).toBe(false);
+      });
+
+      it.each(["DESKTOPAPP://autotype?version=1.0.0&data=e30", ` ${pairingUri}`])(
+        "does not match when the uri is %p",
+        (uriString) => {
+          const uri = uriFactory(UriMatchStrategy.Host, uriString);
+
+          expect(uri.matchesUri("https://autotype/", new Set())).toBe(false);
+        },
+      );
+
+      it("still matches website uris that only contain the desktop app scheme later on", () => {
+        const uri = uriFactory(UriMatchStrategy.Host, "https://example.com/?next=desktopapp://x");
+
+        expect(uri.matchesUri("https://example.com/", new Set())).toBe(true);
+      });
+    });
   });
 
   describe("fromSdkLoginUriView", () => {

@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
 
 import { punycodeToUnicode } from "../../../autofill/utils/punycode";
+import { DESKTOP_APP_URI_PREFIX } from "../../../desktop-native/models/desktop-autotype-pairing-uri";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { View } from "../../../models/view/view";
 import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
@@ -148,6 +149,12 @@ export class LoginUriView implements View {
     overrideNeverMatchStrategy?: true,
   ): boolean {
     if (!this.uri || !targetUri) {
+      return false;
+    }
+
+    // A desktop app pairing is never matched against a URL, whatever its match strategy. Every
+    // pairing has the host `autotype`, so the Host strategy would otherwise match `http(s)://autotype/`.
+    if (this.uri.trim().toLowerCase().startsWith(DESKTOP_APP_URI_PREFIX)) {
       return false;
     }
 
