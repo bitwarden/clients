@@ -986,15 +986,12 @@ describe("RuntimeBackground fillAssistEmit", () => {
 describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
   const tabId = 1;
   const iframeSrc = "https://example.com/iframe";
+  const message = { command: "runFillAssistHeuristicFallback", iframeSrc };
 
   let runtimeBackground: RuntimeBackground;
   let logService: MockProxy<LogService>;
   let tabSendMessageSpy: jest.SpyInstance;
   let sender: chrome.runtime.MessageSender;
-  // Fresh `message` per test. `tagAsExternalMessage` stamps a non-configurable
-  // symbol that cannot be unstamped, so a shared reference would leak the tag
-  // from one test into the next.
-  let message: { command: string; iframeSrc: string };
 
   beforeEach(() => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
@@ -1006,7 +1003,6 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
       tab: createChromeTabMock({ id: tabId }),
     } as chrome.runtime.MessageSender;
     tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
-    message = { command: "runFillAssistHeuristicFallback", iframeSrc };
   });
 
   afterEach(() => {
@@ -1022,7 +1018,7 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
       }),
     ]);
 
-    await runtimeBackground.processMessageWithSender(tagAsExternalMessage(message), sender);
+    await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(tabSendMessageSpy).toHaveBeenCalledWith(
       sender.tab,
@@ -1039,7 +1035,7 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
       }),
     ]);
 
-    await runtimeBackground.processMessageWithSender(tagAsExternalMessage(message), sender);
+    await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(tabSendMessageSpy).not.toHaveBeenCalled();
     expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("No frame matched"));
@@ -1056,7 +1052,7 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
         mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 8, url: iframeSrc }),
       ]);
 
-    await runtimeBackground.processMessageWithSender(tagAsExternalMessage(message), sender);
+    await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(tabSendMessageSpy).not.toHaveBeenCalled();
     expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining("Ambiguous frame match"));
@@ -1066,7 +1062,7 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
     const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
 
     await runtimeBackground.processMessageWithSender(
-      tagAsExternalMessage({ command: "runFillAssistHeuristicFallback" } as typeof message),
+      { command: "runFillAssistHeuristicFallback" },
       sender,
     );
 
@@ -1074,26 +1070,13 @@ describe("RuntimeBackground runFillAssistHeuristicFallback", () => {
     expect(tabSendMessageSpy).not.toHaveBeenCalled();
   });
 
-  // Trusted-sender boundary: the handler rejects any message not tagged by the
-  // chrome.runtime ingest boundary. Matches the convention used by sibling
-  // handlers in this file.
-  it("security: rejects a message that was not tagged as external", async () => {
-    const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
-
-    await runtimeBackground.processMessageWithSender(message, sender);
-
-    expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
-    expect(tabSendMessageSpy).not.toHaveBeenCalled();
-  });
-
-  // Operational guard: the handler needs sender.tab.id for the frame lookup
-  // and relay. An externally-tagged message with no sender tab must not throw
-  // or call BrowserApi methods with undefined.
-  it("security: rejects a message with no sender tab even when externally tagged", async () => {
+  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
+  // and options senders are rejected here.
+  it("security: rejects a message with no sender tab", async () => {
     const getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails");
     const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
 
-    await runtimeBackground.processMessageWithSender(tagAsExternalMessage(message), tablessSender);
+    await runtimeBackground.processMessageWithSender(message, tablessSender);
 
     expect(getAllFrameDetailsSpy).not.toHaveBeenCalled();
     expect(tabSendMessageSpy).not.toHaveBeenCalled();
