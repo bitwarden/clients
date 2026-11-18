@@ -1,8 +1,5 @@
-// Polyfill for Symbol.dispose required by the service's use of `using` keyword
-import "core-js/proposals/explicit-resource-management";
-
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable, of } from "rxjs";
+import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -23,6 +20,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -33,8 +31,6 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -48,8 +44,8 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import {
-  AuthClient,
-  BitwardenClient,
+  JitMasterPasswordRegistrationResponse,
+  SignedPublicKey,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
@@ -77,7 +73,7 @@ describe("DefaultSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let unlockService: MockProxy<UnlockService>;
-  const registerSdkService = mock<RegisterSdkService>();
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
 
   let userId: UserId;
   let userKey: UserKey;
@@ -95,6 +91,7 @@ describe("DefaultSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     unlockService = mock<UnlockService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
 
     userId = "userId" as UserId;
     userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -111,7 +108,7 @@ describe("DefaultSetInitialPasswordService", () => {
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
@@ -267,15 +264,6 @@ describe("DefaultSetInitialPasswordService", () => {
   });
 
   describe("initializePasswordJitPasswordUserV2Encryption()", () => {
-    let mockSdkRef: {
-      value: MockProxy<BitwardenClient>;
-      [Symbol.dispose]: jest.Mock;
-    };
-    let mockSdk: {
-      take: jest.Mock;
-    };
-    let mockRegistration: jest.Mock;
-
     const userId = "d4e2e3a1-1b5e-4c3b-8d7a-9f8e7d6c5b4a" as UserId;
     const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" as OrganizationId;
 
@@ -293,11 +281,11 @@ describe("DefaultSetInitialPasswordService", () => {
       privateKey: "org-private-key-encrypted",
     } as OrganizationKeysResponse;
 
-    const sdkRegistrationResult = {
+    const sdkRegistrationResult: JitMasterPasswordRegistrationResponse = {
       account_cryptographic_state: {
         V2: {
           private_key: makeEncString().encryptedString!,
-          signed_public_key: "test-signed-public-key",
+          signed_public_key: "test-signed-public-key" as SignedPublicKey,
           signing_key: makeEncString().encryptedString!,
           security_state: "test-security-state",
         },
@@ -317,30 +305,8 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       jest.clearAllMocks();
 
-      mockSdkRef = {
-        value: mock<BitwardenClient>(),
-        [Symbol.dispose]: jest.fn(),
-      };
-
-      mockSdkRef.value.auth.mockReturnValue({
-        registration: jest.fn().mockReturnValue({
-          post_keys_for_jit_password_registration: jest.fn(),
-        }),
-      } as unknown as AuthClient);
-
-      mockSdk = {
-        take: jest.fn().mockReturnValue(mockSdkRef),
-      };
-
-      registerSdkService.registerClient$.mockReturnValue(
-        of(mockSdk) as unknown as Observable<Rc<BitwardenClient>>,
-      );
-
       organizationApiService.getKeys.mockResolvedValue(orgKeys);
-
-      mockRegistration = mockSdkRef.value.auth().registration()
-        .post_keys_for_jit_password_registration as unknown as jest.Mock;
-      mockRegistration.mockResolvedValue(sdkRegistrationResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue(sdkRegistrationResult);
 
       const mockUserDecryptionOpts = new UserDecryptionOptions({ hasMasterPassword: false });
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
@@ -353,19 +319,17 @@ describe("DefaultSetInitialPasswordService", () => {
 
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
 
-      expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
-      expect(mockRegistration).toHaveBeenCalledWith(
-        expect.objectContaining({
-          org_id: credentials.orgId,
-          org_public_key: orgKeys.publicKey,
-          master_password: credentials.newPassword,
-          master_password_hint: credentials.newPasswordHint,
-          salt: credentials.salt,
-          organization_sso_identifier: credentials.orgSsoIdentifier,
-          user_id: userId,
-          reset_password_enroll: credentials.resetPasswordAutoEnroll,
-        }),
-      );
+      expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith({
+        userId,
+        orgId: credentials.orgId,
+        orgPublicKey: orgKeys.publicKey,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
+        newPassword: credentials.newPassword,
+        newPasswordHint: credentials.newPasswordHint,
+        salt: credentials.salt,
+        resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+        acceptOrganizationInvite: undefined,
+      });
 
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
         sdkRegistrationResult.account_cryptographic_state,
@@ -422,7 +386,7 @@ describe("DefaultSetInitialPasswordService", () => {
         await expect(promise).rejects.toThrow(`${field} is required.`);
 
         expect(organizationApiService.getKeys).not.toHaveBeenCalled();
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
       it("should throw error when userId is null", async () => {
@@ -445,7 +409,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
         await expect(promise).rejects.toThrow("Organization keys response is null.");
         expect(organizationApiService.getKeys).toHaveBeenCalledWith(credentials.orgId);
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
 
       it("should throw when organizationApiService.getKeys rejects", async () => {
@@ -455,31 +419,51 @@ describe("DefaultSetInitialPasswordService", () => {
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
         await expect(promise).rejects.toThrow("API network error");
-        expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.finishPassword).not.toHaveBeenCalled();
       });
     });
 
-    describe("SDK error handling", () => {
-      it("should throw when SDK is not available", async () => {
-        organizationApiService.getKeys.mockResolvedValue(orgKeys);
-        registerSdkService.registerClient$.mockReturnValue(
-          of(null) as unknown as Observable<Rc<BitwardenClient>>,
+    describe("acceptOrganizationInvite", () => {
+      it.each([true, false])(
+        "should pass acceptOrganizationInvite %s to finishPassword",
+        async (acceptOrganizationInvite) => {
+          await sut.initializePasswordJitPasswordUserV2Encryption(
+            { ...credentials, acceptOrganizationInvite },
+            userId,
+          );
+
+          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+            expect.objectContaining({ acceptOrganizationInvite }),
+          );
+        },
+      );
+
+      it("should not require acceptOrganizationInvite when it is undefined", async () => {
+        await sut.initializePasswordJitPasswordUserV2Encryption(
+          { ...credentials, acceptOrganizationInvite: undefined },
+          userId,
         );
 
-        const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
-
-        await expect(promise).rejects.toThrow("SDK not available");
+        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
+          expect.objectContaining({ acceptOrganizationInvite: undefined }),
+        );
       });
+    });
 
-      it("should throw when SDK registration fails", async () => {
+    describe("finish service error handling", () => {
+      it("should throw and not write state when finishPassword fails", async () => {
         const sdkError = new Error("SDK crypto operation failed");
 
-        organizationApiService.getKeys.mockResolvedValue(orgKeys);
-        mockRegistration.mockRejectedValue(sdkError);
+        ssoJitProvisionFinishService.finishPassword.mockRejectedValue(sdkError);
 
         const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
         await expect(promise).rejects.toThrow("SDK crypto operation failed");
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(masterPasswordService.setForceSetPasswordReason).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       });
     });
 
@@ -489,7 +473,7 @@ describe("DefaultSetInitialPasswordService", () => {
         account_cryptographic_state: { V1: {} } as unknown as WrappedAccountCryptographicState,
       };
 
-      mockRegistration.mockResolvedValue(invalidResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue(invalidResult);
 
       const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 

@@ -11,13 +11,14 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -43,7 +44,7 @@ describe("WebSetInitialPasswordService", () => {
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let registerSdkService: MockProxy<RegisterSdkService>;
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
   let unlockService: MockProxy<UnlockService>;
 
   const stashedOrgInvite = new DirectOrganizationInvite({
@@ -71,7 +72,7 @@ describe("WebSetInitialPasswordService", () => {
     organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    registerSdkService = mock<RegisterSdkService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
     unlockService = mock<UnlockService>();
 
     sut = new WebSetInitialPasswordService(
@@ -88,7 +89,7 @@ describe("WebSetInitialPasswordService", () => {
       organizationInviteService,
       routerService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
@@ -147,6 +148,47 @@ describe("WebSetInitialPasswordService", () => {
       expect(superSpy).toHaveBeenCalledWith(credentials, userId);
       expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should keep the open org invite and its login redirect URL when acceptOrganizationInvite is false", async () => {
+      // Arrange
+      const openOrgInviteCredentials: InitializeJitPasswordCredentials = {
+        ...credentials,
+        acceptOrganizationInvite: false,
+      };
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "org-name",
+        }),
+      );
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(openOrgInviteCredentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(openOrgInviteCredentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should clear the login redirect URL and the org invite when acceptOrganizationInvite is true and an org invite is stashed", async () => {
+      // Arrange
+      const acceptCredentials: InitializeJitPasswordCredentials = {
+        ...credentials,
+        acceptOrganizationInvite: true,
+      };
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(acceptCredentials, userId);
+
+      // Assert
+      expect(superSpy).toHaveBeenCalledWith(acceptCredentials, userId);
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
     });
   });
 });

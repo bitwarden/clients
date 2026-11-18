@@ -9,10 +9,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -38,7 +38,7 @@ export class WebSetInitialPasswordService
     private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-    protected registerSdkService: RegisterSdkService,
+    protected ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     protected unlockService: UnlockService,
   ) {
     super(
@@ -53,7 +53,7 @@ export class WebSetInitialPasswordService
       organizationUserApiService,
       userDecryptionOptionsService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   }
@@ -88,7 +88,16 @@ export class WebSetInitialPasswordService
      * /accept-organization or /join redirect so `deepLinkGuard` doesn't replay it after JIT.
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
+     *
+     * Exception: `acceptOrganizationInvite` is `false` only for a stashed open invite while
+     * `InviteLinkAutoConfirm` is on. The membership stays Invited, so keep the open invite and
+     * its /join redirect. `deepLinkGuard` then sends the user to AcceptOrgOpenInviteComponent,
+     * which runs the Admin Console accept flow.
      */
+    if (credentials.acceptOrganizationInvite === false) {
+      return;
+    }
+
     if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();

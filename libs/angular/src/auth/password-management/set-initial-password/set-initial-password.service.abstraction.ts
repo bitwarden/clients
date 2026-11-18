@@ -75,6 +75,13 @@ export interface InitializeJitPasswordCredentials {
   newPassword: string;
   /** Master password salt (typically the user's email) */
   salt: MasterPasswordSalt;
+  /**
+   * Whether the server moves the organization membership from Invited to Accepted.
+   * - `undefined` when the `pm-34429-invite-link-auto-confirm` flag is off. The server accepts.
+   * - `false` for a stored open invite, so the membership stays Invited.
+   * - `true` for a stored direct invite, or no stored invite.
+   */
+  acceptOrganizationInvite?: boolean;
 }
 
 /**

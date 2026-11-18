@@ -11,12 +11,12 @@ import { FakeUserDecryptionOptions as InternalUserDecryptionOptionsServiceAbstra
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -41,7 +41,7 @@ describe("DesktopSetInitialPasswordService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let messagingService: MockProxy<MessagingService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let registerSdkService: MockProxy<RegisterSdkService>;
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
   let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe("DesktopSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     messagingService = mock<MessagingService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    registerSdkService = mock<RegisterSdkService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
     unlockService = mock<UnlockService>();
 
     sut = new DesktopSetInitialPasswordService(
@@ -73,7 +73,7 @@ describe("DesktopSetInitialPasswordService", () => {
       userDecryptionOptionsService,
       messagingService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
