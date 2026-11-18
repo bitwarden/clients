@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Location, NgTemplateOutlet } from "@angular/common";
 import {
   Component,
@@ -15,7 +13,7 @@ import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-i
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject, EMPTY, firstValueFrom, from, fromEvent } from "rxjs";
-import { catchError, concatMap, map, switchMap, timeout } from "rxjs/operators";
+import { catchError, concatMap, filter, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import {
@@ -50,6 +48,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   BadgeComponent,
@@ -212,8 +211,14 @@ export class SettingsComponent implements OnInit {
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
-  protected readonly currentUserEmail = computed(() => this.activeAccount().email);
-  protected readonly currentUserId = computed(() => this.activeAccount().id);
+  protected readonly currentUserEmail = computed(() => this.activeAccount()?.email);
+  protected readonly currentUserId = computed(() => {
+    const account = this.activeAccount();
+    if (account == null) {
+      throw new Error("No active account");
+    }
+    return account.id;
+  });
 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -246,9 +251,9 @@ export class SettingsComponent implements OnInit {
     this.syncing.set(true);
     try {
       await this.syncService.fullSync(true, true);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingComplete"));
+      this.platformUtilsService.showToast("success", "", this.i18nService.t("syncingComplete"));
     } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("syncingFailed"));
+      this.platformUtilsService.showToast("error", "", this.i18nService.t("syncingFailed"));
     } finally {
       this.syncing.set(false);
     }
@@ -269,14 +274,14 @@ export class SettingsComponent implements OnInit {
   );
   protected readonly refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
 
-  protected readonly form = this.formBuilder.group({
+  protected readonly form = this.formBuilder.nonNullable.group({
     // Security
-    pin: [null as boolean | null],
+    pin: false,
     biometric: false,
     requireMasterPasswordOnAppRestart: true,
     autoPromptBiometrics: false,
     // Account Preferences
-    clearClipboard: [null],
+    clearClipboard: [null as ClearClipboardDelaySetting | null],
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     showQuickCopyActions: false,
@@ -288,12 +293,12 @@ export class SettingsComponent implements OnInit {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    enableAutotype: this.formBuilder.control<boolean>({
+    enableAutotype: this.formBuilder.nonNullable.control<boolean>({
       value: false,
       disabled: true,
     }),
     autotypeShortcut: [null as string | null],
-    enableAutotypeGa: this.formBuilder.control<boolean>({
+    enableAutotypeGa: this.formBuilder.nonNullable.control<boolean>({
       value: false,
       disabled: true,
     }),
@@ -317,7 +322,7 @@ export class SettingsComponent implements OnInit {
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
 
-    const localeOptions: Option<string>[] = [];
+    const localeOptions: (Option<string> & { label: string })[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {
       let name = locale;
       if (this.i18nService.localeNames.has(locale)) {
@@ -415,7 +420,7 @@ export class SettingsComponent implements OnInit {
         (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
-      locale: await firstValueFrom(this.i18nService.userSetLocale$),
+      locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -463,28 +468,30 @@ export class SettingsComponent implements OnInit {
 
     this.form.controls.clearClipboard.valueChanges
       .pipe(
-        concatMap(async (value: ClearClipboardDelaySetting) => this.saveClearClipboard(value)),
+        filter((value) => value != null),
+        concatMap(async (value) => this.saveClearClipboard(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.sshAgentPromptBehavior.valueChanges
       .pipe(
-        concatMap(async (value: SshAgentPromptType) => this.saveSshAgentPromptBehavior(value)),
+        concatMap(async (value) => this.saveSshAgentPromptBehavior(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.theme.valueChanges
       .pipe(
-        concatMap(async (value: Theme) => this.saveTheme(value)),
+        filter((value) => value != null),
+        concatMap(async (value) => this.saveTheme(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.locale.valueChanges
       .pipe(
-        concatMap(async (value: string) => this.saveLocale(value)),
+        concatMap(async (value) => this.saveLocale(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
@@ -518,7 +525,7 @@ export class SettingsComponent implements OnInit {
       }
 
       const pinSet = await firstValueFrom(dialogRef.closed);
-      this.userHasPinSet.set(pinSet);
+      this.userHasPinSet.set(pinSet ?? false);
       this.form.controls.pin.setValue(this.userHasPinSet(), { emitEvent: false });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -527,8 +534,8 @@ export class SettingsComponent implements OnInit {
       if (
         (this.isWindows || this.isLinux) &&
         this.supportsBiometric() &&
-        this.form.value.requireMasterPasswordOnAppRestart &&
-        this.form.value.biometric &&
+        this.form.controls.requireMasterPasswordOnAppRestart.value &&
+        this.form.controls.biometric.value &&
         !this.userHasMasterPassword()
       ) {
         // Allow biometric unlock on app restart so the user doesn't get into a bad state.
@@ -586,7 +593,7 @@ export class SettingsComponent implements OnInit {
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     // Stored first, so biometric unlock works even if the persistent enrollment below fails.
-    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    const userKey = await this.getUserKey(activeUserId);
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
 
     if (this.isWindows || this.isLinux) {
@@ -642,7 +649,7 @@ export class SettingsComponent implements OnInit {
   private async updateRequireMasterPasswordOnAppRestart(enabled: boolean, userId: UserId) {
     if (enabled) {
       // Require master password or PIN on app restart
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      const userKey = await this.getUserKey(userId);
       await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     } else {
@@ -651,13 +658,21 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  private async getUserKey(userId: UserId): Promise<UserKey> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("User key is not available");
+    }
+    return userKey;
+  }
+
   /**
    * Persists the user key so biometrics alone can unlock the vault after an app restart.
    */
   private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
     try {
       if (!(await this.biometricsService.hasPersistentKey(userId))) {
-        const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+        const userKey = await this.getUserKey(userId);
         await this.biometricsService.enrollPersistent(userId, userKey);
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
           emitEvent: false,
@@ -671,7 +686,7 @@ export class SettingsComponent implements OnInit {
 
   protected async updateAutoPromptBiometrics() {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    if (this.form.value.autoPromptBiometrics) {
+    if (this.form.controls.autoPromptBiometrics.value) {
       await this.biometricStateService.setPromptAutomatically(true, activeUserId);
     } else {
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
@@ -731,21 +746,21 @@ export class SettingsComponent implements OnInit {
   }
 
   protected async saveFavicons() {
-    await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
+    await this.domainSettingsService.setShowFavicons(this.form.controls.enableFavicons.value);
     this.messagingService.send("refreshCiphers");
   }
 
   async saveQuickCopyActions() {
     await this.vaultCopyButtonsService.setShowQuickCopyActions(
-      this.form.value.showQuickCopyActions,
+      this.form.controls.showQuickCopyActions.value,
     );
   }
 
   protected async saveRunInBackground() {
-    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
+    await this.desktopSettingsService.setRunInBackground(this.form.controls.runInBackground.value);
   }
 
-  private async saveLocale(newValue: string) {
+  private async saveLocale(newValue: string | null) {
     await this.i18nService.setLocale(newValue);
   }
 
@@ -755,7 +770,7 @@ export class SettingsComponent implements OnInit {
 
   protected async saveMinOnCopyToClipboard() {
     await this.desktopSettingsService.setMinimizeOnCopy(
-      this.form.value.minimizeOnCopyToClipboard,
+      this.form.controls.minimizeOnCopyToClipboard.value,
       this.currentUserId(),
     );
   }
@@ -771,25 +786,25 @@ export class SettingsComponent implements OnInit {
   }
 
   protected async saveOpenAtLogin() {
-    await this.desktopSettingsService.setOpenAtLogin(this.form.value.openAtLogin);
+    await this.desktopSettingsService.setOpenAtLogin(this.form.controls.openAtLogin.value);
     // TODO: Ideally DesktopSettingsService.openAtLogin$ could be subscribed to directly rather than sending a message
     this.messagingService.send(
-      this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
+      this.form.controls.openAtLogin.value ? "addOpenAtLogin" : "removeOpenAtLogin",
     );
   }
 
   protected async saveDdgBrowserIntegration() {
     await this.desktopAutofillSettingsService.setEnableDuckDuckGoBrowserIntegration(
-      this.form.value.enableDuckDuckGoBrowserIntegration,
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
     );
 
     // Adding to cover users on a previous version of DDG
     await this.stateService.setEnableDuckDuckGoBrowserIntegration(
-      this.form.value.enableDuckDuckGoBrowserIntegration,
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
     );
 
     const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
-      this.form.value.enableDuckDuckGoBrowserIntegration,
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
     );
     if (errorResult !== null) {
       this.logService.error("Error in DDG browser integration: " + errorResult);
@@ -798,12 +813,12 @@ export class SettingsComponent implements OnInit {
 
   protected async saveHardwareAcceleration() {
     await this.desktopSettingsService.setHardwareAcceleration(
-      this.form.value.enableHardwareAcceleration,
+      this.form.controls.enableHardwareAcceleration.value,
     );
   }
 
   protected async saveSshAgent() {
-    await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+    await this.desktopSettingsService.setSshAgentEnabled(this.form.controls.enableSshAgent.value);
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
@@ -811,9 +826,11 @@ export class SettingsComponent implements OnInit {
   }
 
   protected async savePreventScreenshots() {
-    await this.desktopSettingsService.setPreventScreenshots(!this.form.value.allowScreenshots);
+    await this.desktopSettingsService.setPreventScreenshots(
+      !this.form.controls.allowScreenshots.value,
+    );
 
-    if (!this.form.value.allowScreenshots) {
+    if (!this.form.controls.allowScreenshots.value) {
       const dialogRef = this.dialogService.openSimpleDialogRef({
         title: { key: "confirmWindowStillVisibleTitle" },
         content: { key: "confirmWindowStillVisibleContent" },
@@ -823,7 +840,7 @@ export class SettingsComponent implements OnInit {
       });
       let enabled = true;
       try {
-        enabled = await firstValueFrom(dialogRef.closed.pipe(timeout(10000)));
+        enabled = !!(await firstValueFrom(dialogRef.closed.pipe(timeout(10000))));
       } catch {
         enabled = false;
       } finally {
@@ -838,7 +855,9 @@ export class SettingsComponent implements OnInit {
   }
 
   protected async saveEnableAutotype() {
-    await this.desktopAutotypeMvpService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(
+      this.form.controls.enableAutotype.value,
+    );
     const currentShortcut = await firstValueFrom(
       this.desktopAutotypeMvpService.autotypeKeyboardShortcut$,
     );
@@ -875,7 +894,9 @@ export class SettingsComponent implements OnInit {
   }
 
   protected async saveEnableAutotypeGa() {
-    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotypeGa);
+    await this.desktopAutotypeService.setAutotypeEnabledState(
+      this.form.controls.enableAutotypeGa.value,
+    );
     const currentShortcut = await firstValueFrom(
       this.desktopAutotypeService.autotypeKeyboardShortcut$,
     );

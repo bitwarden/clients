@@ -676,15 +676,18 @@ describe("SettingsComponent", () => {
 
             await component.ngOnInit();
             (component as any).isWindows = true;
-            (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+            (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(true, {
+              emitEvent: false,
+            });
             (component as any).userHasMasterPassword.set(false);
             (component as any).supportsBiometric.set(true);
-            (component as any).form.value.biometric = true;
+            (component as any).form.controls.biometric.setValue(true, { emitEvent: false });
 
             await (component as any).updatePinHandler(false);
 
+            // Only an enrollment turns the requirement off; an existing key leaves it untouched.
             expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
-              false,
+              enrolled,
             );
             expect((component as any).form.controls.pin.value).toBe(false);
             expect(pinServiceAbstraction.unsetPin).toHaveBeenCalled();
@@ -786,11 +789,13 @@ describe("SettingsComponent", () => {
 
             await component.ngOnInit();
             (component as any).isWindows = true;
-            (component as any).form.value.requireMasterPasswordOnAppRestart =
-              requireMasterPasswordOnAppRestart;
+            (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(
+              requireMasterPasswordOnAppRestart,
+              { emitEvent: false },
+            );
             (component as any).userHasMasterPassword.set(userHasMasterPassword);
             (component as any).supportsBiometric.set(supportsBiometric);
-            (component as any).form.value.biometric = biometric;
+            (component as any).form.controls.biometric.setValue(biometric, { emitEvent: false });
 
             await (component as any).updatePinHandler(false);
 
@@ -813,10 +818,12 @@ describe("SettingsComponent", () => {
           await component.ngOnInit();
           (component as any).isWindows = false;
           (component as any).isLinux = true;
-          (component as any).form.value.requireMasterPasswordOnAppRestart = true;
+          (component as any).form.controls.requireMasterPasswordOnAppRestart.setValue(true, {
+            emitEvent: false,
+          });
           (component as any).userHasMasterPassword.set(false);
           (component as any).supportsBiometric.set(true);
-          (component as any).form.value.biometric = true;
+          (component as any).form.controls.biometric.setValue(true, { emitEvent: false });
         };
 
         it("enrolls a persistent key when turning off PIN", async () => {
@@ -1826,11 +1833,7 @@ describe("SettingsComponent", () => {
       await (component as any).syncNow();
 
       expect(syncService.fullSync).toHaveBeenCalledWith(true, true);
-      expect(platformUtilsService.showToast).toHaveBeenCalledWith(
-        "success",
-        null,
-        "syncingComplete",
-      );
+      expect(platformUtilsService.showToast).toHaveBeenCalledWith("success", "", "syncingComplete");
       expect((component as any).syncing()).toBe(false);
     });
 
@@ -1840,7 +1843,7 @@ describe("SettingsComponent", () => {
 
       await (component as any).syncNow();
 
-      expect(platformUtilsService.showToast).toHaveBeenCalledWith("error", null, "syncingFailed");
+      expect(platformUtilsService.showToast).toHaveBeenCalledWith("error", "", "syncingFailed");
       expect((component as any).syncing()).toBe(false);
     });
   });
