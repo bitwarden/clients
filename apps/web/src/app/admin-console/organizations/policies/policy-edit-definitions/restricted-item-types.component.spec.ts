@@ -121,6 +121,20 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
     expect(component.buildRequestData()).toEqual({ restrictedTypes: [] });
   });
 
+  it("loads a legacy enabled policy with empty object data as Card restricted", async () => {
+    const component = await setup({ enabled: true, data: {} });
+
+    expect(component.data.controls[CipherType.Card].value).toBe(false);
+    expect(component.buildRequestData()).toEqual({ restrictedTypes: [CipherType.Card] });
+  });
+
+  it("loads a never-enabled policy with empty object data as everything allowed", async () => {
+    const component = await setup({ enabled: false, data: {} });
+
+    expect(component.data.controls[CipherType.Card].value).toBe(true);
+    expect(component.buildRequestData()).toEqual({ restrictedTypes: [] });
+  });
+
   it("keeps stored selections while the policy is disabled", async () => {
     const component = await setup({
       enabled: false,

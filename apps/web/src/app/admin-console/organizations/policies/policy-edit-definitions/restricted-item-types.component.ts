@@ -237,7 +237,7 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     super.ngOnInit();
 
     // The base class only loads data when the response includes it, but legacy policies have none.
-    if (this.policyResponse()?.data == null) {
+    if (this.hasNoStoredData()) {
       this.loadData();
     }
   }
@@ -267,11 +267,17 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
   private restrictedTypesFromResponse(): CipherType[] {
     // A policy that was never turned on has nothing restricted. Otherwise missing data means a
     // legacy policy, which restricts cards only.
-    if (!this.policyResponse()?.enabled && this.policyResponse()?.data == null) {
+    if (!this.policyResponse()?.enabled && this.hasNoStoredData()) {
       return [];
     }
 
     return this.storedRestrictedTypes();
+  }
+
+  /** The server returns `{}` rather than null when no data is stored. */
+  private hasNoStoredData(): boolean {
+    const data = this.policyResponse()?.data;
+    return data == null || (typeof data === "object" && Object.keys(data).length === 0);
   }
 
   private storedRestrictedTypes(): CipherType[] {
