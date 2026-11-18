@@ -23,7 +23,6 @@ import {
   isEligibleForHTTPAuthentication,
 } from "@bitwarden/common/autofill/utils/http-authentication-eligibility";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -469,14 +468,7 @@ export default class WebRequestBackground {
    * authentication turned on in their own settings.
    */
   private async getCandidateCiphers(url: string, userId: UserId): Promise<CipherView[]> {
-    // Each URI is matched by its own strategy; a URI using "Default" is matched as Host, so it is
-    // never matched more loosely than the challenging host.
-    const ciphers = await this.fillCipherPolicy.ciphersForUrl(
-      url,
-      userId,
-      CipherUse.AutomaticFill,
-      { defaultMatch: UriMatchStrategy.Host },
-    );
+    const ciphers = await this.fillCipherPolicy.ciphersForUrl(url, userId, CipherUse.AutomaticFill);
 
     return (ciphers ?? []).filter(
       (cipher) => isEligibleForHTTPAuthentication(cipher) && hasOptedInToHTTPAuthentication(cipher),

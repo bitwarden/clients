@@ -436,13 +436,6 @@ describe("WebRequestBackground", () => {
         url,
         userId,
         CipherUse.AutomaticFill,
-        { defaultMatch: UriMatchStrategy.Host },
-      );
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
-        url,
-        userId,
-        undefined,
-        UriMatchStrategy.Host,
       );
       expect(callback).toHaveBeenCalledWith({
         authCredentials: { username: "jane.doe@example.com", password: "fake-password" },
@@ -899,15 +892,26 @@ describe("WebRequestBackground", () => {
         expectAnswered();
       });
 
-      it("matches a default-strategy URI as Host", async () => {
-        resolveLookupByMatching([
-          createCipher("jane.doe@example.com", "fake-password", "matching-id", null, {
-            uris: [createLoginUri("https://example.com/elsewhere", null)],
-          }),
-          createCipher("john.doe@example.com", "other-fake-password", "subdomain-id", null, {
-            uris: [createLoginUri("https://login.example.com/protected", null)],
-          }),
-        ]);
+      it("leaves a default-strategy URI to the device's default strategy", async () => {
+        // The cipher service resolves the device's default strategy when none is passed; Base domain
+        // stands in for it here.
+        cipherService.getAllDecryptedForUrl.mockImplementation(
+          async (targetUrl, _userId, _includeOtherTypes, defaultMatch) =>
+            [
+              createCipher("jane.doe@example.com", "fake-password", "subdomain-id", null, {
+                uris: [createLoginUri("https://login.example.com/protected", null)],
+              }),
+              createCipher("john.doe@example.com", "other-fake-password", "other-site-id", null, {
+                uris: [createLoginUri("https://example.org/protected", null)],
+              }),
+            ].filter((cipher) =>
+              cipher.login.matchesUri(
+                targetUrl,
+                new Set<string>(),
+                defaultMatch ?? UriMatchStrategy.Domain,
+              ),
+            ),
+        );
 
         await triggerAuthRequired();
 
@@ -915,8 +919,9 @@ describe("WebRequestBackground", () => {
           url,
           userId,
           undefined,
-          UriMatchStrategy.Host,
+          undefined,
         );
+        expect(openedPopouts[0].cipherIds).toEqual(["subdomain-id"]);
         expectAnswered();
       });
 
