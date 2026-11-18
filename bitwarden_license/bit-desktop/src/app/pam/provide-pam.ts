@@ -28,6 +28,7 @@ import {
   GatedCollectionBannerComponent,
   GatedRequestActionsService,
   GovernedCollectionsService,
+  GovernedSharedFolderIconComponent,
   ItemDetailsStateBadgeComponent,
   LeaseExtensionService,
   MyLeasesService,
@@ -52,6 +53,7 @@ import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-co
 import {
   CIPHER_VIEW_BANNER,
   ITEM_DETAILS_BADGE,
+  SHARED_FOLDER_DECORATION,
   VAULT_ITEM_COLUMN,
   VAULT_ITEM_FILTER,
   VAULT_ROW_ACTIONS,
@@ -68,7 +70,7 @@ import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions
 /**
  * PAM's root-level providers for the commercial desktop build, including every OSS seam it fills:
  * the routes, nav badge, settings row, and the vault's cipher banner, item badge, filter chip,
- * Controlled access column, shared-folder banner, row-menu actions and the revealed view of a
+ * Controlled access column, shared-folder banner and lock, row-menu actions and the revealed view of a
  * leased item. Also starts the system-notification watcher at app initialization.
  */
 export function provideDesktopPam(): SafeProvider[] {
@@ -189,6 +191,11 @@ export function provideDesktopPam(): SafeProvider[] {
     safeProvider({
       provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    // The lock after a governed shared folder's name, the same component the web vault binds.
+    safeProvider({
+      provide: SHARED_FOLDER_DECORATION,
+      useValue: GovernedSharedFolderIconComponent,
     }),
     // One instance behind the table chip and the column, so they share one per-row state cache.
     safeProvider({

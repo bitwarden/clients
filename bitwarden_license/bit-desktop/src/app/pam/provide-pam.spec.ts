@@ -10,6 +10,7 @@ import {
   AccessBadgeTickerService,
   GatedCollectionBannerComponent,
   GatedRequestActionsService,
+  GovernedSharedFolderIconComponent,
   LeaseExtensionService,
   controlledAccessColumn,
 } from "@bitwarden/bit-pam-components";
@@ -19,7 +20,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
-import { VAULT_ITEM_COLUMN, VAULT_ROW_ACTIONS } from "@bitwarden/vault";
+import { SHARED_FOLDER_DECORATION, VAULT_ITEM_COLUMN, VAULT_ROW_ACTIONS } from "@bitwarden/vault";
 
 import { provideDesktopPam } from "./provide-pam";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
@@ -56,6 +57,12 @@ describe("provideDesktopPam", () => {
     it("fills the gated shared-folder banner with the shared banner component", () => {
       expect(providerFor(VAULT_GATED_COLLECTION_BANNER)?.useValue).toBe(
         GatedCollectionBannerComponent,
+      );
+    });
+
+    it("fills the shared-folder decoration with the shared lock component", () => {
+      expect(providerFor(SHARED_FOLDER_DECORATION)?.useValue).toBe(
+        GovernedSharedFolderIconComponent,
       );
     });
 

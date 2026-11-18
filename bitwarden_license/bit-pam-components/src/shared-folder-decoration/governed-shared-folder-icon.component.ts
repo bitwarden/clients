@@ -10,7 +10,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 /**
  * Binds `SHARED_FOLDER_DECORATION`: the lock beside a shared folder an access rule governs, read
  * off the collection's server-derived `hasEnabledAccessRule`. Renders nothing for any other folder,
- * or while PAM's flag is off.
+ * or while PAM's flag is off. It reads no access rules and no license, so a member who cannot
+ * read rules, or holds no PAM license, sees the same lock. The web vault and desktop both bind it.
  */
 @Component({
   selector: "app-pam-governed-shared-folder-icon",

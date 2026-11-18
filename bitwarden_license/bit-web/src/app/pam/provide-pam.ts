@@ -27,6 +27,7 @@ import {
   ApprovalPrivilegeService,
   GatedCollectionBannerComponent,
   GovernedCollectionsService,
+  GovernedSharedFolderIconComponent,
   VaultRowLeaseBadgeComponent,
   controlledAccessColumn,
 } from "@bitwarden/bit-pam-components";
@@ -69,7 +70,6 @@ import { RotationSdkService } from "./rotation/rotation-sdk.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
-import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 
 /** PAM's root-level providers, including every OSS seam it fills. */

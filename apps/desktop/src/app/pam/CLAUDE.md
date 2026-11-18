@@ -14,7 +14,9 @@ Inert hooks a commercial build fills; this folder and the rest of `apps/desktop`
 - Vault seams that live elsewhere: `vault-v3/vault-gated-collection-banner.token.ts` (banner above
   a shared folder's items, unprovided renders nothing) and the shared `@bitwarden/vault` tokens
   `VAULT_ROW_ACTIONS`, `VAULT_ITEM_COLUMN`, `VAULT_ITEM_FILTER`, `CIPHER_VIEW_BANNER`,
-  `ITEM_DETAILS_BADGE`, which the desktop vault table and cipher view already honour.
+  `ITEM_DETAILS_BADGE`, which the desktop vault table and cipher view already honour, and
+  `SHARED_FOLDER_DECORATION`, which the shared-folders page honours through the shared
+  `vault-shared-folders` list.
 - Notification seams that live elsewhere and name no PAM symbol except the route allowlist:
   `ipc.platform.showNotification({ title, body, route? })` (`platform/preload.ts`, handled in
   `services/electron-main-messaging.service.ts`: unsupported-platform check, route checked against
