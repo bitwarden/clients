@@ -115,7 +115,7 @@ export class CipherRowMenuService {
     { initialValue: false },
   );
 
-  /** The active user's revealed ciphers. A revealed row offers edit and attachments. */
+  /** The active user's revealed ciphers. A revealed row offers edit, attachments, delete and restore. */
   private readonly revealed = toSignal(
     this.userId$.pipe(switchMap((userId) => this.revealedCipherService.revealed$(userId))),
     { initialValue: new Map() as ReadonlyMap<CipherId, CipherView> },

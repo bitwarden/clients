@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "App para computador",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "App para computador $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Tudo"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Desativado"
   },
+  "removeAuth": {
+    "message": "Remover a verificação por palavra-passe ou e-mail"
+  },
+  "removedAuth": {
+    "message": "Verificação por palavra-passe ou e-mail removida"
+  },
+  "removeAuthConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe ou e-mail deste Send?"
+  },
   "removePassword": {
     "message": "Remover palavra-passe"
+  },
+  "removeEmailVerification": {
+    "message": "Remover a verificação por e-mail"
   },
   "removedPassword": {
     "message": "Palavra-passe removida"
   },
-  "removePasswordConfirmation": {
-    "message": "Tem a certeza de que pretende remover a palavra-passe?"
+  "removedEmailVerification": {
+    "message": "Verificação por e-mail removida"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por e-mail deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Número máximo de acessos atingido"
@@ -3438,7 +3463,7 @@
     "message": "Uma ou mais políticas da organização estão a afetar as suas opções do Send."
   },
   "emailVerificationRequired": {
-    "message": "Verificação de e-mail necessária"
+    "message": "Verificação por e-mail obrigatória"
   },
   "emailVerifiedV2": {
     "message": "E-mail verificado"
@@ -4153,7 +4178,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+    "message": "Foi recusada uma tentativa de início de sessão noutro dispositivo. Se foi uma tentativa sua, tente novamente iniciar sessão nesse dispositivo."
   },
   "webApp": {
     "message": "Aplicação web"
@@ -5762,7 +5787,7 @@
     "message": "Método de dois fatores"
   },
   "emailVerification": {
-    "message": "Verificação de e-mail"
+    "message": "Verificação por e-mail"
   },
   "approvalEmailDesc": {
     "message": "Verifique o seu e-mail e introduza o código de verificação abaixo"
@@ -6055,7 +6080,7 @@
     "message": "Autorizar"
   },
   "deny": {
-    "message": "Rejeitar"
+    "message": "Recusar"
   },
   "sshkeyApprovalTitle": {
     "message": "Confirmar a utilização da chave SSH"
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Fazer uma cópia"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
   "driversLicenseDetails": {
