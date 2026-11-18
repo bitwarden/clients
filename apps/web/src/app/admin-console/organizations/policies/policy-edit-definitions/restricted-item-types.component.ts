@@ -294,7 +294,11 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
   /** The server returns `{}` rather than null when no data is stored. */
   private hasNoStoredData(): boolean {
     const data = this.policyResponse()?.data;
-    return data == null || (typeof data === "object" && Object.keys(data).length === 0);
+    if (data == null) {
+      return true;
+    }
+
+    return typeof data === "object" && Object.keys(data).length === 0;
   }
 
   private storedRestrictedTypes(): CipherType[] {
