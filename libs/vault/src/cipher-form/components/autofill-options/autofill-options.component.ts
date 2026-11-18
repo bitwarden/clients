@@ -166,7 +166,7 @@ export class AutofillOptionsComponent implements OnInit {
         cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
-            match: this.savedMatchDetection(uri),
+            match: this.savedMatchDetection(uri.uri, uri.matchDetection),
           } as LoginUriView),
         );
         cipher.login.autofillOnPageLoad = value.autofillOnPageLoad;
@@ -268,7 +268,7 @@ export class AutofillOptionsComponent implements OnInit {
         {
           uri: uri.uri,
           // Desktop app URIs load with the match strategy they're saved with, so the form holds it
-          matchDetection: this.savedMatchDetection({ uri: uri.uri, matchDetection: uri.match }),
+          matchDetection: this.savedMatchDetection(uri.uri, uri.match),
         },
         false,
         false,
@@ -365,7 +365,8 @@ export class AutofillOptionsComponent implements OnInit {
         (control) =>
           Object.assign(new LoginUriView(), {
             uri: control.value.uri,
-            match: this.savedMatchDetection(control.value) ?? null,
+            match:
+              this.savedMatchDetection(control.value.uri, control.value.matchDetection) ?? null,
           }) as LoginUriView,
       );
       return cipher;
@@ -377,10 +378,13 @@ export class AutofillOptionsComponent implements OnInit {
    * URIs are saved with the Never match strategy, including ones typed into a website row, because
    * they load as desktop apps.
    */
-  private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
-    return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
+  private savedMatchDetection(
+    uri: string,
+    matchDetection: UriMatchStrategySetting,
+  ): UriMatchStrategySetting {
+    return this.recognizeDesktopApps() && uri?.startsWith(DESKTOP_APP_URI_PREFIX)
       ? UriMatchStrategy.Never
-      : uri?.matchDetection;
+      : matchDetection;
   }
 
   /**
@@ -391,9 +395,9 @@ export class AutofillOptionsComponent implements OnInit {
    */
   private saveDesktopAppUrisWithNeverMatch() {
     const matchChanged = this.uriControls.some(
-      (control) =>
-        (this.savedMatchDetection(control.value) ?? null) !==
-        (control.value?.matchDetection ?? null),
+      ({ value }) =>
+        (this.savedMatchDetection(value?.uri, value?.matchDetection) ?? null) !==
+        (value?.matchDetection ?? null),
     );
 
     if (!matchChanged) {
@@ -402,8 +406,9 @@ export class AutofillOptionsComponent implements OnInit {
 
     for (const control of this.uriControls) {
       if (this.desktopAppRows.has(control)) {
+        const { uri, matchDetection } = control.value;
         control.setValue(
-          { ...control.value, matchDetection: this.savedMatchDetection(control.value) ?? null },
+          { uri, matchDetection: this.savedMatchDetection(uri, matchDetection) ?? null },
           { emitEvent: false },
         );
       }

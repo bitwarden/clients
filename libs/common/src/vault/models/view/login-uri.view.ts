@@ -152,8 +152,7 @@ export class LoginUriView implements View {
       return false;
     }
 
-    // A desktop app pairing is never matched against a URL, whatever its match strategy. Every
-    // pairing has the host `autotype`, so the Host strategy would otherwise match `http(s)://autotype/`.
+    // A desktop app pairing should never match against a URL, whatever its match strategy.
     if (this.uri.trim().toLowerCase().startsWith(DESKTOP_APP_URI_PREFIX)) {
       return false;
     }
