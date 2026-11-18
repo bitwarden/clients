@@ -386,10 +386,6 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
   };
 
   private async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
-    if (!policyComponent.savesToServer) {
-      return;
-    }
-
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,

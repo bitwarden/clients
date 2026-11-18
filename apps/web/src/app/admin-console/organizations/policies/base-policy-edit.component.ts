@@ -222,12 +222,6 @@ export abstract class BasePolicyEditComponent implements OnInit {
   );
 
   /**
-   * Whether submitting the policy edit drawer saves the policy to the server. Set to false for
-   * policies whose UI is built ahead of their API support so that submitting is a no-op.
-   */
-  readonly savesToServer: boolean = true;
-
-  /**
    * Optional i18n key for the toast shown after the policy is submitted, overriding the default
    * "Edited policy" toast. Return undefined to use the default.
    */

@@ -10,6 +10,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { getRestrictedItemTypes } from "@bitwarden/common/vault/utils/restricted-item-types.utils";
 import {
   CalloutComponent,
   CheckboxModule,
@@ -112,9 +113,9 @@ export class ManageItemTypesPolicy extends BasePolicyEditDefinition {
 /**
  * Edits the "Manage item types" policy.
  *
- * The UI lists the item types members are *allowed* to use (checked). This is UI only for now:
- * submitting does not save anything. Existing policies restrict cards only, so an enabled policy
- * loads with Card unchecked.
+ * The UI lists the item types members are *allowed* to use (checked). On save, the unchecked types
+ * are stored as `{ restrictedTypes: CipherType[] }`. Existing policies have no data and restrict
+ * cards only, so an enabled legacy policy loads with Card unchecked.
  */
 @Component({
   selector: "restricted-item-types-policy-edit",
@@ -131,9 +132,6 @@ export class ManageItemTypesPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
-  /** The save API for this policy is not built yet, so submitting the drawer does nothing. */
-  override readonly savesToServer = false;
-
   private readonly configService = inject(ConfigService);
   private readonly policyService = inject(PolicyService);
 
@@ -252,10 +250,31 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     }
   }
 
-  private restrictedTypesFromResponse(): CipherType[] {
-    const response = this.policyResponse();
+  /** Serializes the form to `{ restrictedTypes }`. */
+  protected override buildRequestData() {
+    const raw = this.data.getRawValue();
+    const managed = MANAGED_ITEM_TYPES.map(({ cipherType }) => cipherType);
 
-    // Existing policies restrict cards only.
-    return response?.enabled ? [CipherType.Card] : [];
+    const unmanagedRestricted = this.storedRestrictedTypes().filter((t) => !managed.includes(t));
+    const restrictedTypes = [
+      ...managed.filter((cipherType) => raw[cipherType] === false),
+      ...unmanagedRestricted,
+    ];
+
+    return { restrictedTypes };
+  }
+
+  private restrictedTypesFromResponse(): CipherType[] {
+    // A policy that was never turned on has nothing restricted. Otherwise missing data means a
+    // legacy policy, which restricts cards only.
+    if (!this.policyResponse()?.enabled && this.policyResponse()?.data == null) {
+      return [];
+    }
+
+    return this.storedRestrictedTypes();
+  }
+
+  private storedRestrictedTypes(): CipherType[] {
+    return getRestrictedItemTypes(this.policyResponse()?.data);
   }
 }
