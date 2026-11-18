@@ -36,6 +36,8 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
+import { DesktopLeasedClipboardService } from "./desktop-leased-clipboard.service";
+
 /** A revealed view and the end of the lease it was revealed under, in ms. */
 type Entry = { view: CipherView; endsAt: number };
 
@@ -44,6 +46,8 @@ type Entry = { view: CipherView; endsAt: number };
  * desktop vault's item drawer and row menu. The view comes from the SDK's `leased_cipher`, which
  * never writes it to the cipher repository; it lives in the renderer's memory only (never state,
  * never IPC to the main process), and goes when its lease lapses or the user locks or logs out.
+ * A value copied from it goes from the clipboard at the same moment (see
+ * {@link DesktopLeasedClipboardService}).
  *
  * The same logic as bit-web's `PamRevealedCipherService`: the desktop renderer has the same
  * dependencies, so keep the two behaving alike.
@@ -68,6 +72,7 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
     authService: AuthService,
     private readonly ngZone: NgZone,
     private readonly logService: LogService,
+    leasedClipboard: DesktopLeasedClipboardService,
   ) {
     // A root singleton, so neither subscription ends. Users missing from the record are logged out.
     authService.authStatuses$.subscribe((statuses) => {
@@ -94,6 +99,21 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
         switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)),
       )
       .subscribe((nowMs) => this.dropLapsed(nowMs));
+
+    // Every way a view goes (end, lapse, lock, logout, account switch) passes through entries$.
+    leasedClipboard.watch(
+      this.entries$.pipe(
+        map(
+          (all) =>
+            new Map(
+              [...all].map(([userId, entries]) => [
+                userId,
+                new Map([...entries].map(([cipherId, entry]) => [cipherId, entry.view])),
+              ]),
+            ),
+        ),
+      ),
+    );
   }
 
   revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {

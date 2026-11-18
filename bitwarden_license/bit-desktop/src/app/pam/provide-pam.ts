@@ -39,9 +39,12 @@ import { getOptionalUserId } from "@bitwarden/common/auth/services/account.servi
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { DESKTOP_SETTINGS_EXTRAS } from "@bitwarden/desktop/app/accounts/settings-extras.token";
 import { PamNavBadgeService } from "@bitwarden/desktop/app/pam/pam-nav-badge.service";
@@ -62,6 +65,7 @@ import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notifica
 import { DesktopPamNotifier } from "./notifications/desktop-pam-notifier";
 import { PamNotificationStateService } from "./notifications/pam-notification-state.service";
 import { PamNotificationsSettingComponent } from "./notifications/pam-notifications-setting.component";
+import { DesktopLeasedClipboardService } from "./vault/desktop-leased-clipboard.service";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
@@ -206,6 +210,12 @@ export function provideDesktopPam(): SafeProvider[] {
       useFactory: controlledAccessColumn,
       deps: [I18nService, ConfigService, ControlledAccessVaultFilterService],
     }),
+    // Clears a value copied from a leased item off the clipboard when its lease ends.
+    safeProvider({
+      provide: DesktopLeasedClipboardService,
+      useClass: DesktopLeasedClipboardService,
+      deps: [MessageListener, PlatformUtilsService, TotpService, LogService],
+    }),
     // Replaces the reveal-nothing default, so a live lease shows the item's secrets.
     safeProvider({
       provide: RevealedCipherService,
@@ -219,6 +229,7 @@ export function provideDesktopPam(): SafeProvider[] {
         AuthService,
         NgZone,
         LogService,
+        DesktopLeasedClipboardService,
       ],
     }),
     safeProvider({
