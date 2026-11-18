@@ -6,17 +6,35 @@ import {
 
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
 import { SsoJitProvisionFinishPasswordParams } from "./sso-jit-provision-finish-password.params";
+import { SsoJitProvisionFinishResult } from "./sso-jit-provision-finish-result.type";
 import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-finish-trusted-device.params";
 
 /**
  * Finishes SSO JIT provisioning for a new organization member through the SDK (V2 account
- * encryption). Each method covers one member decryption type.
+ * encryption). Each finish method covers one member decryption type.
  *
- * The methods do only the network step. The SDK makes the keys and chooses the server endpoint
+ * The service decides whether the server accepts the organization invite. See
+ * {@link shouldAcceptOrganizationInvite}. The SDK makes the keys and chooses the server endpoint
  * from the `pm-34429-invite-link-auto-confirm` flag. The caller gets the organization data,
  * writes local state from the result, and unlocks.
  */
 export abstract class SsoJitProvisionFinishService {
+  /**
+   * Decides whether the server moves the organization membership from Invited to Accepted.
+   * - `false` when the `pm-34429-invite-link-auto-confirm` flag is on and an open invite is
+   *   stored. The membership stays Invited, so the Admin Console checks run when the open invite
+   *   link is replayed.
+   * - `true` in all other cases. When the flag is off, the SDK uses the legacy endpoints, which
+   *   always accept.
+   *
+   * The finish methods call this method. Call it directly only for the V1 Key Connector path,
+   * which posts through `SsoJitProvisionFinishApiService`.
+   *
+   * TODO: Remove from the public API with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key
+   * Connector registration).
+   */
+  abstract shouldAcceptOrganizationInvite(): Promise<boolean>;
+
   /**
    * Makes the account keys for a master password user, and sends them with the new master
    * password to the server. When the invite is accepted and `resetPasswordAutoEnroll` is `true`,
@@ -26,7 +44,7 @@ export abstract class SsoJitProvisionFinishService {
    */
   abstract finishPassword(
     params: SsoJitProvisionFinishPasswordParams,
-  ): Promise<JitMasterPasswordRegistrationResponse>;
+  ): Promise<SsoJitProvisionFinishResult<JitMasterPasswordRegistrationResponse>>;
 
   /**
    * Makes the account keys for a trusted device encryption user, and sends them to the server.
@@ -37,7 +55,7 @@ export abstract class SsoJitProvisionFinishService {
    */
   abstract finishTrustedDevice(
     params: SsoJitProvisionFinishTrustedDeviceParams,
-  ): Promise<TdeRegistrationResponse>;
+  ): Promise<SsoJitProvisionFinishResult<TdeRegistrationResponse>>;
 
   /**
    * Makes the account keys for a Key Connector user, posts the Key Connector key to the Key
@@ -47,5 +65,5 @@ export abstract class SsoJitProvisionFinishService {
    */
   abstract finishKeyConnector(
     params: SsoJitProvisionFinishKeyConnectorParams,
-  ): Promise<KeyConnectorRegistrationResult>;
+  ): Promise<SsoJitProvisionFinishResult<KeyConnectorRegistrationResult>>;
 }

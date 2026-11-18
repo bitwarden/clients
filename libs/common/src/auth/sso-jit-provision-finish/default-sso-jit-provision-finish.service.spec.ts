@@ -12,10 +12,14 @@ import {
   TdeRegistrationResponse,
 } from "@bitwarden/sdk-internal";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk.service";
 import { Rc } from "../../platform/misc/reference-counting/rc";
 import { UserId } from "../../types/guid";
+import { OpenOrganizationInvite } from "../organization-invite/models/open-organization-invite";
+import { OrganizationInviteService } from "../organization-invite/services/organization-invite.service";
 
 import { DefaultSsoJitProvisionFinishService } from "./default-sso-jit-provision-finish.service";
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
@@ -24,6 +28,8 @@ import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-fi
 
 describe("DefaultSsoJitProvisionFinishService", () => {
   let registerSdkService: MockProxy<RegisterSdkService>;
+  let configService: MockProxy<ConfigService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
 
   let sut: DefaultSsoJitProvisionFinishService;
 
@@ -38,16 +44,41 @@ describe("DefaultSsoJitProvisionFinishService", () => {
   const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d";
   const orgPublicKey = "org-public-key-base64";
 
-  const inviteCases: [string, boolean | undefined][] = [
-    ["no invite decision", undefined],
-    ["a direct invite", true],
-    ["an open invite", false],
+  const openOrgInvite = new OpenOrganizationInvite({
+    organizationId: orgId,
+    inviteLinkCode: "invite-link-code",
+    inviteKey: "invite-key",
+    organizationName: "org-name",
+  });
+
+  /** [description, flag on, stored open invite, expected acceptOrganizationInvite] */
+  const inviteCases: [string, boolean, OpenOrganizationInvite | null, boolean][] = [
+    ["flag off and no open invite", false, null, true],
+    ["flag off and an open invite", false, openOrgInvite, true],
+    ["flag on and no open invite", true, null, true],
+    ["flag on and an open invite", true, openOrgInvite, false],
   ];
+
+  function arrangeInvite(inviteLinkAutoConfirm: boolean, invite: OpenOrganizationInvite | null) {
+    configService.getFeatureFlag.mockImplementation(async (flag) =>
+      flag === FeatureFlag.InviteLinkAutoConfirm ? inviteLinkAutoConfirm : false,
+    );
+    organizationInviteService.getOpenOrgInvite.mockResolvedValue(invite);
+  }
 
   beforeEach(() => {
     registerSdkService = mock<RegisterSdkService>();
+    configService = mock<ConfigService>();
+    organizationInviteService = mock<OrganizationInviteService>();
 
-    sut = new DefaultSsoJitProvisionFinishService(registerSdkService);
+    sut = new DefaultSsoJitProvisionFinishService(
+      registerSdkService,
+      configService,
+      organizationInviteService,
+    );
+
+    // Default: flag off, so the invite is accepted.
+    arrangeInvite(false, null);
 
     // Mock the SDK registration client.
     const sdkRef = {
@@ -74,6 +105,31 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     );
   }
 
+  describe("shouldAcceptOrganizationInvite", () => {
+    it.each(inviteCases)(
+      "should return the decision for %s",
+      async (_, inviteLinkAutoConfirm, invite, expected) => {
+        // Arrange
+        arrangeInvite(inviteLinkAutoConfirm, invite);
+
+        // Act
+        const result = await sut.shouldAcceptOrganizationInvite();
+
+        // Assert
+        expect(result).toBe(expected);
+      },
+    );
+
+    it("should not read the stored invite when the flag is off", async () => {
+      // Act
+      await sut.shouldAcceptOrganizationInvite();
+
+      // Assert
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.InviteLinkAutoConfirm);
+      expect(organizationInviteService.getOpenOrgInvite).not.toHaveBeenCalled();
+    });
+  });
+
   describe("finishPassword", () => {
     const registration = { user_key: "user-key" } as JitMasterPasswordRegistrationResponse;
     let params: SsoJitProvisionFinishPasswordParams;
@@ -97,7 +153,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
       const result = await sut.finishPassword(params);
 
       // Assert
-      expect(result).toBe(registration);
+      expect(result).toEqual({ registration, organizationInviteAccepted: true });
       expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
       expect(registrationClient.post_keys_for_jit_password_registration).toHaveBeenCalledWith({
         org_id: orgId,
@@ -108,31 +164,32 @@ describe("DefaultSsoJitProvisionFinishService", () => {
         organization_sso_identifier: params.orgSsoIdentifier,
         user_id: userId,
         reset_password_enroll: true,
-        accept_organization_invite: undefined,
+        accept_organization_invite: true,
       });
       expect(dispose).toHaveBeenCalled();
     });
 
     it.each(inviteCases)(
-      "should pass acceptOrganizationInvite to the SDK unchanged for %s (%s), because the SDK chooses the endpoint",
-      async (_, acceptOrganizationInvite) => {
+      "should send and return the invite decision for %s",
+      async (_, inviteLinkAutoConfirm, invite, acceptOrganizationInvite) => {
         // Arrange
-        params.acceptOrganizationInvite = acceptOrganizationInvite;
+        arrangeInvite(inviteLinkAutoConfirm, invite);
 
         // Act
-        await sut.finishPassword(params);
+        const result = await sut.finishPassword(params);
 
         // Assert
         expect(registrationClient.post_keys_for_jit_password_registration).toHaveBeenCalledWith(
           expect.objectContaining({ accept_organization_invite: acceptOrganizationInvite }),
         );
+        expect(result.organizationInviteAccepted).toBe(acceptOrganizationInvite);
       },
     );
 
     it("should leave the account recovery enrollment decision to the SDK for an open invite", async () => {
       // Arrange
       params.resetPasswordAutoEnroll = true;
-      params.acceptOrganizationInvite = false;
+      arrangeInvite(true, openOrgInvite);
 
       // Act
       await sut.finishPassword(params);
@@ -190,7 +247,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
       const result = await sut.finishTrustedDevice(params);
 
       // Assert
-      expect(result).toBe(registration);
+      expect(result).toEqual({ registration, organizationInviteAccepted: true });
       expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
       expect(registrationClient.post_keys_for_tde_registration).toHaveBeenCalledWith({
         org_id: orgId,
@@ -198,24 +255,25 @@ describe("DefaultSsoJitProvisionFinishService", () => {
         user_id: userId,
         device_identifier: "device-identifier",
         trust_device: true,
-        accept_organization_invite: undefined,
+        accept_organization_invite: true,
       });
       expect(dispose).toHaveBeenCalled();
     });
 
     it.each(inviteCases)(
-      "should pass acceptOrganizationInvite to the SDK unchanged for %s (%s), because the SDK chooses the endpoint",
-      async (_, acceptOrganizationInvite) => {
+      "should send and return the invite decision for %s",
+      async (_, inviteLinkAutoConfirm, invite, acceptOrganizationInvite) => {
         // Arrange
-        params.acceptOrganizationInvite = acceptOrganizationInvite;
+        arrangeInvite(inviteLinkAutoConfirm, invite);
 
         // Act
-        await sut.finishTrustedDevice(params);
+        const result = await sut.finishTrustedDevice(params);
 
         // Assert
         expect(registrationClient.post_keys_for_tde_registration).toHaveBeenCalledWith(
           expect.objectContaining({ accept_organization_invite: acceptOrganizationInvite }),
         );
+        expect(result.organizationInviteAccepted).toBe(acceptOrganizationInvite);
       },
     );
 
@@ -271,24 +329,24 @@ describe("DefaultSsoJitProvisionFinishService", () => {
       const result = await sut.finishKeyConnector(params);
 
       // Assert
-      expect(result).toBe(registration);
+      expect(result).toEqual({ registration, organizationInviteAccepted: true });
       expect(registerSdkService.registerClient$).toHaveBeenCalledWith(userId);
       expect(registrationClient.post_keys_for_key_connector_registration).toHaveBeenCalledWith(
         keyConnectorUrl,
         "org-sso-id",
-        undefined,
+        true,
       );
       expect(dispose).toHaveBeenCalled();
     });
 
     it.each(inviteCases)(
-      "should pass acceptOrganizationInvite to the SDK unchanged for %s (%s), because the SDK chooses the endpoint",
-      async (_, acceptOrganizationInvite) => {
+      "should send and return the invite decision for %s",
+      async (_, inviteLinkAutoConfirm, invite, acceptOrganizationInvite) => {
         // Arrange
-        params.acceptOrganizationInvite = acceptOrganizationInvite;
+        arrangeInvite(inviteLinkAutoConfirm, invite);
 
         // Act
-        await sut.finishKeyConnector(params);
+        const result = await sut.finishKeyConnector(params);
 
         // Assert
         expect(registrationClient.post_keys_for_key_connector_registration).toHaveBeenCalledWith(
@@ -296,6 +354,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
           "org-sso-id",
           acceptOrganizationInvite,
         );
+        expect(result.organizationInviteAccepted).toBe(acceptOrganizationInvite);
       },
     );
 

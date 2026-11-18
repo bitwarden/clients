@@ -6,7 +6,7 @@ import { SetKeyConnectorKeyRequest } from "../../key-management/key-connector/mo
  * {@link SetKeyConnectorKeyRequest} body of `POST /accounts/set-key-connector-key`.
  *
  * `acceptOrganizationInvite` controls whether the server moves the organization membership from
- * Invited to Accepted.
+ * Invited to Accepted. Get the value from `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite`.
  *
  * TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
  */

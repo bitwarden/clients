@@ -11,13 +11,8 @@ export interface SsoJitProvisionFinishPasswordParams {
   newPasswordHint: string;
   salt: MasterPasswordSalt;
   /**
-   * Whether the SDK enrolls the user in account recovery. The SDK skips enrollment when
-   * `acceptOrganizationInvite` is `false`, because enrollment accepts the invite.
+   * Whether the SDK enrolls the user in account recovery. The SDK skips enrollment when the
+   * service does not accept the invite, because enrollment accepts the invite.
    */
   resetPasswordAutoEnroll: boolean;
-  /**
-   * Whether the server moves the organization membership from Invited to Accepted. `undefined`
-   * means accept.
-   */
-  acceptOrganizationInvite?: boolean;
 }

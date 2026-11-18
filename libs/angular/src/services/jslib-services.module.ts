@@ -2149,7 +2149,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoJitProvisionFinishService,
     useClass: DefaultSsoJitProvisionFinishService,
-    deps: [RegisterSdkService],
+    deps: [RegisterSdkService, ConfigService, OrganizationInviteService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,
