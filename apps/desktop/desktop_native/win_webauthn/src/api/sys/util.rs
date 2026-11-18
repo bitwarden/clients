@@ -53,7 +53,7 @@ unsafe impl Sync for SafeModule {}
 /// ) -> ());
 /// ```
 macro_rules! webauthn_call {
-    ($symbol:literal as $(#[$attr:meta])* fn $fn_name:ident($($arg:ident: $arg_type:ty),+ $(,)?) -> $result_type:ty) => (
+    ($symbol:literal as $(#[$attr:meta])* fn $fn_name:ident($($arg:ident: $arg_type:ty),* $(,)?) -> $result_type:ty) => (
         $(#[$attr])*
         pub(in crate::api) unsafe fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
             let library = crate::api::sys::util::load_webauthn_lib()?;

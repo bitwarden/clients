@@ -7,6 +7,9 @@ import { FakeStorageService, makeEncString, makeSymmetricCryptoKey } from "@bitw
 import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { StorageService } from "@bitwarden/storage-core";
 
+import { BrowserApi } from "../browser/browser-api";
+import { portName } from "../storage/port-name";
+
 import BrowserLocalStorageService from "./browser-local-storage.service";
 import {
   LocalBackedSessionStorageService,
@@ -111,6 +114,44 @@ describe("LocalBackedSessionStorage", () => {
       platformUtilsService,
       logService,
     );
+  });
+
+  describe("port connections", () => {
+    it("stops broadcasting updates to a port once it disconnects", async () => {
+      jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(true);
+      let onConnect!: (port: chrome.runtime.Port) => void;
+      jest
+        .spyOn(BrowserApi, "addListener")
+        .mockImplementation((_event, callback) => (onConnect = callback as typeof onConnect));
+      const connectedSut = new LocalBackedSessionStorageService(
+        memoryStorage,
+        localStorage,
+        keyGenerationService,
+        encryptService,
+        platformUtilsService,
+        logService,
+      );
+      let disconnect!: () => void;
+      const port = {
+        name: portName(chrome.storage.session),
+        sender: {},
+        postMessage: jest.fn(),
+        onMessage: { addListener: jest.fn(), removeListener: jest.fn() },
+        onDisconnect: { addListener: jest.fn((cb: () => void) => (disconnect = cb)) },
+      } as unknown as chrome.runtime.Port;
+      onConnect(port);
+      encryptService.encryptString.mockResolvedValue(makeEncString("encrypted"));
+
+      const broadcast = jest.spyOn(
+        connectedSut as unknown as { broadcastMessage: () => void },
+        "broadcastMessage",
+      );
+
+      disconnect();
+      await connectedSut.save("key", "value");
+
+      expect(broadcast).not.toHaveBeenCalled();
+    });
   });
 
   describe("get", () => {

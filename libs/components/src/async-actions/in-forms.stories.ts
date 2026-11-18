@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
@@ -39,9 +39,8 @@ const template = `
     <button class="tw-me-2" type="button" buttonType="primaryGhost" bitIconButton="bwi-trash" label="Delete" bitFormButton [bitAction]="delete"></button>
   </form>`;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-promise-example",
   template,
   imports: [
@@ -54,20 +53,20 @@ const template = `
   ],
 })
 class PromiseExampleComponent {
-  formObj = this.formBuilder.group({
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly formObj = this.formBuilder.group({
     name: ["", [Validators.required]],
     email: ["", [Validators.required, Validators.email]],
   });
 
-  constructor(private formBuilder: FormBuilder) {}
-
-  refresh = async () => {
+  readonly refresh = async () => {
     await new Promise<void>((resolve, reject) => {
       setTimeout(resolve, 2000);
     });
   };
 
-  submit = async () => {
+  readonly submit = async () => {
     this.formObj.markAllAsTouched();
 
     if (!this.formObj.valid) {
@@ -79,16 +78,15 @@ class PromiseExampleComponent {
     });
   };
 
-  delete = async () => {
+  readonly delete = async () => {
     await new Promise<void>((resolve, reject) => {
       setTimeout(resolve, 2000);
     });
   };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-observable-example",
   template,
   imports: [
@@ -101,18 +99,18 @@ class PromiseExampleComponent {
   ],
 })
 class ObservableExampleComponent {
-  formObj = this.formBuilder.group({
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly formObj = this.formBuilder.group({
     name: ["", [Validators.required]],
     email: ["", [Validators.required, Validators.email]],
   });
 
-  constructor(private formBuilder: FormBuilder) {}
-
-  refresh = () => {
+  readonly refresh = () => {
     return of("fake observable").pipe(delay(2000));
   };
 
-  submit = () => {
+  readonly submit = () => {
     this.formObj.markAllAsTouched();
 
     if (!this.formObj.valid) {
@@ -122,7 +120,7 @@ class ObservableExampleComponent {
     return of("fake observable").pipe(delay(2000));
   };
 
-  delete = () => {
+  readonly delete = () => {
     return of("fake observable").pipe(delay(2000));
   };
 }

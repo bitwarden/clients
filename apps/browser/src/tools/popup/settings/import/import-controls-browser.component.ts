@@ -15,6 +15,11 @@ import {
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
 
+import {
+  IMPORT_CONFIRMATION_ROUTE_PATH,
+  ImportConfirmationStateService,
+} from "./import-confirmation-state.service";
+
 @Component({
   templateUrl: "import-controls-browser.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +37,7 @@ export class ImportControlsBrowserComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly stagingService = inject(ImportStagingServiceAbstraction);
+  private readonly confirmationState = inject(ImportConfirmationStateService);
 
   protected readonly importType = importTypeFromRoute(this.route);
 
@@ -51,6 +57,11 @@ export class ImportControlsBrowserComponent {
       ]);
       return;
     }
-    void this.router.navigate(["/tabs/vault"]);
+    // A finished import left its result for the confirmation page, unless items were skipped.
+    void this.router.navigate([
+      this.confirmationState.current() != null
+        ? `/${IMPORT_CONFIRMATION_ROUTE_PATH}`
+        : "/tabs/vault",
+    ]);
   }
 }

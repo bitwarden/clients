@@ -23,7 +23,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
       <span
         bitBadge
         variant="primary"
-        startIcon="bwi-collection-shared"
+        startIcon="bwi-shared-folder"
         tabindex="0"
         [bitTooltip]="tooltip()"
         [addTooltipToDescribedby]="true"
@@ -45,8 +45,8 @@ export class AccessRuleCollectionBadgesComponent {
   protected readonly label = computed(() => {
     const count = this.names().length;
     return count === 1
-      ? this.i18nService.t("pamAccessRuleCollectionCountSingular")
-      : this.i18nService.t("pamAccessRuleCollectionCount", count);
+      ? this.i18nService.t("pamAccessRuleSharedFolderCountSingular")
+      : this.i18nService.t("pamAccessRuleSharedFolderCount", count);
   });
 
   protected readonly tooltip = computed(() => this.names().join(", "));

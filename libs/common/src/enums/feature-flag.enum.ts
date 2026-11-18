@@ -11,11 +11,10 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
-  InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
   MembersTableV2 = "pm-37463-members-table-v2",
+  OrganizationMembershipSdk = "pm-41568-org-memberships-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -55,19 +54,16 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
   PamBillingSupport = "pm-39883-pam-billing-support",
+  PM42214_FeatureBasedUpgradePaths = "pm-42214-feature-based-upgrade-paths",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
-  EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
@@ -91,6 +87,7 @@ export enum FeatureFlag {
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
+  PM45335_ExtensionWelcomePage = "pm-45335-extension-welcome-page",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -100,6 +97,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  SmCli = "sm-2107-cli",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -124,11 +122,10 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
-  [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
   [FeatureFlag.MembersTableV2]: FALSE,
+  [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -145,7 +142,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
@@ -169,6 +165,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PM45335_ExtensionWelcomePage]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
@@ -190,16 +187,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
+  [FeatureFlag.PM42214_FeatureBasedUpgradePaths]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
-  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
@@ -209,6 +204,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.SmCli]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,

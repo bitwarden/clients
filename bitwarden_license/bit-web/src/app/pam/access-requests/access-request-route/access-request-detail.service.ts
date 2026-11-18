@@ -201,7 +201,10 @@ export class AccessRequestDetailService {
     await this.fetch(id);
   }
 
-  /** Withdraws an approval the requester has not started yet. */
+  /**
+   * Withdraws an approval the requester has not started yet. The server requires a managing
+   * approver to say why and shows the note to the requester.
+   */
   async withdrawApproval(reason: string): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {

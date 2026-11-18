@@ -37,11 +37,19 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import {
+  InScopeFormsDetection,
+  QualificationResult,
+  RuleQualificationService,
+} from "./abstractions/rule-qualification.service";
 import { AutoFillConstants } from "./autofill-constants";
 import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
 type ResolveFieldTarget = {
-  selectorAlternatives: string[];
+  // Each alternative is either a single selector or a multi-input group of
+  // selectors (e.g. a one-time code split across inputs). Matches the canonical
+  // FormFields shape in libs/common/src/autofill/types.
+  selectorAlternatives: (string | string[])[];
   fieldType: AutofillTargetingRuleType;
   formCategory?: FormPurposeCategory;
 };
@@ -67,6 +75,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * [] = blocklisted (suppress autofill), [...] = use targeted fill
    */
   private pageTargetingRules: FormContent[] | null | undefined = undefined;
+  // Populated alongside `pageTargetingRules` from the background envelope. Sibling
+  // caches that short-circuit the per-call qualification cost (Half 1 + Half 2) on
+  // subsequent `getPageDetails()` calls for the same page load.
+  private ruleFailureFallback: boolean | undefined = undefined;
+  private ruleQualificationResult: QualificationResult | undefined = undefined;
+  private ruleQualificationService?: RuleQualificationService;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -281,11 +295,40 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
-      this.pageTargetingRules =
-        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
+      const { result } = await this.sendExtensionMessage("getUrlAutofillTargetingRules");
+      const envelope = result ?? { targetingRules: null, ruleFailureFallback: false };
+      this.pageTargetingRules = envelope.targetingRules;
+      this.ruleFailureFallback = envelope.ruleFailureFallback;
     }
 
     const targetingRules = this.pageTargetingRules;
+
+    // Rule qualification branch. When the envelope's `ruleFailureFallback`
+    // is set and a non-empty rule matches, run qualification once per page
+    // load and route on the result. On miss, pin `pageTargetingRules = null`
+    // so later calls on this document skip this branch and run the heuristic
+    // path. The null check on `ruleQualificationService` guards against the
+    // branch firing before the service is wired by content-script DI setup.
+    if (
+      this.ruleFailureFallback &&
+      targetingRules != null &&
+      targetingRules.length > 0 &&
+      this.ruleQualificationService
+    ) {
+      if (this.ruleQualificationResult === undefined) {
+        this.ruleQualificationResult = await this.ruleQualificationService.qualifyRule(
+          location.href,
+          targetingRules,
+        );
+      }
+      const qualification = this.ruleQualificationResult;
+      if (qualification.kind === "proceedTargeted") {
+        return this.getTargetedPageDetails(targetingRules);
+      }
+      this.pageTargetingRules = null;
+      return qualification.pageDetails;
+    }
+
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
         // Blocklisted; return empty page details, skip heuristics
@@ -307,6 +350,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
     }
 
+    return this.runHeuristicCollection();
+  }
+
+  /**
+   * Walks the DOM for forms and fields, builds the page details, and sets up
+   * overlay listeners. Shared by `getPageDetails` and
+   * `collectHeuristicPageDetailsBypass`.
+   */
+  private async runHeuristicCollection(): Promise<AutofillPageDetails> {
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
@@ -324,6 +376,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Runs the heuristic collection path on the miss path, after clearing any
+   * targeted-rule state so the heuristic pass starts fresh. Called by
+   * `RuleQualificationService` when a matched rule fails qualification.
+   *
+   * The `cachedInScopeForms` parameter is reserved for a later optimization
+   * that reuses Half 2's field detection within the rule's in-scope forms
+   * rather than detecting them again. Not consumed yet; the heuristic walk
+   * runs over the full document.
+   */
+  async collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails> {
+    this.pageTargetingRules = null;
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    return this.runHeuristicCollection();
+  }
+
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
+    this.ruleQualificationService = ruleQualificationService;
   }
 
   /**
@@ -411,7 +486,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
-      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
+      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, (string | string[])[]]>)
         .filter(([, alternatives]) => alternatives?.length)
         .map(([fieldType, selectorAlternatives]) => ({
           fieldType,
@@ -532,46 +607,53 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      for (const selector of selectorAlternatives) {
-        if (typeof selector !== "string") {
-          continue;
-        }
+      for (const selectorOrGroup of selectorAlternatives) {
+        // An alternative is either a single selector (string) or a multi-input
+        // group (string[]). Example: a 6-digit one-time code split across
+        // inputs. Normalize to a group so the resolution logic is uniform.
+        const groupSelectors = Array.isArray(selectorOrGroup) ? selectorOrGroup : [selectorOrGroup];
+        const isMultiInputGroup = groupSelectors.length > 1;
+        let matchedInThisAlternative = 0;
 
-        // Check whether this selector crosses an iframe boundary before
-        // trying to resolve it locally.
-        const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-        if (iframeCrossing) {
-          const { iframeElement, innerSelector } = iframeCrossing;
-          const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-          // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
-          if (iframeSrc) {
-            if (!iframeTargets.has(iframeSrc)) {
-              iframeTargets.set(iframeSrc, []);
+        for (const selector of groupSelectors) {
+          if (typeof selector !== "string") {
+            continue;
+          }
+
+          // An iframe-piercing selector is always resolved via routing; local
+          // resolution is never attempted on the same selector, even when the
+          // iframe isn't reachable (srcdoc, about:blank). The counter only
+          // increments on a routed selector so a group of unroutable crossings
+          // still falls through to the next alternative.
+          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+          if (iframeCrossing) {
+            if (
+              this.tryRouteIframeCrossing(iframeCrossing, fieldType, formCategory, iframeTargets)
+            ) {
+              matchedInThisAlternative++;
             }
-            iframeTargets.get(iframeSrc)!.push({
-              selector: innerSelector,
+            continue;
+          }
+
+          // Group members share a target index; a group suffix keeps each
+          // member's opid unique. Single-selector targets keep the original
+          // opid shape.
+          const groupSuffix = isMultiInputGroup ? `_${matchedInThisAlternative}` : "";
+          if (
+            this.tryResolveLocalSelector(
+              selector,
+              targetIndex,
               fieldType,
               formCategory,
-            });
+              groupSuffix,
+              localFields,
+            )
+          ) {
+            matchedInThisAlternative++;
           }
-          break;
         }
 
-        // No iframe boundary — resolve locally (direct element or shadow DOM).
-        const matchedElement = this.domQueryService.queryDeepSelector(selector);
-        if (matchedElement) {
-          const fieldId = `targeted_field_${targetIndex}_${fieldType}`;
-          const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-          formFieldElement.opid = fieldId;
-
-          const autofillField = this.buildTargetedAutofillField(
-            formFieldElement,
-            fieldType,
-            localFields.length,
-            formCategory,
-          );
-          localFields.push(autofillField);
-          this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+        if (matchedInThisAlternative > 0) {
           break;
         }
       }
@@ -581,11 +663,75 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Queues an iframe-crossing selector for routing to the target frame's
+   * content script. Returns true when the iframe reports a routable `src`
+   * (so the caller can count a successful match). An iframe with an empty
+   * src (srcdoc, about:blank) is deferred — returns false without routing.
+   * The caller is responsible for not falling back to local resolution on
+   * an iframe-crossing selector regardless of this return value.
+   */
+  private tryRouteIframeCrossing(
+    iframeCrossing: { iframeElement: HTMLIFrameElement; innerSelector: string },
+    fieldType: AutofillTargetingRuleType,
+    formCategory: FormPurposeCategory | undefined,
+    iframeTargets: Map<string, IframeTargetedField[]>,
+  ): boolean {
+    const { iframeElement, innerSelector } = iframeCrossing;
+    const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+    if (!iframeSrc) {
+      return false;
+    }
+    if (!iframeTargets.has(iframeSrc)) {
+      iframeTargets.set(iframeSrc, []);
+    }
+    iframeTargets.get(iframeSrc)!.push({
+      selector: innerSelector,
+      fieldType,
+      formCategory,
+    });
+    return true;
+  }
+
+  /**
+   * Resolves the selector locally (direct element or shadow DOM). On a match,
+   * stamps the element's opid, builds a targeted AutofillField, and caches it.
+   * Returns true on a match, false otherwise.
+   */
+  private tryResolveLocalSelector(
+    selector: string,
+    targetIndex: number,
+    fieldType: AutofillTargetingRuleType,
+    formCategory: FormPurposeCategory | undefined,
+    groupSuffix: string,
+    localFields: AutofillField[],
+  ): boolean {
+    const matchedElement = this.domQueryService.queryDeepSelector(selector);
+    if (!matchedElement) {
+      return false;
+    }
+    const fieldId = `targeted_field_${targetIndex}_${fieldType}${groupSuffix}`;
+    const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+    formFieldElement.opid = fieldId;
+
+    const autofillField = this.buildTargetedAutofillField(
+      formFieldElement,
+      fieldType,
+      localFields.length,
+      formCategory,
+    );
+    localFields.push(autofillField);
+    this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+    return true;
+  }
+
+  /**
    * Resets the cached targeting-rules. Invoked when the background signals
    * that the user disabled fill assist mid-session.
    */
   clearCachedTargetingRules(): void {
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
   }
 
   /**
@@ -1467,12 +1613,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks if the passed node is a form field element.
-   * @param {Element} element the element to check.
-   * @returns {boolean} whether the element is a form field element.
-   * @private
+   * Checks if the passed node is a form field element. Mirrors the filter used
+   * by the heuristic collection pass: excludes ignored input types and
+   * `data-bwignore` elements.
+   * @param element the element to check.
+   * @returns whether the element is a form field element.
    */
-  private isElementFormFieldElement(element: Element): boolean {
+  isElementFormFieldElement(element: Element): boolean {
     const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
@@ -1613,6 +1760,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Targeting rules are URL-scoped and gated by user/feature state at fetch
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
 
     this.clearFieldCache();
 

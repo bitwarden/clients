@@ -66,6 +66,23 @@ describe("AccessLeasesSdkService", () => {
       expect(result).toEqual([leaseView]);
     });
 
+    it("lists the given user's leases instead of the active user's", async () => {
+      const otherUserId = "8a9b1e3b-1e4c-4c8a-9b1e-3b1e4c8a9b1e" as UserId;
+      const activeLeases = mockLeasesClient();
+      const otherLeases = sdkService.simulate
+        .userLogin(otherUserId)
+        .commercial.mockDeep()
+        .pam.mockDeep()
+        .leases.mockDeep();
+      otherLeases.list_mine.mockResolvedValue([leaseView]);
+
+      const result = await service.listMyLeases(otherUserId);
+
+      expect(otherLeases.list_mine).toHaveBeenCalled();
+      expect(activeLeases.list_mine).not.toHaveBeenCalled();
+      expect(result).toEqual([leaseView]);
+    });
+
     it("logs and rethrows on failure", async () => {
       const leases = mockLeasesClient();
       const error = new Error("boom");

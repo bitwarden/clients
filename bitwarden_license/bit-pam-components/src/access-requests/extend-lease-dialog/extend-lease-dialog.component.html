@@ -5,7 +5,7 @@
       <bit-label>{{ "pamExtendLeaseDurationLabel" | i18n }}</bit-label>
       <bit-select id="extend-lease-dialog_select_duration" formControlName="durationSeconds">
         @for (opt of durationOptions; track opt.seconds) {
-          <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
+          <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
         }
       </bit-select>
     </bit-form-field>
@@ -29,7 +29,7 @@
       [disabled]="formGroup.invalid"
       id="extend-lease-dialog_button_submit"
     >
-      {{ "pamExtendLeaseButton" | i18n }}
+      {{ "pamExtendLeaseButtonV2" | i18n }}
     </button>
     <button
       type="button"

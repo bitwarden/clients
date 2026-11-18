@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { SkeletonComponent } from "./skeleton.component";
 
@@ -10,10 +10,9 @@ import { SkeletonComponent } from "./skeleton.component";
  * Customize the number of lines represented with the `lines` input. Customize the width
  * by applying a class to the `bit-skeleton-text` element (i.e. `tw-w-1/2`).
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-skeleton-text",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./skeleton-text.component.html",
   imports: [CommonModule, SkeletonComponent],
   host: {

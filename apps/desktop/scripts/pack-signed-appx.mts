@@ -29,7 +29,7 @@ import { parseArgs } from "util";
 
 import { Arch, build, Platform } from "electron-builder";
 
-const ARCHITECTURES = ["ia32", "x64", "arm64"] as const;
+const ARCHITECTURES = ["x64", "arm64"] as const;
 type Architecture = (typeof ARCHITECTURES)[number];
 
 const projectDir = path.resolve(import.meta.dirname, "..");

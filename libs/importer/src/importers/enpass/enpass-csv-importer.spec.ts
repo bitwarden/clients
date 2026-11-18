@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -30,7 +33,7 @@ function validateCustomField(
 describe("Enpass CSV Importer", () => {
   let importer: EnpassCsvImporter;
   beforeEach(() => {
-    importer = new EnpassCsvImporter();
+    importer = new EnpassCsvImporter(mock<LogService>());
   });
 
   it("should parse username, password, and url from real Enpass export labels", async () => {

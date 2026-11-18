@@ -553,6 +553,20 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_InviteReminderSent:
+        msg = this.i18nService.t("sentInviteReminderToUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "sentInviteReminderToUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Reinvited:
+        msg = this.i18nService.t("resentInviteToUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "resentInviteToUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");

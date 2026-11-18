@@ -33,9 +33,6 @@ test.describe("shared unlock between web vault and extension", () => {
   test.beforeEach(async ({ context, popup }) => {
     extension = await logInToExtension(context, popup, FLAGS);
 
-    const settings = new AccountSecurityPage(extension.popup);
-    await settings.open(extension.url);
-    await settings.expectWebSync();
     await openExtensionVault(extension);
 
     web = await logInToWeb(context, FLAGS);

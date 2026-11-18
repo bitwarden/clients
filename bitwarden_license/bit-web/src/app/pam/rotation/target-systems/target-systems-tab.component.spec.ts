@@ -12,9 +12,11 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
+import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
 import {
   AccessConnectorStatus,
   type AccessConnector,
+  type RotationConfigView,
   type TargetSystemView,
   type TargetSystemId,
 } from "../rotation";
@@ -25,12 +27,14 @@ import {
   connectorId,
   ORGANIZATION_ID,
   pendingTargetSystem,
+  rotationConfig,
   sysId,
   targetSystem,
   targetSystemSealedFields,
   unverifiableTargetSystem,
 } from "../testing/rotation-builders";
 
+import { TargetSystemRowStatus } from "./target-system-status";
 import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
@@ -39,6 +43,15 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
+
+/** The managed credentials the Managed credentials column counts. */
+function rotationConfigsServiceFake(configs: RotationConfigView[] = []) {
+  return {
+    configs$: new BehaviorSubject<RotationConfigView[]>(configs),
+    loading$: new BehaviorSubject<boolean>(false),
+    loadError$: new BehaviorSubject<unknown | null>(null),
+  };
+}
 
 function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return targetSystem({ id: sysId("sys-1"), ...overrides });
@@ -86,6 +99,7 @@ describe("TargetSystemsTabComponent", () => {
         provideRouter([]),
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: AccessConnectorsService, useValue: accessConnectorsService },
+        { provide: RotationConfigsService, useValue: rotationConfigsServiceFake() },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
@@ -212,6 +226,23 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     }));
+
+    it("falls back to the deactivate's own failure copy for an error with no server reason", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      targetSystemsService.setEnabled.mockRejectedValue(new Error("fail"));
+
+      const comp = component as unknown as {
+        disable: (s: TargetSystemView) => Promise<void>;
+      };
+      void comp.disable(sys);
+      flushMicrotasks();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamTargetSystemDeactivateFailed",
+      });
+    }));
   });
 
   describe("enable action", () => {
@@ -238,6 +269,21 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     });
+
+    it("falls back to the activate's own failure copy for an error with no server reason", async () => {
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
+      targetSystemsService.setEnabled.mockRejectedValue(new Error("fail"));
+
+      const comp = component as unknown as {
+        enable: (s: TargetSystemView) => Promise<void>;
+      };
+      await comp.enable(sys);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamTargetSystemActivateFailed",
+      });
+    });
   });
 
   describe("delete action", () => {
@@ -256,7 +302,7 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
-    it("confirms with a danger dialog naming the target system and the reversible alternative", fakeAsync(() => {
+    it("confirms with a danger dialog offering the reversible alternative", fakeAsync(() => {
       const sys = makeSystem({
         id: sysId("sys-1"),
         name: "Prod Entra",
@@ -270,10 +316,8 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "danger",
-          content: {
-            key: "pamTargetSystemDeleteContentDeactivateInstead",
-            placeholders: ["Prod Entra"],
-          },
+          content: { key: "pamTargetSystemDeleteDialogContentDeactivateInstead" },
+          acceptButtonText: { key: "pamTargetSystemDeleteTarget" },
         }),
       );
     }));
@@ -293,8 +337,7 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({
           type: "danger",
           content: {
-            key: "pamTargetSystemDeleteContent",
-            placeholders: ["Prod Entra"],
+            key: "pamTargetSystemDeleteDialogContent",
           },
         }),
       );
@@ -314,8 +357,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteContent",
-            placeholders: ["Prod Entra"],
+            key: "pamTargetSystemDeleteDialogContent",
           },
         }),
       );
@@ -339,8 +381,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteAssignedConnectorsContent",
-            placeholders: ["Prod Entra"],
+            key: "pamTargetSystemDeleteDialogAssignedConnectorsContent",
           },
         }),
       );
@@ -360,8 +401,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteAssignedConnectorsContent",
-            placeholders: ["Prod Entra"],
+            key: "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead",
           },
         }),
       );
@@ -383,8 +423,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteContentDeactivateInstead",
-            placeholders: ["Prod Entra"],
+            key: "pamTargetSystemDeleteDialogContentDeactivateInstead",
           },
         }),
       );
@@ -447,7 +486,7 @@ describe("TargetSystemsTabComponent", () => {
       });
     }));
 
-    it("falls back to the generic message for an error with no server reason", fakeAsync(() => {
+    it("falls back to the delete's own failure copy for an error with no server reason", fakeAsync(() => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       targetSystemsService.delete.mockRejectedValue(new Error("fail"));
 
@@ -456,7 +495,7 @@ describe("TargetSystemsTabComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "unexpectedError",
+        message: "pamTargetSystemDeleteFailed",
       });
     }));
   });
@@ -602,7 +641,7 @@ describe("TargetSystemsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
+      expect(el.querySelector("bit-table-v2")).toBeNull();
 
       targetSystemsService.loading$.next(false);
     });
@@ -647,46 +686,12 @@ describe("TargetSystemsTabComponent", () => {
       )!;
     }
 
-    it("renders the name as a primary link", async () => {
+    it("renders the name as a dark link, since only the count is drawn as a link", async () => {
       const button = await nameCellButton();
 
       expect(button.textContent).toContain("dc01 service accounts");
-      expect(button.classList).toContain("tw-text-fg-brand");
-    });
-  });
-
-  describe("session termination column", () => {
-    async function terminationCell(system: Partial<TargetSystemView>): Promise<HTMLElement> {
-      TestBed.resetTestingModule();
-      targetSystemsService.systems$.next([makeSystem(system)]);
-      await createComponent({ renderTemplate: true });
-
-      return (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
-        'bit-table-v2 bit-row [role="cell"]',
-      )[4];
-    }
-
-    it("badges a system that supports termination", async () => {
-      const cell = await terminationCell({
-        sealed: targetSystemSealedFields({ supportsSessionTermination: true }),
-      });
-
-      expect(cell.textContent).toContain("pamTargetSystemSessionTerminationYes");
-    });
-
-    it("names the negative state rather than leaving the cell empty", async () => {
-      const cell = await terminationCell({
-        sealed: targetSystemSealedFields({ supportsSessionTermination: false }),
-      });
-
-      expect(cell.textContent).toContain("pamTargetSystemSessionTerminationNo");
-    });
-
-    it("names the unknown state for a target with no verified sealed fields", async () => {
-      const cell = await terminationCell({ sealed: undefined });
-
-      expect(cell.textContent).toContain("pamTargetSystemSessionTerminationUnknown");
-      expect(cell.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
+      expect(button.classList).toContain("tw-text-fg-heading");
+      expect(button.classList).not.toContain("tw-text-fg-brand");
     });
   });
 
@@ -725,6 +730,15 @@ describe("TargetSystemsTabComponent", () => {
     });
   });
 
+  describe("deleteBlocked row flag", () => {
+    it("is false while the managed credential counts are unread", () => {
+      targetSystemsService.systems$.next([makeSystem({ id: sysId("sys-a") })]);
+      fixture.detectChanges();
+
+      expect(rowsOf(component)[0].deleteBlocked).toBe(false);
+    });
+  });
+
   describe("sealed-state row flags", () => {
     function rowFor(id: TargetSystemId): TargetSystemRow | undefined {
       return rowsOf(component).find((r) => r.id === id);
@@ -738,37 +752,96 @@ describe("TargetSystemsTabComponent", () => {
       fixture.detectChanges();
 
       const row = rowFor(pendingId);
-      expect(row?.status).toBe("pendingSeal");
-      expect(row?.statusLabelKey).toBe("pamTargetSystemStatusPendingSeal");
+      expect(row?.status).toBe(TargetSystemRowStatus.PendingSeal);
+      expect(row?.statusBadge.labelKey).toBe("pamTargetSystemStatusPendingSeal");
       expect(row?.integrityCheckFailed).toBe(false);
       expect(row?.activationBlockedKey).toBe("pamTargetSystemActivationBlockedPendingSeal");
       expect(row?.kind).toBeNull();
-      expect(row?.sessionTermination).toBe("unknown");
     });
 
     it("flags an active-but-unverifiable row with integrityCheckFailed, not pendingSeal", () => {
       const unverifiableId = sysId("sys-unverifiable");
+      accessConnectorsService.accessConnectors$.next([
+        accessConnector({ assignedTargetSystemIds: [unverifiableId] }),
+      ]);
       targetSystemsService.systems$.next([
         unverifiableTargetSystem({ id: unverifiableId, name: "Finance SQL" }),
       ]);
       fixture.detectChanges();
 
       const row = rowFor(unverifiableId);
-      expect(row?.status).toBe("active");
+      expect(row?.status).toBe(TargetSystemRowStatus.Active);
       expect(row?.integrityCheckFailed).toBe(true);
       expect(row?.activationBlockedKey).toBeNull();
-      expect(row?.sessionTermination).toBe("unknown");
     });
 
     it("leaves a verified, active row with neither flag", () => {
       const id = sysId("sys-verified");
+      accessConnectorsService.accessConnectors$.next([
+        accessConnector({ assignedTargetSystemIds: [id] }),
+      ]);
       targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Active })]);
       fixture.detectChanges();
 
       const row = rowFor(id);
-      expect(row?.status).toBe("active");
+      expect(row?.status).toBe(TargetSystemRowStatus.Active);
       expect(row?.integrityCheckFailed).toBe(false);
       expect(row?.activationBlockedKey).toBeNull();
+    });
+  });
+
+  describe("status and managed credential count row fields", () => {
+    const id = sysId("sys-status");
+
+    function rowFor(systemId: TargetSystemId): TargetSystemRow | undefined {
+      return rowsOf(component).find((r) => r.id === systemId);
+    }
+
+    it("is Not connected for an active automatic target no connected connector holds", () => {
+      accessConnectorsService.accessConnectors$.next([
+        accessConnector({ assignedTargetSystemIds: [id], isConnected: false }),
+      ]);
+      targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Active })]);
+      fixture.detectChanges();
+
+      expect(rowFor(id)?.status).toBe(TargetSystemRowStatus.NotConnected);
+      expect(rowFor(id)?.statusBadge.labelKey).toBe("pamTargetSystemStatusNotConnected");
+    });
+
+    it("is Inactive for a deactivated target, ahead of Not connected", () => {
+      targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Disabled })]);
+      fixture.detectChanges();
+
+      expect(rowFor(id)?.status).toBe(TargetSystemRowStatus.Inactive);
+    });
+
+    it("is Active for a manual target, since nothing connects", () => {
+      targetSystemsService.systems$.next([
+        makeSystem({ id, status: TargetSystemStatus.Active, method: TargetSystemMethod.Manual }),
+      ]);
+      fixture.detectChanges();
+
+      expect(rowFor(id)?.status).toBe(TargetSystemRowStatus.Active);
+    });
+
+    it("is not Not connected while the connector read has failed", () => {
+      accessConnectorsService.loadError$.next(new Error("boom"));
+      targetSystemsService.systems$.next([makeSystem({ id, status: TargetSystemStatus.Active })]);
+      fixture.detectChanges();
+
+      expect(rowFor(id)?.status).toBe(TargetSystemRowStatus.Active);
+    });
+
+    it("lists the ids of the connectors that hold the target", () => {
+      const held = connectorId("c-held");
+      accessConnectorsService.accessConnectors$.next([
+        accessConnector({ id: held, assignedTargetSystemIds: [id] }),
+        accessConnector({ id: connectorId("c-other"), assignedTargetSystemIds: [] }),
+      ]);
+      targetSystemsService.systems$.next([makeSystem({ id })]);
+      fixture.detectChanges();
+
+      expect(rowFor(id)?.connectorIds).toEqual([String(held)]);
     });
   });
 
@@ -786,7 +859,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
         .click();
       fixture.detectChanges();
 
@@ -840,10 +913,14 @@ describe("TargetSystemsTabComponent", () => {
       expect(blockedKey()).toBe("pamTargetSystemAssignConnectorNone");
     });
 
-    it("describes the disabled assign item with the tooltip explaining why", async () => {
+    it("describes the disabled assign item with the reason line under its label", async () => {
       const item = await openRowMenu([]);
 
-      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      const reasonId = item.getAttribute("aria-describedby")!;
+      expect(reasonId).toMatch(/^target-systems-tab_reason_assign-connectors-/);
+      expect(document.getElementById(reasonId)?.textContent?.trim()).toBe(
+        "pamTargetSystemAssignConnectorNone",
+      );
     });
 
     it("leaves the live assign item undescribed", async () => {
@@ -869,7 +946,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
         .click();
       fixture.detectChanges();
 
@@ -892,7 +969,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
         .click();
       fixture.detectChanges();
 
@@ -913,14 +990,14 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
         .click();
       fixture.detectChanges();
 
       return document.querySelector<HTMLElement>(".bit-menu-panel")!;
     }
 
-    it("disables Activate, with a tooltip, and offers no Deactivate", async () => {
+    it("disables Activate, with a reason line, and offers no Deactivate", async () => {
       const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
 
       const activate = menu.querySelector<HTMLButtonElement>(
@@ -928,7 +1005,10 @@ describe("TargetSystemsTabComponent", () => {
       )!;
       expect(activate).not.toBeNull();
       expect(activate.getAttribute("aria-disabled")).toBe("true");
-      expect(activate.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+      const reasonId = activate.getAttribute("aria-describedby")!;
+      expect(document.getElementById(reasonId)?.textContent?.trim()).toBe(
+        "pamTargetSystemActivationBlockedPendingSeal",
+      );
       expect(menu.querySelector('[id^="target-systems-tab_button_deactivate-"]')).toBeNull();
       // Not the live, clickable Activate item.
       expect(menu.querySelector('[id^="target-systems-tab_button_activate-"]')).toBe(activate);
@@ -1010,7 +1090,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
         .click();
       fixture.detectChanges();
 
@@ -1035,71 +1115,6 @@ describe("TargetSystemsTabComponent", () => {
         uuidAsString(sysId("sys-a")),
         uuidAsString(sysId("sys-b")),
       ]);
-    });
-  });
-
-  describe("canAddManagedCredential row flag", () => {
-    it("is true for any active target, whatever its method", () => {
-      targetSystemsService.systems$.next([
-        makeSystem({
-          id: sysId("sys-active-automatic"),
-          status: TargetSystemStatus.Active,
-          method: TargetSystemMethod.Automatic,
-        }),
-        makeSystem({
-          id: sysId("sys-active-manual"),
-          status: TargetSystemStatus.Active,
-          method: TargetSystemMethod.Manual,
-        }),
-        makeSystem({
-          id: sysId("sys-disabled-automatic"),
-          status: TargetSystemStatus.Disabled,
-          method: TargetSystemMethod.Automatic,
-        }),
-      ]);
-      fixture.detectChanges();
-
-      const rows = rowsOf(component);
-
-      expect(
-        rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAddManagedCredential,
-      ).toBe(true);
-      expect(rows.find((r) => r.id === sysId("sys-active-manual"))?.canAddManagedCredential).toBe(
-        true,
-      );
-      expect(
-        rows.find((r) => r.id === sysId("sys-disabled-automatic"))?.canAddManagedCredential,
-      ).toBe(false);
-    });
-
-    it("is absent from an empty list rather than defaulting to true", () => {
-      targetSystemsService.systems$.next([]);
-      fixture.detectChanges();
-
-      const rows = rowsOf(component);
-
-      expect(rows).toHaveLength(0);
-    });
-  });
-
-  describe("openCreateManagedCredential", () => {
-    it("navigates to the credential create page with this target preselected", async () => {
-      const sys = makeSystem({ id: sysId("sys-add-cred") });
-      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-      await (
-        component as unknown as {
-          openCreateManagedCredential: (s: TargetSystemView) => Promise<boolean>;
-        }
-      ).openCreateManagedCredential(sys);
-
-      expect(navigateSpy).toHaveBeenCalledWith(
-        ["..", "managed-credentials", "new"],
-        expect.objectContaining({
-          relativeTo: expect.anything(),
-          queryParams: { targetSystemId: sysId("sys-add-cred") },
-        }),
-      );
     });
   });
 
@@ -1315,55 +1330,50 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
-    /** Runs out the skeleton's delay. */
-    function showSkeleton(): void {
-      advance(1000);
-    }
-
-    /** Runs the timers the loaded table schedules, which `whenStable` would wait on forever. */
-    function settle(): void {
-      jest.runOnlyPendingTimers();
-      fixture.detectChanges();
-    }
-
     beforeEach(async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([]);
       targetSystemsService.loading$.next(true);
 
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
       await createComponent({ renderTemplate: true });
     });
 
     afterEach(() => {
-      jest.useRealTimers();
       targetSystemsService.loading$.next(false);
     });
 
-    it("keeps the placeholder itself out of the accessibility tree", () => {
-      const loading = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="target-systems-loading"]',
-      );
+    /** Lands the list and lets the loaded table settle. */
+    async function land(systems: TargetSystemView[]): Promise<void> {
+      targetSystemsService.systems$.next(systems);
+      targetSystemsService.loading$.next(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
 
-      expect(loading!.getAttribute("aria-hidden")).toBe("true");
-    });
-
-    it("stands a placeholder in for the toolbar rather than offering row-derived filters", () => {
-      showSkeleton();
+    it("draws skeleton rows in the real table at once, rather than the empty state", () => {
       const el = fixture.nativeElement as HTMLElement;
 
-      expect(el.querySelector("bit-search")).toBeNull();
-      expect(el.querySelector("bit-filter-menu")).toBeNull();
-      expect(
-        el.querySelectorAll('[data-testid="target-systems-loading"] > div:first-child bit-skeleton')
-          .length,
-      ).toBeGreaterThan(0);
+      expect(el.querySelector("bit-table-v2 bit-row bit-skeleton-text")).not.toBeNull();
+      expect(el.querySelector("pam-target-systems-empty-state")).toBeNull();
+    });
+
+    it("keeps the skeleton rows out of the accessibility tree", () => {
+      const skeletons = (fixture.nativeElement as HTMLElement).querySelectorAll(
+        "bit-table-v2 bit-skeleton > div",
+      );
+
+      expect(skeletons.length).toBeGreaterThan(0);
+      skeletons.forEach((skeleton) => expect(skeleton.getAttribute("aria-hidden")).toBe("true"));
+    });
+
+    it("offers the real toolbar while the list loads", () => {
+      const toolbar = (fixture.nativeElement as HTMLElement).querySelector(
+        "bit-table-v2 bit-table-toolbar",
+      )!;
+
+      expect(toolbar.querySelector("bit-search")).not.toBeNull();
+      expect(toolbar.querySelectorAll("bit-filter-menu").length).toBeGreaterThan(0);
     });
 
     it("announces the load from a live region while the skeleton stands in", () => {
@@ -1376,15 +1386,10 @@ describe("TargetSystemsTabComponent", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("replaces the skeleton with the real rows, and announces the arrival", () => {
-      showSkeleton();
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(1000);
-      settle();
+    it("replaces the skeleton with the real rows, and announces the arrival", async () => {
+      await land([makeSystem()]);
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
         "Prod Entra",
@@ -1394,53 +1399,26 @@ describe("TargetSystemsTabComponent", () => {
       );
     });
 
-    it("never draws the placeholder for a list that arrives inside the delay", () => {
-      advance(500);
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(1000);
-      settle();
+    it("swaps the skeleton table for the empty state when the load finds no target systems", async () => {
+      await land([]);
 
       const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("bit-table-v2")).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
-      expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
-        "Prod Entra",
-      );
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
-      showSkeleton();
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      targetSystemsService.systems$.next([makeSystem()]);
-      targetSystemsService.loading$.next(false);
-      advance(300);
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-      settle();
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", () => {
-      const status = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="rotation-loading-status"]',
-      );
-
-      expect(status!.textContent).toContain("loading");
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
+      expect(el.querySelector("pam-target-systems-empty-state")).not.toBeNull();
     });
   });
 });
 
 describe("TargetSystemsTabComponent filter options", () => {
   type FiltersComp = {
-    methodOptions: () => { value: string; label: string }[];
-    kindOptions: () => { value: string; label: string }[];
-    statusOptions: () => { value: string; label: string }[];
+    kindOptions: { value: string; label: string }[];
+    statusOptions: () => {
+      status: string;
+      labelKey: string;
+      iconTile: { icon: string; variant: string };
+    }[];
+    connectorOptions: () => { value: string; label: string }[];
   };
 
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
@@ -1453,13 +1431,6 @@ describe("TargetSystemsTabComponent filter options", () => {
     sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
     status: TargetSystemStatus.Active,
   });
-  const scriptDisabled = makeSystem({
-    id: sysId("2"),
-    name: "Prod SQL reporting",
-    method: TargetSystemMethod.Automatic,
-    sealed: targetSystemSealedFields({ kind: TargetSystemKind.CustomScript }),
-    status: TargetSystemStatus.Disabled,
-  });
   const manualActive = makeSystem({
     id: sysId("3"),
     name: "Mainframe payroll",
@@ -1469,7 +1440,7 @@ describe("TargetSystemsTabComponent filter options", () => {
   });
 
   /** Renders the real template. */
-  function setup(systems: TargetSystemView[]) {
+  function setup(systems: TargetSystemView[], connectors: AccessConnector[] = []) {
     TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
@@ -1490,7 +1461,7 @@ describe("TargetSystemsTabComponent filter options", () => {
         {
           provide: AccessConnectorsService,
           useValue: {
-            accessConnectors$: new BehaviorSubject<AccessConnector[]>([]),
+            accessConnectors$: new BehaviorSubject<AccessConnector[]>(connectors),
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),
@@ -1498,6 +1469,7 @@ describe("TargetSystemsTabComponent filter options", () => {
             assign: jest.fn().mockResolvedValue(undefined),
           },
         },
+        { provide: RotationConfigsService, useValue: rotationConfigsServiceFake() },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
@@ -1514,78 +1486,68 @@ describe("TargetSystemsTabComponent filter options", () => {
     fixture.detectChanges();
   }
 
-  it("derives the method options from the loaded rows, sorted by label", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    expect(component.methodOptions()).toEqual([
-      { value: "pamTargetSystemMethodAutomatic", label: "pamTargetSystemMethodAutomatic" },
-      { value: "pamTargetSystemMethodManual", label: "pamTargetSystemMethodManual" },
-    ]);
-  });
+  it("offers every system type, whether or not a loaded target carries it", () => {
+    setup([manualActive]);
 
-  it("derives the status options from the loaded rows, sorted by label", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    expect(component.statusOptions()).toEqual([
-      { value: "pamTargetSystemStatusActive", label: "pamTargetSystemStatusActive" },
-      { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
-    ]);
-  });
-
-  it("leaves a manual target out of the kind options, since it has no kind", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    expect(component.kindOptions()).toEqual([
+    // Sorted by label; the test i18n renders each label as its key.
+    expect(component.kindOptions).toEqual([
+      { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
       { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
       { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
     ]);
   });
 
-  it("leaves a kind it cannot name out of the kind options", () => {
-    setup([
-      entraActive,
-      makeSystem({
-        id: sysId("4"),
-        name: "Newer server thing",
-        method: TargetSystemMethod.Automatic,
-        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Unknown }),
-        status: TargetSystemStatus.Active,
-      }),
-    ]);
+  it("offers the statuses in urgency order: Not connected, Inactive, Active", () => {
+    setup([entraActive]);
 
-    expect(component.kindOptions()).toEqual([
-      { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+    expect(component.statusOptions().map((option) => option.labelKey)).toEqual([
+      "pamTargetSystemStatusNotConnected",
+      "pamTargetSystemStatusInactive",
+      "pamTargetSystemStatusActive",
     ]);
   });
 
-  it("leaves a method it cannot name out of the method options", () => {
-    setup([
-      entraActive,
-      makeSystem({
-        id: sysId("5"),
-        name: "Newer server rotation",
-        method: TargetSystemMethod.Unknown,
-        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
-        status: TargetSystemStatus.Active,
-      }),
-    ]);
+  it("tiles each status option with its badge's icon and colour", () => {
+    setup([entraActive]);
 
-    expect(component.methodOptions()).toEqual([
-      { value: "pamTargetSystemMethodAutomatic", label: "pamTargetSystemMethodAutomatic" },
+    expect(component.statusOptions().map((option) => option.iconTile)).toEqual([
+      { icon: "bwi-warning", variant: "warning" },
+      { icon: "bwi-minus-circle", variant: "gray" },
+      { icon: "bwi-check-circle", variant: "success" },
     ]);
   });
 
-  it("offers one Inactive status option for a status it cannot name and a disabled one", () => {
-    setup([
-      scriptDisabled,
-      makeSystem({
-        id: sysId("6"),
-        name: "Newer server status",
-        method: TargetSystemMethod.Automatic,
-        sealed: targetSystemSealedFields({ kind: TargetSystemKind.Entra }),
-        status: TargetSystemStatus.Unknown,
-      }),
-    ]);
+  it("offers Setup incomplete only while a loaded target is in that state", () => {
+    setup([entraActive, pendingTargetSystem({ id: sysId("4"), name: "Staging Entra" })]);
 
-    expect(component.statusOptions()).toEqual([
-      { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
+    expect(component.statusOptions().map((option) => option.labelKey)).toEqual([
+      "pamTargetSystemStatusPendingSeal",
+      "pamTargetSystemStatusNotConnected",
+      "pamTargetSystemStatusInactive",
+      "pamTargetSystemStatusActive",
+    ]);
+  });
+
+  it("offers every access connector by name, including one that holds no target", () => {
+    setup(
+      [entraActive],
+      [
+        accessConnector({
+          id: connectorId("d"),
+          name: "West datacenter",
+          assignedTargetSystemIds: [],
+        }),
+        accessConnector({
+          id: connectorId("c"),
+          name: "East datacenter",
+          assignedTargetSystemIds: [entraActive.id],
+        }),
+      ],
+    );
+
+    expect(component.connectorOptions()).toEqual([
+      { value: String(connectorId("c")), label: "East datacenter" },
+      { value: String(connectorId("d")), label: "West datacenter" },
     ]);
   });
 });
@@ -1622,7 +1584,21 @@ describe("TargetSystemsTabComponent table", () => {
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
-  async function render(systems: TargetSystemView[] = SYSTEMS): Promise<HTMLElement> {
+  /** Two credentials on the Entra target, none on the script, one on the manual one. */
+  const CONFIGS = [
+    rotationConfig({ targetSystemId: entraActive.id }),
+    rotationConfig({ targetSystemId: entraActive.id }),
+    rotationConfig({ targetSystemId: manualActive.id }),
+  ];
+
+  /**
+   * The one connector holds no target, so the active automatic Entra target reads Not connected,
+   * which also keeps the default urgency sort in the order of {@link SYSTEMS}.
+   */
+  async function render(
+    systems: TargetSystemView[] = SYSTEMS,
+    configsService = rotationConfigsServiceFake(CONFIGS),
+  ): Promise<HTMLElement> {
     TestBed.resetTestingModule();
     loading$ = new BehaviorSubject<boolean>(false);
     dialogService = mock<DialogService>();
@@ -1658,6 +1634,7 @@ describe("TargetSystemsTabComponent table", () => {
             assign: jest.fn().mockResolvedValue(undefined),
           },
         },
+        { provide: RotationConfigsService, useValue: configsService },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: mock<ToastService>() },
@@ -1691,8 +1668,15 @@ describe("TargetSystemsTabComponent table", () => {
     );
   }
 
+  /** The Managed credentials cell's text, row by row. */
+  function counts(el: HTMLElement): string[] {
+    return Array.from(el.querySelectorAll("bit-table-v2 bit-row")).map((row) =>
+      text(row.querySelectorAll('[role="cell"]')[2]),
+    );
+  }
+
   function menuItems(el: HTMLElement, rowIndex: number): string[] {
-    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-h"]')[
+    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-v"]')[
       rowIndex
     ].click();
     fixture.detectChanges();
@@ -1709,11 +1693,11 @@ describe("TargetSystemsTabComponent table", () => {
 
     expect(headings(el)).toEqual([
       "name",
-      "pamTargetSystemMethodColumn",
-      "pamTargetSystemTypeColumn",
       "status",
-      "pamTargetSystemSessionTerminationColumn",
-      "",
+      "pamTargetSystemManagedCredentialsColumn",
+      "pamTargetSystemMethodLabel",
+      "pamTargetSystemSystemTypeLabel",
+      "options",
     ]);
   });
 
@@ -1726,29 +1710,45 @@ describe("TargetSystemsTabComponent table", () => {
     expect(cells).toEqual([
       [
         "Prod Entra",
+        "pamTargetSystemStatusNotConnected",
+        "2",
         "pamTargetSystemMethodAutomatic",
         "pamTargetSystemTypeEntra",
-        "pamTargetSystemStatusActive",
-        "pamTargetSystemSessionTerminationYes",
         "",
       ],
       [
         "Billing script",
+        "pamTargetSystemStatusInactive",
+        "pamTargetSystemNone",
         "pamTargetSystemMethodAutomatic",
         "pamTargetSystemTypeCustomScript",
-        "pamTargetSystemStatusInactive",
-        "pamTargetSystemSessionTerminationNo",
         "",
       ],
       [
         "Mainframe payroll",
-        "pamTargetSystemMethodManual",
-        "\u2014",
         "pamTargetSystemStatusActive",
-        "pamTargetSystemSessionTerminationUnknown",
+        "1",
+        "pamTargetSystemMethodManual",
+        "pamTargetSystemNone",
         "",
       ],
     ]);
+  });
+
+  it("shows a dash for the count while the managed credentials are unread", async () => {
+    const configsService = rotationConfigsServiceFake(CONFIGS);
+    configsService.loading$.next(true);
+    const el = await render(SYSTEMS, configsService);
+
+    expect(counts(el)).toEqual(["\u2014", "\u2014", "\u2014"]);
+  });
+
+  it("shows a dash for the count when the managed credentials failed to load", async () => {
+    const configsService = rotationConfigsServiceFake(CONFIGS);
+    configsService.loadError$.next(new Error("boom"));
+    const el = await render(SYSTEMS, configsService);
+
+    expect(counts(el)).toEqual(["\u2014", "\u2014", "\u2014"]);
   });
 
   it("offers the row actions each row's state allows, in order", async () => {
@@ -1758,14 +1758,36 @@ describe("TargetSystemsTabComponent table", () => {
     expect(items[0]).toEqual([
       "pamTargetSystemEditTarget",
       "pamTargetSystemCopyId",
-      "pamRotationConfigCreateTitle",
       "pamTargetSystemAssignConnectors",
       "pamTargetSystemDeactivate",
-      "pamTargetSystemDeleteTarget",
+      "pamTargetSystemDeleteTargetpamTargetSystemDeleteBlockedHint",
     ]);
-    expect(items[1]).not.toContain("pamRotationConfigCreateTitle");
     expect(items[1]).toContain("pamTargetSystemActivate");
     expect(items[2]).not.toContain("pamTargetSystemAssignConnectors");
+    expect(items[2]).toContain(
+      "pamTargetSystemAssignConnectorspamTargetSystemAssignConnectorsManualHint",
+    );
+    expect(items[1]).toContain("pamTargetSystemDeleteTarget");
+  });
+
+  it("styles a live delete as the danger item, with no divider before it", async () => {
+    const el = await render();
+    menuItems(el, 1);
+
+    const remove = document.querySelector<HTMLButtonElement>(
+      '.bit-menu-panel [id^="target-systems-tab_button_delete-"]',
+    )!;
+    expect(remove.getAttribute("variant")).toBe("danger");
+    expect(document.querySelector(".bit-menu-panel bit-menu-divider")).toBeNull();
+  });
+
+  it("links the managed credentials count to the tab scoped to that target", async () => {
+    const el = await render();
+
+    const link = el.querySelector<HTMLAnchorElement>("bit-table-v2 bit-row a[bitLink]")!;
+
+    expect(text(link)).toBe("2");
+    expect(link.getAttribute("href")).toContain(`targetSystemId=${uuidAsString(entraActive.id)}`);
   });
 
   it("routes a row action through the shared component method", async () => {
@@ -1782,7 +1804,7 @@ describe("TargetSystemsTabComponent table", () => {
 
   it("confirms a delete from the row menu", async () => {
     const el = await render();
-    el.querySelector<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-h"]')!.click();
+    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-v"]')[1].click();
     fixture.detectChanges();
 
     const items = Array.from(
@@ -1792,14 +1814,17 @@ describe("TargetSystemsTabComponent table", () => {
     await fixture.whenStable();
 
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-      expect.objectContaining({ title: { key: "pamTargetSystemDeleteTitle" }, type: "danger" }),
+      expect.objectContaining({
+        title: { key: "pamTargetSystemDeleteDialogTitle" },
+        type: "danger",
+      }),
     );
   });
 
   it("names the row menu trigger and keeps the name link a focusable button", async () => {
     const el = await render();
     const trigger = el.querySelector<HTMLButtonElement>(
-      'bit-table-v2 button[bitIconButton="bwi-ellipsis-h"]',
+      'bit-table-v2 button[bitIconButton="bwi-ellipsis-v"]',
     )!;
     const link = el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!;
 
@@ -1808,12 +1833,16 @@ describe("TargetSystemsTabComponent table", () => {
     expect(link.getAttribute("tabindex")).not.toBe("-1");
   });
 
-  it("sorts on the name column only, and starts unsorted", async () => {
+  it("sorts on name, status and managed credentials, starting on status by urgency", async () => {
     const el = await render();
     const sortButtons = el.querySelectorAll('bit-table-v2 [role="columnheader"] button');
 
-    expect(sortButtons).toHaveLength(1);
-    expect(text(sortButtons[0])).toBe("name");
+    expect(Array.from(sortButtons).map(text)).toEqual([
+      "name",
+      "status",
+      "pamTargetSystemManagedCredentialsColumn",
+    ]);
+    expect(sortButtons[1].parentElement!.getAttribute("aria-sort")).toBe("ascending");
     expect(rowNames(el)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
 
     (sortButtons[0] as HTMLButtonElement).click();
@@ -1827,6 +1856,46 @@ describe("TargetSystemsTabComponent table", () => {
     expect(sortButtons[0].parentElement!.getAttribute("aria-sort")).toBe("descending");
   });
 
+  it("sorts on the managed credentials count", async () => {
+    const el = await render();
+    const sortButtons = el.querySelectorAll('bit-table-v2 [role="columnheader"] button');
+
+    (sortButtons[2] as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(rowNames(el)).toEqual(["Billing script", "Mainframe payroll", "Prod Entra"]);
+    expect(sortButtons[2].parentElement!.getAttribute("aria-sort")).toBe("ascending");
+  });
+
+  it("breaks a status tie by the most managed credentials, then by name", async () => {
+    const alpha = makeSystem({ id: sysId("4"), name: "Alpha", status: TargetSystemStatus.Active });
+    const bravo = makeSystem({ id: sysId("5"), name: "Bravo", status: TargetSystemStatus.Active });
+    const charlie = makeSystem({
+      id: sysId("6"),
+      name: "Charlie",
+      status: TargetSystemStatus.Active,
+    });
+    const delta = makeSystem({
+      id: sysId("7"),
+      name: "Delta",
+      status: TargetSystemStatus.Disabled,
+    });
+    const configsOn = (system: TargetSystemView, count: number) =>
+      Array.from({ length: count }, () => rotationConfig({ targetSystemId: system.id }));
+
+    const el = await render(
+      [alpha, bravo, charlie, delta],
+      rotationConfigsServiceFake([
+        ...configsOn(alpha, 1),
+        ...configsOn(bravo, 3),
+        ...configsOn(charlie, 3),
+        ...configsOn(delta, 9),
+      ]),
+    );
+
+    expect(rowNames(el)).toEqual(["Bravo", "Charlie", "Alpha", "Delta"]);
+  });
+
   it("narrows the rows with the search text and the chips", async () => {
     const el = await render();
     const comp = fixture.componentInstance as unknown as {
@@ -1838,7 +1907,7 @@ describe("TargetSystemsTabComponent table", () => {
     expect(rowNames(el)).toEqual(["Prod Entra"]);
 
     comp.searchControl.setValue("");
-    chip("method").toggle("pamTargetSystemMethodManual");
+    chip("method").toggle(TargetSystemMethod.Manual);
     fixture.detectChanges();
     expect(rowNames(el)).toEqual(["Mainframe payroll"]);
   });
@@ -1846,12 +1915,12 @@ describe("TargetSystemsTabComponent table", () => {
   it("shows the no-results message when the chips empty the table", async () => {
     const el = await render([entraActive]);
 
-    chip("status").toggle("pamTargetSystemStatusInactive");
+    chip("status").toggle(TargetSystemRowStatus.Inactive);
     fixture.detectChanges();
 
     expect(el.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(0);
     expect(text(el.querySelector('bit-table-v2 [slot="empty"]')!)).toBe(
-      "pamTargetSystemNoFilterResults",
+      "noItemsMatchSelectedFilters",
     );
   });
 
@@ -1863,80 +1932,51 @@ describe("TargetSystemsTabComponent table", () => {
   });
 
   describe("loading skeleton", () => {
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    /**
-     * Fakes the clock only after `render` settles, since the toolbar's chip measurement schedules
-     * change detection on a timer that `whenStable` waits for and a fake clock never runs.
-     */
-    function startLoading(): void {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-      loading$.next(true);
+    function setLoading(loading: boolean): void {
+      loading$.next(loading);
       fixture.detectChanges();
     }
 
-    async function renderLoading(): Promise<HTMLElement> {
+    it("stands skeleton rows in for the list, under the real column headings", async () => {
       const el = await render([]);
-      startLoading();
-      return el;
-    }
-
-    it("stands a skeleton table in for the list, carrying the real columns", async () => {
-      const el = await renderLoading();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
+      setLoading(true);
+      const rows = el.querySelectorAll("bit-table-v2 bit-row");
 
       expect(el.querySelector("bit-spinner")).toBeNull();
-      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
       expect(headings(el)).toEqual([
         "name",
-        "pamTargetSystemMethodColumn",
-        "pamTargetSystemTypeColumn",
         "status",
-        "pamTargetSystemSessionTerminationColumn",
-        "",
+        "pamTargetSystemManagedCredentialsColumn",
+        "pamTargetSystemMethodLabel",
+        "pamTargetSystemSystemTypeLabel",
+        "options",
       ]);
-      expect(loading.querySelectorAll("bit-row")).toHaveLength(5);
-      expect(loading.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
+      expect(rows).toHaveLength(3);
+      rows.forEach((row) => expect(row.querySelectorAll("bit-skeleton-text")).toHaveLength(6));
     });
 
-    it("draws the headings but no skeleton rows before the delay is up", async () => {
-      const el = await renderLoading();
-      jest.advanceTimersByTime(999);
-      fixture.detectChanges();
-      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
-
-      expect(loading.textContent).toContain("pamTargetSystemMethodColumn");
-      expect(loading.querySelectorAll("bit-row")).toHaveLength(0);
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("lays the skeleton out on the same column tracks as the loaded table", async () => {
+    it("holds the rows from an earlier load back while a reload is in flight", async () => {
       const el = await render();
-      startLoading();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const skeletonTracks = el.querySelector<HTMLElement>(
-        '[data-testid="target-systems-loading"] bit-header-row',
-      )!.style.gridTemplateColumns;
-      const skeletonRowTracks = el.querySelector<HTMLElement>(
-        '[data-testid="target-systems-loading"] bit-row',
-      )!.style.gridTemplateColumns;
+      setLoading(true);
 
-      loading$.next(false);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      const loadedTracks = el.querySelector<HTMLElement>("bit-table-v2 bit-header-row")!.style
-        .gridTemplateColumns;
+      expect(el.querySelectorAll("bit-table-v2 bit-row button[bitLink]")).toHaveLength(0);
+      expect(el.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(3);
 
-      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
-      expect(loadedTracks).toBe("minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 80px");
-      expect(skeletonTracks).toBe(loadedTracks);
-      expect(skeletonRowTracks).toBe(loadedTracks);
+      setLoading(false);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(rowNames(el)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
+    });
+
+    it("lays the skeleton rows out on the loaded table's column tracks", async () => {
+      const el = await render();
+      setLoading(true);
+
+      expect(el.querySelector<HTMLElement>("bit-table-v2 bit-row")!.style.gridTemplateColumns).toBe(
+        "minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 96px",
+      );
     });
   });
 });
@@ -1970,6 +2010,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
 
   async function render(
     systems: TargetSystemView[] = SYSTEMS,
+    connectors: AccessConnector[] = [],
   ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
     TestBed.resetTestingModule();
     systems$ = new BehaviorSubject<TargetSystemView[]>(systems);
@@ -1993,7 +2034,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
         {
           provide: AccessConnectorsService,
           useValue: {
-            accessConnectors$: new BehaviorSubject<AccessConnector[]>([]),
+            accessConnectors$: new BehaviorSubject<AccessConnector[]>(connectors),
             loading$: new BehaviorSubject<boolean>(false),
             loadError$: new BehaviorSubject<unknown | null>(null),
             load: jest.fn().mockResolvedValue(undefined),
@@ -2001,6 +2042,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
             assign: jest.fn().mockResolvedValue(undefined),
           },
         },
+        { provide: RotationConfigsService, useValue: rotationConfigsServiceFake() },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
@@ -2040,14 +2082,20 @@ describe("TargetSystemsTabComponent toolbar", () => {
 
   function setFilters(
     f: ComponentFixture<TargetSystemsTabComponent>,
-    filters: { search?: string; method?: string; kind?: string; status?: string },
+    filters: {
+      search?: string;
+      method?: string;
+      kind?: string;
+      status?: string;
+      connector?: string;
+    },
   ): void {
     if (filters.search !== undefined) {
       (
         f.componentInstance as unknown as { searchControl: { setValue: (v: string) => void } }
       ).searchControl.setValue(filters.search);
     }
-    for (const key of ["method", "kind", "status"] as const) {
+    for (const key of ["status", "method", "kind", "connector"] as const) {
       const value = filters[key];
       if (value !== undefined) {
         chip(f, key).toggle(value);
@@ -2062,9 +2110,26 @@ describe("TargetSystemsTabComponent toolbar", () => {
     expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
     expect(
       Array.from(toolbar(on).querySelectorAll("bit-filter-menu")).map((c) => c.getAttribute("key")),
-    ).toEqual(["method", "kind", "status"]);
+    ).toEqual(["status", "method", "kind"]);
     expect(el(on).querySelectorAll("bit-search")).toHaveLength(1);
     expect(el(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
+  });
+
+  it("adds the access connector chip last once the org has a connector", async () => {
+    const on = await render(SYSTEMS, [accessConnector({ id: connectorId("c") })]);
+
+    expect(
+      Array.from(toolbar(on).querySelectorAll("bit-filter-menu")).map((c) => c.getAttribute("key")),
+    ).toEqual(["status", "method", "kind", "connector"]);
+  });
+
+  it("makes every chip multi-select but the rotation method", async () => {
+    const on = await render(SYSTEMS, [accessConnector({ id: connectorId("c") })]);
+
+    expect(chip(on, "status").multiple()).toBe(true);
+    expect(chip(on, "method").multiple()).toBe(false);
+    expect(chip(on, "kind").multiple()).toBe(true);
+    expect(chip(on, "connector").multiple()).toBe(true);
   });
 
   it("labels each chip with its column while unset, and filters nothing", async () => {
@@ -2074,9 +2139,9 @@ describe("TargetSystemsTabComponent toolbar", () => {
     );
 
     expect(chips.map(text)).toEqual([
-      "pamTargetSystemMethodColumn: all",
-      "pamTargetSystemTypeColumn: all",
-      "status: all",
+      "status",
+      "pamTargetSystemMethodLabel",
+      "pamTargetSystemSystemTypeLabel",
     ]);
     expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
   });
@@ -2084,35 +2149,53 @@ describe("TargetSystemsTabComponent toolbar", () => {
   it("gives the search its placeholder and leaves it enabled", async () => {
     const input = toolbar(await render()).querySelector("bit-search input")!;
 
-    expect(input.getAttribute("placeholder")).toBe("pamTargetSystemSearch");
+    expect(input.getAttribute("placeholder")).toBe("search");
     expect(input.hasAttribute("disabled")).toBe(false);
   });
 
-  it("drops the kind chip from the toolbar when no loaded target carries a kind", async () => {
+  it("keeps the kind chip when no loaded target carries a kind", async () => {
     const on = await render([manualActive]);
 
-    expect(toolbar(on).querySelector('bit-filter-menu[key="kind"]')).toBeNull();
-    expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(2);
+    expect(toolbar(on).querySelector('bit-filter-menu[key="kind"]')).not.toBeNull();
+    expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it.each<[string, { search?: string; method?: string; kind?: string; status?: string }, string[]]>(
+  it.each<
     [
-      ["the method chip", { method: "pamTargetSystemMethodManual" }, ["Mainframe payroll"]],
-      ["the kind chip", { kind: TargetSystemKind.CustomScript }, ["Billing script"]],
-      ["the status chip", { status: "pamTargetSystemStatusInactive" }, ["Billing script"]],
-      ["search on a target name", { search: "prod" }, ["Prod Entra"]],
-      ["search on a kind label", { search: "customscript" }, ["Billing script"]],
-      [
-        "every control at once",
-        { search: "script", status: "pamTargetSystemStatusInactive" },
-        ["Billing script"],
-      ],
+      string,
+      { search?: string; method?: string; kind?: string; status?: string; connector?: string },
+      string[],
+    ]
+  >([
+    ["the method chip", { method: TargetSystemMethod.Manual }, ["Mainframe payroll"]],
+    ["the kind chip", { kind: TargetSystemKind.CustomScript }, ["Billing script"]],
+    ["the status chip", { status: TargetSystemRowStatus.Inactive }, ["Billing script"]],
+    ["the Not connected status", { status: TargetSystemRowStatus.NotConnected }, ["Prod Entra"]],
+    ["the access connector chip", { connector: String(connectorId("c")) }, ["Billing script"]],
+    ["search on a target name", { search: "prod" }, ["Prod Entra"]],
+    ["search on a kind label", { search: "customscript" }, ["Billing script"]],
+    [
+      "every control at once",
+      { search: "script", status: TargetSystemRowStatus.Inactive },
+      ["Billing script"],
     ],
-  )("narrows the toolbar's rows with %s", async (_, filters, expected) => {
-    const on = await render();
+  ])("narrows the toolbar's rows with %s", async (_, filters, expected) => {
+    const on = await render(SYSTEMS, [
+      accessConnector({ id: connectorId("c"), assignedTargetSystemIds: [scriptDisabled.id] }),
+      accessConnector({ id: connectorId("d"), assignedTargetSystemIds: [] }),
+    ]);
     setFilters(on, filters);
 
     expect(rowNames(on)).toEqual(expected);
+  });
+
+  it("matches a row against any of several chosen values on a multi-select chip", async () => {
+    const on = await render();
+
+    setFilters(on, { status: TargetSystemRowStatus.Inactive });
+    setFilters(on, { status: TargetSystemRowStatus.NotConnected });
+
+    expect(rowNames(on)).toEqual(["Prod Entra", "Billing script"]);
   });
 
   it("restores every row when the search is cleared", async () => {
@@ -2128,7 +2211,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
   it("restores every row when a chip is cleared from the toolbar", async () => {
     const on = await render();
 
-    setFilters(on, { status: "pamTargetSystemStatusInactive" });
+    setFilters(on, { status: TargetSystemRowStatus.Inactive });
     expect(rowNames(on)).toEqual(["Billing script"]);
 
     chip(on, "status").clear();
@@ -2143,38 +2226,18 @@ describe("TargetSystemsTabComponent toolbar", () => {
 
     expect(rowNames(on)).toEqual([]);
     expect(text(el(on).querySelector('bit-table-v2 [slot="empty"]')!)).toBe(
-      "pamTargetSystemNoFilterResults",
+      "noItemsMatchSelectedFilters",
     );
     expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it("puts the create action in the toolbar's end slot", async () => {
+  it("leaves the create action to the rotation shell's Add menu, not the toolbar", async () => {
     const on = await render();
 
-    expect(endSlot(on).children).toHaveLength(1);
-    const button = endSlot(on).querySelector<HTMLButtonElement>(
-      "#rotation-shell_button_new-target-system",
-    );
-    expect(button).not.toBeNull();
-    expect(text(button!)).toBe("pamTargetSystemNew");
-    expect(button!.getAttribute("type")).toBe("button");
-  });
-
-  it("navigates to the create page from the end slot button", async () => {
-    const on = await render();
-    const router = TestBed.inject(Router);
-    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-    endSlot(on)
-      .querySelector<HTMLButtonElement>("#rotation-shell_button_new-target-system")!
-      .click();
-    await on.whenStable();
-
-    expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "target-systems", "new"],
-      expect.objectContaining({ relativeTo: expect.anything() }),
-    );
+    expect(el(on).querySelector("bit-table-toolbar")).not.toBeNull();
+    expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
+    expect(endSlot(on).children).toHaveLength(0);
   });
 
   it("keeps the create action out of the toolbar when a search holds the table over an empty list", async () => {

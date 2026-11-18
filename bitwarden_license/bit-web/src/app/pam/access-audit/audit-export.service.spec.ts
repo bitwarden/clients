@@ -30,8 +30,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     inDoubt: false,
     requestId: "req-1",
     leaseId: "lease-1",
-    duration: { key: "pamInboxDurationHours", value: 4 },
-    exactWindow: "6/30/26, 12:00 – 6/30/26, 16:00",
+    duration: "4 hours",
+    exactWindow: "Jun 30, 2026, 12:00 PM – Jun 30, 2026, 4:00 PM",
     extendedUntil: null,
     ...overrides,
   };
@@ -41,6 +41,8 @@ describe("AuditExportService", () => {
   let service: AuditExportService;
 
   beforeEach(() => {
+    // UTC+5:30, so a timestamp written in UTC cannot pass.
+    jest.spyOn(Date.prototype, "getTimezoneOffset").mockReturnValue(-330);
     TestBed.configureTestingModule({
       providers: [
         {
@@ -50,8 +52,6 @@ describe("AuditExportService", () => {
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindAccessExtended: "Access extended",
             pamAuditKindAccessConnectorAssigned: "Access connector assigned to target",
-            pamInboxDurationHours: "__$1__ hours",
-            pamInboxDuration1Hour: "1 hour",
           }),
         },
       ],
@@ -59,10 +59,14 @@ describe("AuditExportService", () => {
     service = TestBed.inject(AuditExportService);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe("toAuditExport", () => {
     it("maps a fully populated row onto the column contract", () => {
       expect(service.toAuditExport(row())).toEqual({
-        timestamp: "2026-06-30T12:00:00.000Z",
+        timestamp: "2026-06-30T17:30:00.000+05:30",
         event: "Access activated",
         actorName: "Ada Lovelace",
         actorEmail: "ada@example.com",
@@ -83,12 +87,39 @@ describe("AuditExportService", () => {
       });
     });
 
-    it("writes the timestamp as a full ISO 8601 instant", () => {
+    it.each([
+      [-330, "2026-01-06T05:00:15.250+05:30"],
+      [300, "2026-01-05T18:30:15.250-05:00"],
+      [210, "2026-01-05T20:00:15.250-03:30"],
+      [0, "2026-01-05T23:30:15.250+00:00"],
+    ])(
+      "writes the exporter's time with its UTC offset when getTimezoneOffset() is %i",
+      (offset, expected) => {
+        jest.spyOn(Date.prototype, "getTimezoneOffset").mockReturnValue(offset);
+
+        const exported = service.toAuditExport(
+          row({ occurredAt: new Date("2026-01-05T23:30:15.250Z") }),
+        );
+
+        expect(exported.timestamp).toBe(expected);
+      },
+    );
+
+    it("takes the offset in force at the event, not at the export", () => {
+      // Stockholm: UTC+1 in winter, UTC+2 in summer.
+      jest.spyOn(Date.prototype, "getTimezoneOffset").mockImplementation(function (this: Date) {
+        return this.getTime() < Date.parse("2026-03-29T01:00:00Z") ? -60 : -120;
+      });
+
       const exported = service.toAuditExport(
-        row({ occurredAt: new Date("2026-01-05T23:30:15.250Z") }),
+        row({
+          occurredAt: new Date("2026-01-05T23:30:15.250Z"),
+          extendedUntil: "2026-07-01T18:30:00.000Z",
+        }),
       );
 
-      expect(exported.timestamp).toBe("2026-01-05T23:30:15.250Z");
+      expect(exported.timestamp).toBe("2026-01-06T00:30:15.250+01:00");
+      expect(exported.extendedUntil).toBe("2026-07-01T20:30:00.000+02:00");
     });
 
     it("renders every absent value as an empty cell", () => {
@@ -116,7 +147,7 @@ describe("AuditExportService", () => {
       );
 
       expect(exported).toEqual({
-        timestamp: "2026-06-30T12:00:00.000Z",
+        timestamp: "2026-06-30T17:30:00.000+05:30",
         event: "Access rule created",
         actorName: "",
         actorEmail: "",
@@ -163,9 +194,7 @@ describe("AuditExportService", () => {
     });
 
     it("localizes a duration that takes no substitution", () => {
-      const exported = service.toAuditExport(
-        row({ duration: { key: "pamInboxDuration1Hour", value: null } }),
-      );
+      const exported = service.toAuditExport(row({ duration: "1 hour" }));
 
       expect(exported.grantedDuration).toBe("1 hour");
     });
@@ -181,7 +210,7 @@ describe("AuditExportService", () => {
       );
 
       expect(exported.grantedDuration).toBe("");
-      expect(exported.extendedUntil).toBe("2026-07-01T18:30:00.000Z");
+      expect(exported.extendedUntil).toBe("2026-07-02T00:00:00.000+05:30");
     });
   });
 
@@ -250,7 +279,7 @@ describe("AuditExportService", () => {
 
       expect(parsed.data[0].detail).toBe("Approved for the incident window.");
       expect(parsed.data[0].actorName).toBe("Ada Lovelace");
-      expect(parsed.data[0].timestamp).toBe("2026-06-30T12:00:00.000Z");
+      expect(parsed.data[0].timestamp).toBe("2026-06-30T17:30:00.000+05:30");
     });
 
     it("names the file with a PAM-specific prefix and a csv extension", () => {
