@@ -29,7 +29,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     private organizationInviteService: OrganizationInviteService,
   ) {}
 
-  async shouldAcceptOrganizationInvite(): Promise<boolean> {
+  async shouldAcceptOrganizationInvite(orgId: string): Promise<boolean> {
     const inviteLinkAutoConfirm = await this.configService.getFeatureFlag(
       FeatureFlag.InviteLinkAutoConfirm,
     );
@@ -37,66 +37,82 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
       return true;
     }
 
-    return (await this.organizationInviteService.getOpenOrgInvite()) == null;
+    const openOrgInvite = await this.organizationInviteService.getOpenOrgInvite();
+    if (openOrgInvite == null) {
+      return true;
+    }
+
+    // An open invite for a different organization does not apply to this provisioning.
+    return openOrgInvite.organizationId.toLowerCase() !== orgId.toLowerCase();
   }
 
   async finishPassword(
     params: SsoJitProvisionFinishPasswordParams,
   ): Promise<SsoJitProvisionFinishResult<JitMasterPasswordRegistrationResponse>> {
-    return await this.finish(params.userId, (registrationClient, acceptOrganizationInvite) =>
-      registrationClient.post_keys_for_jit_password_registration({
-        org_id: asUuid<SdkOrganizationId>(params.orgId),
-        org_public_key: params.orgPublicKey,
-        master_password: params.newPassword,
-        master_password_hint: params.newPasswordHint,
-        salt: params.salt,
-        organization_sso_identifier: params.orgSsoIdentifier,
-        user_id: asUuid<SdkUserId>(params.userId),
-        reset_password_enroll: params.resetPasswordAutoEnroll,
-        accept_organization_invite: acceptOrganizationInvite,
-      }),
+    return await this.finish(
+      params.userId,
+      params.orgId,
+      (registrationClient, acceptOrganizationInvite) =>
+        registrationClient.post_keys_for_jit_password_registration({
+          org_id: asUuid<SdkOrganizationId>(params.orgId),
+          org_public_key: params.orgPublicKey,
+          master_password: params.newPassword,
+          master_password_hint: params.newPasswordHint,
+          salt: params.salt,
+          organization_sso_identifier: params.orgSsoIdentifier,
+          user_id: asUuid<SdkUserId>(params.userId),
+          reset_password_enroll: params.resetPasswordAutoEnroll,
+          accept_organization_invite: acceptOrganizationInvite,
+        }),
     );
   }
 
   async finishTrustedDevice(
     params: SsoJitProvisionFinishTrustedDeviceParams,
   ): Promise<SsoJitProvisionFinishResult<TdeRegistrationResponse>> {
-    return await this.finish(params.userId, (registrationClient, acceptOrganizationInvite) =>
-      registrationClient.post_keys_for_tde_registration({
-        org_id: asUuid<SdkOrganizationId>(params.orgId),
-        org_public_key: params.orgPublicKey,
-        user_id: asUuid<SdkUserId>(params.userId),
-        device_identifier: params.deviceIdentifier,
-        trust_device: params.trustDevice,
-        accept_organization_invite: acceptOrganizationInvite,
-      }),
+    return await this.finish(
+      params.userId,
+      params.orgId,
+      (registrationClient, acceptOrganizationInvite) =>
+        registrationClient.post_keys_for_tde_registration({
+          org_id: asUuid<SdkOrganizationId>(params.orgId),
+          org_public_key: params.orgPublicKey,
+          user_id: asUuid<SdkUserId>(params.userId),
+          device_identifier: params.deviceIdentifier,
+          trust_device: params.trustDevice,
+          accept_organization_invite: acceptOrganizationInvite,
+        }),
     );
   }
 
   async finishKeyConnector(
     params: SsoJitProvisionFinishKeyConnectorParams,
   ): Promise<SsoJitProvisionFinishResult<KeyConnectorRegistrationResult>> {
-    return await this.finish(params.userId, (registrationClient, acceptOrganizationInvite) =>
-      registrationClient.post_keys_for_key_connector_registration(
-        params.keyConnectorUrl,
-        params.orgSsoIdentifier,
-        acceptOrganizationInvite,
-      ),
+    return await this.finish(
+      params.userId,
+      params.orgId,
+      (registrationClient, acceptOrganizationInvite) =>
+        registrationClient.post_keys_for_key_connector_registration(
+          params.keyConnectorUrl,
+          params.orgSsoIdentifier,
+          acceptOrganizationInvite,
+        ),
     );
   }
 
   /**
-   * Decides whether the server accepts the organization invite, then runs one registration call
-   * with the SDK registration client for the user.
+   * Decides whether the server accepts the invite to the organization, then runs one registration
+   * call with the SDK registration client for the user.
    */
   private async finish<T>(
     userId: UserId,
+    orgId: string,
     register: (
       registrationClient: RegistrationClient,
       acceptOrganizationInvite: boolean,
     ) => Promise<T>,
   ): Promise<SsoJitProvisionFinishResult<T>> {
-    const organizationInviteAccepted = await this.shouldAcceptOrganizationInvite();
+    const organizationInviteAccepted = await this.shouldAcceptOrganizationInvite(orgId);
 
     const registration = await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(

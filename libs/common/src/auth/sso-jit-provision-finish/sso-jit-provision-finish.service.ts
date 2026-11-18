@@ -21,19 +21,21 @@ import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-fi
 export abstract class SsoJitProvisionFinishService {
   /**
    * Decides whether the server moves the organization membership from Invited to Accepted.
-   * - `false` when the `pm-34429-invite-link-auto-confirm` flag is on and an open invite is
-   *   stored. The membership stays Invited, so the Admin Console checks run when the open invite
-   *   link is replayed.
-   * - `true` in all other cases. When the flag is off, the SDK uses the legacy endpoints, which
-   *   always accept.
+   * - `false` when the `pm-34429-invite-link-auto-confirm` flag is on and the stored open invite
+   *   is for `orgId`. The membership stays Invited, so the Admin Console checks run when the open
+   *   invite link is replayed.
+   * - `true` in all other cases. An open invite for a different organization does not apply.
+   *   When the flag is off, the SDK uses the legacy endpoints, which always accept.
    *
    * The finish methods call this method. Call it directly only for the V1 Key Connector path,
    * which posts through `SsoJitProvisionFinishApiService`.
    *
    * TODO: Remove from the public API with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key
    * Connector registration).
+   *
+   * @param orgId The organization that provisions the user.
    */
-  abstract shouldAcceptOrganizationInvite(): Promise<boolean>;
+  abstract shouldAcceptOrganizationInvite(orgId: string): Promise<boolean>;
 
   /**
    * Makes the account keys for a master password user, and sends them with the new master

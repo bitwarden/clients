@@ -51,12 +51,28 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     organizationName: "org-name",
   });
 
+  const otherOrgOpenInvite = new OpenOrganizationInvite({
+    organizationId: "f9e8d7c6-b5a4-4f3e-9d2c-1b0a9f8e7d6c",
+    inviteLinkCode: "other-invite-link-code",
+    inviteKey: "other-invite-key",
+    organizationName: "other-org-name",
+  });
+
+  const upperCaseOrgIdOpenInvite = new OpenOrganizationInvite({
+    organizationId: orgId.toUpperCase(),
+    inviteLinkCode: "invite-link-code",
+    inviteKey: "invite-key",
+    organizationName: "org-name",
+  });
+
   /** [description, flag on, stored open invite, expected acceptOrganizationInvite] */
   const inviteCases: [string, boolean, OpenOrganizationInvite | null, boolean][] = [
     ["flag off and no open invite", false, null, true],
     ["flag off and an open invite", false, openOrgInvite, true],
     ["flag on and no open invite", true, null, true],
-    ["flag on and an open invite", true, openOrgInvite, false],
+    ["flag on and an open invite for the org", true, openOrgInvite, false],
+    ["flag on and an open invite for the org in upper case", true, upperCaseOrgIdOpenInvite, false],
+    ["flag on and an open invite for a different org", true, otherOrgOpenInvite, true],
   ];
 
   function arrangeInvite(inviteLinkAutoConfirm: boolean, invite: OpenOrganizationInvite | null) {
@@ -113,7 +129,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
         arrangeInvite(inviteLinkAutoConfirm, invite);
 
         // Act
-        const result = await sut.shouldAcceptOrganizationInvite();
+        const result = await sut.shouldAcceptOrganizationInvite(orgId);
 
         // Assert
         expect(result).toBe(expected);
@@ -122,7 +138,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
 
     it("should not read the stored invite when the flag is off", async () => {
       // Act
-      await sut.shouldAcceptOrganizationInvite();
+      await sut.shouldAcceptOrganizationInvite(orgId);
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.InviteLinkAutoConfirm);
@@ -320,7 +336,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     let params: SsoJitProvisionFinishKeyConnectorParams;
 
     beforeEach(() => {
-      params = { userId, orgSsoIdentifier: "org-sso-id", keyConnectorUrl };
+      params = { userId, orgId, orgSsoIdentifier: "org-sso-id", keyConnectorUrl };
       registrationClient.post_keys_for_key_connector_registration.mockResolvedValue(registration);
     });
 
