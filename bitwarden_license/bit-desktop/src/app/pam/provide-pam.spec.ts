@@ -18,7 +18,10 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
 import {
@@ -31,6 +34,7 @@ import {
 
 import { provideDesktopPam } from "./provide-pam";
 import { DesktopGatedCollectionBannerComponent } from "./vault/desktop-gated-collection-banner.component";
+import { DesktopLeasedClipboardService } from "./vault/desktop-leased-clipboard.service";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
@@ -111,6 +115,19 @@ describe("provideDesktopPam", () => {
         AccountService,
         AuthService,
         NgZone,
+        LogService,
+        DesktopLeasedClipboardService,
+      ]);
+    });
+
+    it("provides the clipboard guard with the copy stream and clipboard access", () => {
+      const provider = providerFor(DesktopLeasedClipboardService);
+
+      expect(provider?.useClass).toBe(DesktopLeasedClipboardService);
+      expect(provider?.deps).toEqual([
+        MessageListener,
+        PlatformUtilsService,
+        TotpService,
         LogService,
       ]);
     });

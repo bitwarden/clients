@@ -13,10 +13,15 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
+import { DesktopLeasedClipboardService } from "./desktop-leased-clipboard.service";
 import { DesktopRevealedCipherService } from "./desktop-revealed-cipher.service";
 
 describe("DesktopRevealedCipherService", () => {
@@ -37,6 +42,9 @@ describe("DesktopRevealedCipherService", () => {
   let authStatuses$: Subject<Record<UserId, AuthenticationStatus>>;
   let logService: MockProxy<LogService>;
   let ngZone: NgZone;
+  let messages$: Subject<Message<Record<string, unknown>>>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let clipboard: string;
   let service: DesktopRevealedCipherService;
 
   /** A state with a live lease ending `ms` from the start of the test. */
@@ -87,6 +95,12 @@ describe("DesktopRevealedCipherService", () => {
       authService,
       ngZone,
       logService,
+      new DesktopLeasedClipboardService(
+        new MessageListener(messages$),
+        platformUtilsService,
+        mock<TotpService>(),
+        logService,
+      ),
     );
 
   beforeEach(() => {
@@ -110,6 +124,10 @@ describe("DesktopRevealedCipherService", () => {
     Object.defineProperty(authService, "authStatuses$", { value: authStatuses$ });
     logService = mock<LogService>();
     ngZone = { run: jest.fn((fn: () => unknown) => fn()) } as unknown as NgZone;
+    messages$ = new Subject();
+    clipboard = "";
+    platformUtilsService = mock<PlatformUtilsService>();
+    platformUtilsService.readFromClipboard.mockImplementation(async () => clipboard);
 
     service = createService();
   });
@@ -299,6 +317,81 @@ describe("DesktopRevealedCipherService", () => {
       authStatuses$.next({});
 
       expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+  });
+
+  describe("clipboard", () => {
+    /** Copies a value the way `PlatformUtilsService.copyToClipboard` announces it. */
+    const copy = async (value: string) => {
+      clipboard = value;
+      messages$.next({ command: "copiedToClipboard", clipboardValue: value, clearing: false });
+      await flush();
+    };
+
+    beforeEach(async () => {
+      accessLeaseSdkService.leasedCipher.mockImplementation(async () =>
+        sdkView({
+          type: CipherType.Login,
+          login: { username: "dba", password: "leased-secret" },
+        }),
+      );
+      state = leaseEndingIn();
+      await service.getOrReveal(userId, cipherId);
+    });
+
+    it("clears a leased value when the lease lapses", async () => {
+      await copy("leased-secret");
+
+      tickAt(60_000);
+      await flush();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("", { clearing: true });
+    });
+
+    it("clears a leased value when the lease ends", async () => {
+      await copy("dba");
+
+      state = noLease();
+      await service.refresh(userId, cipherId);
+      await flush();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("", { clearing: true });
+    });
+
+    it("clears a leased value on lock", async () => {
+      await copy("leased-secret");
+
+      authStatuses$.next({ [userId]: AuthenticationStatus.Locked });
+      await flush();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("", { clearing: true });
+    });
+
+    it("clears a leased value on logout", async () => {
+      await copy("leased-secret");
+
+      authStatuses$.next({});
+      await flush();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("", { clearing: true });
+    });
+
+    it("leaves the clipboard alone when nothing was copied", async () => {
+      tickAt(60_000);
+      await flush();
+
+      expect(platformUtilsService.readFromClipboard).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("leaves the clipboard alone once it holds another value", async () => {
+      await copy("leased-secret");
+      clipboard = "copied elsewhere";
+
+      tickAt(60_000);
+      await flush();
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
   });
 
