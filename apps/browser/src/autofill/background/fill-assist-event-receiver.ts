@@ -28,7 +28,7 @@ export interface FillAssistEventReceiver {
  * No-op receiver. Logs the event locally so emissions are observable during
  * development.
  *
- * TODO: replace with the real consumer during fill assist M6.
+ * FIXME (PM-34713): replace with the real consumer during fill assist M6.
  */
 export class NoopFillAssistEventReceiver implements FillAssistEventReceiver {
   constructor(private logService: LogService) {}
