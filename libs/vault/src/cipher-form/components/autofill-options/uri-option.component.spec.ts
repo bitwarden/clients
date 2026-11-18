@@ -506,7 +506,7 @@ describe("UriOptionComponent", () => {
     ) {
       fixture.componentRef.setInput("recognizeDesktopApps", recognizeDesktopApps);
       fixture.componentRef.setInput("desktopAppRow", desktopAppRow);
-      component.writeValue({ uri, matchDetection: UriMatchStrategy.Never });
+      component.writeValue({ uri, matchDetection: UriMatchStrategy.Exact });
       fixture.detectChanges();
     }
 

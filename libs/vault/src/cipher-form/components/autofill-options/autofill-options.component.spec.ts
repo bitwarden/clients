@@ -679,7 +679,7 @@ describe("AutofillOptionsComponent", () => {
               uri: "https://example.com",
               match: UriMatchStrategy.Host,
             }),
-            Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+            Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Exact }),
           ],
         }),
       });
@@ -703,10 +703,10 @@ describe("AutofillOptionsComponent", () => {
       expect(getUriLocks()).toEqual([false, true]);
     });
 
-    it("does not lock desktop apps added by the user", async () => {
+    it("does not lock desktop apps added by the user", () => {
       initWithSavedPairing();
 
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
       fixture.detectChanges();
 
       expect(getUriLocks()).toEqual([false, true, false]);
@@ -727,7 +727,7 @@ describe("AutofillOptionsComponent", () => {
       component.onUriItemDrop(dropEvent(1, 0));
 
       expect(getSavedUris()).toEqual([
-        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Exact }),
         Object.assign(new LoginUriView(), {
           uri: "https://example.com",
           match: UriMatchStrategy.Host,
@@ -743,7 +743,7 @@ describe("AutofillOptionsComponent", () => {
 
       expect(getUriLocks()).toEqual([true]);
       expect(getSavedUris()).toEqual([
-        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Exact }),
       ]);
     });
 
@@ -765,29 +765,29 @@ describe("AutofillOptionsComponent", () => {
       ]);
     });
 
-    it("saves a selected desktop app with its pairing URI and the Never match strategy", async () => {
+    it("saves a selected desktop app with its pairing URI and the Exact match strategy", () => {
       fixture.detectChanges();
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
-      // The form's match strategy isn't used: desktop apps are always saved with Never
+      // The form's match strategy isn't used: desktop apps are always saved with Exact
       component.autofillOptionsForm.controls.uris.at(1).setValue({
         uri: pairingUri,
         matchDetection: null,
       });
 
       expect(getSavedUris()[1]).toEqual(
-        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Never }),
+        Object.assign(new LoginUriView(), { uri: pairingUri, match: UriMatchStrategy.Exact }),
       );
     });
 
-    it("does not save a desktop app URI with no desktop app selected", async () => {
+    it("does not save a desktop app URI with no desktop app selected", () => {
       fixture.detectChanges();
       component.autofillOptionsForm.controls.uris.at(0).setValue({
         uri: "https://example.com",
         matchDetection: null,
       });
 
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
       expect(component.autofillOptionsForm.value.uris).toHaveLength(2);
       expect(getSavedUris()).toEqual([
@@ -795,13 +795,13 @@ describe("AutofillOptionsComponent", () => {
       ]);
     });
 
-    it("does not save a desktop app URI with no desktop app selected when the URIs are reordered", async () => {
+    it("does not save a desktop app URI with no desktop app selected when the URIs are reordered", () => {
       fixture.detectChanges();
       component.autofillOptionsForm.controls.uris.at(0).setValue({
         uri: "https://example.com",
         matchDetection: null,
       });
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
       component.onUriItemDrop(dropEvent(1, 0));
 
@@ -817,7 +817,7 @@ describe("AutofillOptionsComponent", () => {
             Object.assign(new LoginUriView(), { uri: "https://example.com", match: null }),
             Object.assign(new LoginUriView(), {
               uri: DESKTOP_APP_URI_PREFIX,
-              match: UriMatchStrategy.Never,
+              match: UriMatchStrategy.Exact,
             }),
           ],
         }),
