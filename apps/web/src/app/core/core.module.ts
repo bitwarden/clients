@@ -69,6 +69,7 @@ import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
@@ -171,6 +172,7 @@ import {
   VFO1_VAULT_LIST_STEP,
   VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
+import { WebPremiumUpgradeNudgeService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-nudge.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
@@ -566,6 +568,11 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       Router,
     ],
+  }),
+  safeProvider({
+    provide: PremiumUpgradeNudgeService,
+    useClass: WebPremiumUpgradeNudgeService,
+    deps: [],
   }),
   safeProvider({
     provide: PremiumInterestStateService,
