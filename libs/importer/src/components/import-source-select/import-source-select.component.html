@@ -1,33 +1,14 @@
-<p bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">
-  {{ "importSourceBreadcrumb" | i18n }}
-</p>
-
-<bit-progress-bar
-  [hideStartHint]="true"
-  [value]="progressValue()"
-  [accessibleName]="stepText()"
-  [ariaValueText]="stepText()"
-></bit-progress-bar>
-<p
-  bitTypography="helper"
-  noMargin
-  aria-hidden="true"
-  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
->
-  {{ stepText() }}
-</p>
-
 <bit-card-segmented>
   <bit-card-content>
-    <h2 bitTypography="h2" noMargin>{{ "importSourceSelectTitle" | i18n }}</h2>
-    <p bitTypography="body1" class="tw-text-fg-body-subtle">
+    <h2 bitTypography="h2" noMargin class="tw-mb-0">{{ "importSourceSelectTitle" | i18n }}</h2>
+    <p bitTypography="body1" class="tw-text-fg-body-subtle tw-mb-4">
       {{ "importSourceSelectDescription" | i18n }}
     </p>
 
     <bit-search [formControl]="searchControl" [placeholder]="'search' | i18n" class="tw-mb-4">
     </bit-search>
 
-    <bit-form-control-group [grid]="true" [formControl]="sourceControl">
+    <bit-form-control-group [grid]="true" [formControl]="sourceControl" class="!tw-mb-0">
       <bit-label class="tw-sr-only">{{ "importSourceSelectTitle" | i18n }}</bit-label>
 
       <!-- Must be declared inside `bit-form-control-group`: `*ngTemplateOutlet` embedded views
@@ -62,13 +43,13 @@
         }
       }
 
-      @if (featuredPasswordManagers().length > 0) {
+      @if (passwordManagersHeadingVisible()) {
         <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 tw-mb-2 !tw-text-fg-heading">
           {{ "importSourcePasswordManagers" | i18n }}
         </p>
-        @for (option of featuredPasswordManagers(); track option.id) {
-          <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
-        }
+      }
+      @for (option of featuredPasswordManagers(); track option.id) {
+        <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
       }
 
       <bit-disclosure #allImportersDisclosure [(open)]="disclosureOpen" class="tw-contents">
@@ -77,7 +58,7 @@
         }
       </bit-disclosure>
 
-      @if (hasRemainingPasswordManagers()) {
+      @if (showAllVisible()) {
         <button
           type="button"
           bitLink

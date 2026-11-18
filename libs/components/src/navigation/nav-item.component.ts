@@ -17,6 +17,7 @@ import { IconTileComponent } from "../icon-tile";
 import { TooltipDirective } from "../tooltip";
 
 import { NavBaseComponent } from "./nav-base.component";
+import { NavToggleScope } from "./nav-toggle-scope";
 import { SideNavService } from "./side-nav.service";
 
 /**
@@ -47,6 +48,7 @@ export abstract class NavGroupAbstraction {
     "(focusin)": "onFocusIn($event.target)",
     "(focusout)": "onFocusOut()",
     class: "tw-block",
+    "data-spotlight-host": "",
   },
 })
 export class NavItemComponent extends NavBaseComponent {
@@ -89,6 +91,12 @@ export class NavItemComponent extends NavBaseComponent {
 
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
+  private readonly toggleScope = inject(NavToggleScope, { optional: true });
+
+  /** Depth 2+ always reserves the start slot so rows indent beneath their parent's toggle. */
+  protected readonly reserveStartSlot = computed(
+    () => this.treeDepth() > 1 || !!this.toggleScope?.hasStartToggle(),
+  );
 
   /**
    * Is `true` if `to` matches the current route
@@ -116,6 +124,12 @@ export class NavItemComponent extends NavBaseComponent {
     }
 
     return "0";
+  });
+
+  /** Indent for depth 2+ rows; depth 1 is indented by the top-level group's container. */
+  protected readonly nestedIndent = computed(() => {
+    const depth = this.treeDepth();
+    return depth > 1 ? `${(depth - 1) * this.TREE_DEPTH_PADDING}rem` : null;
   });
 
   /**

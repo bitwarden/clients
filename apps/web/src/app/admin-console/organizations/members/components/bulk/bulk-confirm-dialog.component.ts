@@ -10,11 +10,13 @@ import {
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import {
+  ProviderUserBulkPublicKeyResponse,
+  ProviderUserBulkResponse,
+} from "@bitwarden/common/provider";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
@@ -93,11 +95,14 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
 
   protected readonly getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>
-  > =>
-    await this.organizationUserApiService.postOrganizationUsersPublicKey(
+  > => {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return await this.organizationUserApiService.postOrganizationUsersPublicKey(
       this.organization.id,
       this.filteredUsers().map((user) => user.id),
+      userId,
     );
+  };
 
   protected readonly isAccepted = (user: BulkUserDetails) =>
     user.status === OrganizationUserStatusType.Accepted;

@@ -10,6 +10,7 @@ export class LoginData {
   passwordRevisionDate?: string;
   totp?: string;
   autofillOnPageLoad?: boolean;
+  httpAuthenticationEnabled?: boolean;
   fido2Credentials?: Fido2CredentialData[];
 
   constructor(data?: LoginApi) {
@@ -22,6 +23,7 @@ export class LoginData {
     this.passwordRevisionDate = data.passwordRevisionDate;
     this.totp = data.totp;
     this.autofillOnPageLoad = data.autofillOnPageLoad;
+    this.httpAuthenticationEnabled = data.httpAuthenticationEnabled;
 
     if (data.uris) {
       this.uris = data.uris.map((u) => new LoginUriData(u));

@@ -42,17 +42,6 @@ describe("SecureNote", () => {
     expect(secureNote.toSecureNoteData().type).toBe(SecureNoteType.Generic);
   });
 
-  it("Decrypt", async () => {
-    const secureNote = new SecureNote();
-    secureNote.type = SecureNoteType.Generic;
-
-    const view = await secureNote.decrypt();
-
-    expect(view).toEqual({
-      type: 0,
-    });
-  });
-
   describe("fromJSON", () => {
     it("returns undefined if object is null", () => {
       expect(SecureNote.fromJSON(null)).toBeUndefined();

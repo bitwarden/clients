@@ -16,6 +16,7 @@ import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth
 import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import { RegistrationFinishService as RegistrationFinishServiceAbstraction } from "@bitwarden/angular/auth/registration";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -36,14 +37,12 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   LoginComponentService,
   LoginDecryptionOptionsService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
-  LogoutService,
 } from "@bitwarden/auth/common";
 import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -54,7 +53,6 @@ import {
   InternalPolicyService,
   PolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -62,6 +60,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultOrganizationInviteService,
   OrganizationInviteService,
@@ -73,10 +72,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
-import {
-  InternalMasterPasswordServiceAbstraction,
-  MasterPasswordServiceAbstraction,
-} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
@@ -99,7 +95,6 @@ import {
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
@@ -153,6 +148,7 @@ import {
 import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  CipherShareAccessService,
   SHARE_ITEM_PRESENTER,
   SHARE_PASSWORD_REPROMPT,
   ShareButtonComponent,
@@ -160,15 +156,23 @@ import {
 } from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
+  CIPHER_SHARE_ACCESS,
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   DefaultVaultNavService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
   SshImportPromptService,
+  VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
+  VFO1_FILTERS_STEP,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
+import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -353,14 +357,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
-    deps: [
-      LegacyCompatKeyService,
-      AccountApiServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      ConfigService,
-      SdkService,
-      OrganizationInviteService,
-    ],
+    deps: [SdkService, OrganizationInviteService],
   }),
   safeProvider({
     provide: WebPushConnectionService,
@@ -382,7 +379,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyServiceAbstraction,
-      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -490,7 +486,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
-    deps: [MessagingService, RouterService, OrganizationInviteService],
+    deps: [RouterService, OrganizationInviteService],
   }),
   safeProvider({
     provide: IpcService,
@@ -515,6 +511,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -553,6 +550,10 @@ const safeProviders: SafeProvider[] = [
     provide: VaultNavService,
     useClass: DefaultVaultNavService,
     deps: [],
+  }),
+  safeProvider({
+    provide: VAULT_NAV_ORGANIZATION_OPTIONS,
+    useValue: OrganizationOptionsComponent,
   }),
   safeProvider({
     provide: PremiumUpgradePromptService,
@@ -623,6 +624,20 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: CIPHER_SHARE_ACCESS,
+    useExisting: CipherShareAccessService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [
+      VFO1_SWITCH_PRODUCTS_STEP,
+      VFO1_VAULT_LIST_STEP,
+      VFO1_SHARED_FOLDERS_STEP,
+      VFO1_FILTERS_STEP,
+    ],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,

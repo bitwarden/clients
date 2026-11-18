@@ -24,6 +24,9 @@ export class ConfirmationDetailsComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() trialLength: number;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() includesPrivilegedControls = false;
 
   protected readonly Product = ProductType;
 }

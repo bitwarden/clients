@@ -22,7 +22,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -75,6 +75,7 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
@@ -85,6 +86,9 @@ export class InitService {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
+
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+      await this.sharedUnlockPeerService.start();
 
       // For each acct, we must await the process of unlocking with the never-lock key
       // if it is set, to avoid race conditions of any code trying to access the user key
@@ -121,7 +125,6 @@ export class InitService {
       containerService.attachToGlobal(this.win);
       this.automationDriver.attachToGlobal(this.win);
 
-      await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();

@@ -193,9 +193,8 @@ describe("SponsoringOrgRowComponent", () => {
     it("sends the resend offer and shows a success toast", async () => {
       await (component as any).resendEmail();
 
-      expect(mockSponsorshipApiService.postResendSponsorshipOffer).toHaveBeenCalledWith(
+      expect(mockSponsorshipApiService.postResendOwnSponsorshipOffer).toHaveBeenCalledWith(
         "org-id",
-        "friend@example.com",
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ message: "emailSent" }),

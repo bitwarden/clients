@@ -4,6 +4,7 @@ import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
 
+import { flushPromises } from "../../autofill/spec/testing-utils";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { BrowserApi } from "./browser-api";
@@ -780,6 +781,74 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getSenderFrameUrl", () => {
+    const committedUrl = "https://example.test/entry";
+    const routedUrl = "https://example.test/logged-in/step-one";
+    const subFrameUrl = "https://widget.example.test/form";
+    const tab = mock<chrome.tabs.Tab>({ id: 1, url: routedUrl });
+
+    const mockFrameLookup = (url: string | undefined) => {
+      chrome.webNavigation.getFrame = jest
+        .fn()
+        .mockImplementation((_details, callback) => callback(url == null ? undefined : { url }));
+    };
+
+    it("returns the frame's live URL over the URL the sender was committed at", async () => {
+      mockFrameLookup(routedUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 0, url: committedUrl, tab });
+
+      expect(chrome.webNavigation.getFrame).toHaveBeenCalledWith(
+        { tabId: 1, frameId: 0 },
+        expect.any(Function),
+      );
+      expect(frameUrl).toBe(routedUrl);
+    });
+
+    it("returns a sub-frame's own URL rather than the tab's", async () => {
+      mockFrameLookup(subFrameUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("falls back to the tab URL for a top-level frame when the lookup resolves nothing", async () => {
+      mockFrameLookup(undefined);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 0, url: committedUrl, tab });
+
+      expect(frameUrl).toBe(routedUrl);
+    });
+
+    it("falls back to the sender URL for a sub-frame when the lookup resolves nothing", async () => {
+      mockFrameLookup(undefined);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("falls back to the sender URL when the lookup rejects", async () => {
+      chrome.webNavigation.getFrame = jest.fn().mockImplementation(() => {
+        throw new Error("No frame");
+      });
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("skips the lookup when the sender carries no tab", async () => {
+      mockFrameLookup(routedUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ url: committedUrl });
+
+      expect(chrome.webNavigation.getFrame).not.toHaveBeenCalled();
+      expect(frameUrl).toBe(committedUrl);
+    });
+  });
+
   describe("getAllFrameDetails", () => {
     it("returns all sub frame details of the specified tab", async () => {
       const tabId = 1;
@@ -1194,6 +1263,49 @@ describe("BrowserApi", () => {
         chrome.webNavigation.onCommitted,
         expect.any(Function),
       );
+    });
+
+    describe("when injecting through the `registerContentScriptsPolyfill`", () => {
+      const commitNavigation = async (url: string) => {
+        const navigationListener = jest.mocked(BrowserApi.addListener).mock.calls.at(-1)[1];
+        await navigationListener({ tabId: 1, frameId: 0, url });
+        await flushPromises();
+      };
+
+      beforeEach(() => {
+        globalThis.browser = mock<typeof browser>({
+          contentScripts: { register: undefined },
+        });
+        jest.spyOn(BrowserApi, "addListener");
+      });
+
+      it("checks the origin permission with a match pattern that omits the URL's port", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["https://*/*"] });
+
+        await commitNavigation("https://localhost:9443/passkey");
+
+        expect(chrome.permissions.contains).toHaveBeenCalledWith(
+          { origins: ["https://localhost/*"] },
+          expect.any(Function),
+        );
+        expect(chrome.scripting.executeScript).toHaveBeenCalled();
+      });
+
+      it("injects into a URL on any port of a pattern's host", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["http://localhost/*"] });
+
+        await commitNavigation("http://localhost:3000/");
+
+        expect(chrome.scripting.executeScript).toHaveBeenCalled();
+      });
+
+      it("does not inject into a URL on a different host that begins with a pattern's host", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["http://localhost/*"] });
+
+        await commitNavigation("http://localhost.example.com:3000/");
+
+        expect(chrome.scripting.executeScript).not.toHaveBeenCalled();
+      });
     });
   });
 

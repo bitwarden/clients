@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
-import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockFromJson } from "../../../../spec";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 
@@ -40,19 +40,6 @@ describe("Password", () => {
   it("toPasswordHistoryData", () => {
     const password = new Password(data);
     expect(password.toPasswordHistoryData()).toEqual(data);
-  });
-
-  it("Decrypt", async () => {
-    const password = new Password();
-    password.password = mockEnc("password");
-    password.lastUsedDate = new Date("2022-01-31T12:00:00.000Z");
-
-    const view = await password.decrypt(null);
-
-    expect(view).toEqual({
-      password: "password",
-      lastUsedDate: new Date("2022-01-31T12:00:00.000Z"),
-    });
   });
 
   describe("fromJSON", () => {

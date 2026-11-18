@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { program, Command } from "commander";
+import { program, Command, Option } from "commander";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
@@ -21,12 +23,14 @@ const writeLn = CliUtils.writeLn;
 
 export class VaultProgram extends BaseProgram {
   async register() {
+    const useSharedFoldersTerm = await this.sharedFoldersEnabled();
+
     program
-      .addCommand(this.listCommand())
-      .addCommand(this.getCommand())
-      .addCommand(this.createCommand())
-      .addCommand(this.editCommand())
-      .addCommand(this.deleteCommand())
+      .addCommand(this.listCommand(useSharedFoldersTerm))
+      .addCommand(this.getCommand(useSharedFoldersTerm))
+      .addCommand(this.createCommand(useSharedFoldersTerm))
+      .addCommand(this.editCommand(useSharedFoldersTerm))
+      .addCommand(this.deleteCommand(useSharedFoldersTerm))
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -36,7 +40,24 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.archiveCommand());
   }
 
-  private validateObject(requestedObject: string, validObjects: string[]): boolean {
+  private async sharedFoldersEnabled(): Promise<boolean> {
+    return await this.serviceContainer.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+  }
+
+  /** Hides the object names that use the terminology the feature flag has turned off. */
+  private visibleObjects(objects: string[], useSharedFoldersTerm: boolean): string[] {
+    return objects.filter((object) =>
+      useSharedFoldersTerm
+        ? !object.includes("collection") && object !== "folder" && object !== "folders"
+        : !object.includes("shared-folder") && !object.includes("my-folder"),
+    );
+  }
+
+  private validateObject(
+    requestedObject: string,
+    validObjects: string[],
+    shownObjects: string[] = validObjects,
+  ): boolean {
     let success = true;
     if (!validObjects.includes(requestedObject)) {
       success = false;
@@ -45,7 +66,7 @@ export class VaultProgram extends BaseProgram {
           'Unknown object "' +
             requestedObject +
             '". Allowed objects are: ' +
-            validObjects.join(", ") +
+            shownObjects.join(", ") +
             ".",
         ),
       );
@@ -53,26 +74,43 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private listCommand(): Command {
+  private listCommand(useSharedFoldersTerm: boolean): Command {
     const listObjects = [
       "items",
       "folders",
+      "my-folders",
       "collections",
+      "shared-folders",
       "org-collections",
+      "org-shared-folders",
       "org-members",
       "organizations",
     ];
+    const shownObjects = this.visibleObjects(listObjects, useSharedFoldersTerm);
 
     const command = new Command("list")
-      .argument("<object>", "Valid objects are: " + listObjects.join(", "))
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
       .option("--url <url>", "Filter items of type login with a url-match search.")
-      .option("--folderid <folderid>", "Filter items by folder id.")
-      .option("--collectionid <collectionid>", "Filter items by collection id.")
+      .option(
+        "--folderid <folderid>",
+        `Filter items by ${useSharedFoldersTerm ? "my folder" : "folder"} id.`,
+      )
+      .addOption(
+        new Option("--collectionid <collectionid>", "Filter items by collection id.").hideHelp(
+          useSharedFoldersTerm,
+        ),
+      )
+      .addOption(
+        new Option(
+          "--sharedfolderid <sharedfolderid>",
+          "Filter items by shared folder id.",
+        ).hideHelp(!useSharedFoldersTerm),
+      )
       .option(
         "--organizationid <organizationid>",
-        "Filter items or collections by organization id.",
+        `Filter items or ${useSharedFoldersTerm ? "shared folders" : "collections"} by organization id.`,
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
       .on("--help", () => {
@@ -95,14 +133,22 @@ export class VaultProgram extends BaseProgram {
         writeLn(
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
+        if (useSharedFoldersTerm) {
+          writeLn("    bw list items --sharedfolderid 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
+        }
         writeLn("    bw list items --trash");
         writeLn("    bw list items --archived");
-        writeLn("    bw list folders --search email");
+        writeLn(`    bw list ${useSharedFoldersTerm ? "my-folders" : "folders"} --search email`);
+        if (useSharedFoldersTerm) {
+          writeLn("    bw list shared-folders --search engineering");
+        } else {
+          writeLn("    bw list collections --search engineering");
+        }
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
       })
       .action(async (object, cmd) => {
-        if (!this.validateObject(object, listObjects)) {
+        if (!this.validateObject(object, listObjects, shownObjects)) {
           return;
         }
 
@@ -120,6 +166,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.keyService,
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, cmd);
 
@@ -131,7 +178,7 @@ export class VaultProgram extends BaseProgram {
     return command;
   }
 
-  private getCommand(): Command {
+  private getCommand(useSharedFoldersTerm: boolean): Command {
     const getObjects = [
       "item",
       "username",
@@ -142,15 +189,19 @@ export class VaultProgram extends BaseProgram {
       "exposed",
       "attachment",
       "folder",
+      "my-folder",
       "collection",
+      "shared-folder",
       "org-collection",
+      "org-shared-folder",
       "organization",
       "template",
       "fingerprint",
       "send",
     ];
+    const shownObjects = this.visibleObjects(getObjects, useSharedFoldersTerm);
     return new Command("get")
-      .argument("<object>", "Valid objects are: " + getObjects.join(", "))
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Search term or object's globally unique `id`.")
       .description("Get an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -174,12 +225,16 @@ export class VaultProgram extends BaseProgram {
         writeLn(
           "    bw get attachment photo.jpg --itemid 99ee88d2-6046-4ea7-92c2-acac464b1412 --raw",
         );
-        writeLn("    bw get folder email");
-        writeLn("    bw get template folder");
+        const personalFolderObject = useSharedFoldersTerm ? "my-folder" : "folder";
+        writeLn(`    bw get ${personalFolderObject} email`);
+        writeLn(`    bw get template ${personalFolderObject}`);
+        const folderObject = useSharedFoldersTerm ? "shared-folder" : "collection";
+        writeLn(`    bw get ${folderObject} 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38`);
+        writeLn(`    bw get template ${folderObject}`);
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
-        if (!this.validateObject(object, getObjects)) {
+        if (!this.validateObject(object, getObjects, shownObjects)) {
           return;
         }
 
@@ -207,10 +262,18 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private createCommand() {
-    const createObjects = ["item", "attachment", "folder", "org-collection"];
+  private createCommand(useSharedFoldersTerm: boolean): Command {
+    const createObjects = [
+      "item",
+      "attachment",
+      "folder",
+      "my-folder",
+      "org-collection",
+      "org-shared-folder",
+    ];
+    const shownObjects = this.visibleObjects(createObjects, useSharedFoldersTerm);
     return new Command("create")
-      .argument("<object>", "Valid objects are: " + createObjects.join(", "))
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument(
         "[encodedJson]",
         "Encoded json of the object to create. Can also be piped into stdin.",
@@ -222,8 +285,13 @@ export class VaultProgram extends BaseProgram {
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
-        writeLn("    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K");
-        writeLn("    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder");
+        const folderObject = useSharedFoldersTerm ? "my-folder" : "folder";
+        writeLn(`    bw create ${folderObject} eyJuYW1lIjoiTXkgRm9sZGVyIn0K`);
+        writeLn(`    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create ${folderObject}`);
+        writeLn(
+          `    bw create ${useSharedFoldersTerm ? "org-shared-folder" : "org-collection"} eyJuYW1lIjoiTXkgRm9sZGVyIn0K ` +
+            "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
+        );
         writeLn(
           "    bw create attachment --file ./myfile.csv " +
             "--itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66",
@@ -231,7 +299,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, encodedJson, cmd) => {
-        if (!this.validateObject(object, createObjects)) {
+        if (!this.validateObject(object, createObjects, shownObjects)) {
           return;
         }
 
@@ -254,10 +322,19 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private editCommand(): Command {
-    const editObjects = ["item", "item-collections", "folder", "org-collection"];
+  private editCommand(useSharedFoldersTerm: boolean): Command {
+    const editObjects = [
+      "item",
+      "item-collections",
+      "item-shared-folders",
+      "folder",
+      "my-folder",
+      "org-collection",
+      "org-shared-folder",
+    ];
+    const shownObjects = this.visibleObjects(editObjects, useSharedFoldersTerm);
     return new Command("edit")
-      .argument("<object>", "Valid objects are: " + editObjects.join(", "))
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
       .argument(
         "[encodedJson]",
@@ -268,21 +345,23 @@ export class VaultProgram extends BaseProgram {
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
+        const folderObject = useSharedFoldersTerm ? "my-folder" : "folder";
         writeLn(
-          "    bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==",
+          `    bw edit ${folderObject} 5cdfbd80-d99f-409b-915b-f4c5d0241b02 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==`,
         );
         writeLn(
           "    echo 'eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==' | " +
-            "bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02",
+            `bw edit ${folderObject} 5cdfbd80-d99f-409b-915b-f4c5d0241b02`,
         );
         writeLn(
-          "    bw edit item-collections 78307355-fd25-416b-88b8-b33fd0e88c82 " +
+          `    bw edit ${useSharedFoldersTerm ? "item-shared-folders" : "item-collections"} ` +
+            "78307355-fd25-416b-88b8-b33fd0e88c82 " +
             "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
         );
         writeLn("", true);
       })
       .action(async (object, id, encodedJson, cmd) => {
-        if (!this.validateObject(object, editObjects)) {
+        if (!this.validateObject(object, editObjects, shownObjects)) {
           return;
         }
 
@@ -299,16 +378,25 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.policyService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
       });
   }
 
-  private deleteCommand(): Command {
-    const deleteObjects = ["item", "attachment", "folder", "org-collection"];
+  private deleteCommand(useSharedFoldersTerm: boolean): Command {
+    const deleteObjects = [
+      "item",
+      "attachment",
+      "folder",
+      "my-folder",
+      "org-collection",
+      "org-shared-folder",
+    ];
+    const shownObjects = this.visibleObjects(deleteObjects, useSharedFoldersTerm);
     return new Command("delete")
-      .argument("<object>", "Valid objects are: " + deleteObjects.join(", "))
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
       .description("Delete an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -322,14 +410,21 @@ export class VaultProgram extends BaseProgram {
         writeLn("");
         writeLn("    bw delete item 7063feab-4b10-472e-b64c-785e2b870b92");
         writeLn("    bw delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent");
-        writeLn("    bw delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02");
+        writeLn(
+          `    bw delete ${useSharedFoldersTerm ? "my-folder" : "folder"} 5cdfbd80-d99f-409b-915b-f4c5d0241b02`,
+        );
+        writeLn(
+          `    bw delete ${useSharedFoldersTerm ? "org-shared-folder" : "org-collection"} ` +
+            "5cdfbd80-d99f-409b-915b-f4c5d0241b02 " +
+            "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
+        );
         writeLn(
           "    bw delete attachment b857igwl1dzrs2 --itemid 310d5ffd-e9a2-4451-af87-ea054dce0f78",
         );
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
-        if (!this.validateObject(object, deleteObjects)) {
+        if (!this.validateObject(object, deleteObjects, shownObjects)) {
           return;
         }
 

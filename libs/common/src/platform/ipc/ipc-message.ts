@@ -41,6 +41,45 @@ export function reconstructIpcMessage(message: IpcMessage): IpcMessage {
   };
 }
 
+/**
+ * Clients that can connect to the desktop app
+ */
+export const DesktopIpcPeerClientType = Object.freeze({
+  Cli: "cli",
+  Chrome: "chrome",
+  Firefox: "firefox",
+  Autofill: "autofill",
+  Unknown: "unknown",
+} as const);
+export type DesktopIpcPeerClientType =
+  (typeof DesktopIpcPeerClientType)[keyof typeof DesktopIpcPeerClientType];
+
+export function isIpcPeerClientType(value: unknown): value is DesktopIpcPeerClientType {
+  return Object.values(DesktopIpcPeerClientType).includes(value as DesktopIpcPeerClientType);
+}
+
+/**
+ * Announces which client is connecting to the desktop
+ */
+export interface IpcClientTypeMessage {
+  clientType: DesktopIpcPeerClientType;
+  /** `Chrome`, `Firefox`: the extension that spawned the proxy. */
+  extensionId?: string;
+}
+
+/** Chrome ids are 32 chars, Firefox ids a braced UUID; anything longer is not an extension id. */
+const MAX_EXTENSION_ID_LENGTH = 128;
+
+export function isIpcClientTypeMessage(message: any): message is IpcClientTypeMessage {
+  return (
+    message != null &&
+    isIpcPeerClientType(message.clientType) &&
+    (message.extensionId === undefined ||
+      (typeof message.extensionId === "string" &&
+        message.extensionId.length <= MAX_EXTENSION_ID_LENGTH))
+  );
+}
+
 export function isForwardedIpcMessage(message: any): message is ForwardedIpcMessage {
   return message != null && message.type === "forwarded-bitwarden-ipc-message";
 }

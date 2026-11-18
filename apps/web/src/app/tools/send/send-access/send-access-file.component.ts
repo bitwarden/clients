@@ -1,15 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -28,14 +29,15 @@ export class SendAccessFileComponent {
   readonly accessToken = input<SendAccessToken | null>(null);
 
   constructor(
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private encryptService: EncryptService,
-    private fileDownloadService: FileDownloadService,
-    private sendApiService: SendApiService,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
+    private readonly encryptService: EncryptService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly sendApiService: SendApiService,
+    private readonly environmentService: EnvironmentService,
   ) {}
 
-  protected download = async () => {
+  protected readonly download = async () => {
     const accessToken = this.accessToken();
     if (this.send() == null || this.decKey() == null || !accessToken) {
       return;
@@ -55,7 +57,20 @@ export class SendAccessFileComponent {
       return;
     }
 
-    const response = await fetch(new Request(downloadData.url, { cache: "no-store" }));
+    const environment = await firstValueFrom(this.environmentService.environment$);
+    if (unsafeUrlReason(downloadData.url, environment.getApiUrl())) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("sendDownloadBlocked"),
+      });
+      return;
+    }
+
+    // don't follow a redirect blindly — a validated host could still redirect elsewhere
+    const response = await fetch(
+      new Request(downloadData.url, { cache: "no-store", redirect: "manual" }),
+    );
     if (response.status !== 200) {
       this.toastService.showToast({
         variant: "error",

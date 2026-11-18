@@ -1,17 +1,7 @@
-import { mock, MockProxy } from "jest-mock-extended";
-
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import {
-  EncryptedString,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
-import { makeStaticByteArray, mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { mockFromJson } from "../../../../spec";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 
@@ -65,62 +55,6 @@ describe("Attachment", () => {
   it("toAttachmentData", () => {
     const attachment = new Attachment(data);
     expect(attachment.toAttachmentData()).toEqual(data);
-  });
-
-  describe("decrypt", () => {
-    let keyService: MockProxy<KeyService>;
-    let encryptService: MockProxy<EncryptService>;
-
-    beforeEach(() => {
-      const containerService = mockContainerService();
-      keyService = containerService.keyService as MockProxy<KeyService>;
-      encryptService = containerService.encryptService as MockProxy<EncryptService>;
-    });
-
-    it("expected output", async () => {
-      const attachment = new Attachment();
-      attachment.id = "id";
-      attachment.url = "url";
-      attachment.size = "1100";
-      attachment.sizeName = "1.1 KB";
-      attachment.key = mockEnc("key");
-      attachment.fileName = mockEnc("fileName");
-
-      encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
-      encryptService.unwrapSymmetricKey.mockResolvedValue(
-        new SymmetricCryptoKey(makeStaticByteArray(64)),
-      );
-
-      const userKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const view = await attachment.decrypt(userKey);
-
-      expect(view).toEqual({
-        id: "id",
-        url: "url",
-        size: "1100",
-        sizeName: "1.1 KB",
-        fileName: "fileName",
-        key: expect.any(SymmetricCryptoKey),
-      });
-    });
-
-    describe("decrypts attachment.key", () => {
-      let attachment: Attachment;
-
-      beforeEach(() => {
-        attachment = new Attachment();
-        attachment.key = mock<EncString>();
-      });
-
-      it("uses the provided key without depending on KeyService", async () => {
-        const providedKey = mock<SymmetricCryptoKey>();
-
-        await attachment.decrypt(providedKey, "");
-
-        expect(keyService.userKey$).not.toHaveBeenCalled();
-        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
-      });
-    });
   });
 
   describe("fromJSON", () => {

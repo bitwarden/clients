@@ -453,6 +453,30 @@ export class BrowserApi {
     }
   }
 
+  /** Whether the extension is told when a request is redirected. Safari does not tell it. */
+  static canObserveRedirects(): boolean {
+    return !BrowserApi.isSafariApi && chrome.webRequest?.onBeforeRedirect != null;
+  }
+
+  /**
+   * Calls `callback` before a request matching `filter` is redirected, until
+   * {@link removeRedirectListener} removes it. Not available where {@link canObserveRedirects} is
+   * false.
+   */
+  static addRedirectListener(
+    callback: (details: chrome.webRequest.OnBeforeRedirectDetails) => void,
+    filter: chrome.webRequest.RequestFilter,
+  ): void {
+    // eslint-disable-next-line no-restricted-syntax -- addListener cannot pass the filter, and Safari, whose leak it prevents, reports no redirects
+    chrome.webRequest.onBeforeRedirect.addListener(callback, filter);
+  }
+
+  static removeRedirectListener(
+    callback: (details: chrome.webRequest.OnBeforeRedirectDetails) => void,
+  ): void {
+    chrome.webRequest.onBeforeRedirect.removeListener(callback);
+  }
+
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {
     // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
     // and test that it doesn't break.
@@ -611,6 +635,38 @@ export class BrowserApi {
     details: chrome.webNavigation.GetFrameDetails,
   ): Promise<chrome.webNavigation.GetFrameResultDetails> {
     return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
+  }
+
+  /**
+   * Resolves the URL currently loaded in the frame a runtime message came from.
+   *
+   * `frame.url` takes precedence over `tab.url` because a sub-frame's document is not the tab's.
+   * `frame.url` takes precedence over `sender.url` because the sender's value is pinned to the
+   * frame URI when the port was opened, so it does not follow same-document navigations.
+   *
+   * @param sender - The sender of the runtime message.
+   */
+  static async getSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
   }
 
   /**

@@ -17,6 +17,17 @@ describe("InvoicePreviewResponse", () => {
       AdditionalServiceAccounts: { Reference: "sm-service-account", Quantity: 4, Cost: 3 },
       Prorations: [{ Credit: 2, Charge: 5, Tax: 0.25, Total: 3.25, Months: 6 }],
     },
+    PrivilegedControls: {
+      Seats: {
+        Reference: "pam-seat",
+        Quantity: 4,
+        Cost: 20,
+        Discounts: [{ Type: "amount-off", Value: 5, Amount: 5, Label: "PAM promo" }],
+      },
+      Prorations: [
+        { Reference: "pam-seat", Credit: 1, Charge: 4, Tax: 0.2, Total: 3.2, Months: 6 },
+      ],
+    },
     Cadence: "monthly",
     PlanTier: "teams",
     Discounts: [{ Type: "amount-off", Value: 15, Amount: 15, Label: "Loyalty" }],
@@ -63,6 +74,28 @@ describe("InvoicePreviewResponse", () => {
       });
       expect(response.secretsManager!.prorations).toHaveLength(1);
 
+      expect(response.privilegedControls!.seats).toMatchObject({
+        reference: "pam-seat",
+        quantity: 4,
+        cost: 20,
+      });
+      expect(response.privilegedControls!.seats!.discounts).toHaveLength(1);
+      expect(response.privilegedControls!.seats!.discounts![0]).toMatchObject({
+        type: "amount-off",
+        value: 5,
+        amount: 5,
+        label: "PAM promo",
+      });
+      expect(response.privilegedControls!.prorations).toHaveLength(1);
+      expect(response.privilegedControls!.prorations![0]).toMatchObject({
+        reference: "pam-seat",
+        credit: 1,
+        charge: 4,
+        tax: 0.2,
+        total: 3.2,
+        months: 6,
+      });
+
       expect(response.cadence).toBe("monthly");
       expect(response.planTier).toBe("teams");
       expect(response.discounts).toHaveLength(1);
@@ -94,6 +127,7 @@ describe("InvoicePreviewResponse", () => {
       const response = new InvoicePreviewResponse(minimal());
 
       expect(response.secretsManager).toBeUndefined();
+      expect(response.privilegedControls).toBeUndefined();
       expect(response.passwordManager.additionalStorage).toBeUndefined();
       expect(response.passwordManager.prorations).toBeUndefined();
       expect(response.passwordManager.seats.discounts).toBeUndefined();
@@ -162,6 +196,48 @@ describe("InvoicePreviewResponse", () => {
         charge: 188.22,
         total: 150.58,
       });
+    });
+
+    it("should leave privilegedControls undefined when the server sends null", () => {
+      const response = new InvoicePreviewResponse({ ...minimal(), PrivilegedControls: null });
+
+      expect(response.privilegedControls).toBeUndefined();
+    });
+
+    it("should parse a privileged controls section without seats", () => {
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        PrivilegedControls: {
+          Seats: null,
+          Prorations: [
+            { Reference: "pam-seat", Credit: 0, Charge: 12.5, Tax: 0, Total: 12.5, Months: 6 },
+          ],
+        },
+      });
+
+      expect(response.privilegedControls!.seats).toBeUndefined();
+      expect(response.privilegedControls!.prorations).toHaveLength(1);
+      expect(response.privilegedControls!.prorations![0]).toMatchObject({
+        reference: "pam-seat",
+        charge: 12.5,
+      });
+    });
+
+    it("should parse a privileged controls section without prorations", () => {
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        PrivilegedControls: {
+          Seats: { Reference: "pam-seat", Quantity: 2, Cost: 15 },
+          Prorations: null,
+        },
+      });
+
+      expect(response.privilegedControls!.seats).toMatchObject({
+        reference: "pam-seat",
+        quantity: 2,
+        cost: 15,
+      });
+      expect(response.privilegedControls!.prorations).toBeUndefined();
     });
 
     it("should not set nextPaymentAttempt when the server omits it", () => {

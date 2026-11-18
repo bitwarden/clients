@@ -7,7 +7,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import {
@@ -18,8 +17,8 @@ import {
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 
 import { MemberDialogResult } from "../../components/member-dialog/member-dialog.types";
@@ -35,7 +34,6 @@ describe("InviteLinkCalloutService", () => {
   const userId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
-  let configService: MockProxy<ConfigService>;
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
   let organizationMembersService: MockProxy<OrganizationMembersService>;
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
@@ -64,8 +62,6 @@ describe("InviteLinkCalloutService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(true);
     memberDialogManager = mock<MemberDialogManagerService>();
     memberDialogManager.openInviteDialog.mockResolvedValue(MemberDialogResult.Saved);
     organizationMembersService = mock<OrganizationMembersService>();
@@ -77,13 +73,14 @@ describe("InviteLinkCalloutService", () => {
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    router.navigateByUrl.mockResolvedValue(true);
+    (router as { url: string }).url = "/organizations/org-1/vault";
 
     TestBed.configureTestingModule({
       providers: [
         InviteLinkCalloutService,
         { provide: AccountService, useValue: accountService },
         { provide: StateProvider, useValue: stateProvider },
-        { provide: ConfigService, useValue: configService },
         { provide: MemberDialogManagerService, useValue: memberDialogManager },
         { provide: OrganizationMembersService, useValue: organizationMembersService },
         { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
@@ -143,15 +140,6 @@ describe("InviteLinkCalloutService", () => {
     expect(dialogService.open).not.toHaveBeenCalled();
   });
 
-  it("showIfEligible() returns early without opening a dialog when the feature flag is disabled", async () => {
-    configService.getFeatureFlag.mockResolvedValue(false);
-    const organization = createOrganization();
-
-    await service.showIfEligible(organization);
-
-    expect(dialogService.open).not.toHaveBeenCalled();
-  });
-
   it("showIfEligible() opens the dialog and calls dismiss() when the user clicks Skip", async () => {
     const organization = createOrganization();
     stubDialogClosed("skip");
@@ -167,7 +155,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() returns early without opening a dialog when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
@@ -178,7 +166,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() dismisses the callout for good when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
@@ -207,5 +195,15 @@ describe("InviteLinkCalloutService", () => {
       [],
       true,
     );
+  });
+
+  it("showIfEligible() returns the admin to the page they started on once the tour dialog closes", async () => {
+    const organization = createOrganization();
+    stubDialogClosed("showMeHow");
+    (router as { url: string }).url = "/organizations/org-1/vault";
+
+    await service.showIfEligible(organization);
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/organizations/org-1/vault");
   });
 });

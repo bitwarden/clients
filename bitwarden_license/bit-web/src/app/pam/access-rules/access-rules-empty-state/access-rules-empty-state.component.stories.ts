@@ -18,18 +18,17 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamNoAccessRulesYetTitle: "No access rules yet",
-              pamNoAccessRulesYetDescription:
-                "Create a rule to add extra protection to sensitive collections.",
+              pamNoAccessRulesYetDescriptionSharedFolder:
+                "Create a rule to add extra protection to sensitive shared folders.",
               pamAccessRuleCreateCustom: "Create custom rule",
               pamAccessRulesStartFromTemplate: "Start from a template",
               pamAccessRuleUseTemplate: "Use template",
               pamTemplateJustInTimeTitle: "Just in time",
-              pamTemplateJustInTimeSummary: "Auto-approved • Expires after 1h • Audit logged",
+              pamTemplateJustInTimeShortSummary: "Auto-approved",
               pamTemplateApprovalRequiredTitle: "Approval required",
-              pamTemplateApprovalRequiredSummary:
-                "Human approval • 1 approver required • Audit logged",
+              pamTemplateApprovalRequiredShortSummary: "Human approval • 1 approver required",
               pamTemplateIpRestrictedTitle: "IP-restricted",
-              pamTemplateIpRestrictedSummary: "Auto-approved • IP Allowlist • Audit logged",
+              pamTemplateIpRestrictedShortSummary: "Auto-approved • IP Allowlist",
               pamAccessRulesAuditFootnoteStart: "Every rule change and access event is recorded in",
               pamEventLogs: "Event Logs",
               pamAccessRulesAuditFootnoteEnd: "and exportable.",

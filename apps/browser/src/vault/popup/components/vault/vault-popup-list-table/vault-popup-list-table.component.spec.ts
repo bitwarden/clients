@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -8,6 +9,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -16,21 +18,22 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   ChipFilterOption,
   CompactModeService,
@@ -40,12 +43,16 @@ import {
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   NO_FOLDER,
   PasswordRepromptService,
+  VAULT_ITEM_FILTER,
   VaultCopyButtonsService,
+  VaultItemFilter,
   VaultNavItemType,
   VaultNavService,
   VaultScopeType,
@@ -59,7 +66,9 @@ import { VaultPopupListTableFiltersService } from "../../../services/vault-popup
 import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
+import { VAULT_ROW_ICON, VaultRowIcon } from "../vault-row-slots/vault-row-icon.token";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
 
@@ -86,33 +95,38 @@ const makeRow = (
   overrides: Partial<PopupCipherViewLike> = {},
 ) => ({ cipher: makeCipher(overrides), _section: section, actions: {} }) as any;
 
+/** A contributed filter key unlike any built-in one, so the table must use the provider's key. */
+const FILTER_KEY = "accessStatus";
+
+@Component({
+  selector: "test-row-icon",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="row-icon">{{ cipher()?.id }}</span>`,
+})
+class TestRowIconComponent {
+  readonly cipher = input<CipherViewLike | null>(null);
+}
+
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
   let component: VaultPopupListTableComponent;
   let router: Router;
 
-  const featureFlag$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const autoFillCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const favoriteCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const filteredCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
-  const searchText$ = new BehaviorSubject<string>("");
+  const searchText = signal("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const emptyVault$ = new BehaviorSubject<boolean>(false);
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
-  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
-    getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-        return featureFlag$.asObservable();
-      }
-      return of(false);
-    }),
+    getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
     getFeatureFlag: jest.fn().mockResolvedValue(false),
   };
 
@@ -133,12 +147,12 @@ describe("VaultPopupListTableComponent", () => {
     favoriteCiphers$: favoriteCiphers$.asObservable(),
     filteredCiphers$: filteredCiphers$.asObservable(),
     loading$: loading$.asObservable(),
-    searchText$: searchText$.asObservable(),
+    searchText,
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
     hasFilterApplied$: hasFilterApplied$.asObservable(),
-    applyFilter: jest.fn(),
+    applyScopedFilter: jest.fn(),
   };
 
   const vaultPopupLoadingService = {
@@ -156,17 +170,25 @@ describe("VaultPopupListTableComponent", () => {
   let listTableSvc: VaultPopupListTableService;
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
-  /** Emitted by the switcher's clear, which the table follows to reset its own controls. */
-  const vaultScopedFiltersCleared$ = new Subject<void>();
   /** Whether the vault in view is suspended, which blanks the rows. */
   const suspendedVault$ = new BehaviorSubject<boolean>(false);
   const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
 
+  /** The contributed filter chip. Null leaves the seam unprovided, as in OSS builds. */
+  let itemFilter: VaultItemFilter | null = null;
+  /** The row icon slot. Null leaves it unprovided. */
+  let rowIcon: VaultRowIcon | null = null;
+  const contributedOptions$ = new BehaviorSubject<
+    { id: string; name: string; icon: "bwi-lock"; tileVariant?: "danger" }[]
+  >([]);
+  const contributedMatches$ = new BehaviorSubject<
+    ReadonlyMap<string, ReadonlySet<CipherId>> | undefined
+  >(undefined);
+
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
-    clearVaultScopedFilters: jest.fn(),
-    vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
+    filterDialogOpen: signal(false),
     selectedFilters$: of({
       cipherType: null,
       organization: [] as string[],
@@ -179,6 +201,9 @@ describe("VaultPopupListTableComponent", () => {
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
   };
+
+  /** Like the popup's view cache, every `signal()` call seeds from the snapshot taken at popup open. */
+  let viewCacheSnapshot: Record<string, unknown>;
 
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
   const compactModeService = {
@@ -215,19 +240,24 @@ describe("VaultPopupListTableComponent", () => {
     viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
   };
 
+  /** No tour step is active; the filters tour is covered by its own spec. */
+  const coachmarkService = mock<CoachmarkService>({ isStepActive: () => false });
+  /** Whether the tour holds the filter dialog open. */
+  const tourFilterDialogOpen = signal(false);
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    tourFilterDialogOpen.set(false);
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
-    featureFlag$.next(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
     favoriteCiphers$.next([]);
     filteredCiphers$.next([]);
     activeCiphers$.next([]);
     loading$.next(false);
-    searchText$.next("");
+    searchText.set("");
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     hasFilterApplied$.next(false);
@@ -238,16 +268,42 @@ describe("VaultPopupListTableComponent", () => {
     organizationNames$.next(new Map());
     collections$.next([]);
     folders$.next([]);
-    clickItemsToAutofillVaultView$.next(true);
+    vaultPopupListTableFiltersService.filterDialogOpen.set(false);
+    vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(of({}));
+    itemFilter = null;
+    rowIcon = null;
+    contributedOptions$.next([]);
+    contributedMatches$.next(undefined);
+    viewCacheSnapshot = {};
     nav$.next({ vaults: [], organizationDataOwnership: false });
     vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
 
+    await createFixture();
+  });
+
+  /** Builds the testing module and the component; `itemFilter` is read when it is first injected. */
+  async function createFixture() {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: CoachmarkService, useValue: coachmarkService },
+        {
+          provide: VaultPopupTourService,
+          useValue: { sharedFoldersRow: signal(null), filterDialogOpen: tourFilterDialogOpen },
+        },
         { provide: WINDOW, useValue: window },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: ({ key, initialValue }: { key: string; initialValue: unknown }) =>
+              signal(key in viewCacheSnapshot ? viewCacheSnapshot[key] : initialValue),
+          },
+        },
         { provide: ConfigService, useValue: configService },
+        { provide: VAULT_ITEM_FILTER, useFactory: () => itemFilter },
+        { provide: VAULT_ROW_ICON, useFactory: () => rowIcon },
         { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
@@ -261,6 +317,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
+        { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "test-user-id" }) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
@@ -281,16 +338,7 @@ describe("VaultPopupListTableComponent", () => {
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
-        {
-          provide: VaultSettingsService,
-          useValue: {
-            clickItemsToAutofillVaultView$: clickItemsToAutofillVaultView$.asObservable(),
-          },
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: { getAutofillKeyboardShortcut: async () => "" },
-        },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: {} },
         { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
         {
@@ -319,7 +367,7 @@ describe("VaultPopupListTableComponent", () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
-  });
+  }
 
   describe("collapsible sections", () => {
     const headerToggle = (label: string): HTMLButtonElement | undefined =>
@@ -568,6 +616,216 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  describe("row icon slot", () => {
+    const render = async () => {
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    const icons = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("[data-testid='row-icon']"));
+
+    it("renders no extra icon when the slot is not provided", async () => {
+      await render();
+
+      expect(icons()).toHaveLength(0);
+    });
+
+    it("renders the provided component with the row's cipher", async () => {
+      rowIcon = TestRowIconComponent;
+      TestBed.resetTestingModule();
+      await createFixture();
+      await render();
+
+      expect(icons().map((icon) => icon.textContent)).toEqual(["all-1"]);
+    });
+  });
+
+  describe("contributed filter chip", () => {
+    const matchesFor = jest.fn();
+    const chipFor = (key: string) =>
+      fixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((chip) => chip.componentInstance.key() === key)?.componentInstance;
+
+    const OPTIONS = [
+      { id: "privileged", name: "Privileged", icon: "bwi-lock" as const },
+      { id: "pending", name: "Pending approval", icon: "bwi-lock" as const },
+    ];
+
+    async function provideFilter() {
+      matchesFor.mockImplementation(() => contributedMatches$.asObservable());
+      itemFilter = {
+        key: FILTER_KEY,
+        label: "Controlled access",
+        icon: "bwi-lock-encrypted",
+        options$: contributedOptions$.asObservable(),
+        matches$: matchesFor,
+      };
+      contributedOptions$.next(OPTIONS);
+      // The component reads the provider at construction, and the module caches it.
+      TestBed.resetTestingModule();
+      return createFixture();
+    }
+
+    const rowFor = (id: string) => makeRow("allItems", { id });
+
+    it("is absent when the seam is not provided", () => {
+      fixture.detectChanges();
+
+      expect(chipFor(FILTER_KEY)).toBeUndefined();
+      expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["pending"] })).toBe(true);
+    });
+
+    it("throws in dev mode when the provider's key matches a built-in chip key", async () => {
+      itemFilter = {
+        key: "folder",
+        label: "Clash",
+        options$: contributedOptions$.asObservable(),
+        matches$: matchesFor,
+      };
+      TestBed.resetTestingModule();
+
+      await expect(createFixture()).rejects.toThrow(
+        'VAULT_ITEM_FILTER key "folder" matches a built-in popup filter key.',
+      );
+    });
+
+    it("is absent while the provider offers no options, and reads no matches", async () => {
+      await provideFilter();
+      contributedOptions$.next([]);
+      fixture.detectChanges();
+
+      expect(chipFor(FILTER_KEY)).toBeUndefined();
+      expect(matchesFor).not.toHaveBeenCalled();
+    });
+
+    it("renders a multi-select chip with the provider's label and icon", async () => {
+      await provideFilter();
+      fixture.detectChanges();
+
+      const chip = chipFor(FILTER_KEY) as FilterMenuComponent;
+      expect(chip).toBeDefined();
+      expect(chip.placeholderText()).toBe("Controlled access");
+      expect(chip.icon()).toBe("bwi-lock-encrypted");
+      expect(chip.multiple()).toBe(true);
+      expect((chip["allOptions"]() as FilterOptionRow[]).map((o) => o.value())).toEqual([
+        "privileged",
+        "pending",
+      ]);
+    });
+
+    it("reads matches off the unsearched list", async () => {
+      const gated = makeCipher({ id: "a" });
+      await provideFilter();
+      activeCiphers$.next([gated]);
+      fixture.detectChanges();
+
+      expect(matchesFor).toHaveBeenCalledWith([gated]);
+    });
+
+    it("counts each option from the matches once they land, and not before", async () => {
+      await provideFilter();
+      filteredCiphers$.next([makeCipher({ id: "a" }), makeCipher({ id: "b" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      const counts = () =>
+        (chipFor(FILTER_KEY)["allOptions"]() as FilterOptionRow[]).map((o) => o.count());
+
+      expect(counts()).toEqual([undefined, undefined]);
+
+      contributedMatches$.next(
+        new Map([
+          ["privileged", new Set(["a" as CipherId, "b" as CipherId])],
+          ["pending", new Set(["b" as CipherId])],
+        ]),
+      );
+      fixture.detectChanges();
+
+      expect(counts()).toEqual([2, 1]);
+    });
+
+    describe("predicate", () => {
+      beforeEach(async () => {
+        await provideFilter();
+        fixture.detectChanges();
+      });
+
+      it("passes every row until the matches land", () => {
+        expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["pending"] })).toBe(true);
+      });
+
+      it("keeps a row in any selected option and drops the rest", () => {
+        contributedMatches$.next(
+          new Map([
+            ["privileged", new Set(["a" as CipherId])],
+            ["pending", new Set(["b" as CipherId])],
+          ]),
+        );
+        const pass = (id: string, selected: string[]) =>
+          component["filterPredicate"](rowFor(id), { [FILTER_KEY]: selected });
+
+        expect(pass("a", ["pending"])).toBe(false);
+        expect(pass("b", ["pending"])).toBe(true);
+        expect(pass("a", ["pending", "privileged"])).toBe(true);
+        expect(pass("c", ["pending", "privileged"])).toBe(false);
+        expect(pass("c", [])).toBe(true);
+      });
+
+      it("passes every row for an option the provider does not offer", () => {
+        contributedMatches$.next(new Map([["pending", new Set<CipherId>()]]));
+
+        expect(component["filterPredicate"](rowFor("a"), { [FILTER_KEY]: ["old-link"] })).toBe(
+          true,
+        );
+      });
+
+      it("ANDs with the other chips", () => {
+        contributedMatches$.next(new Map([["pending", new Set(["a" as CipherId])]]));
+
+        expect(
+          component["filterPredicate"](rowFor("a"), {
+            [FILTER_KEY]: ["pending"],
+            cipherType: CipherType.Card,
+          }),
+        ).toBe(false);
+      });
+
+      it("lets the empty state see a selection as a filter", () => {
+        (component as any).tableEl = () => ({
+          filterValues: () => ({ [FILTER_KEY]: ["pending"] }),
+        });
+
+        expect(component["emptyStateFilterValues"]()).toMatchObject({
+          [FILTER_KEY]: ["pending"],
+        });
+      });
+    });
+
+    describe("restoring a cached selection", () => {
+      it("seeds the chip from the selection cached under its key", async () => {
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(
+          of({ contributed: { [FILTER_KEY]: ["pending"], other: ["x"] } }),
+        );
+        await provideFilter();
+
+        expect(component["filtersToRestore"]()).toEqual({ [FILTER_KEY]: ["pending"] });
+      });
+
+      it("drops it when the seam is not provided", async () => {
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(
+          of({ contributed: { [FILTER_KEY]: ["pending"] }, cipherType: CipherType.Login }),
+        );
+        TestBed.resetTestingModule();
+        await createFixture();
+
+        expect(component["filtersToRestore"]()).toEqual({ cipherType: CipherType.Login });
+      });
+    });
+  });
+
   describe("group predicates", () => {
     it("isAutofill returns true only for autofill-tagged rows", () => {
       const row = makeRow("autofill");
@@ -641,6 +899,39 @@ describe("VaultPopupListTableComponent", () => {
 
       expect(noFolderOption?.value()).toBe(NO_FOLDER);
       expect(noFolderOption?.count()).toBe(1);
+    });
+
+    it("counts each folder with its subtree, against the other chips", () => {
+      const parent = { id: "f-1", name: "Parent" } as FolderView;
+      const child = { id: "f-2", name: "Parent/Child" } as FolderView;
+      cipherTypes$.next([
+        { value: CipherType.Login, label: "Login" },
+        { value: CipherType.Card, label: "Card" },
+      ]);
+      folders$.next([
+        { value: parent, label: "Parent", children: [{ value: child, label: "Child" }] },
+      ]);
+      filteredCiphers$.next([
+        makeCipher({ id: "a", folderId: "f-1" }),
+        makeCipher({ id: "b", folderId: "f-2" }),
+        makeCipher({ id: "c", folderId: "f-2", type: CipherType.Card }),
+        makeCipher({ id: "d" }),
+      ]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      const folderCounts = () =>
+        Object.fromEntries(
+          ((chipFor("folder") as FilterMenuComponent)["allOptions"]() as FilterOptionRow[]).map(
+            (option) => [option.value(), option.count()],
+          ),
+        );
+
+      expect(folderCounts()).toEqual({ "f-1": 3, "f-2": 2 });
+
+      (chipFor("cipherType") as FilterMenuComponent).setValue(CipherType.Login);
+      fixture.detectChanges();
+
+      expect(folderCounts()).toEqual({ "f-1": 2, "f-2": 1 });
     });
 
     it("flattens nested folder options into one option per node", () => {
@@ -803,24 +1094,23 @@ describe("VaultPopupListTableComponent", () => {
         late.destroy();
       });
 
-      /** The controls hold their own values, so clearing the cache alone leaves them set. */
-      it("resets its chip controls when a vault switch clears the cache", async () => {
-        collections$.next([{ value: col1, label: "Alpha" } as any]);
-        fixture.detectChanges();
-        // The subscription is set up in `afterNextRender`, which needs the render hooks flushed.
-        await fixture.whenStable();
+      /** The table reports its empty selection on mount, which would overwrite the cached one. */
+      it("doesn't save the mount-time selection before the cache has resolved", async () => {
+        const pending = new Subject<object>();
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(pending);
+        vaultPopupListTableFiltersService.saveFilters.mockClear();
 
-        const byKey = new Map(
-          component["tableEl"]()!
-            .filterControls()
-            .map((c: any) => [c.key(), jest.spyOn(c, "setValue")]),
-        );
+        const early = TestBed.createComponent(VaultPopupListTableComponent);
+        early.detectChanges();
+        await early.whenStable();
+        folders$.next([{ value: { id: "folder-1", name: "Work" }, label: "Work" } as any]);
+        early.detectChanges();
+        await early.whenStable();
 
-        vaultScopedFiltersCleared$.next();
-        fixture.detectChanges();
+        expect(vaultPopupListTableFiltersService.saveFilters).not.toHaveBeenCalled();
 
-        expect(byKey.get("collection")).toHaveBeenCalledWith(undefined);
-        expect(byKey.get("cipherType")).not.toHaveBeenCalled();
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(of({}));
+        early.destroy();
       });
 
       it("keeps every organization's shared folders when unscoped", () => {
@@ -1085,6 +1375,74 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  describe("filter dialog state", () => {
+    // `DialogModule` provides its own instance, so spy on the class rather than the TestBed mock.
+    let open: jest.SpyInstance;
+    const originalResizeObserver = globalThis.ResizeObserver;
+
+    beforeEach(() => {
+      open = jest.spyOn(DialogService.prototype, "open");
+      // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
+      globalThis.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+          this.callback([entry], this as unknown as ResizeObserver);
+        }
+        unobserve() {}
+        disconnect() {}
+      } as unknown as typeof ResizeObserver;
+    });
+    afterEach(() => {
+      open.mockRestore();
+      globalThis.ResizeObserver = originalResizeObserver;
+    });
+
+    it("doesn't reopen a closed dialog when the vault page is recreated", async () => {
+      // The popup opened with the dialog left open, and the snapshot keeps saying so.
+      viewCacheSnapshot["vault-filter-dialog-open"] = true;
+      vaultPopupListTableFiltersService.filterDialogOpen.set(true);
+
+      const first = TestBed.createComponent(VaultPopupListTableComponent);
+      first.autoDetectChanges();
+      await first.whenStable();
+      expect(open).toHaveBeenCalledTimes(1);
+
+      open.mock.results[0].value.close();
+      first.destroy();
+
+      // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
+      const second = TestBed.createComponent(VaultPopupListTableComponent);
+      second.autoDetectChanges();
+      await second.whenStable();
+      expect(open).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens the dialog for the tour without caching it as left open", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+
+      expect(open).toHaveBeenCalledTimes(1);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+    });
+
+    it("releases the tour's hold when the user closes the dialog", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+      open.mock.results[0].value.close();
+      await page.whenStable();
+
+      expect(tourFilterDialogOpen()).toBe(false);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+    });
+  });
+
   describe("clearFilters", () => {
     const makeControl = (key: string) => ({ key: () => key, setValue: jest.fn() });
 
@@ -1116,10 +1474,21 @@ describe("VaultPopupListTableComponent", () => {
 
   describe("search", () => {
     it("syncs searchText from the search text already applied to the vault", () => {
-      searchText$.next("synced text");
+      searchText.set("synced text");
       fixture.detectChanges();
 
       expect(component["searchText"]).toBe("synced text");
+    });
+
+    /** A vault switch rebuilds the page, which must not keep the previous vault's text. */
+    it("clears the input when the vault in view has no search text", () => {
+      searchText.set("synced text");
+      fixture.detectChanges();
+
+      searchText.set("");
+      fixture.detectChanges();
+
+      expect(component["searchText"]).toBe("");
     });
 
     it("applies the search filter (debounced) when the search text changes", fakeAsync(() => {
@@ -1127,7 +1496,7 @@ describe("VaultPopupListTableComponent", () => {
       component.onSearchTextChanged();
       tick(SearchTextDebounceInterval);
 
-      expect(vaultPopupItemsService.applyFilter).toHaveBeenCalledWith("foo");
+      expect(vaultPopupItemsService.applyScopedFilter).toHaveBeenCalledWith("foo");
     }));
   });
 

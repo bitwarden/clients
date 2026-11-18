@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Card as SdkCard } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CardData } from "../data/card.data";
-import { CardView } from "../view/card.view";
 
 export class Card extends Domain {
   cardholderName?: EncString;
@@ -29,16 +28,6 @@ export class Card extends Domain {
     this.expMonth = conditionalEncString(obj.expMonth);
     this.expYear = conditionalEncString(obj.expYear);
     this.code = conditionalEncString(obj.code);
-  }
-
-  async decrypt(encKey: SymmetricCryptoKey, context = "No Cipher Context"): Promise<CardView> {
-    return this.decryptObj<Card, CardView>(
-      this,
-      new CardView(),
-      ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
-      encKey,
-      "DomainType: Card; " + context,
-    );
   }
 
   toCardData(): CardData {

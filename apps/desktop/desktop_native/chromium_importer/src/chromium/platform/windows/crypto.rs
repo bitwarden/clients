@@ -31,8 +31,12 @@ pub fn crypt_unprotect_data(data: &[u8], flags: u32) -> Result<Vec<u8>> {
         )
     };
 
-    if result.is_err() {
-        return Err(anyhow!("CryptUnprotectData failed"));
+    if let Err(error) = result {
+        return Err(anyhow!(
+            "CryptUnprotectData failed: {} (HRESULT 0x{:08X})",
+            error,
+            error.code().0 as u32
+        ));
     }
 
     if data_out.pbData.is_null() || data_out.cbData == 0 {

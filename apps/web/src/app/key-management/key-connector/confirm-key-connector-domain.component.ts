@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { ConfirmKeyConnectorDomainComponent as BaseConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
@@ -12,9 +13,18 @@ import { RouterService } from "@bitwarden/web-vault/app/core";
   imports: [BaseConfirmKeyConnectorDomainComponent],
 })
 export class ConfirmKeyConnectorDomainComponent {
-  constructor(private routerService: RouterService) {}
+  constructor(
+    private routerService: RouterService,
+    private organizationInviteService: OrganizationInviteService,
+  ) {}
 
   onBeforeNavigation = async () => {
-    await this.routerService.getAndClearLoginRedirectUrl();
+    // Key Connector conversion accepts a stashed org invite on the server, so clear the stashed
+    // invite and its accept URL redirect. Without a stashed invite, the redirect is an
+    // unrelated deep link which we don't want to clear.
+    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+      await this.routerService.getAndClearLoginRedirectUrl();
+      await this.organizationInviteService.clearOrganizationInvite();
+    }
   };
 }

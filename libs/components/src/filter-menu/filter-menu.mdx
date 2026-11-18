@@ -151,9 +151,12 @@ never project a search field. It narrows the chip's options by their label: non-
 hide, a `bit-filter-section` collapses when all of its options are hidden, and a "no matching items"
 message shows when nothing matches. The term resets when the menu closes.
 
+Set `searchable` to show the search however few options the chip has, e.g. so related chips in one
+toolbar all offer it.
+
 ## Driving a table
 
 Chips are host-agnostic: on their own they just track their selection. Project one into a
 `bit-table-v2` and it registers itself — its value lands in `table.filterValues()` under its `key`,
 where the table's `filter(row, values)` reads it. See
-[Table V2 › Filtering](?path=/docs/component-library-table-v2-beta--docs).
+[Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).

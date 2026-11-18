@@ -5,12 +5,13 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  resource,
   signal,
   ViewChild,
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Subject, takeUntil } from "rxjs";
-import { debounceTime, startWith, switchMap } from "rxjs/operators";
+import { debounceTime, startWith } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -35,8 +36,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  OrganizationPlanChangePreviewRequest,
   SubscriberBillingClient,
-  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import {
@@ -46,11 +47,11 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
 
+import { BillingNotificationService } from "../../services/billing-notification.service";
+import { InvoicePreviewService } from "../../services/invoice-preview.service";
 import { PlanCardService } from "../../services/plan-card.service";
+import { invoicePreviewErrorMessageKey } from "../invoice-preview-error-message-key";
 import { PlanCard } from "../plan-card/plan-card.component";
-import { PricingSummaryData } from "../pricing-summary/pricing-summary.component";
-
-import { PricingSummaryService } from "./../../services/pricing-summary.service";
 
 type TrialPaymentDialogParams = {
   organizationId: string;
@@ -99,7 +100,6 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;
-  pricingSummaryData!: PricingSummaryData;
 
   formGroup = new FormGroup({
     paymentMethod: EnterPaymentMethodComponent.getFormGroup(),
@@ -107,6 +107,37 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   });
 
   private destroy$ = new Subject<void>();
+
+  private readonly planChangeRequest = signal<OrganizationPlanChangePreviewRequest | undefined>(
+    undefined,
+    {
+      equal: (a, b) =>
+        a?.tier === b?.tier &&
+        a?.cadence === b?.cadence &&
+        a?.billingAddress.country === b?.billingAddress.country &&
+        a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+        a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+        a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
+    },
+  );
+
+  protected readonly planChangeCart = resource({
+    params: () => this.planChangeRequest(),
+    loader: async ({ params }) => {
+      try {
+        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+      } catch (error) {
+        this.billingNotificationService.showError(
+          this.i18nService.t(invoicePreviewErrorMessageKey(error)),
+        );
+        throw error;
+      }
+    },
+  });
+
+  protected get previewErrorMessageKey(): string {
+    return invoicePreviewErrorMessageKey(this.planChangeCart.error());
+  }
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: TrialPaymentDialogParams,
@@ -116,12 +147,12 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private accountService: AccountService,
     private planCardService: PlanCardService,
-    private pricingSummaryService: PricingSummaryService,
     private apiService: ApiService,
     private toastService: ToastService,
     private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
     private subscriberBillingClient: SubscriberBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
+    private invoicePreviewService: InvoicePreviewService,
+    private billingNotificationService: BillingNotificationService,
   ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
@@ -178,8 +209,6 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
       });
     }
 
-    await this.refreshPricingSummary();
-
     this.plans = await this.apiService.getPlans();
 
     combineLatest([
@@ -193,14 +222,8 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
         startWith(this.formGroup.controls.billingAddress.controls.taxId.value),
       ),
     ])
-      .pipe(
-        debounceTime(500),
-        switchMap(() => {
-          return this.refreshPricingSummary();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+      .pipe(debounceTime(500), takeUntil(this.destroy$))
+      .subscribe(() => this.updatePlanChangeRequest());
   }
 
   ngOnDestroy() {
@@ -234,7 +257,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
 
     await this.selectPlan();
 
-    await this.refreshPricingSummary();
+    this.updatePlanChangeRequest();
   }
 
   protected async selectPlan() {
@@ -253,72 +276,41 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     if (filteredPlans.length > 0) {
       this.currentPlan = filteredPlans[0];
     }
-    try {
-      await this.refreshPricingSummary();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const translatedMessage = this.i18nService.t(errorMessage);
-      this.toastService.showToast({
-        title: "",
-        variant: "error",
-        message: !translatedMessage || translatedMessage === "" ? errorMessage : translatedMessage,
-      });
-    }
   }
 
-  private refreshPricingSummary = async () => {
-    const estimatedTax = await this.getEstimatedTax();
-    this.pricingSummaryData = await this.pricingSummaryService.getPricingSummaryData(
-      this.currentPlan,
-      this.sub,
-      this.organization,
-      this.selectedInterval,
-      this.isSecretsManagerTrial(),
-      estimatedTax,
+  private updatePlanChangeRequest() {
+    const tier = this.getPlanTier();
+    if (this.formGroup.controls.billingAddress.invalid || !tier) {
+      this.planChangeRequest.set(undefined);
+      return;
+    }
+
+    const { country, postalCode, taxId } = getBillingAddressFromForm(
+      this.formGroup.controls.billingAddress,
     );
-  };
 
-  private getEstimatedTax = async () => {
-    if (this.formGroup.controls.billingAddress.invalid) {
-      return 0;
-    }
-
-    const cadence =
-      this.currentPlan.productTier !== ProductTierType.Families
-        ? this.currentPlan.isAnnual
+    this.planChangeRequest.set({
+      tier,
+      cadence:
+        this.currentPlan.productTier === ProductTierType.Families || this.currentPlan.isAnnual
           ? "annually"
-          : "monthly"
-        : null;
+          : "monthly",
+      billingAddress: { country, postalCode, taxId },
+    });
+  }
 
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-
-    const getTierFromLegacyEnum = (organization: Organization) => {
-      switch (organization.productTierType) {
-        case ProductTierType.Families:
-          return "families";
-        case ProductTierType.Teams:
-          return "teams";
-        case ProductTierType.Enterprise:
-          return "enterprise";
-      }
-    };
-
-    const tier = getTierFromLegacyEnum(this.organization);
-
-    if (tier && cadence) {
-      const costs = await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
-        this.organization.id,
-        {
-          tier,
-          cadence,
-        },
-        billingAddress,
-      );
-      return costs.tax;
-    } else {
-      return 0;
+  private getPlanTier() {
+    switch (this.organization.productTierType) {
+      case ProductTierType.Families:
+        return "families";
+      case ProductTierType.Teams:
+        return "teams";
+      case ProductTierType.Enterprise:
+        return "enterprise";
+      default:
+        return undefined;
     }
-  };
+  }
 
   isSecretsManagerTrial(): boolean {
     return (

@@ -5,29 +5,23 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import {
-  PreviewInvoiceClient,
-  SubscriberBillingClient,
-} from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 
 import { OrganizationPlansComponent } from "./organization-plans.component";
@@ -141,19 +135,12 @@ const createMockPlans = (): PlanResponse[] =>
 const mockAccountService = {
   activeAccount$: of({ id: "user-1", email: "user@example.com" }),
 };
-const mockOrganizationService = { organizations$: () => of([]) };
 const mockPolicyService = { policyAppliesToUser$: () => of(false) };
 const mockPlatformUtilsService = { isSelfHost: () => false };
-const mockKeyService = { orgKeys$: () => of({}), providerKeys$: () => of({}) };
-const mockLegacyCompatKeyService = {
-  makeKeyPair: () => Promise.resolve(["publicKey", { encryptedString: "encryptedPrivateKey" }]),
-};
-const mockEncryptService: Partial<EncryptService> = {};
 const mockRouter = { navigate: () => Promise.resolve(true) };
 const mockSyncService: Partial<SyncService> = { fullSync: () => Promise.resolve(true) };
 const mockMessagingService = { send: () => {} };
 const mockOrganizationApiService: Partial<OrganizationApiServiceAbstraction> = {};
-const mockProviderApiService: Partial<ProviderApiServiceAbstraction> = {};
 const mockToastService = { showToast: () => {} };
 const mockApiService: Partial<ApiService> = {
   getPlans: () => Promise.resolve({ data: createMockPlans() } as any),
@@ -161,9 +148,6 @@ const mockApiService: Partial<ApiService> = {
 const mockSubscriberBillingClient: Partial<SubscriberBillingClient> = {
   getBillingAddress: () => Promise.resolve(null),
   getPaymentMethod: () => Promise.resolve(null),
-};
-const mockPreviewInvoiceClient: Partial<PreviewInvoiceClient> = {
-  previewTaxForOrganizationSubscriptionPurchase: () => Promise.resolve({ tax: 0, total: 0 } as any),
 };
 const mockBillingAccountProfileStateService = {
   hasPremiumPersonally$: () => of(false),
@@ -180,6 +164,11 @@ const mockSubscriptionDiscountService = {
   refresh: () => {},
 };
 const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
+const mockLogService: Partial<LogService> = { error: () => {}, warning: () => {} };
+const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
+  previewPremiumOrgUpgradeCart: () => Promise.reject(new Error("not previewed in stories")),
+  previewOrganizationCheckoutCart: () => Promise.reject(new Error("not previewed in stories")),
+};
 
 export default {
   title: "Billing/Organizations/Organization Plans",
@@ -190,20 +179,14 @@ export default {
       providers: [
         { provide: ApiService, useValue: mockApiService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-        { provide: KeyService, useValue: mockKeyService },
-        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
-        { provide: EncryptService, useValue: mockEncryptService },
         { provide: Router, useValue: mockRouter },
         { provide: SyncService, useValue: mockSyncService },
         { provide: PolicyService, useValue: mockPolicyService },
-        { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: MessagingService, useValue: mockMessagingService },
         { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
-        { provide: ProviderApiServiceAbstraction, useValue: mockProviderApiService },
         { provide: ToastService, useValue: mockToastService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
@@ -211,6 +194,8 @@ export default {
         { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         { provide: SubscriptionDiscountService, useValue: mockSubscriptionDiscountService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     }),
     applicationConfig({

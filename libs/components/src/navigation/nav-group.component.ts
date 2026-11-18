@@ -26,12 +26,14 @@ import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HoverRevealBoundaryDirective } from "../hover-reveal";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
+import { NavToggleScope } from "./nav-toggle-scope";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
@@ -40,13 +42,29 @@ import { SideNavService } from "./side-nav.service";
   providers: [
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
+    NavToggleScope,
   ],
-  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, IconComponent, I18nPipe],
+  // The group's own header row aligns with its siblings, so it reads the parent's scope.
+  viewProviders: [
+    {
+      provide: NavToggleScope,
+      useFactory: () => inject(NavToggleScope, { optional: true, skipSelf: true }),
+    },
+  ],
+  imports: [
+    NgTemplateOutlet,
+    NavItemComponent,
+    IconButtonModule,
+    IconComponent,
+    I18nPipe,
+    HoverRevealBoundaryDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
+  private readonly parentToggleScope = inject(NavToggleScope, { optional: true, skipSelf: true });
   private readonly el = inject(ElementRef);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -61,6 +79,10 @@ export class NavGroupComponent extends NavBaseComponent {
 
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
+
+  protected readonly visible = computed(
+    () => !this.hideIfEmpty() || this.nestedNavComponents().length > 0,
+  );
 
   /**
    * A consumer-projected leading tile (e.g. a `bit-icon-tile`) forwarded into the composed nav
@@ -147,6 +169,12 @@ export class NavGroupComponent extends NavBaseComponent {
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
     }
+
+    effect((onCleanup) => {
+      if (this.parentToggleScope && this.toggleInStartSlot() && this.visible()) {
+        onCleanup(this.parentToggleScope.register());
+      }
+    });
 
     // In vfo1, effectiveRoute is suppressed to prevent navigation on click, so routerLinkActive
     // never fires. Seed open() from the router directly so the group expands on load and stays

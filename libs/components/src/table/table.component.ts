@@ -2,12 +2,15 @@ import { isDataSource } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
+  ChangeDetectionStrategy,
   Component,
-  Directive,
-  OnDestroy,
-  TemplateRef,
-  input,
+  computed,
   contentChild,
+  Directive,
+  input,
+  OnDestroy,
+  signal,
+  TemplateRef,
 } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -21,10 +24,9 @@ export class TableBodyDirective {
   constructor(public readonly template: TemplateRef<any>) {}
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./table.component.html",
   imports: [CommonModule],
 })
@@ -34,28 +36,21 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
 
   readonly templateVariable = contentChild(TableBodyDirective);
 
-  protected rows$?: Observable<any[]>;
+  protected readonly rows$ = signal<Observable<any[]> | undefined>(undefined);
 
-  private _initialized = false;
-
-  get tableClass() {
-    return [
-      "tw-w-full",
-      "tw-leading-normal",
-      "tw-text-main",
-      "tw-border-collapse",
-      "tw-text-start",
-      this.layout() === "auto" ? "tw-table-auto" : "tw-table-fixed",
-    ];
-  }
+  protected readonly tableClass = computed(() => [
+    "tw-w-full",
+    "tw-leading-normal",
+    "tw-text-main",
+    "tw-border-collapse",
+    "tw-text-start",
+    this.layout() === "auto" ? "tw-table-auto" : "tw-table-fixed",
+  ]);
 
   ngAfterContentChecked(): void {
     const dataSource = this.dataSource();
-    if (!this._initialized && isDataSource(dataSource)) {
-      this._initialized = true;
-
-      const dataStream = dataSource.connect();
-      this.rows$ = dataStream;
+    if (this.rows$() === undefined && isDataSource(dataSource)) {
+      this.rows$.set(dataSource.connect());
     }
   }
 

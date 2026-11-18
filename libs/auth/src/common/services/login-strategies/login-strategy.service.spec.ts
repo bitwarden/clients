@@ -1,5 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -21,10 +21,12 @@ import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-m
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -56,13 +58,20 @@ import {
 } from "../../abstractions";
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
-import { PasswordLoginCredentials } from "../../models";
+import {
+  AuthRequestLoginCredentials,
+  PasswordLoginCredentials,
+  SsoLoginCredentials,
+} from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
+const argon2PreloginData = new PasswordPreloginData(
+  new Argon2KdfConfig(2, 16, 1),
+  "prelogin-salt" as MasterPasswordSalt,
+);
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -158,7 +167,12 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
+      of(
+        new PasswordPreloginData(
+          PBKDF2KdfConfig.createDefault(),
+          "prelogin-salt" as MasterPasswordSalt,
+        ),
+      ),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
@@ -558,5 +572,53 @@ describe("LoginStrategyService", () => {
     await sut.logIn(credentials);
 
     expect(loginStrategySessionTimeoutService.cancelSessionTimeout).toHaveBeenCalled();
+  });
+
+  describe("given a login attempt whose token request was rejected", () => {
+    beforeEach(() => {
+      apiService.postIdentityToken.mockRejectedValue(
+        new ErrorResponse({ message: "Username or password is incorrect." }, 400, true),
+      );
+    });
+
+    it("clears the login session so no auth type remains", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await firstValueFrom(sut.currentAuthType$)).toBeNull();
+    });
+
+    it("returns undefined from the password accessors", async () => {
+      passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+      await expect(
+        sut.logIn(new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD")),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getMasterPasswordHash()).toBeUndefined();
+    });
+
+    it("returns undefined from the SSO accessors", async () => {
+      await expect(
+        sut.logIn(
+          new SsoLoginCredentials("CODE", "CODE_VERIFIER", "REDIRECT_URL", "ORG_ID", "EMAIL"),
+        ),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getSsoEmail2FaSessionToken()).toBeUndefined();
+    });
+
+    it("returns undefined from the auth request accessors", async () => {
+      await expect(
+        sut.logIn(new AuthRequestLoginCredentials("EMAIL", "ACCESS_CODE", "AUTH_REQUEST_ID", null)),
+      ).rejects.toBeInstanceOf(ErrorResponse);
+
+      expect(await sut.getEmail()).toBeUndefined();
+      expect(await sut.getAccessCode()).toBeUndefined();
+      expect(await sut.getAuthRequestId()).toBeUndefined();
+    });
   });
 });

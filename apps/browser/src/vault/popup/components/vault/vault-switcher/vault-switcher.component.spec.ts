@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ALL_ITEMS_SCOPE,
+  CoachmarkService,
   VAULT_BASE_ROUTE,
   VaultNavItemType,
   VaultNavService,
@@ -27,7 +29,11 @@ describe("VaultSwitcherComponent", () => {
 
   const nav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
   const navigate = jest.fn();
-  const clearVaultScopedFilters = jest.fn();
+  const listFiltersService = {
+    saveFilters: jest.fn(),
+    setScope: jest.fn(),
+    setCachedVaultScopeId: jest.fn().mockResolvedValue(undefined),
+  };
   const stopScrollPosition = jest.fn();
 
   const trigger = () => fixture.debugElement.query(By.css('[data-testid="vault-switcher"]'));
@@ -41,20 +47,23 @@ describe("VaultSwitcherComponent", () => {
 
   beforeEach(async () => {
     navigate.mockClear();
-    clearVaultScopedFilters.mockClear();
+    listFiltersService.saveFilters.mockClear();
+    listFiltersService.setScope.mockClear();
+    listFiltersService.setCachedVaultScopeId.mockClear();
     stopScrollPosition.mockClear();
     nav$.next({ vaults: [], organizationDataOwnership: false });
 
     await TestBed.configureTestingModule({
       imports: [VaultSwitcherComponent],
       providers: [
+        { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
         { provide: VaultNavService, useValue: { viewModel$: () => nav$ } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: Router, useValue: { navigate } },
         { provide: VAULT_BASE_ROUTE, useValue: "/tabs/vault" },
         {
           provide: VaultPopupListTableFiltersService,
-          useValue: { clearVaultScopedFilters },
+          useValue: listFiltersService,
         },
         {
           provide: VaultPopupScrollPositionService,
@@ -198,39 +207,19 @@ describe("VaultSwitcherComponent", () => {
       });
     });
 
-    /** Cleared here rather than on the scope publish, which also fires on popup open. */
-    describe("vault-scoped chip filters", () => {
-      it("clears them when entering an organization's vault", () => {
+    /** Each vault keeps its own selection, which the page it opens restores — see `setScope`. */
+    describe("chip filters", () => {
+      it.each([
+        ["an organization's vault", 2],
+        ["the personal vault", 1],
+      ])("are left untouched when switching to %s", async (_label: string, option: number) => {
         const options = openMenu();
-        (options[2] as HTMLElement).click();
+        (options[option] as HTMLElement).click();
+        await fixture.whenStable();
 
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
-      });
-
-      it("clears them when entering the personal vault", () => {
-        const options = openMenu();
-        (options[1] as HTMLElement).click();
-
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
-      });
-
-      /** All items widens, so nothing selected under a vault has stopped existing. */
-      it("keeps them when widening to All items", () => {
-        const options = openMenu();
-        (options[0] as HTMLElement).click();
-
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
-      });
-
-      /** Nothing is cleared until the user actually picks a vault. */
-      it("keeps them while the popup merely opens on a scoped route", () => {
-        fixture.componentRef.setInput("scope", {
-          type: VaultScopeType.Organization,
-          organizationId: ORG_ID as OrganizationId,
-        });
-        fixture.detectChanges();
-
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
+        expect(navigate).toHaveBeenCalled();
+        expect(listFiltersService.saveFilters).not.toHaveBeenCalled();
+        expect(listFiltersService.setScope).not.toHaveBeenCalled();
       });
     });
 
@@ -271,16 +260,16 @@ describe("VaultSwitcherComponent", () => {
         const options = openMenu();
         (options[2] as HTMLElement).click();
 
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
         expect(stopScrollPosition).not.toHaveBeenCalled();
         expect(navigate).not.toHaveBeenCalled();
       });
 
-      it("still acts on a different entry", () => {
+      it("still acts on a different entry", async () => {
         const options = openMenu();
         (options[1] as HTMLElement).click();
+        await fixture.whenStable();
 
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
+        expect(stopScrollPosition).toHaveBeenCalledWith(true);
         expect(navigate).toHaveBeenCalledWith(["/tabs/vault", "my-vault"], { replaceUrl: true });
       });
     });
@@ -293,23 +282,25 @@ describe("VaultSwitcherComponent", () => {
       expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("navigates to the organization's scoped route", () => {
+    it("navigates to the organization's scoped route", async () => {
       // [0] All vaults, [1] My vault, [2] the first organization.
       const options = openMenu();
       (options[2] as HTMLElement).click();
+      await fixture.whenStable();
 
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault", ORG_ID], { replaceUrl: true });
     });
 
-    it("navigates to the personal vault's scoped route", () => {
+    it("navigates to the personal vault's scoped route", async () => {
       const options = openMenu();
       (options[1] as HTMLElement).click();
+      await fixture.whenStable();
 
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault", "my-vault"], { replaceUrl: true });
     });
 
     /** All items is the unscoped route, which applies no vault narrowing. */
-    it("navigates to the unscoped route for All items", () => {
+    it("navigates to the unscoped route for All items", async () => {
       fixture.componentRef.setInput("scope", {
         type: VaultScopeType.Organization,
         organizationId: ORG_ID as OrganizationId,
@@ -318,8 +309,156 @@ describe("VaultSwitcherComponent", () => {
 
       const options = openMenu();
       (options[0] as HTMLElement).click();
+      await fixture.whenStable();
 
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"], { replaceUrl: true });
+    });
+
+    /** The unscoped route restores the stored vault, so All items has to be stored before it. */
+    it.each([
+      ["an organization's vault", 2, [ORG_ID, null]],
+      ["the personal vault", 1, ["my-vault", null]],
+      ["All items", 0, [null, null]],
+    ])("stores %s as the selection before navigating", async (_label, option, stored) => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "other-org" as OrganizationId,
+      });
+      fixture.detectChanges();
+
+      const options = openMenu();
+      (options[option] as HTMLElement).click();
+      await fixture.whenStable();
+
+      expect(listFiltersService.setCachedVaultScopeId).toHaveBeenCalledWith(...stored);
+      expect(listFiltersService.setCachedVaultScopeId.mock.invocationCallOrder[0]).toBeLessThan(
+        navigate.mock.invocationCallOrder[0],
+      );
+    });
+  });
+
+  describe("under data ownership", () => {
+    const OTHER_ORG_ID = "22222222-2222-4222-8222-222222222222";
+    const MY_ITEMS_ID = "33333333-3333-4333-8333-333333333333";
+
+    const orgVault = (id: string, label: string, defaultUserCollectionId?: string) => ({
+      id,
+      type: VaultNavItemType.Organization,
+      label,
+      icon: "bwi-business",
+      enabled: true,
+      defaultUserCollectionId,
+    });
+
+    /** Each option's text, label and caption run together. */
+    const labels = (options: NodeListOf<Element>) =>
+      Array.from(options).map((option) => option.textContent?.replace(/\s+/g, " ").trim());
+
+    /** The nav already sorts organizations; each one's "My items" follows it. */
+    it("lists each organization's My items after it, captioned with its name", () => {
+      nav$.next({
+        vaults: [
+          orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID),
+          orgVault(OTHER_ORG_ID, "Bitbank", "44444444-4444-4444-8444-444444444444"),
+        ],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      expect(labels(openMenu())).toEqual([
+        "allItems",
+        "Acme corporation",
+        "myItemsV2Acme corporation",
+        "Bitbank",
+        "myItemsV2Bitbank",
+      ]);
+    });
+
+    /** The caption tells one organization's My items from another, so it stays for a lone org. */
+    it("offers a lone organization and its My items", () => {
+      nav$.next({
+        vaults: [orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID)],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      const options = openMenu();
+
+      expect(labels(options)).toEqual([
+        "allItems",
+        "Acme corporation",
+        "myItemsV2Acme corporation",
+      ]);
+      expect(document.querySelectorAll('[data-testid="vault-switcher-subtitle"]').length).toBe(1);
+    });
+
+    describe("with a My items entry", () => {
+      beforeEach(() => {
+        nav$.next({
+          vaults: [orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID)],
+          organizationDataOwnership: true,
+        });
+        fixture.detectChanges();
+      });
+
+      it("stores and navigates to the organization's My items route", async () => {
+        const options = openMenu();
+        (options[2] as HTMLElement).click();
+        await fixture.whenStable();
+
+        expect(listFiltersService.setCachedVaultScopeId).toHaveBeenCalledWith(ORG_ID, "my-items");
+        expect(navigate).toHaveBeenCalledWith(["/tabs/vault", ORG_ID, "my-items"], {
+          replaceUrl: true,
+        });
+      });
+
+      /** The route resolves the sentinel to the collection's id before the scope arrives here. */
+      it("marks My items, not its organization, when the route names it", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.query(By.css("h1")).nativeElement.textContent).toContain(
+          "myItemsV2",
+        );
+
+        openMenu();
+        const marks = Array.from(document.querySelectorAll('[data-testid="vault-switcher-check"]'));
+        const visible = marks.map((m) => !m.classList.contains("tw-invisible"));
+
+        expect(visible).toEqual([false, false, true]);
+      });
+
+      it("changes nothing when re-picking My items while in view", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        const options = openMenu();
+        (options[2] as HTMLElement).click();
+
+        expect(navigate).not.toHaveBeenCalled();
+      });
+
+      it("still switches from My items to its organization's whole vault", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        const options = openMenu();
+        (options[1] as HTMLElement).click();
+
+        expect(navigate).toHaveBeenCalledWith(["/tabs/vault", ORG_ID], { replaceUrl: true });
+      });
     });
   });
 });

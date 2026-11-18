@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, mergeMap } from "rxjs";
+import { filter, firstValueFrom, map, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -27,20 +28,27 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import {
+  FillAssistEvent,
+  FillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
+import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
+import { getSubFrameUrlVariations } from "../autofill/utils/url-variations";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -48,12 +56,11 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { isValidVaultReferrer } from "../platform/utils/valid-vault-referrer";
 import { getWebExtSender } from "../platform/utils/web-ext-sender";
+import { GET_CIPHER_LIST_VIEWS } from "../vault/services/foreground-cipher.service";
 
 import MainBackground from "./main.background";
 
 export default class RuntimeBackground {
-  private autofillTimeout: any;
-  private pageDetailsToAutoFill: any[] = [];
   private onInstalledReason: string = null;
   private lockedVaultPendingNotifications: LockedVaultPendingNotificationsData[] = [];
 
@@ -75,6 +82,7 @@ export default class RuntimeBackground {
     private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
     private autofillOrchestrator: AutofillOrchestrator,
     private intraprocessMessageSender: IntraprocessMessageSender,
+    private fillAssistEventReceiver: FillAssistEventReceiver,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -114,7 +122,11 @@ export default class RuntimeBackground {
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
         "getUrlAutofillTargetingRules",
+        "collectPageDetailsForPopup",
+        "fillCipherForPopup",
         "getBitwardenAutofillAttributeSettings",
+        VaultMessages.checkBwInstalled,
+        GET_CIPHER_LIST_VIEWS,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -157,56 +169,103 @@ export default class RuntimeBackground {
         await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
-        await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
+        await this.autofillOrchestrator.collectPageDetails(sender.tab, sender.frameId);
         break;
-      case AutofillMessageCommand.pageTransitionDetected:
-        // A page-lifecycle monitor reports a transition as a fact. The service
-        // buffers it against monitoring state and `AutofillOrchestrator` decides whether
-        // it warrants a collection.
-        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
-        break;
-      case "collectPageDetailsResponse":
+      case "collectPageDetailsForPopup": {
+        // The popup runs in the foreground and cannot call the background orchestrator directly, so
+        // it round-trips here.
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
+          return [];
+        }
+        const targetTab = await BrowserApi.getTab(msg.tabId);
+        if (targetTab == null) {
+          return [];
+        }
+        return await this.autofillOrchestrator.collectPageDetails(targetTab);
+      }
+      case GET_CIPHER_LIST_VIEWS: {
+        // The list views are decrypted vault data, so only extension pages get them.
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
+          return [];
+        }
+        return await firstValueFrom(
+          this.main.cipherService
+            .cipherListViewsIncludingRestricted$(msg.userId)
+            .pipe(filter((views) => views != null)),
+        );
+      }
+      case "fillCipherForPopup": {
+        // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
+        // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
+        // the message channel.
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
+          return AUTOFILL_DENIED;
+        }
+        // Rehydrate tab information; assert URL hasn't changed to verify message integrity
+        const targetTab = await BrowserApi.getTab(msg.tabId);
+        if (targetTab == null || targetTab.url !== msg.tabUrl) {
+          return AUTOFILL_DENIED;
+        }
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+        );
+        if (activeUserId == null) {
+          return AUTOFILL_DENIED;
+        }
+        const [cipher] = await this.main.fillCipherPolicy.ciphersForIds(
+          activeUserId,
+          [msg.cipherId],
+          CipherUse.UserFill,
+        );
+        if (cipher == null) {
+          return AUTOFILL_DENIED;
+        }
+        // The only sender of `fillCipherForPopup` is an extension page, as confirmed by the
+        // `BrowserApi.senderIsInternal(sender)` guard above, so this is never reachable from a
+        // content-script-placed message.
+        // eslint-disable-next-line no-restricted-syntax
+        return await this.autofillOrchestrator.unsafeAutofillTabWithCipher(targetTab, cipher);
+      }
+      case AutofillMessageCommand.collectPageDetailsResponse: {
+        // FIXME (PM-44218): remove this case once `browser-interactions-testing` triggers autofill
+        // through the `MainBackground` command seam rather than a synthetic message.
+        //
+        // Every collect lands here: each frame echoes a response tagged with the sender that asked
+        // for it, and those fall through the switch below. Only the command senders route onward, a
+        // testing affordance that exercises autofill decoupled from any input method. Production
+        // autofill reaches the orchestrator directly from `commands.background` and the context menu.
+        if (sender.tab == null) {
+          break;
+        }
         switch (msg.sender) {
           case ExtensionCommand.AutofillCommand:
-            this.autofillOrchestrator.autofillActiveTabFromCommand({
-              frameId: sender.frameId,
-              tab: msg.tab,
-              details: msg.details,
-            });
+            this.autofillOrchestrator.autofillActiveTabFromCommand(sender.tab);
             break;
           case ExtensionCommand.AutofillCard:
-            this.autofillOrchestrator.autofillActiveTabForCipherType(
-              {
-                frameId: sender.frameId,
-                tab: msg.tab,
-                details: msg.details,
-              },
-              CipherType.Card,
-            );
+            this.autofillOrchestrator.autofillActiveTabForCipherType(sender.tab, CipherType.Card);
             break;
           case ExtensionCommand.AutofillIdentity:
             this.autofillOrchestrator.autofillActiveTabForCipherType(
-              {
-                frameId: sender.frameId,
-                tab: msg.tab,
-                details: msg.details,
-              },
+              sender.tab,
               CipherType.Identity,
             );
-            break;
-          case "contextMenu":
-            clearTimeout(this.autofillTimeout);
-            this.pageDetailsToAutoFill.push({
-              frameId: sender.frameId,
-              tab: msg.tab,
-              details: msg.details,
-            });
-            this.autofillTimeout = setTimeout(async () => await this.autofillPage(msg.tab), 300);
             break;
           default:
             break;
         }
         break;
+      }
+      case AutofillMessageCommand.pageTransitionDetected: {
+        // A page-lifecycle monitor reports a transition as a fact. The service
+        // buffers it against monitoring state and `AutofillOrchestrator` decides whether
+        // it warrants a collection.
+        //
+        // The frame's live URL is reported because a same-document navigation leaves
+        // `sender.url` pinned to the URL the frame was committed at.
+        const frameUrl = await BrowserApi.getSenderFrameUrl(sender);
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, frameUrl);
+        break;
+      }
       case BiometricsCommands.AuthenticateWithBiometrics: {
         return await this.main.biometricsService.authenticateWithBiometrics();
       }
@@ -232,11 +291,16 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        const senderURL = await this.resolveSenderFrameUrl(sender);
-        const targetingRulesForUrl =
+        // Rules are matched against the sender frame's URL rather than the tab's to minimize
+        // selector collisions between frames with similar in-frame markup.
+        const senderURL = await BrowserApi.getSenderFrameUrl(sender);
+        const targetingRules =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
+        const ruleFailureFallback = await this.configService.getFeatureFlag(
+          FeatureFlag.FillAssistRuleFallback,
+        );
 
-        return targetingRulesForUrl;
+        return { targetingRules, ruleFailureFallback };
       }
       case "getBitwardenAutofillAttributeSettings": {
         const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
@@ -245,6 +309,84 @@ export default class RuntimeBackground {
         ]);
 
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
+      }
+      case "fillAssistEmit": {
+        // Trusted-sender gate: only the content-script emitter routes this message.
+        // Content scripts carry a sender.tab; popup and options senders do not.
+        // Chrome's extension model (no `externally_connectable` in the manifest) is
+        // the backstop that keeps page-origin dispatches off this listener entirely.
+        if (!sender.tab?.id) {
+          return;
+        }
+        this.fillAssistEventReceiver.receive({
+          name: msg.name,
+          payload: msg.payload,
+        } satisfies FillAssistEvent);
+        return;
+      }
+      case "runFillAssistHeuristicFallback": {
+        // Trusted-sender gate: only the content-script emitter routes this message.
+        // Content scripts carry a sender.tab; popup and options senders do not.
+        // Chrome's extension model (no `externally_connectable` in the manifest) is
+        // the backstop that keeps page-origin dispatches off this listener entirely.
+        // The relay target is also scoped to the sender's tab, so a parent frame
+        // can only reach iframes in its own tab.
+        if (!sender.tab?.id) {
+          return;
+        }
+        const iframeSrc: string | undefined = msg.iframeSrc;
+        if (!iframeSrc) {
+          return;
+        }
+
+        const frames = await BrowserApi.getAllFrameDetails(sender.tab.id);
+        if (!frames) {
+          return;
+        }
+
+        // Match the parent's `iframe.src` against the child's `frame.url` from
+        // webNavigation. The variations helper tolerates normalization differences
+        // (redirects, relative URLs, post-load navigation).
+        const variations = getSubFrameUrlVariations(iframeSrc);
+        const candidates = variations
+          ? frames.filter((f) => variations.has(f.url))
+          : frames.filter((f) => f.url === iframeSrc);
+
+        if (candidates.length === 0) {
+          this.logService.debug(
+            `[RuntimeBackground] No frame matched iframeSrc for fill assist heuristic fallback: ${iframeSrc}`,
+          );
+          return;
+        }
+
+        // Drop ambiguous matches. Two frames sharing the same URL can't be
+        // distinguished from `iframeSrc` alone, and picking one risks routing the
+        // fallback into the wrong document.
+        if (candidates.length > 1) {
+          this.logService.debug(
+            `[RuntimeBackground] Ambiguous frame match for fill assist heuristic fallback: ${iframeSrc}`,
+          );
+          return;
+        }
+
+        // The target frame may be gone by the time we send (navigation, iframe
+        // removal), so .catch the rejection. No response is needed. The child runs
+        // or skips the fallback based on its own state.
+        await BrowserApi.tabSendMessage(
+          sender.tab,
+          { command: "runFillAssistHeuristicFallback", iframeSrc },
+          { frameId: candidates[0].frameId },
+        ).catch((error) =>
+          this.logService.debug(
+            `[RuntimeBackground] Failed to send runFillAssistHeuristicFallback to frame: ${(error as Error)?.message ?? error}`,
+          ),
+        );
+        return;
+      }
+      case VaultMessages.checkBwInstalled: {
+        const referrer =
+          Utils.getHostname(sender.origin) || Utils.getHostname(sender.url) || msg.referrer;
+        return await isValidVaultReferrer(this.environmentService, referrer);
       }
       case "authResult": {
         if (!(await isValidVaultReferrer(this.environmentService, msg.referrer))) {
@@ -272,34 +414,6 @@ export default class RuntimeBackground {
         break;
       }
     }
-  }
-
-  /** Resolves the URL currently loaded in the frame a message came from. */
-  private async resolveSenderFrameUrl(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<string | undefined> {
-    const tabId = sender.tab?.id;
-    const frameId = sender.frameId;
-
-    if (tabId != null && frameId != null) {
-      // `frame.url` takes precedence over `tab.url` to minimize selector
-      // collisions between frames with similar in-frame markup. `frame.url`
-      // takes precedence over `sender.url` because the sender's value is pinned
-      // to the frame URI when the port was opened.
-      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
-        .then((frame) => frame?.url)
-        .catch((): undefined => undefined);
-
-      if (frameUrl) {
-        return frameUrl;
-      }
-    }
-
-    if (frameId === 0 && sender.tab?.url) {
-      return sender.tab.url;
-    }
-
-    return sender.url ?? sender.tab?.url;
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
@@ -398,16 +512,11 @@ export default class RuntimeBackground {
         }
         break;
       case "logout":
-        await this.main.logout(msg.expired, msg.userId);
+        await this.main.logout(msg.logoutReason, msg.userId);
         break;
       case "syncCompleted":
         if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshMenu();
-          }, 2000);
           await this.configService.ensureConfigFetched();
-          await this.main.updateOverlayCiphers();
-
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -434,9 +543,6 @@ export default class RuntimeBackground {
         break;
       }
       case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {
@@ -520,24 +626,6 @@ export default class RuntimeBackground {
     }
 
     await messageAction();
-  }
-
-  private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
-    const result = await this.autofillService.doAutoFill({
-      tab: tabToAutoFill,
-      cipher: this.main.loginToAutoFill,
-      pageDetails: this.pageDetailsToAutoFill,
-      fillNewPassword: true,
-      allowTotpAutofill: true,
-    });
-
-    if (result.didAutofill && result.totp != null) {
-      this.platformUtilsService.copyToClipboard(result.totp);
-    }
-
-    // reset
-    this.main.loginToAutoFill = null;
-    this.pageDetailsToAutoFill = [];
   }
 
   private async checkOnInstalled() {

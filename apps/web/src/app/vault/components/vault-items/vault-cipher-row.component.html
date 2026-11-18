@@ -4,7 +4,7 @@
       type="checkbox"
       bitCheckbox
       appStopProp
-      [disabled]="disabled || decryptionFailure"
+      [disabled]="disabled || decryptionFailure || isPartial"
       [checked]="checked"
       (change)="$event ? this.checkedToggled.next() : null"
       [attr.aria-label]="'vaultItemSelect' | i18n"
@@ -97,6 +97,13 @@
     </p>
   </td>
 }
+@if (showControlledAccess) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    @if (leaseBadge) {
+      <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
+    }
+  </td>
+}
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   @if (decryptionFailure) {
     <button
@@ -118,6 +125,7 @@
     }
   </bit-menu>
   @if (!decryptionFailure) {
+    @let cancelableRequest = (accessActions?.cancelableRequest$(cipher) | async) ?? false;
     <span class="tw-relative tw-inline-flex tw-items-center">
       <div
         class="tw-absolute tw-right-full tw-inset-y-0 tw-flex tw-items-center tw-gap-2 tw-pr-2 tw-opacity-0 tw-pointer-events-none tw-transition-opacity group-hover/cipher-row:tw-opacity-100 group-hover/cipher-row:tw-pointer-events-auto group-has-[:focus-visible]/cipher-row:tw-opacity-100 group-has-[:focus-visible]/cipher-row:tw-pointer-events-auto [&:has([aria-expanded='true'])]:tw-opacity-100 [&:has([aria-expanded='true'])]:tw-pointer-events-auto"
@@ -139,41 +147,55 @@
         ></vault-item-copy-actions>
       </div>
 
-      <button
-        [bitMenuTriggerFor]="cipherOptions"
-        [disabled]="disabled"
-        size="small"
-        bitIconButton="bwi-ellipsis-v"
-        type="button"
-        appStopProp
-        label="{{ 'moreOptions' | i18n }}"
-      ></button>
+      @if (!isPartial || showLaunchInMenu || cancelableRequest) {
+        <button
+          [bitMenuTriggerFor]="cipherOptions"
+          [disabled]="disabled"
+          size="small"
+          bitIconButton="bwi-ellipsis-v"
+          type="button"
+          appStopProp
+          label="{{ 'moreOptions' | i18n }}"
+        ></button>
+      }
       <bit-menu #cipherOptions>
-        @if (showFavorite) {
+        @if (showLaunchInMenu) {
+          <button type="button" bitMenuItem (click)="openUri(launchUri)">
+            <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
+            {{ "launch" | i18n }}
+          </button>
+        }
+        @if (accessActions != null && (accessActions.cancelableRequest$(cipher) | async)) {
+          <button type="button" bitMenuItem (click)="accessActions.cancelRequest(cipher)">
+            <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+            {{ "pendingStateCancelRequest" | i18n }}
+          </button>
+        }
+        @if (showFavorite && !isPartial) {
           <button bitMenuItem type="button" (click)="toggleFavorite()">
             <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
             {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
           </button>
         }
-        @if (!isDeleted && canEditCipher) {
+        @if (!isDeleted && canEditCipher && !isPartial) {
           <button bitMenuItem type="button" (click)="editCipher()">
             <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
             {{ "edit" | i18n }}
           </button>
         }
-        @if (showAttachments) {
+        @if (showAttachments && !isPartial) {
           <button bitMenuItem type="button" (click)="attachments()">
             <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
             {{ "attachments" | i18n }}
           </button>
         }
-        @if (showClone) {
+        @if (showClone && !isPartial) {
           <button bitMenuItem type="button" (click)="clone()">
             <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
             {{ "clone" | i18n }}
           </button>
         }
-        @if (showAssignToCollections) {
+        @if (showAssignToCollections && !isPartial) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
             <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
             {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
@@ -194,7 +216,7 @@
             {{ "eventLogs" | i18n }}
           </button>
         }
-        @if (showArchiveButton) {
+        @if (showArchiveButton && !isPartial) {
           @if (userCanArchive) {
             <button bitMenuItem (click)="archive()" type="button">
               <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
@@ -213,20 +235,20 @@
           }
         }
 
-        @if (showUnArchiveButton) {
+        @if (showUnArchiveButton && !isPartial) {
           <button bitMenuItem (click)="unarchive()" type="button">
             <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
             {{ "unArchive" | i18n }}
           </button>
         }
 
-        @if (isDeleted && canRestoreCipher) {
+        @if (isDeleted && canRestoreCipher && !isPartial) {
           <button bitMenuItem (click)="restore()" type="button">
             <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
             {{ "restore" | i18n }}
           </button>
         }
-        @if (canDeleteCipher) {
+        @if (canDeleteCipher && !isPartial) {
           <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
             <bit-icon fixedWidth name="bwi-trash" slot="start" />
             {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}

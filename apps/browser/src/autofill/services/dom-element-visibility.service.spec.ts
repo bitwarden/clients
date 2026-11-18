@@ -169,9 +169,7 @@ describe("DomElementVisibilityService", () => {
       `;
       const usernameElement = document.getElementById("username");
       const passwordElement = document.getElementById("password");
-      jest.spyOn(usernameElement.style, "getPropertyValue");
       jest.spyOn(usernameElement.ownerDocument.defaultView, "getComputedStyle");
-      jest.spyOn(passwordElement.style, "getPropertyValue");
       jest.spyOn(passwordElement.ownerDocument.defaultView, "getComputedStyle");
 
       const isUsernameElementHidden =
@@ -180,12 +178,10 @@ describe("DomElementVisibilityService", () => {
         domElementVisibilityService["isElementHiddenByCss"](passwordElement);
 
       expect(isUsernameElementHidden).toEqual(true);
-      expect(usernameElement.style.getPropertyValue).toHaveBeenCalled();
       expect(usernameElement.ownerDocument.defaultView.getComputedStyle).toHaveBeenCalledWith(
         usernameElement,
       );
       expect(isPasswordElementHidden).toEqual(true);
-      expect(passwordElement.style.getPropertyValue).toHaveBeenCalled();
       expect(passwordElement.ownerDocument.defaultView.getComputedStyle).toHaveBeenCalledWith(
         passwordElement,
       );
@@ -333,6 +329,27 @@ describe("DomElementVisibilityService", () => {
     it("returns false if the passed element is not outside of the viewport bounds", () => {
       const usernameElement = document.querySelector("input[name='username']") as FormFieldElement;
       const elementBoundingClientRect = createBoundingClientRectMock({});
+
+      const isElementOutsideViewportBounds = domElementVisibilityService[
+        "isElementOutsideViewportBounds"
+      ](usernameElement, elementBoundingClientRect);
+
+      expect(isElementOutsideViewportBounds).toEqual(false);
+    });
+
+    it("returns false when sub-pixel height marginally exceeds integer scrollHeight", () => {
+      // PM-36815: a visible input whose rect height is fractional was being counted
+      // as off-screen because scrollHeight rounds to an integer.
+      Object.defineProperty(document.documentElement, "scrollHeight", {
+        writable: true,
+        value: 47,
+      });
+      const usernameElement = document.querySelector("input[name='username']") as FormFieldElement;
+      const elementBoundingClientRect = createBoundingClientRectMock({
+        top: 0,
+        width: 197,
+        height: 47.28125,
+      });
 
       const isElementOutsideViewportBounds = domElementVisibilityService[
         "isElementOutsideViewportBounds"

@@ -1,6 +1,6 @@
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -8,6 +8,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { Fido2AuthenticatorErrorCode } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -20,7 +21,11 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { ModalModeState } from "../../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
-import { DesktopFido2UserInterfaceSession } from "./desktop-fido2-user-interface.service";
+import {
+  DesktopFido2UserInterfaceSession,
+  CredentialNotFound,
+  ExcludedCredentialMatched,
+} from "./desktop-fido2-user-interface.service";
 import {
   DesktopFido2UserVerificationService,
   UserVerificationCanceled,
@@ -71,6 +76,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let userVerificationService: MockProxy<DesktopFido2UserVerificationService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let messages$: Subject<{ command: string }>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let abortController: AbortController;
@@ -79,6 +85,12 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let deadlineController: AbortController;
 
   let session: DesktopFido2UserInterfaceSession;
+
+  /** Unlocks the vault the way the lock screen does: the status changes, then it reports the unlock. */
+  const unlockVault = () => {
+    activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+    messages$.next({ command: "unlocked" });
+  };
 
   // The desktop test environment runs on jest-environment-jsdom's bundled
   // jsdom@20, which predates the `AbortSignal.timeout`/`AbortSignal.any` statics
@@ -104,6 +116,8 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+
+    messages$ = new Subject();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
@@ -167,6 +181,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
       userVerificationService,
       passwordRepromptService,
       domainSettingsService,
+      new MessageListener(messages$),
     );
   });
 
@@ -475,15 +490,32 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
 
-    it("shows the lock UI, then navigates home once the vault unlocks", async () => {
+    it("shows the lock UI and stays on it once the vault unlocks", async () => {
       activeAccountStatus$.next(AuthenticationStatus.Locked);
 
       const result = session.ensureUnlockedVault();
       await tick();
-      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      unlockVault();
 
       await expect(result).resolves.toBeUndefined();
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(["/lock", expect.anything()]);
+    });
+
+    it("waits for the lock screen to report the unlock before continuing", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      let settled = false;
+
+      const result = session.ensureUnlockedVault().finally(() => (settled = true));
+      await tick();
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await tick();
+
+      // Leaving the lock screen now would destroy it before it finishes the unlock.
+      expect(settled).toBe(false);
+
+      messages$.next({ command: "unlocked" });
+      await expect(result).resolves.toBeUndefined();
     });
 
     it("hides the UI and throws, logging cancellation, when aborted before unlock", async () => {
@@ -533,9 +565,46 @@ describe("DesktopFido2UserInterfaceSession", () => {
     });
   });
 
+  describe("closing the window", () => {
+    const closeWindow = () => messages$.next({ command: "modalWindowClosed" });
+
+    it("cancels a ceremony waiting on the lock screen", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+
+      const result = session.ensureUnlockedVault();
+      await tick();
+      closeWindow();
+
+      await expect(result).rejects.toThrow("Could not retrieve vault unlock status");
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
+    });
+
+    it("does not cancel a ceremony that is not showing UI", async () => {
+      closeWindow();
+
+      expect(abortController.signal.aborted).toBe(false);
+    });
+
+    it("does not cancel once the ceremony has hidden its UI", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      const result = session.ensureUnlockedVault();
+      await tick();
+      unlockVault();
+      await result;
+      await session.hideUi();
+
+      closeWindow();
+
+      expect(abortController.signal.aborted).toBe(false);
+    });
+  });
+
   describe("informExcludedCredential", () => {
-    it("shows the excluded credentials UI and returns without waiting for the user", async () => {
-      await session.informExcludedCredential(["cipher-1"]);
+    it("shows the excluded credentials UI and waits for the user to dismiss it", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
 
       expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
         x: 0,
@@ -546,15 +615,180 @@ describe("DesktopFido2UserInterfaceSession", () => {
         "/fido2-excluded",
         { "disable-redirect": null },
       ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyConfirmCreateCredential(false);
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
     });
 
-    it("resets the window when the component displaying the message hides the UI", async () => {
-      await session.informExcludedCredential(["cipher-1"]);
-      await session.hideUi();
+    it("resets the window before reporting the match", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
 
-      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
-      expect(accountService.setShowHeader).toHaveBeenCalledWith(true);
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      session.notifyConfirmCreateCredential(false);
+
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(true);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still reports the match, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toBeInstanceOf(ExcludedCredentialMatched);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation instead of the match, and hides the UI, when the request is aborted", async () => {
+      const result = session.informExcludedCredential(["cipher-1"]);
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Request was cancelled before the user dismissed the message",
+      );
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informExcludedCredential(["cipher-1"])).rejects.toBe(
+        "Operation cancelled",
+      );
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("informRpIdNotAllowed", () => {
+    it("shows the not-allowed UI for the operation and waits for the user to dismiss it", async () => {
+      const result = session.informRpIdNotAllowed("registration");
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
+
+      expect(session.rpIdNotAllowedOperation).toBe("registration");
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
+        x: 0,
+        y: 0,
+      });
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-rp-id-not-allowed",
+        { "disable-redirect": null },
+      ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyConfirmCreateCredential(false);
+      await expect(result).rejects.toMatchObject({ name: "NotAllowedError" });
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still rejects as not allowed, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informRpIdNotAllowed("assertion");
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toMatchObject({ name: "NotAllowedError" });
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation, and hides the UI, when the request is aborted", async () => {
+      const result = session.informRpIdNotAllowed("assertion");
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informRpIdNotAllowed("assertion")).rejects.toBe("Operation cancelled");
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("informCredentialNotFound", () => {
+    it("shows the credential not found UI and waits for the user to dismiss it", async () => {
+      const result = session.informCredentialNotFound();
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
+
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
+        x: 0,
+        y: 0,
+      });
+      expect(accountService.setShowHeader).toHaveBeenCalledWith(false);
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-credential-not-found",
+        { "disable-redirect": null },
+      ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyCredentialNotFoundDismissed();
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+    });
+
+    it("resets the window before reporting the missing credential", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      session.notifyCredentialNotFoundDismissed();
+
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(accountService.setShowHeader).toHaveBeenLastCalledWith(true);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still reports the missing credential, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toBeInstanceOf(CredentialNotFound);
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation instead of the missing credential, and hides the UI, when the request is aborted", async () => {
+      const result = session.informCredentialNotFound();
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Request was cancelled before the user dismissed the message",
+      );
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informCredentialNotFound()).rejects.toBe("Operation cancelled");
+      expect(router.navigate).not.toHaveBeenCalled();
     });
   });
 
@@ -678,7 +912,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         await expect(pickSingleCredential()).resolves.toEqual({
@@ -738,7 +972,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         const result = session.confirmNewCredential(confirmNewCredentialParams);

@@ -15,7 +15,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
-import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
+
+import { DesktopAutotypeGaPolicyService } from "./desktop-autotype-ga-policy.service";
 import { DesktopAutotypeService } from "./desktop-autotype.service";
 
 type FakeGlobalState<T> = {
@@ -33,18 +35,17 @@ describe("DesktopAutotypeService", () => {
   let mockGlobalStateProvider: jest.Mocked<GlobalStateProvider>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockBillingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let mockDesktopAutotypePolicy: jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
-  let mockLogService: MockProxy<LogService>;
 
   let mockAutotypeEnabledState: FakeGlobalState<boolean>;
   let mockAutotypeKeyboardShortcutState: FakeGlobalState<string[]>;
 
   let autotypeEnabledSubject: BehaviorSubject<boolean | null>;
-  let autotypeKeyboardShortcutSubject: BehaviorSubject<string[]>;
+  let autotypeKeyboardShortcutSubject: BehaviorSubject<string[] | null>;
+  let autotypeGaPolicySubject: BehaviorSubject<boolean | null>;
+  let autotypeGaPolicyShortcutSubject: BehaviorSubject<string[] | null>;
   let activeAccountSubject: BehaviorSubject<Account | null>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let autotypeDefaultPolicySubject: BehaviorSubject<boolean | null>;
 
   // The Autotype feature flags must be mocked independently of one another: the service
   // resolves its gate through `autotypeFeatureFlagState$`, which reads both the MVP and the
@@ -64,7 +65,9 @@ describe("DesktopAutotypeService", () => {
 
   beforeEach(() => {
     autotypeEnabledSubject = new BehaviorSubject<boolean | null>(null);
-    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[]>(["Control", "Alt", "B"]);
+    autotypeKeyboardShortcutSubject = new BehaviorSubject<string[] | null>(["Control", "Alt", "B"]);
+    autotypeGaPolicySubject = new BehaviorSubject<boolean | null>(null);
+    autotypeGaPolicyShortcutSubject = new BehaviorSubject<string[] | null>(null);
     activeAccountSubject = new BehaviorSubject<Account | null>({
       id: "user-123" as UserId,
       email: "user@bitwarden.com",
@@ -76,7 +79,6 @@ describe("DesktopAutotypeService", () => {
       AuthenticationStatus.Unlocked,
     );
     hasPremiumSubject = new BehaviorSubject<boolean>(true);
-    autotypeDefaultPolicySubject = new BehaviorSubject<boolean | null>(null);
 
     mockAutotypeEnabledState = {
       state$: autotypeEnabledSubject.asObservable(),
@@ -130,12 +132,6 @@ describe("DesktopAutotypeService", () => {
       hasPremiumSubject.asObservable(),
     );
 
-    mockDesktopAutotypePolicy = {
-      autotypeDefaultSetting$: autotypeDefaultPolicySubject.asObservable(),
-    } as unknown as jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
-
-    mockLogService = mock<LogService>();
-
     TestBed.configureTestingModule({
       providers: [
         DesktopAutotypeService,
@@ -149,8 +145,14 @@ describe("DesktopAutotypeService", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
-        { provide: DesktopAutotypeDefaultSettingPolicy, useValue: mockDesktopAutotypePolicy },
-        { provide: LogService, useValue: mockLogService },
+        {
+          provide: DesktopAutotypeGaPolicyService,
+          useValue: {
+            autotypeGaDefaultSetting$: autotypeGaPolicySubject.asObservable(),
+            autotypeGaDefaultKeyboardShortcut$: autotypeGaPolicyShortcutSubject.asObservable(),
+          },
+        },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     });
 
@@ -212,10 +214,8 @@ describe("DesktopAutotypeService", () => {
   });
 
   describe("init", () => {
-    it("should not apply the organization default policy on non-Windows platforms", async () => {
-      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+    it("should not change the user's enabled setting on init", async () => {
       autotypeEnabledSubject.next(null);
-      autotypeDefaultPolicySubject.next(true);
 
       await service.init();
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -224,15 +224,73 @@ describe("DesktopAutotypeService", () => {
       expect(autotypeEnabledSubject.value).toBeNull();
     });
 
-    it("should enable autotype when policy is true and user setting is null", async () => {
+    it("turns autotype on when the GA policy applies and the local setting has never been set", async () => {
       autotypeEnabledSubject.next(null);
-      autotypeDefaultPolicySubject.next(true);
+      autotypeGaPolicySubject.next(true);
 
       await service.init();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockAutotypeEnabledState.update).toHaveBeenCalled();
       expect(autotypeEnabledSubject.value).toBe(true);
+    });
+
+    it("does not overwrite a local autotype setting the user already chose", async () => {
+      autotypeEnabledSubject.next(false);
+      autotypeGaPolicySubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeEnabledSubject.value).toBe(false);
+    });
+
+    it("stores the policy shortcut when the local shortcut has never been set", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Super", "K"]);
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(["Super", "K"]);
+    });
+
+    it("does not overwrite a stored shortcut when the policy shortcut changes", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      autotypeGaPolicyShortcutSubject.next(["Alt", "Q"]);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockAutotypeKeyboardShortcutState.update).toHaveBeenCalledTimes(1);
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Super", "K"]);
+    });
+
+    it("does not overwrite a local keyboard shortcut the user already chose", async () => {
+      autotypeKeyboardShortcutSubject.next(["Control", "Alt", "A"]);
+      autotypeGaPolicyShortcutSubject.next(["Super", "K"]);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
+      expect(autotypeKeyboardShortcutSubject.value).toEqual(["Control", "Alt", "A"]);
+    });
+
+    it("uses the built-in shortcut when there is no local shortcut and no policy shortcut", async () => {
+      autotypeKeyboardShortcutSubject.next(null);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(await firstValueFrom(service.autotypeKeyboardShortcut$)).toEqual(
+        DEFAULT_KEYBOARD_SHORTCUT,
+      );
+      expect(mockAutotypeKeyboardShortcutState.update).not.toHaveBeenCalled();
+      expect(autotypeKeyboardShortcutSubject.value).toBeNull();
     });
   });
 

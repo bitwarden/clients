@@ -31,15 +31,10 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
 
-import {
-  AuthRequestLoginStrategy,
-  AuthRequestLoginStrategyData,
-} from "./auth-request-login.strategy";
-import { identityTokenResponseFactory } from "./login.strategy.spec";
+import { AuthRequestLoginStrategy } from "./auth-request-login.strategy";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
 
 describe("AuthRequestLoginStrategy", () => {
-  let cache: AuthRequestLoginStrategyData;
-
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
@@ -75,8 +70,6 @@ describe("AuthRequestLoginStrategy", () => {
   const decUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
   beforeEach(async () => {
-    cache = new AuthRequestLoginStrategyData();
-
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
@@ -106,7 +99,7 @@ describe("AuthRequestLoginStrategy", () => {
     });
 
     authRequestLoginStrategy = new AuthRequestLoginStrategy(
-      cache,
+      undefined,
       unlockService,
       deviceTrustService,
       accountService,
@@ -128,6 +121,8 @@ describe("AuthRequestLoginStrategy", () => {
       configService,
       accountCryptographicStateService,
     );
+
+    credentials = new AuthRequestLoginCredentials(email, accessCode, authRequestId, decUserKey);
 
     tokenResponse = identityTokenResponseFactory();
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
@@ -168,6 +163,35 @@ describe("AuthRequestLoginStrategy", () => {
 
     // trustDeviceIfRequired should be called
     expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalled();
+  });
+
+  it("throws without unlocking when the approving device supplied no decrypted user key", async () => {
+    const credentialsWithoutUserKey = new AuthRequestLoginCredentials(
+      email,
+      accessCode,
+      authRequestId,
+      null,
+    );
+
+    await expect(authRequestLoginStrategy.logIn(credentialsWithoutUserKey)).rejects.toThrow(
+      "Cannot unlock: the approving device did not supply a decrypted user key.",
+    );
+
+    expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+    expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+  });
+
+  it("sends the auth request information to the server", async () => {
+    await authRequestLoginStrategy.logIn(credentials);
+
+    expect(apiService.postIdentityToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email,
+        masterPasswordHash: accessCode,
+        authRequest: authRequestId,
+        device: expect.objectContaining({ identifier: deviceId }),
+      }),
+    );
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

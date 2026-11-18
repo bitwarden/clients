@@ -1,14 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
 
-import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { AttachmentData } from "../data/attachment.data";
-import { AttachmentView } from "../view/attachment.view";
 
 export class Attachment extends Domain {
   id?: string;
@@ -30,49 +28,6 @@ export class Attachment extends Domain {
     this.sizeName = obj.sizeName;
     this.fileName = conditionalEncString(obj.fileName);
     this.key = conditionalEncString(obj.key);
-  }
-
-  async decrypt(
-    decryptionKey: SymmetricCryptoKey,
-    context = "No Cipher Context",
-  ): Promise<AttachmentView> {
-    const view = await this.decryptObj<Attachment, AttachmentView>(
-      this,
-      new AttachmentView(this),
-      ["fileName"],
-      decryptionKey,
-      "DomainType: Attachment; " + context,
-    );
-
-    if (this.key != null) {
-      view.key = await this.decryptAttachmentKey(decryptionKey);
-
-      // When the attachment key couldn't be decrypted, mark a decryption error
-      // The file won't be able to be downloaded in these cases
-      if (!view.key) {
-        view.hasDecryptionError = true;
-      }
-    }
-
-    return view;
-  }
-
-  private async decryptAttachmentKey(
-    decryptionKey: SymmetricCryptoKey,
-  ): Promise<SymmetricCryptoKey | undefined> {
-    try {
-      if (this.key == null) {
-        return undefined;
-      }
-
-      const encryptService = Utils.getContainerService().getEncryptService();
-      const decValue = await encryptService.unwrapSymmetricKey(this.key, decryptionKey);
-      return decValue;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error("[Attachment] Error decrypting attachment", e);
-      return undefined;
-    }
   }
 
   toAttachmentData(): AttachmentData {

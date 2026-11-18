@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -8,6 +11,7 @@ import { loginAndroidUrl } from "../spec-data/enpass-json/login-android-url";
 import { note } from "../spec-data/enpass-json/note";
 
 import { EnpassJsonImporter } from "./enpass-json-importer";
+import { EnpassJsonFile, EnpassItem } from "./types/enpass-json-type";
 
 function validateCustomField(fields: FieldView[], fieldName: string, expectedValue: any) {
   expect(fields).toBeDefined();
@@ -19,7 +23,7 @@ function validateCustomField(fields: FieldView[], fieldName: string, expectedVal
 
 describe("Enpass JSON Importer", () => {
   it("should create folders/ nested folder and assignment", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(folders);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -38,7 +42,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse login items", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(login);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -65,7 +69,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse login items with Android Autofill information", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(loginAndroidUrl);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -83,7 +87,7 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("should parse credit card items", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(creditCard);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);
@@ -119,8 +123,52 @@ describe("Enpass JSON Importer", () => {
     validateCustomField(cipher.fields, "If lost, call", "12345678");
   });
 
+  it("normalizes androidapp:// URI without polynomial backtracking (FIND-5AD2A4CF3A3F)", async () => {
+    // The adversarial input that triggers quadratic backtracking in the old regex:
+    // repeated `androidapp://` prefixes with no `==@`. Both `.*` and `[^@]*` scan
+    // to end-of-string and backtrack O(n²) on each of the k prefix start offsets.
+    // The base64-alphabet class `[A-Za-z0-9\-_+/]*` terminates at `:` so it cannot
+    // span two occurrences — linear time regardless of repetition count.
+    // 13 chars × 76 reps = 988 chars, stays under fixUri()'s 1000-char truncation.
+    const adversarialUrl = "androidapp://".repeat(76);
+    const importer = new EnpassJsonImporter(mock<LogService>());
+    const item: EnpassItem = {
+      archived: 0,
+      auto_submit: 1,
+      category: "login",
+      createdAt: 0,
+      favorite: 0,
+      subtitle: "",
+      trashed: 0,
+      fields: [
+        {
+          deleted: 0,
+          label: "Android",
+          order: 1,
+          sensitive: 0,
+          type: ".Android#",
+          uid: 1,
+          updated_at: 0,
+          value: adversarialUrl,
+          value_updated_at: 0,
+        },
+      ],
+      icon: { fav: "", image: { file: "" }, type: 0, uuid: "" },
+      note: "",
+      template_type: "login.default",
+      title: "Test",
+      updated_at: 0,
+      uuid: "test-uuid",
+    };
+    const data: EnpassJsonFile = { folders: [], items: [item] };
+    const result = await importer.parse(JSON.stringify(data));
+    expect(result.success).toBe(true);
+    // No ==@ present, so the URL passes through unchanged
+    expect(result.ciphers[0].login.uris[0].uri).toBe(adversarialUrl);
+  });
+
   it("should parse notes", async () => {
-    const importer = new EnpassJsonImporter();
+    const importer = new EnpassJsonImporter(mock<LogService>());
     const testDataString = JSON.stringify(note);
     const result = await importer.parse(testDataString);
     expect(result != null).toBe(true);

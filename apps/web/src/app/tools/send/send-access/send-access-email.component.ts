@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,20 +22,15 @@ import { SharedModule } from "../../../shared";
 export class SendAccessEmailComponent implements OnInit, OnDestroy {
   protected readonly formGroup = input.required<FormGroup>();
   protected readonly enterOtp = input.required<boolean>();
-  protected email: FormControl;
-  protected otp: FormControl;
+  protected readonly email = new FormControl("", [Validators.required, Validators.email]);
+  protected readonly otp = new FormControl("");
 
   readonly resendCode = output<void>();
 
   readonly loading = input.required<boolean>();
   readonly backToEmail = output<void>();
 
-  ngOnInit() {
-    this.email = new FormControl("", [Validators.required, Validators.email]);
-    this.otp = new FormControl("");
-    this.formGroup().addControl("email", this.email);
-    this.formGroup().addControl("otp", this.otp);
-
+  constructor() {
     effect(() => {
       const isOtpMode = this.enterOtp();
       if (isOtpMode) {
@@ -47,6 +40,11 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
       }
       this.email.updateValueAndValidity();
     });
+  }
+
+  ngOnInit() {
+    this.formGroup().addControl("email", this.email);
+    this.formGroup().addControl("otp", this.otp);
   }
 
   ngOnDestroy() {

@@ -1,16 +1,8 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  HostBinding,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  computed,
-  input,
-  model,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, model } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { from, map } from "rxjs";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
@@ -32,19 +24,19 @@ import { ANON_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
 
 export type SecondaryContentLocationType = "main" | "footer";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "auth-anon-layout",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./anon-layout.component.html",
+  host: {
+    // AnonLayout should take up full height of parent container for proper footer placement.
+    class: "tw-h-full",
+  },
   imports: [CommonModule, I18nPipe, SvgModule, TypographyModule, RouterModule, LandingLayoutModule],
 })
-export class AnonLayoutComponent implements OnInit, OnChanges {
-  @HostBinding("class")
-  get classList() {
-    // AnonLayout should take up full height of parent container for proper footer placement.
-    return ["tw-h-full"];
-  }
+export class AnonLayoutComponent {
+  private readonly environmentService = inject(EnvironmentService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
@@ -80,31 +72,15 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    */
   readonly maxWidth = model<LandingContentMaxWidthType>(ANON_LAYOUT_DEFAULTS.maxWidth);
 
-  protected year: string;
-  protected clientType: ClientType;
-  protected hostname?: string;
-  protected version?: string;
+  protected readonly resolvedMaxWidth = computed(
+    () => this.maxWidth() ?? ANON_LAYOUT_DEFAULTS.maxWidth,
+  );
 
-  protected hideYearAndVersion = false;
-
-  constructor(
-    private environmentService: EnvironmentService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {
-    this.year = new Date().getFullYear().toString();
-    this.clientType = this.platformUtilsService.getClientType();
-    this.hideYearAndVersion = this.clientType !== ClientType.Web;
-  }
-
-  async ngOnInit() {
-    this.maxWidth.set(this.maxWidth() ?? ANON_LAYOUT_DEFAULTS.maxWidth);
-    this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
-    this.version = await this.platformUtilsService.getApplicationVersion();
-  }
-
-  async ngOnChanges(changes: SimpleChanges) {
-    if (changes.maxWidth) {
-      this.maxWidth.set(changes.maxWidth.currentValue ?? ANON_LAYOUT_DEFAULTS.maxWidth);
-    }
-  }
+  protected readonly year = new Date().getFullYear().toString();
+  protected readonly hideYearAndVersion =
+    this.platformUtilsService.getClientType() !== ClientType.Web;
+  protected readonly hostname = toSignal(
+    this.environmentService.environment$.pipe(map((env) => env.getHostname())),
+  );
+  protected readonly version = toSignal(from(this.platformUtilsService.getApplicationVersion()));
 }

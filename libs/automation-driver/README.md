@@ -26,9 +26,27 @@ safeProvider({
 
 ```js
 bitwardenAutomationDriver.list();
-// ["featureFlags", "state", "lock", "logging", "processReload"]
+// ["featureFlags", "state", "lock", "login", "logging", "processReload"]
 
 await bitwardenAutomationDriver.get("lock").listUsers();
 ```
 
 `get` returns `undefined` when the running client does not provide the capability.
+
+### SDK client (development builds only)
+
+The `sdk` capability hands a user's SDK client to a callback. It is registered only in development
+builds. Its `debug()` tree additionally needs an sdk-internal build with the `debug-capabilities`
+feature (`build.sh -d`).
+
+```js
+await bitwardenAutomationDriver
+  .get("sdk")
+  .forUser(userId, (client) => client.vault().folders().list());
+await bitwardenAutomationDriver
+  .get("sdk")
+  .forUser(userId, (client) => client.debug().state().types());
+```
+
+Do not keep the client, or anything reached through it, after the callback returns: the client is
+freed once nothing references it.

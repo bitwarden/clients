@@ -8,6 +8,8 @@ import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
+import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -30,13 +32,15 @@ describe("BiometricPersistentMigration", () => {
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockLogService = mock<LogService>();
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockI18nService = mock<I18nService>();
 
   let sut: BiometricPersistentMigration;
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockKeyId = new Uint8Array([1, 2, 3, 4]);
-  const mockKeyIdB64 = Utils.fromBufferToB64(mockKeyId);
+  const mockKeyIdHex = Utils.fromArrayToHex(mockKeyId);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -46,6 +50,8 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricsService,
       mockBiometricStateService,
       mockLogService,
+      mockPlatformUtilsService,
+      mockI18nService,
     );
   });
 
@@ -87,7 +93,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
-      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdHex);
 
       const result = await sut.needsMigration(mockUserId);
 
@@ -111,7 +117,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
-      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdHex);
 
       const result = await sut.needsMigration(mockUserId);
 
@@ -140,6 +146,51 @@ describe("BiometricPersistentMigration", () => {
         mockUserId,
         mockUserKey,
       );
+    });
+
+    describe("when enrollment fails", () => {
+      const enrollmentError = new Error("Windows Hello cancelled");
+
+      beforeEach(() => {
+        mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
+        mockBiometricsService.enrollPersistent.mockReset();
+      });
+
+      // The stale persistent key cannot unlock the vault anymore. Retrying would prompt on every
+      // migration run, so persistent unlock is turned off and the user is told.
+      it("turns off persistent biometric unlock and shows a toast", async () => {
+        mockBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+        mockI18nService.t.mockImplementation((key) => key);
+
+        await sut.runMigrations(mockUserId, null);
+
+        expect(mockBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+        );
+        expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
+          "warning",
+          "unlockWithBiometrics",
+          "biometricUnlockOnRestartTurnedOff",
+        );
+      });
+
+      // Session biometric unlock keeps working; only unlock on app restart is turned off.
+      it("keeps session biometric unlock enabled", async () => {
+        mockBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+
+        await sut.runMigrations(mockUserId, null);
+
+        expect(mockBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect(
+          mockBiometricsService.deleteBiometricUnlockKeyForUser.mock.invocationCallOrder[0],
+        ).toBeLessThan(
+          mockBiometricsService.setBiometricProtectedUnlockKeyForUser.mock.invocationCallOrder[0],
+        );
+        expect(mockBiometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalled();
+      });
     });
   });
 });

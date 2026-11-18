@@ -19,6 +19,7 @@ import { EnvironmentService } from "../../platform/abstractions/environment.serv
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
+import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
@@ -49,6 +50,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
     private unlockService: UnlockService,
     private configService: ConfigService,
+    private stateProvider: StateProvider,
   ) {}
 
   async start(): Promise<void> {
@@ -59,6 +61,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
+      this.stateProvider,
     );
 
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
@@ -154,11 +157,6 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       allowDesktop,
       userId,
     );
-
-    const allowWeb = await firstValueFrom(
-      this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
-    );
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(allowWeb, userId);
   }
 
   /**
@@ -180,7 +178,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   /**
    * The clients this peer shares the user's unlock state with.
    *
-   *   browser  ->  desktop and/or web, per the user's settings
+   *   browser  ->  web, and desktop if the user allows it
    *   desktop  ->  browser
    *   web      ->  browser
    */
@@ -189,9 +187,8 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
       this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
       this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
-      this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
     ]).pipe(
-      map(([featureEnabled, sharingDisabled, allowDesktop, allowWeb]) => {
+      map(([featureEnabled, sharingDisabled, allowDesktop]) => {
         if (!featureEnabled || sharingDisabled) {
           return NO_DESTINATIONS;
         }
@@ -200,12 +197,10 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
           return BROWSER_ONLY;
         }
 
-        const destinations: SharedUnlockClient[] = [];
+        // Web is always a destination; only desktop is opt-in.
+        const destinations: SharedUnlockClient[] = ["Web"];
         if (allowDesktop) {
           destinations.push("Desktop");
-        }
-        if (allowWeb) {
-          destinations.push("Web");
         }
 
         return destinations;

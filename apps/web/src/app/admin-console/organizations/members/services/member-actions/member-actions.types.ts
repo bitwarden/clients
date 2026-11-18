@@ -1,5 +1,3 @@
-import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
-
 export const REQUESTS_PER_BATCH = 500;
 
 /**
@@ -21,7 +19,13 @@ interface MemberActionFailure {
   error: string;
 }
 
+/** The outcome of a bulk member operation for one member. `error` is absent when it succeeded. */
+export type OrganizationUserBulkResult = {
+  id: string;
+  error?: string;
+};
+
 export class BulkActionResult {
-  successful: OrganizationUserBulkResponse[] = [];
+  successful: OrganizationUserBulkResult[] = [];
   failed: { id: string; error: string }[] = [];
 }

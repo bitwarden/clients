@@ -1,0 +1,48 @@
+<bit-card data-testid="cipher-view-banner-active">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <app-pam-banner-card-header
+      [icon]="endingSoon() ? badgeLook.endingSoon.icon : badgeLook.active.icon"
+      [variant]="endingSoon() ? 'danger' : 'teal'"
+    >
+      @if (endingSoon()) {
+        <span slot="title" data-testid="active-lease-ending-soon">
+          {{ "pamActiveLeaseBannerEndingSoonTitleV2" | i18n: remainingLabel() }}
+        </span>
+      } @else {
+        <span slot="title" data-testid="active-lease-countdown">
+          {{ "pamActiveLeaseBannerTitleV2" | i18n: remainingLabel() }}
+        </span>
+      }
+      <span slot="description" data-testid="active-lease-ends-at">{{ expiryLabel() }}</span>
+    </app-pam-banner-card-header>
+
+    @if (!endingSoon()) {
+      <div class="tw-flex tw-items-center tw-gap-2" data-testid="active-lease-actions">
+        @if (canExtend()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [size]="popupLayout ? 'default' : 'small'"
+            [class.tw-flex-1]="popupLayout"
+            [bitAction]="extendAction()"
+            id="pam-cipher-view-banner_button_extend"
+          >
+            {{ "pamExtendLeaseButtonV2" | i18n }}
+          </button>
+        }
+        <button
+          type="button"
+          bitButton
+          buttonType="danger"
+          [size]="popupLayout ? 'default' : 'small'"
+          [class.tw-flex-1]="popupLayout"
+          [bitAction]="endAction()"
+          id="pam-cipher-view-banner_button_end"
+        >
+          {{ "pamEndLeaseButton" | i18n }}
+        </button>
+      </div>
+    }
+  </div>
+</bit-card>

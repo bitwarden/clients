@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1080,6 +1081,10 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
+  "clearSearchTooltip": {
+    "message": "Чтобы очистить, нажмите здесь или клавишу Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Все элементы"
   },
@@ -1179,6 +1184,9 @@
   "collections": {
     "message": "Коллекции"
   },
+  "controlledAccess": {
+    "message": "Контролируемый доступ"
+  },
   "firstName": {
     "message": "Имя"
   },
@@ -1252,6 +1260,62 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Папки в $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "nestedSharedFolderCount": {
+    "message": "Общие вложенные папки: $COUNT$",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вложенная общая папка",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ вложенных папок",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 вложенная папка",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моя папка"
   },
@@ -1269,9 +1333,6 @@
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
-  },
-  "newSharedFolder": {
-    "message": "Новая общая папка"
   },
   "searchSharedFolder": {
     "message": "Поиск в общей папке"
@@ -1464,42 +1525,6 @@
     "message": "Добавить паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Новый логин",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Новая карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Новая личная информация",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Новая заметка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Новая защищенная заметка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новый ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новый банковский счет",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Новое водительское удостоверение",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новый паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Новый текст",
     "description": "Header for new text send"
@@ -1507,22 +1532,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Новый файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Изменить логин",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактировать карту",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактировать личную информацию",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактировать заметку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
@@ -1992,6 +2001,27 @@
   "selectFile": {
     "message": "Выберите файл."
   },
+  "selectFileUnsupportedType": {
+    "message": "Этот тип файла не поддерживается для данного источника. Выберите другой файл."
+  },
+  "pasteContentRequired": {
+    "message": "Вставьте экспортированный контент."
+  },
+  "fileTypeNotSupported": {
+    "message": "Этот тип файла не поддерживается. Выберите файл типа $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Вставленный текст не соответствует выбранному формату."
+  },
+  "errorReadingFile": {
+    "message": "Не удалось прочитать выбранный файл."
+  },
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
   },
@@ -2103,6 +2133,12 @@
   },
   "deletedItem": {
     "message": "Элемент отправлен в корзину"
+  },
+  "deleteItemError": {
+    "message": "Не удалось удалить элемент."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Доступ к этому элементу ограничен. Ваши изменения не были сохранены."
   },
   "deletedItems": {
     "message": "Элементы отправлены в корзину"
@@ -2587,6 +2623,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Нет элементов в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавьте элементы в эту папку. Вы сможете быстро получить к ним доступ с помощью фильтров хранилища.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "В моих элементах нет элементов"
   },
@@ -2594,6 +2644,9 @@
     "message": "Ваши хранилища пусты"
   },
   "noItemsMatchSelectedFilters": {
+    "message": "Нет элементов, соответствующих выбранным фильтрам"
+  },
+  "noItemsMatchTheSelectedFilters": {
     "message": "Нет элементов, соответствующих выбранным фильтрам"
   },
   "noItemsMatchSearchTerm": {
@@ -2627,10 +2680,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "У вас нет папок"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Используйте папки для организации элементов хранилища. Они предназначены только для вас. Никто другой не сможет их увидеть или использовать."
   },
   "emptyVaultsDescription": {
     "message": "Чтобы начать, добавьте логины, ID, карты и другие элементы."
@@ -2668,6 +2721,38 @@
   },
   "noMembersInList": {
     "message": "Нет участников для отображения."
+  },
+  "noMembersInvitedToOrg": {
+    "message": "В вашу организацию не было приглашено ни одного участника"
+  },
+  "memberCount": {
+    "message": "$COUNT$ участника(ов)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 участник"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$–$END$ из $TOTAL$ участников",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "Нет участников для экспорта."
@@ -2929,7 +3014,7 @@
     "message": "Экспортируемый файл содержит данные ваших секретов в незашифрованном формате. Его не следует хранить или отправлять по небезопасным каналам (например по электронной почте). Удалите его сразу после использования."
   },
   "encExportKeyWarningDesc": {
-    "message": "При экспорте данные шифруются при помощи ключа шифрования учетной записи. Если вы решите сменить ключ шифрования, вам следует экспортировать данные повторно, поскольку вы не сможете расшифровать этот файл экспорта."
+    "message": "При экспорте данные шифруются при помощи ключа шифрования учетной записи. Если вы решите сротировать ключ шифрования, вам следует экспортировать данные повторно, поскольку вы не сможете расшифровать этот файл экспорта."
   },
   "encExportAccountWarningDesc": {
     "message": "Ключи шифрования уникальны для каждой учетной записи Bitwarden, поэтому нельзя импортировать зашифрованное хранилище в другой аккаунт."
@@ -2966,11 +3051,44 @@
   "keePassMasterPassword": {
     "message": "Мастер-пароль KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Пароль $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "filePasswordRequired": {
+    "message": "Требуется пароль для файла"
+  },
+  "filePasswordInvalid": {
+    "message": "Введите правильный пароль файла."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Загруженный файл защищен паролем. Для продолжения введите пароль."
+  },
+  "selectProfile": {
+    "message": "Выберите профиль"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Введите правильный пароль"
+  },
+  "importAccountMismatchError": {
+    "message": "Этот файл может быть импортирован только в аккаунт, из которого он был экспортирован."
+  },
   "addKeyFile": {
     "message": "Добавить файл ключа"
   },
   "keyFileUpload": {
     "message": "Загрузка файла ключа"
+  },
+  "keyFileUploadV2": {
+    "message": "Файл ключа"
   },
   "kdbxFileUpload": {
     "message": "Загрузка файла KDBX"
@@ -3019,6 +3137,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "При экспорте было пропущено 1 поврежденное вложение. Все остальные данные хранилища и вложения были экспортированы успешно."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 элемент не был включен в этот экспорт. Он защищен правилом привилегированного доступа, поэтому учетные данные для него недоступны на этом устройстве."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ элемента(ов) не были включены в этот экспорт. Они защищены правилами привилегированного доступа, поэтому учетные данные для них недоступны на этом устройстве.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "При экспорте было пропущено $COUNT$ поврежденных вложений. Все остальные данные хранилища и вложения были экспортированы успешно.",
@@ -3374,6 +3504,9 @@
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "В этом файле используются неподдерживаемые настройки шифрования, поэтому его невозможно импортировать."
+  },
   "importNothingError": {
     "message": "Ничего не было импортировано."
   },
@@ -3452,19 +3585,6 @@
   "learnAboutImportOptions": {
     "message": "Узнайте о возможностях импорта"
   },
-  "selectImportFolder": {
-    "message": "Выберите папку"
-  },
-  "selectImportCollection": {
-    "message": "Выберите коллекцию"
-  },
-  "selectImportSharedFolder": {
-    "message": "Выберите общую папку"
-  },
-  "importTargetMyFolder": {
-    "message": "Моя папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
@@ -3516,6 +3636,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Выберите хранилище",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Выберите расположение",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Выберите хранилище"
+  },
+  "selectALocationTitle": {
+    "message": "Выберите расположение"
+  },
+  "importDestinationDescription": {
+    "message": "Выберите, куда импортировать эти элементы."
+  },
+  "importMyItemsOption": {
+    "message": "Мои элементы",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видите только вы"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Владелец $ORGANIZATION$, но видите только вы",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Хранилище организации"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Поделились с одним человеком"
+  },
+  "importFamilyVault": {
+    "message": "Семейное хранилище"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Переместить все элементы в общую папку $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Переместить все элементы в общую папку $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Переместите всё в родительскую папку; структура вложенных папок будет сохранена."
+  },
+  "importSharedFolderRequired": {
+    "message": "Требуется общая папка."
+  },
+  "importIntoOrganization": {
+    "message": "Элементы будут импортированы в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Переместить все элементы в общую папку"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Без общей папки невозможно импортировать элементы в $ORGANIZATION$, и вы не управляете ни одной общей папкой. Выберите другое расположение.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Импортировать элементов: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Импортировать 1 элемент"
+  },
+  "importToOrganization": {
+    "message": "Импортировать в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Ваши данные могут быть переданы членам этой организации."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не позволяет вам импортировать $ITEM_TYPES$. Если они присутствуют в вашем импорте, они будут пропущены.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "логины",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "защищенные заметки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "карты",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "личная информация",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "ключи SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банковские счета",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "водительские удостоверения",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорта",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Выбрать файл"
@@ -3624,6 +3902,173 @@
   },
   "importHelpCenterLinkText": {
     "message": "Центр поддержки"
+  },
+  "uploadFile": {
+    "message": "Загрузить файл"
+  },
+  "pasteAsPlainText": {
+    "message": "Вставить как обычный текст"
+  },
+  "plainText": {
+    "message": "Обычный текст"
+  },
+  "profile": {
+    "message": "Профиль"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "Необходимо указать email."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Введите действительный адрес email."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Введите правильный пароль"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Введите правильный код подтверждения."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Пожалуйста, введите мастер-пароль LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Введите код подтверждения ниже."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Ожидание аутентификации SSO"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "После авторизации мы автоматически продолжим импорт."
+  },
+  "includeSharedFolders": {
+    "message": "Включить общие папки"
+  },
+  "importManuallyInstead": {
+    "message": "Вместо этого импортировать вручную"
+  },
+  "directlyImportInstead": {
+    "message": "Вместо этого импортировать напрямую"
+  },
+  "fastest": {
+    "message": "Самый быстрый"
+  },
+  "importDataTitle": {
+    "message": "Импортируйте ваши данные"
+  },
+  "importDataDirectTitle": {
+    "message": "Импортируйте ваши данные за считанные минуты"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Импортируйте свои элементы напрямую из",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "чтобы получить все ваши данные.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Импортируйте из $VENDOR$ или скопируйте и вставьте содержимое экспорта.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Выберите профиль, из которого вы хотите импортировать пароли."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Профили браузеров не найдены"
+  },
+  "importDataLoginTitle": {
+    "message": "Войти в $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Ваши учетные данные шифруются при передаче и никогда не сохраняются."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Безопасность заложена в самом дизайне"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Передача данных со сквозным шифрованием. Bitwarden никогда не получает доступ к вашим учетным данным для $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Мы запросим ваши регистрационные данные"
+  },
+  "importDataLoginInfoBody": {
+    "message": "На следующем шаге войдите в свой аккаунт $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Все передачи"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Логины, карты, личная информация, защищенные заметки и TOTP с сохраненной структурой папок."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Быстро и безопасно"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Этот процесс защищен сквозным шифрованием. Не требуется экспортировать файл."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Все, что вам нужно, - это ваш логин"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "На следующем этапе вам будет предложено ввести свои учетные данные для авторизации в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Что будет перенесено"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ваши логины, прочие элементы и папки будут перенесены. Passkey и вложения могут быть исключены."
+  },
+  "importAcceptedFormats": {
+    "message": "Принято: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Тип файла $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Этот процесс полностью аналогичен импорту из Google Chrome.",
@@ -3881,9 +4326,6 @@
   },
   "customize": {
     "message": "Настроить"
-  },
-  "newCustomDomain": {
-    "message": "Новый пользовательский домен"
   },
   "addCustomDomain": {
     "message": "Добавить пользовательский домен"
@@ -4628,12 +5070,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Показать сведения о ценах"
-  },
-  "hidePricingSummary": {
-    "message": "Скрыть сведения о ценах"
-  },
   "summary": {
     "message": "Итого"
   },
@@ -4712,9 +5148,6 @@
   },
   "subscriptionExpiration": {
     "message": "Срок действия подписки"
-  },
-  "subscriptionCanceled": {
-    "message": "Подписка отменена."
   },
   "pendingCancellation": {
     "message": "Ожидание отмены"
@@ -4935,15 +5368,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "через $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5328,6 +5752,34 @@
   "trialConfirmationEmail": {
     "message": "Мы отправили письмо с подтверждением на адрес email для выставления счетов вашей команды "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Ваша пробная версия включает в себя привилегированное управление."
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Функция привилегированного доступа доступна через команду продаж Bitwarden и не включена в этой организации."
+  },
+  "contactSales": {
+    "message": "Связаться с командой продаж"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Функция привилегированного доступа доступна через команду продаж Bitwarden. Обратитесь в команду продаж, чтобы добавить ее в вашу организацию."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "Чтобы изменить места привилегированного доступа, обратитесь в команду продаж."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "Используется $OCCUPIED$ мест из $TOTAL$",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Ежемесячно"
   },
@@ -5400,9 +5852,6 @@
   "groups": {
     "message": "Группы"
   },
-  "newGroup": {
-    "message": "Новая группа"
-  },
   "addGroup": {
     "message": "Добавить группу"
   },
@@ -5418,6 +5867,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Удалить группу"
+  },
+  "deleteGroups": {
+    "message": "Удалить $QUANTITY$ групп",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "После удаления этой группы участники, зачисленные в нее, могут лишиться доступа к связанным с ней общим папкам. Сами участники при этом удалены не будут."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "После удаления этих групп участники, зачисленные в них, могут лишиться доступа к связанным общим папкам. Сами участники при этом удалены не будут."
+  },
+  "groupCreated": {
+    "message": "Группа создана"
+  },
+  "groupDeleted": {
+    "message": "Группа удалена"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ групп удалены",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Группа изменена"
+  },
+  "noGroupsYet": {
+    "message": "Групп пока нет"
+  },
+  "noGroupsYetDesc": {
+    "message": "Группы помогут упорядочить участников $ORGANIZATIONNAME$ и предоставить им доступ к общим папкам.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5457,9 +5954,6 @@
   },
   "readOnly": {
     "message": "Только чтение"
-  },
-  "newCollection": {
-    "message": "Новая коллекция"
   },
   "addCollection": {
     "message": "Добавить коллекцию"
@@ -5870,6 +6364,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ отключена в соответствии с политикой",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ включена в соответствии с политикой",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Создан элемент Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Изменен элемент Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Удален элемент Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Доступ к элементу Send$SENDID$, созданному $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "Внешний"
   },
@@ -6155,6 +6713,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Ответил на запрос HTTP-аутентификации с элементом $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Создана коллекция $ID$.",
     "placeholders": {
@@ -6344,6 +6911,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Отказ в передаче элемента организации"
+  },
+  "revocationReasonByAdmin": {
+    "message": "Администратором",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Причина не указана",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Доступ организации с идентификатором $ID$ был отозван в связи с несоблюдением политики организации в отношении двухэтапной аутентификации.",
@@ -6774,11 +7349,26 @@
   "resendInvitation": {
     "message": "Пригласить повторно"
   },
+  "sendInvite": {
+    "message": "Отправить приглашение"
+  },
+  "sendInvites": {
+    "message": "Отправить приглашения"
+  },
   "resendEmail": {
     "message": "Отправить email повторно"
   },
   "hasBeenReinvited": {
     "message": "$USER$ приглашен повторно",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ приглашен",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7051,6 +7641,15 @@
   "openOrgInviteAcceptUnexpected": {
     "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
   },
+  "verify": {
+    "message": "Подтвердить"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "Чтобы присоединиться к этой организации, введите код, отправленный на ваш email."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Не удалось отправить письмо с подтверждением. Пожалуйста, попробуйте еще раз."
+  },
   "openOrgInviteNoSeatsMessage": {
     "message": "Ваше приглашение не может быть принято, так как свободных мест нет."
   },
@@ -7173,10 +7772,6 @@
     "message": "Изменить план",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Обновите свой аккаунт до другого плана, предоставив информацию ниже. Пожалуйста, убедитесь, что в вашем аккаунте есть активный способ оплаты.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Счет #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7251,6 +7846,30 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Установите лимит мест для вашей подписки на Менеджер секретов. По достижении этого лимита вы не сможете приглашать новых пользователей.Менеджер секретов"
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Установите ограничение на количество пользователей для вашей подписки на привилегированный контроль. После достижения этого ограничения вы не сможете предоставлять участникам доступ к привилегированному контролю."
+  },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "maximumSeatsCount": {
+    "message": "Максимум $COUNT$ мест",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Предел мест (необязательно)",
@@ -7573,20 +8192,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Добавьте разрешенные почтовые домены (например, acme.com), чтобы ссылкой для приглашения могли воспользоваться только пользователи с соответствующими адресами email. Вы можете изменить эти настройки в любое время."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Вы находитесь в режиме предварительного просмотра тура, поэтому эти домены приведены лишь в качестве примеров."
+  },
   "adjustTheLink": {
     "message": "Настроить ссылку"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Ваши потребности меняются, и ссылка может меняться вместе с ними. <strong>Сгенерируйте заново</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Ваши потребности меняются, и ссылка может измениться с вами."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Обновите</strong> ссылку, чтобы аннулировать старую и создать новую."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Требуется подтверждение администратора</strong>, чтобы одобрить новых пользователей до того, как они смогут присоединиться к организации."
   },
   "shareTheLinkAnywhere": {
     "message": "Поделитесь ссылкой где угодно"
@@ -7616,7 +8229,7 @@
     "message": "Пригласите участников в вашу организацию с помощью ссылки. Если ни одна из ролей не указана, они будут добавлены в качестве пользователей по умолчанию."
   },
   "inviteLinkSelfHostEmailVerificationWarning": {
-    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
+    "message": "Использование ссылки для приглашения может представлять угрозу безопасности в вашей самостоятельно развернутой среде, поскольку пользователям не требуется подтверждать свои адреса email."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Продолжая, вы соглашаетесь с"
@@ -7777,13 +8390,13 @@
     "message": "Обнаружен слабый пароль. Для защиты аккаунта следует установить надежный пароль. Вы уверены, что хотите использовать слабый пароль?"
   },
   "rotateAccountEncKey": {
-    "message": "Также сменить ключ шифрования моего аккаунта"
+    "message": "Также сротировать ключ шифрования моего аккаунта"
   },
   "rotateEncKeyTitle": {
-    "message": "Сменить ключ шифрования"
+    "message": "Сротировать ключ шифрования"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Вы уверены, что хотите сменить ключ шифрования вашей учетной записи?"
+    "message": "Вы уверены, что хотите сротировать ключ шифрования вашей учетной записи?"
   },
   "attachmentsNeedFix": {
     "message": "К этому элементу прикреплены старые вложения, которые необходимо исправить."
@@ -7805,7 +8418,7 @@
     "message": "Вложение обновлено"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сротировать ключ шифрования вашего аккаунта."
   },
   "itemsTransferred": {
     "message": "Элементы переданы"
@@ -7842,7 +8455,7 @@
     "message": "Ваш ключ API может быть использован для аутентификации в публичном API Bitwarden."
   },
   "apiKeyRotateDesc": {
-    "message": "Смена ключа API аннулирует предыдущий ключ. Это необходимо, если возникли любые сомнения относительно безопасности текущего ключа."
+    "message": "Ротация ключа API аннулирует предыдущий ключ. Это необходимо, если возникли любые сомнения относительно безопасности текущего ключа."
   },
   "apiKeyWarning": {
     "message": "Ваш ключ API имеет полный доступ к организации. Это должно храниться в секрете."
@@ -7860,8 +8473,11 @@
   "viewApiKey": {
     "message": "Показать API-ключ"
   },
+  "copyApiKey": {
+    "message": "Скопировать ключ API"
+  },
   "rotateApiKey": {
-    "message": "Сменить API-ключ"
+    "message": "Сротировать API-ключ"
   },
   "selectOneCollection": {
     "message": "Необходимо выбрать хотя бы одну коллекцию."
@@ -8391,14 +9007,34 @@
     "message": "Скопировать ссылку на Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Удалить пароль или подтверждение по email"
+  },
+  "removedAuth": {
+    "message": "Пароль или подтверждение по email удалены"
+  },
+  "removeAuthConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля или подтверждения по email для этой Send?"
+  },
   "removePassword": {
     "message": "Удалить пароль"
+  },
+  "removeEmailVerification": {
+    "message": "Удалить подтверждение по email"
   },
   "removedPassword": {
     "message": "Пароль удален"
   },
-  "removePasswordConfirmation": {
-    "message": "Вы уверены, что хотите удалить пароль?"
+  "removedEmailVerification": {
+    "message": "Подтверждение по email удалено"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование подтверждения по email для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Все Send’ы"
@@ -8470,6 +9106,10 @@
   "missingSendFile": {
     "message": "Не удалось найти файл, связанный с этой Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDownloadBlocked": {
+    "message": "Этот файл не удалось загрузить, поскольку ссылка для загрузки не прошла проверку безопасности.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
   },
   "noSendsInList": {
     "message": "В списке нет Send’ов.",
@@ -8584,7 +9224,7 @@
     }
   },
   "approve": {
-    "message": "Принять"
+    "message": "Одобрить"
   },
   "reject": {
     "message": "Отклонить"
@@ -8845,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Sent invite reminder to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Resent invite to user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Система"
   },
@@ -8871,6 +9529,15 @@
   },
   "desktopAutotypePolicyDescVfo1": {
     "message": "Включить для пользователей автоматическое заполнение на компьютере."
+  },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Автозаполнение в приложении для компьютера"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Включить автозаполнение на компьютере по умолчанию для всех пользователей."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Включите автозаполнение в приложении для компьютера по умолчанию для всех пользователей. Вы можете настроить сочетание клавиш и выбрать, нужно ли пользователям подтверждать ввод перед автозаполнением. Эта функция находится на стадии бета-тестирования."
   },
   "disableSend": {
     "message": "Отключить Send"
@@ -8968,17 +9635,43 @@
     "message": "Активировать помощника по заполнению",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Включить помощник по заполнению",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Включите помощника по заполнению по умолчанию для всех участников. Эта функция использует специфичные инструкции для повышения точности на сайтах, на которых зачастую возникают сложности с автозаполнением."
+  },
+  "fillAssistRuleSource": {
+    "message": "Набор правил автозаполнения"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "По умолчанию"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Использовать набор правил автозаполнения, проверенный Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Пользовательский"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Введите свой собственный набор правил."
   },
   "fillAssistRulesUrl": {
     "message": "Пользовательские правила автозаполнения"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "По умолчанию помощник по заполнению использует набор правил, отобранных Bitwarden. Введите здесь URL, чтобы заменить его своим собственным."
+  "fillAssistRulesUrlV2": {
+    "message": "Пользовательский набор правил"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Узнать больше о пользовательских правилах"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Введите корректный URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Введите корректный URL для пользовательского набора.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -8995,6 +9688,9 @@
   },
   "estimatedTax": {
     "message": "Предполагаемый налог"
+  },
+  "prorationChargeMayDiffer": {
+    "message": "Окончательная сумма к оплате может незначительно отличаться, поскольку пропорциональный расчет производится до момента отправки заявки."
   },
   "subtotal": {
     "message": "Итого"
@@ -9064,6 +9760,12 @@
   },
   "manageAccountRecovery": {
     "message": "Управление восстановлением аккаунта"
+  },
+  "manageAccessRules": {
+    "message": "Управление правилами доступа"
+  },
+  "manageRotation": {
+    "message": "Управление ротацией"
   },
   "disableRequiredError": {
     "message": "Перед отключением этой политики необходимо вручную отключить политику $POLICYNAME$.",
@@ -9221,7 +9923,7 @@
     "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "codeResent": {
-    "message": "повторно отправьте код подтверждения",
+    "message": "Повторно отправить код подтверждения",
     "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -10436,7 +11138,7 @@
     "message": "Создать токен"
   },
   "rotateToken": {
-    "message": "Сменить токен"
+    "message": "Сротировать токен"
   },
   "rotateBillingSyncTokenWarning": {
     "message": "При продолжении, вам нужно будет заново настроить синхронизацию биллинга на вашем сервере."
@@ -10490,7 +11192,7 @@
     "message": "Чтобы создать свою организацию на собственном сервере, потребуется загрузить файл лицензии. Для поддержки тарифных планов Free Families и расширенных возможностей выставления счетов для вашей организации, размещенной на собственном сервере необходимо настроить синхронизацию биллинга."
   },
   "billingSyncApiKeyRotated": {
-    "message": "Токен сменен"
+    "message": "Токен сротирован"
   },
   "billingSyncKeyDesc": {
     "message": "Для заполнения этой формы необходим токен синхронизации биллинга из настроек подписки вашей организации."
@@ -10953,6 +11655,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Этот URL не допускается. Он должен использовать протокол https и не может указывать на адрес в локальной или частной сети.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Введите корректный URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Обнаружен небезопасный URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Этот URL может быть небезопасным или вести в частную сеть. Его использование может привести к раскрытию конфиденциальных данных. Продолжайте только в том случае, если вы доверяете этому серверу.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Доверять URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Этот URL помечен как доверенный. Вы можете изменить его в любое время.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Произошла неизвестная ошибка $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11053,15 +11779,15 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
-    "message": "Сменить API-ключ SCIM",
+    "message": "Сротировать API-ключ SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Вы уверены, что хотите сменить API-ключ SCIM? Текущий ключ перестанет работать для любых существующих интеграций.",
+    "message": "Вы уверены, что хотите сротировать API-ключ SCIM? Текущий ключ перестанет работать для любых существующих интеграций.",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
-    "message": "Сменить ключ"
+    "message": "Сротировать ключ"
   },
   "scimApiKey": {
     "message": "API-ключ SCIM",
@@ -11076,7 +11802,7 @@
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "API-ключ SCIM сменен успешно",
+    "message": "API-ключ SCIM сротирован успешно",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
@@ -11455,10 +12181,6 @@
   "serviceAccount": {
     "message": "Сервисный аккаунт",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
-  },
-  "serviceAccounts": {
-    "message": "Сервисные аккаунты",
-    "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
     "message": "Секреты",
@@ -11864,6 +12586,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Добавьте общую папку, чтобы безопасно делиться элементами хранилища с другими участниками."
   },
+  "pinned": {
+    "message": "Закрепленные",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закрепить в боковой панели",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Открепить от боковой панели",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ закреплен в боковой панели",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ откреплен из боковой панели",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Найдите общую папку в этом хранилище и выберите",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "из меню параметров.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закрепите общие папки на боковой панели, чтобы отфильтровать их здесь."
+  },
   "noMembersAdded": {
     "message": "Нет добавленных участников"
   },
@@ -11875,9 +12640,6 @@
   },
   "domainVerification": {
     "message": "Верификация домена"
-  },
-  "newDomain": {
-    "message": "Новый домен"
   },
   "addDomain": {
     "message": "Добавить домен"
@@ -12248,9 +13010,6 @@
   "groupSlashUser": {
     "message": "Группа/Пользователь"
   },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "При продолжении все активные сессии будут завершены. Вам потребуется авторизоваться повторно и выполнить двухэтапную аутентификацию, если она включена. Мы рекомендуем экспортировать хранилище перед изменением настроек шифрования, чтобы предотвратить потерю данных."
-  },
   "secretsManager": {
     "message": "Менеджер секретов"
   },
@@ -12263,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Этот пользователь может получить доступ к менеджеру секретов"
   },
+  "products": {
+    "message": "Продукты"
+  },
   "privilegedControls": {
     "message": "Привилегированное управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Advanced access rules"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated password rotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be greater than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -12884,7 +13726,7 @@
     "message": "Время"
   },
   "denyAllRequests": {
-    "message": "Deny all requests"
+    "message": "Отклонить все запросы"
   },
   "denyRequest": {
     "message": "Отклонить запрос"
@@ -13018,23 +13860,8 @@
   "inviteUsers": {
     "message": "Пригласить пользователей"
   },
-  "secretsManagerForPlan": {
-    "message": "Менеджер секретов для $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "Командам инженеров и DevOps для управления секретами на протяжении всего жизненного цикла разработки ПО."
-  },
-  "free2PersonOrganization": {
-    "message": "Бесплатные организации из 2 человек"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Бесплатный план с общим хранилищем"
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "unlimitedSecrets": {
     "message": "Неограниченные секреты"
@@ -13069,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Подписаться на Менеджер секретов"
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Добавить Менеджер секретов к этому тарифному плану, чтобы сохранить доступ к секретам, созданным ранее."
@@ -13151,6 +13979,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Стоимость плана Менеджер секретов"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Стоимость плана привилегированного управления",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Менеджер паролей"
@@ -13644,9 +14476,6 @@
     "message": "Опишите причину отмены",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Бесплатно на 1 год"
-  },
   "newWebApp": {
     "message": "Добро пожаловать в новое и улучшенное веб-приложение. Узнайте больше о том, что изменилось."
   },
@@ -13867,10 +14696,6 @@
     "message": "Аккаунты компьютеров",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Новый аккаунт компьютера",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Добавить аккаунт компьютера",
     "description": "Title for creating a new machine account."
@@ -13968,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "Это действие лишит вас доступа к аккаунту компьютера."
-  },
-  "machineAccountsIncluded": {
-    "message": "Включено аккаунтов компьютеров: $COUNT$",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "В месяц за дополнительные аккаунты компьютеров: $COST$",
@@ -14340,6 +15156,9 @@
   "organizationOptionsMenu": {
     "message": "Переключить меню организации"
   },
+  "vaultOptions": {
+    "message": "Настройки хранилища"
+  },
   "vaultItemSelect": {
     "message": "Выбрать элемент хранилища"
   },
@@ -14450,15 +15269,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "Скидка $AMOUNT$",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Получить Менеджер секретов"
   },
@@ -14500,6 +15310,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "При подготовке счета произошла ошибка. Пожалуйста, повторите попытку позже."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Пожалуйста, проверьте свои платежные данные и попробуйте еще раз."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Данное обновление включает пробный период продолжительностью $DAYS$ дней. Указанная выше общая сумма будет списана с вас по окончании пробного периода.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "У вас остался 1 день пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "У вас осталось $DAYS$ дн. пробного периода. Сумма, указанная выше, будет списана с вашего счета $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Неверифицирован"
@@ -14643,9 +15487,6 @@
   "contactBitwardenSupport": {
     "message": "обращайтесь в службу поддержки Bitwarden.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
-  },
-  "sponsored": {
-    "message": "Спонсировано"
   },
   "licenseAndBillingManagementDesc": {
     "message": "После обновления на сервере Bitwarden загрузите файл лицензии для применения последних изменений."
@@ -14857,9 +15698,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Доступ к премиум-возможностям"
-  },
-  "additionalStorageGbMessage": {
-    "message": "Дополнительное место в хранилище"
   },
   "sshKeyAlgorithm": {
     "message": "Алгоритм ключа"
@@ -15515,6 +16353,9 @@
   "restartSubscription": {
     "message": "Перезапустить подписку"
   },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Нам не удалось загрузить ваши платежные данные. Закройте это диалоговое окно и повторите попытку."
+  },
   "suspendedManagedOrgMessage": {
     "message": "Обратитесь за помощью к $PROVIDER$.",
     "placeholders": {
@@ -15600,20 +16441,11 @@
   "atRiskPassword": {
     "message": "Пароль, подверженный риску"
   },
-  "changeAtRiskPassword": {
-    "message": "Изменить пароль, подверженный риску"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Этот логин подвержен риску и у него отсутствует веб-сайт. Добавьте веб-сайт и смените пароль для большей безопасности."
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
   "changeNow": {
     "message": "Изменить сейчас"
-  },
-  "missingWebsite": {
-    "message": "Отсутствует сайт"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
@@ -16262,9 +17094,6 @@
   "familiesUpdated": {
     "message": "Вы обновились до Families!"
   },
-  "taxCalculationError": {
-    "message": "Произошла ошибка при расчете налога для вашего местоположения. Повторите попытку."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Добро пожаловать в Bitwarden"
   },
@@ -16286,7 +17115,7 @@
   "upgradeNow": {
     "message": "Изменить сейчас"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
     "message": "Обеспечьте себе расширенную онлайн-безопасность с помощью Bitwarden Премиум."
   },
   "formWillCreateNewFamiliesOrgMessage": {
@@ -16452,7 +17281,7 @@
     "message": "Некоторые папки вашего хранилища восстановить не удалось. Вы хотите удалить папки, которые невозможно восстановить из вашего хранилища?"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Сменить ключ шифрования"
+    "message": "Сротировать ключ шифрования"
   },
   "recoveryReplacePrivateKeyDesc": {
     "message": "Не удалось восстановить вашу пару ключей шифрования с публичным ключом. Вы хотите заменить свой ключ шифрования на новую пару ключей? Для этого вам потребуется заново настроить существующий экстренный доступ и членство в организации."
@@ -16820,8 +17649,8 @@
   "premiumSubscriptionCredit": {
     "message": "Кредит на Премиум"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Примененные кредиты на подписку"
+  "appliedProrationCredits": {
+    "message": "Кредит, рассчитанный по методу пропорционального распределения"
   },
   "enterpriseMembership": {
     "message": "Членство в организации"
@@ -16966,7 +17795,7 @@
     "message": "Быстрый импорт паролей"
   },
   "coachmarkImportDescription": {
-    "message": "У вас был менеджер паролей раньше? Вы можете импортировать CSV-файл с существующими логинами и другими данными в свое хранилище."
+    "message": "У вас уже был менеджер паролей? Вы можете импортировать файл CSV с существующими логинами и другими данными в свое хранилище."
   },
   "coachmarkAddItemTitle": {
     "message": "Добавить элемент"
@@ -16985,6 +17814,30 @@
   },
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
+  },
+  "whatsNew": {
+    "message": "Что нового"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Благодаря обновленной навигации и дизайну найти то, что вам нужно, стало проще, чем когда-либо."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Переключение между продуктами"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Нажмите, чтобы посмотреть другие продукты Bitwarden, к которым у вас есть доступ, или ознакомиться с новыми продуктами и тарифными планами."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Все ваши хранилища в одном месте"
+  },
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Быстро просматривайте личные элементы или элементы в хранилище, которым вы делитесь с другими."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Коллекции и папки получили новые названия"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Те же функции, но с более понятными названиями. Коллекции теперь называются Общими папками». Папки теперь называются Моими папками."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Отслеживать безопасность"
@@ -17016,6 +17869,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Регулярно обновляйте отчеты и аналитическую информацию, чтобы выявлять новые риски и просматривать последние показатели по мере роста вашей организации."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинировать и сочетать фильтры"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Выберите сразу несколько фильтров, чтобы сузить поиск именно до тех результатов, которые вам нужны. Они останутся активными, даже если вы перейдете на другую страницу."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ из $TOTAL$",
     "placeholders": {
@@ -17041,6 +17900,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "Не удалось импортировать $COUNT$ элементов или хранилищ 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Произошла ошибка. Проверьте свои учетные данные и попробуйте еще раз."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Поддерживается только вход с использованием пароля."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Поддерживается только вход с использованием пароля. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Введите действительный адрес email или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordImportError": {
+    "message": "Произошла ошибка. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "emailIsRequired": {
+    "message": "Необходимо указать email."
+  },
+  "enterValidEmailAddress": {
+    "message": "Введите действительный адрес email."
+  },
+  "signInAddressIsRequired": {
+    "message": "Введите адрес входа."
+  },
+  "enterValidSignInAddress": {
+    "message": "Введите действительный адрес входа."
+  },
+  "secretKeyIsRequired": {
+    "message": "Требуется секретный ключ."
+  },
+  "enterValidSecretKey": {
+    "message": "Введите действительный секретный ключ."
+  },
+  "passwordIsRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "enterValidVerificationCode": {
+    "message": "Введите правильный код подтверждения."
+  },
+  "signInAddress": {
+    "message": "Адрес входа"
+  },
+  "onePasswordEmail": {
+    "message": "Email 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Введите адрес email, который вы используете для авторизации в 1Password"
+  },
+  "secretKey": {
+    "message": "Секретный ключ"
+  },
+  "secretKeyAndPassword": {
+    "message": "Секретный ключ и пароль"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
   },
   "keeperEmail": {
     "message": "Адрес email Keeper"
@@ -17243,6 +18168,63 @@
   "importingYourAccount": {
     "message": "Импорт вашего аккаунта..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Сервер"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Необходимо указать email."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Введите действительный адрес email."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Неподдерживаемый метод двухфакторной аутентификации. Смените метод или импортируйте данные вручную."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Метод подтверждения устройства"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Введите правильный код подтверждения."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Повторно отправить код подтверждения"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Отправлено push-уведомление Keeper на авторизованное устройство."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Подтвердите это устройство, выбрав один из способов ниже."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Пожалуйста, проверьте свою почту и введите код подтверждения ниже."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Введите код из приложения-аутентификатора."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Введите код, присланный в SMS."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Пожалуйста, введите мастер-пароль Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Отправлен Keeper DNA"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Подтвердите уведомление Keeper DNA на своем устройстве."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Ваш запрос на утверждение будет отменен. Вы действительно хотите продолжить?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Мы отправили запрос на одобрение администратора вашему администратору."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Введите правильный пароль."
+  },
   "passcode": {
     "message": "Код доступа"
   },
@@ -17415,10 +18397,10 @@
     "message": "Пропустить ссылку"
   },
   "rotateAccountEncryptionKey": {
-    "message": "Сменить ключ шифрования аккаунта"
+    "message": "Сротировать ключ шифрования аккаунта"
   },
   "rotateAccountEncryptionKeyDescription": {
-    "message": "При смене ключа шифрования вашего аккаунта генерируется новый ключ, который используется для повторного шифрования всех данных хранилища. Вам следует рассмотреть возможность смены ключа шифрования, если ваш аккаунт был взломан."
+    "message": "При смене ключа шифрования вашего аккаунта генерируется новый ключ, который используется для повторного шифрования всех данных хранилища. Вам следует рассмотреть возможность ротации ключа шифрования, если ваш аккаунт был взломан."
   },
   "rotateAccountEncryptionDialogDescription": {
     "message": "Сгенерируйте новый ключ и повторно зашифруйте все данные хранилища. Это рекомендуется сделать, если вы подозреваете, что ваш аккаунт мог быть взломан."
@@ -17427,7 +18409,7 @@
     "message": "Вам будет предложено пройти повторную аутентификацию. Чтобы избежать повреждения данных, не закрывайте браузер до завершения процесса."
   },
   "accountEncryptionKeyRotated": {
-    "message": "Изменен ключ шифрования аккаунте"
+    "message": "Сротирован ключ шифрования аккаунте"
   },
   "callout": {
     "message": "Инфопанель",
@@ -17494,32 +18476,1094 @@
   "copy": {
     "message": "Скопировать"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "Запросы доступа"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Одобряйте, контролируйте и проверяйте доступ с ограничением по времени к вашим учетным данным."
+  },
+  "pamTabApprovals": {
+    "message": "Утверждения"
+  },
+  "pamTabMyRequests": {
+    "message": "Мои запросы"
+  },
+  "pamTabHistory": {
+    "message": "История"
+  },
+  "pamMyRequestsLoaded": {
+    "message": "Запросы загружены"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Не удалось загрузить ваши запросы"
+  },
+  "pamStatusInUse": {
+    "message": "Используется",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
+  },
+  "pamStatusEndingSoon": {
+    "message": "Скоро закончится",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Нет общих папок для фильтрации по",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "У вас нет запросов"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "В настоящее время у вас нет запросов на доступ к конфиденциальным учетным данным."
+  },
+  "pamColumnItem": {
+    "message": "Элемент"
+  },
+  "pamColumnWindow": {
+    "message": "Окно"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Запрошенное окно"
+  },
+  "pamColumnSubmitted": {
+    "message": "Направлено"
+  },
+  "pamColumnStatus": {
+    "message": "Статус"
+  },
+  "pamColumnResolvedBy": {
+    "message": "Решено"
+  },
+  "pamColumnResolved": {
+    "message": "Решено"
+  },
+  "pamColumnRemaining": {
+    "message": "Осталось"
+  },
+  "pamColumnActions": {
+    "message": "Действия"
+  },
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ до $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "До $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Истекает $DATE$ в $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Истекает сегодня в $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Продлено на +$DURATION$ · до $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Активировать в течение $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Правило доступа"
+  },
+  "pamResolverRequester": {
+    "message": "Инициатор запроса"
+  },
+  "pamResolverUnknown": {
+    "message": "Неизвестный пользователь"
+  },
+  "pamInboxInSharedFolder": {
+    "message": "в $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReasonMissing": {
+    "message": "Причина не указана"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Доступ запрошен"
+  },
+  "pamInboxRequester": {
+    "message": "Инициатор запроса"
+  },
+  "pamStartLeaseButton": {
+    "message": "Начать доступ"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Доступ начат."
+  },
+  "pamInboxStartAsap": {
+    "message": "начинается сейчас"
+  },
+  "pamInboxStartToday": {
+    "message": "сегодня"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "завтра"
+  },
+  "pamInboxStartInDays": {
+    "message": "через $DAYS$ дн.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Не удалось запустить доступ."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "Запрос отменен"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Не удалось отменить запрос"
+  },
+  "pamEndLeaseButton": {
+    "message": "Завершить доступ"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Завершить доступ?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Это действие немедленно аннулирует ваш доступ. Это действие не может быть отменено."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Доступ прекращен."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Продлить доступ"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Продлить доступ"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Продолжительность продления"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Доступ расширен."
+  },
+  "pamExtendLeaseError": {
+    "message": "Не удалось расширить доступ."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Ваш доступ истек до того, как его удалось продлить. Запрос сохранен в вашей истории."
+  },
+  "pamStatusApproved": {
+    "message": "Одобрен"
+  },
+  "pamStatusActivated": {
+    "message": "Активен"
+  },
+  "pamStatusDenied": {
+    "message": "Отклонен"
+  },
+  "pamStatusCanceled": {
+    "message": "Отменен"
+  },
+  "pamStatusExpired": {
+    "message": "Истек"
+  },
+  "pamStatusRevoked": {
+    "message": "Отозван"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Сессия завершена"
+  },
+  "pamStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Привилегированное управление: для доступа требуется запрос"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Привилегированный"
+  },
+  "pamAccessBadgePending": {
+    "message": "Ожидает подтверждения"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недоступен"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готов к использованию"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Скоро закончится •Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Сессия завершена"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Активна",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Скоро закончится",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Доступ закрыт инициатором"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Доступ отозван"
+  },
+  "pamAuditLoadError": {
+    "message": "Не удалось загрузить журнал аудита"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "Нет записей аудита"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Здесь будут отображаться действия, связанные с привилегированным доступом в данной организации."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "Нет подходящих событий"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "Нет событий, соответствующих текущим фильтрам."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Выберите дату из последних $DAYS$ дней.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "С $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "До $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Событие"
+  },
+  "pamAuditColumnActor": {
+    "message": "Пользователь"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Инициатор запроса"
+  },
+  "pamAuditColumnItem": {
+    "message": "Элемент"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Продолжительность"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Подробности"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Расширен до $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "Система"
+  },
+  "pamAuditIncomplete": {
+    "message": "Незавершено"
+  },
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "Это действие было зафиксировано, но его результат так и не был подтвержден. Возможно, оно завершилось неудачей или было прервано."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Доступ запрошен"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Запрос одобрен"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Запрос отклонен"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Запрос отменен"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Срок рассмотрения запроса истек без принятия решения"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Срок действия разрешения истек, оно не было использовано"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Доступ активирован"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Активация отклонена"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Доступ расширен"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Доступ истек"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Получен доступ к учетным данным"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Доступ к учетным данным отказан"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Правило доступа создано"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Правило доступа обновлено"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Правило доступа удалено"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Сработал аварийный выключатель"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Включена блокировка доступа"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Снята блокировка доступа"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Неизвестное событие"
+  },
+  "pamAuditLog": {
+    "message": "Журнал аудита"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Запрос доступа"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Детали запроса"
+  },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Подробности",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Доступ"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Журнал решений"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Решение",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Одобрен",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Отклонен",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Отозван",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Завершен",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Email",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Комментарий к решению",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Начать сессию",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Завершить сессию",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Система (автоматически)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Отправить новый запрос",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Причина",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Отображается инициатору в журнале принятия решений.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Будьте кратки. Запрашивающий читает это непосредственно.",
+    "description": "Hint under the withdrawal reason field."
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Запрос на доступ недоступен"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Не удалось обработать этот запрос на доступ."
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Активный доступ • Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Скоро закончится •Осталось $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Запрос на доступ ожидает утверждения"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Отправлено только сейчас"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Отправлено $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привилегированные учетные данные"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Необходима лицензия на привилегированное управление",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Запрос на использование"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Ваш доступ завершен"
+  },
+  "pamEndedBannerBody": {
+    "message": "Срок действия этих учетных данных истек. Эти учетные данные будут ротированы после окончания вашего доступа."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Вы не можете запросить доступ прямо сейчас"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правило доступа к этим учетным данным не разрешает запросы из вашей текущей сети или в данный момент."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готов к использованию"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Вы можете получить доступ к этим учетным данным до $TIME$ сегодня.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Вы можете получить доступ к этим учетным данным до $TIME$ $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Учетные данные остаются замаскированными до тех пор, пока не будет предоставлен доступ."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Вы можете запросить доступ"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Вам нужна лицензия привилегированного управления для использования этого элемента",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Запрос на доступ недоступен, пока у вас нет лицензии.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Попросите администратора активировать лицензию.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобренный доступ пока не начался."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобренный доступ уже истек."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Этот запрос пока не одобрен."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Этот запрос больше не может быть активирован."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Доступ по этому запросу уже был использован и больше не действует."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Одновременно активный доступ к этому элементу может иметь только 1 пользователь. Повторите попытку после завершения текущего доступа."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Доступ к данному элементу из вашей текущей сети запрещен."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "В настоящее время доступ к данному элементу запрещен."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "В данный момент доступ к этому элементу запрещен."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Требуется лицензия привилегированного управления. Попросите администратора активировать вашу лицензию.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Доступ до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Доступ до $DURATION$, мгновенное утверждение, если вы соответствуете условиям",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Запросить доступ"
+  },
+  "pamRequestSlotTaken": {
+    "message": "В данный момент к этому элементу доступ имеет другой пользователь. Вы можете запросить доступ, но не сможете приступить к работе, пока он не закончит."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "В данный момент к этому элементу доступ имеет другой пользователь. Вы можете запросить доступ, но приступить к работе с ним сможете только в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Отменить запрос"
+  },
+  "pamKeepRequest": {
+    "message": "Сохранить запрос"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Отменить запрос на доступ"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Это приведет к отзыву вашего запроса до того, как утверждающее лицо примет по нему решение. Вы сможете подать новый запрос в любое время."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Это приведет к отзыву уже предоставленного доступа. Вы можете подать новый запрос, но его снова нужно будет утвердить."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Запрос отменен"
+  },
+  "pendingStateCancelError": {
+    "message": "Не удалось отменить запрос."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Отправить запрос"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Выберите продолжительность. Вы получите мгновенный доступ на весь этот период."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Выберите окно и объясните утверждающему лицу, зачем вам нужен доступ. Он рассмотрит вашу заявку и примет решение."
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Как долго вам это необходимо?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "После одобрения вы получите уведомление. Счет времени начнется только после того, как вы начнете использовать эти учетные данные."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Детали запроса"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Дата начала"
+  },
+  "requestAccessModalStart": {
+    "message": "Время начала"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Дата окончания"
+  },
+  "requestAccessModalEnd": {
+    "message": "Время окончания"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Окончание должно быть после начала."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (сейчас)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Собственное время…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Индивидуальные дата и время окончания…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показать рекомендуемое время начала"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Вернуться к предлагаемой продолжительности"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$ до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Запрос на доступ на срок $DURATION$: с $START$ по $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Запрошенное время уже истекло. Выберите более поздние дату или время."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Время не может превышать $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Зачем вам это нужно?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Зачем вам это нужно?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "например, при ежеквартальном аудите необходимо выполнить несколько запросов только для чтения"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Виден вашему утверждающему и сохраняется в журнале аудита."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Виден вашему утверждающему и сохраняется в журнале аудита."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Не удалось запросить доступ. Попробуйте еще раз."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "У вас уже есть активный доступ к этому элементу."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Доступ разрешен. Нажмите Начать доступ, чтобы приступить."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Доступ запрошен"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Инициатор запроса"
+  },
+  "pamApprovalsApproveRequest": {
+    "message": "Одобрить запрос"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Отклонить запрос"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Отозвать доступ"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Дополнительная информация"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Необязательно, сохранено в журнал аудита"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Одобрить запрос на доступ"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Отклонить запрос на доступ"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Причина отклонения"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "например, доступ больше не требуется"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "Для отклонения данного запроса необходимо указать причину."
+  },
+  "pamInboxApprove": {
+    "message": "Одобрить"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Запрос одобрен"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Отменить одобрение"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "Вы не можете одобрить свой собственный запрос."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Комментарий"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Добавить необязательный комментарий"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Не удалось зафиксировать решение"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "Этот запрос больше не рассматривается. Он был отозван или по нему уже принято решение."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "Срок рассмотрения данного запроса истек и решение по нему больше не может быть принято."
+  },
+  "pamInboxDeny": {
+    "message": "Отклонить"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Запрос отклонен"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "У вас уже есть одобренный запрос на этот элемент."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "У вас уже есть ожидающий запрос на этот элемент."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$ дн. назад",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$ нед. назад",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "В настоящее время нет запросов, ожидающих вашего решения."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Все обработано"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Не удалось загрузить входящие"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Причина запроса"
+  },
+  "pamInboxRevoke": {
+    "message": "Отозвать"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Не удалось отозвать доступ"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Доступ отозван"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Одобрение отозвано"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Не удалось отозвать одобрение"
+  },
+  "pamAccessRequestsNoResults": {
+    "message": "Ни один запрос на доступ не соответствует вашим фильтрам."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Запросы доступа загружены"
+  },
+  "pamHistoryLoaded": {
+    "message": "История запросов загружена"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Пока нечего показать"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "После выполнения соответствующих действий здесь будет отображаться информация о запросах и утверждениях."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "Это немедленно приведет к отзыву доступа участника. Для его восстановления потребуется новое одобрение."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "Данное действие аннулирует ваше одобрение на $ITEM$. Доступ не будет предоставлен, и $REQUESTER$ потребуется новое одобрение для его получения.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Это отменит ваше одобрение на",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Доступ не будет предоставлен и",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "потребуется новое одобрение для его получения.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Причина"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Отображается инициатору в журнале принятия решений."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Будьте кратки. Запрашивающий читает это непосредственно."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Правило доступа"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Доступ к элементам управляется с использованием"
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ час. назад",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Только что"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ мин. назад",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Правила доступа"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Включено"
+  "pamSharedFolderRequiresRequest": {
+    "message": "Для доступа к элементам этой общей папки необходимо направить запрос.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
   },
-  "pamAccessRuleEnabledHint": {
-    "message": "Если правило отключено, оно неактивно и не ограничивает доступ."
+  "pamGatedCollectionBannerName": {
+    "message": "Привилегированный доступ",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
-  "pamAccessRuleEnable": {
-    "message": "Включить правило"
+  "pamNoAccessRule": {
+    "message": "Нет правила доступа",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
-  "pamAccessRuleDisable": {
-    "message": "Отключить правило"
+  "pamAccessRuleActive": {
+    "message": "Активен"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Правило доступа включено."
+  "pamAccessRuleInactive": {
+    "message": "Неактивно"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Правило доступа отключено."
+  "pamAccessRuleActiveHint": {
+    "message": "В неактивном состоянии правило не ограничивает доступ."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Активировать правило"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Деактивировать правило"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Правило доступа активировано."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Правило доступа деактивировано."
   },
   "pamAccessRuleNotFound": {
     "message": "Правило доступа не найдено."
@@ -17527,8 +19571,8 @@
   "pamAccessRulesSubheading": {
     "message": "Установите правила, определяющие, кто может запрашивать доступ к конфиденциальным учетным данным, при каких условиях и на какой срок."
   },
-  "pamAccessRuleNew": {
-    "message": "Новое правило"
+  "pamAccessRuleCreate": {
+    "message": "Создать правило доступа"
   },
   "pamAccessRuleCreateTitle": {
     "message": "Новое правило доступа"
@@ -17545,20 +19589,29 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Общая информация"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Статус"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Продолжительность доступа"
   },
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Дополнительные условия"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Выбрать коллекции"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Выберите общие папки"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Это правило доступа будет применяться ко всем выбранным коллекциям."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Это правило доступа будет применяться ко всем общим папкам."
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Не удалось загрузить коллекции. Обновите страницу, чтобы повторить попытку."
+  "pamAccessRuleEventLogNotice": {
+    "message": "Все запросы и решения фиксируются в журнале."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Просмотр журнала аудита"
+  },
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Не удалось загрузить общие папки. Обновите страницу, чтобы повторить попытку."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Этот срок будет введен автоматически в запросах на доступ."
@@ -17566,53 +19619,29 @@
   "pamAccessRuleDescription": {
     "message": "Описание"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Продолжительность доступа по умолчанию"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Продолжительность по умолчанию"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Максимальная продолжительность доступа"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Максимальная продолжительность"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Без лимита"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Продолжительность любой отдельной аренды ограничивается максимум этим сроком, независимо от того, что запрашивает заявитель."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Доступ ограничен этим сроком, независимо от того, какая продолжительность будет запрошена."
   },
-  "pamAccessRuleDuration15m": {
-    "message": "15 минут"
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Одновременно активный доступ может иметь только 1 пользователь"
   },
-  "pamAccessRuleDuration30m": {
-    "message": "30 минут"
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Другие пользователи, имеющие соответствующее разрешение, могут попытаться получить доступ после того, как текущий доступ истечет или будет отозван."
   },
-  "pamAccessRuleDuration1h": {
-    "message": "1 час"
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Разрешить продления доступа"
   },
-  "pamAccessRuleDuration2h": {
-    "message": "2 часа"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 часа"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 часов"
-  },
-  "pamAccessRuleDuration24h": {
-    "message": "24 часа"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 дней"
-  },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Одновременно только один пользователь может иметь активную аренду"
-  },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "Новые запросы помещаются в очередь до тех пор, пока текущий срок аренды не истечет или не будет аннулирован."
-  },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Разрешить продление срока аренды"
-  },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "Пользователи могут продлить действующую аренду один раз без получения нового разрешения, но не более чем на максимальный срок, указанный ниже."
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Участники смогут один раз продлить действующий доступ без повторного одобрения, но не более чем на максимальный срок, указанный ниже."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Максимальная продолжительность продления"
@@ -17629,20 +19658,11 @@
   "pamAccessRuleApprovers": {
     "message": "Утверждающие"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Менеджеры коллекции"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Общие менеджеры папок"
   },
-  "pamAccessRuleCreated": {
-    "message": "Правило доступа создано."
-  },
-  "pamAccessRuleUpdated": {
-    "message": "Правило доступа обновлено."
-  },
-  "pamAccessRuleDeleteConfirmTitle": {
-    "message": "Удалить правило доступа?"
-  },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Удалить \"$NAME$\"? Для любых коллекций, использующих это правило, аренда будет отключена.",
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (скопировать)",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -17650,11 +19670,82 @@
       }
     }
   },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (скопировать $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Копия создана. Выберите общие папки, к которым она относится."
+  },
+  "pamAccessRuleCreated": {
+    "message": "Правило доступа создано."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Правило доступа обновлено."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Правило доступа удалено."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Удалить правило доступа?"
+  },
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Это приведет к окончательному удалению данного правила. Пользователи, входящие в общих папках, на которые распространяется действие этого правила, вновь получат обычный доступ."
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Деактивировать правило доступа"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Это правило перестанет применяться к новым запросам на доступ."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Произошла ошибка. Ваше правило не было сохранено, но ваша информация осталась."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Введите название."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Это название уже используется в другом правиле. Введите другое."
+  },
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Одна из этих общих папок уже охватывается другим правилом доступа. Выберите другие общие папки."
+  },
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "$COLLECTIONS$ уже охватывается другим правилом доступа. Выберите другие общие папки.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "Одна из выбранных вами общих папок больше не существует. Выберите другую общую папку."
+  },
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "Одна из выбранных вами общих папок не входит в эту организацию. Выберите другую общую папку."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Выберите максимальную продолжительность продления или отключите продления."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Это правило больше не существует. Возможно, его удалил другой администратор."
+  },
   "pamNoAccessRulesYetTitle": {
     "message": "Пока нет правил доступа"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Создайте правило, чтобы добавить дополнительную защиту конфиденциальным коллекциям."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Создайте правило, чтобы добавить дополнительную защиту конфиденциальным общим папкам."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Создать пользовательское правило"
@@ -17668,8 +19759,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Самое время"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Автоматически одобрено • Срок действия истекает через 1 час • Зарегистрировано в журнале аудита"
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Автоматически одобрено"
   },
   "pamTemplateJustInTimeName": {
     "message": "Доступ по мере необходимости"
@@ -17677,8 +19768,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Требуется одобрение"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Одобрение человеком • Требуется 1 утверждающий • Занесено в журнал аудита"
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Одобрение человеком • Требуется 1 утверждающий"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Требуется одобрение"
@@ -17686,17 +19777,29 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "Ограничено по IP-адресу"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Автоматическое одобрение • Список разрешенных IP-адресов • Занесено в журнал аудита"
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Автоматически одобрено • Список разрешенных IP"
   },
   "pamTemplateIpRestrictedName": {
     "message": "Доступ с ограничением по IP-адресу"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Коллекции"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Общие папки"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Неназначенные"
+  },
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 общая папка"
+  },
+  "pamAccessRuleSharedFolderCount": {
+    "message": "Общие папки: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "pamSearchRules": {
     "message": "Поиск правил"
@@ -17704,11 +19807,11 @@
   "pamAccessRuleAppliesTo": {
     "message": "Применяется к"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Условия"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Метод подтверждения"
   },
-  "pamAccessWindow": {
-    "message": "Окно доступа"
+  "pamAccessRuleDurationColumn": {
+    "message": "Максимальная продолжительность"
   },
   "pamAccessRuleLastModified": {
     "message": "Последнее изменение"
@@ -17725,11 +19828,11 @@
   "pamAccessRulesNoResults": {
     "message": "Ни одно правило доступа не соответствует вашим фильтрам."
   },
-  "pamAccessRuleBulkEnable": {
-    "message": "Включить"
+  "pamAccessRuleBulkActivate": {
+    "message": "Активировать"
   },
-  "pamAccessRuleBulkDisable": {
-    "message": "Выключить"
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Деактивировать"
   },
   "pamAccessRulesUpdated": {
     "message": "Правила доступа обновлены."
@@ -17742,6 +19845,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ правил доступа будут окончательно удалены. Это действие нельзя отменить.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Деактивировать правила доступа"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ правил перестанут применяться к новым запросам на доступ.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17837,8 +19952,11 @@
   "inviteLinkCalloutBody": {
     "message": "Любой, у кого есть корпоративный адрес email, может воспользоваться ссылкой с приглашением, чтобы присоединиться к вашей организации. Добавьте эту ссылку в материалы для адаптации новых сотрудников, чтобы они могли присоединиться, когда будут готовы."
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "В туре используются данные примеров. Ничего в вашей организации не изменится."
+  },
   "inviteLinkCalloutImageAlt": {
-    "message": "Invite members dialog preview showing the new by-link tab"
+    "message": "Предварительный просмотр диалогового окна приглашения участников с новой вкладкой по ссылке"
   },
   "showMeHow": {
     "message": "Покажите мне, как"
@@ -17975,7 +20093,1785 @@
   "secretsManagerProratedCharge": {
     "message": "Пропорциональная оплата за менеджер секретов"
   },
+  "privilegedControlsProratedCharge": {
+    "message": "Пропорциональная плата за привилегированное управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "serviceAccountsProratedCharge": {
     "message": "Пропорциональная оплата за сервисные аккаунты"
+  },
+  "viewSharedItem": {
+    "message": "Просмотр общего элемента"
+  },
+  "copyShareLink": {
+    "message": "Скопировать ссылку для обмена"
+  },
+  "unableToDetermineItemId": {
+    "message": "Не удалось определить ID элемента"
+  },
+  "newExperienceDialogTitle": {
+    "message": "У Bitwarden новый облик",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Улучшенный интерфейс, та же надежная защита. Хранилище Bitwarden было переработано с учетом ваших отзывов, поэтому теперь в нем стало проще находить нужные элементы и все работает так, как вы ожидаете.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Познакомиться с обновленным хранилищем Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Исследуйте новое хранилище",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Настроить вид"
+  },
+  "showColumns": {
+    "message": "Показать столбцы"
+  },
+  "resetToDefault": {
+    "message": "Сбросить по умолчанию"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автозаполнение логинов в браузере",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включить запрос мастер-пароля?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Использовать метод обнаружения совпадений по умолчанию?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
+  },
+  "pamRotation": {
+    "message": "Ротация"
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Управляемые учетные данные"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Целевые системы"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "Коннекторы доступа"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Загружены управляемые учетные данные"
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "Коннекторы доступа загружены"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Целевые системы загружены"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Страница загружена"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Добавить управляемые учетные данные"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Изменить управляемые учетные данные"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Добавить целевую систему"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Изменить целевую систему"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Расписание ротации"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Нет"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Ежечасно"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Каждые 6 часов"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Ежедневно"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Еженедельно"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Ежемесячный"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Своя"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Пользовательский regexp cron"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Введите regexp cron Quartz, состоящее из 6 полей (например, 0 0 */4 * * ?). Сервер требует минимального 15-минутного интервала."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Введите допустимый regexp cron для Quartz (6 или 7 полей, разделенных пробелами)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Плановая ротация отсутствует. Данные учетные данные подлежат ротации только при запуске процесса ротации или по истечении срока доступа, если эта опция включена."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Ротация ежечасно, ровно в час."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Ротация каждые 6 часов, ровно в час."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Ротация ежедневно, в полночь."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Ротация еженедельно, в полночь в воскресенье."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Ротация ежемесячно, в полночь на первое число месяца."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Ротация ежедневно, в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Ротация каждые $COUNT$ дня(ей), в $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Ротация ежемесячно, в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Ротация каждый $COUNT$ месяц, в $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Пользовательскийграфик Quartz: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Каждый день в $TIME$ по UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Каждые $COUNT$ дней в $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Каждый месяц в $TIME$ по UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Каждые $COUNT$ месяцев в $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Расписания указаны в формате UTC, а не в вашем местном часовом поясе."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Интервал"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Повторять каждые"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Единица измерения"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Дни"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Месяцы"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Время дня (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Интервалы привязаны к календарю. Дневные интервалы возобновляются 1-го числа каждого месяца, а месячные интервалы начинаются 1-го числа и возобновляются в январе."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Укажите, с какой периодичностью повторяется ротация, и время суток."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Введите целое число."
+  },
+  "pamTargetSystemNew": {
+    "message": "Новая целевая система"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Тип"
+  },
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Managed credentials"
+  },
+  "pamTargetSystemNone": {
+    "message": "None"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Не поддерживается"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Целевых систем пока нет"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Добавьте систему, учетные данные которой Bitwarden должен ротировать."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Начать с шаблона"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Использовать шаблон"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "Вы самостоятельно ротируете учетные данные; Bitwarden отслеживает график и регистрирует каждую ротацию."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden автоматически ротирует секрет приложения Microsoft Entra ID."
+  },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden автоматически ротирует учетные данные, запуская ваш скрипт на зарегистрированном коннекторе доступа."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Изменить целевую систему"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Деактивировать"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Активировать"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Завершите настройку данной целевой системы перед ее активацией или деактивацией."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Удалить целевую систему"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Назначить коннекторы доступа"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Назначить коннектор доступа"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Коннектор доступа"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "Все активные коннекторы доступа уже привязаны к этой целевой системе."
+  },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Only for automatic rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Remove its managed credentials first."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Коннекторы доступа могут быть назначены только целевым системам, настроенным на автоматическую ротацию."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Только активные коннекторы доступа могут быть назначены этой целевой системе."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Нет активных коннекторов доступа для назначения. Зарегистрируйте один на вкладке коннектора доступа или активируйте существующий."
+  },
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Deactivate target system"
+  },
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "No new rotations will start on this target system until you activate it. Rotations already in progress will finish, and pending ones are held."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Деактивировать"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Целевая система деактивирована."
+  },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Целевая система активирована."
+  },
+  "pamTargetSystemActivateFailed": {
+    "message": "Couldn't activate. Try again."
+  },
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Delete target system"
+  },
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "This target system will be deleted."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "This target system will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Целевая система удалена."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Автоматически"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Вручную"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Пользовательский скрипт"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Remove $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Активна"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Неактивна"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Настройка не завершена"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "Общая информация"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "ID системы"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Скопировать ID системы"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Введите название"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Метод ротации"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Политика паролей"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Минимальная длина"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Максимальная длина"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Минимальная длина должна быть меньше или равна максимальной длине."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Используйте как минимум один тип символа."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Эта политика слишком слабая. Следует увеличить длину или включить больше типов символов."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Поддерживается"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Целевая система создана."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Целевая система сохранена."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Целевая система сохранена. Сохраненные значения не удалось восстановить, поэтому информация на этой странице может быть устаревшей."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "Целевая система была создана, но процесс настройки закончился неудачно. Сохраните данные еще раз, чтобы обеспечить безопасность системы."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Завершить настройку ротации"
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Добавьте управляемые учетные данные на вкладке Управляемые учетные данные."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Настройка не завершена"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "Эта целевая система была создана, но настройки безопасности не были завершены. Сохраните, чтобы завершить настройку, или удалите ее."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Проверка целостности не удалась"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "Не удалось проверить настройки этой целевой системы. Сохраните ее для повторной настройки безопасности или удалите."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "Не удалось проверить настройки этой целевой системы."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Не удалось подтвердить соответствие технологии данной целевой системы. Обновите страницу и попробуйте еще раз."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Целевая система не найдена."
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Зарегистрировать коннектор доступа"
+  },
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "No access connectors yet"
+  },
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Target systems"
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Подключение"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "Последние подключение"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Назначенные цели"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Подключено"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Отключено"
+  },
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Активируйте этот коннектор доступа, чтобы назначить целевые системы."
+  },
+  "pamAccessConnectorEdit": {
+    "message": "Edit access connector"
+  },
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Удалить соединитель доступа"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Назначить целевую систему"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Целевая система"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Назначить целевые системы"
+  },
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Выберите целевые системы, на которых коннектор доступа может ротировать пароли. Можно назначать только целевые системы, использующие автоматическую ротацию."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "Все автоматические целевые системы уже привязаны к этому коннектору доступа."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Автоматически назначаемых целевых систем нет. Создайте целевую систему на вкладке Целевые системы."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Перейти к целевым системам"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Не удалось загрузить целевые системы. Обновите страницу, чтобы повторить попытку."
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "Целевая система назначена."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Целевые системы не назначены."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Коннектор доступа назначен."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Удалить $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Деактивировать"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Активировать"
+  },
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deactivate access connector"
+  },
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "This access connector won't take new rotations. Rotations in progress are released."
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "Коннектор доступа деактивирован."
+  },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Коннектор доступа активирован."
+  },
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Delete access connector"
+  },
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "Коннектор доступа удален."
+  },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "Коннектор доступа сохранен."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Access connector wasn't saved. Try again."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Access connector wasn't saved. Check your connection, then select Save again."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Зарегистрировать коннектор доступа"
+  },
+  "pamAccessConnectorRegisterDescription": {
+    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
+  },
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Use a name your team will recognize, for example East datacenter."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Коннектор доступа зарегистрирован."
+  },
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Access connector wasn't registered. Try again."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "Коннектор доступа"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "Подробности"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "Конфигурация"
+  },
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotation history"
+  },
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
+  },
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Choose target systems"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Токен коннектора доступа"
+  },
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Copy this token now, since you can't see it again after you close this."
+  },
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Add it to the access connector's configuration to connect it."
+  },
+  "pamAccessConnectorTokenStored": {
+    "message": "I stored this token securely"
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Скопировать токен"
+  },
+  "pamTokenCopied": {
+    "message": "Token copied."
+  },
+  "pamRotationConfigSearch": {
+    "message": "Поиск управляемых учетных данных"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Управляемые учетные данные не настроены"
+  },
+  "pamRotationConfigEmptyTitle": {
+    "message": "No managed credentials yet"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Добавьте управляемые учетные данные, чтобы начать их автоматическую ротацию."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Managed credentials on this target system show here."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Add access connector"
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Не удалось загрузить"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Проверьте подключение и попробуйте еще раз. Если проблема не исчезнет, обновите страницу."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Настройка целевой системы"
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Учетные данные"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Элемент"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Целевая система"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Расписание"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Ротация по окончании доступа"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Последняя ротация"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Следующая ротация"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Приостановлена"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Manual rotation"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Account"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "On a schedule"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "When access ends"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Only on demand"
+  },
+  "pamRotationNextInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationNextNone": {
+    "message": "None"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$ мин. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$ час. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$ дн. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$ нед. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$ мес. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Вчера"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "$COUNT$ час.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "$COUNT$ нед.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Истек $COUNT$ дн. назад",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "None"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "This target system has no access connector, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "The access connectors are disconnected, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "View access connectors"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Access connectors for this target system"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Every credential on this target system uses these."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "The value your script uses to identify the account, for example its username."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "The account's username on the target system, entered exactly as that system expects it."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Due $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Due schedule"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "The first attempt failed; the retry succeeded."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation started"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Final result"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Attempt $NUMBER$ failed.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "No access connector picked up this rotation."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Sessions ended"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Couldn't end sessions"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Rotation details"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Failed"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "The target system didn't respond."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "A rotation is in progress."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Resume rotation to rotate now."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "No access connector is connected"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Available when the rotation finishes."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Edit rotation settings"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "View rotation history"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotation started."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotation didn't start. Try again."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Marked as rotated."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Couldn't mark as rotated. Try again."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotation paused. The rotation in progress will finish."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Only do this after you've changed the password on the target system and updated the vault item."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Управление ротацией учетных данных через целевые системы, используя коннекторы доступа, работающие внутри вашей сети."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Управляемые учетные данные"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Целевая система"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Коннектор доступа"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Ротация"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Очередная ротация"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Выполнить ротацию"
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Пометить как сротированное"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Отмечать пока нечего. Эта возможность станет доступна, когда наступит время следующей ручной ротации."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Пометить как сротированное"
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Изменить учетные данные"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Удалить из ротации"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Пауза ротации"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Ротация приостановлена."
+  },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotation wasn't paused. Try again."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Возобновить ротацию"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Ротация продолжена."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Удалить управляемые учетные данные"
+  },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Remove from rotation"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Это приведет к отключению управления ротацией для этих учетных данных. Элемент останется в вашем хранилище, а история ротации сохранится в журнале аудита."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Невозможно удалить, пока идет ротация. Очищается по завершении текущего задания или по истечении времени ожидания."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Управляемые учетные данные удалены."
+  },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Removed from rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Couldn't remove from rotation. Try again."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Никогда"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "No rotations yet"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Пока что ротации не выполнялись."
+  },
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotations for this credential will show up here."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Сведения об учетных данных"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Конфигурация"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "История"
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Целевая система"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Выберите целевую систему"
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Не удалось проверить поддержку закрытия сессии данной целевой системой."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Сротировать по окончании доступа"
+  },
+  "pamRotationConfigSaved": {
+    "message": "Управляемые учетные данные сохранены."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Проверка целостности не удалась"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Не удалось проверить настройки этих управляемых учетных данных. Сохраните их, чтобы восстановить их безопасность."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Эта целевая система не подтверждает, что поддерживает завершение сессий. Снимите флажок завершения сессии или сначала обновите целевую систему."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "Не удалось проверить настройки выбранной целевой системы. Исправьте целевую систему перед сохранением."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "Не удалось подтвердить соответствие элемента или целевой системы этих управляемых учетных данных. Обновите страницу и попробуйте еще раз."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Заданий по ротации пока не зафиксировано."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Источник"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Попытки"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Запланированно"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "По запросу"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Доступ прекращен."
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Ожидание"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Успешно"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Неудачно"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Время истекло"
+  },
+  "pamRotationJobStatusRetrying": {
+    "message": "Retrying"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Выполнение"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Сротирован"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Ошибка"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Заброшено"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "Выполняется"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Начато"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Цель не изменена"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Цель обновлена"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Неопределено"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Завершение сессии не запрошено"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Сессии завершены"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Ошибка при завершении сессии"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "Аккаунт соединителя доступа не имеет права изменять этот пароль. Предоставьте ему право сбросить пароль целевого аккаунта, а затем выполните повторную ротацию пароля."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "Целевая система отклонила запрос на вход, поданный соединителем. Проверьте учетные данные, которые соединитель использует для этой целевой системы, а затем повторите попытку."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "Целевая система отклонила новый пароль. Убедитесь, что политика паролей для этих учетных данных соответствует правилам целевой системы, а затем повторите ротацию."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "Целевая система не смогла найти аккаунт для ротации. Проверьте идентификационные данные учетной записи в этих управляемых учетных данных, а затем повторите попытку ротации."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "Целевая система отказалась внести изменение. Обычно это означает, что новый пароль не соответствует правилам установки паролей или что соединение с целевой системой не было зашифровано."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "Соединитель доступа не смог установить связь с целевой системой. Проверьте адрес целевой системы и убедитесь, что соединитель может установить с ней связь по сети, а затем повторите ротацию."
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Задания на ротацию, сначала самые новые"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Продолжительность"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Попытка"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Результат"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Попытки, сначала самые старые"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$сек.",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$мин. $SECONDS$сек.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$час. $MINUTES$мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Создана конфигурация ротации"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Настройки ротации обновлены"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Аккаунт ротации обновлен"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Ротация приостановлена"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Ротация продолжена"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Удалена конфигурация ротации"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Обновлена конфигурация ротации"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Коннектору доступа назначена ротация"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Задание на ротацию отправлено"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Учетные данные сротированы"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Попытка ротации не удалась"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Ошибка ротации"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Ротация завершена"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Время ротации истекло"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Запись в хранилище отклонена"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Отчет о ротации отклонен"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Необходимо выполнить ротацию вручную"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Зафиксирована ручная ротация"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Коннектор доступа зарегистрирован"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Коннектор доступа отозван"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Коннектор доступа деактивирован"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Коннектор доступа активирован"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Коннектор доступа удален"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Коннектор доступа привязан к цели"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Коннектор доступа не привязан к цели"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Целевая система зарегистрирована"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Целевая система деактивирована"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Целевая система активирована"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Целевая система переименована"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Настройки целевой системы обновлены"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Целевая система удалена"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Целевая система обновлена"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Целевая система"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Коннектор доступа"
+  },
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ target system",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ target systems",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "Нет",
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Нет активных целевых систем, из которых можно было бы выбрать."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Назначенный соединитель доступа"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "К этой целевой системе не назначено ни одного соединителя доступа."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Не удалось загрузить соединители доступа для этой целевой системы."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "This target system and its access connector assignments will be deleted."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Vault item"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Credential name"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Select credential"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Credentials that are already in rotation aren't listed."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "The credential lives on the target system."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manual"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "No connected access connector"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Account ID"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Enter an ID"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "The username on the target system, for example name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Rotation triggers"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "After rotation"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Расписание"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Changes the password when someone's access ends, so the old password stops working."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Only available for automatic rotation."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "End active sessions"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Available once you select a target system that supports it."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Managed credential added."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "An access connector changes passwords on this target system for you."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "You change passwords on this target system yourself, then mark them as rotated."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "System type"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Tells the access connector how to change passwords on this system."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Ending sessions"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra can sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "This system type can't sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Shows once you choose a system type."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Select a system type"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Choose access connectors"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatic rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Remove last access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Remove access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "This target system won't be able to rotate until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Characters to include"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Lowercase letters"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Digits"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symbols"
+  },
+  "pamEventRequestedAccess": {
+    "message": "Запрошен привилегированный доступ к элементу $ITEM$ (запрос $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Одобрен привилегированный доступ к элементу $ITEM$ (запрос $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Отклонен привилегированный доступ к элементу $ITEM$ (запрос $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "Активирован привилегированный доступ к элементу $ITEM$ (доступ $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "Отозван привилегированный доступ к элементу $ITEM$ (доступ $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "Отменен привилегированный запрос доступа к элементу $ITEM$ (запрос $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "Продлен привилегированный доступ к элементу $ITEM$ (доступ $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "Срок действия привилегированного доступа к элементу $ITEM$ истек (доступ $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Не удалось активировать привилегированный доступ к элементу $ITEM$ (запрос $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Создано правило привилегированного доступа."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "Изменено правило привилегированного доступа."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "Удалено правило привилегированного доступа."
+  },
+  "pamEventRotatedCredential": {
+    "message": "Сротированы учетные данные для элемента $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "Не удалось сротировать учетные данные для элемента $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   }
 }

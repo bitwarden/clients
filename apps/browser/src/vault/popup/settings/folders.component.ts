@@ -19,6 +19,7 @@ import {
   ItemModule,
   StatusLockupComponent,
   SvgComponent,
+  IconComponent,
 } from "@bitwarden/components";
 import { AddEditFolderDialogComponent, VaultFabComponent, Vfo1I18nPipe } from "@bitwarden/vault";
 
@@ -44,6 +45,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     Vfo1I18nPipe,
     SvgComponent,
     VaultFabComponent,
+    IconComponent,
   ],
 })
 export class FoldersComponent {

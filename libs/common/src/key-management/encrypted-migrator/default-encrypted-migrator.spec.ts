@@ -7,11 +7,12 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
+import { LogService, Measurement } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../platform/state";
@@ -35,7 +36,8 @@ jest.mock("./migrations/user-key-id-backfill-migration");
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
   const mockStateProvider = mock<StateProvider>();
-  const mockLogService = mock<LogService>();
+  const mockI18nService = mock<I18nService>();
+  const mockLogService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const configService = mock<ConfigService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const syncService = mock<SyncService>();
@@ -97,6 +99,7 @@ describe("EncryptedMigrator", () => {
       mockCipherService,
       mockSdkService,
       mockStateProvider,
+      mockI18nService,
     );
   });
 
@@ -129,6 +132,28 @@ describe("EncryptedMigrator", () => {
 
       expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
       expect(mockMigration.runMigrations).toHaveBeenCalledWith(mockUserId, mockMasterPassword);
+    });
+
+    it("should not run migrations concurrently when a skipped run finishes first", async () => {
+      let finishFirstRun: () => void = () => {};
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+      mockMigration.runMigrations.mockReturnValueOnce(
+        new Promise<void>((resolve) => (finishFirstRun = resolve)),
+      );
+
+      const firstRun = sut.runMigrations(mockUserId, mockMasterPassword);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(mockMigration.runMigrations).toHaveBeenCalledTimes(1);
+
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+
+      expect(mockMigration.runMigrations).toHaveBeenCalledTimes(1);
+      expect(sut.isRunningMigrations()).toBe(true);
+
+      finishFirstRun();
+      await firstRun;
+      expect(sut.isRunningMigrations()).toBe(false);
     });
 
     it("should run migration when needsMigration returns 'needsMigrationWithMasterPassword'", async () => {

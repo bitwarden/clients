@@ -8,7 +8,7 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
@@ -105,6 +105,13 @@ describe("MultiStepPolicyEditDialogComponent", () => {
   function setupSteps(steps: PolicyStep[]) {
     (component as any).policySteps.set(steps);
     (component as any).policyComponent.set(policyComponent);
+  }
+
+  /** Records the policy form's initial state, then edits it. */
+  function changePolicy() {
+    policyComponent.enabled = new FormControl(false, { nonNullable: true });
+    (component as any).loadedPolicyComponent$.next(policyComponent);
+    policyComponent.enabled.setValue(true);
   }
 
   describe("submit()", () => {
@@ -217,17 +224,38 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       expect((component as any).saveDisabled()).toBe(true);
     });
 
-    it("is false when step has no disableSave and policyComponent has no data", () => {
+    it("is true on the first step when the policy form has not changed", () => {
+      policyComponent.data = new UntypedFormGroup({});
+      setupSteps([{}]);
+      TestBed.flushEffects();
+
+      expect((component as any).saveDisabled()).toBe(true);
+    });
+
+    it("is false when step has no disableSave, the policy changed, and policyComponent has no data", () => {
       policyComponent.data = undefined;
+      changePolicy();
       setupSteps([{}]);
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(false);
     });
 
-    it("is false when step has no disableSave and the data form is valid", () => {
+    it("is false when step has no disableSave, the policy changed, and the data form is valid", () => {
       policyComponent.data = new UntypedFormGroup({});
+      changePolicy();
       setupSteps([{}]);
+      TestBed.flushEffects();
+
+      expect((component as any).saveDisabled()).toBe(false);
+    });
+
+    it("does not require policy changes on steps after the first", () => {
+      policyComponent.data = new UntypedFormGroup({});
+      setupSteps([{}, {}]);
+      TestBed.flushEffects();
+
+      component.currentStep.set(1);
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(false);
@@ -334,6 +362,42 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       expect(component.policyComponent()).toBeInstanceOf(OrganizationDataOwnershipPolicyComponent);
       expect(component.dialogTitle()).toBe("centralizeDataOwnership");
       expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+    });
+
+    describe("Save button state", () => {
+      it.each([
+        ["MasterPasswordPolicy", () => new MasterPasswordPolicy()],
+        ["OrganizationDataOwnershipPolicy", () => new OrganizationDataOwnershipPolicy()],
+      ])("%s is disabled on load and enabled once edited", async (_name, createPolicy) => {
+        const { fixture, component } = await setupRealPolicy(createPolicy());
+        TestBed.flushEffects();
+
+        expect(component.saveDisabled()).toBe(true);
+
+        component.policyComponent().enabled.setValue(true);
+        TestBed.flushEffects();
+        fixture.detectChanges();
+
+        expect(component.saveDisabled()).toBe(false);
+
+        component.policyComponent().enabled.setValue(false);
+        TestBed.flushEffects();
+
+        expect(component.saveDisabled()).toBe(true);
+      });
+
+      it("keeps MasterPasswordPolicy disabled when its defaulted data is unchanged", async () => {
+        const { component } = await setupRealPolicy(new MasterPasswordPolicy());
+        const policyComponent = component.policyComponent();
+
+        policyComponent.data.controls.minLength.setValue(20);
+        TestBed.flushEffects();
+        expect(component.saveDisabled()).toBe(false);
+
+        policyComponent.data.controls.minLength.setValue(12);
+        TestBed.flushEffects();
+        expect(component.saveDisabled()).toBe(true);
+      });
     });
 
     describe("AutoConfirmPolicy", () => {

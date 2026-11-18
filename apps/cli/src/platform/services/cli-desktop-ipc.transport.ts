@@ -15,10 +15,16 @@ import { resolveDesktopProxyPath } from "./cli-desktop-proxy-path";
 const MAX_MESSAGE_SIZE = 1024 * 1024;
 const CONNECTION_TIMEOUT_MS = 5_000;
 
+/**
+ * Makes the proxy announce this process to the desktop app as the CLI, before relaying anything.
+ * An older proxy ignores it, and the desktop app then addresses the CLI as a browser endpoint.
+ */
+const PROXY_ARG_CLIENT_CLI = "--client=cli";
+
 type SpawnProxy = (proxyPath: string) => ChildProcessWithoutNullStreams;
 
 const spawnProxy: SpawnProxy = (proxyPath) =>
-  spawn(proxyPath, [], {
+  spawn(proxyPath, [PROXY_ARG_CLIENT_CLI], {
     stdio: "pipe",
     shell: false,
   });

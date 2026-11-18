@@ -36,6 +36,12 @@ describe("AutomationDriver", () => {
     it("is empty when nothing is registered", () => {
       expect(new AutomationDriver([]).list()).toEqual([]);
     });
+
+    it("skips capabilities a provider left out of the running build", () => {
+      const sut = new AutomationDriver([capability("lock"), null]);
+
+      expect(sut.list()).toEqual(["lock"]);
+    });
   });
 
   it("rejects two capabilities claiming the same name", () => {

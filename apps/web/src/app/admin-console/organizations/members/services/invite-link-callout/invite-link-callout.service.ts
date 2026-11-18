@@ -6,8 +6,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   INVITE_LINK_CALLOUT_DISK,
   StateProvider,
@@ -36,7 +34,6 @@ export const INVITE_LINK_CALLOUT_DISMISSED_KEY = new UserKeyDefinition<Organizat
 @Injectable({ providedIn: "root" })
 export class InviteLinkCalloutService {
   private accountService = inject(AccountService);
-  private configService = inject(ConfigService);
   private stateProvider = inject(StateProvider);
   private memberDialogManager = inject(MemberDialogManagerService);
   private organizationMembersService = inject(OrganizationMembersService);
@@ -90,10 +87,6 @@ export class InviteLinkCalloutService {
       return;
     }
 
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.InviteLinkNotification))) {
-      return;
-    }
-
     const dismissed = await firstValueFrom(this.isDismissed$(organization.id));
     if (dismissed) {
       return;
@@ -117,6 +110,13 @@ export class InviteLinkCalloutService {
       return;
     }
 
+    // TODO(guided-tour removal): the splash dialog ("Show me how") and the invite dialog it
+    // opens are permanent — keep opening the invite dialog on the By Link tab here. Only the
+    // guided-tour-specific pieces below need to go: drop `originUrl` and the final
+    // `navigateByUrl` call, and change the final `openInviteDialog(...)` argument from `true`
+    // (showCoachMarks) back to omitted/false. See the header comment in
+    // by-link-tab-tour.component.ts for the full removal checklist.
+    const originUrl = this.router.url;
     await this.router.navigate(["organizations", organization.id, "members"]);
 
     const billingMetadata = await firstValueFrom(
@@ -125,5 +125,9 @@ export class InviteLinkCalloutService {
     const allUsers = await this.organizationMembersService.loadUsers(organization);
 
     await this.memberDialogManager.openInviteDialog(organization, billingMetadata, allUsers, true);
+
+    // The tour never creates/mutates a real invite link, so once it's done there's nothing to
+    // keep the admin on the Members page for — send them back to wherever they started.
+    await this.router.navigateByUrl(originUrl);
   }
 }

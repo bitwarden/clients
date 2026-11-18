@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, from, map, shareReplay } from "rxjs";
+import { catchError, firstValueFrom, from, map, Observable, of, shareReplay } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -10,7 +10,9 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { InitiationPath, PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
-import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
+import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
+import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
+import { Cart } from "@bitwarden/pricing";
 import {
   BillingAddressControls,
   getBillingAddressFromControls,
@@ -19,6 +21,10 @@ import {
   tokenizablePaymentMethodToLegacyEnum,
   TokenizedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
+import { InvoicePreviewService } from "@bitwarden/web-vault/app/billing/services/invoice-preview.service";
+import { SubscriptionDiscountService } from "@bitwarden/web-vault/app/billing/services/subscription-discount.service";
+import { OrganizationSubscriptionPurchase } from "@bitwarden/web-vault/app/billing/types";
+import { PrivilegedControlsSelection } from "@bitwarden/web-vault/app/billing/types/organization-subscription";
 
 export const Tiers = {
   Families: "families",
@@ -53,6 +59,7 @@ export interface Trial {
   product: Product;
   tier: Tier;
   length: number;
+  privilegedControls?: PrivilegedControlsSelection;
 }
 
 @Injectable({ providedIn: "root" })
@@ -61,14 +68,15 @@ export class TrialBillingStepService {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private previewInvoiceClient: PreviewInvoiceClient,
+    private invoicePreviewService: InvoicePreviewService,
+    private subscriptionDiscountService: SubscriptionDiscountService,
   ) {}
 
   private plans$ = from(this.apiService.getPlans()).pipe(
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  getPrices$ = (product: Product, tier: Tier) =>
+  getPrices$ = (product: Product, tier: Tier, includePrivilegedControls = false) =>
     this.plans$.pipe(
       map((plans) => {
         switch (tier) {
@@ -92,9 +100,19 @@ export class TrialBillingStepService {
             );
             switch (product) {
               case "passwordManager": {
+                const enterprisePrivilegedControls =
+                  includePrivilegedControls && tier === "enterprise";
                 return {
-                  annually: annually!.PasswordManager.seatPrice,
-                  monthly: monthly!.PasswordManager.seatPrice,
+                  annually:
+                    annually!.PasswordManager.seatPrice +
+                    (enterprisePrivilegedControls
+                      ? (annually!.PrivilegedControls?.seatPrice ?? 0)
+                      : 0),
+                  monthly:
+                    monthly!.PasswordManager.seatPrice +
+                    (enterprisePrivilegedControls
+                      ? (monthly!.PrivilegedControls?.seatPrice ?? 0)
+                      : 0),
                 };
               }
               case "secretsManager": {
@@ -109,39 +127,41 @@ export class TrialBillingStepService {
       }),
     );
 
-  getCosts = async (
-    product: Product,
-    tier: Tier,
+  /**
+   * Previews the trial's direct purchase at the given cadence as a cart
+   */
+  previewPurchase = (
+    trial: Trial,
     cadence: Cadence,
     billingAddressControls: BillingAddressControls,
     coupons?: string[],
-  ): Promise<{
-    tax: number;
-    total: number;
-  }> => {
-    const billingAddress = getBillingAddressFromControls(billingAddressControls);
-    return await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
-      {
-        tier,
-        cadence,
-        passwordManager: {
-          seats: 1,
-          additionalStorage: 0,
-          sponsored: false,
-        },
-        secretsManager:
-          product === "secretsManager"
-            ? {
-                seats: 1,
-                additionalServiceAccounts: 0,
-                standalone: true,
-              }
-            : undefined,
-      },
-      billingAddress,
-      coupons,
-    );
+  ): Promise<Cart> => {
+    const purchase: OrganizationSubscriptionPurchase = {
+      tier: trial.tier,
+      cadence,
+      passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+      secretsManager:
+        trial.product === Products.SecretsManager
+          ? { seats: 1, additionalServiceAccounts: 0, standalone: true }
+          : undefined,
+      privilegedControls: trial.privilegedControls ? { seats: 1 } : undefined,
+    };
+    return this.invoicePreviewService.previewOrganizationCheckoutCart({
+      purchase: coupons?.length ? { ...purchase, coupons } : purchase,
+      billingAddress: getBillingAddressFromControls(billingAddressControls),
+    });
   };
+
+  /**
+   * Eligible subscription discounts for the trial. Discounts are a families-tier feature only;
+   * fetch failures degrade to no discounts.
+   */
+  getEligibleDiscounts$ = (tier: Tier): Observable<SubscriptionDiscount[]> =>
+    tier === Tiers.Families
+      ? this.subscriptionDiscountService
+          .getEligibleDiscountsForTier$(DiscountTierType.Families)
+          .pipe(catchError(() => of<SubscriptionDiscount[]>([])))
+      : of([]);
 
   startTrial = async (
     trial: Trial,
@@ -176,25 +196,33 @@ export class TrialBillingStepService {
     ];
     const planType = await getPlanType(trial.tier, cadence);
 
+    const basePlan =
+      trial.product === Products.PasswordManager
+        ? { type: planType, passwordManagerSeats: 1 }
+        : {
+            type: planType,
+            passwordManagerSeats: 1,
+            subscribeToSecretsManager: true,
+            isFromSecretsManagerTrial: true,
+            secretsManagerSeats: 1,
+          };
+
     const request: SubscriptionInformation = {
       organization: {
         name: trial.organization.name,
         billingEmail: trial.organization.email,
         initiationPath:
-          trial.product === "passwordManager"
+          trial.product === Products.PasswordManager
             ? InitiationPath.PasswordManagerTrialFromMarketingWebsite
             : InitiationPath.SecretsManagerTrialFromMarketingWebsite,
       },
-      plan:
-        trial.product === "passwordManager"
-          ? { type: planType, passwordManagerSeats: 1 }
-          : {
-              type: planType,
-              passwordManagerSeats: 1,
-              subscribeToSecretsManager: true,
-              isFromSecretsManagerTrial: true,
-              secretsManagerSeats: 1,
-            },
+      plan: trial.privilegedControls
+        ? {
+            ...basePlan,
+            subscribeToPrivilegedControls: true,
+            pamSeats: 1,
+          }
+        : basePlan,
       payment: {
         paymentMethod: legacyPaymentMethod,
         billing: {

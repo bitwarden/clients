@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -20,6 +21,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -48,14 +50,14 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
+import { PasswordLoginStrategy } from "./password-login.strategy";
 
 const email = "hello@world.com";
 const masterPassword = "password";
 const hashedPassword = "HASHED_PASSWORD";
 // Server dictates the KDF salt, so a fixture where salt === email would pass no matter which one the strategy used.
-const preloginSalt = "server.normalized+salt@world.com";
+const preloginSalt = "server.normalized+salt@world.com" as MasterPasswordSalt;
 const masterKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
     "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg==",
@@ -69,7 +71,7 @@ const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
 });
 const kdfConfig = PBKDF2KdfConfig.createDefault();
 
-function credentialsWithPrefetchedData(salt: string = preloginSalt) {
+function credentialsWithPrefetchedData(salt: MasterPasswordSalt = preloginSalt) {
   return new PasswordLoginCredentials(
     email,
     masterPassword,
@@ -145,10 +147,6 @@ describe("PasswordLoginStrategy", () => {
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
 
-    // Default to the flag off so the pre-PM-27060 behavior stays the baseline; tests that exercise
-    // the SDK prelogin path opt in explicitly.
-    configService.getFeatureFlag.mockResolvedValue(false);
-
     legacyCompatKeyService.hashMasterKey
       .calledWith(masterPassword, expect.anything())
       .mockResolvedValue(hashedPassword);
@@ -156,7 +154,7 @@ describe("PasswordLoginStrategy", () => {
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
     passwordLoginStrategy = new PasswordLoginStrategy(
-      new PasswordLoginStrategyData(),
+      undefined,
       passwordStrengthService,
       policyService,
       passwordPreloginService,
@@ -265,105 +263,74 @@ describe("PasswordLoginStrategy", () => {
       expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
     });
 
-    // PM-27060: when prelogin comes from the SDK, the server dictates the KDF salt and the client
-    // must derive the master key from it rather than from the email the user typed. The flag gates
-    // this so it can be switched off if normalization diverges during the transition.
-    describe("salt selection", () => {
-      it("reads the PM27060_PasswordPreloginFromSdk flag", async () => {
-        await passwordLoginStrategy.logIn(credentials);
+    it("clears the prelogin cache when the master key derivation fails", async () => {
+      // Without this the fetched data stays in the service's refCount:false replay cache and
+      // every retry on the same email replays it.
+      legacyCompatKeyService.makeMasterKey.mockRejectedValue(new Error("derivation failed"));
 
-        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-          FeatureFlag.PM27060_PasswordPreloginFromSdk,
+      await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow("derivation failed");
+
+      expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
+    });
+
+    // PM-27060: the salt is resolved once, at fetch time, by PasswordPreloginService. The
+    // strategy derives from whatever salt the data carries and makes no decision of its own.
+    describe("salt selection", () => {
+      it("derives the master key from the prelogin salt for prefetched data", async () => {
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
+
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          preloginSalt,
+          kdfConfig,
+        );
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
+          masterPassword,
+          email,
+          expect.anything(),
         );
       });
 
-      describe("when the flag is on", () => {
-        beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(true);
-        });
+      it("derives the master key from the prelogin salt for freshly fetched data", async () => {
+        // credentials from the outer beforeEach carries no prefetched data, so the strategy
+        // fetches via passwordPreloginService, which is stubbed to return preloginSalt.
+        await passwordLoginStrategy.logIn(credentials);
 
-        it("derives the master key from the prelogin salt for prefetched data", async () => {
-          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
-
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            preloginSalt,
-            kdfConfig,
-          );
-          expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
-            masterPassword,
-            email,
-            expect.anything(),
-          );
-        });
-
-        it("derives the master key from the prelogin salt for freshly fetched data", async () => {
-          // credentials from the outer beforeEach carries no prefetched data, so the strategy
-          // fetches via passwordPreloginService, which is stubbed to return preloginSalt.
-          await passwordLoginStrategy.logIn(credentials);
-
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            preloginSalt,
-            PBKDF2KdfConfig.createDefault(),
-          );
-          expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
-            masterPassword,
-            email,
-            expect.anything(),
-          );
-        });
-
-        it("forwards the salt to the key service unmodified", async () => {
-          // Scoped to the strategy: it does no normalization of its own. LegacyCompatKeyService
-          // trims and lower-cases the salt itself before deriving, so this asserts the strategy's
-          // hand-off, not the salt the KDF ultimately receives.
-          const unnormalizedSalt = "  MiXeD.Case@World.Com  ";
-
-          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(unnormalizedSalt));
-
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            unnormalizedSalt,
-            kdfConfig,
-          );
-        });
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          preloginSalt,
+          PBKDF2KdfConfig.createDefault(),
+        );
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
+          masterPassword,
+          email,
+          expect.anything(),
+        );
       });
 
-      describe("when the flag is off", () => {
-        beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(false);
-        });
+      it("forwards the salt to the key service unmodified", async () => {
+        // Scoped to the strategy: it does no normalization of its own. LegacyCompatKeyService
+        // trims and lower-cases the salt itself before deriving, so this asserts the strategy's
+        // hand-off, not the salt the KDF ultimately receives.
+        const unnormalizedSalt = "  MiXeD.Case@World.Com  " as MasterPasswordSalt;
 
-        it("derives the master key from the entered email for prefetched data", async () => {
-          await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(unnormalizedSalt));
 
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            email,
-            kdfConfig,
-          );
-          expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
-            masterPassword,
-            preloginSalt,
-            expect.anything(),
-          );
-        });
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          unnormalizedSalt,
+          kdfConfig,
+        );
+      });
 
-        it("derives the master key from the entered email for freshly fetched data", async () => {
-          await passwordLoginStrategy.logIn(credentials);
+      // Regression guard for the torn read: a second flag read here could disagree with the one
+      // that produced the data, and pass a null salt to makeMasterKey.
+      it("does not re-read the prelogin feature flag when deriving", async () => {
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
 
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            email,
-            PBKDF2KdfConfig.createDefault(),
-          );
-          expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
-            masterPassword,
-            preloginSalt,
-            expect.anything(),
-          );
-        });
+        expect(configService.getFeatureFlag).not.toHaveBeenCalledWith(
+          FeatureFlag.PM27060_PasswordPreloginFromSdk,
+        );
       });
     });
   });
@@ -438,6 +405,30 @@ describe("PasswordLoginStrategy", () => {
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.WeakMasterPassword,
         userId,
+      );
+    });
+
+    it("evaluates the password against the org invite policies alone when the token response has no policy", async () => {
+      const orgInvitePolicies = Object.assign(new MasterPasswordPolicyOptions(), {
+        minLength: 12,
+        minComplexity: 3,
+        requireUpper: true,
+        enforceOnLogin: false,
+      });
+      credentials.masterPasswordPoliciesFromOrgInvite = orgInvitePolicies;
+      apiService.postIdentityToken.mockResolvedValueOnce(identityTokenResponseFactory());
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 4 } as any);
+      const realPolicyService: DefaultPolicyService = Object.create(DefaultPolicyService.prototype);
+      policyService.combineMasterPasswordPolicyOptions.mockImplementation((...options) =>
+        realPolicyService.combineMasterPasswordPolicyOptions(...options),
+      );
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(policyService.evaluateMasterPassword).toHaveBeenCalledWith(
+        4,
+        credentials.masterPassword,
+        Object.assign(new MasterPasswordPolicyOptions(), orgInvitePolicies),
       );
     });
 

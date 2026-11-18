@@ -9,6 +9,7 @@ import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -17,7 +18,7 @@ import {
   DomainAddEditDialogData,
 } from "./domain-add-edit-dialog.component";
 
-const ORG_ID = "org-story-1";
+const ORG_ID = "org-story-1" as OrganizationId;
 
 const pendingDomain = new OrganizationDomainResponse({
   id: "domain-1",
