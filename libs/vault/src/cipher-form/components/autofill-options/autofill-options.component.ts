@@ -388,9 +388,9 @@ export class AutofillOptionsComponent implements OnInit {
 
   /**
    * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
-   * user doesn't change the URIs. Desktop app rows also get it in the form, for when the feature flag
-   * is read after they load. Desktop app URIs typed into a website row keep the form's strategy until
-   * they're saved.
+   * user doesn't change the URIs. If the Autotype GA feature flag is on, desktop app rows should
+   * also load with the Never match strategy. Desktop app URIs typed into a website row will keep
+   * the form's strategy until they're saved (it will be overriden with the Never match strategy).
    */
   private saveDesktopAppUrisWithNeverMatch() {
     const matchChanged = this.uriControls.some(
@@ -414,6 +414,7 @@ export class AutofillOptionsComponent implements OnInit {
     }
 
     this.updateUriFields();
+
     // The match strategies changed without emitting value changes
     this.publishUriMatchStrategies();
   }
