@@ -37,6 +37,7 @@ export class RemovePasswordComponent implements OnInit {
   loading = true;
   organization!: Organization;
   keyConnectorHostName!: string;
+  private keyConnectorUrl!: string;
   private activeUserId!: UserId;
 
   constructor(
@@ -65,14 +66,15 @@ export class RemovePasswordComponent implements OnInit {
     await this.syncService.fullSync(false);
 
     this.organization = await this.keyConnectorService.getManagingOrganization(this.activeUserId);
-    if (this.organization == null) {
+    if (this.organization == null || this.organization.keyConnectorUrl == null) {
       this.logService.info(
         "[Key Connector remove password] No organization found, redirecting to login.",
       );
       await this.router.navigate(["/"]);
       return;
     }
-    this.keyConnectorHostName = Utils.getHostname(this.organization.keyConnectorUrl);
+    this.keyConnectorUrl = this.organization.keyConnectorUrl;
+    this.keyConnectorHostName = Utils.getHostname(this.keyConnectorUrl);
     this.loading = false;
   }
 
@@ -84,10 +86,7 @@ export class RemovePasswordComponent implements OnInit {
     this.continuing = true;
 
     try {
-      await this.keyConnectorService.migrateUser(
-        this.organization.keyConnectorUrl,
-        this.activeUserId,
-      );
+      await this.keyConnectorService.migrateUser(this.keyConnectorUrl, this.activeUserId);
 
       this.toastService.showToast({
         variant: "success",
