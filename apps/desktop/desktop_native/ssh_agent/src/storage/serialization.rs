@@ -274,18 +274,26 @@ invalid_base64_data!!!
         SSHKeyData::try_from(serializable).unwrap();
     }
 
-    #[test]
-    #[should_panic(expected = "subtree pointer overran range")]
-    fn test_keydata_from_corrupted_bytes() {
-        let corrupted_bytes = vec![0u8, 1, 2, 3, 4, 5];
-        SSHKeyData::try_from(corrupted_bytes).unwrap();
+    // Assert on the error type, not its message: rancor only emits detailed
+    // messages with debug assertions, so the text differs under `--profile release`.
+    fn assert_rkyv_error(result: Result<SSHKeyData, anyhow::Error>) {
+        let err = result.err().expect("expected deserialization to fail");
+        assert!(
+            err.downcast_ref::<RancorError>().is_some(),
+            "expected an rkyv error, got: {err}"
+        );
     }
 
     #[test]
-    #[should_panic(expected = "subtree pointer overran range")]
+    fn test_keydata_from_corrupted_bytes() {
+        let corrupted_bytes = vec![0u8, 1, 2, 3, 4, 5];
+        assert_rkyv_error(SSHKeyData::try_from(corrupted_bytes));
+    }
+
+    #[test]
     fn test_keydata_from_empty_bytes() {
         let empty_bytes: Vec<u8> = vec![];
-        SSHKeyData::try_from(empty_bytes).unwrap();
+        assert_rkyv_error(SSHKeyData::try_from(empty_bytes));
     }
 
     #[test]
