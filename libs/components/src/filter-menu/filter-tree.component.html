@@ -14,7 +14,8 @@
     [attr.data-filter-section-row]="node.row.kind === 'section' ? '' : null"
     [attr.data-filter-card-top]="node.groupStart ? '' : null"
     [attr.data-filter-card-bottom]="node.groupEnd ? '' : null"
-    [bitFilterTreeRow]="node"
+    bitFilterTreeRow
+    [tabbable]="$index === activeIndex()"
     [class]="node.row.kind === 'option' ? optionRowClasses : rowBaseClasses"
     [style.padding-inline-start.rem]="
       node.row.kind === 'section' ? null : 0.5 + (node.indent - 1) * 1.75
@@ -25,9 +26,8 @@
     [attr.aria-expanded]="expandable ? node.expanded : null"
     [attr.aria-checked]="checked"
     [attr.aria-disabled]="node.row.disabled() ? true : null"
-    (click)="node.row.disabled() ? null : activateNode(node)"
-    (focus)="onRowFocus(row)"
-    #row="bitFilterTreeRow"
+    (click)="node.row.disabled() ? null : owner.activateNode(node)"
+    (focus)="onRowFocus($index)"
   >
     @if (node.row.kind !== "section") {
       @if (expandable) {

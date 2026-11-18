@@ -1,38 +1,21 @@
-import { TreeKeyManagerItem } from "@angular/cdk/a11y";
-import {
-  Directive,
-  ElementRef,
-  computed,
-  contentChild,
-  inject,
-  input,
-  signal,
-} from "@angular/core";
+import { Directive, ElementRef, contentChild, inject, input } from "@angular/core";
 
 import { TooltipDirective } from "../tooltip";
 
-import { FILTER_TREE_HOST, FilterTreeHost, FilterTreeNode } from "./filter-tokens";
-
-/** One row of a multi-select filter menu's tree, adapting it to CDK's {@link TreeKeyManagerItem}. */
+/** One row of a multi-select filter menu's tree: its tab stop, its focus, and its label tooltip. */
 @Directive({
   selector: "[bitFilterTreeRow]",
-  exportAs: "bitFilterTreeRow",
   host: {
     "[tabindex]": "tabbable() ? 0 : -1",
     "(focus)": "onFocus()",
     "(blur)": "labelTooltip()?.hideTooltip()",
   },
 })
-export class FilterTreeRowDirective implements TreeKeyManagerItem {
+export class FilterTreeRowDirective {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly host = inject<FilterTreeHost>(FILTER_TREE_HOST);
 
-  readonly node = input.required<FilterTreeNode>({ alias: "bitFilterTreeRow" });
-
-  /** Whether this row currently holds the tree's single tab stop. */
-  readonly tabbable = signal(false);
-
-  readonly isDisabled = computed(() => this.node().row.disabled());
+  /** Whether this row holds the tree's single tab stop. */
+  readonly tabbable = input(false);
 
   /** `focusin` only bubbles up, so the row opens its label's tooltip itself. */
   protected readonly labelTooltip = contentChild(TooltipDirective);
@@ -44,50 +27,11 @@ export class FilterTreeRowDirective implements TreeKeyManagerItem {
     }
   }
 
-  /** @see TreeKeyManagerItem.getLabel — the manager's typeahead matches on this. */
-  getLabel(): string {
-    return this.node().row.label();
-  }
-
-  activate(): void {
-    if (!this.isDisabled()) {
-      this.host.activateNode(this.node());
-    }
-  }
-
-  getParent(): FilterTreeRowDirective | null {
-    return this.host.parentRow(this);
-  }
-
-  getChildren(): FilterTreeRowDirective[] {
-    return this.host.childRows(this);
-  }
-
-  isExpanded = (): boolean => this.node().expanded;
-
-  expand(): void {
-    if (!this.isExpanded()) {
-      this.node().row.toggleExpanded();
-    }
-  }
-
-  collapse(): void {
-    if (this.isExpanded()) {
-      this.node().row.toggleExpanded();
-    }
-  }
-
   focus(): void {
-    this.tabbable.set(true);
     this.el.nativeElement.focus();
   }
 
-  unfocus(): void {
-    this.tabbable.set(false);
-  }
-
-  /** Becomes the tab stop without stealing focus — how the manager seeds the tree. */
-  makeFocusable(): void {
-    this.tabbable.set(true);
+  hasFocus(): boolean {
+    return this.el.nativeElement.matches(":focus");
   }
 }
