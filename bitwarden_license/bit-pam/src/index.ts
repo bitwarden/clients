@@ -63,6 +63,12 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export {
+  LEASE_CLOCK_JUMP_TOLERANCE_MS,
+  LeaseClock,
+  systemLeaseClockSource,
+} from "./helpers/lease-clock";
+export type { LeaseClockSource } from "./helpers/lease-clock";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";

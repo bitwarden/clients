@@ -32,6 +32,7 @@ import {
   VAULT_ROW_ACTIONS,
 } from "@bitwarden/vault";
 
+import { DesktopAccessBadgeTickerService } from "./desktop-access-badge-ticker.service";
 import { provideDesktopPam } from "./provide-pam";
 import { DesktopGatedCollectionBannerComponent } from "./vault/desktop-gated-collection-banner.component";
 import { DesktopLeasedClipboardService } from "./vault/desktop-leased-clipboard.service";
@@ -110,7 +111,7 @@ describe("provideDesktopPam", () => {
       expect(provider?.deps).toEqual([
         AccessRequestSdkService,
         AccessRefreshService,
-        AccessBadgeTickerService,
+        DesktopAccessBadgeTickerService,
         AccessLeaseSdkService,
         AccountService,
         AuthService,
@@ -130,6 +131,15 @@ describe("provideDesktopPam", () => {
         TotpService,
         LogService,
       ]);
+    });
+
+    it("serves the shared ticker from the desktop lease clock", () => {
+      expect(providerFor(DesktopAccessBadgeTickerService)?.useClass).toBe(
+        DesktopAccessBadgeTickerService,
+      );
+      expect(providerFor(AccessBadgeTickerService)?.useExisting).toBe(
+        DesktopAccessBadgeTickerService,
+      );
     });
 
     it("provides the services the request and lease flows inject", () => {

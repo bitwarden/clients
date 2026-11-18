@@ -61,6 +61,7 @@ import {
   VAULT_ROW_ACTIONS,
 } from "@bitwarden/vault";
 
+import { DesktopAccessBadgeTickerService } from "./desktop-access-badge-ticker.service";
 import { DesktopPamNavBadgeService } from "./desktop-pam-nav-badge.service";
 import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notification-sink";
 import { DesktopPamNotifier } from "./notifications/desktop-pam-notifier";
@@ -82,6 +83,16 @@ export function provideDesktopPam(): SafeProvider[] {
     safeProvider({
       provide: PAM_DESKTOP_ROUTES,
       useValue: () => import("./pam-shell.routes").then((m) => m.PAM_SHELL_ROUTES),
+    }),
+    // One lease clock a wall-clock rollback cannot hold back, for every countdown and reveal.
+    safeProvider({
+      provide: DesktopAccessBadgeTickerService,
+      useClass: DesktopAccessBadgeTickerService,
+      deps: [],
+    }),
+    safeProvider({
+      provide: AccessBadgeTickerService,
+      useExisting: DesktopAccessBadgeTickerService,
     }),
     safeProvider({
       provide: AccessRequestSdkService,
@@ -230,7 +241,7 @@ export function provideDesktopPam(): SafeProvider[] {
       deps: [
         AccessRequestSdkService,
         AccessRefreshService,
-        AccessBadgeTickerService,
+        DesktopAccessBadgeTickerService,
         AccessLeaseSdkService,
         AccountService,
         AuthService,

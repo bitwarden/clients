@@ -6,9 +6,9 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
+  LeaseClock,
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -20,6 +20,8 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+
+import { DesktopAccessBadgeTickerService } from "../desktop-access-badge-ticker.service";
 
 import { DesktopLeasedClipboardService } from "./desktop-leased-clipboard.service";
 import { DesktopRevealedCipherService } from "./desktop-revealed-cipher.service";
@@ -35,7 +37,9 @@ describe("DesktopRevealedCipherService", () => {
   let accessRefreshService: MockProxy<AccessRefreshService>;
   let accessChanged$: Subject<void>;
   let ticks$: Subject<number>;
-  let ticker: AccessBadgeTickerService;
+  let ticker: DesktopAccessBadgeTickerService;
+  /** The monotonic clock the lease clock reads, in ms since the test began. */
+  let monotonicMs: number;
   let accountService: AccountService;
   let activeAccount$: BehaviorSubject<Account | null>;
   let authService: MockProxy<AuthService>;
@@ -72,10 +76,18 @@ describe("DesktopRevealedCipherService", () => {
     accessChanged$.next();
   };
 
-  /** Moves the clock and ticks the shared ticker once. */
+  /** Moves both clocks, as real time passing does, and ticks the shared ticker once. */
   const tickAt = (ms: number) => {
     jest.setSystemTime(nowMs + ms);
-    ticks$.next(nowMs + ms);
+    monotonicMs = ms;
+    ticks$.next(ticker.now());
+  };
+
+  /** Lets `ms` of real time pass, with the wall clock reading `wallOffsetMs` from the start. */
+  const tickWith = (ms: number, wallOffsetMs: number) => {
+    jest.setSystemTime(nowMs + wallOffsetMs);
+    monotonicMs = ms;
+    ticks$.next(ticker.now());
   };
 
   /** Lets the promise chains inside the pipelines settle. */
@@ -114,7 +126,13 @@ describe("DesktopRevealedCipherService", () => {
     accessRefreshService = mock<AccessRefreshService>();
     accessRefreshService.accessChanged$.mockReturnValue(accessChanged$);
     ticks$ = new Subject<number>();
-    ticker = { ticks$: ticks$ as Observable<number> } as AccessBadgeTickerService;
+    monotonicMs = 0;
+    const clock = new LeaseClock({ wallMs: () => Date.now(), monotonicMs: () => monotonicMs });
+    ticker = {
+      ticks$: ticks$ as Observable<number>,
+      now: () => clock.now(),
+      clockJumps$: clock.jumps$,
+    } as unknown as DesktopAccessBadgeTickerService;
     activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as Account);
     accountService = { activeAccount$ } as unknown as AccountService;
     authStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({
@@ -425,6 +443,99 @@ describe("DesktopRevealedCipherService", () => {
       await service.refresh(userId, cipherId);
 
       expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+  });
+
+  describe("clock changes", () => {
+    beforeEach(async () => {
+      state = leaseEndingIn();
+      await service.getOrReveal(userId, cipherId);
+      accessRequestSdkService.getCipherAccessState.mockClear();
+      accessLeaseSdkService.leasedCipher.mockClear();
+    });
+
+    it("does not extend a lease when the wall clock is set back", async () => {
+      tickWith(30_000, 30_000);
+      // Set back an hour, then let the rest of the lease pass in real time.
+      tickWith(31_000, 31_000 - 3_600_000);
+      await flush();
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
+
+      tickWith(60_000, 60_000 - 3_600_000);
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+      expect(service.get(userId, cipherId)).toBeUndefined();
+    });
+
+    it("re-validates with the server when the wall clock is set back", async () => {
+      tickWith(1_000, 1_000 - 3_600_000);
+      await flush();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledWith(cipherId);
+      expect(accessLeaseSdkService.leasedCipher).toHaveBeenCalledWith(cipherId);
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
+    });
+
+    it("expires the lease when the wall clock jumps past its end", async () => {
+      tickWith(1_000, 120_000);
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("re-validates on resume and keeps a lease the server still confirms", async () => {
+      // A 20s sleep the monotonic clock did not count.
+      tickWith(1_000, 21_000);
+      await flush();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(1);
+      expect(accessLeaseSdkService.leasedCipher).toHaveBeenCalledTimes(1);
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
+    });
+
+    it("drops a view on resume when the server says the lease is gone", async () => {
+      state = noLease();
+
+      tickWith(1_000, 21_000);
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("drops a view on resume when offline, so it cannot be confirmed", async () => {
+      accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("offline"));
+
+      tickWith(1_000, 21_000);
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+      expect(accessLeaseSdkService.leasedCipher).not.toHaveBeenCalled();
+    });
+
+    it("drops a view on resume when the leased cipher cannot be read again", async () => {
+      accessLeaseSdkService.leasedCipher.mockRejectedValue(new Error("offline"));
+
+      tickWith(1_000, 21_000);
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("drops a view held for a user who is no longer active", async () => {
+      activeAccount$.next({ id: "user-2" } as Account);
+
+      tickWith(1_000, 21_000);
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("does not re-validate while both clocks agree", async () => {
+      tickAt(10_000);
+      tickAt(20_000);
+      await flush();
+
+      expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
     });
   });
 

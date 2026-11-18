@@ -44,12 +44,22 @@
   an account switch, and on lock or logout. A failed state read keeps the last answer (it can hold a
   reveal, never grant one); a failed or still-partial `leasedCipher` read reveals nothing. Without
   it, the reveal-nothing default from `jslib-services` leaves a leased item with no credentials.
+  Lease expiry reads the lease clock (next bullet), never `Date.now()`; on a clock jump or a resume
+  it confirms every held view again through `refresh`, and drops any it cannot confirm (offline
+  included), rather than keeping the last answer.
 - `vault/desktop-leased-clipboard.service.ts`: clears the OS clipboard when a lease ends, if it still
   holds a value copied from that item. Copies carry no item, so it listens to the in-renderer
   `copiedToClipboard` message and counts a copy as leased when it equals a field of a view
   `DesktopRevealedCipherService` holds (not the name) or that view's current TOTP code. It keeps
   only the latest such copy, in renderer memory, and clears with `SystemService`'s check (read,
   compare, write empty) once that view leaves the held map (end, lapse, lock, logout, switch).
+- `desktop-access-badge-ticker.service.ts`: `DesktopAccessBadgeTickerService`, provided as
+  `AccessBadgeTickerService` too, so every countdown, tab and the revealed view share one clock.
+  Its `now()` and ticks read `LeaseClock` from `@bitwarden/bit-pam`: the wall clock while it agrees
+  with `performance.now()`, and on a disagreement past 2s the later of the two (a rollback runs on
+  at the real rate; a sleep or forward step follows the wall), emitting `clockJumps$`. Web keeps
+  the plain `Date.now()` ticker. Not yet on this clock: the notifier's lease boundaries and the
+  tabs' and badges' first value before their first tick.
 - `vault/desktop-vault-row-actions.service.ts`: `VAULT_ROW_ACTIONS` entries for the desktop vault
   table. Today one, "Cancel request", on a gated row with a pending or approved, unstarted request,
   through the shared `GatedRequestActionsService`. `show` is synchronous, so it reads a snapshot
