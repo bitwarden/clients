@@ -20,7 +20,7 @@ import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
 
 import { FilterMenuComponent } from "./filter-menu.component";
-import { FilterOptionComponent } from "./filter-option.component";
+import { FilterOptionComponent, FilterOptionNode } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
 import { FILTER_HOST, FilterHost, FilterOptionRow } from "./filter-tokens";
 
@@ -691,5 +691,264 @@ describe("FilterMenuComponent host counts", () => {
     expect(menu["unsetCount"]()).toBeUndefined();
     expect([...menu["optionCounts"]().values()]).toEqual([10, 11]);
     expect(filterHost.optionCounts).toHaveBeenCalledWith("vault", [["org-1"], ["org-2"]]);
+  });
+});
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="letters" placeholderText="Letters" multiple>
+      <bit-filter-option [value]="'alpha'" disabled>Alpha</bit-filter-option>
+      <bit-filter-option [value]="'beta'"
+        >Beta
+        <bit-filter-option [value]="'beta-one'">Beta one</bit-filter-option>
+        <bit-filter-option [value]="'beta-two'">Beta two</bit-filter-option>
+      </bit-filter-option>
+      <bit-filter-option [value]="'gamma'"
+        >Gamma
+        <bit-filter-option [value]="'gamma-one'">Gamma one</bit-filter-option>
+      </bit-filter-option>
+      <bit-filter-option [value]="'delta'">Delta</bit-filter-option>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class TreeKeyboardHostComponent {
+  readonly showRows = signal(false);
+}
+
+const letterOptions = (): FilterOptionNode<string>[] =>
+  ["Alpha", "Beta", "Gamma", "Delta"].map((label) => ({ value: label.toLowerCase(), label }));
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu
+      #chip
+      key="letters"
+      placeholderText="Letters"
+      multiple
+      [options]="options()"
+    ></bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class TreeKeyboardDataHostComponent {
+  readonly options = signal(letterOptions());
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent tree keyboard navigation", () => {
+  let fixture: ComponentFixture<{ showRows: WritableSignal<boolean> }>;
+
+  const chip = () =>
+    fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .componentInstance as FilterMenuComponent;
+
+  const rows = () =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"]'))
+      .map((row) => row.nativeElement as HTMLElement);
+
+  const label = (row: Element | null) =>
+    row?.querySelector("[data-filter-row-label]")?.textContent?.trim();
+
+  const labels = () => rows().map(label);
+
+  const row = (text: string) => rows().find((el) => label(el) === text)!;
+
+  const focused = () => label(document.activeElement);
+
+  const tabStops = () =>
+    rows()
+      .filter((el) => el.tabIndex === 0)
+      .map(label);
+
+  /** Sends a key to the focused row, returning whether the tree claimed it. */
+  const press = (key: string): boolean => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    document.activeElement!.dispatchEvent(event);
+    fixture.detectChanges();
+    return event.defaultPrevented;
+  };
+
+  const focus = (text: string) => {
+    row(text).focus();
+    fixture.detectChanges();
+  };
+
+  const render = <T extends { showRows: WritableSignal<boolean> }>(hostType: Type<T>) => {
+    const created = TestBed.createComponent(hostType);
+    fixture = created;
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    return created;
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TreeKeyboardHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    render(TreeKeyboardHostComponent);
+  });
+
+  it("starts with the tab stop on the first enabled row", () => {
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+    expect(tabStops()).toEqual(["Beta"]);
+  });
+
+  it("moves one row at a time with the arrow keys and stops at either end", () => {
+    focus("Gamma");
+
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+
+    press("ArrowUp");
+    press("ArrowUp");
+    expect(focused()).toBe("Beta");
+  });
+
+  it("lets the arrow keys reach a disabled row, so its label can still be read", () => {
+    focus("Beta");
+
+    press("ArrowUp");
+    expect(focused()).toBe("Alpha");
+    press("ArrowUp");
+    expect(focused()).toBe("Alpha");
+  });
+
+  it("jumps to the first and last row with Home and End", () => {
+    focus("Beta");
+
+    press("End");
+    expect(focused()).toBe("Delta");
+
+    press("Home");
+    expect(focused()).toBe("Alpha");
+  });
+
+  it("keeps a single tab stop, on whichever row last had focus", () => {
+    focus("Beta");
+    press("ArrowDown");
+
+    expect(tabStops()).toEqual(["Gamma"]);
+  });
+
+  it("opens a closed parent with ArrowRight, then steps into its first child", () => {
+    focus("Beta");
+
+    press("ArrowRight");
+    expect(labels()).toEqual(["Alpha", "Beta", "Beta one", "Beta two", "Gamma", "Delta"]);
+    expect(focused()).toBe("Beta");
+
+    press("ArrowRight");
+    expect(focused()).toBe("Beta one");
+  });
+
+  it("steps out to the parent with ArrowLeft, then closes it", () => {
+    focus("Beta");
+    press("ArrowRight");
+    focus("Beta two");
+
+    press("ArrowLeft");
+    expect(focused()).toBe("Beta");
+
+    press("ArrowLeft");
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+    expect(focused()).toBe("Beta");
+  });
+
+  it("leaves a top-level row with nothing to open where it is", () => {
+    focus("Delta");
+
+    press("ArrowLeft");
+    expect(focused()).toBe("Delta");
+    press("ArrowRight");
+    expect(focused()).toBe("Delta");
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+  });
+
+  it("opens every parent at the focused row's level with *", () => {
+    focus("Delta");
+
+    press("*");
+    // Focus follows the option on the render after its position changes.
+    fixture.detectChanges();
+
+    expect(labels()).toEqual([
+      "Alpha",
+      "Beta",
+      "Beta one",
+      "Beta two",
+      "Gamma",
+      "Gamma one",
+      "Delta",
+    ]);
+    expect(focused()).toBe("Delta");
+  });
+
+  it("toggles the focused option with Enter and with Space", () => {
+    focus("Delta");
+
+    press("Enter");
+    expect(chip().value()).toEqual(["delta"]);
+
+    press(" ");
+    expect(chip().value()).toEqual([]);
+  });
+
+  it("does not toggle a disabled option", () => {
+    focus("Alpha");
+
+    press("Enter");
+    press(" ");
+
+    expect(chip().value()).toBeUndefined();
+  });
+
+  it("claims the keys it handles and leaves the rest to the browser", () => {
+    focus("Beta");
+
+    expect(press("ArrowDown")).toBe(true);
+    expect(press("Home")).toBe(true);
+    expect(press("Tab")).toBe(false);
+    expect(press("a")).toBe(false);
+  });
+
+  it("keeps its place when a consumer rebuilds the options while a row has focus", () => {
+    const data = render(TreeKeyboardDataHostComponent);
+    focus("Gamma");
+
+    data.componentInstance.options.set(letterOptions());
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    expect(tabStops()).toEqual(["Gamma"]);
+    expect(focused()).toBe("Gamma");
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+  });
+
+  it("goes straight from a leaf to its parent with ArrowLeft, even after ArrowRight on the leaf", () => {
+    focus("Beta");
+    press("ArrowRight");
+    focus("Beta one");
+
+    press("ArrowRight");
+    press("ArrowLeft");
+
+    expect(focused()).toBe("Beta");
   });
 });
