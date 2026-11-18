@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Location, NgTemplateOutlet } from "@angular/common";
-import { Component, DestroyRef, OnInit, computed, inject, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  Injector,
+  OnInit,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
@@ -135,6 +144,19 @@ export class SettingsComponent implements OnInit {
     { id: "advanced", labelKey: "advancedHeader", icon: "bwi-sliders" },
   ] as const;
   protected readonly page = signal<SettingsPage>("security");
+
+  private readonly injector = inject(Injector);
+
+  /** Switches page and moves focus to the new page heading once it has rendered. */
+  protected selectPage(id: SettingsPage) {
+    this.page.set(id);
+    afterNextRender(
+      () => {
+        document.getElementById(`settings-heading-${id}`)?.focus();
+      },
+      { injector: this.injector },
+    );
+  }
 
   private readonly accountService = inject(AccountService);
   private readonly policyService = inject(PolicyService);

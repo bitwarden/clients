@@ -364,6 +364,57 @@ describe("SettingsComponent", () => {
     expect(pinInputElement).toBeNull();
   });
 
+  it("runs the favicon save handler once, after the form value has changed", async () => {
+    await component.ngOnInit();
+    fixture.detectChanges();
+
+    const seen: unknown[] = [];
+    const saveSpy = jest.spyOn(component as any, "saveFavicons").mockImplementation(async () => {
+      seen.push((component as any).form.value.enableFavicons);
+    });
+
+    const input: HTMLInputElement = fixture.debugElement
+      .query(By.css("bit-switch[formControlName='enableFavicons']"))
+      .nativeElement.querySelector("input[role='switch']");
+    const before = input.checked;
+    input.click();
+    fixture.detectChanges();
+
+    expect(saveSpy).toHaveBeenCalledTimes(1);
+    expect(seen).toEqual([!before]);
+  });
+
+  describe("navigation", () => {
+    const navButton = (id: string): HTMLButtonElement =>
+      fixture.nativeElement.querySelector(`#settings_button_nav-${id}`);
+
+    it("marks only the active page with aria-current", () => {
+      const ids = ["security", "vault", "general", "integrations", "advanced"];
+      expect(navButton("security").getAttribute("aria-current")).toBe("page");
+      ids
+        .filter((id) => id !== "security")
+        .forEach((id) => expect(navButton(id).getAttribute("aria-current")).toBeNull());
+
+      navButton("vault").click();
+      fixture.detectChanges();
+
+      expect(navButton("vault").getAttribute("aria-current")).toBe("page");
+      expect(navButton("security").getAttribute("aria-current")).toBeNull();
+    });
+
+    it("moves focus to the new page heading when a page is selected", () => {
+      // Focus only works on elements attached to the document.
+      document.body.appendChild(fixture.nativeElement);
+      expect(document.activeElement?.id).not.toBe("settings-heading-vault");
+
+      navButton("vault").click();
+      fixture.detectChanges();
+      TestBed.tick();
+
+      expect(document.activeElement?.id).toBe("settings-heading-vault");
+    });
+  });
+
   describe("biometrics enabled", () => {
     beforeEach(() => {
       desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);

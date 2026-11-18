@@ -27,7 +27,7 @@
     [class.tw-text-fg-brand]="page() === p.id"
     [class.tw-bg-transparent]="page() !== p.id"
     [class.tw-text-fg-body]="page() !== p.id"
-    (click)="page.set(p.id)"
+    (click)="selectPage(p.id)"
   >
     <bit-icon [name]="p.icon" />
     {{ p.labelKey | i18n }}
@@ -81,16 +81,24 @@
     </nav>
 
     <div class="tw-min-w-0 tw-flex-1 tw-overflow-y-auto tw-pb-8">
-      <!-- Settings rows: label/hint on the left, switch + state text on the right. -->
+      <!--
+        Settings rows: label/hint on the left, switch + state text on the right.
+        The arbitrary variants below are a deliberate, documented exception to the Tailwind rules:
+        the library bit-form-control renders a shrink-to-fit inline label with the control first,
+        and it has no layout option yet, so the label is stretched and reversed here.
+        TODO (tech debt): replace with a layout option on bit-form-control in libs/components.
+      -->
       <div
         class="tw-max-w-2xl [&_bit-form-control>label]:tw-w-full [&_bit-form-control>label]:tw-flex-row-reverse [&_bit-form-control>label]:tw-justify-between"
       >
         <div [hidden]="page() !== 'security'">
-          <h2 bitTypography="h3" class="tw-mb-1">{{ "security" | i18n }}</h2>
+          <h2 id="settings-heading-security" tabindex="-1" bitTypography="h3" class="tw-mb-1">
+            {{ "security" | i18n }}
+          </h2>
           <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
             {{ "settingsScopeAccountDesc" | i18n }}
           </p>
-          <section class="tw-mb-8" aria-labelledby="settings-session-timeout-header">
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-session-timeout-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -107,9 +115,9 @@
                 />
               </div>
             </bit-card-segmented>
-          </section>
+          </div>
           @if (pinEnabled() || form.value.pin || supportsBiometric()) {
-            <section class="tw-mb-8" aria-labelledby="settings-unlock-methods-header">
+            <div role="group" class="tw-mb-8" aria-labelledby="settings-unlock-methods-header">
               <ng-container
                 *ngTemplateOutlet="
                   groupHeader;
@@ -211,15 +219,17 @@
                   }
                 }
               </bit-card-segmented>
-            </section>
+            </div>
           }
         </div>
         <div [hidden]="page() !== 'vault'">
-          <h2 bitTypography="h3" class="tw-mb-1">{{ "vault" | i18n }}</h2>
+          <h2 id="settings-heading-vault" tabindex="-1" bitTypography="h3" class="tw-mb-1">
+            {{ "vault" | i18n }}
+          </h2>
           <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
             {{ "settingsScopeAccountDesc" | i18n }}
           </p>
-          <section class="tw-mb-8" aria-labelledby="settings-sync-header">
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-sync-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -249,8 +259,8 @@
                 </button>
               </div>
             </bit-card-segmented>
-          </section>
-          <section class="tw-mb-8" aria-labelledby="settings-clipboard-header">
+          </div>
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-clipboard-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -303,14 +313,16 @@
                 </bit-form-control>
               </div>
             </bit-card-segmented>
-          </section>
+          </div>
         </div>
         <div [hidden]="page() !== 'general'">
-          <h2 bitTypography="h3" class="tw-mb-1">{{ "general" | i18n }}</h2>
+          <h2 id="settings-heading-general" tabindex="-1" bitTypography="h3" class="tw-mb-1">
+            {{ "general" | i18n }}
+          </h2>
           <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
             {{ "settingsScopeDeviceDesc" | i18n }}
           </p>
-          <section class="tw-mb-8" aria-labelledby="settings-appearance-header">
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-appearance-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -366,8 +378,8 @@
                 </div>
               </div>
             </bit-card-segmented>
-          </section>
-          <section class="tw-mb-8" aria-labelledby="settings-vault-display-header">
+          </div>
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-vault-display-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -413,8 +425,8 @@
                 </bit-form-control>
               </div>
             </bit-card-segmented>
-          </section>
-          <section class="tw-mb-8" aria-labelledby="settings-startup-header">
+          </div>
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-startup-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -452,14 +464,16 @@
                 </div>
               }
             </bit-card-segmented>
-          </section>
+          </div>
         </div>
         <div [hidden]="page() !== 'integrations'">
-          <h2 bitTypography="h3" class="tw-mb-1">{{ "integrationsHeader" | i18n }}</h2>
+          <h2 id="settings-heading-integrations" tabindex="-1" bitTypography="h3" class="tw-mb-1">
+            {{ "integrationsHeader" | i18n }}
+          </h2>
           <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
             {{ "settingsScopeDeviceDesc" | i18n }}
           </p>
-          <section class="tw-mb-8" aria-labelledby="settings-ssh-agent-header">
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-ssh-agent-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -519,9 +533,9 @@
                 </div>
               }
             </bit-card-segmented>
-          </section>
+          </div>
           @if (showDuckDuckGoIntegrationOption || showPasskeyProviderSetting()) {
-            <section class="tw-mb-8" aria-labelledby="settings-browsers-header">
+            <div role="group" class="tw-mb-8" aria-labelledby="settings-browsers-header">
               <ng-container
                 *ngTemplateOutlet="
                   groupHeader;
@@ -604,10 +618,10 @@
                   </div>
                 }
               </bit-card-segmented>
-            </section>
+            </div>
           }
           @if (showEnableAutotype() || showEnableAutotypeGa()) {
-            <section class="tw-mb-8" aria-labelledby="settings-autotype-header">
+            <div role="group" class="tw-mb-8" aria-labelledby="settings-autotype-header">
               <ng-container
                 *ngTemplateOutlet="
                   groupHeader;
@@ -700,16 +714,18 @@
                   </div>
                 }
               </bit-card-segmented>
-            </section>
+            </div>
           }
         </div>
         <div [hidden]="page() !== 'advanced'">
-          <h2 bitTypography="h3" class="tw-mb-1">{{ "advancedHeader" | i18n }}</h2>
+          <h2 id="settings-heading-advanced" tabindex="-1" bitTypography="h3" class="tw-mb-1">
+            {{ "advancedHeader" | i18n }}
+          </h2>
           <p class="tw-mb-8 tw-text-sm tw-text-fg-body-subtle">
             {{ "settingsScopeDeviceDesc" | i18n }}
           </p>
           @if (!isLinux) {
-            <section class="tw-mb-8" aria-labelledby="settings-privacy-header">
+            <div role="group" class="tw-mb-8" aria-labelledby="settings-privacy-header">
               <ng-container
                 *ngTemplateOutlet="
                   groupHeader;
@@ -739,9 +755,9 @@
                   </bit-form-control>
                 </div>
               </bit-card-segmented>
-            </section>
+            </div>
           }
-          <section class="tw-mb-8" aria-labelledby="settings-performance-header">
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-performance-header">
             <ng-container
               *ngTemplateOutlet="
                 groupHeader;
@@ -771,7 +787,7 @@
                 </bit-form-control>
               </div>
             </bit-card-segmented>
-          </section>
+          </div>
         </div>
       </div>
     </div>
