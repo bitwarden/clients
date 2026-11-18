@@ -325,16 +325,20 @@ export default class RuntimeBackground {
         return;
       }
       case "runFillAssistHeuristicFallback": {
-        // Trusted-sender gate: only the content-script emitter routes this message.
-        // Content scripts carry a sender.tab; popup and options senders do not.
-        // Chrome's extension model (no `externally_connectable` in the manifest) is
-        // the backstop that keeps page-origin dispatches off this listener entirely.
-        // The relay target is also scoped to the sender's tab, so a parent frame
-        // can only reach iframes in its own tab.
+        // Reject messages that did not arrive through the chrome.runtime ingest
+        // boundary. `isExternalMessage` reads the browser-authoritative tag
+        // applied in `from-chrome-runtime-messaging`. Matches the trusted-sender
+        // pattern already used by the sibling handlers in this file.
+        if (!isExternalMessage(msg)) {
+          return;
+        }
+        // Operational guard. `sender.tab.id` is required for the frame lookup
+        // and the relay below, which also scope the dispatch to the sender's
+        // tab so a parent frame can only reach iframes in its own tab.
         if (!sender.tab?.id) {
           return;
         }
-        const iframeSrc: string | undefined = msg.iframeSrc;
+        const iframeSrc = typeof msg.iframeSrc === "string" ? msg.iframeSrc : undefined;
         if (!iframeSrc) {
           return;
         }

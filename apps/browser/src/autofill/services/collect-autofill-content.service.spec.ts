@@ -720,6 +720,25 @@ describe("CollectAutofillContentService", () => {
 
         expect(runHeuristicSpy).toHaveBeenCalled();
       });
+
+      it("leaves pageTargetingRules undefined when the envelope has not been fetched yet", async () => {
+        // Covers the iframe-dispatched fallback path on a fresh child frame.
+        // Preserving `undefined` lets the child's next `getPageDetails` run
+        // the envelope fetch and honor its own blocklist entry.
+        expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+
+        const runHeuristicSpy = jest
+          .spyOn(collectAutofillContentService as any, "runHeuristicCollection")
+          .mockImplementation(() => {
+            expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+            return Promise.resolve({} as any);
+          });
+
+        await collectAutofillContentService.collectHeuristicPageDetailsBypass();
+
+        expect(runHeuristicSpy).toHaveBeenCalled();
+        expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+      });
     });
 
     describe("envelope destructure", () => {

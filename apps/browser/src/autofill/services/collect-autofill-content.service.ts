@@ -403,7 +403,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   async collectHeuristicPageDetailsBypass(
     cachedInScopeForms?: InScopeFormsDetection,
   ): Promise<AutofillPageDetails> {
-    this.pageTargetingRules = null;
+    // Only pin to null when the envelope was already fetched. For the
+    // iframe-dispatched fallback path the child may not have fetched its own
+    // envelope yet; preserving `undefined` keeps the next `getPageDetails`
+    // honoring the child's own blocklist entry.
+    if (this.pageTargetingRules !== undefined) {
+      this.pageTargetingRules = null;
+    }
     this.autofillFieldElements.clear();
     this.autofillFieldsByOpid.clear();
     return this.runHeuristicCollection();
