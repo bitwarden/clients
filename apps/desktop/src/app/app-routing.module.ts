@@ -572,7 +572,7 @@ export const routes: Routes = [
       },
       {
         path: "settings",
-        // remove canMatch when VFO1 flag is removed; the legacy dialog is used while it is off
+        // TODO: PM-46733 - remove canMatch and the legacy settings dialog once vfo1-foundation is removed
         canMatch: [
           () =>
             inject(ConfigService)

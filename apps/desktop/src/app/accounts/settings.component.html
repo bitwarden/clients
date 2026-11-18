@@ -82,11 +82,8 @@
 
     <div class="tw-min-w-0 tw-flex-1 tw-overflow-y-auto tw-pb-8">
       <!--
-        Settings rows: label/hint on the left, switch + state text on the right.
-        The arbitrary variants below are a deliberate, documented exception to the Tailwind rules:
-        the library bit-form-control renders a shrink-to-fit inline label with the control first,
-        and it has no layout option yet, so the label is stretched and reversed here.
-        TODO (tech debt): replace with a layout option on bit-form-control in libs/components.
+        Documented exception to the Tailwind arbitrary-variant rule: bit-form-control renders a
+        shrink-to-fit label with the control first and has no layout option, so the label is stretched and reversed here.
       -->
       <div
         class="tw-max-w-2xl [&_bit-form-control>label]:tw-w-full [&_bit-form-control>label]:tw-flex-row-reverse [&_bit-form-control>label]:tw-justify-between"
@@ -580,7 +577,6 @@
               />
               <bit-card-segmented>
                 <div class="tw-p-4">
-                  <!-- The state is owned by the operating system, so it is a status pill next to the title (never a switch), and the button sits at the end of the first line. -->
                   <div
                     role="group"
                     aria-labelledby="passkey-provider-label"

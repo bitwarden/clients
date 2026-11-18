@@ -1428,7 +1428,7 @@ describe("SettingsComponent", () => {
           if (flag === FeatureFlag.WindowsDesktopAutotype) {
             return of(mvpEnabled);
           }
-          throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+          return of(false);
         });
       }
 

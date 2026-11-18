@@ -131,12 +131,10 @@ type SettingsPage = "security" | "vault" | "general" | "integrations" | "advance
   ],
 })
 export class SettingsComponent implements OnInit {
-  /** Pages that hold per-account settings, shown under the account heading in the nav. */
   protected readonly accountPages = [
     { id: "security", labelKey: "security", icon: "bwi-lock" },
     { id: "vault", labelKey: "vault", icon: "bwi-vault" },
   ] as const;
-  /** Pages that hold device-wide settings, shown under the app heading in the nav. */
   protected readonly appPages = [
     { id: "general", labelKey: "general", icon: "bwi-cog" },
     { id: "integrations", labelKey: "integrationsHeader", icon: "bwi-puzzle" },
@@ -146,7 +144,6 @@ export class SettingsComponent implements OnInit {
 
   private readonly injector = inject(Injector);
 
-  /** Switches page and moves focus to the new page heading once it has rendered. */
   protected selectPage(id: SettingsPage) {
     this.page.set(id);
     afterNextRender(
@@ -225,7 +222,6 @@ export class SettingsComponent implements OnInit {
   /** True when an earlier in-app navigation exists, so history.back() stays inside the app. */
   private readonly cameFromApp = !!this.router.currentNavigation()?.previousNavigation;
 
-  /** Leave settings: return to the page the user came from, or the vault when there is none. */
   protected async close() {
     if (this.cameFromApp) {
       this.location.back();
@@ -275,17 +271,14 @@ export class SettingsComponent implements OnInit {
   protected readonly refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    // Security
     pin: false,
     biometric: false,
     requireMasterPasswordOnAppRestart: true,
     autoPromptBiometrics: false,
-    // Account Preferences
     clearClipboard: [null as ClearClipboardDelaySetting | null],
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     showQuickCopyActions: false,
-    // App Settings
     runInBackground: false,
     openAtLogin: false,
     enableHardwareAcceleration: true,
@@ -436,7 +429,6 @@ export class SettingsComponent implements OnInit {
         });
     }
 
-    // Form events
     this.form.controls.pin.valueChanges
       .pipe(
         concatMap(async (value) => {
@@ -666,9 +658,6 @@ export class SettingsComponent implements OnInit {
     return userKey;
   }
 
-  /**
-   * Persists the user key so biometrics alone can unlock the vault after an app restart.
-   */
   private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
     try {
       if (!(await this.biometricsService.hasPersistentKey(userId))) {
@@ -726,10 +715,6 @@ export class SettingsComponent implements OnInit {
       .subscribe((state) => this.passkeyProviderState.set(state));
   }
 
-  /**
-   * Asks the user to turn on Bitwarden if it is off and the OS can prompt, otherwise opens the
-   * system settings.
-   */
   protected async managePasskeyProvider() {
     try {
       if (!this.passkeyProviderState()?.enabled) {
