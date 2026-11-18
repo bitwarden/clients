@@ -223,7 +223,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
 
   /**
    * Optional i18n key for the toast shown after the policy is submitted, overriding the default
-   * "Edited policy" toast. Return undefined to use the default.
+   * "Edited policy" toast.
    */
   submitToastKey(): string | undefined {
     return undefined;

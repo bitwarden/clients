@@ -145,13 +145,13 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     ),
   );
 
+  /** Whether the single organization policy, which this policy requires, is on. */
+  protected readonly singleOrgEnabled = signal(true);
+
   /**
    * Number of existing items per cipher type across the organization's vaults. Used to tell admins
    * how many items will be hidden when they deselect a type.
    */
-  /** Whether the single organization policy, which this policy requires, is on. */
-  protected readonly singleOrgEnabled = signal(true);
-
   readonly existingItemCounts = signal<Partial<Record<CipherType, number>>>({});
 
   private readonly newItemTypesEnabled = toSignal(
