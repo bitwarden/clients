@@ -60,6 +60,14 @@ where
         self.server.is_running()
     }
 
+    /// Removes the keys that carry an expiry and keeps the others.
+    pub fn remove_expiring(&self) -> Result<()> {
+        debug!("Removing expiring key data.");
+        self.keystore.remove_expiring()?;
+        info!("Expiring key data removed.");
+        Ok(())
+    }
+
     /// Atomically replaces the keystore contents with the provided keys.
     pub fn replace(&self, keys: Vec<K::KeyData>) -> Result<()> {
         debug!("Replacing key data.");
@@ -83,5 +91,20 @@ mod tests {
         let mut agent = BitwardenSSHAgent::new(keystore, approval_handler);
 
         agent.stop();
+    }
+
+    #[test]
+    fn remove_expiring_delegates_to_the_keystore_without_clearing_it() {
+        let mut keystore = MockKeyStore::new();
+        keystore
+            .expect_remove_expiring()
+            .once()
+            .returning(|| Ok(()));
+        keystore.expect_clear().never();
+        let approval_handler = MockApprovalRequester::new();
+
+        let agent = BitwardenSSHAgent::new(keystore, approval_handler);
+
+        assert!(agent.remove_expiring().is_ok());
     }
 }

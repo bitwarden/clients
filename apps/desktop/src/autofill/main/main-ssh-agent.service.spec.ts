@@ -30,6 +30,7 @@ describe("MainSshAgentService", () => {
   let mockAgentState: {
     isRunning: jest.Mock;
     replace: jest.Mock;
+    removeExpiring: jest.Mock;
     stop: jest.Mock;
   };
 
@@ -53,6 +54,7 @@ describe("MainSshAgentService", () => {
     mockAgentState = {
       isRunning: jest.fn().mockReturnValue(true),
       replace: jest.fn(),
+      removeExpiring: jest.fn(),
       stop: jest.fn(),
     };
 
@@ -80,6 +82,7 @@ describe("MainSshAgentService", () => {
       "sshagent.init",
       "sshagent.isloaded",
       "sshagent.replace",
+      "sshagent.removeexpiring",
       "sshagent.signrequestresponse",
       "sshagent.stop",
       "sshagent.listkeysresponse",
@@ -222,6 +225,31 @@ describe("MainSshAgentService", () => {
       await handler({}, keys);
 
       expect(mockAgentState.replace).not.toHaveBeenCalled();
+    });
+
+    it("should pass a leased key's expiry through to the agent", async () => {
+      const leased = [{ name: "Leased", privateKey: "key-data", cipherId: "c-2", expiresAt: 5 }];
+      await ipcHandlers.get("sshagent.replace")!({}, leased);
+
+      expect(mockAgentState.replace).toHaveBeenCalledWith(leased);
+    });
+  });
+
+  describe("sshagent.removeexpiring IPC handler", () => {
+    it("should remove the expiring keys without stopping the agent", async () => {
+      await ipcHandlers.get("sshagent.removeexpiring")!({});
+
+      expect(mockAgentState.removeExpiring).toHaveBeenCalledTimes(1);
+      expect(mockAgentState.stop).not.toHaveBeenCalled();
+      expect(mockAgentState.replace).not.toHaveBeenCalled();
+    });
+
+    it("should be a no-op when the agent is not running", async () => {
+      mockAgentState.isRunning.mockReturnValue(false);
+
+      await ipcHandlers.get("sshagent.removeexpiring")!({});
+
+      expect(mockAgentState.removeExpiring).not.toHaveBeenCalled();
     });
   });
 

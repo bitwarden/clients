@@ -37,6 +37,9 @@ pub struct UnparsedSSHKeyData {
     pub name: String,
     /// Vault cipher ID associated with the key pair
     pub cipher_id: String,
+    /// Unix time in milliseconds at which the key stops being usable, for a key the vault only
+    /// lends for a limited time. `None` for a key that does not expire.
+    pub expires_at_ms: Option<u64>,
 }
 
 /// Represents an SSH key and its associated metadata.
@@ -50,6 +53,9 @@ pub struct SSHKeyData {
     pub(super) name: String,
     /// Vault cipher ID associated with the key pair
     pub(super) cipher_id: String,
+    /// Unix time in milliseconds at which the keystore stops listing or handing out this key.
+    /// `None` for a key that does not expire.
+    pub(super) expires_at_ms: Option<u64>,
 }
 
 impl SSHKeyData {
@@ -73,7 +79,32 @@ impl SSHKeyData {
             public_key,
             name,
             cipher_id,
+            expires_at_ms: None,
         }
+    }
+
+    /// Sets the time, in Unix milliseconds, from which the keystore treats this key as absent.
+    #[must_use]
+    pub fn with_expiry(mut self, expires_at_ms: Option<u64>) -> Self {
+        self.expires_at_ms = expires_at_ms;
+        self
+    }
+
+    /// # Returns
+    ///
+    /// The expiry in Unix milliseconds, or `None` for a key that does not expire.
+    #[must_use]
+    pub fn expires_at_ms(&self) -> Option<u64> {
+        self.expires_at_ms
+    }
+
+    /// # Returns
+    ///
+    /// `true` if the key has an expiry and `now_ms` has reached it.
+    #[must_use]
+    pub fn is_expired_at(&self, now_ms: u64) -> bool {
+        self.expires_at_ms
+            .is_some_and(|expires_at| now_ms >= expires_at)
     }
 
     /// Parses an OpenSSH PEM private key string and constructs an [`SSHKeyData`] instance.
@@ -110,7 +141,9 @@ impl SSHKeyData {
             .into_iter()
             .filter_map(|k| {
                 let cipher_id = k.cipher_id.clone();
+                let expires_at_ms = k.expires_at_ms;
                 Self::from_private_key_pem(&k.private_key_pem, k.name, k.cipher_id)
+                    .map(|key| key.with_expiry(expires_at_ms))
                     .inspect_err(|error| warn!(%error, %cipher_id, "Skipping un-parseable key"))
                     .ok()
             })
@@ -283,6 +316,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
             private_key_pem: pem.to_string(),
             name: name.to_string(),
             cipher_id: format!("cipher-{name}"),
+            expires_at_ms: None,
         }
     }
 
@@ -298,6 +332,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         assert_eq!(parsed.len(), 2);
         assert_eq!(parsed[0].public_key().alg(), "ssh-ed25519");
         assert_eq!(parsed[1].public_key().alg(), "ssh-rsa");
+    }
+
+    #[test]
+    fn from_private_key_pems_keeps_each_keys_expiry() {
+        let mut leased = unparsed(TEST_ED25519_PEM, "leased");
+        leased.expires_at_ms = Some(1_000);
+        let parsed =
+            SSHKeyData::from_private_key_pems(vec![leased, unparsed(TEST_RSA_PEM, "ordinary")]);
+
+        assert_eq!(parsed[0].expires_at_ms(), Some(1_000));
+        assert_eq!(parsed[1].expires_at_ms(), None);
+    }
+
+    #[test]
+    fn is_expired_at_is_false_without_an_expiry_and_true_from_the_expiry_on() {
+        let key =
+            SSHKeyData::from_private_key_pem(TEST_ED25519_PEM, "k".into(), "id".into()).unwrap();
+        assert!(!key.is_expired_at(u64::MAX));
+
+        let key = key.with_expiry(Some(1_000));
+        assert!(!key.is_expired_at(999));
+        assert!(key.is_expired_at(1_000));
+        assert!(key.is_expired_at(1_001));
     }
 
     #[test]

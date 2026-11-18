@@ -6,13 +6,14 @@
   popup's and the web vault's `providePam()`. It also fills the vault seams: the gated shared-folder
   banner (`VAULT_GATED_COLLECTION_BANNER`, `DesktopGatedCollectionBannerComponent`, see `vault/`),
   the Controlled access column (`VAULT_ITEM_COLUMN`, `controlledAccessColumn`) and the row menu
-  (`VAULT_ROW_ACTIONS`, see `vault/`), and `RevealedCipherService` with
-  `DesktopRevealedCipherService` (see `vault/`), and the shared-folder lock
-  (`SHARED_FOLDER_DECORATION`, the shared `GovernedSharedFolderIconComponent`, the same component
-  the web vault binds). The lock reads only `FeatureFlag.Pam` and the collection's server-derived
-  `hasEnabledAccessRule`, so it needs no license or access-rule read and shows the same for every
-  member; the desktop shared-folders page renders the shared `vault-shared-folders` list, which
-  honours the token.
+  (`VAULT_ROW_ACTIONS`, see `vault/`), `RevealedCipherService` with
+  `DesktopRevealedCipherService` (see `vault/`; one instance, also provided under its own class),
+  the shared-folder lock (`SHARED_FOLDER_DECORATION`, the shared `GovernedSharedFolderIconComponent`,
+  the same component the web vault binds; it reads only `FeatureFlag.Pam` and the collection's
+  server-derived `hasEnabledAccessRule`, so it needs no license or access-rule read and shows the
+  same for every member, and the desktop shared-folders page renders the shared `vault-shared-folders`
+  list, which honours the token), and the SSH agent's `LeasedSshKeyService` with
+  `DesktopLeasedSshKeyService` (see "SSH agent and leased keys" below).
 - Unlicensed members (`unlicensedForPam`: a `usePam` organization, `accessPam === false`) get no
   request form anywhere. The shared `CipherViewBannerComponent` shows its unlicensed card on the
   open item; `vault/desktop-gated-collection-banner.component.*` shows `pamSharedFolderUnlicensed`
@@ -40,7 +41,7 @@
   drawer (`VaultItemDialogComponent`) and row menu (`CipherRowMenuService`), a desktop copy of
   bit-web's `PamRevealedCipherService` (keep the two behaving alike). While the active user holds a
   live lease it reads the full view through the SDK's `leasedCipher` and holds it in renderer memory
-  only (never state, never IPC); it drops the view when the lease ends, lapses or reads as gone, on
+  only (never state, never IPC, with the one exception of a leased SSH key, below); it drops the view when the lease ends, lapses or reads as gone, on
   an account switch, and on lock or logout. A failed state read keeps the last answer (it can hold a
   reveal, never grant one); a failed or still-partial `leasedCipher` read reveals nothing. Without
   it, the reveal-nothing default from `jslib-services` leaves a leased item with no credentials.
@@ -98,3 +99,30 @@
   folder, requester or comment text; keep it that way). `PamNotificationsSettingComponent` is the
   "PAM notifications" row (also needing both flags), supplied through `DESKTOP_SETTINGS_EXTRAS`. Routes a notification opens
   must also be in the OSS allowlist `apps/desktop/src/platform/notification-routes.ts`.
+
+## SSH agent and leased keys
+
+- `vault/desktop-leased-ssh-key.service.ts`: `DesktopLeasedSshKeyService` fills the OSS seam
+  `LeasedSshKeyService` (`apps/desktop/src/autofill/abstractions/leased-ssh-key.service.ts`), so the
+  desktop SSH agent (`SshAgentService`) can use the key of a gated SSH-key item while the user holds
+  a live lease. It reads `listMyLeases` (again on each access change and at the nearest lapse; a
+  failed read keeps the last answer), asks `DesktopRevealedCipherService` to reveal each gated
+  SSH-key item under a live lease, and hands out the revealed key with `leaseEndsAt`, the earlier of
+  the lease end and the reveal's end. It needs `FeatureFlag.Pam`, a `usePam` organization and an
+  active, unlocked user, and holds only ids and lease ends itself.
+- Decision: a leased private key may cross IPC (renderer, main, native agent) on the channel the
+  agent already uses for ordinary keys, with expiry and removal guarantees (option a). Rejected: (b)
+  keeping leased keys out of the agent, because a revealed SSH key can be copied out of the item
+  drawer anyway, so the agent is the more contained way to use it; and (c) signing in the renderer
+  per request, because it adds new signing code to this repo and an IPC round trip per signature,
+  and fails while the renderer is hidden, throttled or reloading. This is the only exception to
+  "never IPC" for revealed content; a security review must sign it off before it ships.
+- Guarantees: the key carries `expiresAt` into the native keystore, which neither lists nor hands
+  out a key from its expiry on, even with no further push from the renderer. The renderer re-pushes
+  on every reveal, drop and extension, and removes all expiring keys (`removeExpiring`, ordinary
+  keys stay) on lock, logout and account switch; if that removal fails it stops the agent. A sign
+  request for a leased key always opens the approval dialog, whatever the prompt setting, is never
+  remembered per host, closes as denied when the lease ends while it is open, and is re-checked
+  against the lease, the active user and the lock once answered.
+- Out of reach: SSH sessions already open, agents already forwarded to a remote host, and
+  signatures already issued stay valid after the lease ends. Keep the PRD saying so.

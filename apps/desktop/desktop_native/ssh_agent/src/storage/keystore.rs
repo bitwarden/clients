@@ -2,9 +2,12 @@
 //! implementation for storing SSH keys securely. All stored data is ephemeral and
 //! lost when the store is dropped.
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc, Mutex,
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use anyhow::Result;
@@ -27,7 +30,7 @@ pub trait KeyStore: Send + Sync {
     /// If a key with the same public key already exists, it will be overwritten.
     fn insert(&self, key_data: Self::KeyData) -> Result<()>;
 
-    /// Retrieves SSH key data by its [`PublicKey`]
+    /// Retrieves SSH key data by its [`PublicKey`]. A key whose expiry has passed is absent.
     ///
     /// # Returns
     ///
@@ -47,11 +50,17 @@ pub trait KeyStore: Send + Sync {
 
     /// # Returns
     ///
-    /// A vector of tuples containing each key's public key and human-readable name.
+    /// A vector of tuples containing each key's public key and human-readable name. Keys whose
+    /// expiry has passed are left out.
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>>;
 
     /// Atomically replaces all keys in the keystore.
     fn replace(&self, keys: Vec<Self::KeyData>) -> Result<()>;
+
+    /// Removes every key that carries an expiry, expired or not, and keeps the keys that do not
+    /// expire. Used when the vault locks or the account changes, so a key the vault only lends for
+    /// a limited time leaves the agent while ordinary keys stay.
+    fn remove_expiring(&self) -> Result<()>;
 
     /// Clears the keystore of all keys.
     fn clear(&self);
@@ -69,6 +78,16 @@ pub trait KeyStore: Send + Sync {
 pub struct InMemoryEncryptedKeyStore {
     secure_memory: Arc<Mutex<EncryptedMemoryStore<PublicKey>>>,
     initialized: AtomicBool,
+}
+
+/// The current Unix time in milliseconds. A clock before the epoch reads as 0, which never expires
+/// a key early.
+fn now_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |elapsed| {
+            u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)
+        })
 }
 
 impl InMemoryEncryptedKeyStore {
@@ -104,25 +123,40 @@ impl KeyStore for InMemoryEncryptedKeyStore {
     }
 
     fn get(&self, public_key: &PublicKey) -> Result<Option<Self::KeyData>> {
-        self.secure_memory
-            .lock()
-            .expect("Mutex is not poisoned.")
+        let mut store = self.secure_memory.lock().expect("Mutex is not poisoned.");
+        let Some(key_data) = store
             .get(public_key)?
             .map(SSHKeyData::try_from)
-            .transpose()
+            .transpose()?
+        else {
+            return Ok(None);
+        };
+        // An expired key is gone: it is neither listed nor handed out for signing, even if the
+        // client that lent it never asks for its removal.
+        if key_data.is_expired_at(now_ms()) {
+            store.remove(public_key);
+            return Ok(None);
+        }
+        Ok(Some(key_data))
     }
 
     fn get_all_public_keys_and_names(&self) -> Result<Vec<(PublicKey, String)>> {
-        self.secure_memory
-            .lock()
-            .expect("Mutex is not poisoned")
+        let mut store = self.secure_memory.lock().expect("Mutex is not poisoned");
+        let now = now_ms();
+        let (expired, live): (Vec<_>, Vec<_>) = store
             .to_vec()?
             .into_iter()
-            .map(|bytes| {
-                SSHKeyData::try_from(bytes)
-                    .map(|key_data| (key_data.public_key().clone(), key_data.name().clone()))
-            })
-            .collect::<Result<Vec<_>, _>>()
+            .map(SSHKeyData::try_from)
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .partition(|key_data| key_data.is_expired_at(now));
+        for key_data in expired {
+            store.remove(key_data.public_key());
+        }
+        Ok(live
+            .into_iter()
+            .map(|key_data| (key_data.public_key, key_data.name))
+            .collect())
     }
 
     fn get_private_key(&self, public_key: &PublicKey) -> Result<Option<PrivateKey>> {
@@ -148,6 +182,23 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             }
         }
         self.initialized.store(true, Ordering::Relaxed);
+        Ok(())
+    }
+
+    fn remove_expiring(&self) -> Result<()> {
+        let mut store = self.secure_memory.lock().expect("Mutex is not poisoned");
+        let expiring: Vec<PublicKey> = store
+            .to_vec()?
+            .into_iter()
+            .map(SSHKeyData::try_from)
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .filter(|key_data| key_data.expires_at_ms().is_some())
+            .map(|key_data| key_data.public_key)
+            .collect();
+        for public_key in expiring {
+            store.remove(&public_key);
+        }
         Ok(())
     }
 
@@ -377,6 +428,56 @@ mod tests {
         assert!(ks.is_initialized());
         ks.clear();
         assert!(!ks.is_initialized());
+    }
+
+    fn far_future_ms() -> u64 {
+        now_ms() + 3_600_000
+    }
+
+    #[test]
+    fn test_expired_key_is_neither_listed_nor_returned() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let ordinary = create_test_keydata_ed25519("ordinary", "cipher-1");
+        let expired = create_test_keydata_ed25519("leased", "cipher-2").with_expiry(Some(1));
+        let expired_public_key = expired.public_key().clone();
+
+        ks.replace(vec![ordinary, expired]).unwrap();
+
+        let listed = ks.get_all_public_keys_and_names().unwrap();
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].1, "ordinary");
+        assert!(ks.get(&expired_public_key).unwrap().is_none());
+        assert!(ks.get_private_key(&expired_public_key).unwrap().is_none());
+    }
+
+    #[test]
+    fn test_unexpired_key_is_listed_and_returned() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let leased =
+            create_test_keydata_ed25519("leased", "cipher-2").with_expiry(Some(far_future_ms()));
+        let public_key = leased.public_key().clone();
+
+        ks.replace(vec![leased]).unwrap();
+
+        assert_eq!(ks.get_all_public_keys_and_names().unwrap().len(), 1);
+        assert!(ks.get_private_key(&public_key).unwrap().is_some());
+    }
+
+    #[test]
+    fn test_remove_expiring_keeps_only_keys_without_expiry() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let ordinary = create_test_keydata_rsa("ordinary", "cipher-1");
+        let ordinary_public_key = ordinary.public_key().clone();
+        let leased =
+            create_test_keydata_ed25519("leased", "cipher-2").with_expiry(Some(far_future_ms()));
+        let leased_public_key = leased.public_key().clone();
+        ks.replace(vec![ordinary, leased]).unwrap();
+
+        ks.remove_expiring().unwrap();
+
+        assert!(ks.get(&ordinary_public_key).unwrap().is_some());
+        assert!(ks.get(&leased_public_key).unwrap().is_none());
+        assert!(ks.is_initialized());
     }
 
     #[test]

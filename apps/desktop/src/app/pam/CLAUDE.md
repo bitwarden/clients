@@ -17,6 +17,10 @@ Inert hooks a commercial build fills; this folder and the rest of `apps/desktop`
   `ITEM_DETAILS_BADGE`, which the desktop vault table and cipher view already honour, and
   `SHARED_FOLDER_DECORATION`, which the shared-folders page honours through the shared
   `vault-shared-folders` list.
+- SSH agent seam that lives elsewhere: `autofill/abstractions/leased-ssh-key.service.ts`
+  (`LeasedSshKeyService`, optional in `SshAgentService`). Unprovided, the agent serves ordinary keys
+  only and never calls `removeExpiring`. Provided, leased keys reach the agent with an expiry, leave
+  it on lock, logout and account switch, and always need a fresh approval.
 - Notification seams that live elsewhere and name no PAM symbol except the route allowlist:
   `ipc.platform.showNotification({ title, body, route? })` (`platform/preload.ts`, handled in
   `services/electron-main-messaging.service.ts`: unsupported-platform check, route checked against

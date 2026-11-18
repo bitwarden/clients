@@ -7,6 +7,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { sshagent } from "@bitwarden/desktop-napi";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+import { SshAgentKey } from "../models/ssh-agent-key";
 
 export class MainSshAgentService {
   // The napi callback requestSign() is awaited directly by the Rust agent,
@@ -38,14 +39,19 @@ export class MainSshAgentService {
       return this.agentState?.isRunning() ?? false;
     });
 
-    ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.REPLACE,
-      async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
-        if (this.agentState != null && this.agentState.isRunning()) {
-          this.agentState.replace(keys);
-        }
-      },
-    );
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.REPLACE, async (_, keys: SshAgentKey[]) => {
+      if (this.agentState != null && this.agentState.isRunning()) {
+        this.agentState.replace(keys);
+      }
+    });
+
+    // Leased keys carry an expiry; ordinary keys do not. Lock, logout and account switch drop the
+    // former and keep the latter, which the agent serves across a lock.
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.REMOVE_EXPIRING, async () => {
+      if (this.agentState != null && this.agentState.isRunning()) {
+        this.agentState.removeExpiring();
+      }
+    });
 
     ipcMain.handle(
       SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE,
