@@ -506,15 +506,19 @@ export class Fido2Background implements Fido2BackgroundInterface {
       this.activeCredentialRequests.add(tabId);
     }
     try {
+      // Read before the request runs, because the passkey popout takes the focus once it opens
+      const pageHadFocus = tab.active === true && (await this.isWindowFocused(tab.windowId));
+
       return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
         try {
           return await callback(data!, tab, abortController);
         } finally {
-          // Hand focus back to the page once the passkey UI is done, but only when the page was
-          // the active tab when it made the request and the request was not aborted. A request
-          // from a background tab, or one the page cancels itself (e.g. a conditional mediation
-          // request), must not pull its tab or window to the front.
-          if (tab.active === true && !abortController.signal.aborted) {
+          // Hand focus back to the page once the passkey UI is done, but only when the page had the
+          // focus when it made the request (the active tab of the focused window) and the request
+          // was not aborted. A request from a background tab or an unfocused or minimized window,
+          // or one the page cancels itself (e.g. a conditional mediation request), must not pull
+          // its tab or window to the front.
+          if (pageHadFocus && !abortController.signal.aborted) {
             if (tab.id != null) {
               await BrowserApi.focusTab(tab.id);
             }
@@ -530,6 +534,24 @@ export class Fido2Background implements Fido2BackgroundInterface {
       }
     }
   };
+
+  /**
+   * Indicates whether the browser window with the given id currently has the focus.
+   *
+   * @param windowId - The id of the window to check.
+   */
+  private async isWindowFocused(windowId: number | undefined): Promise<boolean> {
+    if (windowId == null) {
+      return false;
+    }
+
+    try {
+      const window = await BrowserApi.getWindowById(windowId);
+      return window?.focused === true;
+    } catch {
+      return false;
+    }
+  }
 
   /**
    * Checks if the enablePasskeys setting is enabled.

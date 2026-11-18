@@ -56,6 +56,7 @@ describe("Fido2Background", () => {
   const focusWindowSpy: jest.SpyInstance = jest
     .spyOn(BrowserApi, "focusWindow")
     .mockResolvedValue();
+  const getWindowByIdSpy: jest.SpyInstance = jest.spyOn(BrowserApi, "getWindowById");
   let abortManagerMock!: MockProxy<AbortManager>;
   let abortController!: MockProxy<AbortController>;
   let registeredContentScripsMock!: MockProxy<browser.contentScripts.RegisteredContentScript>;
@@ -93,6 +94,7 @@ describe("Fido2Background", () => {
       .spyOn(BrowserApi, "getSenderFrameUrl")
       .mockResolvedValue("https://example.com");
     getAllFrameDetailsSpy = jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([]);
+    getWindowByIdSpy.mockResolvedValue(mock<chrome.windows.Window>({ id: 456, focused: true }));
     logService = mock<LogService>();
     fido2ClientService = mock<Fido2ClientService<BrowserFido2ParentWindowReference>>();
     vaultSettingsService = mock<VaultSettingsService>();
@@ -685,6 +687,26 @@ describe("Fido2Background", () => {
         );
         await flushPromises();
 
+        expect(fido2ClientService.assertCredential).toHaveBeenCalled();
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not focus the tab or window when the request comes from an unfocused window", async () => {
+        getWindowByIdSpy.mockResolvedValue(
+          mock<chrome.windows.Window>({ id: 456, focused: false }),
+        );
+        fido2ClientService.assertCredential.mockRejectedValue(new Error("SecurityError"));
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(getWindowByIdSpy).toHaveBeenCalledWith(tabMock.windowId);
         expect(fido2ClientService.assertCredential).toHaveBeenCalled();
         expect(focusTabSpy).not.toHaveBeenCalled();
         expect(focusWindowSpy).not.toHaveBeenCalled();
