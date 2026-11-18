@@ -6779,7 +6779,7 @@
     }
   },
   "createdSharedFolderId": {
-    "message": "Created shared folder $ID$.",
+    "message": "Added shared folder: $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6798,7 +6798,7 @@
     }
   },
   "editedSharedFolderId": {
-    "message": "Edited shared folder $ID$.",
+    "message": "Edited shared folder: $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6826,7 +6826,7 @@
     }
   },
   "deletedSharedFolderId": {
-    "message": "Deleted shared folder $ID$.",
+    "message": "Deleted shared folder: $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6834,48 +6834,6 @@
       }
     },
     "description": "VFO1 terminology feature flag variant of deletedCollectionId"
-  },
-  "addedSharedFolderIdWithUser": {
-    "message": "$USER$ added shared folder: $ID$",
-    "placeholders": {
-      "user": {
-        "content": "$1",
-        "example": "John Smith"
-      },
-      "id": {
-        "content": "$2",
-        "example": "a1b2c3d4"
-      }
-    },
-    "description": "Variant of createdSharedFolderId naming the member who made the change."
-  },
-  "editedSharedFolderIdWithUser": {
-    "message": "$USER$ edited shared folder: $ID$",
-    "placeholders": {
-      "user": {
-        "content": "$1",
-        "example": "John Smith"
-      },
-      "id": {
-        "content": "$2",
-        "example": "a1b2c3d4"
-      }
-    },
-    "description": "Variant of editedSharedFolderId naming the member who made the change."
-  },
-  "deletedSharedFolderIdWithUser": {
-    "message": "$USER$ deleted shared folder: $ID$",
-    "placeholders": {
-      "user": {
-        "content": "$1",
-        "example": "John Smith"
-      },
-      "id": {
-        "content": "$2",
-        "example": "a1b2c3d4"
-      }
-    },
-    "description": "Variant of deletedSharedFolderId naming the member who made the change."
   },
   "discardEditsTitle": {
     "message": "Discard edits"
