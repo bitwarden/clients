@@ -69,6 +69,14 @@ const RISK_BADGES: Record<RiskCategory, RiskBadge> = {
   },
 };
 
+/** Shown when an org flagged the password but this member's view can't determine why. */
+const FLAGGED_RISK_BADGE: RiskBadge = {
+  labelKey: "passwordAtRisk",
+  tooltipKey: "passwordFlaggedByOrganization",
+  icon: "bwi-warning",
+  variant: "warning",
+};
+
 type TotpCodeValues = {
   totpCode: string;
   totpCodeFormatted?: string;
@@ -106,7 +114,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   readonly passwordRiskCategory = input<RiskCategory | null>(null);
   protected readonly riskBadge = computed(() => {
     const category = this.passwordRiskCategory();
-    return category ? RISK_BADGES[category] : null;
+    return category ? RISK_BADGES[category] : FLAGGED_RISK_BADGE;
   });
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref

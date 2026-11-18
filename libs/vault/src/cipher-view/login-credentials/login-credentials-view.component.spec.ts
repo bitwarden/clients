@@ -157,10 +157,12 @@ describe("LoginCredentialsViewComponent", () => {
         expect(query("password-risk-badge").nativeElement.textContent.trim()).toBe(label);
       });
 
-      it("shows only the change password link when there is no risk category", () => {
+      it("shows the generic at-risk badge when there is no risk category", () => {
         render(null, "https://example.com/change");
 
-        expect(query("password-risk-badge")).toBeNull();
+        expect(query("password-risk-badge").nativeElement.textContent.trim()).toBe(
+          "passwordAtRisk",
+        );
         expect(query("change-password-link").nativeElement.getAttribute("href")).toBe(
           "https://example.com/change",
         );

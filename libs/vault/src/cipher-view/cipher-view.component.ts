@@ -301,29 +301,28 @@ export class CipherViewComponent {
 
   /**
    * The highest risk category of the login password, or null when it is not at risk.
-   * The password is only evaluated when the user is premium (and not anonymous;
-   * the userId is required to make the check) and has edit access to the cipher.
+   * Personal ciphers are evaluated for premium users; org ciphers only once an admin has assigned
+   * a change-password task. Both require a userId and edit access to the cipher.
    */
   readonly passwordRiskCategory = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]): Observable<RiskCategory | null> => {
-        if (
-          !cipher.hasLoginPassword ||
-          !cipher.edit ||
-          cipher.organizationId ||
-          cipher.isDeleted ||
-          !userId
-        ) {
+    combineLatest([
+      this.activeUserId$,
+      this.cipher$,
+      toObservable(this.hadPendingChangePasswordTask),
+    ]).pipe(
+      switchMap(([userId, cipher, hasPendingTask]): Observable<RiskCategory | null> => {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.isDeleted || !userId) {
           return of(null);
         }
-        return this.switchPremium$<RiskCategory | null>(
-          userId,
-          () =>
-            from(this.getPasswordRiskCategory(cipher.id as CipherId, userId as UserId)).pipe(
-              startWith<RiskCategory | null>(null),
-            ),
-          () => of(null),
-        );
+        const riskCategory$ = () =>
+          from(this.getPasswordRiskCategory(cipher.id as CipherId, userId as UserId)).pipe(
+            startWith<RiskCategory | null>(null),
+          );
+        // Admins own org risk via Access Intelligence, so only categorize what they've flagged.
+        if (cipher.organizationId) {
+          return hasPendingTask ? riskCategory$() : of(null);
+        }
+        return this.switchPremium$<RiskCategory | null>(userId, riskCategory$, () => of(null));
       }),
     ),
     { initialValue: null },
