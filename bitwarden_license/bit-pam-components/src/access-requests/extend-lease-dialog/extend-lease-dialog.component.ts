@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { AccessLeaseExtensionRequest, EXTENSION_DURATION_OPTIONS } from "@bitwarden/bit-pam";
+import { AccessLeaseExtensionRequest, extensionDurationOptions } from "@bitwarden/bit-pam";
 import {
   AsyncActionsModule,
   ButtonModule,
+  DIALOG_DATA,
   DialogModule,
   DialogRef,
   DialogService,
@@ -12,6 +13,13 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { DurationLongPipe } from "../../date/duration-long.pipe";
+
+export type ExtendLeaseDialogParams = {
+  /** The governing rule's maximum extension length, in seconds. */
+  maxDurationSeconds: number;
+};
 
 /** Collects a lease extension. The reason is required because the server rejects an empty one. */
 @Component({
@@ -26,17 +34,19 @@ import { I18nPipe } from "@bitwarden/ui-common";
     ReactiveFormsModule,
     SelectModule,
     I18nPipe,
+    DurationLongPipe,
   ],
 })
 export class ExtendLeaseDialogComponent {
   private readonly dialogRef =
     inject<DialogRef<AccessLeaseExtensionRequest | undefined>>(DialogRef);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly params = inject<ExtendLeaseDialogParams>(DIALOG_DATA);
 
-  protected readonly durationOptions = EXTENSION_DURATION_OPTIONS;
+  protected readonly durationOptions = extensionDurationOptions(this.params.maxDurationSeconds);
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
-    durationSeconds: [EXTENSION_DURATION_OPTIONS[0].seconds, Validators.required],
+    durationSeconds: [this.durationOptions[0].seconds, Validators.required],
     reason: ["", Validators.required],
   });
 
@@ -49,7 +59,10 @@ export class ExtendLeaseDialogComponent {
     void this.dialogRef.close({ durationSeconds, reason });
   };
 
-  static open(dialogService: DialogService): DialogRef<AccessLeaseExtensionRequest | undefined> {
-    return dialogService.open(ExtendLeaseDialogComponent);
+  static open(
+    dialogService: DialogService,
+    data: ExtendLeaseDialogParams,
+  ): DialogRef<AccessLeaseExtensionRequest | undefined> {
+    return dialogService.open(ExtendLeaseDialogComponent, { data });
   }
 }

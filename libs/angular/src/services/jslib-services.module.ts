@@ -22,23 +22,19 @@ import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultNewDeviceVerificationComponentService,
-  DefaultRegistrationFinishService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   NewDeviceVerificationComponentService,
-  RegistrationFinishService as RegistrationFinishServiceAbstraction,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
-  DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
@@ -63,6 +59,7 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  LoginCapability,
   SdkCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
@@ -106,7 +103,6 @@ import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/aut
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
@@ -122,6 +118,10 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import {
+  AuthRequestApiServiceAbstraction,
+  DefaultAuthRequestApiService,
+} from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
@@ -144,7 +144,6 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
-import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -311,11 +310,9 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -473,6 +470,10 @@ import {
 } from "../auth/password-management/change-password";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+import {
+  DefaultRegistrationFinishService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+} from "../auth/registration";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
@@ -740,7 +741,6 @@ const safeProviders: SafeProvider[] = [
       accountService: AccountServiceAbstraction,
       logService: LogService,
       cipherEncryptionService: CipherEncryptionService,
-      messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
     ) =>
       new CipherService(
@@ -757,7 +757,6 @@ const safeProviders: SafeProvider[] = [
         accountService,
         logService,
         cipherEncryptionService,
-        messagingService,
         cipherSdkService,
       ),
     deps: [
@@ -774,7 +773,6 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       LogService,
       CipherEncryptionService,
-      MessagingServiceAbstraction,
       CipherSdkService,
     ],
   }),
@@ -843,7 +841,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionEncryptionService,
     useClass: DefaultCollectionEncryptionService,
-    deps: [SdkService, LogService, ConfigService],
+    deps: [SdkService, LogService],
   }),
   safeProvider({
     provide: CollectionService,
@@ -1007,7 +1005,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendDecryptionService,
     useClass: SendDecryptionService,
-    deps: [SdkService, ConfigService, LegacyCompatKeyService],
+    deps: [SdkService, LegacyCompatKeyService],
   }),
   safeProvider({
     provide: InternalSendService,
@@ -1019,7 +1017,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      ConfigService,
       SdkService,
       SendDecryptionService,
     ],
@@ -1032,24 +1029,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SendApiService,
     useClass: SendApiService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService, LogService],
-  }),
-  safeProvider({
-    provide: SendSdkApiService,
-    useClass: SendSdkApiService,
     deps: [
-      SdkService,
-      SendApiService,
+      ApiServiceAbstraction,
+      FileUploadServiceAbstraction,
       InternalSendService,
-      AccountServiceAbstraction,
       LogService,
+      SdkService,
+      AccountServiceAbstraction,
       SendDecryptionService,
     ],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
-    useClass: SendApiServiceSelector,
-    deps: [ConfigService, SendApiService, SendSdkApiService],
+    useExisting: SendApiService,
   }),
   safeProvider({
     provide: SyncService,
@@ -1449,18 +1441,6 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider, EnvironmentService, SdkService],
   }),
   safeProvider({
-    provide: PasswordResetEnrollmentServiceAbstraction,
-    useClass: PasswordResetEnrollmentServiceImplementation,
-    deps: [
-      OrganizationApiServiceAbstraction,
-      AccountServiceAbstraction,
-      KeyService,
-      EncryptService,
-      OrganizationUserApiService,
-      I18nServiceAbstraction,
-    ],
-  }),
-  safeProvider({
     provide: ProviderServiceAbstraction,
     useClass: ProviderService,
     deps: [StateProvider],
@@ -1681,6 +1661,28 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AutomationCapability,
+    useFactory: (
+      loginStrategyService: LoginStrategyServiceAbstraction,
+      loginSuccessHandlerService: LoginSuccessHandlerService,
+      router: Router,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+    ) =>
+      new LoginCapability(
+        loginStrategyService,
+        loginSuccessHandlerService,
+        router,
+        platformUtilsService,
+      ),
+    deps: [
+      LoginStrategyServiceAbstraction,
+      LoginSuccessHandlerService,
+      Router,
+      PlatformUtilsServiceAbstraction,
+    ],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
     multi: true,
@@ -1875,7 +1877,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
-      LegacyCompatKeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -1899,13 +1900,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: DefaultRegistrationFinishService,
-    deps: [
-      LegacyCompatKeyService,
-      AccountApiServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      ConfigService,
-      SdkService,
-    ],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: DeepLinkRedirectService,
@@ -2138,7 +2133,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService, SdkService, ConfigService],
+    deps: [PasswordPreloginApiService, SdkService, ConfigService, MasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

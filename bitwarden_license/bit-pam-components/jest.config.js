@@ -19,6 +19,6 @@ module.exports = {
     },
   ),
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  transformIgnorePatterns: ["node_modules/(?!(.*\\.mjs$|@angular|rxjs|@bitwarden))"],
+  transformIgnorePatterns: ["node_modules/(?!(.*\\.mjs$|@angular|rxjs|@bitwarden|oauth4webapi))"],
   moduleFileExtensions: ["ts", "js", "html", "mjs"],
 };

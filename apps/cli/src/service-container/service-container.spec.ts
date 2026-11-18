@@ -5,6 +5,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { LockSource } from "@bitwarden/unlock";
 
 import { CliLogoutService } from "../auth/logout/cli-logout.service";
+import { CliLicenseType } from "../platform/cli-license-type";
 
 import { ServiceContainer } from "./service-container";
 
@@ -33,5 +34,9 @@ describe("ServiceContainer", () => {
     await serviceContainer.lockService.lock(userId, LockSource.Manual);
 
     expect(logoutSpy).toHaveBeenCalledWith(userId, "vaultTimeout");
+  });
+
+  it("reports the oss license type", () => {
+    expect(new ServiceContainer().licenseType).toBe(CliLicenseType.Oss);
   });
 });

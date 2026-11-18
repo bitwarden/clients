@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -26,10 +26,9 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
   },
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-toast",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "toast.component.html",
   imports: [I18nPipe, IconButtonModule, TypographyModule],
 })
@@ -52,20 +51,14 @@ export class ToastComponent {
   readonly progressWidth = input(0);
 
   /** Emits when the user presses the close button */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onClose = new EventEmitter<void>();
+  readonly onClose = output<void>();
 
-  protected get iconClass(): string {
-    return variants[this.variant()].icon;
-  }
+  protected readonly iconClass = computed(() => variants[this.variant()].icon);
 
-  protected get bgColor(): string {
-    return variants[this.variant()].bgColor;
-  }
+  protected readonly bgColor = computed(() => variants[this.variant()].bgColor);
 
-  protected get messageArray(): string[] {
+  protected readonly messageArray = computed(() => {
     const message = this.message();
     return Array.isArray(message) ? message : [message];
-  }
+  });
 }

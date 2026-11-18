@@ -33,7 +33,6 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
-  SsoUrlService,
 } from "@bitwarden/auth/common";
 import {
   AutomationCapability,
@@ -62,6 +61,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -147,7 +147,6 @@ import {
 import {
   CryptoFunctionService as CryptoFunctionServiceAbstraction,
   EncryptService,
-  LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
@@ -532,6 +531,7 @@ const safeProviders: SafeProvider[] = [
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
       DomainSettingsService,
+      MessageListener,
     ],
   }),
   safeProvider({
@@ -585,7 +585,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
-      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,

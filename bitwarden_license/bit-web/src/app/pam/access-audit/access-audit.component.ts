@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,7 +18,8 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
-import { selectedFilterStrings } from "@bitwarden/bit-pam";
+import { formatCalendarDate, selectedFilterStrings } from "@bitwarden/bit-pam";
+import { TimestampPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -100,6 +100,14 @@ const FILTER_KEYS = {
 
 const NO_CUSTOM_RANGE: CustomRangeDialogParams = { from: "", to: "" };
 
+/**
+ * The "Custom" row's value. An applied range is its own row (`custom`), so this one is never the
+ * checked radio, and a click on it always opens the dialog.
+ */
+const CHOOSE_CUSTOM_RANGE = "chooseCustomRange";
+
+type TimePeriodChoice = AuditTimePeriod | typeof CHOOSE_CUSTOM_RANGE;
+
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
 
 /** Tells an empty answer from an empty trail. */
@@ -142,7 +150,6 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
   templateUrl: "./access-audit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     AsyncActionsModule,
     BadgeModule,
@@ -161,6 +168,7 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     BitCellDefDirective,
     TooltipDirective,
     I18nPipe,
+    TimestampPipe,
   ],
   providers: [UserNamePipe],
 })
@@ -214,6 +222,9 @@ export class AccessAuditComponent implements OnInit {
   );
 
   protected readonly status = signal<AuditStatus>("loading");
+
+  /** Shows the skeleton and drives the `role="status"` announcement. */
+  protected readonly loading = computed(() => this.status() === "loading");
 
   /** Every page read so far for the filter in force, newest event first. */
   protected readonly rows = signal<AuditRow[]>([]);
@@ -285,7 +296,7 @@ export class AccessAuditComponent implements OnInit {
   private readonly appliedPeriod = signal<AuditTimePeriod | null>(null);
 
   /** The last chip selection {@link applyTimePeriod} was run for, so a rollback does not re-enter it. */
-  private readonly handledPeriod = signal<AuditTimePeriod | null>(null);
+  private readonly handledPeriod = signal<TimePeriodChoice | null>(null);
 
   /** Kept so reopening the dialog shows the range in force. */
   private readonly customRange = signal<CustomRangeDialogParams>(NO_CUSTOM_RANGE);
@@ -298,11 +309,27 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly customPeriodLabel = this.i18nService.t(AUDIT_TIME_PERIOD_LABEL_KEYS.custom);
 
-  /**
-   * Shows a separate edit button, since re-selecting "Custom" writes the value the chip already
-   * holds and its selection signal never notifies.
-   */
+  protected readonly chooseCustomRange = CHOOSE_CUSTOM_RANGE;
+
+  /** A shortcut to the dialog beside the chips while a custom range is in force. */
   protected readonly customRangeApplied = computed(() => this.appliedPeriod() === "custom");
+
+  /** The applied range's row and chip label, in dates; the dialog shows the times. */
+  protected readonly customRangeLabel = computed(() => {
+    if (!this.customRangeApplied()) {
+      return null;
+    }
+    const { from, to } = this.range();
+    const start = from == null ? null : formatCalendarDate(this.locale, from.getTime());
+    const end = to == null ? null : formatCalendarDate(this.locale, to.getTime());
+    if (start != null && end != null) {
+      return start === end ? start : this.i18nService.t("pamAuditCustomRange", start, end);
+    }
+    if (start != null) {
+      return this.i18nService.t("pamAuditCustomRangeFrom", start);
+    }
+    return end == null ? null : this.i18nService.t("pamAuditCustomRangeUntil", end);
+  });
 
   /** Every kind an action can emit, as wire values, whether or not the loaded page has one. */
   protected readonly kindOptions = computed<AuditChipOption[]>(() =>
@@ -396,8 +423,8 @@ export class AccessAuditComponent implements OnInit {
     return typeof value === "string" ? value : null;
   }
 
-  private readonly selectedPeriod = computed<AuditTimePeriod | null>(
-    () => this.selectedValue(this.timePeriodChip()) as AuditTimePeriod | null,
+  private readonly selectedPeriod = computed<TimePeriodChoice | null>(
+    () => this.selectedValue(this.timePeriodChip()) as TimePeriodChoice | null,
   );
 
   private readonly filter = computed<AuditTrailFilter>(() => {
@@ -433,7 +460,7 @@ export class AccessAuditComponent implements OnInit {
 
   constructor() {
     // The chip has no value output, so its own selection signal drives the range; guarded
-    // against the rollback write after a canceled dialog.
+    // against the writes the dialog's close makes back to the chip.
     effect(() => {
       const period = this.selectedPeriod();
       untracked(() => {
@@ -502,8 +529,8 @@ export class AccessAuditComponent implements OnInit {
     }
   }
 
-  private async applyTimePeriod(period: AuditTimePeriod | null): Promise<void> {
-    if (period === "custom") {
+  private async applyTimePeriod(period: TimePeriodChoice | null): Promise<void> {
+    if (period === CHOOSE_CUSTOM_RANGE) {
       await this.openCustomRange();
       return;
     }
@@ -528,6 +555,8 @@ export class AccessAuditComponent implements OnInit {
     this.customRange.set({ from: result.from, to: result.to });
     this.range.set({ from: auditRangeStart(result.from), to: auditRangeEnd(result.to) });
     this.appliedPeriod.set("custom");
+    this.handledPeriod.set("custom");
+    this.setPeriod("custom");
   }
 
   protected readonly editCustomRange = async (): Promise<void> => {

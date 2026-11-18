@@ -2,7 +2,10 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { formatTimestamp } from "@bitwarden/bit-pam";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -49,8 +52,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     inDoubt: false,
     requestId: REQUEST_ID,
     leaseId: LEASE_ID,
-    duration: { key: "pamInboxDuration1Hour", value: null },
-    exactWindow: "18/08/2026, 09:00 – 18/08/2026, 10:00",
+    duration: "1 hour",
+    exactWindow: "Aug 18, 2026, 9:00 AM – Aug 18, 2026, 10:00 AM",
     extendedUntil: null,
     ...overrides,
   };
@@ -76,6 +79,7 @@ describe("AuditEventDrawerComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AuditEventDrawerComponent],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogService, useValue: dialogService },
@@ -87,7 +91,7 @@ describe("AuditEventDrawerComponent", () => {
           // I18nMockService throws on an unknown key, so this is every key the pane can render.
           useValue: new I18nMockService({
             timestamp: "Timestamp",
-            collection: "Collection",
+            sharedFolder: "Shared folder",
             pamAuditColumnActor: "Actor",
             pamAuditColumnRequester: "Requester",
             pamAuditColumnItem: "Item",
@@ -101,9 +105,8 @@ describe("AuditEventDrawerComponent", () => {
             pamResolverAccessRule: "Access rule",
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
-            pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            pamAuditOutcomeUnconfirmedTooltip: "Outcome never confirmed.",
             pamAuditDurationExtendedTo: "Extended to __$1__",
-            pamInboxDuration1Hour: "1 hour",
             pamAuditKindAccessActivated: "Access activated",
             pamAuditKindAccessExtended: "Access extended",
             pamAuditKindRuleDeleted: "Access rule deleted",
@@ -169,9 +172,9 @@ describe("AuditEventDrawerComponent", () => {
     it("renders the whole timestamp", async () => {
       await render();
 
-      // The `long` format carries seconds and the zone.
-      expect(text("timestamp")).toContain("2026");
-      expect(text("timestamp")).toContain(":00:00");
+      expect(text("timestamp")).toBe(
+        formatTimestamp("en-US", Date.parse("2026-08-18T09:00:00.000Z"), "second"),
+      );
     });
 
     it("renders each populated field", async () => {
@@ -182,7 +185,7 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Prod database");
       expect(text("collection")).toBe("Production");
       expect(text("duration")).toBe("1 hour");
-      expect(text("window")).toBe("18/08/2026, 09:00 – 18/08/2026, 10:00");
+      expect(text("window")).toBe("Aug 18, 2026, 9:00 AM – Aug 18, 2026, 10:00 AM");
       expect(text("detail")).toBe("Approved for the incident window.");
       expect(text("request-id")).toBe("3a9d5f74");
       expect(text("lease-id")).toBe("b27e4c91");
@@ -427,11 +430,11 @@ describe("AuditEventDrawerComponent", () => {
     const link = () =>
       fixture.nativeElement.querySelector("#pam-audit-event-drawer_link_collection");
 
-    it("links the name to the organization vault narrowed to that collection", async () => {
+    it("links the name to the organization vault narrowed to that shared folder", async () => {
       await render();
 
       expect(link().getAttribute("href")).toBe(
-        "/organizations/org-1/vault?collectionId=collection-1",
+        "/organizations/org-1/vault?sharedFolderId=collection-1",
       );
     });
 

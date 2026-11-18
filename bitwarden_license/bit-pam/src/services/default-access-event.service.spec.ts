@@ -94,7 +94,7 @@ describe("DefaultAccessEventService", () => {
     expect(inboxTicks()).toBe(1);
   });
 
-  it("emits void — the push carries no vault data to pass on", () => {
+  it("emits void, the push carries no vault data to pass on", () => {
     const seen: unknown[] = [];
     subscriptions.push(service.accessChanged$().subscribe((value) => seen.push(value)));
 

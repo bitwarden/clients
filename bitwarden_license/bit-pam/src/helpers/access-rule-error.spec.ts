@@ -28,17 +28,17 @@ describe("classifyAccessRuleError", () => {
     ],
     [
       ACCESS_RULE_SERVER_ERRORS.CollectionsMissing.serverMessage,
-      "pamAccessRuleErrorCollectionsMissing",
+      "pamAccessRuleErrorSharedFoldersMissing",
       "collections",
     ],
     [
       ACCESS_RULE_SERVER_ERRORS.CollectionsForeign.serverMessage,
-      "pamAccessRuleErrorCollectionsForeign",
+      "pamAccessRuleErrorSharedFoldersForeign",
       "collections",
     ],
     [
       ACCESS_RULE_SERVER_ERRORS.CollectionsGoverned.serverMessage,
-      "pamAccessRuleErrorCollectionsGoverned",
+      "pamAccessRuleErrorSharedFoldersGoverned",
       "collections",
     ],
   ];

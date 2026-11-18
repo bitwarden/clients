@@ -314,7 +314,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
      For now we just claim to always need UI displayed.
      */
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
-       let error = ASExtensionError(.userInteractionRequired)
+       // We only support passkeys right now, so fail early on non-passkey requests.
+       let error = if credentialRequest is ASPasskeyCredentialRequest {
+           ASExtensionError(.userInteractionRequired)
+       } else {
+           ASExtensionError(.failed)
+       }
+
        self.extensionContext.cancelRequest(withError: error)
        return
     }
@@ -518,6 +524,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         timeoutTimer.cancel()
         // If we didn't get a passkey, return an error
         self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Invalid registration request"))
+    }
+
+    // We don't provide passwords yet, but Safari may still offer this extension for password
+    // fields and call this when the user selects it. Cancel immediately so the request doesn't hang.
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareCredentialList(password) called; passwords are not supported")
+        self.extensionContext.cancelRequest(withError: ASExtensionError(.userCanceled))
     }
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier], requestParameters: ASPasskeyCredentialRequestParameters) {

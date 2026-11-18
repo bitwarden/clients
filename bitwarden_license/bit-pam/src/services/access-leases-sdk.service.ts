@@ -4,6 +4,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import type {
   AccessLeaseExtensionRequest,
   AccessLeaseId,
@@ -23,8 +24,8 @@ export class AccessLeasesSdkService implements AccessLeaseSdkService {
     private logService: LogService,
   ) {}
 
-  async listMyLeases(): Promise<AccessLeaseView[]> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+  async listMyLeases(userId?: UserId): Promise<AccessLeaseView[]> {
+    userId ??= await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {

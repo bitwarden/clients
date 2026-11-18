@@ -3,7 +3,11 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
-export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export {
+  CipherRowMenuHandlers,
+  CipherRowMenuService,
+  uniqueContributedActions,
+} from "./services/cipher-row-menu.service";
 export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export { PinnedSharedFoldersService } from "./services/pinned-shared-folders.service";
@@ -158,7 +162,6 @@ export {
   PENDING_FILTER_ID,
   PRIVILEGED_FILTER_ID,
   READY_FILTER_ID,
-  UNAVAILABLE_FILTER_ID,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";
@@ -206,6 +209,8 @@ export {
   matchesSharedFolder,
   matchesFolder,
   idString,
+  sharedFolderValues,
+  folderValues,
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";

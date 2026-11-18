@@ -37,8 +37,10 @@ const defaultSettings = Object.freeze({
   token: "",
 });
 
-// Fastmail requires `emailPrefix` to contain `a-z`, `0-9` and '_'. 64 chars max.
-// It rejects the whole `MaskedEmail/set` call when the prefix contains anything else.
+// Fastmail requires `emailPrefix` to start with `a-z` and contain only `a-z`, `0-9`
+// and '_'. 64 chars max. It rejects the whole `MaskedEmail/set` call otherwise.
+// Fastmail also reserves prefixes starting with "www", so a leading "www_" is dropped.
+// A prefix starting with a digit (e.g. "1password") is prefixed with "n_" (number).
 const PREFIX_MAX_LENGTH = 64;
 
 function toEmailPrefix(prefix: string) {
@@ -46,8 +48,11 @@ function toEmailPrefix(prefix: string) {
     .toLowerCase()
     .replace(/[^a-z0-9_]+/g, "_")
     .replace(/_+/g, "_")
+    .replace(/^_+/, "")
+    .replace(/^www[0-9]*_/, "")
+    .replace(/^(?=[0-9])/, "n_")
     .slice(0, PREFIX_MAX_LENGTH)
-    .replace(/^_+|_+$/g, "");
+    .replace(/_+$/, "");
 }
 
 // supported RPC calls

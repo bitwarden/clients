@@ -1,6 +1,7 @@
 import { DurationUnit, pickDurationUnit } from "../helpers/lease-window.utils";
 
 const formatters = new Map<string, Intl.NumberFormat>();
+const listFormats = new Map<string, Intl.ListFormat>();
 
 /**
  * A duration in its largest whole unit, localized through `Intl.NumberFormat`'s `style: "unit"`.
@@ -37,7 +38,17 @@ export function formatCompoundDuration(
   }
   return parts.length === 0
     ? formatDuration(locale, seconds, unitDisplay)
-    : new Intl.ListFormat(locale, { type: "unit", style: "long" }).format(parts);
+    : listFormatFor(locale).format(parts);
+}
+
+/** Cached like the number formatters: this runs once per row, and the audit table pages hundreds. */
+function listFormatFor(locale: string): Intl.ListFormat {
+  let format = listFormats.get(locale);
+  if (!format) {
+    format = new Intl.ListFormat(locale, { type: "unit", style: "long" });
+    listFormats.set(locale, format);
+  }
+  return format;
 }
 
 /** One value in one unit, localized, e.g. `47m` narrow in English. */

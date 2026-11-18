@@ -173,7 +173,7 @@ describe("toAuditRow", () => {
 
     const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
-    expect(result.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
+    expect(result.duration).toBe("1 hour");
     expect(result.exactWindow).toContain("–");
     expect(result.extendedUntil).toBeNull();
   });

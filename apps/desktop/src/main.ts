@@ -7,12 +7,12 @@ import * as path from "path";
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
-import { SsoUrlService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
@@ -154,7 +154,11 @@ export class Main {
       });
     }
 
-    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
+    // logService is created below, but flushes only run from timers after construction.
+    const storageBackend = new CachedBackend(
+      new ElectronStoreBackend(app.getPath("userData")),
+      (error) => this.logService.error("Failed to write the storage file, will retry", error),
+    );
 
     // Main has no ConfigService, so it reads the cached server configs straight from the store.
     let flightRecorderEnabled = false;
