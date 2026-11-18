@@ -171,6 +171,26 @@ describe("WebSetInitialPasswordService", () => {
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
     });
 
+    it("should clear a stashed open invite for a different organization when the server accepts the invite", async () => {
+      // Arrange: the domain service accepts, because the open invite is for another organization.
+      superSpy.mockResolvedValue(true);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "other-org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "other-org-name",
+        }),
+      );
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+    });
+
     it("should return true when the server accepts the invite", async () => {
       // Arrange
       organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);

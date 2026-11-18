@@ -93,9 +93,10 @@ export class WebSetInitialPasswordService
      * to replay.
      *
      * Exception: while `InviteLinkAutoConfirm` is on, the server does not promote the
-     * organization user to Accepted for a stashed open invite. The organization user stays
-     * Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
-     * user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow.
+     * organization user to Accepted when the stashed open invite is for this organization. The
+     * organization user stays Invited, so keep the open invite and its /join redirect.
+     * `deepLinkGuard` then sends the user to AcceptOrgOpenInviteComponent, which runs the Admin
+     * Console accept flow. A stashed open invite for a different organization is cleared.
      */
     if (
       organizationInviteAccepted &&

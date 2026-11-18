@@ -102,7 +102,8 @@ export abstract class SetInitialPasswordService {
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
    * @returns Whether the server moved the organization membership from Invited to Accepted.
-   *   `false` only for a stored open invite while `pm-34429-invite-link-auto-confirm` is on.
+   *   `false` only when `pm-34429-invite-link-auto-confirm` is on and the stored open invite is
+   *   for this organization.
    */
   abstract initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
