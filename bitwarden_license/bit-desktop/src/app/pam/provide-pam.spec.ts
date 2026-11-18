@@ -8,8 +8,9 @@ import {
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
-  GatedCollectionBannerComponent,
+  CipherViewBannerComponent,
   GatedRequestActionsService,
+  ItemDetailsStateBadgeComponent,
   LeaseExtensionService,
   controlledAccessColumn,
 } from "@bitwarden/bit-pam-components";
@@ -19,9 +20,15 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
-import { VAULT_ITEM_COLUMN, VAULT_ROW_ACTIONS } from "@bitwarden/vault";
+import {
+  CIPHER_VIEW_BANNER,
+  ITEM_DETAILS_BADGE,
+  VAULT_ITEM_COLUMN,
+  VAULT_ROW_ACTIONS,
+} from "@bitwarden/vault";
 
 import { provideDesktopPam } from "./provide-pam";
+import { DesktopGatedCollectionBannerComponent } from "./vault/desktop-gated-collection-banner.component";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
@@ -53,10 +60,15 @@ describe("provideDesktopPam", () => {
   });
 
   describe("vault seams", () => {
-    it("fills the gated shared-folder banner with the shared banner component", () => {
+    it("fills the gated shared-folder banner with the desktop banner, which explains a missing license", () => {
       expect(providerFor(VAULT_GATED_COLLECTION_BANNER)?.useValue).toBe(
-        GatedCollectionBannerComponent,
+        DesktopGatedCollectionBannerComponent,
       );
+    });
+
+    it("fills the cipher-view banner and item badge with the shared components, which block an unlicensed member", () => {
+      expect(providerFor(CIPHER_VIEW_BANNER)?.useValue).toBe(CipherViewBannerComponent);
+      expect(providerFor(ITEM_DETAILS_BADGE)?.useValue).toBe(ItemDetailsStateBadgeComponent);
     });
 
     it("fills the Controlled access column from the shared column factory", () => {

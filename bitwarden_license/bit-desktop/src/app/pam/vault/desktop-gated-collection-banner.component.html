@@ -1,0 +1,17 @@
+@if (unlicensed() === false) {
+  <app-pam-gated-collection-banner
+    [organizationId]="organizationId()"
+    [collectionId]="collectionId()"
+  />
+} @else if (unlicensed() && governed()) {
+  <!-- No request action: a member without a license cannot request access. -->
+  <bit-callout
+    type="subtle"
+    icon="bwi-lock-encrypted"
+    [title]="null"
+    [accessibleName]="bannerName"
+    data-testid="pam-gated-collection-banner-unlicensed"
+  >
+    {{ unlicensedLabel }}
+  </bit-callout>
+}
