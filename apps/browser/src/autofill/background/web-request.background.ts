@@ -30,7 +30,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { fromChromeEvent } from "../../platform/browser/from-chrome-event";
+import { runtimeMessageReceived$, windowRemoved$ } from "../rx";
 import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import {
   closeAllHttpAuthenticationPopouts,
@@ -414,6 +414,7 @@ export default class WebRequestBackground {
 
       const selectedCipherId = await this.requestCipherSelection(
         details,
+        activeUserId,
         candidates.map((candidate) => candidate.id),
       );
 
@@ -478,14 +479,16 @@ export default class WebRequestBackground {
   /**
    * Opens a popout listing the offered logins and resolves to the id of the one the user selects.
    * Resolves to null when the user declines or closes the popout, the request ends, the listeners
-   * are removed, or the popout can't be opened. There is no time limit: neither Chrome nor Firefox
-   * expires a challenge held by `onAuthRequired`, so the popout stays open until one of those happens.
+   * are removed, the user's vault locks, the active account changes to another user, or the popout
+   * can't be opened. There is no time limit: neither Chrome nor Firefox expires a challenge held by
+   * `onAuthRequired`, so the popout stays open until one of those happens.
    *
    * Any HTTP authentication popout already open is closed first, so only one is open at a time.
    * Only a selection from this session's popout counts, and only for a login that was offered.
    */
   private async requestCipherSelection(
     details: chrome.webRequest.OnAuthRequiredDetails,
+    userId: UserId,
     offeredCipherIds: string[],
   ): Promise<string | null> {
     const sessionId = newGuid();
@@ -495,21 +498,21 @@ export default class WebRequestBackground {
 
     const selection = firstValueFrom(
       merge(
-        fromChromeEvent(chrome.runtime.onMessage).pipe(
+        runtimeMessageReceived$().pipe(
           filter(
-            ([message, sender]) =>
+            ({ message, sender }) =>
               isHttpAuthenticationSelectionResponse(message) &&
               message.sessionId === sessionId &&
               isHttpAuthenticationPopoutSender(sender?.url, sessionId),
           ),
-          map(([message]) => {
+          map(({ message }) => {
             const { cipherId } = message as { cipherId?: string };
 
             return cipherId != null && offered.has(cipherId) ? cipherId : null;
           }),
         ),
-        fromChromeEvent(chrome.windows.onRemoved).pipe(
-          filter(([windowId]) => popoutWindowId != null && windowId === popoutWindowId),
+        windowRemoved$().pipe(
+          filter((windowId) => popoutWindowId != null && windowId === popoutWindowId),
           map((): null => null),
         ),
         this.requestEnded$.pipe(
@@ -517,6 +520,15 @@ export default class WebRequestBackground {
           map((): null => null),
         ),
         this.listenersUnregistered$.pipe(map((): null => null)),
+        this.authService.authStatusFor$(userId).pipe(
+          filter((authStatus) => authStatus < AuthenticationStatus.Unlocked),
+          map((): null => null),
+        ),
+        this.accountService.activeAccount$.pipe(
+          getOptionalUserId,
+          filter((activeUserId) => activeUserId !== userId),
+          map((): null => null),
+        ),
         popoutOpenFailed$.pipe(map((): null => null)),
       ).pipe(
         take(1),

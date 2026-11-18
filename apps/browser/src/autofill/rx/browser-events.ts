@@ -3,8 +3,8 @@ import { Observable, map } from "rxjs";
 import { fromChromeEvent } from "../../platform/browser/from-chrome-event";
 
 /**
- * Typed, payload-projecting wrappers over the Chrome tab and window events the autofill background
- * consumes, built on the platform {@link fromChromeEvent} primitive.
+ * Typed, payload-projecting wrappers over the Chrome tab, window and runtime message events the
+ * autofill background consumes, built on the platform {@link fromChromeEvent} primitive.
  *
  * Each factory returns a fresh cold, unicast stream: every subscription registers its own listener,
  * so N subscribers add N listeners. The streams never complete; unsubscription is the only teardown.
@@ -71,3 +71,15 @@ export const windowFocusChanged$ = (): Observable<number> =>
 /** Emits the closed window's id each time a window is removed (`chrome.windows.onRemoved`). */
 export const windowRemoved$ = (): Observable<number> =>
   fromChromeEvent(chrome.windows.onRemoved).pipe(map(([windowId]) => windowId));
+
+/**
+ * Emits `{ message, sender }` each time an extension message is received
+ * (`chrome.runtime.onMessage`). The sender is the browser's record of where the message came
+ * from, so consumers can check provenance rather than trust the message's own claims. The stream
+ * never responds to the message.
+ */
+export const runtimeMessageReceived$ = (): Observable<{
+  message: unknown;
+  sender: chrome.runtime.MessageSender;
+}> =>
+  fromChromeEvent(chrome.runtime.onMessage).pipe(map(([message, sender]) => ({ message, sender })));

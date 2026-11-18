@@ -811,6 +811,68 @@ describe("WebRequestBackground", () => {
         expectDeclinedWithoutRelease();
       });
 
+      it("closes the popout and defers to the browser when the vault locks while it is open", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+        const authStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+        authService.authStatusFor$.mockReturnValue(authStatus$);
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        authStatus$.next(AuthenticationStatus.Locked);
+
+        await response;
+        expectDeclinedWithoutRelease();
+        expect(closeHttpAuthenticationPopout).toHaveBeenCalledWith(openedPopouts[0].sessionId);
+      });
+
+      it("keeps the popout open while the vault stays unlocked", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+        const authStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+        authService.authStatusFor$.mockReturnValue(authStatus$);
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        authStatus$.next(AuthenticationStatus.Unlocked);
+        await flushPromises();
+
+        expect(callback).not.toHaveBeenCalled();
+        expect(closeHttpAuthenticationPopout).not.toHaveBeenCalled();
+
+        closePopoutWindow();
+        await response;
+      });
+
+      it("closes the popout and defers to the browser when the active account changes while it is open", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        activeAccount$.next({ id: "other-user-id" as UserId, ...mockAccountInfoWith() });
+
+        await response;
+        expectDeclinedWithoutRelease();
+        expect(closeHttpAuthenticationPopout).toHaveBeenCalledWith(openedPopouts[0].sessionId);
+      });
+
+      it("keeps the popout open when the same account is emitted again", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        activeAccount$.next({ ...account });
+        await flushPromises();
+
+        expect(callback).not.toHaveBeenCalled();
+        expect(closeHttpAuthenticationPopout).not.toHaveBeenCalled();
+
+        closePopoutWindow();
+        await response;
+      });
+
       it("does not release credentials when the vault locks while the popout is open", async () => {
         singleLogin();
         respondFromPopout = (offeredCipherIds) => {
