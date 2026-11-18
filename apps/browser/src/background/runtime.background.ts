@@ -311,17 +311,16 @@ export default class RuntimeBackground {
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
       case "fillAssistEmit": {
-        // Trusted-sender gate: only the content-script emitter routes this message.
-        // Content scripts carry a sender.tab; popup and options senders do not.
-        // Chrome's extension model (no `externally_connectable` in the manifest) is
-        // the backstop that keeps page-origin dispatches off this listener entirely.
-        if (!sender.tab?.id) {
+        // Reject messages that did not arrive through the chrome.runtime ingest
+        // boundary. `isExternalMessage` reads the browser-authoritative tag
+        // applied in `from-chrome-runtime-messaging`. Matches the trusted-sender
+        // pattern already used by the sibling handlers in this file.
+        if (!isExternalMessage(msg)) {
           return;
         }
-        this.fillAssistEventReceiver.receive({
-          name: msg.name,
-          payload: msg.payload,
-        } satisfies FillAssistEvent);
+        // Pass the message through so the external tag and stamped sender
+        // survive for downstream consumers to inspect.
+        this.fillAssistEventReceiver.receive(msg as unknown as FillAssistEvent);
         return;
       }
       case "runFillAssistHeuristicFallback": {
