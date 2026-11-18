@@ -3,10 +3,18 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe } from "@angular/common";
-import { Component, computed, inject, OnInit, QueryList, ViewChildren } from "@angular/core";
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { filter, map, Subject, switchMap, take } from "rxjs";
+import { filter, map, shareReplay, Subject, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -15,7 +23,10 @@ import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums
 import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -112,6 +123,7 @@ export class AutofillOptionsComponent implements OnInit {
   private readonly autotypeGaEnabled$ = autotypeFeatureFlagState$(this.configService).pipe(
     map((state) => state === AutotypeFeatureFlagState.Ga),
     take(1),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
   /**
@@ -134,6 +146,7 @@ export class AutofillOptionsComponent implements OnInit {
   protected readonly desktopAppRows = new WeakMap<AbstractControl, DesktopAppRow>();
 
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -153,7 +166,7 @@ export class AutofillOptionsComponent implements OnInit {
         cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
-            match: uri.matchDetection,
+            match: this.savedMatchDetection(uri),
           } as LoginUriView),
         );
         cipher.login.autofillOnPageLoad = value.autofillOnPageLoad;
@@ -196,6 +209,10 @@ export class AutofillOptionsComponent implements OnInit {
     // URIs from an existing cipher are added without emitting value changes
     this.publishUriMatchStrategies();
 
+    this.autotypeGaEnabled$
+      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.saveDesktopAppUrisWithNeverMatch());
+
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
@@ -224,12 +241,16 @@ export class AutofillOptionsComponent implements OnInit {
     this.addUri(uriFieldValue, true);
   }
 
-  /** Adds a new desktop app URI requested by the user, with the default match strategy */
+  /**
+   * Adds a new desktop app URI requested by the user. Desktop app URIs are never matched against
+   * websites, so they use the Never match strategy. That keeps them out of website autofill and
+   * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
+   */
   addDesktopAppUriFromUser() {
     this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: null,
+        matchDetection: UriMatchStrategy.Never,
       },
       true,
       true,
@@ -343,11 +364,38 @@ export class AutofillOptionsComponent implements OnInit {
         (control) =>
           Object.assign(new LoginUriView(), {
             uri: control.value.uri,
-            match: control.value.matchDetection ?? null,
+            match: this.savedMatchDetection(control.value) ?? null,
           }) as LoginUriView,
       );
       return cipher;
     });
+  }
+
+  /**
+   * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
+   * URIs are saved with the Never match strategy, including ones typed into a website row, because
+   * they load as desktop apps.
+   */
+  private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
+    return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
+      ? UriMatchStrategy.Never
+      : uri?.matchDetection;
+  }
+
+  /**
+   * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
+   * user doesn't change the URIs.
+   */
+  private saveDesktopAppUrisWithNeverMatch() {
+    const matchChanged = this.uriControls.some(
+      (control) =>
+        (this.savedMatchDetection(control.value) ?? null) !==
+        (control.value?.matchDetection ?? null),
+    );
+
+    if (matchChanged) {
+      this.updateUriFields();
+    }
   }
 
   /** Reorder the controls to match the new order after a "drop" event */
