@@ -247,12 +247,14 @@ export class AutofillOptionsComponent implements OnInit {
    * websites, so they use the Never match strategy. That keeps them out of website autofill and
    * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
    */
-  async addDesktopAppUriFromUser() {
-    await this.addUriFromUser(
+  addDesktopAppUriFromUser() {
+    this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
         matchDetection: UriMatchStrategy.Never,
       },
+      true,
+      true,
       DesktopAppRow.New,
     );
   }
