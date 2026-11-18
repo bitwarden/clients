@@ -26,7 +26,8 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="formGroup.invalid"
+      [disabled]="formGroup.invalid || offline()"
+      [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
       id="extend-lease-dialog_button_submit"
     >
       {{ "pamExtendLeaseButtonV2" | i18n }}

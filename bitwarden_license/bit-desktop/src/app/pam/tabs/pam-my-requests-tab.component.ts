@@ -20,6 +20,9 @@ import {
   AccessRequestId,
   activateAccessErrorMessageKey,
   AccessBadgeState,
+  PAM_OFFLINE_ACCESS_ENDED_KEY,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  pamFailureMessageKey,
   selectedFilterStrings,
 } from "@bitwarden/bit-pam";
 import {
@@ -43,6 +46,7 @@ import {
   buildMyRequestRows,
   myRequestStatus,
   myRequestStatusRank,
+  injectPamOffline,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -144,6 +148,14 @@ export class PamMyRequestsTabComponent {
   private readonly ticker = inject(AccessBadgeTickerService);
   private readonly leaseExtension = inject(LeaseExtensionService);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Every action here needs the server, so each is disabled, with this reason, while offline; the
+   * shell shows the offline notice.
+   */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
+  protected readonly offlineEndedKey = PAM_OFFLINE_ACCESS_ENDED_KEY;
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
@@ -400,6 +412,14 @@ export class PamMyRequestsTabComponent {
     return this.extending().has(id);
   }
 
+  /**
+   * A lease that ran out while offline: the re-read that would drop its row cannot land, so the
+   * row says the access ended rather than offering actions on it.
+   */
+  protected endedOffline(lease: MyAccessLeaseRow): boolean {
+    return this.offline() && Date.parse(lease.notAfter) <= this.nowMs();
+  }
+
   /** Whether the lease's rule lets the holder extend it, as last read. */
   protected canExtend(lease: MyAccessLeaseRow): boolean {
     return this.extensionLimits().has(lease.id);
@@ -429,7 +449,7 @@ export class PamMyRequestsTabComponent {
   protected readonly lapsedGrantBadge = lapsedGrantBadge;
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canCancel(row) || this.isCancelling(row.id)) {
+    if (!this.canCancel(row) || this.isCancelling(row.id) || this.offline()) {
       return;
     }
     this.cancelling.update((s) => new Set([...s, row.id]));
@@ -443,7 +463,7 @@ export class PamMyRequestsTabComponent {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamMyRequestsCancelError"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "pamMyRequestsCancelError")),
       });
     } finally {
       this.cancelling.update((s) => {
@@ -455,7 +475,7 @@ export class PamMyRequestsTabComponent {
   }
 
   protected async activate(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canStart(row) || this.isStarting(row.id)) {
+    if (!this.canStart(row) || this.isStarting(row.id) || this.offline()) {
       return;
     }
     this.starting.update((s) => new Set([...s, row.id]));
@@ -471,7 +491,7 @@ export class PamMyRequestsTabComponent {
       // retry.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
+        message: this.i18nService.t(pamFailureMessageKey(e, activateAccessErrorMessageKey(e))),
       });
     } finally {
       this.starting.update((s) => {
@@ -485,7 +505,7 @@ export class PamMyRequestsTabComponent {
   /** Asks for a length and a reason, then extends the lease; the service toasts the outcome. */
   protected async extend(lease: MyAccessLeaseRow): Promise<void> {
     const limit = this.extensionLimits().get(lease.id);
-    if (limit == null || this.isExtending(lease.id)) {
+    if (limit == null || this.isExtending(lease.id) || this.offline()) {
       return;
     }
     this.extending.update((s) => new Set([...s, lease.id]));
@@ -515,7 +535,7 @@ export class PamMyRequestsTabComponent {
 
   /** Ends the caller's own lease early, which records it as canceled, not revoked. */
   protected async endLease(lease: MyAccessLeaseRow): Promise<void> {
-    if (this.isEnding(lease.id)) {
+    if (this.isEnding(lease.id) || this.offline()) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -538,7 +558,7 @@ export class PamMyRequestsTabComponent {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "errorOccurred")),
       });
     } finally {
       this.ending.update((s) => {

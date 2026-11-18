@@ -119,7 +119,8 @@
         buttonType="danger"
         id="access-request-dialog_button_confirm-withdraw"
         [loading]="withdrawing()"
-        [disabled]="!withdrawReasonGiven() || withdrawing()"
+        [disabled]="!withdrawReasonGiven() || withdrawing() || offline()"
+        [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
         (click)="confirmWithdraw()"
       >
         {{ "pamInboxWithdrawApproval" | i18n }}
@@ -142,7 +143,8 @@
           buttonType="primary"
           id="access-request-dialog_button_approve"
           [loading]="deciding()"
-          [disabled]="deciding()"
+          [disabled]="deciding() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="decide('approve')"
         >
           {{ "pamInboxApprove" | i18n }}
@@ -155,7 +157,8 @@
           buttonType="primary"
           id="access-request-dialog_button_withdraw-approval"
           [loading]="withdrawing()"
-          [disabled]="withdrawing()"
+          [disabled]="withdrawing() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="withdrawApproval()"
         >
           {{ "pamInboxWithdrawApproval" | i18n }}
@@ -168,7 +171,8 @@
           buttonType="primary"
           id="access-request-dialog_button_start"
           [loading]="starting()"
-          [disabled]="starting()"
+          [disabled]="starting() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="startAccess()"
         >
           {{ "pamStartSessionButton" | i18n }}
@@ -193,7 +197,8 @@
           buttonType="primary"
           id="access-request-dialog_button_cancel-request"
           [loading]="cancelling()"
-          [disabled]="cancelling()"
+          [disabled]="cancelling() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="cancel()"
         >
           {{ "cancelRequest" | i18n }}
@@ -206,7 +211,8 @@
           buttonType="danger"
           id="access-request-dialog_button_revoke"
           [loading]="revoking()"
-          [disabled]="revoking()"
+          [disabled]="revoking() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="revoke()"
         >
           {{ "pamEndSessionButton" | i18n }}
@@ -219,7 +225,8 @@
           buttonType="danger"
           id="access-request-dialog_button_end-lease"
           [loading]="ending()"
-          [disabled]="ending()"
+          [disabled]="ending() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="endLease()"
         >
           {{ "pamEndLeaseButton" | i18n }}
@@ -248,7 +255,8 @@
           buttonType="danger"
           class="tw-ms-auto"
           id="access-request-dialog_button_deny"
-          [disabled]="deciding()"
+          [disabled]="deciding() || offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           (click)="decide('deny')"
         >
           {{ "pamInboxDeny" | i18n }}

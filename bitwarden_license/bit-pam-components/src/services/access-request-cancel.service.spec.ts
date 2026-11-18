@@ -1,7 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { NEVER } from "rxjs";
 
-import { AccessRequestSdkService, DefaultAccessRefreshService } from "@bitwarden/bit-pam";
+import {
+  AccessRequestSdkService,
+  DefaultAccessRefreshService,
+  PamUnreachableError,
+} from "@bitwarden/bit-pam";
 import type { AccessRequestId, CipherAccessStateView } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -143,5 +147,35 @@ describe("AccessRequestCancelService", () => {
       expect.objectContaining({ variant: "error", message: "pendingStateCancelError" }),
     );
     expect(announced).toHaveBeenCalledWith(CIPHER_ID);
+  });
+
+  it("toasts the connectivity failure when the cancel never reaches the server", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ pendingRequest: { id: REQUEST_ID } as never }),
+    );
+    requestsApi.cancelAccessRequest.mockRejectedValue(new PamUnreachableError("timeout"));
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "pamServerUnreachable",
+    });
+  });
+
+  it("keeps its own message when the server refuses the cancel", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ pendingRequest: { id: REQUEST_ID } as never }),
+    );
+    requestsApi.cancelAccessRequest.mockRejectedValue(
+      new Error("Received error message from server: [409] "),
+    );
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "pendingStateCancelError",
+    });
   });
 });

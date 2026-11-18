@@ -48,6 +48,7 @@
       bitFormButton
       [buttonType]="approve() ? 'primary' : 'danger'"
       [disabled]="confirmDisabled()"
+      [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
       id="pam-decide-dialog_button_confirm"
     >
       {{ (approve() ? "pamInboxApprove" : "pamInboxDeny") | i18n }}

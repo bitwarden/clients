@@ -22,6 +22,8 @@ import {
   durationText,
   exactWindow,
   humanApprover,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  pamFailureMessageKey,
   reasonText,
   relativeStart,
 } from "@bitwarden/bit-pam";
@@ -43,6 +45,7 @@ import {
   StatusLockupComponent,
   SvgComponent,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -63,6 +66,7 @@ import {
   historyDisplayStatus,
   lapsedGrantBadge,
 } from "../..";
+import { injectPamOffline } from "../../connectivity/pam-offline";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
@@ -116,6 +120,7 @@ export type AccessRequestDialogParams = {
     RouterModule,
     StatusLockupComponent,
     SvgComponent,
+    TooltipDirective,
     TypographyModule,
     DurationShortPipe,
     RemainingTimePipe,
@@ -177,6 +182,13 @@ export class AccessRequestDialogComponent implements OnInit {
 
   /** Ticks every second so the countdowns stay live. */
   protected readonly nowMs = signal(Date.now());
+
+  /**
+   * Every footer action needs the server, so each is disabled, with this reason, while offline.
+   * Close stays. The offline notice itself is the host page's, which this dialog sits over.
+   */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
 
   /** Per-action in-flight flags (prevent double-submit and drive button spinners). */
   protected readonly cancelling = signal(false);
@@ -439,7 +451,7 @@ export class AccessRequestDialogComponent implements OnInit {
         this.logService.error(e);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("pamAccessRequestLoadError"),
+          message: this.i18nService.t(pamFailureMessageKey(e, "pamAccessRequestLoadError")),
         });
       });
   }
@@ -449,7 +461,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async cancel(): Promise<void> {
-    if (!this.canCancel() || this.cancelling()) {
+    if (!this.canCancel() || this.cancelling() || this.offline()) {
       return;
     }
     this.cancelling.set(true);
@@ -463,7 +475,7 @@ export class AccessRequestDialogComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamMyRequestsCancelError"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "pamMyRequestsCancelError")),
       });
     } finally {
       this.cancelling.set(false);
@@ -471,7 +483,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async startAccess(): Promise<void> {
-    if (!this.canStart() || this.starting()) {
+    if (!this.canStart() || this.starting() || this.offline()) {
       return;
     }
     this.starting.set(true);
@@ -485,7 +497,7 @@ export class AccessRequestDialogComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
+        message: this.i18nService.t(pamFailureMessageKey(e, activateAccessErrorMessageKey(e))),
       });
     } finally {
       this.starting.set(false);
@@ -494,7 +506,7 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected async endLease(): Promise<void> {
     const leaseId = this.request()?.producedLeaseId;
-    if (leaseId == null || !this.canEndLease() || this.ending()) {
+    if (leaseId == null || !this.canEndLease() || this.ending() || this.offline()) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -517,7 +529,7 @@ export class AccessRequestDialogComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "errorOccurred")),
       });
     } finally {
       this.ending.set(false);
@@ -527,7 +539,7 @@ export class AccessRequestDialogComponent implements OnInit {
   /** Decide through the same dialog, toasts and failure handling as the Approvals inbox. */
   protected async decide(verdict: AccessDecisionVerdict): Promise<void> {
     const row = this.approvalRow();
-    if (row == null || !this.canDecide() || this.deciding()) {
+    if (row == null || !this.canDecide() || this.deciding() || this.offline()) {
       return;
     }
     await this.approverActions.decide(
@@ -542,7 +554,7 @@ export class AccessRequestDialogComponent implements OnInit {
    * note from an earlier Cancel or failed attempt is still there.
    */
   protected withdrawApproval(): void {
-    if (!this.canWithdrawApproval() || this.withdrawing()) {
+    if (!this.canWithdrawApproval() || this.withdrawing() || this.offline()) {
       return;
     }
     this.confirmingWithdraw.set(true);
@@ -554,7 +566,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async confirmWithdraw(): Promise<void> {
-    if (!this.withdrawReasonGiven() || this.withdrawing()) {
+    if (!this.withdrawReasonGiven() || this.withdrawing() || this.offline()) {
       return;
     }
     const reason = this.withdrawReason.value.trim();
@@ -571,7 +583,7 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected async revoke(): Promise<void> {
     const leaseId = this.request()?.producedLeaseId;
-    if (leaseId == null || !this.canRevoke() || this.revoking()) {
+    if (leaseId == null || !this.canRevoke() || this.revoking() || this.offline()) {
       return;
     }
     await this.approverActions.revoke(

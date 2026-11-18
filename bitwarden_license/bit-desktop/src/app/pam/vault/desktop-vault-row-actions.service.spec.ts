@@ -2,6 +2,7 @@ import { DestroyRef } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { PamConnectivityService } from "@bitwarden/bit-pam";
 import { GatedRequestActionsService } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,6 +24,7 @@ describe("DesktopVaultRowActionsService", () => {
   let activeAccount$: BehaviorSubject<Account | null>;
   let cancelable$: Record<string, BehaviorSubject<boolean>>;
   let destroyCallbacks: Array<() => void>;
+  let offline$: BehaviorSubject<boolean>;
   let service: DesktopVaultRowActionsService;
 
   const account = (id: string) => ({ id: id as UserId }) as Account;
@@ -59,11 +61,15 @@ describe("DesktopVaultRowActionsService", () => {
         return () => undefined;
       },
     } as unknown as DestroyRef;
+    offline$ = new BehaviorSubject(false);
+    const connectivity = mock<PamConnectivityService>();
+    Object.defineProperty(connectivity, "offline$", { value: offline$ });
     service = new DesktopVaultRowActionsService(
       gatedRequestActions,
       i18nService,
       accountService,
       destroyRef,
+      connectivity,
     );
   });
 
@@ -144,6 +150,27 @@ describe("DesktopVaultRowActionsService", () => {
       await cancelAction().run(cipher);
 
       expect(gatedRequestActions.cancelRequest).toHaveBeenCalledWith(cipher);
+    });
+  });
+
+  describe("offline", () => {
+    it("is enabled while online", () => {
+      expect(cancelAction().disabled!(gatedCipher())).toBe(false);
+    });
+
+    it("is disabled, and withdraws nothing, while offline", async () => {
+      offline$.next(true);
+
+      expect(cancelAction().disabled!(gatedCipher())).toBe(true);
+      await cancelAction().run(gatedCipher());
+      expect(gatedRequestActions.cancelRequest).not.toHaveBeenCalled();
+    });
+
+    it("is enabled again once back online", () => {
+      offline$.next(true);
+      offline$.next(false);
+
+      expect(cancelAction().disabled!(gatedCipher())).toBe(false);
     });
   });
 

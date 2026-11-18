@@ -2,6 +2,7 @@ import { DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Subscription, distinctUntilChanged, map, take } from "rxjs";
 
+import { PamConnectivityService } from "@bitwarden/bit-pam";
 import { GatedRequestActionsService } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,10 +25,16 @@ const STALE_MS = 5000;
  * scheduled on a microtask since `show` may not write a signal, and releases it as soon as it
  * answers, so no read stays open per row and a push costs nothing. Until the read lands the
  * previous answer (or hidden) stands, and an answer older than a few seconds is read again.
+ *
+ * Offline the entry stays shown but disabled, since withdrawing needs the server. The table's row
+ * action has no tooltip, so the reason is not shown on the entry itself.
  */
 export class DesktopVaultRowActionsService {
   /** Whether a request can be withdrawn, by cipher id, as each row last reported. */
   private readonly cancelable = signal<ReadonlyMap<string, boolean>>(new Map());
+
+  /** Whether PAM actions are unavailable, as `disabled` must answer synchronously. */
+  private readonly offline = signal(false);
 
   /** When each row's answer was last requested, and the read in flight for it, if any. */
   private readonly reads = new Map<string, { at: number; subscription: Subscription }>();
@@ -37,7 +44,12 @@ export class DesktopVaultRowActionsService {
     private readonly i18nService: I18nService,
     accountService: AccountService,
     destroyRef: DestroyRef,
+    connectivity: PamConnectivityService,
   ) {
+    connectivity.offline$
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((offline) => this.offline.set(offline));
+
     // The renderer outlives an account switch, so the previous account's answers go with it.
     accountService.activeAccount$
       .pipe(
@@ -57,7 +69,9 @@ export class DesktopVaultRowActionsService {
         label: this.i18nService.t("pendingStateCancelRequest"),
         icon: "bwi-close",
         show: (cipher) => this.canCancel(cipher),
-        run: (cipher) => this.gatedRequestActions.cancelRequest(cipher),
+        disabled: () => this.offline(),
+        run: (cipher) =>
+          this.offline() ? undefined : this.gatedRequestActions.cancelRequest(cipher),
       },
     ];
   }

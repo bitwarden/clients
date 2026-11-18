@@ -1,7 +1,7 @@
 import { Injectable, WritableSignal, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { decideAccessErrorMessageKey } from "@bitwarden/bit-pam";
+import { decideAccessErrorMessageKey, pamFailureMessageKey } from "@bitwarden/bit-pam";
 import type { AccessDecisionVerdict } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -108,8 +108,9 @@ export class ApproverActionsService {
   }
 
   /**
-   * `failureKey` reads what was thrown, so a refusal the server worded gets its own copy.
-   * Resolves `true` once `run` succeeded, `false` after the failure toast.
+   * `failureKey` reads what was thrown, so a refusal the server worded gets its own copy; a call
+   * that never reached the server gets the connectivity copy instead. Resolves `true` once `run`
+   * succeeded, `false` after the failure toast.
    */
   private async perform(
     run: () => Promise<void>,
@@ -126,7 +127,7 @@ export class ApproverActionsService {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(failureKey(e)),
+        message: this.i18nService.t(pamFailureMessageKey(e, failureKey(e))),
       });
       return false;
     } finally {

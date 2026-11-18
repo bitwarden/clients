@@ -8331,6 +8331,18 @@
   "pamEndedBannerHeading": {
     "message": "Your access has ended"
   },
+  "pamOfflineBanner": {
+    "message": "You're offline. Reconnect to request, start, extend or end access."
+  },
+  "pamOfflineTooltip": {
+    "message": "You're offline"
+  },
+  "pamServerUnreachable": {
+    "message": "Couldn't reach the server. Check your connection and try again."
+  },
+  "pamOfflineAccessEnded": {
+    "message": "Your access ended. Reconnect to request more time."
+  },
   "pamExtendAccessMenuItem": {
     "message": "Extend access",
     "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."

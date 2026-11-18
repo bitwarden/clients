@@ -15,6 +15,8 @@
       [class.tw-w-full]="popupLayout"
       [class.tw-self-start]="!popupLayout"
       [bitAction]="startAction()"
+      [disabled]="offline()"
+      [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
       id="pam-cipher-view-banner_button_start"
     >
       {{ "pamStartLeaseButton" | i18n }}

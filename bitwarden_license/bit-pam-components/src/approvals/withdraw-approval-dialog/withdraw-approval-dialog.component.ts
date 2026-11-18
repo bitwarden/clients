@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/c
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { PAM_OFFLINE_TOOLTIP_KEY } from "@bitwarden/bit-pam";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
@@ -13,9 +14,11 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPamOffline } from "../../connectivity/pam-offline";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 
 export type WithdrawApprovalDialogParams = {
@@ -52,6 +55,7 @@ export type WithdrawApprovalDialogResult = {
     FormFieldModule,
     ReactiveFormsModule,
     RequestSummaryComponent,
+    TooltipDirective,
     I18nPipe,
   ],
 })
@@ -73,8 +77,14 @@ export class WithdrawApprovalDialogComponent {
     initialValue: "",
   });
 
+  /** A withdrawal needs the server, so the confirm waits for the connection. */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
+
   /** `Validators.required` accepts spaces, so the button also gates on the trimmed value. */
-  protected readonly confirmDisabled = computed(() => this.reason().trim().length === 0);
+  protected readonly confirmDisabled = computed(
+    () => this.offline() || this.reason().trim().length === 0,
+  );
 
   protected readonly confirm = async (): Promise<void> => {
     if (this.confirmDisabled()) {

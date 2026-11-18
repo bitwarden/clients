@@ -30,6 +30,8 @@ import {
   type RequestWindowFormValue,
   composeRequestWindow,
   defaultRequestWindow,
+  isPamUnreachableError,
+  PAM_UNREACHABLE_MESSAGE_KEY,
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -247,9 +249,14 @@ export class RequestAccessFormComponent implements OnInit {
       }
       this.requestMode.set(preCheck.approvalMode);
     } catch (e) {
-      // Without the pre-check the form cannot be shaped, so only the generic error shows.
+      // Without the pre-check the form cannot be shaped, so only the generic error shows, or the
+      // connectivity one when the server was never reached.
       this.logService.error(e);
-      this.requestError.set(this.i18nService.t("requestAccessModalGenericError"));
+      this.requestError.set(
+        this.i18nService.t(
+          isPamUnreachableError(e) ? PAM_UNREACHABLE_MESSAGE_KEY : "requestAccessModalGenericError",
+        ),
+      );
     } finally {
       this.loadingRequestForm.set(false);
     }
@@ -308,9 +315,18 @@ export class RequestAccessFormComponent implements OnInit {
 
   /**
    * An "already have this" rejection is not a failure: the sheet hands back and the re-read shows
-   * the state that already exists.
+   * the state that already exists. A request that never reached the server is toasted as such,
+   * never shown as a refusal.
    */
   private handleRequestError(e: unknown): void {
+    if (isPamUnreachableError(e)) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(PAM_UNREACHABLE_MESSAGE_KEY),
+      });
+      return;
+    }
     const message =
       this.leasingErrorService.isLeasingError(e) || e instanceof Error ? e.message : undefined;
     const outcome = classifyRequestAccessError(

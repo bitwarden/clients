@@ -12,6 +12,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
+import { PAM_OFFLINE_TOOLTIP_KEY } from "@bitwarden/bit-pam";
 import type { AccessDecisionVerdict } from "@bitwarden/bit-pam";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
@@ -24,10 +25,12 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPamOffline } from "../../connectivity/pam-offline";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { ApprovalRow } from "../approval-row";
 
@@ -65,6 +68,7 @@ export type DecideDialogResult = {
     DialogModule,
     FormFieldModule,
     ReactiveFormsModule,
+    TooltipDirective,
     TypographyModule,
     RequestSummaryComponent,
     I18nPipe,
@@ -92,9 +96,13 @@ export class DecideDialogComponent {
     initialValue: "",
   });
 
+  /** A decision needs the server, so the confirm waits for the connection. */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
+
   /** `Validators.required` accepts spaces, so the button also gates on the trimmed value. */
   protected readonly confirmDisabled = computed(
-    () => !this.approve() && this.comment().trim().length === 0,
+    () => this.offline() || (!this.approve() && this.comment().trim().length === 0),
   );
 
   constructor() {

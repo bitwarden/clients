@@ -54,8 +54,43 @@
   widths, so keep the two in step when changing a column. Item, Status and Actions (Resolved on
   History) always show; the table scrolls sideways only when even those do not fit (the 600px
   minimum window with the side nav open). Specs stub the width with `testing/stub-tab-width.ts`.
+- `connectivity/`: whether PAM can reach the server, and the offline rules.
+  `DesktopPamConnectivityService` (provided as the shared `PamConnectivityService` seam from
+  `@bitwarden/bit-pam`) combines `navigator.onLine` and the window's `online`/`offline` events, any
+  server push on `ServerNotificationsService.notifications$` or a successful `syncCompleted` (both
+  clear an unreachable server, as does an `online` event), and the outcome of every PAM call.
+  `offline$` follows those only once they hold for `PAM_OFFLINE_DEBOUNCE_MS` (2s), so blips do not
+  flicker; `reconnected$` ticks on each offline-to-online change. While the network works but the
+  server is marked unreachable, a lease read probes every `PAM_RECONNECT_PROBE_INTERVAL_MS` (30s).
+  `guardPamCalls` (`pam-call-guard.ts`) wraps the four PAM SDK services in `provide-pam.ts`: every
+  call settles within `PAM_CALL_TIMEOUT_MS` (20s); a timeout or a network-class failure (a transport
+  error with no HTTP status, a 502/503/504, or any failure while the browser has no network) rejects
+  as `PamUnreachableError` and marks the server unreachable; a server refusal (any other HTTP
+  status or a decoded server message) is rethrown unchanged and proves the server reachable.
+  `DesktopAccessEventService` adds `reconnected$` to `accessChanged$`, so everything that re-reads
+  on a push (My requests, the inbox, the nav badge, the notifier, and each item's access state via
+  `AccessRefreshService`) re-reads on reconnect; `DesktopRevealedCipherService` also re-reads each
+  held reveal then, dropping it if the lease is gone and cutting it to an earlier end, never later.
+- Offline rules: offline never grants or extends access. Start, Extend, Request and every approver
+  action go to the server or not at all; cached state is never used to start or extend. Every
+  PAM action (Request, Start, Extend, End, Cancel, Approve, Deny, Withdraw, and Revoke) is
+  disabled offline with the `pamOfflineTooltip` tooltip, on the tabs, the request dialog, the
+  decide, withdraw and extend dialogs, and the cipher-view banner and its cards; the vault row's
+  "Cancel request" is disabled too, without a tooltip, since `VaultItemsTableRowAction` has none.
+  The shell shows the one `PamOfflineBannerComponent` above the tabs (the request dialog relies on
+  it); the cipher-view banner shows it on a governed item. Nothing is queued or replayed after a
+  reconnect: a failed action is failed, and only reads repeat. A call that never reached the
+  server toasts `pamServerUnreachable` (shared `pamFailureMessageKey`); a server refusal keeps its
+  own message. End and Cancel on My requests roll their optimistic update back on any failure,
+  timeouts included. A cached state can hold a reveal, never extend one: the banner keeps its
+  last answer when a read fails (desktop only), so a held lease keeps its countdown and still ends
+  at its own `notAfter`; a lease that ends offline shows `pamOfflineAccessEnded` in the banner and
+  in its My requests row. Limit: a lease revoked by an approver stays usable offline until its
+  normal `notAfter`, since the client cannot hear the revoke; the reconnect re-read drops it.
 - Shared code comes from `@bitwarden/bit-pam` and `@bitwarden/bit-pam-components`; strings live in
-  `apps/desktop/src/locales/en/messages.json`.
+  `apps/desktop/src/locales/en/messages.json`. The shared surfaces read connectivity through the
+  optional `PamConnectivityService` (`injectPamOffline()`), so a client that does not provide it,
+  the web vault and the browser extension, behaves as before.
 - `notifications/`: system notifications for access requests and decisions.
   `DesktopPamNotifier` (started by an `APP_INITIALIZER` in `provide-pam.ts`) re-reads the approver
   inbox, own requests and leases on each `AccessEventService` tick and at each lease boundary

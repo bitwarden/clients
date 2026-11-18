@@ -3,10 +3,12 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { combineLatest, filter, map, take } from "rxjs";
 
+import { pamFailureMessageKey } from "@bitwarden/bit-pam";
 import {
   ApprovalPrivilegeService,
   ApproverInboxService,
   MyAccessService,
+  PamOfflineBannerComponent,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,13 +18,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * The "Access requests" shell at `/pam`, over the Approvals, My requests and History tab routes.
- * Approvals is hidden for a non-approver rather than shown empty.
+ * Approvals is hidden for a non-approver rather than shown empty. The offline notice sits above
+ * the tabs, once for all three.
  */
 @Component({
   selector: "pam-shell",
   templateUrl: "./pam-shell.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, DesktopHeaderComponent, TabsModule, I18nPipe],
+  imports: [RouterModule, DesktopHeaderComponent, TabsModule, I18nPipe, PamOfflineBannerComponent],
 })
 export class PamShellComponent implements OnInit {
   private readonly myAccess = inject(MyAccessService);
@@ -68,7 +71,7 @@ export class PamShellComponent implements OnInit {
         this.logService.error(e);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("pamInboxLoadFailed"),
+          message: this.i18nService.t(pamFailureMessageKey(e, "pamInboxLoadFailed")),
         });
       });
 
@@ -81,7 +84,7 @@ export class PamShellComponent implements OnInit {
         this.logService.error(e);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("pamMyRequestsLoadError"),
+          message: this.i18nService.t(pamFailureMessageKey(e, "pamMyRequestsLoadError")),
         });
       });
   }

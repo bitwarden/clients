@@ -33,6 +33,9 @@
   }
   <app-pam-unlicensed-card class="tw-mb-5 bit-compact:tw-mb-4" />
 } @else {
+  @if (governed()) {
+    <app-pam-offline-banner />
+  }
   @if (popupLayout && showsPrivilegedCard()) {
     <h2
       bitTypography="body2"
@@ -73,6 +76,8 @@
         size="small"
         class="tw-self-start"
         [bitAction]="cancelRequest"
+        [disabled]="offline()"
+        [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
         id="pam-cipher-view-banner_button_cancel"
       >
         {{ "pendingStateCancelRequest" | i18n }}
@@ -107,6 +112,8 @@
         [class.tw-w-full]="popupLayout"
         [class.tw-self-start]="!popupLayout"
         [startIcon]="popupLayout ? 'bwi-lock' : undefined"
+        [disabled]="offline()"
+        [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
         (click)="openRequest()"
         id="pam-cipher-view-banner_button_request-toggle"
       >
@@ -136,6 +143,8 @@
             bitButton
             buttonType="primary"
             [bitAction]="requestForm.submitRequest"
+            [disabled]="offline()"
+            [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
             id="pam-cipher-view-banner_button_request-submit"
           >
             {{ "requestAccessModalSubmitV2" | i18n }}

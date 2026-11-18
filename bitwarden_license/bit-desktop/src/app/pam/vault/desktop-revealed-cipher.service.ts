@@ -24,6 +24,7 @@ import {
   liveActiveLease,
   rereadOnLapse,
   AccessLeaseSdkService,
+  PamConnectivityService,
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
 import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
@@ -68,6 +69,7 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
     authService: AuthService,
     private readonly ngZone: NgZone,
     private readonly logService: LogService,
+    connectivity: PamConnectivityService,
   ) {
     // A root singleton, so neither subscription ends. Users missing from the record are logged out.
     authService.authStatuses$.subscribe((statuses) => {
@@ -94,6 +96,10 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
         switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)),
       )
       .subscribe((nowMs) => this.dropLapsed(nowMs));
+
+    // A reveal held while offline was never re-confirmed, so once the server answers again each
+    // is checked, and dropped if its lease is gone (ended, revoked). One pass at a time.
+    connectivity.reconnected$.pipe(concatMap(() => from(this.confirmHeld()))).subscribe();
   }
 
   revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {
@@ -236,6 +242,48 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
       this.logService.error(error);
       return null;
     }
+  }
+
+  /**
+   * Re-reads the access state of every view the active user holds. A view whose lease the server
+   * no longer reports live is dropped, and one whose lease now ends sooner is cut to that end; a
+   * later end is left to the item's own re-read, which re-reveals. A read that fails again keeps
+   * the view, as any failed read does, until its own `notAfter`.
+   */
+  private async confirmHeld(): Promise<void> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id ?? null)),
+    );
+    const held = userId == null ? undefined : this.entries$.value.get(userId);
+    if (userId == null || held == null || held.size === 0) {
+      return;
+    }
+    for (const cipherId of [...held.keys()]) {
+      let state: CipherAccessStateView;
+      try {
+        state = await this.accessRequestSdkService.getCipherAccessState(cipherId);
+      } catch (error: unknown) {
+        this.logService.error(error);
+        continue;
+      }
+      const lease = liveActiveLease(state, Date.now());
+      if (lease == null) {
+        this.drop(userId, cipherId);
+      } else {
+        this.shortenTo(userId, cipherId, Date.parse(lease.notAfter));
+      }
+    }
+  }
+
+  /** Brings a held view's end forward to `endsAt`; never pushes it later. */
+  private shortenTo(userId: UserId, cipherId: CipherId, endsAt: number): void {
+    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    if (entry == null || !(endsAt < entry.endsAt)) {
+      return;
+    }
+    const userEntries = new Map(this.entries$.value.get(userId));
+    userEntries.set(cipherId, { ...entry, endsAt });
+    this.entries$.next(new Map(this.entries$.value).set(userId, userEntries));
   }
 
   /** Runs on the shared clock, outside the zone. Re-enters it only to drop a view. */

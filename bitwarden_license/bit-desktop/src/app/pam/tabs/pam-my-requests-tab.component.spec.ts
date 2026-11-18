@@ -6,7 +6,12 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
-import { ACCESS_BADGE_LOOK, formatCalendarDate } from "@bitwarden/bit-pam";
+import {
+  ACCESS_BADGE_LOOK,
+  formatCalendarDate,
+  PamConnectivityService,
+  PamUnreachableError,
+} from "@bitwarden/bit-pam";
 import {
   LeaseExtensionService,
   MyAccessLeaseRow,
@@ -22,6 +27,7 @@ import {
   DialogService,
   FilterControl,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 import { stubTabWidth } from "../testing/stub-tab-width";
@@ -104,6 +110,7 @@ describe("PamMyRequestsTabComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let leaseExtension: MockProxy<LeaseExtensionService>;
   let tabWidth: ReturnType<typeof stubTabWidth>;
+  let offline$: BehaviorSubject<boolean>;
 
   function chipControl(key: string): FilterControl {
     const table = fixture.debugElement.query(By.directive(BitTableV2Component))
@@ -152,6 +159,7 @@ describe("PamMyRequestsTabComponent", () => {
     // No lease may be extended unless a spec says so.
     leaseExtension = mock<LeaseExtensionService>();
     leaseExtension.maxExtensionSeconds.mockResolvedValue(null);
+    offline$ = new BehaviorSubject(false);
 
     await TestBed.configureTestingModule({
       imports: [PamMyRequestsTabComponent, NoopAnimationsModule],
@@ -162,6 +170,10 @@ describe("PamMyRequestsTabComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LeaseExtensionService, useValue: leaseExtension },
+        {
+          provide: PamConnectivityService,
+          useValue: { offline$, reconnected$: new BehaviorSubject<void>(undefined) },
+        },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -1068,6 +1080,121 @@ describe("PamMyRequestsTabComponent", () => {
 
         expect(query('[data-testid="my-requests-loading"]')).not.toBeNull();
       });
+    });
+  });
+
+  describe("offline", () => {
+    const ACTIONS = [
+      ["Start", "my-access-approved-start-req-1", "pamStartLeaseButton"],
+      ["Cancel", "my-access-cancel-req-1", "cancelRequest"],
+      ["End", "my-access-end-lease-1", "pamEndLeaseButton"],
+      ["Extend", "my-access-extend-lease-1", "pamExtendAccessMenuItem"],
+    ] as const;
+
+    function tooltipOf(testId: string): string {
+      return fixture.debugElement
+        .query(By.css(`[data-testid="${testId}"]`))
+        .injector.get(TooltipDirective)
+        .tooltipContent()
+        .trim();
+    }
+
+    async function showEveryAction(): Promise<void> {
+      leaseExtension.maxExtensionSeconds.mockResolvedValue(3600);
+      pendingRows$.next([requestRow({ id: "req-1" })]);
+      leases$.next([leaseRow()]);
+      create();
+      await Promise.resolve();
+      await Promise.resolve();
+      fixture.detectChanges();
+    }
+
+    it.each(ACTIONS)("enables %s online, with its own label as the tooltip", async (_, id, key) => {
+      await showEveryAction();
+
+      expect(query(`[data-testid="${id}"]`)?.getAttribute("aria-disabled")).toBeNull();
+      expect(tooltipOf(id)).toBe(key);
+    });
+
+    it.each(ACTIONS)("disables %s offline, saying why", async (_, id) => {
+      await showEveryAction();
+
+      offline$.next(true);
+      fixture.detectChanges();
+
+      expect(query(`[data-testid="${id}"]`)?.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltipOf(id)).toBe("pamOfflineTooltip");
+    });
+
+    it("starts, cancels, ends and extends nothing while offline", async () => {
+      await showEveryAction();
+      offline$.next(true);
+      fixture.detectChanges();
+
+      await component["activate"](requestRow({ id: "req-1" }));
+      await component["cancel"](requestRow({ id: "req-1" }));
+      await component["endLease"](leaseRow());
+      await component["extend"](leaseRow());
+
+      expect(myAccess.activate).not.toHaveBeenCalled();
+      expect(myAccess.cancel).not.toHaveBeenCalled();
+      expect(myAccess.endLease).not.toHaveBeenCalled();
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(leaseExtension.extend).not.toHaveBeenCalled();
+    });
+
+    it("toasts the connectivity failure when Start never reaches the server", async () => {
+      myAccess.activate.mockRejectedValue(new PamUnreachableError("timeout"));
+      create();
+
+      await component["activate"](requestRow({ id: "req-1" }));
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+      expect(component["isStarting"]("req-1" as never)).toBe(false);
+    });
+
+    it("toasts the connectivity failure when Cancel or End never reach the server", async () => {
+      myAccess.cancel.mockRejectedValue(new PamUnreachableError("network"));
+      myAccess.endLease.mockRejectedValue(new PamUnreachableError("timeout"));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      create();
+
+      await component["cancel"](requestRow({ id: "req-1" }));
+      await component["endLease"](leaseRow());
+
+      expect(toastService.showToast).toHaveBeenNthCalledWith(1, {
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+      expect(toastService.showToast).toHaveBeenNthCalledWith(2, {
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+    });
+
+    it("says a lease that ran out offline has ended, and offers nothing on it", () => {
+      jest.setSystemTime(new Date("2026-08-20T12:30:00.000Z"));
+      offline$.next(true);
+      leases$.next([leaseRow()]);
+
+      create();
+
+      expect(query('[data-testid="my-access-ended-offline-lease-1"]')?.textContent).toContain(
+        "pamOfflineAccessEnded",
+      );
+      expect(query('[data-testid="my-access-end-lease-1"]')).toBeNull();
+    });
+
+    it("says nothing extra about an ended lease while online", () => {
+      jest.setSystemTime(new Date("2026-08-20T12:30:00.000Z"));
+      leases$.next([leaseRow()]);
+
+      create();
+
+      expect(query('[data-testid="my-access-ended-offline-lease-1"]')).toBeNull();
     });
   });
 });

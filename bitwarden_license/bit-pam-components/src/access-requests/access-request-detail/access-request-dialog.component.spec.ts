@@ -1,16 +1,24 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PamConnectivityService, PamUnreachableError } from "@bitwarden/bit-pam";
 import type { AccessRequestView } from "@bitwarden/bit-pam";
 import { automaticDecision, humanDecision, selfEndDecision } from "@bitwarden/bit-pam/testing";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  DialogService,
+  ToastService,
+  TooltipDirective,
+} from "@bitwarden/components";
 
 import {
   ApprovalRow,
@@ -69,6 +77,7 @@ describe("AccessRequestDialogComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let params: AccessRequestDialogParams;
+  let offline$: BehaviorSubject<boolean>;
 
   function create(): void {
     fixture = TestBed.createComponent(AccessRequestDialogComponent);
@@ -106,6 +115,7 @@ describe("AccessRequestDialogComponent", () => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
+    offline$ = new BehaviorSubject(false);
 
     // The detail service is route-scoped, handed in by the host route via `DIALOG_DATA`.
     params = {
@@ -120,6 +130,7 @@ describe("AccessRequestDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
+        { provide: PamConnectivityService, useValue: { offline$, reconnected$: of() } },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -540,6 +551,121 @@ describe("AccessRequestDialogComponent", () => {
       create();
 
       expect(extendedBadge()).toBeNull();
+    });
+  });
+
+  describe("offline", () => {
+    function button(id: string): HTMLElement | null {
+      return fixture.nativeElement.querySelector(`#access-request-dialog_button_${id}`);
+    }
+
+    function tooltipOf(id: string): string {
+      return fixture.debugElement
+        .query(By.css(`#access-request-dialog_button_${id}`))
+        .injector.get(TooltipDirective)
+        .tooltipContent()
+        .trim();
+    }
+
+    const CASES: ReadonlyArray<readonly [string, () => void]> = [
+      ["start", () => detail.request$.next(request({ status: "approved" }))],
+      ["cancel-request", () => detail.request$.next(request({ status: "pending" }))],
+      [
+        "end-lease",
+        () =>
+          detail.request$.next(
+            request({
+              status: "approved",
+              producedLeaseId: "lease-1",
+              producedLeaseStatus: "active",
+            }),
+          ),
+      ],
+      [
+        "approve",
+        () => {
+          detail.viewer$.next("approver");
+          detail.approvalRow$.next({
+            id: "req-1",
+            request: request(),
+            cipherId: "cipher-1",
+          } as unknown as ApprovalRow);
+        },
+      ],
+      [
+        "deny",
+        () => {
+          detail.viewer$.next("approver");
+          detail.approvalRow$.next({
+            id: "req-1",
+            request: request(),
+            cipherId: "cipher-1",
+          } as unknown as ApprovalRow);
+        },
+      ],
+      [
+        "withdraw-approval",
+        () => {
+          detail.viewer$.next("approver");
+          detail.managed$.next(true);
+          detail.request$.next(request({ status: "approved" }));
+        },
+      ],
+    ];
+
+    it.each(CASES)("enables %s online", (id, arrange) => {
+      arrange();
+      create();
+
+      expect(button(id)).not.toBeNull();
+      expect(button(id)?.getAttribute("aria-disabled")).toBeNull();
+    });
+
+    it.each(CASES)("disables %s offline, saying why", (id, arrange) => {
+      arrange();
+      offline$.next(true);
+      create();
+
+      expect(button(id)?.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltipOf(id)).toBe("pamOfflineTooltip");
+    });
+
+    it("runs no action while offline", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      offline$.next(true);
+      create();
+
+      await component["startAccess"]();
+      detail.request$.next(request({ status: "pending" }));
+      await component["cancel"]();
+
+      expect(detail.activate).not.toHaveBeenCalled();
+      expect(detail.cancel).not.toHaveBeenCalled();
+    });
+
+    it("toasts the connectivity failure when Start never reaches the server", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.activate.mockRejectedValue(new PamUnreachableError("timeout"));
+      create();
+
+      await component["startAccess"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+      expect(component["starting"]()).toBe(false);
+    });
+
+    it("toasts the connectivity failure when the request cannot be loaded for lack of a server", () => {
+      create();
+
+      detail.loadError$.next(new PamUnreachableError("network"));
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
     });
   });
 

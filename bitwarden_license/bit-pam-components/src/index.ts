@@ -48,6 +48,8 @@ export {
 } from "./access-requests/request-status-look";
 export { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 export { AccessStateBadgeComponent } from "./access-state-badge/access-state-badge.component";
+export { injectPamConnectivityProvided, injectPamOffline } from "./connectivity/pam-offline";
+export { PamOfflineBannerComponent } from "./connectivity/pam-offline-banner.component";
 export { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 export { canViewApprovalsGuard } from "./approvals/can-view-approvals.guard";
 export { sortApprovalRows, toApprovalRow, type ApprovalRow } from "./approvals/approval-row";
