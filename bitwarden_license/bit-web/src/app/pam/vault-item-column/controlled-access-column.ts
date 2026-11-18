@@ -14,9 +14,8 @@ import { ControlledAccessCellComponent } from "./controlled-access-cell.componen
  * The VFO1 vault table's Controlled access column. Shows while PAM's flag is on and an
  * organization in view uses PAM; `scope.vault` is not read.
  *
- * Sorts through {@link ControlledAccessVaultFilterService.sortRanks$}, the same per-row state read
- * the filter chip shares. That read is one `getCipherAccessState` call per restricted row; a batch
- * `cipher_access_state` in the SDK would make it one call per row list.
+ * Sorts through {@link ControlledAccessVaultFilterService.sortRanks$}, over the caller's own
+ * requests the filter chip shares.
  */
 export function controlledAccessColumn(
   i18nService: I18nService,
