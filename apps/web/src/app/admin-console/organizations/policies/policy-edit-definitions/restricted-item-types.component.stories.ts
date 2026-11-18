@@ -9,12 +9,20 @@ import { ManageItemTypesPolicy } from "./restricted-item-types.component";
 
 export default {
   ...policyDrawerMeta(new ManageItemTypesPolicy()),
+  args: { enabled: false, singleOrgEnabled: true },
   title: "Admin Console/Organizations/Policies/Manage Item Types",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;
 
 export const PolicyOff: Story = {};
+
+/**
+ * The single organization policy is off, so the callout renders and the toggle is disabled.
+ */
+export const PolicyOffSingleOrgDisabled: Story = {
+  args: { singleOrgEnabled: false },
+};
 
 export const PolicyOn: Story = {
   args: { enabled: true },

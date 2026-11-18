@@ -12,6 +12,7 @@ import { AutoConfirmState, AutomaticUserConfirmationService } from "@bitwarden/a
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -31,8 +32,14 @@ import { PolicyEditDialogData, PolicyEditDrawerComponent } from "./policy-edit-d
 
 const ORG_ID = "test-org-id";
 
-/** `data` is the saved policy data the drawer loads, omit it for a policy that was never saved. */
-export type PolicyDialogStoryArgs = { enabled: boolean; isCloud?: boolean; data?: object };
+export type PolicyDialogStoryArgs = {
+  enabled: boolean;
+  isCloud?: boolean;
+  /** The saved policy data the drawer loads, omit it for a policy that was never saved. */
+  data?: object;
+  /** Mocks the single organization policy as enabled/disabled. Omit to mock no policies at all. */
+  singleOrgEnabled?: boolean;
+};
 
 /** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
 export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
@@ -131,15 +138,11 @@ export function policyDrawerMeta(
             useValue: { encryptString: () => Promise.resolve({ encryptedString: "encrypted" }) },
           },
           {
-            // Only AutoConfirmPolicy's component injects these, but providing them
-            // unconditionally is harmless for every other policy. Without these, Angular throws
+            // Only AutoConfirmPolicy's component injects this, but providing it
+            // unconditionally is harmless for every other policy. Without it, Angular throws
             // a NullInjectorError while creating the policy form component, which is swallowed by
             // the dialog's async ngAfterViewInit and leaves the step body empty with no visible
             // error in the story.
-            provide: PolicyService,
-            useValue: { policies$: () => of([]) },
-          },
-          {
             provide: AutomaticUserConfirmationService,
             useValue: {
               configuration$: () => of(new AutoConfirmState()),
@@ -173,6 +176,19 @@ export function policyDrawerMeta(
                   }),
                 ),
               putPolicy: () => Promise.resolve(),
+            },
+          },
+          {
+            // PolicyService is provided here (not in the decorator) so stories can mock the
+            // single organization policy via the `singleOrgEnabled` arg.
+            provide: PolicyService,
+            useValue: {
+              policies$: () =>
+                of(
+                  args.singleOrgEnabled === undefined
+                    ? []
+                    : [{ type: PolicyType.SingleOrg, enabled: args.singleOrgEnabled }],
+                ),
             },
           },
           {
