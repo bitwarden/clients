@@ -25,10 +25,10 @@ export interface FillAssistEventReceiver {
 }
 
 /**
- * TODO: Update or remove this temporary note during fill assist M6. This class is
- * an M3.5 placeholder. Logs the event locally to observe emissions during
- * development. M6 will wire in the real consumer. The emitter, the message shape,
- * and this interface stay stable across the swap.
+ * No-op receiver. Logs the event locally so emissions are observable during
+ * development.
+ *
+ * TODO: replace with the real consumer during fill assist M6.
  */
 export class NoopFillAssistEventReceiver implements FillAssistEventReceiver {
   constructor(private logService: LogService) {}

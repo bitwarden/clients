@@ -2,17 +2,23 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { FormContent, FormPurposeCategory } from "@bitwarden/common/autofill/types";
 
+import {
+  FillAssistEventName,
+  FillAssistMissReason,
+} from "../background/fill-assist-event-receiver";
 import AutofillPageDetails from "../models/autofill-page-details";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { FillAssistEventEmitter } from "./abstractions/fill-assist-event-emitter";
 import { DefaultRuleQualificationService } from "./rule-qualification.service";
 
 describe("DefaultRuleQualificationService", () => {
   let collectService: MockProxy<CollectAutofillContentService>;
   let domQueryService: MockProxy<DomQueryService>;
   let domElementVisibilityService: MockProxy<DomElementVisibilityService>;
+  let fillAssistEventEmitter: MockProxy<FillAssistEventEmitter>;
   let service: DefaultRuleQualificationService;
 
   const samplePageDetails = {} as AutofillPageDetails;
@@ -79,10 +85,13 @@ describe("DefaultRuleQualificationService", () => {
     domElementVisibilityService = mock<DomElementVisibilityService>();
     domElementVisibilityService.isElementHiddenByCss.mockReturnValue(false);
 
+    fillAssistEventEmitter = mock<FillAssistEventEmitter>();
+
     service = new DefaultRuleQualificationService(
       collectService,
       domQueryService,
       domElementVisibilityService,
+      fillAssistEventEmitter,
     );
   });
 
@@ -660,6 +669,96 @@ describe("DefaultRuleQualificationService", () => {
       const result = await service.qualifyRule("https://example.com", rule);
 
       expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+  });
+
+  describe("qualifyRule — fill assist event emission", () => {
+    it("does not emit on the happy path (proceedTargeted)", async () => {
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      form.append(user, pass);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(fillAssistEventEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it("emits exactly once with missReason 'structural' on a structural miss", async () => {
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com/login?token=secret", buildLoginRule());
+
+      expect(fillAssistEventEmitter.emit).toHaveBeenCalledTimes(1);
+      expect(fillAssistEventEmitter.emit).toHaveBeenCalledWith({
+        name: FillAssistEventName.QualificationFailed,
+        payload: {
+          domain: "example.com",
+          missReason: FillAssistMissReason.Structural,
+          ruleId: "0",
+        },
+      });
+    });
+
+    it("emits exactly once with missReason 'in_scope_extras' on an extras miss", async () => {
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      const extra = document.createElement("input");
+      form.append(user, pass, extra);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(fillAssistEventEmitter.emit).toHaveBeenCalledTimes(1);
+      expect(fillAssistEventEmitter.emit).toHaveBeenCalledWith({
+        name: FillAssistEventName.QualificationFailed,
+        payload: {
+          domain: "example.com",
+          missReason: FillAssistMissReason.InScopeExtras,
+          ruleId: "0",
+        },
+      });
+    });
+
+    it("emits the domain stripped of path and query", async () => {
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+
+      await service.qualifyRule(
+        "https://example.com/login/step-2?state=abc&token=xyz#fragment",
+        buildLoginRule(),
+      );
+
+      const emitArg = fillAssistEventEmitter.emit.mock.calls[0][0];
+      expect(emitArg.payload.domain).toBe("example.com");
+    });
+
+    it("emits before the heuristic bypass runs", async () => {
+      // Order matters: the event is about the qualification failure, not the
+      // recovery. Emit must fire before the bypass so telemetry captures the
+      // failure independent of whether recovery later succeeded.
+      const callOrder: string[] = [];
+      fillAssistEventEmitter.emit.mockImplementation(() => {
+        callOrder.push("emit");
+      });
+      collectService.collectHeuristicPageDetailsBypass.mockImplementation(() => {
+        callOrder.push("bypass");
+        return Promise.resolve(samplePageDetails);
+      });
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(callOrder).toEqual(["emit", "bypass"]);
     });
   });
 
