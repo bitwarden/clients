@@ -41,11 +41,11 @@ export type MemberFilters = {
   policies?: PolicyOption[];
 };
 
-/** The roles offered in the Role filter, in display order. */
+/** The roles offered in the Role filter, in display order. Also the Role column sort order. */
 export const ROLE_OPTIONS: readonly { value: OrganizationUserType; labelKey: string }[] = [
-  { value: OrganizationUserType.Owner, labelKey: "owner" },
-  { value: OrganizationUserType.Admin, labelKey: "admin" },
   { value: OrganizationUserType.User, labelKey: "user" },
+  { value: OrganizationUserType.Admin, labelKey: "admin" },
+  { value: OrganizationUserType.Owner, labelKey: "owner" },
   { value: OrganizationUserType.Custom, labelKey: "custom" },
 ];
 

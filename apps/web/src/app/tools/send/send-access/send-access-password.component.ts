@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
@@ -15,14 +13,13 @@ import { SharedModule } from "../../../shared";
 })
 export class SendAccessPasswordComponent implements OnInit, OnDestroy {
   protected readonly formGroup = input.required<FormGroup>();
-  protected password: FormControl;
+  protected readonly password = new FormControl("", Validators.required);
 
   readonly loading = input.required<boolean>();
 
   constructor() {}
 
   ngOnInit() {
-    this.password = new FormControl("", Validators.required);
     this.formGroup().addControl("password", this.password);
   }
 

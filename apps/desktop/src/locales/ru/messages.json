@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (URI)"
+  "desktopApp": {
+    "message": "Приложение для компьютера",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Приложение для компьютера $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 элемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Все"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Отключено"
   },
+  "removeAuth": {
+    "message": "Удалить пароль или подтверждение по email"
+  },
+  "removedAuth": {
+    "message": "Пароль или подтверждение по email удалены"
+  },
+  "removeAuthConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля или подтверждения по email для этой Send?"
+  },
   "removePassword": {
     "message": "Удалить пароль"
+  },
+  "removeEmailVerification": {
+    "message": "Удалить подтверждение по email"
   },
   "removedPassword": {
     "message": "Пароль удален"
   },
-  "removePasswordConfirmation": {
-    "message": "Вы уверены, что хотите удалить пароль?"
+  "removedEmailVerification": {
+    "message": "Подтверждение по email удалено"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование подтверждения по email для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Достигнут максимум обращений"
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Сделать копию"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   },
   "driversLicenseDetails": {

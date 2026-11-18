@@ -18,6 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { DAY, fromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { AccessConnector, RotationConfigDetailView } from "../rotation";
@@ -143,6 +144,8 @@ export default {
   title: "Web/PAM/Rotation/Config Edit",
   component: RotationConfigEditComponent,
   render: () => ({ template: `<router-outlet></router-outlet>` }),
+  // The due callout's age is relative to `Date.now()`, so the clock starts where the dates do.
+  beforeEach: startClockAtStoryNow,
   decorators: [
     componentWrapperDecorator((story) => `<div class="tw-p-6">${story}</div>`),
     moduleMetadata({ imports: [RouterOutlet] }),
@@ -289,7 +292,7 @@ export const ManualRotationDue: Story = editStory(
   withConfig({
     targetSystemMethod: "manual",
     awaitingManualRotation: true,
-    nextRotationAt: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+    nextRotationAt: fromNow(-3 * DAY),
   }),
   [],
   rotationConfigActions({ canRotateNow: false, canRecordManual: true, canPause: false }),

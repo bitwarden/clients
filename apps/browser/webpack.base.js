@@ -147,12 +147,16 @@ module.exports.buildConfig = function buildConfig(params) {
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
     }),
-    // The Chrome build ships without core-js's polyfills: modern Chrome provides them
-    // natively, and core-js's IE-era Object.create shim is what the Chrome Web Store flags
-    // as "obfuscated code". The Chrome manifest pins minimum_chrome_version to 134 (see
-    // manifest.v3.json) so the store never serves this build to a Chrome lacking native
-    // Symbol.dispose / explicit resource management, which the SDK's `using` disposal needs.
-    ...(browser === "chrome"
+    // The Chrome and Firefox builds ship without the core-js/stable and explicit resource
+    // management polyfills: modern versions of both provide them natively, and core-js's
+    // IE-era Object.create shim is what the Chrome Web Store flags as "obfuscated code".
+    // The manifests pin minimum_chrome_version to 134 (manifest.v3.json) and gecko
+    // strict_min_version to 141 (manifest.json and manifest.v3.json) so the stores never
+    // serve these builds to a browser lacking native Symbol.dispose / explicit resource
+    // management, which the SDK's `using` disposal needs. The shared array-buffer-base64
+    // polyfill imported by libs/common is not matched here and is still bundled. Safari
+    // still needs all of the polyfills and keeps core-js.
+    ...(browser === "chrome" || browser === "firefox"
       ? [
           new webpack.NormalModuleReplacementPlugin(
             /^core-js\/(stable|proposals\/explicit-resource-management)$/,

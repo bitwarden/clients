@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { RegistrationFinishService } from "@bitwarden/auth/angular";
+import { RegistrationFinishService } from "@bitwarden/angular/auth/registration";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
