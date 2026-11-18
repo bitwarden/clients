@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import type { AccessRequestView } from "@bitwarden/bit-pam";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -11,7 +13,6 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { WithdrawApprovalDialogComponent } from "../../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 import { lapsedGrantBadge } from "../my-access-row";
@@ -64,6 +65,7 @@ describe("AccessRequestDialogComponent", () => {
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let params: AccessRequestDialogParams;
 
   function create(): void {
     fixture = TestBed.createComponent(AccessRequestDialogComponent);
@@ -103,13 +105,15 @@ describe("AccessRequestDialogComponent", () => {
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
     // The detail service is route-scoped, handed in by the host route via `DIALOG_DATA`.
-    const params = {
+    params = {
       detail: detail as unknown as AccessRequestDetailService,
-    } satisfies AccessRequestDialogParams;
+    };
 
     await TestBed.configureTestingModule({
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
@@ -123,7 +127,12 @@ describe("AccessRequestDialogComponent", () => {
       // `DialogModule` provides the real `DialogService` in the component's own injector,
       // shadowing a module-level override.
       .overrideComponent(AccessRequestDialogComponent, {
-        add: { providers: [{ provide: DialogService, useValue: dialogService }] },
+        add: {
+          providers: [
+            { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+            { provide: DialogService, useValue: dialogService },
+          ],
+        },
       })
       .compileComponents();
   });
@@ -175,7 +184,24 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["organizationName"]()).toBeNull();
     });
 
-    it("keeps Status, Submitted and Resolved beside the shared request-details rows", () => {
+    it("badges the item in its own card and keeps Submitted among the details", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      const item = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-item"]',
+      ) as HTMLElement;
+      const details = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-details"]',
+      ) as HTMLElement;
+      // Status reads with the item's name, not as a row among the request's fields.
+      expect(item.textContent).toContain("pamStatusDenied");
+      expect(details.textContent).not.toContain("pamColumnStatus");
+      expect(details.textContent).toContain("pamColumnSubmitted");
+    });
+
+    it("moves Resolved out of the details and into the decision card", () => {
       detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
 
       create();
@@ -183,9 +209,11 @@ describe("AccessRequestDialogComponent", () => {
       const details = fixture.nativeElement.querySelector(
         '[data-testid="request-summary-details"]',
       ) as HTMLElement;
-      expect(details.textContent).toContain("pamColumnStatus");
-      expect(details.textContent).toContain("pamColumnSubmitted");
-      expect(details.textContent).toContain("pamColumnResolved");
+      const decision = fixture.nativeElement.querySelector(
+        '[data-testid="request-detail-decision"]',
+      ) as HTMLElement;
+      expect(details.textContent).not.toContain("pamColumnResolved");
+      expect(decision.textContent).toContain("pamColumnResolved");
     });
 
     it("renders each shared row exactly once, not alongside the page's old list", () => {
@@ -211,67 +239,87 @@ describe("AccessRequestDialogComponent", () => {
       detail.request$.next(request({ requesterName: undefined, requesterEmail: undefined }));
       expect(component["requesterDisplay"]()).toBe("user-1");
     });
+
+    it("names the requester without their email beside it", () => {
+      detail.request$.next(request({ requesterName: "Grace", requesterEmail: "g@example.com" }));
+
+      create();
+
+      const details = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-details"]',
+      ) as HTMLElement;
+      expect(details.textContent).toContain("Grace");
+      expect(details.textContent).not.toContain("g@example.com");
+    });
   });
 
-  describe("the decision log", () => {
-    it("credits the access rule for an automatic decision", () => {
+  describe("the decision card", () => {
+    /** The card the dialog renders under "Decision"; absent until something has been decided. */
+    function decisionCard(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="request-detail-decision"]');
+    }
+
+    it("credits the system when an access rule decided on its own", () => {
       detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
 
       create();
 
-      const decisions = component["decisions"]();
-      expect(decisions).toHaveLength(1);
-      expect(decisions[0].automatic).toBe(true);
-      expect(decisions[0].labelKey).toBe("pamStatusApproved");
+      expect(decisionCard()!.textContent).toContain("pamDecisionAutomatic");
     });
 
-    it("credits a human approver by name", () => {
+    it("credits a human approver by name, and names the decision as an approval", () => {
       detail.request$.next(
         request({
           status: "approved",
-          decisions: [humanDecision({ id: "approver-1", name: "Ada" })],
+          decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "approve" })],
         }),
       );
 
       create();
 
-      const decisions = component["decisions"]();
-      expect(decisions[0].automatic).toBe(false);
-      expect(decisions[0].who).toBe("Ada");
+      expect(decisionCard()!.textContent).toContain("pamDecisionApprovedBy");
+      expect(decisionCard()!.textContent).toContain("Ada");
     });
 
     it("falls back to the approver's email, and never to their raw id", () => {
       detail.request$.next(
         request({
           status: "approved",
+          decisions: [humanDecision({ id: "approver-1", email: "ada@acme.com" })],
+        }),
+      );
+
+      create();
+
+      expect(decisionCard()!.textContent).toContain("ada@acme.com");
+      expect(decisionCard()!.textContent).not.toContain("approver-1");
+    });
+
+    it("names a denial as one, and shows the note the approver left", () => {
+      detail.request$.next(
+        request({
+          status: "denied",
+          resolvedAt: new Date().toISOString(),
           decisions: [
-            humanDecision({ id: "approver-1", email: "ada@example.com" }),
-            humanDecision({ id: "approver-2" }),
+            humanDecision({
+              id: "approver-1",
+              name: "Ada",
+              email: "ada@acme.com",
+              verdict: "deny",
+              comment: "Out of scope",
+            }),
           ],
         }),
       );
 
       create();
 
-      expect(component["decisions"]()[0].who).toBe("ada@example.com");
-      expect(component["decisions"]()[1].who).toBeNull();
+      expect(decisionCard()!.textContent).toContain("pamDecisionDeniedBy");
+      expect(decisionCard()!.textContent).toContain("pamDecisionComment");
+      expect(decisionCard()!.textContent).toContain("Out of scope");
     });
 
-    it("reads a deny on a denied request as a denial", () => {
-      detail.request$.next(
-        request({
-          status: "denied",
-          decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
-        }),
-      );
-
-      create();
-
-      expect(component["decisions"]()[0].labelKey).toBe("pamStatusDenied");
-    });
-
-    it("reads the holder's own deny as ending their lease, not a denial", () => {
-      // The revoke path records its reason as a deny decision; only the decider tells them apart.
+    it("reads the holder's own deny as ending their lease, not a denial or an approval", () => {
       detail.request$.next(
         request({
           status: "approved",
@@ -281,71 +329,95 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      const decisions = component["decisions"]();
-      expect(decisions[1].labelKey).toBe("pamAuditKindAccessEndedByRequester");
-      expect(text()).not.toContain("pamStatusDenied");
+      expect(decisionCard()!.textContent).toContain("pamDecisionEndedBy");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionDeniedBy");
     });
 
-    it("reads someone else's deny on an activated request as an operator revoke", () => {
+    it("reads someone else's deny on an approved request as an operator revoke", () => {
       detail.request$.next(
         request({
           status: "approved",
           decisions: [
             automaticDecision(),
-            humanDecision({ id: "operator-9", name: "Ops", verdict: "deny" }),
+            humanDecision({ id: "operator-9", name: "Ops", verdict: "deny", comment: "Rotated" }),
           ],
         }),
       );
 
       create();
 
-      expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindAccessRevoked");
+      expect(decisionCard()!.textContent).toContain("pamDecisionRevokedBy");
+      expect(decisionCard()!.textContent).toContain("Ops");
+      expect(decisionCard()!.textContent).toContain("Rotated");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
+    });
+
+    it("stays away until there is an outcome to name", () => {
+      detail.request$.next(request({ status: "pending", decisions: [] }));
+
+      create();
+
+      expect(decisionCard()).toBeNull();
+    });
+
+    it("names only when the request resolved without a recorded decision", () => {
+      detail.request$.next(request({ status: "expired", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      expect(decisionCard()!.textContent).toContain("pamColumnResolved");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
     });
   });
 
   describe("status and remaining time", () => {
-    function remaining(): HTMLElement | null {
-      return fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]');
+    /** The badge the item card carries; a running lease shows a countdown instead of a label. */
+    function badgeOf(): { badgeState: unknown; statusBadge: unknown } | null {
+      return component["badge"]() ?? null;
     }
 
-    it("shows the status once, even after the request produced access", () => {
+    it("badges the item once, even after the request produced access", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
       );
 
       create();
 
-      expect(text().split("pamColumnStatus").length - 1).toBe(1);
+      const item = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-item"]',
+      ) as HTMLElement;
+      expect(item.querySelectorAll("[bitBadge], app-pam-access-state-badge")).toHaveLength(1);
     });
 
-    it("adds the remaining time under the status while access is running", () => {
+    it("counts the lease down in the badge while access is running", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
       );
 
       create();
 
-      expect(remaining()).not.toBeNull();
+      expect(badgeOf()?.badgeState).toEqual({ kind: "active", expiresAt: expect.any(Date) });
     });
 
-    it("drops the remaining time once access has ended", () => {
+    it("stops counting down once access has ended", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
       );
 
       create();
 
-      expect(remaining()).toBeNull();
+      expect(badgeOf()?.badgeState).toBeNull();
     });
 
-    it("keeps an unactivated grant approved while its activation window is open", () => {
+    it("badges an unactivated grant Ready to use while its activation window is open", () => {
       detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
 
       create();
 
       expect(component["badge"]()).toEqual({
-        badgeState: null,
-        statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+        badgeState: { kind: "ready" },
+        statusBadge: null,
       });
     });
 
@@ -362,7 +434,7 @@ describe("AccessRequestDialogComponent", () => {
       detail.request$.next(request({ status: "approved", leaseNotAfter: notAfter }));
 
       create();
-      expect(component["badge"]()?.statusBadge?.labelKey).toBe("pamStatusApproved");
+      expect(component["badge"]()?.badgeState).toEqual({ kind: "ready" });
 
       component["nowMs"].set(Date.parse(notAfter) + 1000);
 
@@ -395,11 +467,10 @@ describe("AccessRequestDialogComponent", () => {
       producedLeaseStatus: "active",
     };
 
-    function remaining(): string | null {
-      return (
-        fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]')
-          ?.textContent ?? null
-      );
+    /** The instant the badge counts down to, or null when it is not counting. */
+    function countdownTarget(): number | null {
+      const state = component["badge"]()?.badgeState;
+      return state != null && state.kind === "active" ? state.expiresAt.getTime() : null;
     }
 
     function extendedBadge(): string | null {
@@ -420,7 +491,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toContain("37m");
+      expect(countdownTarget()).toBe(Date.parse(component["request"]()!.producedLeaseNotAfter!));
     });
 
     it("falls back to the activation window when the server sends no lease end", () => {
@@ -433,7 +504,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toContain("7m");
+      expect(countdownTarget()).toBe(Date.parse(component["request"]()!.leaseNotAfter));
     });
 
     it("withholds the countdown once the lease's own end has passed", () => {
@@ -443,7 +514,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toBeNull();
+      expect(countdownTarget()).toBeNull();
     });
 
     it("badges the time an extension added, and the end it moved the lease to", () => {
@@ -482,19 +553,53 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canStart"]()).toBe(false);
     });
 
-    it("offers Cancel for a pending request, and for an approved one not yet lapsed", () => {
+    it("offers Cancel only while the request is still undecided", () => {
       detail.request$.next(request({ status: "pending", leaseNotAfter: PAST }));
       create();
       expect(component["canCancel"]()).toBe(true);
 
+      // Once approved the dialog offers Start instead; the table still withdraws it.
       detail.request$.next(request({ status: "approved" }));
-      expect(component["canCancel"]()).toBe(true);
-
-      detail.request$.next(request({ status: "approved", leaseNotAfter: PAST }));
       expect(component["canCancel"]()).toBe(false);
 
       detail.request$.next(request({ status: "denied" }));
       expect(component["canCancel"]()).toBe(false);
+    });
+
+    it("offers Submit new request once the request was refused or timed out", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+      create();
+      expect(component["canResubmit"]()).toBe(true);
+
+      detail.request$.next(request({ status: "expired", resolvedAt: PAST }));
+      expect(component["canResubmit"]()).toBe(true);
+
+      detail.request$.next(request({ status: "pending" }));
+      expect(component["canResubmit"]()).toBe(false);
+
+      detail.request$.next(request({ status: "approved" }));
+      expect(component["canResubmit"]()).toBe(false);
+    });
+
+    it("points Submit new request at the item, where a fresh request is raised", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      create();
+
+      const link = fixture.nativeElement.querySelector(
+        '[data-testid="request-detail-resubmit"]',
+      ) as HTMLAnchorElement;
+      expect(link.getAttribute("href")).toContain("/vault");
+      expect(link.getAttribute("href")).toContain("itemId=cipher-1");
+    });
+
+    it("never offers an approver the requester's resubmit", () => {
+      detail.viewer$.next("approver");
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      create();
+
+      expect(component["canResubmit"]()).toBe(false);
     });
 
     it("offers End only while the produced lease is live", () => {
@@ -514,15 +619,26 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canEndLease"]()).toBe(false);
     });
 
-    it("renders the offered actions in the dialog footer", () => {
+    it("leaves an approved request with Start beside Close, and nothing else", () => {
       detail.request$.next(request({ status: "approved" }));
 
       create();
 
       const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
       expect(footer.querySelector("#access-request-dialog_button_start")).not.toBeNull();
-      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).not.toBeNull();
       expect(footer.querySelector("#access-request-dialog_button_close")).not.toBeNull();
+      // Withdrawing an approval is the table's job, so the dialog does not double as one.
+      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).toBeNull();
+    });
+
+    it("leaves a pending request with Cancel beside Close", () => {
+      detail.request$.next(request({ status: "pending" }));
+
+      create();
+
+      const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).not.toBeNull();
+      expect(footer.querySelector("#access-request-dialog_button_start")).toBeNull();
     });
   });
 
@@ -666,6 +782,70 @@ describe("AccessRequestDialogComponent", () => {
       expect(footerButton("cancel-request")).toBeNull();
     });
 
+    /**
+     * The footer's shape is the design's safeguard: the decision a mis-click would be costly for
+     * is held away from the one beside Close.
+     */
+    describe("the footer's shape", () => {
+      it("separates Deny from Approve so the two cannot be reached for interchangeably", () => {
+        detail.approvalRow$.next(inboxRow());
+
+        create();
+
+        const deny = footerButton("deny")!;
+        const approve = footerButton("approve")!;
+        expect(deny.className).toContain("tw-ms-auto");
+        expect(approve.className).not.toContain("tw-ms-auto");
+        // Approve leads; Deny trails everything, Close included.
+        const order = [...(fixture.nativeElement.querySelector("footer") as HTMLElement).children];
+        expect(order.indexOf(approve)).toBeLessThan(order.indexOf(deny));
+        expect(order.indexOf(footerButton("close")!)).toBeLessThan(order.indexOf(deny));
+      });
+
+      it("styles Deny as destructive, and Approve as the primary action", () => {
+        detail.approvalRow$.next(inboxRow());
+
+        create();
+
+        expect(footerButton("deny")!.getAttribute("buttonType")).toBe("danger");
+        expect(footerButton("approve")!.getAttribute("buttonType")).toBe("primary");
+      });
+
+      it("promotes Withdraw approval to the primary action on an unstarted grant", () => {
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+        create();
+
+        expect(footerButton("withdraw-approval")!.getAttribute("buttonType")).toBe("primary");
+      });
+
+      it("styles ending a running session as destructive", () => {
+        detail.managed$.next(true);
+        detail.request$.next(
+          request({
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }),
+        );
+
+        create();
+
+        expect(footerButton("revoke")!.getAttribute("buttonType")).toBe("danger");
+      });
+
+      it("leaves a denied request with nothing to do but close", () => {
+        detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+        create();
+
+        const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+        expect(footer.querySelectorAll("button")).toHaveLength(1);
+        expect(footerButton("close")).not.toBeNull();
+      });
+    });
+
     it("offers no decision when the request is not in their inbox", () => {
       create();
 
@@ -741,55 +921,221 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
-    it("offers Withdraw approval on an unstarted approval they manage, sending the reason", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, reason: "Approved by mistake" }),
-      } as any);
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
+    /**
+     * The server refuses a managing approver's withdrawal without a note, so the dialog turns to
+     * its own confirmation face and holds the action until one is written.
+     */
+    describe("withdrawing an approval", () => {
+      function openConfirm(): void {
+        detail.request$.next(request({ status: "approved" }));
+        detail.managed$.next(true);
+        create();
+        component["withdrawApproval"]();
+        fixture.detectChanges();
+      }
 
-      expect(footerButton("withdraw-approval")).not.toBeNull();
-      await component["withdrawApproval"]();
+      it("confirms in place rather than opening a second dialog", () => {
+        openConfirm();
 
-      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
-        data: expect.objectContaining({
-          itemName: "Prod database",
-          organizationName: "Meridian Group",
-          collectionName: "Production",
-          requesterName: "Grace",
-        }),
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-reason"]'),
+        ).not.toBeNull();
       });
-      expect(detail.withdrawApproval).toHaveBeenCalledWith("Approved by mistake");
+
+      it("keeps the item on screen so the destructive action has its context", () => {
+        openConfirm();
+
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-summary"]'),
+        ).not.toBeNull();
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-warning"]'),
+        ).not.toBeNull();
+      });
+
+      it("names the item and the requester in bold in the warning", () => {
+        openConfirm();
+
+        const warning = fixture.nativeElement.querySelector(
+          '[data-testid="withdraw-confirm-warning"]',
+        ) as HTMLElement;
+        const bold = [...warning.querySelectorAll(".tw-font-semibold")].map((el) =>
+          el.textContent?.trim(),
+        );
+        expect(bold).toEqual(["Prod database", "Grace"]);
+        expect(warning.textContent).toContain("pamWithdrawApprovalConfirmMessage");
+      });
+
+      it("marks the reason field as required", () => {
+        openConfirm();
+
+        const reason = fixture.nativeElement.querySelector(
+          '[data-testid="withdraw-confirm-reason"]',
+        ) as HTMLTextAreaElement;
+        expect(reason.required).toBe(true);
+        expect(component["withdrawReason"].hasError("required")).toBe(true);
+      });
+
+      it("holds the withdrawal until a reason is written", () => {
+        // `bitButton` marks a held action with `aria-disabled` so keyboard users still reach it.
+        const held = () => footerButton("confirm-withdraw")!.getAttribute("aria-disabled");
+
+        openConfirm();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("   ");
+        fixture.detectChanges();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("Scope changed");
+        fixture.detectChanges();
+        expect(held()).toBeNull();
+      });
+
+      it("sends the reason the requester will read", async () => {
+        openConfirm();
+        component["withdrawReason"].setValue("  Scope changed  ");
+
+        await component["confirmWithdraw"]();
+
+        expect(detail.withdrawApproval).toHaveBeenCalledWith("Scope changed");
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(component["withdrawReason"].value).toBe("");
+      });
+
+      it("keeps the confirmation and the reason open after a failed withdrawal", async () => {
+        detail.withdrawApproval.mockRejectedValue(new Error("boom"));
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        await component["confirmWithdraw"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
+      });
+
+      it("keeps the reason across Cancel and re-opening the confirmation", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        component["withdrawApproval"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
+      });
+
+      it("returns to the request on Cancel, withdrawing nothing", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        fixture.detectChanges();
+
+        expect(detail.withdrawApproval).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButton("withdraw-approval")).not.toBeNull();
+      });
     });
 
-    it("ignores a second Withdraw approval click while one is in flight", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, reason: "Approved by mistake" }),
-      } as any);
-      detail.withdrawApproval.mockReturnValue(new Promise(() => {}));
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
+    /** Opened over the History tab, the dialog is a record to read. */
+    describe("opened read-only", () => {
+      function footerButtons(): string[] {
+        return [...(fixture.nativeElement.querySelector("footer") as HTMLElement).children]
+          .map((el) => el.id)
+          .filter((id) => id.length > 0);
+      }
 
-      void component["withdrawApproval"]();
-      await Promise.resolve();
-      await Promise.resolve();
-      await component["withdrawApproval"]();
+      it.each([
+        ["an approver's unstarted grant", "approver", { status: "approved" }, true],
+        [
+          "an approver's live lease",
+          "approver",
+          { status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" },
+          true,
+        ],
+        ["the requester's pending request", "requester", { status: "pending" }, false],
+        ["the requester's denied request", "requester", { status: "denied" }, false],
+        ["the requester's expired request", "requester", { status: "expired" }, false],
+        ["the requester's unstarted grant", "requester", { status: "approved" }, false],
+      ] as const)("offers Close alone on %s", (_, viewer, overrides, managed) => {
+        params.readOnly = true;
+        detail.viewer$.next(viewer);
+        detail.managed$.next(managed);
+        detail.request$.next(request(overrides));
 
-      expect(dialogService.open).toHaveBeenCalledTimes(1);
-      expect(detail.withdrawApproval).toHaveBeenCalledTimes(1);
-    });
+        create();
 
-    it("does not withdraw when the withdraw dialog is dismissed", async () => {
-      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
 
-      await component["withdrawApproval"]();
+      it("offers Close alone even where the approver could decide", () => {
+        params.readOnly = true;
+        detail.viewer$.next("approver");
+        detail.approvalRow$.next(inboxRow());
 
-      expect(detail.withdrawApproval).not.toHaveBeenCalled();
+        create();
+
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
+
+      it("opens straight on the withdraw confirmation when asked to", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved" }));
+
+        create();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(footerButton("confirm-withdraw")).not.toBeNull();
+        expect(footerButtons()).not.toContain("access-request-dialog_link_submit-new-request");
+      });
+
+      it("waits for the approval to be known withdrawable before confirming", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.request$.next(request({ status: "approved" }));
+
+        create();
+        expect(component["confirmingWithdraw"]()).toBe(false);
+
+        detail.managed$.next(true);
+        fixture.detectChanges();
+        expect(component["confirmingWithdraw"]()).toBe(true);
+      });
+
+      it("leaves a no-longer-withdrawable request on Close alone, never Submit new request", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("requester");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "expired" }));
+
+        create();
+
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
+
+      it("returns to the read-only request on Cancel, not re-entering the confirmation", () => {
+        params.readOnly = true;
+        params.intent = "withdraw";
+        detail.viewer$.next("approver");
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved" }));
+        create();
+
+        component["cancelWithdraw"]();
+        fixture.detectChanges();
+
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      });
     });
 
     it("offers Revoke on a live lease they manage, even past the requested window", async () => {
@@ -819,6 +1165,194 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canRevoke"]()).toBe(false);
       detail.request$.next(request({ status: "approved" }));
       expect(component["canWithdrawApproval"]()).toBe(false);
+    });
+  });
+  /**
+   * Every state a request can reach, as each kind of viewer meets it: the badge, the footer, and
+   * how the Decision card names the outcome. History opens read-only.
+   */
+  describe("status matrix", () => {
+    const approval = humanDecision({ id: "approver-1", name: "Ada", verdict: "approve" });
+    const lease = { producedLeaseId: "lease-1", producedLeaseNotAfter: FUTURE };
+    const STATUSES = {
+      pending: { status: "pending" },
+      ready: { status: "approved", decisions: [approval] },
+      active: {
+        status: "approved",
+        producedLeaseStatus: "active",
+        ...lease,
+        decisions: [approval],
+      },
+      revoked: {
+        status: "approved",
+        producedLeaseStatus: "revoked",
+        ...lease,
+        decisions: [approval, humanDecision({ id: "op-9", name: "Ops", verdict: "deny" })],
+      },
+      endedByHolder: {
+        status: "approved",
+        producedLeaseStatus: "canceled",
+        ...lease,
+        decisions: [approval, selfEndDecision("user-1")],
+      },
+      denied: {
+        status: "denied",
+        resolvedAt: PAST,
+        decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
+      },
+      withdrawn: {
+        status: "denied",
+        resolvedAt: PAST,
+        decisions: [approval, humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
+      },
+      canceled: { status: "canceled", resolvedAt: PAST },
+      expired: { status: "expired", resolvedAt: PAST },
+    } as const;
+
+    type Viewer = "requester" | "approver" | "approver from History";
+    type Expected = { badge: string; footer: string[]; decision: string | null };
+
+    function open(status: keyof typeof STATUSES, viewer: Viewer): void {
+      params.readOnly = viewer === "approver from History";
+      detail.viewer$.next(viewer === "requester" ? "requester" : "approver");
+      detail.managed$.next(viewer !== "requester");
+      const r = request(STATUSES[status]);
+      detail.request$.next(r);
+      if (viewer !== "requester" && status === "pending") {
+        detail.approvalRow$.next({
+          id: "req-1",
+          request: r,
+          cipherId: "cipher-1",
+        } as unknown as ApprovalRow);
+      }
+      create();
+    }
+
+    function observed(): Expected {
+      const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+      const summary = component["decisionSummary"]();
+      const badge = component["badge"]();
+      return {
+        badge: badge?.badgeState?.kind ?? badge?.statusBadge?.labelKey ?? "none",
+        footer: [...footer.querySelectorAll("button, a")].map((el) =>
+          el.id.replace(/^access-request-dialog_(button|link)_/, ""),
+        ),
+        decision: summary == null ? null : `${summary.byLabelKey} ${summary.who}`,
+      };
+    }
+
+    const CLOSE = ["close"];
+    it.each<[keyof typeof STATUSES, Viewer, Expected]>([
+      [
+        "pending",
+        "requester",
+        { badge: "pending", footer: ["cancel-request", "close"], decision: null },
+      ],
+      [
+        "pending",
+        "approver",
+        { badge: "pending", footer: ["approve", "close", "deny"], decision: null },
+      ],
+      ["pending", "approver from History", { badge: "pending", footer: CLOSE, decision: null }],
+      [
+        "ready",
+        "requester",
+        { badge: "ready", footer: ["start", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "ready",
+        "approver",
+        {
+          badge: "ready",
+          footer: ["withdraw-approval", "close"],
+          decision: "pamDecisionApprovedBy Ada",
+        },
+      ],
+      [
+        "ready",
+        "approver from History",
+        { badge: "ready", footer: CLOSE, decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "requester",
+        { badge: "active", footer: ["end-lease", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "approver",
+        { badge: "active", footer: ["revoke", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "approver from History",
+        { badge: "active", footer: CLOSE, decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "revoked",
+        "requester",
+        { badge: "pamStatusRevoked", footer: CLOSE, decision: "pamDecisionRevokedBy Ops" },
+      ],
+      [
+        "revoked",
+        "approver",
+        { badge: "pamStatusRevoked", footer: CLOSE, decision: "pamDecisionRevokedBy Ops" },
+      ],
+      [
+        "endedByHolder",
+        "requester",
+        { badge: "pamStatusCanceled", footer: CLOSE, decision: "pamDecisionEndedBy Grace" },
+      ],
+      [
+        "endedByHolder",
+        "approver",
+        { badge: "pamStatusCanceled", footer: CLOSE, decision: "pamDecisionEndedBy Grace" },
+      ],
+      [
+        "denied",
+        "requester",
+        {
+          badge: "pamStatusDenied",
+          footer: ["submit-new-request", "close"],
+          decision: "pamDecisionDeniedBy Ada",
+        },
+      ],
+      [
+        "denied",
+        "approver",
+        { badge: "pamStatusDenied", footer: CLOSE, decision: "pamDecisionDeniedBy Ada" },
+      ],
+      [
+        "withdrawn",
+        "requester",
+        {
+          badge: "pamStatusDenied",
+          footer: ["submit-new-request", "close"],
+          decision: "pamDecisionDeniedBy Ada",
+        },
+      ],
+      [
+        "withdrawn",
+        "approver",
+        { badge: "pamStatusDenied", footer: CLOSE, decision: "pamDecisionDeniedBy Ada" },
+      ],
+      ["canceled", "requester", { badge: "pamStatusCanceled", footer: CLOSE, decision: null }],
+      ["canceled", "approver", { badge: "pamStatusCanceled", footer: CLOSE, decision: null }],
+      [
+        "expired",
+        "requester",
+        { badge: "pamStatusExpired", footer: ["submit-new-request", "close"], decision: null },
+      ],
+      ["expired", "approver", { badge: "pamStatusExpired", footer: CLOSE, decision: null }],
+      [
+        "expired",
+        "approver from History",
+        { badge: "pamStatusExpired", footer: CLOSE, decision: null },
+      ],
+    ])("%s, as the %s", (status, viewer, expected) => {
+      open(status, viewer);
+
+      expect(observed()).toEqual(expected);
     });
   });
 });

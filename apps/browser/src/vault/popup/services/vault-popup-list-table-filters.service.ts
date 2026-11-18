@@ -65,6 +65,8 @@ interface CachedTableFilterState {
   collectionIds?: string[];
   folderIds?: string[];
   cipherType?: CipherType | null;
+  /** Selected option IDs of each contributed chip (`VAULT_ITEM_FILTER`), keyed by its `key`. */
+  contributedFilterIds?: Record<string, string[]>;
 }
 
 /**
@@ -271,6 +273,7 @@ export class VaultPopupListTableFiltersService {
       filters.organizationIds?.length ||
       filters.collectionIds?.length ||
       filters.folderIds?.length ||
+      Object.values(filters.contributedFilterIds ?? {}).some((ids) => ids.length) ||
       filters.cipherType != null
     );
   });
@@ -345,6 +348,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    contributed?: Record<string, string[]>;
   }): void {
     const userId = this.activeUserId();
     if (userId == null) {
@@ -360,6 +364,7 @@ export class VaultPopupListTableFiltersService {
         collectionIds: values.collection ?? [],
         folderIds: values.folder ?? [],
         cipherType: values.cipherType ?? null,
+        contributedFilterIds: values.contributed ?? {},
       },
     }));
   }
@@ -377,6 +382,7 @@ export class VaultPopupListTableFiltersService {
     organization?: string[];
     collection?: string[];
     folder?: string[];
+    contributed?: Record<string, string[]>;
   }> {
     return combineLatest([
       this.organizations$,
@@ -395,6 +401,7 @@ export class VaultPopupListTableFiltersService {
           organization?: string[];
           collection?: string[];
           folder?: string[];
+          contributed?: Record<string, string[]>;
         } = {};
 
         if (state.organizationIds?.length) {
@@ -424,6 +431,15 @@ export class VaultPopupListTableFiltersService {
 
         if (state.cipherType != null) {
           result.cipherType = state.cipherType;
+        }
+
+        // Not validated here: the service does not know the options, and the table passes every
+        // row for an ID the provider does not offer.
+        const contributed = Object.entries(state.contributedFilterIds ?? {}).filter(
+          ([, ids]) => ids.length,
+        );
+        if (contributed.length) {
+          result.contributed = Object.fromEntries(contributed);
         }
 
         return result;

@@ -1,4 +1,4 @@
-import { LabelValue, durationLabel, exactWindow } from "@bitwarden/bit-pam";
+import { durationText, exactWindow } from "@bitwarden/bit-pam";
 
 import {
   AccessAuditEventKind,
@@ -43,7 +43,7 @@ export type AuditRow = {
   /** Shown, not linked, so the auditor can hand the id to support. */
   leaseId: string | null;
   /** The granted window's length on a lease-activated event; null on every other kind. */
-  duration: LabelValue | null;
+  duration: string | null;
   /** The exact window behind {@link duration}, for its tooltip; null whenever duration is. */
   exactWindow: string | null;
   /** A lease-extended event's new end, as the wire's ISO string; null on every other kind. */
@@ -183,7 +183,7 @@ export function toAuditRow(
     inDoubt: event.incomplete,
     requestId: event.requestId,
     leaseId: event.leaseId,
-    duration: grantedWindow == null ? null : durationLabel(grantedWindow),
+    duration: grantedWindow == null ? null : durationText(grantedWindow, locale),
     exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow, locale),
     extendedUntil,
   };

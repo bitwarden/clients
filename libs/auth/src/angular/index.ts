@@ -27,15 +27,6 @@ export * from "./password-callout/password-callout.component";
 // password hint
 export * from "./password-hint/password-hint.component";
 
-// registration
-export * from "./registration/registration-start/registration-start.component";
-export * from "./registration/registration-finish/registration-finish.component";
-export * from "./registration/registration-link-expired/registration-link-expired.component";
-export * from "./registration/registration-start/registration-start-secondary.component";
-export * from "./registration/registration-env-selector/registration-env-selector.component";
-export * from "./registration/registration-finish/registration-finish.service";
-export * from "./registration/registration-finish/default-registration-finish.service";
-
 // user verification
 export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";

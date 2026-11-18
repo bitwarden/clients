@@ -16,6 +16,7 @@ export abstract class AccessRequestSdkService {
   abstract listMyAccessRequests(): Promise<AccessRequestView[]>;
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
+  /** Cancels the caller's own request while it is pending, or approved but not yet activated. */
   abstract cancelAccessRequest(id: AccessRequestId): Promise<void>;
 
   /** Takes a plain `string`, since the OSS seam tokens never carry the SDK's branded `CipherId`. */

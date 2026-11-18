@@ -1255,6 +1255,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     // which are distinct from the heuristic AutofillFieldQualifierType values.
     const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
 
+    // A oneTimeCode field needs the TOTP sub-type marker so the inline menu
+    // activates its TOTP flow, in addition to the cipher-type routing below.
+    if (qualifier === AutofillTargetingRuleTypes.oneTimeCode) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+    }
+
     if (qualifier === AutofillTargetingRuleTypes.newPassword) {
       autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
       return;

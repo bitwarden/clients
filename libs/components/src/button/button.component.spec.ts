@@ -1,4 +1,4 @@
-import { Component, DebugElement } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DebugElement, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -31,8 +31,8 @@ describe("Button", () => {
   });
 
   it("should not be disabled when loading and disabled are false", () => {
-    testAppComponent.loading = false;
-    testAppComponent.disabled = false;
+    testAppComponent.loading.set(false);
+    testAppComponent.disabled.set(false);
     fixture.detectChanges();
 
     expect(buttonDebugElement.attributes["loading"]).toBeFalsy();
@@ -41,7 +41,7 @@ describe("Button", () => {
   });
 
   it("should be aria-disabled and not html attribute disabled when disabled is true", () => {
-    testAppComponent.disabled = true;
+    testAppComponent.disabled.set(true);
     fixture.detectChanges();
     expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
@@ -55,7 +55,7 @@ describe("Button", () => {
   });
 
   it("should be disabled when loading is true", () => {
-    testAppComponent.loading = true;
+    testAppComponent.loading.set(true);
     fixture.detectChanges();
 
     expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
@@ -66,7 +66,7 @@ describe("Button", () => {
       fixture.debugElement.query(By.css(`${selector} bit-spinner`)) != null;
 
     it("shows after the debounce delay", fakeAsync(() => {
-      testAppComponent.loading = true;
+      testAppComponent.loading.set(true);
       fixture.detectChanges();
       tick(0);
       fixture.detectChanges();
@@ -80,7 +80,7 @@ describe("Button", () => {
     }));
 
     it("shows at once with instantSpinner", fakeAsync(() => {
-      testAppComponent.loading = true;
+      testAppComponent.loading.set(true);
       fixture.detectChanges();
       tick(0);
       fixture.detectChanges();
@@ -90,41 +90,42 @@ describe("Button", () => {
   });
 });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "test-app",
   template: `
     <button
       id="default"
       type="button"
       bitButton
-      [buttonType]="buttonType"
-      [block]="block"
-      [disabled]="disabled"
-      [loading]="loading"
+      [buttonType]="buttonType()"
+      [block]="block()"
+      [disabled]="disabled()"
+      [loading]="loading()"
     >
       Button
     </button>
     <a
       href="#"
       bitButton
-      [buttonType]="buttonType"
-      [block]="block"
-      [disabled]="disabled"
-      [loading]="loading"
+      [buttonType]="buttonType()"
+      [block]="block()"
+      [disabled]="disabled()"
+      [loading]="loading()"
     >
       Link
     </a>
 
     <button id="disabled" type="button" bitButton disabled>Button</button>
-    <button id="instant" type="button" bitButton instantSpinner [loading]="loading">Instant</button>
+    <button id="instant" type="button" bitButton instantSpinner [loading]="loading()">
+      Instant
+    </button>
   `,
   imports: [ButtonModule],
 })
 class TestAppComponent {
-  buttonType?: string;
-  block?: boolean;
-  disabled?: boolean;
-  loading?: boolean;
+  readonly buttonType = signal<string | undefined>(undefined);
+  readonly block = signal<boolean | undefined>(undefined);
+  readonly disabled = signal<boolean | undefined>(undefined);
+  readonly loading = signal<boolean | undefined>(undefined);
 }

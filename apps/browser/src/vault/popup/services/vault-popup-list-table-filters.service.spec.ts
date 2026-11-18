@@ -187,6 +187,47 @@ describe("VaultPopupListTableFiltersService — cipherTypes$", () => {
     const types = await firstValueFrom(service.cipherTypes$);
     expect(types.map((t) => t.value)).toContain(CipherType.BankAccount);
   });
+
+  describe("contributed filter selection", () => {
+    /** Saves land in state asynchronously, so let them settle before reading back. */
+    const save = async (
+      values: Parameters<VaultPopupListTableFiltersService["saveFilters"]>[0],
+    ) => {
+      service.saveFilters(values);
+      await new Promise((resolve) => setTimeout(resolve));
+    };
+
+    it("persists the selection under the filter's key and reports a filter applied", async () => {
+      await save({ contributed: { status: ["pending", "ready"] } });
+
+      expect(service.cachedFilters().contributedFilterIds).toEqual({
+        status: ["pending", "ready"],
+      });
+      expect(service.hasFilterApplied()).toBe(true);
+    });
+
+    it("reports no filter once the selection is cleared", async () => {
+      await save({ contributed: { status: ["pending"] } });
+      await save({ contributed: { status: [] } });
+
+      expect(service.hasFilterApplied()).toBe(false);
+    });
+
+    it("restores the selection under the filter's key", async () => {
+      await save({ contributed: { status: ["pending"] }, cipherType: CipherType.Login });
+
+      expect(await firstValueFrom(service.restoreFilters$())).toMatchObject({
+        contributed: { status: ["pending"] },
+        cipherType: CipherType.Login,
+      });
+    });
+
+    it("restores nothing for an empty selection", async () => {
+      await save({ contributed: { status: [] } });
+
+      expect(await firstValueFrom(service.restoreFilters$())).not.toHaveProperty("contributed");
+    });
+  });
 });
 
 describe("VaultPopupListTableFiltersService — per-vault filters", () => {
@@ -231,6 +272,7 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
       collectionIds: [],
       folderIds: ["folder-1"],
       cipherType: CipherType.Card,
+      contributedFilterIds: {},
     });
     expect(service.hasFilterApplied()).toBe(true);
   });

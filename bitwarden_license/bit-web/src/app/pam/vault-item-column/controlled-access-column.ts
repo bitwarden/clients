@@ -1,5 +1,6 @@
 import { map, Observable } from "rxjs";
 
+import { ControlledAccessVaultFilterService } from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,17 +8,14 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultItemColumn, VaultItemColumnScope } from "@bitwarden/vault";
 
-import { ControlledAccessVaultFilterService } from "../vault-filter-controlled-access/controlled-access-vault-filter.service";
-
 import { ControlledAccessCellComponent } from "./controlled-access-cell.component";
 
 /**
  * The VFO1 vault table's Controlled access column. Shows while PAM's flag is on and an
  * organization in view uses PAM; `scope.vault` is not read.
  *
- * Sorts through {@link ControlledAccessVaultFilterService.sortRanks$}, the same per-row state read
- * the filter chip shares. That read is one `getCipherAccessState` call per restricted row; a batch
- * `cipher_access_state` in the SDK would make it one call per row list.
+ * Sorts through {@link ControlledAccessVaultFilterService.sortRanks$}, over the caller's own
+ * requests the filter chip shares.
  */
 export function controlledAccessColumn(
   i18nService: I18nService,

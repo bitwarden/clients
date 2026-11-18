@@ -3,8 +3,8 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
-import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { ClientType } from "@bitwarden/common/enums";
 import {
   Environment,

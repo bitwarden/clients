@@ -1,38 +1,44 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
-import { BreadcrumbsModule, TypographyModule } from "@bitwarden/components";
+import { BitwardenIcon, BreadcrumbsModule, IconTileComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+/** A crumb between the parent and the current page. */
+export interface DetailBreadcrumbStep {
+  readonly labelKey: string;
+  /** Shown verbatim in place of {@link labelKey}, for a record's own name. */
+  readonly label?: string;
+  readonly route: unknown[];
+  readonly tileIcon?: BitwardenIcon;
+}
 
 /**
  * Breadcrumb row for the rotation detail pages, projected into `bit-header`'s `breadcrumbs` slot.
- * The parent crumb is never the active route, so `bit-breadcrumbs` leaves the `<h1>` to the header.
+ * The current page is the active crumb, which `bit-breadcrumbs` promotes to the page heading with
+ * the header's title suffix beside it.
  */
 @Component({
   selector: "pam-detail-breadcrumb",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BreadcrumbsModule, TypographyModule, I18nPipe],
+  imports: [BreadcrumbsModule, IconTileComponent, I18nPipe],
+  // Fills the header's breadcrumb row, which `bit-breadcrumbs` measures to decide what to collapse.
+  host: { class: "tw-flex tw-w-full tw-min-w-0" },
   template: `
-    <div class="tw-flex tw-min-w-0 tw-items-baseline">
-      <!-- \`bit-breadcrumbs\`' host is \`tw-w-full\`; this wrapper sizes it to its content, so the
-           static crumb below stays next to it instead of at the row's far edge. -->
-      <div class="tw-min-w-0" [class.tw-shrink-0]="truncate()">
-        <bit-breadcrumbs showTrailingArrow>
-          <bit-breadcrumb [route]="route()">{{ parentLabelKey() | i18n }}</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </div>
-      <!-- A route-less bit-breadcrumb falls back to a focusable button that does nothing and never
-           gets aria-current; a static span carries the current-page semantics without that trap. -->
-      <span
-        bitTypography="h3"
-        aria-current="page"
-        class="tw-inline-block !tw-m-0 !tw-text-fg-heading"
-        [class.tw-min-w-0]="truncate()"
-        [class.tw-truncate]="truncate()"
-        [class.tw-shrink-0]="!truncate()"
-        [class.tw-whitespace-nowrap]="!truncate()"
-        >{{ current() }}</span
-      >
-    </div>
+    <bit-breadcrumbs>
+      <bit-breadcrumb [route]="route()" [icon]="parentIcon()">{{
+        parentLabelKey() | i18n
+      }}</bit-breadcrumb>
+      @if (step(); as step) {
+        <bit-breadcrumb [route]="step.route">
+          @if (step.tileIcon; as tileIcon) {
+            <bit-icon-tile slot="start" [icon]="tileIcon" variant="brand" />
+          }
+          {{ step.label ?? (step.labelKey | i18n) }}
+        </bit-breadcrumb>
+      }
+      <!-- The current URL, query string included, so the crumb reads as the active route. -->
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{ current() }}</bit-breadcrumb>
+    </bit-breadcrumbs>
   `,
 })
 export class DetailBreadcrumbComponent {
@@ -41,9 +47,11 @@ export class DetailBreadcrumbComponent {
 
   readonly parentLabelKey = input.required<string>();
 
+  readonly parentIcon = input<BitwardenIcon>();
+
+  /** A crumb between the parent and the current page, for a page reached through another flow. */
+  readonly step = input<DetailBreadcrumbStep>();
+
   /** The current page's own title, rendered verbatim. */
   readonly current = input.required<string>();
-
-  /** Truncate the current page's title rather than letting it set the row's width. */
-  readonly truncate = input(false);
 }

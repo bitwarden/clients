@@ -5,8 +5,8 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  booleanAttribute,
   HostListener,
-  Input,
   computed,
   effect,
   inject,
@@ -72,12 +72,12 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
 
-  // TODO: Skipped for signal migration because:
-  //  This input overrides a field from a superclass, while the superclass field
-  //  is not migrated.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() disabled = false;
+  readonly disabledInput = input(false, { alias: "disabled", transform: booleanAttribute });
+
+  /** `FocusableOption` reads this as a plain property to skip disabled tabs. */
+  get disabled(): boolean {
+    return this.disabledInput();
+  }
 
   /** Reactive mirror of RouterLinkActive.isActive — used by TabNavBarComponent for overflow computation. */
   readonly isActive = signal(false);

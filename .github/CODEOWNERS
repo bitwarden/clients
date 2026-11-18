@@ -103,6 +103,7 @@ libs/common/src/provider  @bitwarden/team-provider-business-unit-portals-dev
 
 ## Secrets Manager team files ##
 bitwarden_license/bit-web/src/app/secrets-manager  @bitwarden/team-secrets-manager-dev
+bitwarden_license/bit-sm  @bitwarden/team-secrets-manager-dev
 
 ## Platform team files ##
 apps/browser/src/platform         @bitwarden/team-platform-dev
@@ -254,6 +255,7 @@ apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-
 
 ## PAM
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
+bitwarden_license/bit-browser/src/pam  @bitwarden/team-pam-dev
 bitwarden_license/bit-pam              @bitwarden/team-pam-dev
 bitwarden_license/bit-pam-components   @bitwarden/team-pam-dev
 bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev

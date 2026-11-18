@@ -156,7 +156,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(callout()).toBeNull();
   });
 
-  it("reads nothing without a collection id — that is the create-mode dialog", async () => {
+  it("reads nothing without a collection id, that is the create-mode dialog", async () => {
     await create({ organizationId: ORG_ID, collectionId: undefined });
 
     expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
