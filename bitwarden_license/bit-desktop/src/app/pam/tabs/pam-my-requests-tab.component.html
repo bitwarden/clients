@@ -126,6 +126,14 @@
               "pamInboxInSharedFolder" | i18n: row.collectionName
             }}</span>
           }
+          @if (row.lease && endedOffline(row.lease)) {
+            <span
+              slot="secondary"
+              class="tw-text-fg-body"
+              [attr.data-testid]="'my-access-ended-offline-' + row.lease.id"
+              >{{ offlineEndedKey | i18n }}</span
+            >
+          }
           @if (row.lease?.extendedUntil ? row.lease : null; as lease) {
             <span
               slot="secondary"
@@ -185,32 +193,41 @@
         <bit-cell *bitCellDef="myRequestsTable.columns.actions; let row" [truncate]="false">
           <div class="tw-flex tw-items-center tw-justify-end tw-gap-2" bitHoverReveal>
             @if (row.lease; as lease) {
-              @if (canExtend(lease)) {
+              <!-- A lease that ended offline has nothing left to act on. -->
+              @if (!endedOffline(lease)) {
+                @if (canExtend(lease)) {
+                  <button
+                    type="button"
+                    bitIconButton="bwi-clock"
+                    buttonType="subtle"
+                    size="small"
+                    [id]="'pam-my-requests_button_extend-' + lease.id"
+                    [loading]="isExtending(lease.id)"
+                    [disabled]="isExtending(lease.id) || offline()"
+                    [label]="'pamExtendAccessMenuItem' | i18n"
+                    [bitTooltip]="
+                      offline() ? (offlineTooltipKey | i18n) : ('pamExtendAccessMenuItem' | i18n)
+                    "
+                    (click)="extend(lease)"
+                    [attr.data-testid]="'my-access-extend-' + lease.id"
+                  ></button>
+                }
                 <button
                   type="button"
-                  bitIconButton="bwi-clock"
-                  buttonType="subtle"
+                  bitIconButton="bwi-error"
+                  buttonType="danger"
                   size="small"
-                  [id]="'pam-my-requests_button_extend-' + lease.id"
-                  [loading]="isExtending(lease.id)"
-                  [disabled]="isExtending(lease.id)"
-                  [label]="'pamExtendAccessMenuItem' | i18n"
-                  (click)="extend(lease)"
-                  [attr.data-testid]="'my-access-extend-' + lease.id"
+                  [id]="'pam-my-requests_button_end-' + lease.id"
+                  [loading]="isEnding(lease.id)"
+                  [disabled]="isEnding(lease.id) || offline()"
+                  [label]="'pamEndLeaseButton' | i18n"
+                  [bitTooltip]="
+                    offline() ? (offlineTooltipKey | i18n) : ('pamEndLeaseButton' | i18n)
+                  "
+                  (click)="endLease(lease)"
+                  [attr.data-testid]="'my-access-end-' + lease.id"
                 ></button>
               }
-              <button
-                type="button"
-                bitIconButton="bwi-error"
-                buttonType="danger"
-                size="small"
-                [id]="'pam-my-requests_button_end-' + lease.id"
-                [loading]="isEnding(lease.id)"
-                [disabled]="isEnding(lease.id)"
-                [label]="'pamEndLeaseButton' | i18n"
-                (click)="endLease(lease)"
-                [attr.data-testid]="'my-access-end-' + lease.id"
-              ></button>
             } @else if (row.request; as request) {
               @if (canStart(request)) {
                 <button
@@ -220,8 +237,11 @@
                   size="small"
                   [id]="'pam-my-requests_button_start-' + request.id"
                   [loading]="isStarting(request.id)"
-                  [disabled]="isStarting(request.id)"
+                  [disabled]="isStarting(request.id) || offline()"
                   [label]="'pamStartLeaseButton' | i18n"
+                  [bitTooltip]="
+                    offline() ? (offlineTooltipKey | i18n) : ('pamStartLeaseButton' | i18n)
+                  "
                   (click)="activate(request)"
                   [attr.data-testid]="'my-access-approved-start-' + request.id"
                 ></button>
@@ -233,8 +253,9 @@
                   buttonType="subtle"
                   size="small"
                   [id]="'pam-my-requests_button_cancel-' + request.id"
-                  [disabled]="isCancelling(request.id)"
+                  [disabled]="isCancelling(request.id) || offline()"
                   [label]="'cancelRequest' | i18n"
+                  [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ('cancelRequest' | i18n)"
                   (click)="cancel(request)"
                   [attr.data-testid]="'my-access-cancel-' + request.id"
                 ></button>

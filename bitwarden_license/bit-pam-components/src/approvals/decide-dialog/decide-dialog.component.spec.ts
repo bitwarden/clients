@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { PamConnectivityService } from "@bitwarden/bit-pam";
 import type { AccessDecisionVerdict, AccessRequestView } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, TooltipDirective } from "@bitwarden/components";
 
 import { emptyResolvedNames } from "../../access-requests/access-name-resolver.service";
 import { ApprovalRow, toApprovalRow } from "../approval-row";
@@ -287,6 +289,55 @@ describe("DecideDialogComponent", () => {
         verdict: "deny",
         comment: "wrong window",
       });
+    });
+  });
+
+  describe("offline", () => {
+    function provideConnectivity(offline: boolean): void {
+      TestBed.configureTestingModule({
+        providers: [
+          {
+            provide: PamConnectivityService,
+            useValue: { offline$: new BehaviorSubject(offline), reconnected$: of() },
+          },
+        ],
+      });
+    }
+
+    function confirmTooltip(): string {
+      return fixture.debugElement
+        .query(By.css("#pam-decide-dialog_button_confirm"))
+        .injector.get(TooltipDirective)
+        .tooltipContent()
+        .trim();
+    }
+
+    it("disables the confirm offline, saying why, and closes with nothing", async () => {
+      provideConnectivity(true);
+      await create();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement
+          .querySelector("#pam-decide-dialog_button_confirm")
+          .getAttribute("aria-disabled"),
+      ).toBe("true");
+      expect(confirmTooltip()).toBe("pamOfflineTooltip");
+      await component["confirm"]();
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it("enables the confirm online, with no offline reason", async () => {
+      provideConnectivity(false);
+      await create();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement
+          .querySelector("#pam-decide-dialog_button_confirm")
+          .getAttribute("aria-disabled"),
+      ).toBeNull();
+      expect(confirmTooltip()).toBe("");
     });
   });
 });

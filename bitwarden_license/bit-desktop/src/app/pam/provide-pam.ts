@@ -15,6 +15,7 @@ import {
   DefaultAccessRefreshService,
   DefaultLeasingErrorService,
   LeasingErrorService,
+  PamConnectivityService,
   PamNotificationSink,
 } from "@bitwarden/bit-pam";
 import {
@@ -41,7 +42,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
@@ -63,6 +64,9 @@ import {
   VAULT_ROW_ACTIONS,
 } from "@bitwarden/vault";
 
+import { DesktopAccessEventService } from "./connectivity/desktop-access-event.service";
+import { DesktopPamConnectivityService } from "./connectivity/desktop-pam-connectivity.service";
+import { guardPamCalls } from "./connectivity/pam-call-guard";
 import { DesktopAccessBadgeTickerService } from "./desktop-access-badge-ticker.service";
 import { DesktopPamNavBadgeService } from "./desktop-pam-nav-badge.service";
 import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notification-sink";
@@ -74,6 +78,9 @@ import { DesktopLeasedClipboardService } from "./vault/desktop-leased-clipboard.
 import { DesktopLeasedSshKeyService } from "./vault/desktop-leased-ssh-key.service";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
+
+/** The sync service's completion message, read as evidence the server answers again. */
+const SYNC_COMPLETED = new CommandDefinition<{ successfully?: boolean }>("syncCompleted");
 
 /**
  * PAM's root-level providers for the commercial desktop build, including every OSS seam it fills:
@@ -97,43 +104,84 @@ export function provideDesktopPam(): SafeProvider[] {
       provide: AccessBadgeTickerService,
       useExisting: DesktopAccessBadgeTickerService,
     }),
+    // Whether PAM can reach the server; see `connectivity/`.
+    safeProvider({
+      provide: DesktopPamConnectivityService,
+      useFactory: (notificationsService: ServerNotificationsService, messages: MessageListener) =>
+        new DesktopPamConnectivityService(
+          window,
+          notificationsService.notifications$,
+          messages.messages$(SYNC_COMPLETED),
+        ),
+      deps: [ServerNotificationsService, MessageListener],
+    }),
+    safeProvider({
+      provide: PamConnectivityService,
+      useExisting: DesktopPamConnectivityService,
+    }),
+    // Every PAM SDK call is bounded by a timeout and reports its outcome to connectivity.
     safeProvider({
       provide: AccessRequestSdkService,
-      useClass: AccessRequestsSdkService,
-      deps: [SdkService, AccountService, LogService],
+      useFactory: (
+        sdk: SdkService,
+        account: AccountService,
+        log: LogService,
+        connectivity: DesktopPamConnectivityService,
+      ) => guardPamCalls(new AccessRequestsSdkService(sdk, account, log), connectivity),
+      deps: [SdkService, AccountService, LogService, DesktopPamConnectivityService],
     }),
     safeProvider({
       provide: AccessRuleSdkService,
-      useClass: AccessRulesSdkService,
-      deps: [SdkService, AccountService, LogService],
+      useFactory: (
+        sdk: SdkService,
+        account: AccountService,
+        log: LogService,
+        connectivity: DesktopPamConnectivityService,
+      ) => guardPamCalls(new AccessRulesSdkService(sdk, account, log), connectivity),
+      deps: [SdkService, AccountService, LogService, DesktopPamConnectivityService],
     }),
     safeProvider({
       provide: AccessLeaseSdkService,
-      useClass: AccessLeasesSdkService,
-      deps: [SdkService, AccountService, LogService],
+      useFactory: (
+        sdk: SdkService,
+        account: AccountService,
+        log: LogService,
+        connectivity: DesktopPamConnectivityService,
+      ) => guardPamCalls(new AccessLeasesSdkService(sdk, account, log), connectivity),
+      deps: [SdkService, AccountService, LogService, DesktopPamConnectivityService],
     }),
     safeProvider({
       provide: ApprovalSdkService,
-      useClass: ApprovalsSdkService,
-      deps: [SdkService, AccountService, LogService],
+      useFactory: (
+        sdk: SdkService,
+        account: AccountService,
+        log: LogService,
+        connectivity: DesktopPamConnectivityService,
+      ) => guardPamCalls(new ApprovalsSdkService(sdk, account, log), connectivity),
+      deps: [SdkService, AccountService, LogService, DesktopPamConnectivityService],
     }),
     safeProvider({
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
     }),
-    // The server pushes ids-less ticks over the same channel the web vault listens on.
+    // The server pushes ids-less ticks over the same channel the web vault listens on; a
+    // reconnect ticks too, since pushes sent while offline were missed.
     safeProvider({
       provide: AccessEventService,
       useFactory: (
         notificationsService: ServerNotificationsService,
         accountService: AccountService,
+        connectivity: DesktopPamConnectivityService,
       ) =>
-        new DefaultAccessEventService(
-          notificationsService.notifications$,
-          accountService.activeAccount$.pipe(getOptionalUserId),
+        new DesktopAccessEventService(
+          new DefaultAccessEventService(
+            notificationsService.notifications$,
+            accountService.activeAccount$.pipe(getOptionalUserId),
+          ),
+          connectivity.reconnected$,
         ),
-      deps: [ServerNotificationsService, AccountService],
+      deps: [ServerNotificationsService, AccountService, DesktopPamConnectivityService],
     }),
     safeProvider({
       provide: AccessRefreshService,
@@ -191,6 +239,7 @@ export function provideDesktopPam(): SafeProvider[] {
         ToastService,
         I18nService,
         LogService,
+        PamConnectivityService,
       ],
     }),
     safeProvider({
@@ -256,6 +305,7 @@ export function provideDesktopPam(): SafeProvider[] {
         NgZone,
         LogService,
         DesktopLeasedClipboardService,
+        PamConnectivityService,
       ],
     }),
     // Lets the SSH agent serve a gated item's key while its lease is live. The IPC decision is
@@ -289,7 +339,13 @@ export function provideDesktopPam(): SafeProvider[] {
     safeProvider({
       provide: DesktopVaultRowActionsService,
       useClass: DesktopVaultRowActionsService,
-      deps: [GatedRequestActionsService, I18nService, AccountService, DestroyRef],
+      deps: [
+        GatedRequestActionsService,
+        I18nService,
+        AccountService,
+        DestroyRef,
+        PamConnectivityService,
+      ],
     }),
     safeProvider({
       provide: VAULT_ROW_ACTIONS,
@@ -330,6 +386,23 @@ export function provideDesktopPam(): SafeProvider[] {
         notifier.start();
       },
       deps: [DesktopPamNotifier],
+      multi: true,
+    }),
+    // While the server is marked unreachable on a working network, a lease read checks whether it
+    // answers again. A reconnect also drops the cached lease list the item gate reads.
+    safeProvider({
+      provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+      useFactory:
+        (
+          connectivity: DesktopPamConnectivityService,
+          leases: AccessLeaseSdkService,
+          myLeases: MyLeasesService,
+        ) =>
+        () => {
+          connectivity.startProbing(() => leases.listMyLeases());
+          connectivity.reconnected$.subscribe(() => myLeases.invalidate());
+        },
+      deps: [DesktopPamConnectivityService, AccessLeaseSdkService, MyLeasesService],
       multi: true,
     }),
     safeProvider({

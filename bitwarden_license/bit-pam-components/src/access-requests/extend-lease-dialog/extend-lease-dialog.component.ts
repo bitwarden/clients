@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { AccessLeaseExtensionRequest, extensionDurationOptions } from "@bitwarden/bit-pam";
+import {
+  AccessLeaseExtensionRequest,
+  extensionDurationOptions,
+  PAM_OFFLINE_TOOLTIP_KEY,
+} from "@bitwarden/bit-pam";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -11,9 +15,11 @@ import {
   DialogService,
   FormFieldModule,
   SelectModule,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPamOffline } from "../../connectivity/pam-offline";
 import { DurationLongPipe } from "../../date/duration-long.pipe";
 
 export type ExtendLeaseDialogParams = {
@@ -33,6 +39,7 @@ export type ExtendLeaseDialogParams = {
     FormFieldModule,
     ReactiveFormsModule,
     SelectModule,
+    TooltipDirective,
     I18nPipe,
     DurationLongPipe,
   ],
@@ -43,6 +50,10 @@ export class ExtendLeaseDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly params = inject<ExtendLeaseDialogParams>(DIALOG_DATA);
 
+  /** Extending needs the server, so the submit waits for the connection. */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
+
   protected readonly durationOptions = extensionDurationOptions(this.params.maxDurationSeconds);
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
@@ -52,7 +63,7 @@ export class ExtendLeaseDialogComponent {
 
   protected readonly submit = async (): Promise<void> => {
     this.formGroup.markAllAsTouched();
-    if (this.formGroup.invalid) {
+    if (this.formGroup.invalid || this.offline()) {
       return;
     }
     const { durationSeconds, reason } = this.formGroup.getRawValue();

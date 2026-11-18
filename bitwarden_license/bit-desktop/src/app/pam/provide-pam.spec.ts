@@ -1,10 +1,14 @@
 import { NgZone } from "@angular/core";
 import { LoadChildrenCallback } from "@angular/router";
+import { mock } from "jest-mock-extended";
+import { Subject } from "rxjs";
 
 import {
+  AccessEventService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
+  PamConnectivityService,
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
@@ -19,6 +23,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -33,6 +38,7 @@ import {
   VAULT_ROW_ACTIONS,
 } from "@bitwarden/vault";
 
+import { DesktopPamConnectivityService } from "./connectivity/desktop-pam-connectivity.service";
 import { DesktopAccessBadgeTickerService } from "./desktop-access-badge-ticker.service";
 import { provideDesktopPam } from "./provide-pam";
 import { DesktopGatedCollectionBannerComponent } from "./vault/desktop-gated-collection-banner.component";
@@ -66,6 +72,53 @@ describe("provideDesktopPam", () => {
       "history",
       "requests/:id",
     ]);
+  });
+
+  describe("connectivity", () => {
+    it("provides the desktop connectivity service behind the shared seam", () => {
+      expect(providerFor(PamConnectivityService)?.useExisting).toBe(DesktopPamConnectivityService);
+    });
+
+    it("guards each PAM SDK call with the connectivity service", async () => {
+      const provider = providerFor(AccessRequestSdkService) as {
+        useFactory: (...deps: unknown[]) => AccessRequestSdkService;
+        deps: unknown[];
+      };
+      expect(provider.deps).toContain(DesktopPamConnectivityService);
+
+      const reporter = { reportReachable: jest.fn(), reportUnreachable: jest.fn() };
+      const sdk = mock<SdkService>();
+      sdk.userClient$.mockReturnValue(new Subject());
+      const account = {
+        activeAccount$: new Subject(),
+      } as unknown as AccountService;
+      const service = provider.useFactory(sdk, account, mock<LogService>(), reporter);
+
+      jest.useFakeTimers();
+      const call = service.listMyAccessRequests();
+      jest.advanceTimersByTime(20_000);
+      await expect(call).rejects.toMatchObject({ name: "PamUnreachableError" });
+      expect(reporter.reportUnreachable).toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it("re-reads access state on reconnect through the access event service", () => {
+      const provider = providerFor(AccessEventService) as {
+        useFactory: (...deps: unknown[]) => AccessEventService;
+      };
+      const reconnected$ = new Subject<void>();
+      const events = provider.useFactory(
+        { notifications$: new Subject() },
+        { activeAccount$: new Subject() },
+        { reconnected$ },
+      );
+      const ticks = jest.fn();
+      events.accessChanged$().subscribe(ticks);
+
+      reconnected$.next();
+
+      expect(ticks).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("vault seams", () => {
@@ -121,6 +174,7 @@ describe("provideDesktopPam", () => {
         NgZone,
         LogService,
         DesktopLeasedClipboardService,
+        PamConnectivityService,
       ]);
     });
 

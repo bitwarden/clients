@@ -26,6 +26,8 @@
             [size]="popupLayout ? 'default' : 'small'"
             [class.tw-flex-1]="popupLayout"
             [bitAction]="extendAction()"
+            [disabled]="offline()"
+            [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
             id="pam-cipher-view-banner_button_extend"
           >
             {{ "pamExtendLeaseButtonV2" | i18n }}
@@ -38,6 +40,8 @@
           [size]="popupLayout ? 'default' : 'small'"
           [class.tw-flex-1]="popupLayout"
           [bitAction]="endAction()"
+          [disabled]="offline()"
+          [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
           id="pam-cipher-view-banner_button_end"
         >
           {{ "pamEndLeaseButton" | i18n }}

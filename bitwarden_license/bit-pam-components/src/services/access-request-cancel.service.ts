@@ -1,4 +1,8 @@
-import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-pam";
+import {
+  AccessRefreshService,
+  AccessRequestSdkService,
+  pamFailureMessageKey,
+} from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -51,7 +55,7 @@ export class AccessRequestCancelService {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pendingStateCancelError"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "pendingStateCancelError")),
       });
     } finally {
       this.accessRefreshService.notifyAccessChanged(cipherId);

@@ -44,6 +44,7 @@
       bitFormButton
       buttonType="danger"
       [disabled]="confirmDisabled()"
+      [bitTooltip]="offline() ? (offlineTooltipKey | i18n) : ''"
       id="pam-withdraw-approval-dialog_button_confirm"
     >
       {{ "pamInboxWithdrawApproval" | i18n }}

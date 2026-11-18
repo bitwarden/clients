@@ -12,6 +12,8 @@ import {
   formatCalendarDate,
   formatTimeOfDay,
   DefaultAccessRefreshService,
+  PamConnectivityService,
+  PamUnreachableError,
 } from "@bitwarden/bit-pam";
 import type {
   AccessLeaseView,
@@ -29,7 +31,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ButtonComponent, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  ButtonComponent,
+  DialogRef,
+  DialogService,
+  ToastService,
+  TooltipDirective,
+} from "@bitwarden/components";
 
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
@@ -1332,6 +1340,205 @@ describe("CipherViewBannerComponent", () => {
       await component["extendLease"]();
 
       expect(leasesApi.extendLease).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("on a client that reports connectivity", () => {
+    let offline$: BehaviorSubject<boolean>;
+
+    beforeEach(() => {
+      offline$ = new BehaviorSubject(false);
+      TestBed.configureTestingModule({
+        providers: [
+          { provide: PamConnectivityService, useValue: { offline$, reconnected$: NEVER } },
+        ],
+      });
+    });
+
+    function tooltipOf(selector: string): string {
+      return fixture.debugElement
+        .query(By.css(selector))
+        .injector.get(TooltipDirective)
+        .tooltipContent()
+        .trim();
+    }
+
+    function expectDisabledOffline(selector: string): void {
+      expect(query(selector)?.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltipOf(selector)).toBe("pamOfflineTooltip");
+    }
+
+    it("shows no offline notice while online", async () => {
+      await create(gatedCipher());
+
+      expect(query('[data-testid="pam-offline-banner"]')).toBeNull();
+    });
+
+    it("shows one offline notice on a governed item while offline", async () => {
+      offline$.next(true);
+
+      await create(gatedCipher());
+
+      expect(
+        fixture.nativeElement.querySelectorAll('[data-testid="pam-offline-banner"]'),
+      ).toHaveLength(1);
+      expect(text()).toContain("pamOfflineBanner");
+    });
+
+    it("shows the notice even when the state cannot be read, so the user is not left with nothing", async () => {
+      offline$.next(true);
+      requestsApi.getCipherAccessState.mockRejectedValue(new Error("offline"));
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="pam-offline-banner"]')).not.toBeNull();
+    });
+
+    it("shows no notice on an item PAM does not govern", async () => {
+      offline$.next(true);
+
+      await create(gatedCipher({ partial: false }));
+
+      expect(query('[data-testid="pam-offline-banner"]')).toBeNull();
+    });
+
+    it("disables Request access offline, saying why, and enables it online", async () => {
+      await create(gatedCipher());
+      expect(
+        query("#pam-cipher-view-banner_button_request-toggle")?.getAttribute("aria-disabled"),
+      ).toBeNull();
+
+      offline$.next(true);
+      fixture.detectChanges();
+
+      expectDisabledOffline("#pam-cipher-view-banner_button_request-toggle");
+    });
+
+    it("disables Start offline, saying why, and starts nothing", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+      offline$.next(true);
+      await create(gatedCipher());
+
+      expectDisabledOffline("#pam-cipher-view-banner_button_start");
+      await component["activateRequest"]();
+      expect(requestsApi.activateAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("disables Extend and End offline, saying why, and extends or ends nothing", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          activeLease: leaseView(),
+          extensionsAllowed: true,
+          maxExtensionDurationSeconds: 3600,
+        }),
+      );
+      offline$.next(true);
+      await create(gatedCipher());
+
+      expectDisabledOffline("#pam-cipher-view-banner_button_extend");
+      expectDisabledOffline("#pam-cipher-view-banner_button_end");
+      await component["extendLease"]();
+      await component["endLease"]();
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(leasesApi.endLease).not.toHaveBeenCalled();
+    });
+
+    it("disables Cancel request offline, saying why", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+      offline$.next(true);
+      await create(gatedCipher());
+
+      expectDisabledOffline("#pam-cipher-view-banner_button_cancel");
+      await component["cancelRequest"]();
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("keeps the countdown from the last answer when a later read fails", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ activeLease: leaseView() }));
+      await create(gatedCipher());
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+
+      requestsApi.getCipherAccessState.mockRejectedValue(new Error("offline"));
+      TestBed.inject(AccessRefreshService).notifyAccessChanged("cipher-1");
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+      expect(query('[data-testid="active-lease-countdown"]')).not.toBeNull();
+    });
+
+    it("toasts the connectivity failure when Start never reaches the server", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+      requestsApi.activateAccessRequest.mockRejectedValue(new PamUnreachableError("timeout"));
+      await create(gatedCipher());
+
+      await component["activateRequest"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+    });
+
+    it("keeps the server's own message for a refused Start", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+      requestsApi.activateAccessRequest.mockRejectedValue(
+        new Error(
+          'Received error message from server: [409] {"message":"Another active lease exists for this item. Try again once it ends."}',
+        ),
+      );
+      await create(gatedCipher());
+
+      await component["activateRequest"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorSingleActiveAccess",
+      });
+    });
+
+    describe("a lease that runs out offline", () => {
+      const NOW = Date.parse("2026-01-01T15:00:00.000Z");
+
+      beforeEach(() => {
+        jest.spyOn(Date, "now").mockReturnValue(NOW);
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("says the access ended and to reconnect, where the countdown was", async () => {
+        requestsApi.getCipherAccessState.mockResolvedValue(
+          accessState({
+            activeLease: leaseView({ notAfter: new Date(NOW + 60_000).toISOString() }),
+          }),
+        );
+        await create(gatedCipher());
+        requestsApi.getCipherAccessState.mockRejectedValue(new Error("offline"));
+        offline$.next(true);
+
+        jest.spyOn(Date, "now").mockReturnValue(NOW + 61_000);
+        await new Promise((resolve) => setTimeout(resolve, 1_100));
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
+        expect(query('[data-testid="cipher-view-banner-ended-title"]')?.textContent).toContain(
+          "pamOfflineAccessEnded",
+        );
+        expect(text()).not.toContain("pamEndedBannerBody");
+        expectDisabledOffline("#pam-cipher-view-banner_button_request-toggle");
+      });
     });
   });
 });

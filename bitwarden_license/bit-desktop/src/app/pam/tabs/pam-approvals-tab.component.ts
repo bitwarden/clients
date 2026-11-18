@@ -12,7 +12,11 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { AccessBadgeState, selectedFilterStrings } from "@bitwarden/bit-pam";
+import {
+  AccessBadgeState,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  selectedFilterStrings,
+} from "@bitwarden/bit-pam";
 import type { AccessDecisionVerdict, AccessLeaseId } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
@@ -28,6 +32,7 @@ import {
   compareApproverStatus,
   APPROVER_READY_LABEL_KEY,
   REQUEST_STATUS_LOOK,
+  injectPamOffline,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -137,6 +142,13 @@ export class PamApprovalsTabComponent {
   private readonly approverActions = inject(ApproverActionsService);
   private readonly ticker = inject(AccessBadgeTickerService);
   private readonly i18nService = inject(I18nService);
+
+  /**
+   * Every decision needs the server, so each action is disabled, with this reason, while offline;
+   * the shell shows the offline notice.
+   */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
 
   /** The ids of rows whose action is in flight. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -315,7 +327,7 @@ export class PamApprovalsTabComponent {
   }
 
   protected async decide(row: ApproverRow, verdict: AccessDecisionVerdict): Promise<void> {
-    if (row.kind !== "pending" || !row.approval.canDecide || this.isActing(row)) {
+    if (row.kind !== "pending" || !row.approval.canDecide || this.isActing(row) || this.offline()) {
       return;
     }
     await this.approverActions.decide(
@@ -327,7 +339,7 @@ export class PamApprovalsTabComponent {
 
   /** Withdraws an approval the requester has not started yet, which needs no lease. */
   protected async withdrawApproval(row: ApproverRow): Promise<void> {
-    if (row.kind !== "ready" || this.isActing(row)) {
+    if (row.kind !== "ready" || this.isActing(row) || this.offline()) {
       return;
     }
     const parties = this.inbox.managedRequestParties(row.id);
@@ -346,7 +358,7 @@ export class PamApprovalsTabComponent {
 
   /** Ends a running lease. */
   protected async revoke(row: ApproverRow): Promise<void> {
-    if (row.kind !== "active" || this.isActing(row)) {
+    if (row.kind !== "active" || this.isActing(row) || this.offline()) {
       return;
     }
     const leaseId: AccessLeaseId = row.lease.leaseId;

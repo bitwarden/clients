@@ -6,6 +6,8 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   isUnlicensedError,
+  PamConnectivityService,
+  pamFailureMessageKey,
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,6 +29,8 @@ export class LeaseExtensionService {
     private readonly toastService: ToastService,
     private readonly i18nService: I18nService,
     private readonly logService: LogService,
+    /** Optional: without it the dialog always opens, as before connectivity was reported. */
+    private readonly connectivity?: PamConnectivityService,
   ) {}
 
   /**
@@ -47,12 +51,16 @@ export class LeaseExtensionService {
    * Asks for a length and a reason, then extends. A denied extension resolves rather than throws,
    * so the returned status picks the toast; without that an expired-lease denial would read as
    * success. Never rejects; the outcome is toasted and the refresh always announced once asked.
+   * Offline, the dialog does not open at all, since an extension needs the server.
    */
   async extend(
     cipherId: string,
     leaseId: AccessLeaseId,
     maxDurationSeconds: number,
   ): Promise<void> {
+    if (this.connectivity != null && (await firstValueFrom(this.connectivity.offline$))) {
+      return;
+    }
     const request = await firstValueFrom(
       ExtendLeaseDialogComponent.open(this.dialogService, { maxDurationSeconds }).closed,
     );
@@ -71,7 +79,10 @@ export class LeaseExtensionService {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t(
-          isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
+          pamFailureMessageKey(
+            e,
+            isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
+          ),
         ),
       });
     } finally {

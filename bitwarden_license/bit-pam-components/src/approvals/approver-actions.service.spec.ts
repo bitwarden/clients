@@ -3,7 +3,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { DECIDE_ACCESS_SERVER_ERRORS } from "@bitwarden/bit-pam";
+import { DECIDE_ACCESS_SERVER_ERRORS, PamUnreachableError } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -234,6 +234,31 @@ describe("ApproverActionsService", () => {
 
       expect(run).not.toHaveBeenCalled();
       expect(busy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a call that never reaches the server", () => {
+    it("toasts the connectivity failure for a decision", async () => {
+      dialogCloses({ confirmed: true, verdict: "approve", comment: undefined });
+      run.mockRejectedValue(new PamUnreachableError("network"));
+
+      await service.decide(params, run, busy);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+      expect(busy).toHaveBeenLastCalledWith(false);
+    });
+
+    it("toasts the connectivity failure for a withdrawal, and reports it failed", async () => {
+      run.mockRejectedValue(new PamUnreachableError("timeout"));
+
+      expect(await service.withdrawApproval(run, busy)).toBe(false);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
     });
   });
 });

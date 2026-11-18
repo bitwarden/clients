@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import {
   AccessRequestSdkService,
   LeasingErrorService,
+  PamUnreachableError,
   REQUEST_ACCESS_SERVER_ERRORS,
   composeRequestWindow,
   toDateInputValue,
@@ -559,6 +560,26 @@ describe("RequestAccessFormComponent", () => {
       const error = query('[data-testid="request-error"]');
       expect(error?.getAttribute("role")).toBe("alert");
       expect(error?.textContent?.trim()).toBe("requestAccessModalGenericError");
+    });
+
+    it("toasts the connectivity failure, not an inline refusal, when the request never reaches the server", async () => {
+      requestsApi.submitAccessRequest.mockRejectedValue(new PamUnreachableError("timeout"));
+      await create();
+      await component["submitRequest"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+      expect(component["requestError"]()).toBeNull();
+      expect(accessChanged).not.toHaveBeenCalled();
+    });
+
+    it("says the server could not be reached when the pre-check never reaches it", async () => {
+      requestsApi.preCheck.mockRejectedValue(new PamUnreachableError("network"));
+      await create();
+
+      expect(component["requestError"]()).toBe("pamServerUnreachable");
     });
   });
 });

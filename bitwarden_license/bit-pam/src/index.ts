@@ -41,6 +41,17 @@ export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
 export { AccessRefreshService } from "./abstractions/access-refresh.service";
 export { AccessEventService } from "./abstractions/access-event.service";
 export { LeasingErrorService } from "./abstractions/leasing-error.service";
+export { PamConnectivityService } from "./abstractions/pam-connectivity.service";
+export {
+  isPamUnreachableError,
+  PAM_OFFLINE_ACCESS_ENDED_KEY,
+  PAM_OFFLINE_BANNER_KEY,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  PAM_UNREACHABLE_MESSAGE_KEY,
+  pamFailureMessageKey,
+  PamUnreachableError,
+} from "./helpers/pam-unreachable-error";
+export type { PamUnreachableReason } from "./helpers/pam-unreachable-error";
 export {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_NAME_MAX_LENGTH,

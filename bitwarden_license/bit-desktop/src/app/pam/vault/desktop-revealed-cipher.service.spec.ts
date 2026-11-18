@@ -7,6 +7,7 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   LeaseClock,
+  PamConnectivityService,
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -49,6 +50,7 @@ describe("DesktopRevealedCipherService", () => {
   let messages$: Subject<Message<Record<string, unknown>>>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let clipboard: string;
+  let reconnected$: Subject<void>;
   let service: DesktopRevealedCipherService;
 
   /** A state with a live lease ending `ms` from the start of the test. */
@@ -113,6 +115,7 @@ describe("DesktopRevealedCipherService", () => {
         mock<TotpService>(),
         logService,
       ),
+      { offline$: new BehaviorSubject(false), reconnected$ } as PamConnectivityService,
     );
 
   beforeEach(() => {
@@ -146,6 +149,7 @@ describe("DesktopRevealedCipherService", () => {
     clipboard = "";
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.readFromClipboard.mockImplementation(async () => clipboard);
+    reconnected$ = new Subject<void>();
 
     service = createService();
   });
@@ -676,6 +680,80 @@ describe("DesktopRevealedCipherService", () => {
 
       expect(emissions[emissions.length - 1]).toBe(stored);
       expect(jest.getTimerCount()).toBe(0);
+    });
+  });
+
+  describe("offline", () => {
+    it("keeps a held view through failed reads until its own notAfter, then drops it", async () => {
+      state = leaseEndingIn();
+      service.displayView$(userId, storedView()).subscribe();
+      await flush();
+      accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("offline"));
+
+      accessChanged$.next();
+      await flush();
+      tickAt(30_000);
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
+
+      tickAt(60_000);
+      await flush();
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("drops a held view on reconnect when the server no longer reports its lease", async () => {
+      state = leaseEndingIn();
+      await service.getOrReveal(userId, cipherId);
+      state = noLease();
+
+      reconnected$.next();
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("keeps a held view on reconnect when the server still reports its lease", async () => {
+      state = leaseEndingIn();
+      await service.getOrReveal(userId, cipherId);
+
+      reconnected$.next();
+      await flush();
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
+    });
+
+    it("cuts a held view to an earlier end the server reports on reconnect, never a later one", async () => {
+      state = leaseEndingIn(60_000);
+      await service.getOrReveal(userId, cipherId);
+      state = leaseEndingIn(10_000);
+
+      reconnected$.next();
+      await flush();
+      tickAt(10_000);
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("does not lengthen a held view from the reconnect read", async () => {
+      state = leaseEndingIn(60_000);
+      await service.getOrReveal(userId, cipherId);
+      state = leaseEndingIn(120_000);
+
+      reconnected$.next();
+      await flush();
+      tickAt(60_000);
+
+      expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+
+    it("keeps a held view when the reconnect read fails again", async () => {
+      state = leaseEndingIn();
+      await service.getOrReveal(userId, cipherId);
+      accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("offline"));
+
+      reconnected$.next();
+      await flush();
+
+      expect(service.isRevealed(userId, cipherId)).toBe(true);
     });
   });
 });

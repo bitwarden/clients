@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PamConnectivityService, PamUnreachableError } from "@bitwarden/bit-pam";
 import {
   ApprovalPrivilegeService,
   ApproverInboxService,
@@ -23,6 +24,9 @@ describe("PamShellComponent", () => {
   let pendingRows$: BehaviorSubject<unknown[]>;
   let myAccess: { load: jest.Mock };
   let inbox: { load: jest.Mock };
+  let offline$: BehaviorSubject<boolean>;
+  let myAccessLoadError$: BehaviorSubject<unknown>;
+  let toastService: MockProxy<ToastService>;
 
   beforeEach(async () => {
     canApprove$ = new BehaviorSubject<boolean>(true);
@@ -30,6 +34,9 @@ describe("PamShellComponent", () => {
     pendingRows$ = new BehaviorSubject<unknown[]>([{}]);
     myAccess = { load: jest.fn() };
     inbox = { load: jest.fn() };
+    offline$ = new BehaviorSubject(false);
+    myAccessLoadError$ = new BehaviorSubject<unknown>(null);
+    toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [PamShellComponent, NoopAnimationsModule],
@@ -42,7 +49,7 @@ describe("PamShellComponent", () => {
             pendingRows$,
             extensionRows$: of([]),
             leases$: of([]),
-            loadError$: of(null),
+            loadError$: myAccessLoadError$,
           },
         },
         {
@@ -51,7 +58,11 @@ describe("PamShellComponent", () => {
         },
         { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: toastService },
+        {
+          provide: PamConnectivityService,
+          useValue: { offline$, reconnected$: of() },
+        },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -103,5 +114,49 @@ describe("PamShellComponent", () => {
     const labels = tabLabels(host);
     expect(labels).toHaveLength(2);
     expect(labels.join(" ")).not.toContain("pamTabApprovals");
+  });
+
+  describe("offline", () => {
+    function banner(host: HTMLElement): HTMLElement | null {
+      return host.querySelector('[data-testid="pam-offline-banner"]');
+    }
+
+    it("shows no offline notice while online", () => {
+      expect(banner(create())).toBeNull();
+    });
+
+    it("shows one offline notice above the tabs while offline, and drops it on reconnect", () => {
+      offline$.next(true);
+      const host = create();
+
+      expect(host.querySelectorAll('[data-testid="pam-offline-banner"]')).toHaveLength(1);
+      expect(banner(host)?.textContent).toContain("pamOfflineBanner");
+
+      offline$.next(false);
+      fixture.detectChanges();
+      expect(banner(host)).toBeNull();
+    });
+
+    it("toasts the connectivity failure when the requests could not be read for lack of a server", () => {
+      create();
+
+      myAccessLoadError$.next(new PamUnreachableError("network"));
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+    });
+
+    it("keeps its own message for any other load failure", () => {
+      create();
+
+      myAccessLoadError$.next(new Error("Received error message from server: [500] "));
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamMyRequestsLoadError",
+      });
+    });
   });
 });

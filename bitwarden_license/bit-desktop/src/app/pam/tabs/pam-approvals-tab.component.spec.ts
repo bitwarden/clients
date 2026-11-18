@@ -6,6 +6,7 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PamConnectivityService, PamUnreachableError } from "@bitwarden/bit-pam";
 import type { AccessLeaseId, AccessRequestView } from "@bitwarden/bit-pam";
 import {
   toApprovalRow,
@@ -28,6 +29,7 @@ import {
   DialogService,
   FilterControl,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 
 import { stubTabWidth } from "../testing/stub-tab-width";
@@ -116,6 +118,7 @@ describe("PamApprovalsTabComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let tabWidth: ReturnType<typeof stubTabWidth>;
+  let offline$: BehaviorSubject<boolean>;
 
   function create(): void {
     fixture = TestBed.createComponent(PamApprovalsTabComponent);
@@ -196,6 +199,7 @@ describe("PamApprovalsTabComponent", () => {
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    offline$ = new BehaviorSubject(false);
 
     await TestBed.configureTestingModule({
       imports: [PamApprovalsTabComponent, NoopAnimationsModule],
@@ -205,6 +209,10 @@ describe("PamApprovalsTabComponent", () => {
         { provide: ApproverInboxService, useValue: inbox },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        {
+          provide: PamConnectivityService,
+          useValue: { offline$, reconnected$: new BehaviorSubject<void>(undefined) },
+        },
         { provide: LogService, useValue: mock<LogService>() },
         {
           // Echoes the key plus params, since I18nMockService throws on any key not given.
@@ -858,6 +866,84 @@ describe("PamApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
       expect(query("bit-table-toolbar")).not.toBeNull();
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
+    });
+  });
+
+  describe("offline", () => {
+    const ACTIONS: ReadonlyArray<readonly [string, () => ApproverRow, string, string]> = [
+      ["Approve", () => pending(), "approvals-approve-req-1", "pamApprovalsApproveRequest"],
+      ["Deny", () => pending(), "approvals-deny-req-1", "pamApprovalsDenyRequest"],
+      ["Withdraw", () => ready(), "approvals-withdraw-req-1", "pamInboxWithdrawApproval"],
+      ["Revoke", () => active(), "approvals-revoke-req-1", "pamApprovalsRevokeAccess"],
+    ];
+
+    function tooltipOf(testId: string): string {
+      return fixture.debugElement
+        .query(By.css(`[data-testid="${testId}"]`))
+        .injector.get(TooltipDirective)
+        .tooltipContent()
+        .trim();
+    }
+
+    it.each(ACTIONS)("enables %s online, with its own label as the tooltip", (_, row, id, key) => {
+      inbox.approverRows$.next([row()]);
+      create();
+
+      expect(query(`[data-testid="${id}"]`)?.getAttribute("aria-disabled")).toBeNull();
+      expect(tooltipOf(id)).toBe(key);
+    });
+
+    it.each(ACTIONS)("disables %s offline, saying why, and opens nothing", async (_, row, id) => {
+      inbox.approverRows$.next([row()]);
+      create();
+
+      offline$.next(true);
+      fixture.detectChanges();
+      query(`[data-testid="${id}"]`)?.click();
+      await settle();
+
+      expect(query(`[data-testid="${id}"]`)?.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltipOf(id)).toBe("pamOfflineTooltip");
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    });
+
+    it("toasts the connectivity failure when a decision never reaches the server", async () => {
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, verdict: "approve", comment: undefined }),
+      } as never);
+      inbox.decide.mockRejectedValue(new PamUnreachableError("timeout"));
+      inbox.approverRows$.next([pending()]);
+      create();
+
+      query('[data-testid="approvals-approve-req-1"]')?.click();
+      await settle();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+    });
+
+    it("keeps the server's own wording for a refusal the server sent", async () => {
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, verdict: "approve", comment: undefined }),
+      } as never);
+      inbox.decide.mockRejectedValue(
+        new Error(
+          'Received error message from server: [409] {"message":"This request has already been resolved."}',
+        ),
+      );
+      inbox.approverRows$.next([pending()]);
+      create();
+
+      query('[data-testid="approvals-approve-req-1"]')?.click();
+      await settle();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamInboxDecisionNoLongerPending",
+      });
     });
   });
 });

@@ -1,10 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { NEVER, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import {
   AccessLeaseSdkService,
   AccessRequestSdkService,
   DefaultAccessRefreshService,
+  PamConnectivityService,
+  PamUnreachableError,
 } from "@bitwarden/bit-pam";
 import type { AccessLeaseId, CipherAccessStateView } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,6 +31,7 @@ describe("LeaseExtensionService", () => {
   let accessRefresh: DefaultAccessRefreshService;
   let service: LeaseExtensionService;
   let notified: string[];
+  let i18nService: MockProxy<I18nService>;
 
   function answerDialogWith(result: unknown) {
     dialogService.open.mockReturnValue({ closed: of(result) } as unknown as DialogRef);
@@ -40,7 +43,7 @@ describe("LeaseExtensionService", () => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     logService = mock<LogService>();
-    const i18nService = mock<I18nService>();
+    i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key);
     accessRefresh = new DefaultAccessRefreshService({
       accessChanged$: () => NEVER,
@@ -138,6 +141,67 @@ describe("LeaseExtensionService", () => {
         message: "pamExtendLeaseError",
       });
       expect(notified).toEqual([CIPHER_ID]);
+    });
+  });
+
+  describe("connectivity", () => {
+    let offline$: BehaviorSubject<boolean>;
+
+    beforeEach(() => {
+      offline$ = new BehaviorSubject(false);
+      service = new LeaseExtensionService(
+        requestsApi,
+        leasesApi,
+        accessRefresh,
+        dialogService,
+        toastService,
+        i18nService,
+        logService,
+        { offline$, reconnected$: NEVER } as PamConnectivityService,
+      );
+    });
+
+    it("opens no dialog, and extends nothing, while offline", async () => {
+      offline$.next(true);
+
+      await service.extend(CIPHER_ID, LEASE_ID, 3600);
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(leasesApi.extendLease).not.toHaveBeenCalled();
+    });
+
+    it("opens the dialog while online", async () => {
+      answerDialogWith(undefined);
+
+      await service.extend(CIPHER_ID, LEASE_ID, 3600);
+
+      expect(dialogService.open).toHaveBeenCalled();
+    });
+
+    it("toasts the connectivity failure when the extension never reaches the server", async () => {
+      answerDialogWith({ durationSeconds: 3600, reason: "more" });
+      leasesApi.extendLease.mockRejectedValue(new PamUnreachableError("timeout"));
+
+      await service.extend(CIPHER_ID, LEASE_ID, 3600);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamServerUnreachable",
+      });
+    });
+
+    it("keeps the extension's own message for a server refusal", async () => {
+      answerDialogWith({ durationSeconds: 3600, reason: "more" });
+      leasesApi.extendLease.mockRejectedValue(
+        new Error("Received error message from server: [400] "),
+      );
+
+      await service.extend(CIPHER_ID, LEASE_ID, 3600);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamExtendLeaseError",
+      });
     });
   });
 });
