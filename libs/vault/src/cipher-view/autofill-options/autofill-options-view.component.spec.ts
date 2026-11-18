@@ -52,7 +52,7 @@ describe("AutofillOptionsViewComponent", () => {
     fixture = TestBed.createComponent(AutofillOptionsViewComponent);
     fixture.componentRef.setInput(
       "loginUris",
-      uris.map((uri) => Object.assign(new LoginUriView(), { uri, match: UriMatchStrategy.Never })),
+      uris.map((uri) => Object.assign(new LoginUriView(), { uri, match: UriMatchStrategy.Exact })),
     );
     fixture.detectChanges();
   }
