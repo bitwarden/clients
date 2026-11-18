@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { isDesktopAppUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -37,6 +38,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
@@ -300,24 +302,26 @@ export class DesktopAutofillService implements OnDestroy {
     let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
+      // Desktop app URIs pair a login with an app, not a website, so they're never synced
+      const isSyncedUri = (uri: LoginUriView) =>
+        uri.match !== UriMatchStrategy.Never &&
+        !Utils.isNullOrWhitespace(uri.uri) &&
+        !isDesktopAppUri(uri.uri);
+
       passwordCredentials = cipherViews
         .filter(
           (cipher) =>
             !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some(
-              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-            ) &&
+            cipher.login.uris.some(isSyncedUri) &&
             !Utils.isNullOrWhitespace(cipher.login.username) &&
             !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
           cipherId: cipher.id,
-          uri: cipher.login.uris.find(
-            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-          )!.uri as string,
+          uri: cipher.login.uris.find(isSyncedUri)!.uri as string,
           username: cipher.login.username as string,
         }));
     }

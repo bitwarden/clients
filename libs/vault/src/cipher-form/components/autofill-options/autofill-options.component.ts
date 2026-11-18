@@ -216,7 +216,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autotypeGaEnabled$
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.saveDesktopAppUrisWithNeverMatch());
+      .subscribe(() => this.saveDesktopAppUrisWithExactMatch());
 
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
@@ -234,9 +234,8 @@ export class AutofillOptionsComponent implements OnInit {
    * Adds a new URI input requested by the user. When the new URI uses the default match strategy,
    * the user is asked to confirm when that would turn HTTP authentication off.
    * @param uriFieldValue The initial value for the new URI input.
-   * @param desktopAppRow How the new URI input was created, when it's a desktop app row.
    */
-  async addUriFromUser(uriFieldValue: UriField, desktopAppRow: DesktopAppRow | null = null) {
+  async addUriFromUser(uriFieldValue: UriField) {
     if (
       uriFieldValue.matchDetection == null &&
       !(await this.httpAuthenticationService.confirmDefaultMatchStrategy())
@@ -244,20 +243,22 @@ export class AutofillOptionsComponent implements OnInit {
       return;
     }
 
-    this.addUri(uriFieldValue, true, true, desktopAppRow);
+    this.addUri(uriFieldValue, true);
   }
 
   /**
-   * Adds a new desktop app URI requested by the user. Desktop app URIs are never matched against
-   * websites, so they use the Never match strategy. That keeps them out of website autofill and
-   * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
+   * Adds a new desktop app URI requested by the user. Desktop app URIs use the Exact match
+   * strategy: a website's URL is never a desktop app URI, so they never match a website, and Exact
+   * counts as an explicit strategy for HTTP authentication.
    */
-  async addDesktopAppUriFromUser() {
-    await this.addUriFromUser(
+  addDesktopAppUriFromUser() {
+    this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: UriMatchStrategy.Never,
+        matchDetection: UriMatchStrategy.Exact,
       },
+      true,
+      true,
       DesktopAppRow.New,
     );
   }
@@ -379,20 +380,20 @@ export class AutofillOptionsComponent implements OnInit {
 
   /**
    * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
-   * URIs are saved with the Never match strategy, including ones typed into a website row, because
+   * URIs are saved with the Exact match strategy, including ones typed into a website row, because
    * they load as desktop apps.
    */
   private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
     return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
-      ? UriMatchStrategy.Never
+      ? UriMatchStrategy.Exact
       : uri?.matchDetection;
   }
 
   /**
-   * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
+   * Saves the desktop app URIs already on the cipher with the Exact match strategy, even when the
    * user doesn't change the URIs.
    */
-  private saveDesktopAppUrisWithNeverMatch() {
+  private saveDesktopAppUrisWithExactMatch() {
     const matchChanged = this.uriControls.some(
       (control) =>
         (this.savedMatchDetection(control.value) ?? null) !==
