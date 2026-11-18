@@ -16,22 +16,6 @@ const xmlWithRemark = `<?xml version="1.0" encoding="utf-8"?>
   </Database>
 </root>`;
 
-const xmlWithLowercaseRealname = `<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <Database>
-    <Logins>
-      <Login ID="3" Name="Another remark" Realname="carol@example.com" Password="secret3" />
-    </Logins>
-    <Accounts>
-      <Account Name="Third" Link="https://third.example" Comments="">
-        <LoginLinks>
-          <Login SourceLoginID="3" />
-        </LoginLinks>
-      </Account>
-    </Accounts>
-  </Database>
-</root>`;
-
 const xmlWithoutRemark = `<?xml version="1.0" encoding="utf-8"?>
 <root>
   <Database>
@@ -56,15 +40,6 @@ describe("Sticky Password XML Importer", () => {
     expect(result.ciphers.length).toBe(1);
     expect(result.ciphers[0].login.username).toBe("alice@example.com");
     expect(result.ciphers[0].login.password).toBe("secret1");
-  });
-
-  it("accepts the Realname attribute casing", async () => {
-    const importer = new StickyPasswordXmlImporter();
-    const result = await importer.parse(xmlWithLowercaseRealname);
-    expect(result.success).toBe(true);
-    expect(result.ciphers.length).toBe(1);
-    expect(result.ciphers[0].login.username).toBe("carol@example.com");
-    expect(result.ciphers[0].login.password).toBe("secret3");
   });
 
   it("falls back to Name as username when RealName is absent", async () => {
