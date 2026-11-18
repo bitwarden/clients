@@ -1,18 +1,18 @@
-import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
+import { UserId } from "../../types/guid";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
+import { SecretVerificationRequest } from "../models/request/secret-verification.request";
 import { SetVerifyDevicesRequest } from "../models/request/set-verify-devices.request";
-import { Verification } from "../types/verification";
 
 export abstract class AccountApiService {
   /**
-   * Deletes an account that has confirmed the operation is authorized
+   * Deletes the user's account on the server.
    *
-   * @param verification - authorizes the account deletion operation.
-   * @returns A promise that resolves when the account is
-   * successfully deleted.
+   * @param userId The user whose account to delete. The request is authenticated as this user.
+   * @param request The verification secret that authorizes the deletion.
+   * @returns A promise that resolves when the account is deleted.
    */
-  abstract deleteAccount(verification: Verification): Promise<void>;
+  abstract deleteAccount(userId: UserId, request: SecretVerificationRequest): Promise<void>;
 
   /**
    * Sends a verification email as part of the registration process.
@@ -40,16 +40,6 @@ export abstract class AccountApiService {
   abstract registerVerificationEmailClicked(
     request: RegisterVerificationEmailClickedRequest,
   ): Promise<void>;
-
-  /**
-   * Completes the registration process.
-   *
-   * @param request - The user's email verification token, the email, newly created user key, and new
-   * asymmetric user key pair along with the KDF information, hashed MP and salt (in the form of the
-   * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
-   * @returns A promise that resolves when the registration process is successfully completed.
-   */
-  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

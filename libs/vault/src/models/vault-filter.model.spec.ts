@@ -1,5 +1,5 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -319,8 +319,7 @@ function createFilterFunction(options: Partial<VaultFilter> = {}) {
 function createOrganizationFilterNode(
   options: Partial<OrganizationFilter>,
 ): TreeNode<OrganizationFilter> {
-  const org = new Organization() as OrganizationFilter;
-  org.id = options.id;
+  const org = buildTestOrganization({ id: options.id }) as OrganizationFilter;
   org.icon = options.icon;
   return new TreeNode<OrganizationFilter>(org, null);
 }

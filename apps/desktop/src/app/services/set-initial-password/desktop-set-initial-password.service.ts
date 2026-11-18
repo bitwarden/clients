@@ -2,10 +2,8 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeUserWithPermissionCredentials,
-  SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -19,7 +17,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 export class DesktopSetInitialPasswordService
@@ -32,7 +30,6 @@ export class DesktopSetInitialPasswordService
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
-    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -49,7 +46,6 @@ export class DesktopSetInitialPasswordService
       i18nService,
       kdfConfigService,
       keyService,
-      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -59,19 +55,6 @@ export class DesktopSetInitialPasswordService
       registerSdkService,
       unlockService,
     );
-  }
-
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   */
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
-
-    this.messagingService.send("redrawMenu");
   }
 
   override async initializePasswordJitPasswordUserV2Encryption(
