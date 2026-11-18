@@ -2,9 +2,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -62,15 +60,11 @@ export class WebSetInitialPasswordService
     );
   }
 
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   */
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
+  override async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
+  ): Promise<void> {
+    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     /**
      * TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
@@ -97,20 +91,6 @@ export class WebSetInitialPasswordService
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
      */
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
-      await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvite();
-    }
-  }
-
-  override async initializePasswordJitPasswordUserV2Encryption(
-    credentials: InitializeJitPasswordCredentials,
-    userId: UserId,
-  ): Promise<void> {
-    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
-
-    // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
-    // Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard` to replay.
     if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();

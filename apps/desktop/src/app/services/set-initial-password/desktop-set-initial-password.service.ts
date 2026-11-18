@@ -2,10 +2,8 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeUserWithPermissionCredentials,
-  SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -59,19 +57,6 @@ export class DesktopSetInitialPasswordService
       registerSdkService,
       unlockService,
     );
-  }
-
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   */
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
-
-    this.messagingService.send("redrawMenu");
   }
 
   override async initializePasswordJitPasswordUserV2Encryption(
