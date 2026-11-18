@@ -16,13 +16,11 @@ import {
   FakeAccountService,
   FakeActiveUserState,
   FakeStateProvider,
-  awaitAsync,
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
@@ -35,7 +33,6 @@ import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
 import { SendTextView } from "../models/view/send-text.view";
 import { SendView } from "../models/view/send.view";
-import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
@@ -56,7 +53,6 @@ describe("SendService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
-  const sdkService = mock<SdkService>();
   const sendDecryptionService = mock<SendDecryptionService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
@@ -107,7 +103,6 @@ describe("SendService", () => {
       keyGenerationService,
       sendStateProvider,
       encryptService,
-      sdkService,
       sendDecryptionService,
     );
   });
@@ -499,135 +494,6 @@ describe("SendService", () => {
       await expect(sendService.getAllDecryptedFromState(mockUserId)).rejects.toThrow(
         "No user key found.",
       );
-    });
-  });
-
-  describe("getRotatedData", () => {
-    const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-    const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-
-    it("throws if the original user key is null", async () => {
-      await expect(sendService.getRotatedData(null, newUserKey, mockUserId)).rejects.toThrow(
-        "Original user key is required for rotation.",
-      );
-    });
-
-    it("throws if the new user key is null", async () => {
-      await expect(sendService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
-        "New user key is required for rotation.",
-      );
-    });
-
-    describe("via the SDK", () => {
-      const sendGuid = Utils.newGuid();
-      let encryptSendForRotation: jest.Mock;
-      let decryptedView: SendView;
-      let decryptSpy: jest.SpyInstance;
-
-      afterEach(() => {
-        decryptSpy.mockRestore();
-      });
-
-      beforeEach(() => {
-        decryptedView = new SendView();
-        decryptedView.id = sendGuid;
-        decryptedView.type = SendType.Text;
-        decryptedView.name = "Test Send";
-        decryptedView.key = new Uint8Array(16);
-        decryptedView.text = new SendTextView();
-        decryptedView.text.text = "decrypted text";
-        decryptedView.deletionDate = null;
-        decryptedView.emails = [];
-        decryptedView.authType = AuthType.None;
-        decryptSpy = jest
-          .spyOn(sendDecryptionService, "decryptSend")
-          .mockResolvedValue(decryptedView);
-
-        const rotatedSdkSend = {
-          id: sendGuid,
-          accessId: "1",
-          name: "2.rotatedName",
-          notes: "2.rotatedNotes",
-          key: "2.rotatedKey",
-          type: SendType.Text,
-          text: { text: "2.rotatedText", hidden: false },
-          accessCount: 2,
-          disabled: false,
-          hideEmail: false,
-          revisionDate: "2024-09-04T00:00:00.000Z",
-          deletionDate: "2024-09-04T00:00:00.000Z",
-          authType: AuthType.None,
-        };
-        encryptSendForRotation = jest.fn().mockResolvedValue(rotatedSdkSend);
-        const client = {
-          take: () => ({
-            value: { sends: () => ({ encrypt_send_for_rotation: encryptSendForRotation }) },
-            [Symbol.dispose]: jest.fn(),
-          }),
-        };
-        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(client));
-      });
-
-      it("returns empty array if there are no sends", async () => {
-        await sendService.replace(null, mockUserId);
-
-        await awaitAsync();
-
-        const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-        expect(result).toEqual([]);
-      });
-
-      it("rotates each send through the SDK and returns SendWithIdRequests", async () => {
-        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-        expect(encryptSendForRotation).toHaveBeenCalledWith(
-          decryptedView.toSdkSendView(),
-          newUserKey.toBase64(),
-        );
-        expect(result).toMatchObject([{ id: sendGuid, key: "2.rotatedKey" }]);
-      });
-
-      // A decrypted SendView only ever carries `password` as an already-derived hash, never the
-      // plaintext `encrypt_send_for_rotation` would need to re-derive one — so the request this
-      // sends to the SDK can only signal `hasPassword: true`/`newPassword: undefined`, never the
-      // existing hash. Safety relies on the server: its rotation validator special-cases
-      // AuthType.Password on both the stored and incoming record and preserves the stored hash
-      // unconditionally in that case (see SendView::encrypt_composite's doc comment in
-      // sdk-internal's send.rs), regardless of what the wire request's `password` field carries.
-      it("rotates a password-protected send with hasPassword set and no plaintext, and comes back with a null wire password", async () => {
-        decryptedView.authType = AuthType.Password;
-        decryptedView.password = "existing-hash";
-        encryptSendForRotation.mockResolvedValue({
-          id: sendGuid,
-          accessId: "1",
-          name: "2.rotatedName",
-          notes: "2.rotatedNotes",
-          key: "2.rotatedKey",
-          type: SendType.Text,
-          text: { text: "2.rotatedText", hidden: false },
-          accessCount: 2,
-          disabled: false,
-          hideEmail: false,
-          revisionDate: "2024-09-04T00:00:00.000Z",
-          deletionDate: "2024-09-04T00:00:00.000Z",
-          authType: AuthType.Password,
-          // No `password` field: the rotated SDK Send never carries the existing hash either.
-        });
-        sendDecryptionService.decryptSend.mockResolvedValue(decryptedView);
-
-        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
-
-        expect(encryptSendForRotation).toHaveBeenCalledWith(
-          expect.objectContaining({ hasPassword: true, newPassword: undefined }),
-          newUserKey.toBase64(),
-        );
-        // authType survives the round-trip unchanged, which is what makes the server preserve
-        // the stored hash despite the null password below.
-        expect(result[0].authType).toBe(AuthType.Password);
-        expect(result[0].password).toBeNull();
-      });
     });
   });
 

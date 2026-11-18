@@ -1,19 +1,16 @@
 import { Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
-import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
-import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
@@ -44,7 +41,7 @@ export class RestrictedCipherWriteError extends Error {
   }
 }
 
-export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
+export abstract class CipherService {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
   /**
    * Observable that emits the decrypted {@link CipherView} for a single cipher, or `undefined`
@@ -328,19 +325,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
-  /**
-   * Returns user ciphers re-encrypted with the new user key.
-   * @param originalUserKey the original user key
-   * @param newUserKey the new user key
-   * @param userId the user id
-   * @throws Error if new user key is null
-   * @returns a list of user ciphers that have been re-encrypted with the new user key
-   */
-  abstract getRotatedData(
-    originalUserKey: UserKey,
-    newUserKey: UserKey,
-    userId: UserId,
-  ): Promise<CipherWithIdRequest[]>;
   abstract getNextCardCipher(userId: UserId): Promise<CipherView>;
   abstract getNextIdentityCipher(userId: UserId): Promise<CipherView>;
 

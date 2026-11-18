@@ -4,10 +4,8 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordRequest,
-  OrganizationUserResetPasswordWithIdRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -18,9 +16,9 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { UserKeyRotationKeyRecoveryProvider, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -31,8 +29,6 @@ import {
   KdfType,
   PBKDF2KdfConfig,
 } from "@bitwarden/legacy-crypto";
-
-import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 
 export type RecoverAccountRequest = {
   organizationUserId: string;
@@ -48,14 +44,10 @@ export type RecoverAccountRequest = {
 @Injectable({
   providedIn: "root",
 })
-export class OrganizationUserResetPasswordService implements UserKeyRotationKeyRecoveryProvider<
-  OrganizationUserResetPasswordWithIdRequest,
-  OrganizationUserResetPasswordEntry
-> {
+export class OrganizationUserResetPasswordService {
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,
@@ -122,63 +114,6 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       request.organizationUserId,
       organizationUserResetPasswordRequest,
     );
-  }
-
-  async getPublicKeys(userId: UserId): Promise<OrganizationUserResetPasswordEntry[]> {
-    const allOrgs = (await firstValueFrom(this.organizationService.organizations$(userId))).filter(
-      (org) => org.resetPasswordEnrolled,
-    );
-
-    const entries: OrganizationUserResetPasswordEntry[] = [];
-    for (const org of allOrgs) {
-      const publicKey = await this.organizationApiService.getKeys(org.id);
-      const encodedPublicKey = Utils.fromB64ToArray(publicKey.publicKey);
-      const entry = new OrganizationUserResetPasswordEntry(org.id, encodedPublicKey, org.name);
-      entries.push(entry);
-    }
-    return entries;
-  }
-
-  /**
-   * Returns existing account recovery keys re-encrypted with the new user key.
-   * @param originalUserKey the original user key
-   * @param newUserKey the new user key
-   * @param userId the user id
-   * @throws Error if new user key is null
-   * @returns a list of account recovery keys that have been re-encrypted with the new user key
-   */
-  async getRotatedData(
-    newUserKey: UserKey,
-    trustedPublicKeys: Uint8Array[],
-    userId: UserId,
-  ): Promise<OrganizationUserResetPasswordWithIdRequest[]> {
-    if (newUserKey == null) {
-      throw new Error("New user key is required for rotation.");
-    }
-
-    const allOrgs = await firstValueFrom(this.organizationService.organizations$(userId));
-    if (!allOrgs) {
-      throw new Error("Could not get organizations");
-    }
-
-    const requests: OrganizationUserResetPasswordWithIdRequest[] = [];
-    for (const org of allOrgs) {
-      // If not already enrolled, skip
-      if (!org.resetPasswordEnrolled) {
-        continue;
-      }
-
-      // Re-enroll - encrypt user key with organization public key
-      const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
-
-      // Create/Execute request
-      const request = new OrganizationUserResetPasswordWithIdRequest(org.id);
-      request.resetPasswordKey = encryptedKey;
-      request.masterPasswordHash = "ignored";
-
-      requests.push(request);
-    }
-    return requests;
   }
 
   /** Constructs the appropriate KDF config from reset password details response. */

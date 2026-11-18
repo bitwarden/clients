@@ -24,7 +24,6 @@ import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import {
   DeviceKeysUpdateRequest,
-  OtherDeviceKeysUpdateRequest,
   UpdateDevicesTrustRequest,
 } from "../../../auth/models/request/update-devices-trust.request";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
@@ -39,7 +38,6 @@ import { StorageOptions } from "../../../platform/models/domain/storage-options"
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
-import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
 /** Uses disk storage so that the device key can persist after log out and tab removal. */
@@ -208,67 +206,6 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     this.deviceTrustedSubject.next();
 
     return deviceResponse;
-  }
-
-  async getRotatedData(
-    oldUserKey: UserKey,
-    newUserKey: UserKey,
-    userId: UserId,
-  ): Promise<OtherDeviceKeysUpdateRequest[]> {
-    if (!userId) {
-      throw new Error("UserId is required. Cannot get rotated data.");
-    }
-    if (!oldUserKey) {
-      throw new Error("Old user key is required. Cannot get rotated data.");
-    }
-    if (!newUserKey) {
-      throw new Error("New user key is required. Cannot get rotated data.");
-    }
-
-    const devices = await this.devicesApiService.getDevices();
-    const devicesToUntrust: string[] = [];
-    const rotatedData = await Promise.all(
-      devices.data
-        .filter((device) => device.isTrusted)
-        .map(async (device) => {
-          const publicKey = await this.encryptService.unwrapEncapsulationKey(
-            new EncString(device.encryptedPublicKey),
-            oldUserKey,
-          );
-
-          if (!publicKey) {
-            // Device was trusted but encryption is broken. This should be untrusted
-            devicesToUntrust.push(device.id);
-            return null;
-          }
-
-          const newEncryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
-            publicKey,
-            newUserKey,
-          );
-          const newEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
-            newUserKey,
-            publicKey,
-          );
-
-          const newRotateableKeySet = new RotateableKeySet(
-            newEncryptedUserKey,
-            newEncryptedPublicKey,
-          );
-
-          const request = new OtherDeviceKeysUpdateRequest();
-          request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
-          request.deviceId = device.id;
-          return request;
-        })
-        .filter((otherDeviceKeysUpdateRequest) => otherDeviceKeysUpdateRequest != null),
-    );
-    if (rotatedData.length > 0) {
-      this.logService.info("[Device trust rotation] Distrusting devices that failed to decrypt.");
-      await this.devicesApiService.untrustDevices(devicesToUntrust);
-    }
-    return rotatedData;
   }
 
   async rotateDevicesTrust(

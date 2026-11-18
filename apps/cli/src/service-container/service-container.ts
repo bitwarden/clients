@@ -743,7 +743,6 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.sdkService,
       this.sendDecryptionService,
     );
 

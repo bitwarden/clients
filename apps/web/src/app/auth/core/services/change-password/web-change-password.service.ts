@@ -7,15 +7,17 @@ import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 import { RouterService } from "@bitwarden/web-vault/app/core";
-import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
-
 export class WebChangePasswordService
   extends DefaultChangePasswordService
   implements ChangePasswordService
@@ -28,8 +30,11 @@ export class WebChangePasswordService
     protected policyService: PolicyService,
     protected organizationInviteService: OrganizationInviteService,
     private syncService: SyncService,
-    private userKeyRotationService: UserKeyRotationService,
+    private userKeyRotationService: UserKeyRotationServiceAbstraction,
     private routerService: RouterService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
+    private logoutService: LogoutService,
   ) {
     super(
       keyService,
@@ -60,12 +65,25 @@ export class WebChangePasswordService
 
     await this.syncService.fullSync(true);
 
-    await this.userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+    const success = await this.userKeyRotationService.changePasswordAndRotateUserKey(
       passwordInputResult.currentPassword,
       passwordInputResult.newPassword,
-      user,
       passwordInputResult.newPasswordHint,
+      user.id,
     );
+    if (!success) {
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("rotationCompletedTitle"),
+      message: this.i18nService.t("rotationCompletedDesc"),
+      timeout: 15000,
+    });
+
+    // The rotation invalidates every session, this one included
+    await this.logoutService.logout(user.id, "userKeyRotation");
   }
 
   async clearDeeplinkState() {

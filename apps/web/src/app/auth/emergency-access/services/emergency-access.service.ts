@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { concatMap, firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,7 +21,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -40,33 +39,20 @@ import {
   EmergencyAccessType as SdkEmergencyAccessType,
 } from "@bitwarden/sdk-internal";
 
-import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
-import {
-  GranteeEmergencyAccess,
-  GranteeEmergencyAccessWithPublicKey,
-  GrantorEmergencyAccess,
-} from "../models/emergency-access";
+import { GranteeEmergencyAccess, GrantorEmergencyAccess } from "../models/emergency-access";
 import { EmergencyAccessAcceptRequest } from "../request/emergency-access-accept.request";
 import { EmergencyAccessConfirmRequest } from "../request/emergency-access-confirm.request";
 import { EmergencyAccessInviteRequest } from "../request/emergency-access-invite.request";
 import { EmergencyAccessPasswordRequest } from "../request/emergency-access-password.request";
-import {
-  EmergencyAccessUpdateRequest,
-  EmergencyAccessWithIdRequest,
-} from "../request/emergency-access-update.request";
-import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-access.response";
+import { EmergencyAccessUpdateRequest } from "../request/emergency-access-update.request";
 
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
 
 @Injectable()
-export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvider<
-  EmergencyAccessWithIdRequest,
-  GranteeEmergencyAccessWithPublicKey
-> {
+export class EmergencyAccessService {
   constructor(
     private emergencyAccessApiService: EmergencyAccessApiService,
-    private apiService: ApiService,
     private keyService: KeyService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
@@ -444,102 +430,6 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     const request = new EmergencyAccessPasswordRequest(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
-  }
-
-  private async getEmergencyAccessData(): Promise<EmergencyAccessGranteeDetailsResponse[]> {
-    const existingEmergencyAccess =
-      await this.emergencyAccessApiService.getEmergencyAccessTrusted();
-
-    if (!existingEmergencyAccess || existingEmergencyAccess.data.length === 0) {
-      return [];
-    }
-
-    // Any Invited or Accepted requests won't have the key yet, so we don't need to update them
-    const allowedStatuses = new Set([
-      EmergencyAccessStatusType.Confirmed,
-      EmergencyAccessStatusType.RecoveryInitiated,
-      EmergencyAccessStatusType.RecoveryApproved,
-    ]);
-    const filteredAccesses = existingEmergencyAccess.data.filter((d) =>
-      allowedStatuses.has(d.status),
-    );
-
-    return filteredAccesses;
-  }
-
-  async getPublicKeys(): Promise<GranteeEmergencyAccessWithPublicKey[]> {
-    const emergencyAccessData = await this.getEmergencyAccessData();
-    const emergencyAccessDataWithPublicKeys = await Promise.all(
-      emergencyAccessData.map(async (details) => {
-        const grantee = new GranteeEmergencyAccessWithPublicKey();
-        grantee.id = details.id;
-        grantee.granteeId = details.granteeId;
-        grantee.name = details.name;
-        grantee.email = details.email;
-        grantee.type = details.type;
-        grantee.status = details.status;
-        grantee.waitTimeDays = details.waitTimeDays;
-        grantee.creationDate = details.creationDate;
-        grantee.avatarColor = details.avatarColor;
-        grantee.publicKey = Utils.fromB64ToArray(
-          (await this.apiService.getUserPublicKey(details.granteeId)).publicKey,
-        );
-        return grantee;
-      }),
-    );
-
-    return emergencyAccessDataWithPublicKeys;
-  }
-
-  /**
-   * Returns existing emergency access keys re-encrypted with new user key.
-   * Intended for grantor.
-   * @param newUserKey the new user key
-   * @param trustedPublicKeys the public keys of the emergency access grantors. These *must* be trusted somehow, and MUST NOT be passed in untrusted
-   * @param userId the user id
-   * @throws Error if newUserKey is nullish
-   * @returns an array of re-encrypted emergency access requests or an empty array if there are no requests
-   */
-  async getRotatedData(
-    newUserKey: UserKey,
-    trustedPublicKeys: Uint8Array[],
-    userId: UserId,
-  ): Promise<EmergencyAccessWithIdRequest[]> {
-    if (newUserKey == null) {
-      throw new Error("New user key is required for rotation.");
-    }
-
-    const requests: EmergencyAccessWithIdRequest[] = [];
-
-    this.logService.info(
-      "Starting emergency access rotation, with trusted keys: ",
-      trustedPublicKeys,
-    );
-
-    const allDetails = await this.getPublicKeys();
-    for (const details of allDetails) {
-      if (
-        trustedPublicKeys.find(
-          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
-        ) == null
-      ) {
-        this.logService.info(
-          `Public key for user ${details.granteeId} is not trusted, skipping rotation.`,
-        );
-        throw new Error("Public key for user is not trusted.");
-      }
-
-      // Encrypt new user key with public key
-      const encryptedKey = await this.encryptKey(newUserKey, details.publicKey);
-
-      const updateRequest = new EmergencyAccessWithIdRequest();
-      updateRequest.id = details.id;
-      updateRequest.type = details.type;
-      updateRequest.waitTimeDays = details.waitTimeDays;
-      updateRequest.keyEncrypted = encryptedKey;
-      requests.push(updateRequest);
-    }
-    return requests;
   }
 
   /** Whether emergency access calls go through the SDK. The view does regardless. */

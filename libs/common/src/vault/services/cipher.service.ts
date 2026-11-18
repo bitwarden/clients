@@ -49,7 +49,6 @@ import { CipherData } from "../models/data/cipher.data";
 import { LocalData, toSdkLocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
-import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
@@ -1455,49 +1454,6 @@ export class CipherService implements CipherServiceAbstraction {
     await this.addEditCipherInfoState(userId).update(() => value, {
       shouldUpdate: (current) => !(current == null && value == null),
     });
-  }
-
-  async getRotatedData(
-    originalUserKey: UserKey,
-    newUserKey: UserKey,
-    userId: UserId,
-  ): Promise<CipherWithIdRequest[]> {
-    if (originalUserKey == null) {
-      throw new Error("Original user key is required to rotate ciphers");
-    }
-    if (newUserKey == null) {
-      throw new Error("New user key is required to rotate ciphers");
-    }
-
-    let encryptedCiphers: CipherWithIdRequest[] = [];
-
-    const ciphers = await firstValueFrom(this.cipherViews$(userId));
-    const failedCiphers = await firstValueFrom(this.failedToDecryptCiphers$(userId));
-    if (!ciphers) {
-      return encryptedCiphers;
-    }
-
-    if (failedCiphers.length > 0) {
-      throw new Error("Cannot rotate ciphers when decryption failures are present");
-    }
-
-    const userCiphers = ciphers.filter((c) => c.organizationId == null);
-    if (userCiphers.length === 0) {
-      return encryptedCiphers;
-    }
-
-    encryptedCiphers = await Promise.all(
-      userCiphers.map(async (cipher) => {
-        const encryptedCipher = await this.cipherEncryptionService.encryptCipherForRotation(
-          cipher,
-          userId,
-          newUserKey,
-        );
-        return new CipherWithIdRequest(encryptedCipher);
-      }),
-    );
-
-    return encryptedCiphers;
   }
 
   /** @inheritdoc */

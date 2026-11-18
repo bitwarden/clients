@@ -155,6 +155,7 @@ import {
   ShareItemDrawerPresenter,
 } from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 import {
   CIPHER_SHARE_ACCESS,
   CipherFormGenerationService,
@@ -196,7 +197,6 @@ import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
 import { EventService } from "../dirt/event-logs";
-import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebSessionTimeoutTypeService } from "../key-management/session-timeout/services/web-session-timeout-type.service";
@@ -537,8 +537,11 @@ const safeProviders: SafeProvider[] = [
       InternalPolicyService,
       OrganizationInviteService,
       SyncService,
-      UserKeyRotationService,
+      UserKeyRotationServiceAbstraction,
       RouterService,
+      ToastService,
+      I18nServiceAbstraction,
+      LogoutService,
     ],
   }),
   safeProvider({

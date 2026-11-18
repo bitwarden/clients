@@ -1,19 +1,16 @@
 import { Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 
-export abstract class SendService implements UserKeyRotationDataProvider<SendWithIdRequest> {
+export abstract class SendService {
   abstract sends$: Observable<Send[]>;
   abstract sendViews$: Observable<SendView[]>;
 
@@ -36,17 +33,6 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
    * @returns An observable that listens to the value of the desired send
    */
   abstract get$(id: string): Observable<Send | undefined>;
-  /**
-   * Provides re-encrypted user sends for the key rotation process
-   * @param newUserKey The new user key to use for re-encryption
-   * @throws Error if the new user key is null or undefined
-   * @returns A list of user sends that have been re-encrypted with the new user key
-   */
-  abstract getRotatedData(
-    originalUserKey: UserKey,
-    newUserKey: UserKey,
-    userId: UserId,
-  ): Promise<SendWithIdRequest[]>;
   /**
    * @deprecated Do not call this, use the sends$ observable collection
    */
