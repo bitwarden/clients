@@ -3,13 +3,31 @@
     {{ title | i18n }}
   </span>
   <div bitDialogContent>
-    <bit-form-field disableMargin>
+    @if (showNestingCallout()) {
+      <bit-callout type="info" [title]="null" (dismiss)="dismissNestingCallout()">
+        {{ "folderNestingCalloutDesc" | i18n }}
+      </bit-callout>
+    }
+    <bit-form-field [disableMargin]="!vfo1Enabled()">
       <bit-label>{{ "folderName" | i18n }}</bit-label>
       <input bitInput id="folderName" formControlName="name" type="text" required />
-      <bit-hint>
-        {{ "folderHintText" | i18n }}
-      </bit-hint>
+      @if (!vfo1Enabled()) {
+        <bit-hint>
+          {{ "folderHintText" | i18n }}
+        </bit-hint>
+      }
     </bit-form-field>
+    @if (vfo1Enabled()) {
+      <bit-form-field disableMargin>
+        <bit-label>{{ "nestFolderUnder" | i18n }}</bit-label>
+        <bit-select id="add-edit-folder_select_parent" formControlName="parent">
+          <bit-option [value]="null" [label]="'nestFolderUnderNone' | i18n"></bit-option>
+          @for (path of parentOptions(); track path) {
+            <bit-option icon="bwi-folder" [value]="path" [label]="path"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    }
   </div>
   <ng-container bitDialogFooter>
     <button
