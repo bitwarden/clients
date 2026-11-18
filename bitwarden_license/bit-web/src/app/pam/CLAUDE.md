@@ -120,9 +120,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
   the badges on screen; the table ORs the selected options itself. "Ending soon" splits the
   active leases at `ENDING_SOON_THRESHOLD_MS`, so "In use" is the badge's "X left" and a lapsed
-  lease is in neither. "Unavailable" matches items whose rule refuses a request right now. Each
-  row's state is read once per row list and shared across options (`accessKinds$`), so the
-  chip's counts don't multiply the reads. Add an option by appending to the list, not by
+  lease is in neither. There is no "Unavailable" option: it needs the server's rule evaluation
+  against the caller's IP, and the list views read no per-item state. The states come from the
+  caller's own requests (`MyAccessRequestsService`, the `listMyAccessRequests()` read the nav
+  count already makes), ranked by `badgesFromMyRequests()`; a gated row the caller holds nothing
+  on is Privileged. Never go back to a read per row: 32k gated rows made Chrome refuse the
+  requests (PAM-579). Add an option by appending to the list, not by
   branching in `matches$`. The service and the chip factory live in `bit-pam-components`
   because the extension popup binds the same `VAULT_ITEM_FILTER` in `bit-browser`'s
   `provide-pam.ts`, and `bit-browser` cannot import `bit-web`.
@@ -130,17 +133,21 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. The pill and the item-details host live in `bit-pam-components`, and the badge model
   (`access-badge-state.ts`) in `bit-pam`; only `vault-row-lease-badge/` and the pill's stories are
-  here. Both hosts re-read on `AccessRefreshService` so neither can contradict a mutation
+  here. Both hosts follow `AccessRefreshService` so neither can contradict a mutation
   made beside it: the row badge because canceling a request from that row's own menu
-  otherwise left the old pill standing until a reload (PAM-200). The item-details host
+  otherwise left the old pill standing until a reload (PAM-200). The row badge reads no
+  per-item state: it takes its badge from `MyAccessRequestsService`, the same list the filter
+  uses, so it never shows "Unavailable" (the open item's badge and banner still do). The item-details host
   also drops the `active` state, because the banner heading under it already runs that
   countdown on its own timer, but it drops it on a LIVE lease (`liveActiveLease`), not on
   the SDK's `active` ranking, or a lease the server still believes in after it lapsed would
   hide the pill for good (see "A lease running out"). Which badge to show is NOT decided
-  here: the SDK ranks the three states into `CipherAccessStateView.badgeState`, and
+  here: for one item, the SDK ranks the three states into `CipherAccessStateView.badgeState`, and
   `cipherAccessBadgeState()` only adapts that onto the presentation model (a `kind`
   discriminant, a parsed `Date`).
-  Add a state by teaching the SDK, not by re-ranking the parts client-side.
+  Add a state by teaching the SDK, not by re-ranking the parts client-side. The list views are the
+  one exception, by design: `badgesFromMyRequests()` (`bit-pam/src/helpers/request-list-badges.ts`)
+  ranks the caller's own requests the same way, so the list needs no request per row.
   `ENDING_SOON_THRESHOLD_MS` (`access-badge-state.ts`) is the five-minute cutoff at which an
   active lease escalates to the danger recipe, a fixed cutoff, not a fraction of the lease's
   length (PM-40498). It is exported rather than private to the badge because the cipher-view
@@ -258,11 +265,15 @@ Two services drive every refresh:
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
 
-Page-level services subscribe to the pushes directly and reload: `MyAccessService` on
-`accessChanged$`, `ApproverInboxService` on both. Use `concatMap`, not `switchMap`: two pushes
-arriving together must not interleave their loads and leave several subjects describing
-different moments. `AccessRequestDetailService` reads one request, so it re-fetches with
-`switchMap` on the `:id` and `accessChanged$`.
+Page-level services reload on these streams. `MyAccessService` listens on
+`AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
+elsewhere in this client (the request dialog, the vault) updates its tabs and counts even when the
+push is missed. It skips its own announcements, since each of its mutations already patched or
+reloaded the state. `ApproverInboxService` subscribes to both pushes directly.
+
+**Use `concatMap`, not `switchMap`**: two refreshes arriving together must not interleave their
+loads and leave several subjects describing different moments. `AccessRequestDetailService` reads
+one request, so it re-fetches with `switchMap` on the `:id` and `accessChanged$`.
 
 ### A lease running out
 
@@ -292,8 +303,8 @@ more; `PamRevealedCipherService` re-enters explicitly, because the re-lock write
 
 `badgeState` is NOT clamped: only the SDK ranks it, so a lapsed `active` badge falls to
 `AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row has no clamp either, but
-it does re-read: on `AccessRefreshService`, and on a lapse through `rereadOnLapse` off the same
-shared ticker.
+its list re-reads: `MyAccessRequestsService` reads again on `AccessRefreshService`, and when the
+next window or lease that gives a badge ends, off the same shared ticker.
 
 ## OSS seams
 

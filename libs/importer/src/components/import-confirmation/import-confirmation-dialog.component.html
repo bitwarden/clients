@@ -1,0 +1,18 @@
+<bit-dialog [title]="'importSuccessful' | i18n">
+  <div bitDialogContent>
+    <importer-confirmation-summary [summary]="data.summary" [importedFile]="data.importedFile" />
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      bitDialogClose
+      appAutofocus
+      buttonType="primary"
+      id="import-confirmation-dialog_button_ok"
+    >
+      {{ "ok" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

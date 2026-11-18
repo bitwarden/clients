@@ -29,6 +29,8 @@ events occur:
 - The account is logged out
 - Account switching is used to switch the active account
 - The extension popup has been closed for 2 minutes
+- The import tab is about to open the popup to show an import result (route history only, through
+  `resetPopupRouteHistory`), so the popup opens on the Vault page where the result is shown
 
 In addition, cached form data is cleared when a browser extension navigation event occurs (e.g.
 switching between tabs in the extension).
