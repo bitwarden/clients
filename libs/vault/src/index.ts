@@ -162,7 +162,6 @@ export {
   PENDING_FILTER_ID,
   PRIVILEGED_FILTER_ID,
   READY_FILTER_ID,
-  UNAVAILABLE_FILTER_ID,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";

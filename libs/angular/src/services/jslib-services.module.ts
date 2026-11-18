@@ -59,6 +59,7 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  LoginCapability,
   SdkCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
@@ -1674,6 +1675,28 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AutomationCapability,
+    useFactory: (
+      loginStrategyService: LoginStrategyServiceAbstraction,
+      loginSuccessHandlerService: LoginSuccessHandlerService,
+      router: Router,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+    ) =>
+      new LoginCapability(
+        loginStrategyService,
+        loginSuccessHandlerService,
+        router,
+        platformUtilsService,
+      ),
+    deps: [
+      LoginStrategyServiceAbstraction,
+      LoginSuccessHandlerService,
+      Router,
+      PlatformUtilsServiceAbstraction,
+    ],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
     multi: true,
@@ -2131,7 +2154,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService, SdkService, ConfigService],
+    deps: [PasswordPreloginApiService, SdkService, ConfigService, MasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,
