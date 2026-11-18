@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,6 +14,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { KeyService } from "@bitwarden/key-management";
+
+import { OrganizationCipherTypeCountsApiService } from "../services/organization-cipher-type-counts-api.service";
 
 import {
   ManageItemTypesPolicy,
@@ -62,7 +64,11 @@ describe("restricted item types policy definitions", () => {
 describe("RestrictedItemTypesPolicyComponent data", () => {
   let fixture: ComponentFixture<RestrictedItemTypesPolicyComponent>;
 
+  let countsApi: MockProxy<OrganizationCipherTypeCountsApiService>;
+
   async function setup(response: Partial<PolicyStatusResponse>) {
+    countsApi = mock<OrganizationCipherTypeCountsApiService>();
+    countsApi.getCounts.mockResolvedValue({});
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(true) as any);
     const policyService = mock<PolicyService>();
@@ -80,10 +86,12 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
         { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: OrganizationCipherTypeCountsApiService, useValue: countsApi },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RestrictedItemTypesPolicyComponent);
+    fixture.componentRef.setInput("organizationId", "org-id");
     fixture.componentRef.setInput("policyResponse", {
       type: PolicyType.RestrictedItemTypes,
       ...response,
@@ -133,6 +141,25 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
 
     expect(component.data.controls[CipherType.Card].value).toBe(true);
     expect(component.buildRequestData()).toEqual({ restrictedTypes: [] });
+  });
+
+  it("loads existing item counts and hints at hidden items when turning the policy on", async () => {
+    const component = await setup({ enabled: false, data: {} });
+    countsApi.getCounts.mockResolvedValue({ [CipherType.Card]: 8 });
+    await component.loadExistingItemCounts();
+    component.data.controls[CipherType.Card].setValue(false);
+
+    expect(countsApi.getCounts).toHaveBeenCalledWith("org-id");
+    const card = component.itemTypes().find((t: any) => t.cipherType === CipherType.Card);
+    expect(card.hiddenItemCount).toBe(8);
+  });
+
+  it("leaves counts empty when the request fails", async () => {
+    const component = await setup({ enabled: false, data: {} });
+    countsApi.getCounts.mockRejectedValue(new Error("forbidden"));
+    await component.loadExistingItemCounts();
+
+    expect(component.existingItemCounts()).toEqual({});
   });
 
   it("keeps stored selections while the policy is disabled", async () => {

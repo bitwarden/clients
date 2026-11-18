@@ -22,6 +22,7 @@ import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+import { OrganizationCipherTypeCountsApiService } from "../services/organization-cipher-type-counts-api.service";
 
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
@@ -134,6 +135,7 @@ export class ManageItemTypesPolicy extends BasePolicyEditDefinition {
 export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
   private readonly configService = inject(ConfigService);
   private readonly policyService = inject(PolicyService);
+  private readonly cipherTypeCountsApiService = inject(OrganizationCipherTypeCountsApiService);
 
   /** One checkbox per managed item type, keyed by cipher type. Checked means members may use it. */
   override readonly data = new FormGroup<Record<string, FormControl<boolean>>>(
@@ -239,6 +241,21 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     // The base class only loads data when the response includes it, but legacy policies have none.
     if (this.hasNoStoredData()) {
       this.loadData();
+    }
+
+    void this.loadExistingItemCounts();
+  }
+
+  private async loadExistingItemCounts(): Promise<void> {
+    const organizationId = this.organizationId() ?? this.policyResponse()?.organizationId;
+    if (organizationId == null) {
+      return;
+    }
+
+    try {
+      this.existingItemCounts.set(await this.cipherTypeCountsApiService.getCounts(organizationId));
+    } catch {
+      this.existingItemCounts.set({});
     }
   }
 
