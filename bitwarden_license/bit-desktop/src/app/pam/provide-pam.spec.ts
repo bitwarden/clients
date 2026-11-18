@@ -18,10 +18,12 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
+import { LeasedSshKeyService } from "@bitwarden/desktop/autofill/abstractions/leased-ssh-key.service";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
 import { VAULT_ITEM_COLUMN, VAULT_ROW_ACTIONS } from "@bitwarden/vault";
 
 import { provideDesktopPam } from "./provide-pam";
+import { DesktopLeasedSshKeyService } from "./vault/desktop-leased-ssh-key.service";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
@@ -80,8 +82,9 @@ describe("provideDesktopPam", () => {
     });
 
     it("fills the revealed-cipher seam with the desktop service and its dependencies", () => {
-      const provider = providerFor(RevealedCipherService);
+      expect(providerFor(RevealedCipherService)?.useExisting).toBe(DesktopRevealedCipherService);
 
+      const provider = providerFor(DesktopRevealedCipherService);
       expect(provider?.useClass).toBe(DesktopRevealedCipherService);
       expect(provider?.deps).toEqual([
         AccessRequestSdkService,
@@ -93,6 +96,13 @@ describe("provideDesktopPam", () => {
         NgZone,
         LogService,
       ]);
+    });
+
+    it("fills the SSH agent's leased-key seam from the same revealed-cipher instance", () => {
+      const provider = providerFor(LeasedSshKeyService);
+
+      expect(provider?.useClass).toBe(DesktopLeasedSshKeyService);
+      expect((provider?.deps as unknown[])[0]).toBe(DesktopRevealedCipherService);
     });
 
     it("provides the services the request and lease flows inject", () => {

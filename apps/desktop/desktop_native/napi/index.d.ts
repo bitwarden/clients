@@ -451,6 +451,8 @@ export declare namespace sshagent {
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void
+    /** Removes the keys that carry an expiry and keeps the others. */
+    removeExpiring(): void
   }
   export type SSHAgentState = SshAgentState
   /** SSH public key data */
@@ -482,6 +484,11 @@ export declare namespace sshagent {
     privateKey: string
     name: string
     cipherId: string
+    /**
+     * Unix time in milliseconds after which the agent neither lists nor signs with the key.
+     * Absent for a key that does not expire.
+     */
+    expiresAt?: number
   }
 }
 

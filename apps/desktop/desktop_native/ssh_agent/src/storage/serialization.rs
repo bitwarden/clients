@@ -28,6 +28,7 @@ struct SSHKeyDataSerializable {
     public_key: PublicKey,
     name: String,
     cipher_id: String,
+    expires_at_ms: Option<u64>,
 }
 
 impl TryFrom<SSHKeyDataSerializable> for SSHKeyData {
@@ -42,6 +43,7 @@ impl TryFrom<SSHKeyDataSerializable> for SSHKeyData {
             public_key: key_data.public_key,
             name: key_data.name,
             cipher_id: key_data.cipher_id,
+            expires_at_ms: key_data.expires_at_ms,
         })
     }
 }
@@ -77,6 +79,7 @@ impl TryFrom<SSHKeyData> for Vec<u8> {
             public_key: key_data.public_key,
             name: key_data.name,
             cipher_id: key_data.cipher_id,
+            expires_at_ms: key_data.expires_at_ms,
         };
 
         Ok(rkyv::to_bytes::<RancorError>(&serializable)?.to_vec())
@@ -139,6 +142,7 @@ invalid_base64_data!!!
             },
             name: "test-key".to_string(),
             cipher_id: "test-cipher-123".to_string(),
+            expires_at_ms: None,
         }
     }
 
@@ -157,6 +161,7 @@ invalid_base64_data!!!
             },
             name: "test-rsa-key".to_string(),
             cipher_id: "test-cipher-456".to_string(),
+            expires_at_ms: None,
         }
     }
 
@@ -175,6 +180,7 @@ invalid_base64_data!!!
             },
             name: "test-ecdsa-p256-key".to_string(),
             cipher_id: "test-cipher-ecdsa".to_string(),
+            expires_at_ms: None,
         }
     }
 
@@ -252,6 +258,7 @@ invalid_base64_data!!!
             },
             name: "test".to_string(),
             cipher_id: "cipher-123".to_string(),
+            expires_at_ms: None,
         };
 
         let result = SSHKeyData::try_from(serializable);
@@ -269,6 +276,7 @@ invalid_base64_data!!!
             },
             name: "test".to_string(),
             cipher_id: "cipher-123".to_string(),
+            expires_at_ms: None,
         };
 
         SSHKeyData::try_from(serializable).unwrap();
@@ -299,6 +307,16 @@ invalid_base64_data!!!
         assert_eq!(restored.cipher_id(), original.cipher_id());
         assert_eq!(restored.public_key(), original.public_key());
         assert_eq!(restored.private_key(), original.private_key());
+    }
+
+    #[test]
+    fn test_keydata_expiry_survives_to_from_bytes() {
+        let original = create_test_keydata_ed25519().with_expiry(Some(1_234));
+
+        let bytes: Vec<u8> = original.try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
+
+        assert_eq!(restored.expires_at_ms(), Some(1_234));
     }
 
     #[test]

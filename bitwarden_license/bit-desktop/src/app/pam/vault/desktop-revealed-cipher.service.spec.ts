@@ -240,6 +240,38 @@ describe("DesktopRevealedCipherService", () => {
     });
   });
 
+  describe("revealedEntries$ and liveEntry", () => {
+    it("carry the lease end the view was revealed under", async () => {
+      state = leaseEndingIn(60_000);
+      await service.getOrReveal(userId, cipherId);
+
+      const entries = await firstValueFrom(service.revealedEntries$(userId));
+
+      expect(entries.get(cipherId)?.endsAt).toBe(nowMs + 60_000);
+      expect(service.liveEntry(userId, cipherId)?.endsAt).toBe(nowMs + 60_000);
+    });
+
+    it("answer nothing once the lease has ended, before the clock ticks", async () => {
+      state = leaseEndingIn(60_000);
+      await service.getOrReveal(userId, cipherId);
+
+      jest.setSystemTime(nowMs + 60_000);
+
+      expect(service.liveEntry(userId, cipherId)).toBeUndefined();
+      expect((await firstValueFrom(service.revealedEntries$(userId))).size).toBe(0);
+    });
+
+    it("answer nothing after a lock", async () => {
+      state = leaseEndingIn(60_000);
+      await service.getOrReveal(userId, cipherId);
+
+      authStatuses$.next({ [userId]: AuthenticationStatus.Locked });
+
+      expect(service.liveEntry(userId, cipherId)).toBeUndefined();
+      expect((await firstValueFrom(service.revealedEntries$(userId))).size).toBe(0);
+    });
+  });
+
   describe("expiry", () => {
     beforeEach(async () => {
       state = leaseEndingIn();

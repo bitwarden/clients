@@ -15,6 +15,10 @@ Inert hooks a commercial build fills; this folder and the rest of `apps/desktop`
   a shared folder's items, unprovided renders nothing) and the shared `@bitwarden/vault` tokens
   `VAULT_ROW_ACTIONS`, `VAULT_ITEM_COLUMN`, `VAULT_ITEM_FILTER`, `CIPHER_VIEW_BANNER`,
   `ITEM_DETAILS_BADGE`, which the desktop vault table and cipher view already honour.
+- SSH agent seam that lives elsewhere: `autofill/abstractions/leased-ssh-key.service.ts`
+  (`LeasedSshKeyService`, optional in `SshAgentService`). Unprovided, the agent serves ordinary keys
+  only and never calls `removeExpiring`. Provided, leased keys reach the agent with an expiry, leave
+  it on lock, logout and account switch, and always need a fresh approval.
 - Notification seams that live elsewhere and name no PAM symbol except the route allowlist:
   `ipc.platform.showNotification({ title, body, route? })` (`platform/preload.ts`, handled in
   `services/electron-main-messaging.service.ts`: unsupported-platform check, route checked against

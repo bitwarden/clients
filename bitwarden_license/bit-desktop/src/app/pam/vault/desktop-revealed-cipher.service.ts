@@ -37,7 +37,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 /** A revealed view and the end of the lease it was revealed under, in ms. */
-type Entry = { view: CipherView; endsAt: number };
+export type RevealedEntry = { view: CipherView; endsAt: number };
+type Entry = RevealedEntry;
 
 /**
  * Holds the full view of a restricted cipher while the caller holds a live lease on it, for the
@@ -112,6 +113,28 @@ export class DesktopRevealedCipherService implements RevealedCipherService {
         (a, b) => a.size === b.size && [...a].every(([id, view]) => b.get(id) === view),
       ),
     );
+  }
+
+  /**
+   * The live revealed views of the user with the end of the lease each was revealed under, for the
+   * SSH agent's leased keys (`DesktopLeasedSshKeyService`), which hands that end to the agent.
+   */
+  revealedEntries$(userId: UserId): Observable<ReadonlyMap<CipherId, RevealedEntry>> {
+    return this.entries$.pipe(
+      map((all) => {
+        const nowMs = Date.now();
+        return new Map([...(all.get(userId) ?? [])].filter(([, entry]) => entry.endsAt > nowMs));
+      }),
+      distinctUntilChanged(
+        (a, b) => a.size === b.size && [...a].every(([id, entry]) => b.get(id) === entry),
+      ),
+    );
+  }
+
+  /** The live revealed view and its lease end, checked against the clock now. */
+  liveEntry(userId: UserId, cipherId: CipherId): RevealedEntry | undefined {
+    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    return entry != null && entry.endsAt > Date.now() ? entry : undefined;
   }
 
   isRevealed(userId: UserId, cipherId: CipherId): boolean {

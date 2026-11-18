@@ -41,11 +41,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { DESKTOP_SETTINGS_EXTRAS } from "@bitwarden/desktop/app/accounts/settings-extras.token";
 import { PamNavBadgeService } from "@bitwarden/desktop/app/pam/pam-nav-badge.service";
 import { PAM_DESKTOP_ROUTES } from "@bitwarden/desktop/app/pam/pam-routes.token";
+import { LeasedSshKeyService } from "@bitwarden/desktop/autofill/abstractions/leased-ssh-key.service";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/desktop/vault/app/vault-v3/vault-gated-collection-banner.token";
 import { StateProvider } from "@bitwarden/state";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
@@ -62,14 +64,15 @@ import { DesktopPamNotificationSink } from "./notifications/desktop-pam-notifica
 import { DesktopPamNotifier } from "./notifications/desktop-pam-notifier";
 import { PamNotificationStateService } from "./notifications/pam-notification-state.service";
 import { PamNotificationsSettingComponent } from "./notifications/pam-notifications-setting.component";
+import { DesktopLeasedSshKeyService } from "./vault/desktop-leased-ssh-key.service";
 import { DesktopRevealedCipherService } from "./vault/desktop-revealed-cipher.service";
 import { DesktopVaultRowActionsService } from "./vault/desktop-vault-row-actions.service";
 
 /**
  * PAM's root-level providers for the commercial desktop build, including every OSS seam it fills:
  * the routes, nav badge, settings row, and the vault's cipher banner, item badge, filter chip,
- * Controlled access column, shared-folder banner, row-menu actions and the revealed view of a
- * leased item. Also starts the system-notification watcher at app initialization.
+ * Controlled access column, shared-folder banner, row-menu actions, the revealed view of a
+ * leased item and the SSH agent's leased keys. Also starts the system-notification watcher at app initialization.
  */
 export function provideDesktopPam(): SafeProvider[] {
   return [
@@ -206,9 +209,14 @@ export function provideDesktopPam(): SafeProvider[] {
       useFactory: controlledAccessColumn,
       deps: [I18nService, ConfigService, ControlledAccessVaultFilterService],
     }),
-    // Replaces the reveal-nothing default, so a live lease shows the item's secrets.
+    // Replaces the reveal-nothing default, so a live lease shows the item's secrets. One instance
+    // behind both tokens, so the SSH agent's leased keys come from the same reveals.
     safeProvider({
       provide: RevealedCipherService,
+      useExisting: DesktopRevealedCipherService,
+    }),
+    safeProvider({
+      provide: DesktopRevealedCipherService,
       useClass: DesktopRevealedCipherService,
       deps: [
         AccessRequestSdkService,
@@ -218,6 +226,24 @@ export function provideDesktopPam(): SafeProvider[] {
         AccountService,
         AuthService,
         NgZone,
+        LogService,
+      ],
+    }),
+    // Lets the SSH agent serve a gated item's key while its lease is live. The IPC decision is
+    // written up under "SSH agent and leased keys" in this folder's notes.
+    safeProvider({
+      provide: LeasedSshKeyService,
+      useClass: DesktopLeasedSshKeyService,
+      deps: [
+        DesktopRevealedCipherService,
+        AccessLeaseSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        CipherService,
+        ConfigService,
+        OrganizationService,
+        AccountService,
+        AuthService,
         LogService,
       ],
     }),
