@@ -61,8 +61,11 @@ export class WebSetInitialPasswordService
   override async initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void> {
-    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+  ): Promise<boolean> {
+    const organizationInviteAccepted = await super.initializePasswordJitPasswordUserV2Encryption(
+      credentials,
+      userId,
+    );
 
     /**
      * TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
@@ -89,18 +92,19 @@ export class WebSetInitialPasswordService
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
      *
-     * Exception: `acceptOrganizationInvite` is `false` only for a stashed open invite while
-     * `InviteLinkAutoConfirm` is on. The membership stays Invited, so keep the open invite and
-     * its /join redirect. `deepLinkGuard` then sends the user to AcceptOrgOpenInviteComponent,
-     * which runs the Admin Console accept flow.
+     * Exception: while `InviteLinkAutoConfirm` is on, the server does not promote the
+     * organization user to Accepted for a stashed open invite. The organization user stays
+     * Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
+     * user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow.
      */
-    if (credentials.acceptOrganizationInvite === false) {
-      return;
-    }
-
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+    if (
+      organizationInviteAccepted &&
+      (await this.organizationInviteService.getOrganizationInvite()) != null
+    ) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
     }
+
+    return organizationInviteAccepted;
   }
 }

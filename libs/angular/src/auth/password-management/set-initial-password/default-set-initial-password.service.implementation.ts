@@ -113,14 +113,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   async initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (userId == null) {
       throw new Error("User ID is required.");
     }
 
     for (const [key, value] of Object.entries(credentials)) {
-      // acceptOrganizationInvite is optional. `undefined` means the server accepts the invite.
-      if (key !== "acceptOrganizationInvite" && value == null) {
+      if (value == null) {
         throw new Error(`${key} is required.`);
       }
     }
@@ -130,17 +129,17 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("Organization keys response is null.");
     }
 
-    const registerResult = await this.ssoJitProvisionFinishService.finishPassword({
-      userId,
-      orgId: credentials.orgId,
-      orgPublicKey: organizationKeys.publicKey,
-      orgSsoIdentifier: credentials.orgSsoIdentifier,
-      newPassword: credentials.newPassword,
-      newPasswordHint: credentials.newPasswordHint,
-      salt: credentials.salt,
-      resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
-      acceptOrganizationInvite: credentials.acceptOrganizationInvite,
-    });
+    const { registration: registerResult, organizationInviteAccepted } =
+      await this.ssoJitProvisionFinishService.finishPassword({
+        userId,
+        orgId: credentials.orgId,
+        orgPublicKey: organizationKeys.publicKey,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
+        newPassword: credentials.newPassword,
+        newPasswordHint: credentials.newPasswordHint,
+        salt: credentials.salt,
+        resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+      });
 
     if (!("V2" in registerResult.account_cryptographic_state)) {
       throw new Error("Unexpected V2 account cryptographic state");
@@ -173,6 +172,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       SymmetricCryptoKey.fromString(registerResult.user_key),
     );
+
+    return organizationInviteAccepted;
   }
 
   async setInitialPasswordTdeUserWithPermission(

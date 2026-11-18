@@ -75,13 +75,6 @@ export interface InitializeJitPasswordCredentials {
   newPassword: string;
   /** Master password salt (typically the user's email) */
   salt: MasterPasswordSalt;
-  /**
-   * Whether the server moves the organization membership from Invited to Accepted.
-   * - `undefined` when the `pm-34429-invite-link-auto-confirm` flag is off. The server accepts.
-   * - `false` for a stored open invite, so the membership stays Invited.
-   * - `true` for a stored direct invite, or no stored invite.
-   */
-  acceptOrganizationInvite?: boolean;
 }
 
 /**
@@ -108,11 +101,13 @@ export abstract class SetInitialPasswordService {
    * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
+   * @returns Whether the server moved the organization membership from Invited to Accepted.
+   *   `false` only for a stored open invite while `pm-34429-invite-link-auto-confirm` is on.
    */
   abstract initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   /**
    * Sets an initial password for a user who logs in after their org offboarded from

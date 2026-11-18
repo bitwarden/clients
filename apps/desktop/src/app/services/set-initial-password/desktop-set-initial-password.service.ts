@@ -60,10 +60,15 @@ export class DesktopSetInitialPasswordService
   override async initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void> {
-    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+  ): Promise<boolean> {
+    const organizationInviteAccepted = await super.initializePasswordJitPasswordUserV2Encryption(
+      credentials,
+      userId,
+    );
 
     this.messagingService.send("redrawMenu");
+
+    return organizationInviteAccepted;
   }
 
   override async setInitialPasswordTdeUserWithPermission(

@@ -83,7 +83,7 @@ describe("DesktopSetInitialPasswordService", () => {
   });
 
   describe("initializePasswordJitPasswordUserV2Encryption(...)", () => {
-    it("should send a 'redrawMenu' message", async () => {
+    it("should send a 'redrawMenu' message and return the invite decision", async () => {
       // Arrange
       const credentials: InitializeJitPasswordCredentials = {
         newPasswordHint: "newPasswordHint",
@@ -100,12 +100,13 @@ describe("DesktopSetInitialPasswordService", () => {
           DefaultSetInitialPasswordService.prototype,
           "initializePasswordJitPasswordUserV2Encryption",
         )
-        .mockResolvedValue(undefined);
+        .mockResolvedValue(false);
 
       // Act
-      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+      const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
       // Assert
+      expect(result).toBe(false);
       expect(superSpy).toHaveBeenCalledWith(credentials, userId);
       expect(messagingService.send).toHaveBeenCalledTimes(1);
       expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");

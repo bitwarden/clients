@@ -117,7 +117,7 @@ describe("WebSetInitialPasswordService", () => {
           Object.getPrototypeOf(Object.getPrototypeOf(sut)),
           "initializePasswordJitPasswordUserV2Encryption",
         )
-        .mockResolvedValue(undefined);
+        .mockResolvedValue(true);
     });
 
     afterEach(() => {
@@ -150,12 +150,9 @@ describe("WebSetInitialPasswordService", () => {
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
     });
 
-    it("should keep the open org invite and its login redirect URL when acceptOrganizationInvite is false", async () => {
+    it("should keep the open org invite and its login redirect URL when the server does not accept the invite", async () => {
       // Arrange
-      const openOrgInviteCredentials: InitializeJitPasswordCredentials = {
-        ...credentials,
-        acceptOrganizationInvite: false,
-      };
+      superSpy.mockResolvedValue(false);
       organizationInviteService.getOrganizationInvite.mockResolvedValue(
         new OpenOrganizationInvite({
           organizationId: "org-id",
@@ -166,29 +163,23 @@ describe("WebSetInitialPasswordService", () => {
       );
 
       // Act
-      await sut.initializePasswordJitPasswordUserV2Encryption(openOrgInviteCredentials, userId);
+      const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
       // Assert
-      expect(superSpy).toHaveBeenCalledWith(openOrgInviteCredentials, userId);
+      expect(result).toBe(false);
       expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
     });
 
-    it("should clear the login redirect URL and the org invite when acceptOrganizationInvite is true and an org invite is stashed", async () => {
+    it("should return true when the server accepts the invite", async () => {
       // Arrange
-      const acceptCredentials: InitializeJitPasswordCredentials = {
-        ...credentials,
-        acceptOrganizationInvite: true,
-      };
       organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
 
       // Act
-      await sut.initializePasswordJitPasswordUserV2Encryption(acceptCredentials, userId);
+      const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
       // Assert
-      expect(superSpy).toHaveBeenCalledWith(acceptCredentials, userId);
-      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+      expect(result).toBe(true);
     });
   });
 });

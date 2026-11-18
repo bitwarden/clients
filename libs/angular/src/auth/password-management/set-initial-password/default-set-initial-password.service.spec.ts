@@ -306,7 +306,10 @@ describe("DefaultSetInitialPasswordService", () => {
       jest.clearAllMocks();
 
       organizationApiService.getKeys.mockResolvedValue(orgKeys);
-      ssoJitProvisionFinishService.finishPassword.mockResolvedValue(sdkRegistrationResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+        registration: sdkRegistrationResult,
+        organizationInviteAccepted: true,
+      });
 
       const mockUserDecryptionOpts = new UserDecryptionOptions({ hasMasterPassword: false });
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
@@ -328,7 +331,6 @@ describe("DefaultSetInitialPasswordService", () => {
         newPasswordHint: credentials.newPasswordHint,
         salt: credentials.salt,
         resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
-        acceptOrganizationInvite: undefined,
       });
 
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
@@ -423,32 +425,19 @@ describe("DefaultSetInitialPasswordService", () => {
       });
     });
 
-    describe("acceptOrganizationInvite", () => {
-      it.each([true, false])(
-        "should pass acceptOrganizationInvite %s to finishPassword",
-        async (acceptOrganizationInvite) => {
-          await sut.initializePasswordJitPasswordUserV2Encryption(
-            { ...credentials, acceptOrganizationInvite },
-            userId,
-          );
+    it.each([true, false])(
+      "should return organizationInviteAccepted (%s) from finishPassword",
+      async (organizationInviteAccepted) => {
+        ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+          registration: sdkRegistrationResult,
+          organizationInviteAccepted,
+        });
 
-          expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
-            expect.objectContaining({ acceptOrganizationInvite }),
-          );
-        },
-      );
+        const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
-      it("should not require acceptOrganizationInvite when it is undefined", async () => {
-        await sut.initializePasswordJitPasswordUserV2Encryption(
-          { ...credentials, acceptOrganizationInvite: undefined },
-          userId,
-        );
-
-        expect(ssoJitProvisionFinishService.finishPassword).toHaveBeenCalledWith(
-          expect.objectContaining({ acceptOrganizationInvite: undefined }),
-        );
-      });
-    });
+        expect(result).toBe(organizationInviteAccepted);
+      },
+    );
 
     describe("finish service error handling", () => {
       it("should throw and not write state when finishPassword fails", async () => {
@@ -473,7 +462,10 @@ describe("DefaultSetInitialPasswordService", () => {
         account_cryptographic_state: { V1: {} } as unknown as WrappedAccountCryptographicState,
       };
 
-      ssoJitProvisionFinishService.finishPassword.mockResolvedValue(invalidResult);
+      ssoJitProvisionFinishService.finishPassword.mockResolvedValue({
+        registration: invalidResult,
+        organizationInviteAccepted: true,
+      });
 
       const promise = sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
