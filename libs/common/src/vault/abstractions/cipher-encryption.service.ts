@@ -28,6 +28,7 @@ export abstract class CipherEncryptionService {
    * @param userId The user ID to initialize the SDK client with
    *
    * @returns A promise that resolves to an array of encryption contexts
+   * @throws {InvalidCipherViewError} When a model is not a valid cipher.
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
 

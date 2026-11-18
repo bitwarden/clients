@@ -7,13 +7,30 @@ import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sd
 import { UserId, OrganizationId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { EncryptionContext } from "../abstractions/cipher.service";
+import { EncryptionContext, InvalidCipherViewError } from "../abstractions/cipher.service";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
 /** Ciphers per SDK decrypt call, which bounds the SDK's peak memory. */
 const DECRYPT_BATCH_SIZE = 250;
+
+/**
+ * The SDK rejects `encrypt_list` with `EncryptError` variant `InvalidInput` when a view does not
+ * convert, with a message like `Item 1 of the list is invalid: <reason>`. The reason can quote the
+ * offending value, which can be vault data, so only the item's index is kept.
+ */
+function toInvalidCipherViewError(error: unknown): InvalidCipherViewError | undefined {
+  // Checked structurally rather than with `isEncryptError`: the installed SDK's `EncryptError`
+  // type predates the `InvalidInput` variant (PM-44712).
+  const sdkError = error as { name?: unknown; variant?: unknown; message?: unknown } | null;
+  if (sdkError?.name !== "EncryptError" || sdkError.variant !== "InvalidInput") {
+    return undefined;
+  }
+  const index =
+    typeof sdkError.message === "string" ? /^Item (\d+) /.exec(sdkError.message)?.[1] : undefined;
+  return new InvalidCipherViewError(index == null ? undefined : Number(index));
+}
 
 export class DefaultCipherEncryptionService implements CipherEncryptionService {
   constructor(
@@ -65,6 +82,13 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           }));
         }),
         catchError((error: unknown) => {
+          const invalidCipherViewError = toInvalidCipherViewError(error);
+          if (invalidCipherViewError != null) {
+            this.logService.error(
+              `Failed to encrypt ciphers in batch: ${invalidCipherViewError.message}`,
+            );
+            return throwError(() => invalidCipherViewError);
+          }
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
           // Propagate the underlying failure. Returning EMPTY here would make firstValueFrom
           // reject with an opaque "no elements in sequence" EmptyError.
