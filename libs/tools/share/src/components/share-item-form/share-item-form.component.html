@@ -99,48 +99,41 @@
   @if (activeLinks().length > 0) {
     <bit-section disableMargin class="tw-mt-4 tw-block">
       <p bitTypography="h6" class="tw-mb-2 tw-block">{{ "activeLinks" | i18n }}</p>
-      <div
-        class="tw-rounded-xl tw-border tw-border-solid tw-border-secondary-100 tw-shadow tw-bg-background tw-px-4"
-      >
-        @for (link of activeLinks(); track link.sendId; let last = $last) {
-          <div
-            class="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-border-0"
-            [class.tw-border-b]="!last"
-            [class.tw-border-secondary-100]="!last"
-            [class.tw-border-solid]="!last"
-          >
-            <bit-icon name="bwi-share-link" class="tw-text-primary-600 tw-shrink-0" />
-            <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-1">
-              <span bitTypography="body2" class="tw-truncate">{{
-                linkEmailDisplay(link.emails)
-              }}</span>
-              <span bitTypography="helper" class="tw-text-muted">
+      <bit-item-group>
+        @for (link of activeLinks(); track link.sendId) {
+          <bit-item>
+            <bit-item-content>
+              <bit-icon slot="start" name="bwi-share-link" class="tw-text-primary-600" />
+              {{ linkEmailDisplay(link.emails) }}
+              <span slot="secondary">
                 {{ "shareLinkExpires" | i18n }} {{ link.expiresAt | date: "mediumDate" }}
               </span>
-            </div>
-            <div class="tw-flex tw-items-center tw-shrink-0">
-              <button
-                type="button"
-                bitIconButton="bwi-clone"
-                buttonType="subtleGhost"
-                size="small"
-                id="share-item-form_button_copy-link-{{ link.sendId }}"
-                label="{{ 'copyLink' | i18n }}"
-                (click)="copyLink(link)"
-              ></button>
-              <button
-                type="button"
-                bitIconButton="bwi-trash"
-                buttonType="subtleGhost"
-                size="small"
-                id="share-item-form_button_delete-link-{{ link.sendId }}"
-                label="{{ 'delete' | i18n }}"
-                (click)="deleteLink(link)"
-              ></button>
-            </div>
-          </div>
+            </bit-item-content>
+            <ng-container slot="end">
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  size="small"
+                  id="share-item-form_button_copy-link-{{ link.sendId }}"
+                  label="{{ 'copyLink' | i18n }}"
+                  (click)="copyLink(link)"
+                ></button>
+              </bit-item-action>
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-trash"
+                  size="small"
+                  id="share-item-form_button_delete-link-{{ link.sendId }}"
+                  label="{{ 'delete' | i18n }}"
+                  (click)="deleteLink(link)"
+                ></button>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
         }
-      </div>
+      </bit-item-group>
     </bit-section>
   }
 </div>
