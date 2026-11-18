@@ -1,4 +1,3 @@
-import { TreeKeyManager } from "@angular/cdk/a11y";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -17,17 +16,13 @@ import {
   input,
   signal,
   viewChild,
-  viewChildren,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { map } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../berry/berry.component";
 import { ButtonModule } from "../button";
-import { CheckboxModule } from "../checkbox";
 import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
@@ -39,7 +34,6 @@ import {
   resolveIconTileVariant,
 } from "../icon-tile";
 import { MenuDividerComponent } from "../menu/menu-divider.component";
-import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 import { OverflowItemDirective } from "../overflow-list";
@@ -58,7 +52,7 @@ import {
   FILTER_GROUP,
   FILTER_HOST,
   FILTER_PRESENTER,
-  FILTER_TREE_HOST,
+  FILTER_TREE_OWNER,
   FilterControl,
   FilterEntry,
   FilterOptionRow,
@@ -66,13 +60,13 @@ import {
   FilterGroup,
   FilterPresenter,
   FilterSelection,
-  FilterTreeHost,
   FilterTreeNode,
+  FilterTreeOwner,
   buildDataEntries,
   createFilterOptionOpenState,
   flattenFilterOptions,
 } from "./filter-tokens";
-import { FilterTreeRowDirective } from "./filter-tree-row.directive";
+import { FilterTreeComponent, filterOptionRowClasses } from "./filter-tree.component";
 
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
@@ -164,8 +158,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
-    CheckboxModule,
-    FilterTreeRowDirective,
+    FilterTreeComponent,
     IconTileComponent,
     TooltipDirective,
     TypographyModule,
@@ -176,7 +169,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
   host: { class: "!tw-ps-0 !tw-py-0" },
   providers: [
     { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterMenuComponent) },
-    { provide: FILTER_TREE_HOST, useExisting: forwardRef(() => FilterMenuComponent) },
+    { provide: FILTER_TREE_OWNER, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterMenuComponent) },
   ],
@@ -187,7 +180,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
   ],
 })
 export class FilterMenuComponent
-  implements FilterGroup, FilterControl, FilterPresenter, FilterTreeHost, OnInit
+  implements FilterGroup, FilterControl, FilterPresenter, FilterTreeOwner, OnInit
 {
   /** The chip's key — the property its value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
@@ -286,32 +279,7 @@ export class FilterMenuComponent
    */
   private readonly selected = signal<FilterSelection[]>([]);
 
-  /**
-   * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
-   * it as-is; option rows use {@link optionRowClasses}.
-   */
-  protected readonly rowBaseClasses = [
-    "tw-flex",
-    "tw-items-center",
-    "tw-gap-2",
-    ...menuItemBaseStyles,
-    ...menuItemPrimaryStyles,
-    // Focus and disabled land on the input, not the row; mirror both onto the row.
-    "tw-mb-0",
-    "has-[:focus-visible]:tw-z-50",
-    "has-[:focus-visible]:tw-rounded-lg",
-    "has-[:focus-visible]:tw-ring-2",
-    "has-[:focus-visible]:tw-ring-inset",
-    "has-[:focus-visible]:tw-ring-border-focus",
-    "has-[:focus-visible]:tw-bg-bg-brand-softer",
-    "has-[:focus-visible]:tw-text-fg-heading",
-    "has-[:disabled]:tw-cursor-default",
-    "has-[:disabled]:hover:tw-bg-bg-primary",
-    "has-[:disabled]:!tw-text-fg-inactive",
-  ];
-
-  /** An option row is 48px against a section header's 40px. */
-  protected readonly optionRowClasses = [...this.rowBaseClasses, "tw-py-3"];
+  protected readonly optionRowClasses = filterOptionRowClasses;
 
   /** Shared `name` so a menu's radios form one group; unique per chip so menus don't merge. */
   protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;
@@ -434,7 +402,7 @@ export class FilterMenuComponent
    * set, else the host's count for this chip's `key`. In `multiple` mode the count uses the
    * option's full subtree of values so a parent row reflects the same item set its click selects.
    */
-  protected readonly optionCounts = computed(() => {
+  readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionRow, number | undefined>();
     const hostCounts = this.hostCounts().options;
     for (const option of this.allOptions()) {
@@ -595,7 +563,7 @@ export class FilterMenuComponent
   }
 
   /** How many of a section's options are selected, nesting included — the header berry. */
-  protected sectionSelectedCount(section: FilterSectionComponent): number {
+  sectionSelectedCount(section: FilterSectionComponent): number {
     return section.allOptions().filter((option) => {
       const resolved = this.optionValue(option);
       return resolved != null && this.isSelected(resolved.value);
@@ -665,47 +633,11 @@ export class FilterMenuComponent
     return nodes;
   });
 
-  /** The rendered rows, in document order — the same order as {@link treeNodes}. */
-  private readonly treeRows = viewChildren(FilterTreeRowDirective);
-
-  // Typeahead is left off — optional for a tree, and the menu already has a search field.
-  private readonly keyManager = new TreeKeyManager<FilterTreeRowDirective>(
-    toObservable(this.treeRows).pipe(
-      map((rows) => [...(rows as readonly FilterTreeRowDirective[])]),
-    ),
-    {
-      // Rows are re-created as the tree expands, so key on the declaration behind each.
-      trackBy: (row) => {
-        const node = row.node();
-        return node.row;
-      },
-    },
-  );
-
-  protected onTreeKeydown(event: KeyboardEvent): void {
-    this.keyManager.onKeydown(event);
-  }
-
-  protected onRowFocus(row: FilterTreeRowDirective): void {
-    this.keyManager.focusItem(row);
-  }
-
-  /** @see FilterTreeHost.parentRow */
-  parentRow<T>(row: T): T | null {
-    const rows = this.treeRows();
-    const parent = rows[rows.indexOf(row as never)]?.node().parent;
-    return parent == null ? null : (rows[parent] as never);
-  }
-
-  /** @see FilterTreeHost.childRows */
-  childRows<T>(row: T): T[] {
-    const rows = this.treeRows();
-    const index = rows.indexOf(row as never);
-    return index < 0 ? [] : (rows.filter((r) => r.node().parent === index) as never);
-  }
+  /** The rendered tree, for handing focus back to its rows. */
+  private readonly tree = viewChild(FilterTreeComponent);
 
   /** A section header isn't selectable; only options carry a checked state. */
-  protected nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null {
+  nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null {
     if (node.row.kind === "section") {
       return null;
     }
@@ -828,9 +760,7 @@ export class FilterMenuComponent
     const surface = (event.currentTarget as HTMLElement).closest<HTMLElement>("[role=dialog]");
     this.clear();
     focusAfterRender(this.injector, () => {
-      const active = this.keyManager.getActiveItem() ?? this.treeRows()[0];
-      if (active) {
-        active.focus();
+      if (this.tree()?.focusActiveRow()) {
         return null;
       }
       // A search matching nothing leaves no row to return to, so fall back to the field that
