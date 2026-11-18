@@ -1080,6 +1080,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeFilter = this.activeFilter();
     const cipherType = type ?? activeFilter.cipherType;
 
+    if (
+      cipherType != null &&
+      (await firstValueFrom(this.restrictedItemTypesService.restrictedSet$)).has(cipherType)
+    ) {
+      return;
+    }
+
     let organizationId: OrganizationId | null = null;
     let collectionIds: CollectionId[] = [];
     let folderId: string | undefined;

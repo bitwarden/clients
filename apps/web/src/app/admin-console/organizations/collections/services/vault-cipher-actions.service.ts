@@ -20,6 +20,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -68,6 +69,7 @@ export class VaultCipherActionsService {
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private readonly vaultCollectionService = inject(VaultCollectionService);
+  private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -145,6 +147,13 @@ export class VaultCipherActionsService {
   async addCipher(cipherType?: CipherType): Promise<void> {
     const activeFilter = await firstValueFrom(this.activeFilter$);
     const type = cipherType ?? activeFilter.cipherType;
+
+    if (
+      type != null &&
+      (await firstValueFrom(this.restrictedItemTypesService.restrictedSet$)).has(type)
+    ) {
+      return;
+    }
 
     const organization = await firstValueFrom(this.organization$);
     if (!organization.enabled) {

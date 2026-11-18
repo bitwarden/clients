@@ -5,6 +5,7 @@ import { mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
+import { CipherType } from "../../enums";
 import { RestrictedItemTypesService } from "../restricted-item-types.service";
 
 import { VaultSettingsService } from "./vault-settings.service";
@@ -21,7 +22,7 @@ describe("VaultSettingsService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
-    (restrictedItemTypesService as any).restricted$ = of([]);
+    (restrictedItemTypesService as any).restrictedSet$ = of(new Set<CipherType>());
 
     service = new VaultSettingsService(stateProvider, restrictedItemTypesService);
   });
@@ -43,6 +44,30 @@ describe("VaultSettingsService", () => {
       await service.setShowAtRiskPasswordNotifications(true);
       const result = await firstValueFrom(service.showAtRiskPasswordNotifications$);
       expect(result).toBe(true);
+    });
+  });
+
+  describe("current tab suggestions", () => {
+    const restrict = (...types: CipherType[]) => {
+      (restrictedItemTypesService as any).restrictedSet$ = of(new Set(types));
+      service = new VaultSettingsService(stateProvider, restrictedItemTypesService);
+    };
+
+    it("shows cards and identities when nothing is restricted", async () => {
+      expect(await firstValueFrom(service.showCardsCurrentTab$)).toBe(true);
+      expect(await firstValueFrom(service.showIdentitiesCurrentTab$)).toBe(true);
+    });
+
+    it("hides identities only when the identity type is restricted", async () => {
+      restrict(CipherType.Identity);
+      expect(await firstValueFrom(service.showIdentitiesCurrentTab$)).toBe(false);
+      expect(await firstValueFrom(service.showCardsCurrentTab$)).toBe(true);
+    });
+
+    it("hides cards only when the card type is restricted", async () => {
+      restrict(CipherType.Card);
+      expect(await firstValueFrom(service.showCardsCurrentTab$)).toBe(false);
+      expect(await firstValueFrom(service.showIdentitiesCurrentTab$)).toBe(true);
     });
   });
 });

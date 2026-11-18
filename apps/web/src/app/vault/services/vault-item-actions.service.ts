@@ -12,6 +12,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -49,6 +50,7 @@ export class WebVaultItemActionsService {
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
+  private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
 
   private readonly _itemDialogOpen = signal(false);
   readonly itemDialogOpen = this._itemDialogOpen.asReadonly();
@@ -122,6 +124,13 @@ export class WebVaultItemActionsService {
     cipherType?: CipherType,
     scope?: { organizationId?: OrganizationId; collectionId?: CollectionId; folderId?: string },
   ): Promise<void> {
+    if (
+      cipherType != null &&
+      (await firstValueFrom(this.restrictedItemTypesService.restrictedSet$)).has(cipherType)
+    ) {
+      return;
+    }
+
     const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
 
     if (scope?.organizationId || scope?.folderId) {

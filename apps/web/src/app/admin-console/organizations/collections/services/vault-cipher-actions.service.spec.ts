@@ -20,6 +20,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   AttachmentDialogResult,
@@ -97,6 +98,7 @@ describe("VaultCipherActionsService", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
   let organizationService: MockProxy<OrganizationService>;
+  let restrictedSet$: BehaviorSubject<ReadonlySet<CipherType>>;
 
   let organization: Organization;
   let refresh: jest.Mock;
@@ -129,6 +131,7 @@ describe("VaultCipherActionsService", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     i18nService = mock<I18nService>();
     organizationService = mock<OrganizationService>();
+    restrictedSet$ = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
 
     i18nService.t.mockReturnValue("translated");
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -161,6 +164,7 @@ describe("VaultCipherActionsService", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: mock<Router>() },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: RestrictedItemTypesService, useValue: { restrictedSet$ } },
         {
           provide: RoutedVaultFilterService,
           useValue: {
@@ -261,6 +265,26 @@ describe("VaultCipherActionsService", () => {
   describe("addCipher", () => {
     beforeEach(() => {
       jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue(makeDialogRef(undefined));
+    });
+
+    it("does not build a cipher form for a restricted type", async () => {
+      restrictedSet$.next(new Set([CipherType.Identity]));
+
+      await service.addCipher(CipherType.Identity);
+
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
+    });
+
+    it("does not build a cipher form when the active filter type is restricted", async () => {
+      restrictedSet$.next(new Set([CipherType.Card]));
+      activeFilterSubject.next({
+        cipherType: CipherType.Card,
+        collectionId: "col-1" as CollectionId,
+      } as unknown as VaultFilter);
+
+      await service.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
     });
 
     it("passes the explicit cipherType to buildConfig when one is provided", async () => {

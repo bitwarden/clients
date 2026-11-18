@@ -127,7 +127,7 @@
             </a>
           </bit-hint>
         </bit-form-control>
-        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
+        <bit-form-control *ngIf="enableInlineMenu && identitiesAllowed()" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-inline-menu-identities"
@@ -139,10 +139,7 @@
             {{ "showInlineMenuIdentitiesLabel" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control
-          *ngIf="enableInlineMenu && !(restrictedCardType$ | async)"
-          class="tw-ml-5"
-        >
+        <bit-form-control *ngIf="enableInlineMenu && cardsAllowed()" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-inline-menu-cards"
@@ -154,7 +151,7 @@
             {{ "showInlineMenuCardsLabel" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
+        <bit-form-control *ngIf="enableInlineMenu && sshKeysAllowed()" class="tw-ml-5">
           <input
             bitCheckbox
             id="show-inline-menu-ssh-keys"
@@ -178,7 +175,7 @@
             {{ "showInlineMenuOnIconSelectionLabel" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control *ngIf="!(restrictedCardType$ | async)">
+        <bit-form-control *ngIf="cardsAllowed()">
           <input
             bitCheckbox
             id="showCardsSuggestions"
@@ -188,7 +185,7 @@
           />
           <bit-label for="showCardsSuggestions">{{ "showCardsInVaultViewV2" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control disableMargin>
+        <bit-form-control *ngIf="identitiesAllowed()" disableMargin>
           <input
             bitCheckbox
             id="showIdentitiesSuggestions"

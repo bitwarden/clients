@@ -33,6 +33,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -70,6 +71,7 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   async init() {
@@ -266,7 +268,8 @@ export class SshAgentService implements OnDestroy {
         concatMap(async ([message, ciphers]) => {
           const requestId = message.requestId as number;
           try {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            const restricted = await firstValueFrom(this.restrictedItemTypesService.restrictedSet$);
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? [], restricted));
           } catch (e) {
             // Refuse the request rather than leaving the agent's list callback unresolved, which
             // would hang the SSH client that is waiting on it.
@@ -317,11 +320,17 @@ export class SshAgentService implements OnDestroy {
               // so replace() is not called and existing keys are left in the native store.
               return from(this.ensureAgentRunning()).pipe(
                 // Subscribe to live cipher data for the active account.
-                switchMap(() => this.cipherService.cipherViews$(account.id)),
+                switchMap(() =>
+                  combineLatest([
+                    this.cipherService.cipherViews$(account.id),
+                    // Re-evaluate when an organization policy starts or stops restricting SSH keys.
+                    this.restrictedItemTypesService.restrictedSet$,
+                  ]),
+                ),
                 // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                filter((views) => views != null),
+                filter(([views]) => views != null),
                 // Project to the SSH key fields needed by the agent.
-                map((views) => this.toAgentKeys(views)),
+                map(([views, restricted]) => this.toAgentKeys(views, restricted)),
                 // Skip re-push when the SSH key set hasn't actually changed.
                 distinctUntilChanged((prev, curr) => {
                   // if the length is different, replace keys
@@ -394,9 +403,17 @@ export class SshAgentService implements OnDestroy {
 
   private toAgentKeys(
     ciphers: CipherView[],
+    restricted: ReadonlySet<CipherType>,
   ): { name: string; privateKey: string; cipherId: string }[] {
     return ciphers
-      .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
+      .filter(
+        (c) =>
+          c.type === CipherType.SshKey &&
+          !c.isDeleted &&
+          !c.isArchived &&
+          // Keys restricted by organization policy must not be served by the agent.
+          !restricted.has(c.type),
+      )
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
@@ -421,6 +438,13 @@ export class SshAgentService implements OnDestroy {
       this.logService.error(
         "SSH sign request received for key not in the active vault; rejecting.",
       );
+      return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+    }
+
+    // The agent's keystore can hold a key loaded before a policy restricted its type.
+    const restricted = await firstValueFrom(this.restrictedItemTypesService.restrictedSet$);
+    if (restricted.has(cipher.type)) {
+      this.logService.error("SSH sign request received for a restricted key; rejecting.");
       return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
     }
 

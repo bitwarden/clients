@@ -1,6 +1,6 @@
-@if (isCardTypeRestricted$ | async) {
-  <bit-callout [title]="'restrictCardTypeImport' | i18n" type="info">
-    {{ "restrictCardTypeImportDesc" | i18n }}
+@if (hasRestrictedItemTypes()) {
+  <bit-callout [title]="'restrictedItemTypesImport' | i18n" type="info">
+    {{ "restrictedItemTypesImportDesc" | i18n }}
   </bit-callout>
 }
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">

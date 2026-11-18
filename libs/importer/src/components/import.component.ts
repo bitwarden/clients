@@ -253,8 +253,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
 
-  protected readonly isCardTypeRestricted$: Observable<boolean> =
-    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
+  protected readonly hasRestrictedItemTypes = toSignal(
+    this.restrictedItemTypesService.restrictedSet$.pipe(map((types) => types.size > 0)),
+    { initialValue: false },
+  );
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;

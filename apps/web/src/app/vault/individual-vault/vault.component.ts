@@ -1097,6 +1097,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   async addCipher(cipherType?: CipherType) {
     const type = cipherType ?? this.activeFilter.cipherType;
+    if (
+      type != null &&
+      (await firstValueFrom(this.restrictedItemTypesService.restrictedSet$)).has(type)
+    ) {
+      return;
+    }
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
     const collectionId =
       this.activeFilter.collectionId !== "AllCollections" && this.activeFilter.collectionId != null

@@ -1,17 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, computed, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
   concatMap,
   filter,
   firstValueFrom,
-  map,
   Observable,
   of,
   pairwise,
-  shareReplay,
   startWith,
   switchMap,
 } from "rxjs";
@@ -125,11 +123,16 @@ export class AutofillComponent implements OnInit {
       this.nudgesService.showNudgeSpotlight$(NudgeType.AutofillNudge, account.id),
     ),
   );
-  protected restrictedCardType$: Observable<boolean> =
-    this.restrictedItemTypesService.restricted$.pipe(
-      map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
-      shareReplay({ bufferSize: 1, refCount: true }),
-    );
+  private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restrictedSet$);
+  protected readonly cardsAllowed = computed(
+    () => this.restrictedTypes()?.has(CipherType.Card) === false,
+  );
+  protected readonly identitiesAllowed = computed(
+    () => this.restrictedTypes()?.has(CipherType.Identity) === false,
+  );
+  protected readonly sshKeysAllowed = computed(
+    () => this.restrictedTypes()?.has(CipherType.SshKey) === false,
+  );
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;

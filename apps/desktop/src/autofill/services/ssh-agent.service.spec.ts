@@ -1,4 +1,4 @@
-import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
+import { BehaviorSubject, EMPTY, Observable, Subject, of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -20,6 +20,14 @@ function makeSshCipher(id: string, name: string, privateKey: string): CipherView
   } as unknown as CipherView;
 }
 
+function makeRestrictedItemTypesService(
+  restrictedSet$: Observable<ReadonlySet<CipherType>> = of(new Set<CipherType>()),
+): any {
+  return { restrictedSet$ };
+}
+
+const sshKeyRestriction: ReadonlySet<CipherType> = new Set([CipherType.SshKey]);
+
 /** Flush pending microtasks and one macrotask cycle to let async RxJS pipelines settle. */
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
 
@@ -38,6 +46,7 @@ describe("SshAgentService", () => {
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let enabledSubject: BehaviorSubject<boolean>;
   let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
+  let restrictedSubject: BehaviorSubject<ReadonlySet<CipherType>>;
   let authStatusPerUser: Map<string, BehaviorSubject<AuthenticationStatus>>;
 
   let mockIsLoaded: jest.Mock;
@@ -59,6 +68,7 @@ describe("SshAgentService", () => {
     accountSubject = new BehaviorSubject<{ id: UserId } | null>(null);
     enabledSubject = new BehaviorSubject<boolean>(false);
     cipherViewsSubject = new BehaviorSubject<CipherView[] | null>(null);
+    restrictedSubject = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
     authStatusPerUser = new Map();
 
     mockIsLoaded = jest.fn().mockResolvedValue(false);
@@ -115,6 +125,7 @@ describe("SshAgentService", () => {
       mockI18nService as any,
       mockDesktopSettingsService as any,
       mockAccountService as any,
+      makeRestrictedItemTypesService(restrictedSubject),
     );
 
     await service.init();
@@ -258,6 +269,45 @@ describe("SshAgentService", () => {
     expect(mockReplace).toHaveBeenCalledWith([
       { name: "Key A", privateKey: "pem1", cipherId: "c1" },
       { name: "Key B", privateKey: "pem2", cipherId: "c2" },
+    ]);
+  });
+
+  it("when SSH keys become restricted by policy, removes them from the agent keystore", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockReplace.mockClear();
+
+    restrictedSubject.next(sshKeyRestriction);
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([]);
+  });
+
+  it("when SSH keys are restricted at startup, never pushes them to the agent", async () => {
+    restrictedSubject.next(sshKeyRestriction);
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockReplace).not.toHaveBeenCalledWith([expect.objectContaining({ cipherId: "c1" })]);
+  });
+
+  it("when a restriction on another type applies, SSH keys stay in the agent keystore", async () => {
+    restrictedSubject.next(new Set([CipherType.Card]));
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([
+      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
     ]);
   });
 
@@ -529,8 +579,10 @@ describe("SshAgentService – sign request authorization", () => {
   let mockFocusWindow: jest.Mock;
   let mockShowToast: jest.Mock;
   let mockGetAllDecrypted: jest.Mock;
+  let restrictedSubject: BehaviorSubject<ReadonlySet<CipherType>>;
 
   beforeEach(async () => {
+    restrictedSubject = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
     signRequestSubject = new Subject();
     promptBehaviorSubject = new BehaviorSubject<SshAgentPromptType>(SshAgentPromptType.Always);
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
@@ -586,6 +638,7 @@ describe("SshAgentService – sign request authorization", () => {
         sshAgentPromptBehavior$: promptBehaviorSubject.asObservable(),
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
+      makeRestrictedItemTypesService(restrictedSubject),
     );
 
     await service.init();
@@ -648,6 +701,27 @@ describe("SshAgentService – sign request authorization", () => {
       await flush();
 
       expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // The agent's keystore can hold a key that was pushed before a policy restricted SSH keys.
+  describe("key restricted by policy", () => {
+    beforeEach(() => {
+      restrictedSubject.next(sshKeyRestriction);
+    });
+
+    it.each([
+      SshAgentPromptType.Always,
+      SshAgentPromptType.Never,
+      SshAgentPromptType.RememberUntilLock,
+    ])("%s: refuses without showing a dialog", async (promptType) => {
+      promptBehaviorSubject.next(promptType);
+      sendSignRequest();
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
     });
   });
 
@@ -970,8 +1044,10 @@ describe("SshAgentService – list keys request", () => {
   let mockReplace: jest.Mock;
   let mockFocusWindow: jest.Mock;
   let mockShowToast: jest.Mock;
+  let restrictedSubject: BehaviorSubject<ReadonlySet<CipherType>>;
 
   beforeEach(async () => {
+    restrictedSubject = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
     listKeysRequestSubject = new Subject();
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
@@ -1021,6 +1097,7 @@ describe("SshAgentService – list keys request", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
+      makeRestrictedItemTypesService(restrictedSubject),
     );
 
     await service.init();
@@ -1042,6 +1119,16 @@ describe("SshAgentService – list keys request", () => {
     expect(mockReplace).toHaveBeenCalledWith([
       { name: "My Key", privateKey: "pem", cipherId: "c1" },
     ]);
+    expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
+  });
+
+  it("when SSH keys are restricted by policy, does not push them to the agent", async () => {
+    restrictedSubject.next(sshKeyRestriction);
+
+    sendListRequest();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([]);
     expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
   });
 
@@ -1173,6 +1260,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      makeRestrictedItemTypesService(),
     );
 
     await service.init();
@@ -1279,6 +1367,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
+      makeRestrictedItemTypesService(),
     );
 
     await service.init();

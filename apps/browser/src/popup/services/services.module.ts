@@ -221,6 +221,7 @@ import AutofillService from "../../autofill/services/autofill.service";
 import { DefaultFillCipherPolicy } from "../../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
+import { RestrictedFillCipherPolicy } from "../../autofill/services/restricted-fill-cipher-policy";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
@@ -501,8 +502,15 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: FillCipherPolicy,
-    useClass: DefaultFillCipherPolicy,
-    deps: [CipherService],
+    useFactory: (
+      cipherService: CipherService,
+      restrictedItemTypesService: RestrictedItemTypesService,
+    ) =>
+      new RestrictedFillCipherPolicy(
+        new DefaultFillCipherPolicy(cipherService),
+        restrictedItemTypesService,
+      ),
+    deps: [CipherService, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: AutofillService,
