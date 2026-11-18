@@ -6,6 +6,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -24,6 +27,7 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "../cipher-view/attachments/attachments-v2.component";
+import { ARCHIVE_NUDGE_OPTIONS } from "../premium-upgrade-nudge-options";
 
 import { ArchiveCipherUtilitiesService } from "./archive-cipher-utilities.service";
 import { CipherActionService } from "./cipher-action.service";
@@ -66,11 +70,13 @@ describe("CipherActionService", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let cipherArchiveService: MockProxy<CipherArchiveService>;
   let cipherService: MockProxy<CipherService>;
+  let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let organizationService: MockProxy<OrganizationService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
+  let premiumUpgradeNudgeService: MockProxy<PremiumUpgradeNudgeService>;
   let premiumUpgradePromptService: MockProxy<PremiumUpgradePromptService>;
   let toastService: MockProxy<ToastService>;
 
@@ -83,11 +89,13 @@ describe("CipherActionService", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     cipherArchiveService = mock<CipherArchiveService>();
     cipherService = mock<CipherService>();
+    configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
     organizationService = mock<OrganizationService>();
     passwordRepromptService = mock<PasswordRepromptService>();
+    premiumUpgradeNudgeService = mock<PremiumUpgradeNudgeService>();
     premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
     toastService = mock<ToastService>();
     accountService = mockAccountServiceWith(userId);
@@ -106,6 +114,8 @@ describe("CipherActionService", () => {
     dialogService.openSimpleDialog.mockResolvedValue(true);
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
     cipherService.getFullCipherView.mockImplementation((c) => Promise.resolve(c as CipherView));
+    configService.getFeatureFlag.mockResolvedValue(false);
+    premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -118,11 +128,13 @@ describe("CipherActionService", () => {
         },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: CipherService, useValue: cipherService },
+        { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: logService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
+        { provide: PremiumUpgradeNudgeService, useValue: premiumUpgradeNudgeService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: ToastService, useValue: toastService },
       ],
@@ -267,6 +279,49 @@ describe("CipherActionService", () => {
 
       expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
       expect(archiveCipherUtilitiesService.archiveCipher).not.toHaveBeenCalled();
+    });
+
+    it("does not show the upgrade nudge when the feature-based upgrade flag is off", async () => {
+      userCanArchiveSubject.next(false);
+
+      await service.archive(makeCipher());
+
+      expect(premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+    });
+
+    describe("when the feature-based upgrade flag is on", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+      });
+
+      it("shows the upgrade nudge with the archive options", async () => {
+        await service.archive(makeCipher());
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM42214_FeatureBasedUpgradePaths,
+        );
+        expect(premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge).toHaveBeenCalledWith(
+          ARCHIVE_NUDGE_OPTIONS,
+        );
+      });
+
+      it("does not archive or prompt for premium when the nudge returns false", async () => {
+        premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(false);
+
+        await service.archive(makeCipher());
+
+        expect(archiveCipherUtilitiesService.archiveCipher).not.toHaveBeenCalled();
+        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      });
+
+      it("archives when the nudge returns true, regardless of userCanArchive", async () => {
+        userCanArchiveSubject.next(false);
+
+        await service.archive(makeCipher());
+
+        expect(archiveCipherUtilitiesService.archiveCipher).toHaveBeenCalled();
+        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      });
     });
 
     it("archives the full cipher view", async () => {
