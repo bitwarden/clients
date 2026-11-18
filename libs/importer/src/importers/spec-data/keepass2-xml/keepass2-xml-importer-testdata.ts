@@ -582,3 +582,54 @@ line2</Value>
 		</Group>
 		<DeletedObjects />
 	</Root>`;
+
+export const TestDataDuplicateKeys = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<KeePassFile>
+	<Root>
+		<Group>
+			<Name>Root</Name>
+			<Entry>
+				<String>
+					<Key>Title</Key>
+					<Value>first title</Value>
+				</String>
+				<String>
+					<Key>Title</Key>
+					<Value>second title</Value>
+				</String>
+				<String>
+					<Key>UserName</Key>
+					<Value>first user</Value>
+				</String>
+				<String>
+					<Key>UserName</Key>
+					<Value>second user</Value>
+				</String>
+				<String>
+					<Key>Password</Key>
+					<Value>oldsecret</Value>
+				</String>
+				<String>
+					<Key>Password</Key>
+					<Value>newsecret</Value>
+				</String>
+				<String>
+					<Key>otp</Key>
+					<Value>key=OLDTOTP</Value>
+				</String>
+				<String>
+					<Key>otp</Key>
+					<Value>key=NEWTOTP</Value>
+				</String>
+				<String>
+					<Key>URL</Key>
+					<Value>https://one.example.com</Value>
+				</String>
+				<String>
+					<Key>URL</Key>
+					<Value>https://two.example.com</Value>
+				</String>
+			</Entry>
+		</Group>
+	</Root>
+</KeePassFile>`;
