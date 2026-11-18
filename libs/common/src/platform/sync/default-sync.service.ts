@@ -13,25 +13,20 @@ import { PerfTrackGroup } from "@bitwarden/logging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
-import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutReason } from "../../auth/logout";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
@@ -42,6 +37,8 @@ import { UserDecryptionResponse } from "../../key-management/models/response/use
 import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
+import { ProviderService } from "../../provider/abstractions/provider.service";
+import { ProviderData } from "../../provider/models/data/provider.data";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
@@ -67,17 +64,17 @@ import { SyncOptions } from "./sync.service";
 const PERF_TRACK_GROUP = PerfTrackGroup.Sync;
 const PERF_TRACK = "Full Sync";
 
+/** The promises associated with one user's in-flight api calls. */
+type InFlightApiCalls = {
+  refreshToken: Promise<void> | null;
+  sync: Promise<SyncResponse> | null;
+};
+
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
 
-  /** The promises associated with any in-flight api calls. */
-  private inFlightApiCalls: {
-    refreshToken: Promise<void> | null;
-    sync: Promise<SyncResponse> | null;
-  } = {
-    refreshToken: null,
-    sync: null,
-  };
+  /** The promises associated with any in-flight api calls, keyed by the user they were made for. */
+  private inFlightApiCalls = new Map<UserId, InFlightApiCalls>();
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -90,7 +87,6 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
-    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -148,7 +144,7 @@ export class DefaultSyncService extends CoreSyncService {
     let needsSync = false;
     let needsSyncSucceeded = true;
     try {
-      needsSync = await this.needsSyncing(forceSync);
+      needsSync = await this.needsSyncing(forceSync, userId);
     } catch (e) {
       needsSyncSucceeded = false;
       if (allowThrowOnError) {
@@ -164,32 +160,10 @@ export class DefaultSyncService extends CoreSyncService {
       return this.syncCompleted(false, userId);
     }
 
+    const inFlightApiCalls = this.getInFlightApiCalls(userId);
+
     try {
-      if (!skipTokenRefresh) {
-        // Store the promise so multiple calls to refresh the token are not made
-        if (this.inFlightApiCalls.refreshToken === null) {
-          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
-        }
-
-        await this.inFlightApiCalls.refreshToken;
-      }
-
-      // Store the promise so multiple calls to sync are not made
-      if (this.inFlightApiCalls.sync === null) {
-        this.inFlightApiCalls.sync = this.apiService.getSync();
-      } else {
-        this.logService.debug(
-          "Sync: Sync network call already in progress, returning existing promise",
-        );
-      }
-
-      const getSyncMeasurement = this.logService.startMeasurement(
-        PERF_TRACK_GROUP,
-        PERF_TRACK,
-        "getSync",
-      );
-      const response = await this.inFlightApiCalls.sync;
-      getSyncMeasurement.finish();
+      const response = await this.fetchSyncResponse(userId, inFlightApiCalls, skipTokenRefresh);
 
       const processMeasurement = this.logService.startMeasurement(
         PERF_TRACK_GROUP,
@@ -212,8 +186,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.retryPendingSendDeletions(response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
-      await this.syncPolicies(response.policies, response.profile.id);
-      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      await this.syncPolicies(response.policiesNew, response.policies, response.profile.id);
       processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
 
       await this.setLastSync(now, userId);
@@ -227,22 +200,69 @@ export class DefaultSyncService extends CoreSyncService {
         return this.syncCompleted(false, userId);
       }
     } finally {
-      this.inFlightApiCalls.refreshToken = null;
-      this.inFlightApiCalls.sync = null;
+      // Cleared only after the response is processed, so a call for the same user that arrives
+      // during processing reuses this response instead of sending new requests. The identity
+      // check keeps a call from clearing an entry that a newer call created.
+      if (this.inFlightApiCalls.get(userId) === inFlightApiCalls) {
+        this.inFlightApiCalls.delete(userId);
+      }
     }
   }
 
-  private async needsSyncing(forceSync: boolean) {
+  /** Returns the user's in-flight api calls, creating an empty entry when none exists. */
+  private getInFlightApiCalls(userId: UserId): InFlightApiCalls {
+    let inFlightApiCalls = this.inFlightApiCalls.get(userId);
+    if (inFlightApiCalls === undefined) {
+      inFlightApiCalls = { refreshToken: null, sync: null };
+      this.inFlightApiCalls.set(userId, inFlightApiCalls);
+    }
+    return inFlightApiCalls;
+  }
+
+  /**
+   * Fetches the user's sync response, reusing any refresh or sync request already in flight for
+   * the user so that overlapping calls send each request at most once.
+   */
+  private async fetchSyncResponse(
+    userId: UserId,
+    inFlightApiCalls: InFlightApiCalls,
+    skipTokenRefresh: boolean,
+  ): Promise<SyncResponse> {
+    // An in-flight sync is reused below, so a refreshed token would not change the response.
+    if (!skipTokenRefresh && inFlightApiCalls.sync === null) {
+      inFlightApiCalls.refreshToken ??= this.apiService.refreshIdentityToken(userId);
+      await inFlightApiCalls.refreshToken;
+    }
+
+    if (inFlightApiCalls.sync === null) {
+      inFlightApiCalls.sync = this.apiService.getSync(userId);
+    } else {
+      this.logService.debug(
+        "Sync: Sync network call already in progress, returning existing promise",
+      );
+    }
+
+    const getSyncMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
+      "getSync",
+    );
+    const response = await inFlightApiCalls.sync;
+    getSyncMeasurement.finish();
+    return response;
+  }
+
+  private async needsSyncing(forceSync: boolean, userId: UserId) {
     if (forceSync) {
       return true;
     }
 
-    const lastSync = await this.getLastSync();
+    const lastSync = await firstValueFrom(this.lastSync$(userId));
     if (lastSync == null || lastSync.getTime() === 0) {
       return true;
     }
 
-    const response = await this.apiService.getAccountRevisionDate();
+    const response = await this.apiService.getAccountRevisionDate(userId);
     if (response < 0 && this.logoutCallback) {
       // Account was deleted, log out now
       await this.logoutCallback("accountDeleted");
@@ -427,32 +447,18 @@ export class DefaultSyncService extends CoreSyncService {
     return this.domainSettingsService.setEquivalentDomains(eqDomains, userId);
   }
 
-  private async syncPolicies(response: PolicyResponse[], userId: UserId) {
-    const policies: { [id: string]: PolicyData } = {};
-    if (response != null) {
-      response.forEach((p) => {
-        policies[p.id] = new PolicyData(p);
-      });
-    }
-    return await this.policyService.replace(policies, userId);
-  }
-
-  private async syncNewPolicies(
+  private async syncPolicies(
     response: PolicyResponse[] | undefined,
     fallback: PolicyResponse[] | undefined,
     userId: UserId,
   ) {
-    // Fall back to `policies` when `policiesNew` is absent or empty, so the new service
-    // is always seeded with data on servers that do not send `policiesNew`.
+    // Fall back to `policies` when `policiesNew` is absent or empty.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null) {
-      return;
-    }
     const policies: { [id: string]: PolicyData } = {};
-    source.forEach((p) => {
+    source?.forEach((p) => {
       policies[p.id] = new PolicyData(p);
     });
-    return await this.newPolicyService.replace(policies, userId);
+    return await this.policyService.replace(policies, userId);
   }
 
   /**
@@ -481,10 +487,6 @@ export class DefaultSyncService extends CoreSyncService {
    * Best-effort cleanup: failures are logged and swallowed so they never block or fail the sync.
    */
   private async retryPendingSendDeletions(userId: UserId) {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
-      return;
-    }
-
     try {
       await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
         sdk.sends().retry_pending_deletions(),

@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Създаване на акаунт"
   },
+  "welcomeToBitwarden": {
+    "message": "Добре дошли в Битуорден"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Създайте акаунт или се впишете"
+  },
   "newToBitwarden": {
     "message": "За пръв път ли ползвате Битуорден?"
   },
@@ -559,6 +565,20 @@
   },
   "noItemsInMyVault": {
     "message": "Няма елементи в Моя трезор"
+  },
+  "noItemsInFolder": {
+    "message": "Няма елементи в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавете елементи в тази папка. Ще можете да имате бърз достъп до тух чрез филтрите в трезора.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "Няма елементи в Моите елементи"
@@ -1237,6 +1257,12 @@
   "deletedItem": {
     "message": "Елементът е изтрит"
   },
+  "deleteItemError": {
+    "message": "Записът не може да бъде изтрит."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Този запис е ограничен. Промяната не беше запазена."
+  },
   "overwritePassword": {
     "message": "Презаписване на паролата"
   },
@@ -1490,7 +1516,7 @@
     "message": "Използване на елементите „span“, които са отбелязани от уеб сайтовете с атрибута `data-bwautofill`."
   },
   "enableBasicAuthResponseLabel": {
-    "message": "Автоматично попълване при заявките за вписване от браузъра",
+    "message": "Автоматично попълване на заявките за вписване към браузъра",
     "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "enableBasicAuthResponseHint": {
@@ -1588,6 +1614,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Изберете трезор",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Изберете местоположение",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Изберете трезор"
+  },
+  "selectALocationTitle": {
+    "message": "Изберете местоположение"
+  },
+  "importDestinationDescription": {
+    "message": "Изберете къде да бъдат внесени тези елементи."
+  },
+  "importMyItemsOption": {
+    "message": "Моите елементи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видимо само за Вас"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Притежание на $ORGANIZATION$, но видимо само за Вас",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Трезор на организацията"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Споделено с един човек"
+  },
+  "importFamilyVault": {
+    "message": "Семеен трезор"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Преместване на всичко към по-горна папка. Структурата от вложени папки ще бъде запазена."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необходима е споделена папка."
+  },
+  "importIntoOrganization": {
+    "message": "Елементите ще бъдат внесени в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Преместване на всички елементи в споделена папка"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Елементите не могат да бъдат внесени в $ORGANIZATION$ без споделена папка, а Вие не управлявате никакви подобни в организацията. Изберете друго местоположение.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Внасяне на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Внасяне на 1 елемент"
+  },
+  "importToOrganization": {
+    "message": "Внасяне в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Вашите данни може да бъдат споделени с членовете на тази организация."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не позволява внасянето на $ITEM_TYPES$. Ако има такива елементи в данните за внасяне, те ще бъдат пропуснати.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "данни за вписване",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "защитени бележки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "карти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "самоличности",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH ключове",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банкови сметки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "лицензи",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Към Анализа на достъпа"
   },
   "importItems": {
     "message": "Внасяне на елементи"
@@ -3656,14 +3843,14 @@
     "message": "Копиране на връзката към изпратеното",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Премахване на парола"
+  "removeAuth": {
+    "message": "Премахване на паролата или проверката на е-пощата"
   },
   "delete": {
     "message": "Изтриване"
   },
-  "removedPassword": {
-    "message": "Паролата е премахната"
+  "removedAuth": {
+    "message": "Паролата или проверката на е-пощата е премахната"
   },
   "deletedSend": {
     "message": "Изтрито изпращане",
@@ -3676,8 +3863,28 @@
   "disabled": {
     "message": "Изключено"
   },
-  "removePasswordConfirmation": {
-    "message": "Сигурни ли сте, че искате да премахнете паролата?"
+  "removeAuthConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола или проверка на е-пощата от това Изпращане?"
+  },
+  "removePassword": {
+    "message": "Премахване на парола"
+  },
+  "removeEmailVerification": {
+    "message": "Премахване на проверката на е-пощата"
+  },
+  "removedPassword": {
+    "message": "Паролата е премахната"
+  },
+  "removedEmailVerification": {
+    "message": "Проверката на е-пощата е премахната"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за проверка на е-пощата от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Изтриване на изпращане",
@@ -5395,6 +5602,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Бързо и сигурно"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Този процес е шифрован от край до край. Не е необходимо изнасяне на файлове."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Нужни са само данните Ви за вписване"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "В следващата стъпка, ще въведете данните си за вписване в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Какво ще бъде прехвърлено"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ще бъдат прехвърлени Вашите данни за вписване, други записи, както и папките. Секретните ключове и прикачените файлове може да бъдат пропуснати."
+  },
   "importAcceptedFormats": {
     "message": "Приемани формати: $FORMATS$",
     "placeholders": {
@@ -5676,6 +5907,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 елемент не беше включен в това изнасяне. Той е защитен от правило за доверен достъп, така че удостоверителните му данни не са налични на това устройство."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ елемента не бяха включени в това изнасяне. Те са защитени от правила за доверен достъп, така че удостоверителните им данни не са налични на това устройство.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
     "placeholders": {
@@ -5778,8 +6021,92 @@
   "lastPassEmail": {
     "message": "Е-поща от LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Въведете правилна парола"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Въведете кода за потвърждаване по-долу."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Изчакване на еднократното удостоверяване"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "След като се впишете, внасянето ще продължи автоматично."
+  },
   "importingYourAccount": {
     "message": "Внасяне на данните Ви…"
+  },
+  "keeperLoginServerLabel": {
+    "message": "Сървър"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Този метод на двустепенно удостоверяване не се поддържа. Превключете към друг или внесете ръчно."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Начин за одобрение на устройството"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Кодът за потвърждаване е изпратен отново"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Изпратено е известие Keeper Push до одобрено устройство."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Одобрете това устройство като изберете метод по-долу."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Проверете е-пощата си и въведете кода за потвърждение по-долу."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Моля, въведете кода от приложението си за удостоверяване."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Моля, въведете кода изпратен като текстово съобщение."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA е изпратено"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Потвърдете известието от Keeper DNA на устройството си."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Вашата заявка за одобрение ще бъде отменена. Наистина ли искате да продължите?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Изпратихме заявка за одобрение до Вашия администратор."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Въведете правилна парола."
   },
   "lastPassMFARequired": {
     "message": "Изисква се многостъпково удостоверяване за LastPass"
@@ -6407,6 +6734,9 @@
   "myItems": {
     "message": "Моите елементи"
   },
+  "myItemsV2": {
+    "message": "Моите елементи"
+  },
   "adminConsole": {
     "message": "Административна конзола"
   },
@@ -6748,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (адрес)"
+  "desktopApp": {
+    "message": "Настолно приложение",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (адрес) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настолно приложение $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7941,17 +8272,11 @@
   "sharedUnlock": {
     "message": "Споделено отключване"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Сихнронизирано отключване с настолното приложение"
+  "syncUnlockWithDesktop1": {
+    "message": "Синхронизиране на отключването с настолното приложение"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Добавката за браузъра и настолното приложение заключват и отключват заедно."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Сихнронизирано отключване с приложението по уеб"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Добавката за браузъра и приложението по уеб заключват и отключват заедно."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Добавката за браузър на Битуорден и настолното приложение се заключват и отключват заедно. Биометричните данни ще бъдат използвани, ако са налични."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Споделеното отключване не е налично, тъй като сте избрали това устройство да не се запомня. Ако искате да включите тази настройка, впишете се отново."
@@ -8330,6 +8655,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Тази парола има допълнителни рискове:"
   },
+  "excludeFromList": {
+    "message": "Изключване от списъка"
+  },
+  "excludeFromListDesc": {
+    "message": "Изключването не е решение на риска за паролата. За да защитите акаунта си, първо сменете паролата си."
+  },
+  "excludeAnyway": {
+    "message": "Изключване въпреки това"
+  },
   "reused": {
     "message": "Преизползвана",
     "description": "ex. A password that is reused across multiple logins."
@@ -8450,6 +8784,15 @@
   "unknownCipher": {
     "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
   },
+  "viewSharedItem": {
+    "message": "Преглед на споделения елемент"
+  },
+  "copyShareLink": {
+    "message": "Копиране на връзката за споделяне"
+  },
+  "unableToDetermineItemId": {
+    "message": "Идентификаторът на елемента не може да бъде определен"
+  },
   "newExperienceDialogTitle": {
     "message": "Биуорден има нов облик",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8466,6 +8809,37 @@
     "message": "Разгледайте новия трезор",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Превключвайте между трезори"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "С новата възможност за превключване между трезори, можете лесно да видите собствените си записи, както и тези в трезор, който споделяте с други хора."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинирайте филтри"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Изберете повече филтри, за да ограничите резултатите до това, което искате. Филтрите ще останат приложени дори след като излезете от тук."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Колекциите и папките имат нови имена"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Същите функционалности, с по-ясни имена. Колекциите вече се наричат „споделени папки“. Папките вече са „моите папки“."
+  },
   "customize": {
     "message": "Персонализиране"
   },
@@ -8477,5 +8851,470 @@
   },
   "resetToDefault": {
     "message": "Връщане на настройките по подразбиране"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автоматично попълване на заявки за вписване към браузъра",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отговаряне на базови искания за удостоверяване по HTTP от уеб сайтове, които съвпадат с този елемент за вписване."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Отворете помощната статия за автоматичното попълване на заявки за вписване към браузъра"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "За да използвате тази настройка, изберете начин за откриване на съвпадения, който е различен от стандартния, за всеки уеб сайт в този елемент за вписване."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включване на автоматичното попълване за заявки към браузъра?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторното искане за главна парола ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включване на повторното запитване за главната парола?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Използване на стандартното откриване на съвпадения?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Уеб сайтовете, които използват стандартното откриване на съвпадения, не могат да бъдат ползвани при заявки за вписване към браузъра. Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра е изключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобреният период на достъп все още не е започнал."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобреният период на достъп вече е приключил."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Тази заявка все още не е одобрена."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Тази заявка вече не може да бъде активирана."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Достъпът от тази заявка вече е бил използван и тя вече не е активна."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Само 1 потребител може да има активен достъп до този елемент в даден момент. Опитайте отново след като текущият потребител се е оттеглил."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен от текущата Ви мрежа."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен в този момент."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен точно сега."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Вече имате одобрена заявка за този елемент."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Вече имате чакаща заявка за този елемент."
+  },
+  "pamLeaseExpires": {
+    "message": "Изтича на $DATE$ в $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Изтича днес в $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Стартиране на достъпа"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Достъпът е стартиран."
+  },
+  "pamStartLeaseError": {
+    "message": "Периодът на достъп не може да започне."
+  },
+  "pamEndLeaseButton": {
+    "message": "Приключване на достъпа"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Приключване на достъпа?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Това отнема достъпа Ви веднага. Това действие е необратимо."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Достъпът е приключил."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Продължителност на удължението"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Достъпът е удължен."
+  },
+  "pamExtendLeaseError": {
+    "message": "Периодът на достъп не може да бъде удължен."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Достъпът Ви приключи преди да бъде удължен. Заявката е в историята Ви."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "С повече правомощия"
+  },
+  "pamAccessBadgePending": {
+    "message": "Чакащо одобрение"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недостъпно"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готово за ползване"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Приключва скоро • оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Сесията приключи"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Достъпът е активен • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Приключва скоро • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Заявка за достъп чакаща одобрение"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Изпратено току-що"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Изпратено $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привилегировани удостоверителни данни"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Необходим е лиценз за Разширено управление",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Подайте заявка за ползване"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Заявяването на достъп не е възможно",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Удължаване на достъпа",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "остава <1мин",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Контролиран достъп"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Използвани в момента"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Приключващи скоро"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Достъпът Ви приключи"
+  },
+  "pamEndedBannerBody": {
+    "message": "Времето за достъп до тези удостоверителни данни приключи. Сега, след като вече не се ползват, те ще бъдат подновени."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Не можете да поискате достъп точно сега"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правилото за достъп до тези удостоверителни данни не разрешава заявки от текущата Ви мрежа, или в този момент."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готово за ползване"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Имате достъп до тези удостоверителни данни до $TIME$ днес.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Имате достъп до тези удостоверителни данни до $DATE$ в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Удостоверителните данни се маскират, докато не бъде получен достъп."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Можете да поискате достъп"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Необходим е лиценз за Разширено управление, за да можете да ползвате този елемент",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Заявяването на достъп не е възможно, когато нямате лиценз.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Помолете администратора си да активира лиценза Ви.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Изисква се лиценз за Разширено управление. Помолете администратора си да активира лиценза Ви.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Време на достъп до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Време на достъп до $DURATION$, моментално одобрение ако отговаряте на условията",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Изпращане на заявка за достъп"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате, докато другият човек не приключи."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате до $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Отмяна на заявката"
+  },
+  "pamKeepRequest": {
+    "message": "Запазване на заявката"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Отмяна на заявката за достъп"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Това оттегля заявката Ви, преди одобряващият да е взел решение по нея. Можете да подадете нова заявка по всяко време."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Това отказва достъпа, който вече е бил одобрен. Можете да подадете нова заявка, но тя ще трябва да бъде одобрена отново."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Заявката е отменена"
+  },
+  "pendingStateCancelError": {
+    "message": "Заявката не може да бъде отменена."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Изпращане на заявка"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "За колко време Ви трябва?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Ще получите известие, когато получите одобрение. Времето Ви започва да тече щом започнете да ползвате удостоверителните данни."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Подробности за заявката"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Начална дата"
+  },
+  "requestAccessModalStart": {
+    "message": "Начален час"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Крайна дата"
+  },
+  "requestAccessModalEnd": {
+    "message": "Краен час"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Краят трябва да бъде след началото."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (сега)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Персонализирано време…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Персонализирана крайна дата и час…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показване на предложения за начален час"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Обратно към предложените продължителности"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Заявяване на достъп за $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Заявеният прозорец вече е отминал. Изберете по-късна дата или час."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Прозорецът не може да превишава $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "напр. отчет за тримесечието, необходимост от изпълнение на няколко заявки без правене на промени"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Имаше грешка при заявката за достъп. Опитайте отново."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Вече имате активен достъп до този елемент."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Достъпът е одобрен. Стартирайте достъпа, за да започнете."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Заявен е достъп"
   }
 }

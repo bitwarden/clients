@@ -6,9 +6,6 @@ export abstract class SharedUnlockSettingsService {
   abstract allowSharingUnlockStateWithDesktop$(userId: UserId): Observable<boolean>;
   abstract setAllowSharingUnlockStateWithDesktop(value: boolean, userId: UserId): Promise<void>;
 
-  abstract allowSharingUnlockStateWithWeb$(userId: UserId): Observable<boolean>;
-  abstract setAllowSharingUnlockStateWithWeb(value: boolean, userId: UserId): Promise<void>;
-
   /**
    * Whether shared unlock is disabled for the user on the current device. Set when the user proceeds
    * through the login-decryption-options screen without trusting the device: a trusted-device

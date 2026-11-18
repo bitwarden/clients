@@ -1,15 +1,4 @@
 @if (!!cipher()) {
-  @if (bannerComponent) {
-    <ng-container
-      *ngComponentOutlet="
-        bannerComponent;
-        inputs: {
-          cipher: cipher(),
-        }
-      "
-    />
-  }
-
   @if (cardIsExpired()) {
     <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
       {{ "cardExpiredMessage" | i18n }}
@@ -30,9 +19,22 @@
     [collections]="resolvedCollections()"
     [folder]="folder()"
     [hideOwner]="isAdminConsole()"
+    [isAdminConsole]="isAdminConsole()"
   >
     <ng-content select="[slot=button]"></ng-content>
   </app-item-details-v2>
+
+  @if (bannerComponent) {
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: {
+          cipher: cipher(),
+          isAdminConsole: isAdminConsole(),
+        }
+      "
+    />
+  }
 
   <!-- LOGIN CREDENTIALS -->
   @if (hasLogin()) {

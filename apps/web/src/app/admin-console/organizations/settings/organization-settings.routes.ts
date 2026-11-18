@@ -1,11 +1,16 @@
 import { inject } from "@angular/core";
-import { Routes } from "@angular/router";
+import { ActivatedRouteSnapshot, Routes } from "@angular/router";
 import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  canActivateImportType,
+  IMPORT_DESTINATION_ROUTE_PATH,
+  IMPORT_ORGANIZATION_ID_ROUTE_PARAM,
+} from "@bitwarden/importer-ui";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -13,6 +18,15 @@ import { PoliciesComponent, PoliciesDeactivateGuard } from "../../organizations/
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
+
+// An unknown vendor goes back to the start of this organization's import.
+const redirectToOrganizationImport = (route: ActivatedRouteSnapshot): string[] => [
+  "/organizations",
+  route.paramMap.get(IMPORT_ORGANIZATION_ID_ROUTE_PARAM) ?? "",
+  "settings",
+  "tools",
+  "import",
+];
 
 export const organizationSettingsRoutes: Routes = [
   {
@@ -62,13 +76,50 @@ export const organizationSettingsRoutes: Routes = [
                   .pipe(map((flagValue) => flagValue === true)),
             ],
             loadComponent: () =>
-              import("../../../tools/import/import-source-select-org.component").then(
-                (mod) => mod.ImportSourceSelectOrgComponent,
+              import("../../../tools/import/import-shell-web.component").then(
+                (mod) => mod.ImportShellWebComponent,
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
               titleId: "importNoun",
             },
+            // The personal import's screens, run under this organization's id.
+            children: [
+              {
+                path: "",
+                pathMatch: "full",
+                // Lazy load vendor icon set
+                loadComponent: () =>
+                  import("../../../tools/import/import-source-select-web.component").then(
+                    (mod) => mod.ImportSourceSelectWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                },
+              },
+              {
+                path: ":importType",
+                canActivate: [canActivateImportType(redirectToOrganizationImport)],
+                loadComponent: () =>
+                  import("../../../tools/import/import-controls-web.component").then(
+                    (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                },
+              },
+              {
+                path: IMPORT_DESTINATION_ROUTE_PATH,
+                canActivate: [canActivateImportType(redirectToOrganizationImport)],
+                loadComponent: () =>
+                  import("../../../tools/import/import-destination-web.component").then(
+                    (mod) => mod.ImportDestinationWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                },
+              },
+            ],
           },
           {
             path: "import",

@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (адрес)"
+  "desktopApp": {
+    "message": "Настолно приложение",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (адрес) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настолно приложение $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1259,6 +1260,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Папки в $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ вложени споделени папки",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -1272,6 +1301,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 вложена споделена папка",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ вложени папки",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 вложена папка",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Моята папка"
@@ -2091,6 +2134,12 @@
   "deletedItem": {
     "message": "Елементът е изтрит"
   },
+  "deleteItemError": {
+    "message": "Записът не може да бъде изтрит."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Този запис е ограничен. Промяната не беше запазена."
+  },
   "deletedItems": {
     "message": "Елементите са изтрити"
   },
@@ -2574,6 +2623,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Няма елементи в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавете елементи в тази папка. Ще можете да имате бърз достъп до тух чрез филтрите в трезора.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Няма елементи в Моите елементи"
   },
@@ -2581,6 +2644,9 @@
     "message": "Трезорите Ви са празни"
   },
   "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchTheSelectedFilters": {
     "message": "Няма елементи отговарящи на избраните филтри"
   },
   "noItemsMatchSearchTerm": {
@@ -2655,6 +2721,38 @@
   },
   "noMembersInList": {
     "message": "Няма членове за показване."
+  },
+  "noMembersInvitedToOrg": {
+    "message": "Няма членове поканени в организацията Ви"
+  },
+  "memberCount": {
+    "message": "$COUNT$ членове",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 член"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$–$END$ от $TOTAL$ членове",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "Няма членове за изнасяне."
@@ -3039,6 +3137,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 елемент не беше включен в това изнасяне. Той е защитен от правило за доверен достъп, така че удостоверителните му данни не са налични на това устройство."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ елемента не бяха включени в това изнасяне. Те са защитени от правила за доверен достъп, така че удостоверителните им данни не са налични на това устройство.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
@@ -3449,7 +3559,7 @@
     "message": "Акт за раждане"
   },
   "databaseCredentials": {
-    "message": "Удостоверителни днни за база данни"
+    "message": "Удостоверителни данни за база данни"
   },
   "serverCredentials": {
     "message": "Удостоверителни данни за сървър"
@@ -3526,6 +3636,164 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Изберете трезор",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Изберете местоположение",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Изберете трезор"
+  },
+  "selectALocationTitle": {
+    "message": "Изберете местоположение"
+  },
+  "importDestinationDescription": {
+    "message": "Изберете къде да бъдат внесени тези елементи."
+  },
+  "importMyItemsOption": {
+    "message": "Моите елементи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видимо само за Вас"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Притежание на $ORGANIZATION$, но видимо само за Вас",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Трезор на организацията"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Споделено с един човек"
+  },
+  "importFamilyVault": {
+    "message": "Семеен трезор"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Преместване на всичко към по-горна папка. Структурата от вложени папки ще бъде запазена."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необходима е споделена папка."
+  },
+  "importIntoOrganization": {
+    "message": "Елементите ще бъдат внесени в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Преместване на всички елементи в споделена папка"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Елементите не могат да бъдат внесени в $ORGANIZATION$ без споделена папка, а Вие не управлявате никакви подобни в организацията. Изберете друго местоположение.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Внасяне на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Внасяне на 1 елемент"
+  },
+  "importToOrganization": {
+    "message": "Внасяне в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Вашите данни може да бъдат споделени с членовете на тази организация."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не позволява внасянето на $ITEM_TYPES$. Ако има такива елементи в данните за внасяне, те ще бъдат пропуснати.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "данни за вписване",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "защитени бележки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "карти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "самоличности",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH ключове",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банкови сметки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "лицензи",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "chooseFile": {
     "message": "Изберете файл"
@@ -3650,6 +3918,33 @@
   "lastPassEmail": {
     "message": "Е-поща от LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Въведете правилна парола"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Въведете кода за потвърждаване по-долу."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Изчакване на еднократното удостоверяване"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "След като се впишете, внасянето ще продължи автоматично."
+  },
   "includeSharedFolders": {
     "message": "Да се включат и споделените папки"
   },
@@ -3732,6 +4027,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Бързо и сигурно"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Този процес е шифрован от край до край. Не е необходимо изнасяне на файлове."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Нужни са само данните Ви за вписване"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "В следващата стъпка, ще въведете данните си за вписване в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Какво ще бъде прехвърлено"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ще бъдат прехвърлени Вашите данни за вписване, други записи, както и папките. Секретните ключове и прикачените файлове може да бъдат пропуснати."
   },
   "importAcceptedFormats": {
     "message": "Приемани формати: $FORMATS$",
@@ -4751,12 +5070,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "Показване на резюме за цените"
-  },
-  "hidePricingSummary": {
-    "message": "Скриване на резюмето за цените"
-  },
   "summary": {
     "message": "Обобщено"
   },
@@ -4835,9 +5148,6 @@
   },
   "subscriptionExpiration": {
     "message": "Изтичане на абонамента"
-  },
-  "subscriptionCanceled": {
-    "message": "Абонаментът е прекратен."
   },
   "pendingCancellation": {
     "message": "Предстоящо прекратяване на абонамента"
@@ -5058,15 +5368,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "до $DATE$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5451,6 +5752,34 @@
   "trialConfirmationEmail": {
     "message": "Изпратихме Ви е-писмо за потвърждение до е-пощата на екипа Ви, на адрес: "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Вашият пробен период включва Разширеното управление."
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "За Разширеното управление трябва де се свържете с търговския отдел на Битуорден — то не е включено в тази организация."
+  },
+  "contactSales": {
+    "message": "Връзка с търговския отдел"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "За Разширеното управление трябва де се свържете с търговския отдел на Битуорден. Свържете се с него, за да добавите това към организацията си."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "За са промените броя на местата си за Разширено управление, свържете се с търговския отдел."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ от $TOTAL$ заети места",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "Месечно"
   },
@@ -5538,6 +5867,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Изтриване на групата"
+  },
+  "deleteGroups": {
+    "message": "Изтриване на $QUANTITY$ групи",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "След като изтриете тази група, членовете в нея може да загубят достъп до свързаните споделени папки. Самите членове няма да бъдат изтрити."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "След като изтриете тези групи, членовете в тях може да загубят достъп до свързаните споделени папки. Самите членове няма да бъдат изтрити."
+  },
+  "groupCreated": {
+    "message": "Групата е създадена"
+  },
+  "groupDeleted": {
+    "message": "Групата е изтрита"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ групи са изтрити",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Групата е редактирана"
+  },
+  "noGroupsYet": {
+    "message": "Все още няма групи"
+  },
+  "noGroupsYetDesc": {
+    "message": "Групите помагат с организирането на членовете на $ORGANIZATIONNAME$ и даването им на достъп до споделени папки.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5975,6 +6352,70 @@
   },
   "accessedFileSendV3": {
     "message": "Осъществен е достъп до файлово изпращане $SENDID$ създадено чрез $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendDisabledByPolicy": {
+    "message": "Изпращане $SENDID$ е изключено заради политика",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Изпращане $SENDID$ е включено заради политика",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Създадено е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Редактирано е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Изтрито е изпращане на елемент $SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Осъществен е достъп до изпращане на елемент $SENDID$ създадено чрез $ID$",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "sendid": {
@@ -6470,6 +6911,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Отказано прехвърляне на елементите към организацията"
+  },
+  "revocationReasonByAdmin": {
+    "message": "От администратор",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "Няма записана причина",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Достъпът до организацията е отнет от $ID$, поради несъответствие с политиката за двустепенно удостоверяване на организацията.",
@@ -7192,6 +7641,15 @@
   "openOrgInviteAcceptUnexpected": {
     "message": "Нещо се обърка. Презаредете страницата, за да опитате отново."
   },
+  "verify": {
+    "message": "Потвърждаване"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "За да се присъедините към тази организация, въведете кода изпратен на е-пощата Ви."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Имаше грешка при изпращането на писмото за потвърждение. Опитайте отново."
+  },
   "openOrgInviteNoSeatsMessage": {
     "message": "Вашата покана не може да бъде приета, тъй като няма свободни места."
   },
@@ -7314,10 +7772,6 @@
     "message": "Смяна на плана",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "Може да обновите плана си, като въведете изисканата информация по-долу. Уверете се, че имате действащ платежен метод към абонамента си.",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "Фактура № $NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7392,6 +7846,30 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "Задайте ограничение на броя потребители за абонамента си за Управлението на тайни. Когато то бъде достигнато, няма да можете да каните нови членове."
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Задайте ограничение на броя места за Вашия абонамент за Разширено управление. Когато това ограничение бъде достигнато, няма да можете да давате привилегирован достъп на повече членове."
+  },
+  "removePrivilegedControls": {
+    "message": "Премахване на Разширеното управление",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Всички потребители в организацията Ви ще загубят достъп до Разширеното управление. Наистина ли искате да продължите?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Разширеното управление е премахнато",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "maximumSeatsCount": {
+    "message": "Най-много $COUNT$ места",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "Максимален брой потребители (по избор)",
@@ -7995,6 +8473,9 @@
   "viewApiKey": {
     "message": "Ключ за API"
   },
+  "copyApiKey": {
+    "message": "Копиране на ключа за ППИ"
+  },
   "rotateApiKey": {
     "message": "Смяна на ключа за API"
   },
@@ -8526,14 +9007,34 @@
     "message": "Копиране на връзката към изпратеното",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "Премахване на паролата или проверката на е-пощата"
+  },
+  "removedAuth": {
+    "message": "Паролата или проверката на е-пощата е премахната"
+  },
+  "removeAuthConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола или проверка на е-пощата от това Изпращане?"
+  },
   "removePassword": {
     "message": "Премахване на парола"
+  },
+  "removeEmailVerification": {
+    "message": "Премахване на проверката на е-пощата"
   },
   "removedPassword": {
     "message": "Паролата е премахната"
   },
-  "removePasswordConfirmation": {
-    "message": "Сигурни ли сте, че искате да премахнете паролата?"
+  "removedEmailVerification": {
+    "message": "Проверката на е-пощата е премахната"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за проверка на е-пощата от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "Всички изпращания"
@@ -8984,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "Изпратено е напомняне за поканата до потребител $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "Изпратена е повторна покана до потребител $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Система"
   },
@@ -9010,6 +9529,15 @@
   },
   "desktopAutotypePolicyDescVfo1": {
     "message": "Включете автоматичното попълване за работен плот за членовете."
+  },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Автоматично попълване чрез настолното приложение"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Включване на автоматичното попълване чрез настолното приложение за всички членове."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Включване на автоматичното попълване чрез настолното приложение по подразбиране за всички членове. Можете да зададете клавишна комбинация и да изберете дали членовете да трябва да потвърдят преди попълването. Тази функционалност е в състояние на бета-версия."
   },
   "disableSend": {
     "message": "Без изпращане"
@@ -9161,6 +9689,9 @@
   "estimatedTax": {
     "message": "Приблизителен данък"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Крайната сума може да има малка разлика, тъй като пропорционалното таксуване са изчислява в момента на изпращането."
+  },
   "subtotal": {
     "message": "Междинна сума"
   },
@@ -9229,6 +9760,12 @@
   },
   "manageAccountRecovery": {
     "message": "Управление на възстановяването на акаунти"
+  },
+  "manageAccessRules": {
+    "message": "Управление на правилата за достъп"
+  },
+  "manageRotation": {
+    "message": "Управление на подновяването"
   },
   "disableRequiredError": {
     "message": "За да изключите тази политика, първо трябва ръчно да изключите $POLICYNAME$.",
@@ -9310,7 +9847,7 @@
     "message": "Изпробвайте сега"
   },
   "sendRequest": {
-    "message": "Изпращане на зайвка"
+    "message": "Изпращане на заявка"
   },
   "addANote": {
     "message": "Добавете бележка"
@@ -11645,10 +12182,6 @@
     "message": "Сервизен акаунт",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "Сервизни акаунти",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "Тайни",
     "description": "The title for the section of the application that deals with secrets."
@@ -12053,6 +12586,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
+  "pinned": {
+    "message": "Закачено",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закачане към страничната лента",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Откачане от страничната лента",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "Закачено към страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "Откачено от страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Намерете споделена папка в този трезор и изберете",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "от менюто.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закачайте споделени папки към страничната лента, за да ги филтрирате тук."
+  },
   "noMembersAdded": {
     "message": "Няма добавени членове"
   },
@@ -12446,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "Този потребител има достъп до Управлението на тайни"
   },
+  "products": {
+    "message": "Продукти"
+  },
   "privilegedControls": {
     "message": "Разширено управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Защитете бързо и лесно привилегированите и критичните за бизнеса Ви акаунти с тази добавка за управителя на пароли Битуорден.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Заемане на удостоверителни данни"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Разширени правила за достъп"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Автоматично подновяване на пароли"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Табло за управление"
+  },
+  "addPrivilegedControls": {
+    "message": "Добавяне на Разширеното управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Ограничение на местата",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "Какво е включено"
+  },
+  "pricePerMember": {
+    "message": "$COST$ на член",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Местата не могат да бъдат повече от наличните Ви места за Управителя на пароли ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Ограничението на местата не може да бъде повече от наличните Ви места за Управителя на пароли ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Ограничението на местата не може да бъде повече от ограничението на местата Ви за Управителя на пароли ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Задайте ограничение на броя места за Вашия абонамент за Разширено управление. Когато това ограничение бъде достигнато, няма да можете да давате достъп на повече членове до Разширеното управление.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Ограничението на броя места трябва да бъда по-голямо от броя на местата."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Абонаментът е обновен. Вече разполагате с Разширеното управление.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13201,23 +13860,8 @@
   "inviteUsers": {
     "message": "Канене на потребители"
   },
-  "secretsManagerForPlan": {
-    "message": "Управление на тайни за $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "За екипите по разработка и DevOps, за да управляват тайните си през целия цикъл на софтуерна разработка."
-  },
-  "free2PersonOrganization": {
-    "message": "Безплатни организации с 2-ма човека"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Безплатен план със споделен трезор"
+  "secretsManagerPurchaseDesc": {
+    "message": "Дайте на екипите си по разработка и DevOps централизирано място за съхраняване, управление и инсталиране на тайни през целия цикъл на софтуерна разработка."
   },
   "unlimitedSecrets": {
     "message": "Неограничени тайни"
@@ -13252,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "Абониране за Управлението на тайни"
+  "addSecretsManager": {
+    "message": "Добавяне на Управление на тайни",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Добавете Управление на тайни към своя надграден план, за да продължите да имате достъп до тайните създадени при предишния Ви план."
@@ -13334,6 +13979,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Цена на плана за Управлението на тайни"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Цена на плана с Разширено управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Управител на пароли"
@@ -13827,9 +14476,6 @@
     "message": "Опишете причината си за анулирането",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "Безплатно за 1 година"
-  },
   "newWebApp": {
     "message": "Добре дошли в новото и подобрено уеб приложение. Научете повече за това какво се е променило."
   },
@@ -14147,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "Това действие ще премахне достъпа Ви до машинния акаунт."
-  },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ включени машинни акаунта",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "$COST$ на месец за допълнителни машинни акаунти",
@@ -14632,15 +15269,6 @@
       }
     }
   },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ отстъпка",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
-      }
-    }
-  },
   "getSecretsManager": {
     "message": "Възползвайте се от Управлението на тайни"
   },
@@ -14860,9 +15488,6 @@
     "message": "свържете се с поддръжката на Битуорден.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "Спонсорирано"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "След като направите промени в облачния сървър на Битуорден, качете файла с лиценза си, за да приложите последните промени."
   },
@@ -15073,9 +15698,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "Достъп до платените функционалности"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB допълнително място за съхранение"
   },
   "sshKeyAlgorithm": {
     "message": "Алгоритъм на ключа"
@@ -15730,6 +16352,9 @@
   },
   "restartSubscription": {
     "message": "Рестартирайте абонамента си"
+  },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Данните за разплащанията не успяха да се заредят. Затворете този прозорец и опитайте отново."
   },
   "suspendedManagedOrgMessage": {
     "message": "Свържете се с $PROVIDER$ за помощ.",
@@ -16469,9 +17094,6 @@
   "familiesUpdated": {
     "message": "Вече ползвате Семейния абонамент!"
   },
-  "taxCalculationError": {
-    "message": "Възникна грешка при изчисляването на данъка за Вашето местоположение. Моля, опитайте отново."
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "Добре дошли в Битуорден"
   },
@@ -16493,7 +17115,7 @@
   "upgradeNow": {
     "message": "Надграждане сега"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
     "message": "Възползвайте се от допълнителна сигурност в Интернет чрез платената версия на Битуорден."
   },
   "formWillCreateNewFamiliesOrgMessage": {
@@ -17208,8 +17830,8 @@
   "coachmarkVaultListTitle": {
     "message": "Всички Ваши трезори на едно място"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Лични, семейни и фирмени трезори вече се показват тук."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Бърз поглед върху личните елементи и елементите в трезор, който споделяте с други."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Колекциите и папките имат нови имена"
@@ -17546,6 +18168,63 @@
   "importingYourAccount": {
     "message": "Внасяне на данните Ви…"
   },
+  "keeperLoginServerLabel": {
+    "message": "Сървър"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Този метод на двустепенно удостоверяване не се поддържа. Превключете към друг или внесете ръчно."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Начин за одобрение на устройството"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Кодът за потвърждаване е изпратен отново"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Изпратено е известие Keeper Push до одобрено устройство."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Одобрете това устройство като изберете метод по-долу."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Проверете е-пощата си и въведете кода за потвърждение по-долу."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Моля, въведете кода от приложението си за удостоверяване."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Моля, въведете кода изпратен като текстово съобщение."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA е изпратено"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Потвърдете известието от Keeper DNA на устройството си."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Вашата заявка за одобрение ще бъде отменена. Наистина ли искате да продължите?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Изпратихме заявка за одобрение до Вашия администратор."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Въведете правилна парола."
+  },
   "passcode": {
     "message": "Код за достъп"
   },
@@ -17797,14 +18476,1073 @@
   "copy": {
     "message": "Копиране"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "Заявки за достъп"
   },
+  "pamAccessRequestsSubtitle": {
+    "message": "Одобрявайте, следете и преглеждайте времево-ограничения достъп до удостоверителни данни."
+  },
+  "pamTabApprovals": {
+    "message": "Одобрения"
+  },
+  "pamTabMyRequests": {
+    "message": "Моите заявки"
+  },
+  "pamTabHistory": {
+    "message": "История"
+  },
+  "pamMyRequestsLoaded": {
+    "message": "Заредени заявки"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Вашите заявки не могат да бъдат заредени"
+  },
+  "pamStatusInUse": {
+    "message": "Използвани в момента",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
+  },
+  "pamStatusEndingSoon": {
+    "message": "Приключващи скоро",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "Няма споделени папки, по които да се филтрира",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "Нямате никакви заявки"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "В момента нямате заявки за достъп до поверителни удостоверителни данни."
+  },
+  "pamColumnItem": {
+    "message": "Елемент"
+  },
+  "pamColumnWindow": {
+    "message": "Прозорец"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Поискан прозорец"
+  },
+  "pamColumnSubmitted": {
+    "message": "Изпратено"
+  },
+  "pamColumnStatus": {
+    "message": "Състояние"
+  },
+  "pamColumnResolvedBy": {
+    "message": "Разрешено от"
+  },
+  "pamColumnResolved": {
+    "message": "Разрешено"
+  },
+  "pamColumnRemaining": {
+    "message": "Оставащи"
+  },
+  "pamColumnActions": {
+    "message": "Действия"
+  },
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ до $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "До $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Изтича на $DATE$ в $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Изтича днес в $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Удължено +$DURATION$ · до $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Активирайте в рамките на $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Правило за достъп"
+  },
+  "pamResolverRequester": {
+    "message": "Заявител"
+  },
+  "pamResolverUnknown": {
+    "message": "Неизвестен потребител"
+  },
+  "pamInboxInSharedFolder": {
+    "message": "в $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReasonMissing": {
+    "message": "Няма посочена причина"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Заявен е достъп"
+  },
+  "pamInboxRequester": {
+    "message": "Заявител"
+  },
+  "pamStartLeaseButton": {
+    "message": "Начало на достъпа"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Достъпът е стартиран."
+  },
+  "pamInboxStartAsap": {
+    "message": "започва сега"
+  },
+  "pamInboxStartToday": {
+    "message": "днес"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "утре"
+  },
+  "pamInboxStartInDays": {
+    "message": "след $DAYS$ дни",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Периодът на достъп не може да започне."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "Заявката е отменена"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Заявката не може да бъде отменена"
+  },
+  "pamEndLeaseButton": {
+    "message": "Край на достъпа"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Край на достъпа?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Това отнема достъпа Ви веднага. Това действие е необратимо."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Достъпът е приключил."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Удължаване на достъпа"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Продължителност на удължението"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Причина"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Достъпът е удължен."
+  },
+  "pamExtendLeaseError": {
+    "message": "Периодът на достъп не може да бъде удължен."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Достъпът Ви приключи преди да бъде удължен. Заявката е в историята Ви."
+  },
+  "pamStatusApproved": {
+    "message": "Одобрено"
+  },
+  "pamStatusActivated": {
+    "message": "Активно"
+  },
+  "pamStatusDenied": {
+    "message": "Отказано"
+  },
+  "pamStatusCanceled": {
+    "message": "Отменено"
+  },
+  "pamStatusExpired": {
+    "message": "Изтекло"
+  },
+  "pamStatusRevoked": {
+    "message": "Отнето"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Сесията приключи"
+  },
+  "pamStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Разширено управление: достъпът изисква заявка"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "С повече правомощия"
+  },
+  "pamAccessBadgePending": {
+    "message": "Чакащо одобрение"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Недостъпно"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Готово за ползване"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Приключва скоро • оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Сесията приключи"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Активно",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Приключващи скоро",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Достъпът е приключил по желание на заявителя"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Достъпът е отнет"
+  },
+  "pamAuditLoadError": {
+    "message": "Журналът за проследяване не може да бъде зареден"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "Няма дейност в журнала"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Дейността свързана с достъп до данни с по-високи правомощия в тази организация ще се показва тук."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "Няма съвпадащи събития"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "Няма събития отговарящи на текущите филтри."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Изберете дата в рамките на последните $DAYS$ дни.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ — $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "От $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "До $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Събитие"
+  },
+  "pamAuditColumnActor": {
+    "message": "Извършител"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Заявител"
+  },
+  "pamAuditColumnItem": {
+    "message": "Елемент"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Продължителност"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Подробности"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Удължено до $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "Система"
+  },
+  "pamAuditIncomplete": {
+    "message": "Непълно"
+  },
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "Това действие е записано, но резултатът му не е бил потвърден. Може да е било неуспешно или прекъснато."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Заявен е достъп"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Заявката е одобрена"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Заявката е отказана"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Заявката е отменена"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Заявката е изтекла преди да получи решение"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Одобрението е изтекло без да бъде използвано"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Достъпът е активиран"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Активирането е отказано"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Достъпът е удължен"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Достъпът е изтекъл"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Осъществен е достъп до удостоверителните данни"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Достъпът до удостоверителните данни е отказан"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Правилото за достъп е създадено"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Правилото за достъп е обновено"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Правилото за достъп е изтрито"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Извършено е незабавно прекъсване на достъпа"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Замразяването на достъпа е активирано"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Замразяването на достъпа е премахнато"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Неизвестно събитие"
+  },
+  "pamAuditLog": {
+    "message": "Журнал на събитията"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Заявка за достъп"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Подробности за заявката"
+  },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Подробности",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Достъп"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Журнал на решенията"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Решение",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Одобрено от",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Отказано от",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Отнето от",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Приключено от",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Е-поща",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Коментар към решението",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Стартиране на сесията",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "Приключване на сесията",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "Система (автоматично)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Изпращане на нова заявка",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Причина",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Показва се на заявителя, в журнала на решенията.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Нека бъде кратко. Заявителят ще може да прочете това.",
+    "description": "Hint under the withdrawal reason field."
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Заявката за достъп не е налична"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "Тази заявка за достъп не е достъпна за Вас, или вече не съществува."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Заявката за достъп не може да бъде заредена."
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Достъпът е активен • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Приключва скоро • Оставащо време: $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Заявка за достъп чакаща одобрение"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Изпратено току-що"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Изпратено $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Привилегировани удостоверителни данни"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Необходим е лиценз за Разширено управление",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Подайте заявка за ползване"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Достъпът Ви приключи"
+  },
+  "pamEndedBannerBody": {
+    "message": "Времето за достъп до тези удостоверителни данни приключи. Сега, след като вече не се ползват, те ще бъдат подновени."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Не можете да поискате достъп точно сега"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Правилото за достъп до тези удостоверителни данни не разрешава заявки от текущата Ви мрежа, или в този момент."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Готово за ползване"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Имате достъп до тези удостоверителни данни до $TIME$ днес.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Имате достъп до тези удостоверителни данни до $DATE$ в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Удостоверителните данни се маскират, докато не бъде получен достъп."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Можете да поискате достъп"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Необходим е лиценз за Разширено управление, за да можете да ползвате този елемент",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Заявяването на достъп не е възможно, когато нямате лиценз.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Помолете администратора си да активира лиценза Ви.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобреният период на достъп все още не е започнал."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобреният период на достъп вече е приключил."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Тази заявка все още не е одобрена."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Тази заявка вече не може да бъде активирана."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Достъпът от тази заявка вече е бил използван и тя вече не е активна."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Само 1 потребител може да има активен достъп до този елемент в даден момент. Опитайте отново след като текущият потребител се е оттеглил."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен от текущата Ви мрежа."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен в този момент."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен точно сега."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Изисква се лиценз за Разширено управление. Помолете администратора си да активира лиценза Ви.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Време на достъп до $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Време на достъп до $DURATION$, моментално одобрение ако отговаряте на условията",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Заявка за достъп"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате, докато другият човек не приключи."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Някой друг вече има достъп до този елемент в момента. Можете да поискате достъп, но няма да може да го стартирате до $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Отмяна на заявката"
+  },
+  "pamKeepRequest": {
+    "message": "Запазване на заявката"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Отмяна на заявката за достъп"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Това оттегля заявката Ви, преди одобряващият да е взел решение по нея. Можете да подадете нова заявка по всяко време."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Това отказва достъпа, който вече е бил одобрен. Можете да подадете нова заявка, но тя ще трябва да бъде одобрена отново."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Заявката е отменена"
+  },
+  "pendingStateCancelError": {
+    "message": "Заявката не може да бъде отменена."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Изпращане на заявка"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Изберете продължителност. Ще получите незабавен достъп за посоченото време."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Изберете прозорец и кажете на одобряващия защо имате нужда от достъп. Той или тя ще прегледа заявката и ще реши."
+  },
+  "requestAccessModalDurationV2": {
+    "message": "За колко време Ви трябва?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Ще получите известие, когато получите одобрение. Времето Ви започва да тече щом започнете да ползвате удостоверителните данни."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Подробности за заявката"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Начална дата"
+  },
+  "requestAccessModalStart": {
+    "message": "Начален час"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Крайна дата"
+  },
+  "requestAccessModalEnd": {
+    "message": "Краен час"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Краят трябва да бъде след началото."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (сега)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Персонализирано време…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Персонализирана крайна дата и час…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Показване на предложения за начален час"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Обратно към предложените продължителности"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, до $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Заявяване на достъп за $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Заявеният прозорец вече е отминал. Изберете по-късна дата или час."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Прозорецът не може да превишава $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Защо Ви трябва?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "напр. отчет за тримесечието, необходимост от изпълнение на няколко заявки без правене на промени"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Видимо за одобряващия, запазва се в журнала за одит."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Имаше грешка при заявката за достъп. Опитайте отново."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Вече имате активен достъп до този елемент."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Достъпът е одобрен. Стартирайте достъпа, за да започнете."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Заявен е достъп"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Заявител"
+  },
+  "pamApprovalsApproveRequest": {
+    "message": "Одобряване на заявката"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Отказване на заявката"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Отнемане на достъпа"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Допълнителна информация"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Незадължително, запазва се в журнала"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Одобряване на заявката за достъп"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Отказване на заявката за достъп"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Причина за отказа"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "напр. Достъпът вече не е необходим"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "Необходима е причина за отказване на тази заявка."
+  },
+  "pamInboxApprove": {
+    "message": "Одобряване"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Заявката е одобрена"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Оттегляне на одобрението"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "Не можете да одобрите собствената си заявка."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Коментар"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Добавете кометар, ако искате (незадължително)"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Решението не може да бъде записано"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "Тази заявка вече не е на изчакване. Тя или е била оттеглена, или вече има решение."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "Прозорецът за заявката вече е отминал, така че вече не може да се вземе решение за нея."
+  },
+  "pamInboxDeny": {
+    "message": "Отказване"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Заявката е отказана"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Вече имате одобрена заявка за този елемент."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Вече имате чакаща заявка за този елемент."
+  },
+  "pamInboxElapsedDays": {
+    "message": "Преди $DAYS$ д",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "Преди $WEEKS$ седм.",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "Няма заявки чакащи решението Ви."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Входяща кутия без име"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Входящата кутия не може да бъде заредена"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Причина в заявката"
+  },
+  "pamInboxRevoke": {
+    "message": "Отнемане"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Достъпът не може да бъде отнет"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Достъпът е отнет"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Одобрението е оттеглено"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Одобрението не може да бъде оттеглено"
+  },
+  "pamAccessRequestsNoResults": {
+    "message": "Няма заявки за достъп отговарящи на търсенето."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Заявките за достъп са заредени"
+  },
+  "pamHistoryLoaded": {
+    "message": "Историята на заявките е заредена"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Все още няма нищо за показване"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Дейността около заявките и одобренията ще бъде показана тук след като се изпълнят някакви действия."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "Това отнема достъпа на потребителя незабавно. Ако потребителят отново има нужда от достъп, трябва отново да получи одобрение."
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "Това оттегля одобрението Ви за $ITEM$. Достъпът няма да може да стартира, и ще е необходимо ново одобрение, ако $REQUESTER$ отново има нужда от достъп.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "Това оттегля одобрението Ви за",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Достъпът няма да стартира и",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "ще има нужда от ново одобрение, за да получи достъп.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Причина"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Показва се на заявителя, в журнала на решенията."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Нека бъде кратко. Заявителят ще може да прочете това."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Правило за достъп"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Достъпът до елементите тук се управлява от"
+  },
+  "pamInboxElapsedHours": {
+    "message": "Преди $HOURS$ ч",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Току-що"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "Преди $MINUTES$ мин",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "pamAccessRules": {
     "message": "Правила за достъп"
+  },
+  "pamSharedFolderRequiresRequest": {
+    "message": "Елементите в тази споделена папка изискват заявка.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
+  },
+  "pamGatedCollectionBannerName": {
+    "message": "Доверени достъп",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
+  },
+  "pamNoAccessRule": {
+    "message": "Няма правило за достъп",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
   "pamAccessRuleActive": {
     "message": "Активно"
@@ -17827,24 +19565,6 @@
   "pamAccessRuleDeactivateSuccess": {
     "message": "Правилото за достъп е деактивирано."
   },
-  "pamAccessRuleEnabled": {
-    "message": "Включено"
-  },
-  "pamAccessRuleEnabledHint": {
-    "message": "Когато е изключено, това правило не е активно и не ограничава достъпа."
-  },
-  "pamAccessRuleEnable": {
-    "message": "Включване на правилото"
-  },
-  "pamAccessRuleDisable": {
-    "message": "Изключване на правилото"
-  },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Правилото за достъп е включено."
-  },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Правилото за достъп е изключено."
-  },
   "pamAccessRuleNotFound": {
     "message": "Правилото за достъп не е намерено."
   },
@@ -17853,9 +19573,6 @@
   },
   "pamAccessRuleCreate": {
     "message": "Създаване на правило за достъп"
-  },
-  "pamAccessRuleNew": {
-    "message": "Ново правило"
   },
   "pamAccessRuleCreateTitle": {
     "message": "Ново правило за достъп"
@@ -17881,11 +19598,11 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Незадължителни условия"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "Изберете колекции"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Изберете споделени папки"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "Това правило за достъп ще се прилага към всички избрани колекции."
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "Това правило за достъп ще се прилага към всички избрани споделени папки."
   },
   "pamAccessRuleEventLogNotice": {
     "message": "Всички заявки и решения се записват."
@@ -17893,8 +19610,8 @@
   "pamAccessRuleViewAuditLog": {
     "message": "Преглед на журнала"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "Колекциите не могат да бъдат заредени. Опреснете страницата, за да опитате отново."
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Споделените папки не могат да бъдат заредени. Опреснете страницата, за да опитате отново."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "Продължителността ще бъде предварително попълнена при заявките за достъп."
@@ -17914,39 +19631,6 @@
   "pamAccessRuleMaxDurationLimitHint": {
     "message": "Достъпът е ограничен до тази продължителност, независимо каква е била заявена."
   },
-  "pamAccessRuleDuration15m": {
-    "message": "15 минути"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 минути"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 час"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 часа"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 часа"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 часа"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 ден"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 дни"
-  },
-  "pamAccessRuleDuration24h": {
-    "message": "24 часа"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 дни"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 дни"
-  },
   "pamAccessRuleSingleActiveUser": {
     "message": "Само 1 потребител може да има активен достъп в даден момент"
   },
@@ -17957,18 +19641,6 @@
     "message": "Разрешаване на удължаванията на достъпа"
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
-    "message": "Членовете могат да удължат активния си достъп веднъж, без ново одобрение, но само до посочената по-долу максимална продължителност."
-  },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Само един потребител може да има достъп в даден момент"
-  },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "Новите заявки се поставят в опашка, докато не изтече времето на текущия достъп или той бъде прекратен."
-  },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Разрешаване на удължаванията на достъпа"
-  },
-  "pamAccessRuleAllowExtensionsHint": {
     "message": "Членовете могат да удължат активния си достъп веднъж, без ново одобрение, но само до посочената по-долу максимална продължителност."
   },
   "pamAccessRuleMaxExtensionLength": {
@@ -17986,8 +19658,8 @@
   "pamAccessRuleApprovers": {
     "message": "Одобряващи"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "Управители на колекции"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Управители на споделените папки"
   },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (копие)",
@@ -18012,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Копието е създадено. Изберете колекциите, за които да се прилага."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Копието е създадено. Изберете споделените папки, за които да се прилага."
   },
   "pamAccessRuleCreated": {
     "message": "Правилото за достъп е създадено."
@@ -18027,14 +19699,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Изтриване на правилото за достъп?"
   },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Изтриване на „$NAME$“? Даването на достъп ще бъде изключено за всички колекции, които използват това правило.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "VPN + business hours"
-      }
-    }
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "Това ще премахне това правило завинаги. Потребителите в споделените папки свързани с него ще си възвърнат нормалния достъп."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Деактивиране на правилото за достъп"
@@ -18051,11 +19717,11 @@
   "pamAccessRuleErrorNameTaken": {
     "message": "Вече има правило с това име. Въведете друго."
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Друго правило за достъп вече покрива една от тези колекции. Изберете други колекции."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Друго правило за достъп вече покрива една от тези споделени папки. Изберете други споделени папки."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Друго правило за достъп вече покрива $COLLECTIONS$. Изберете други колекции.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Друго правило за достъп вече покрива $COLLECTIONS$. Изберете други споделени папки.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -18063,11 +19729,11 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "Една от избраните колекции вече не съществува. Изберете друга колекция."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "Една от избраните споделени папки вече не съществува. Изберете друга споделена папка."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "Една от избраните колекции не е част от тази организация. Изберете друга колекция."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "Една от избраните споделени папки не е част от тази организация. Изберете друга споделена папка."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
     "message": "Изберете максимална дължина на разширенията, или изключете разширенията."
@@ -18078,8 +19744,8 @@
   "pamNoAccessRulesYetTitle": {
     "message": "Все още няма правила за достъп"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "Създайте правило, за да подсилите защитата на чувствителните колекции."
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Създайте правило, за да подсилите защитата на чувствителните споделени папки."
   },
   "pamAccessRuleCreateCustom": {
     "message": "Създаване на персонализирано правило"
@@ -18096,9 +19762,6 @@
   "pamTemplateJustInTimeShortSummary": {
     "message": "Автоматично одобрение"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Автоматично одобрение • Важи 1 час • Записва се в журнала"
-  },
   "pamTemplateJustInTimeName": {
     "message": "Краткотраен достъп"
   },
@@ -18107,9 +19770,6 @@
   },
   "pamTemplateApprovalRequiredShortSummary": {
     "message": "Одобрение от човек • Необходимо е 1 одобрение"
-  },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Одобрение от човек • Необходимо е 1 одобрение • Записва се в журнала"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Изискване на одобрение"
@@ -18120,23 +19780,20 @@
   "pamTemplateIpRestrictedShortSummary": {
     "message": "Автоматично одобрение • Списък от разрешени IP адреси"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Автоматично одобрение • Има списък от позволени IP адреси • Записва се в журнала"
-  },
   "pamTemplateIpRestrictedName": {
     "message": "Ограничен достъп по IP адрес"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "Колекции"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Споделени папки"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "Няма зададени"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 колекция"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 споделена папка"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ колекции",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18155,12 +19812,6 @@
   },
   "pamAccessRuleDurationColumn": {
     "message": "Максимална продължителност"
-  },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Условия"
-  },
-  "pamAccessWindow": {
-    "message": "Прозорец на достъп"
   },
   "pamAccessRuleLastModified": {
     "message": "Последна промяна"
@@ -18182,12 +19833,6 @@
   },
   "pamAccessRuleBulkDeactivate": {
     "message": "Деактивиране"
-  },
-  "pamAccessRuleBulkEnable": {
-    "message": "Включване"
-  },
-  "pamAccessRuleBulkDisable": {
-    "message": "Изключване"
   },
   "pamAccessRulesUpdated": {
     "message": "Правилата за достъп са обновени."
@@ -18448,8 +20093,21 @@
   "secretsManagerProratedCharge": {
     "message": "Пропорционално таксуване за Управителя на тайни"
   },
+  "privilegedControlsProratedCharge": {
+    "message": "Пропорционално таксуване за Разширеното управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "serviceAccountsProratedCharge": {
     "message": "Пропорционално таксуване за сервизни акаунти"
+  },
+  "viewSharedItem": {
+    "message": "Преглед на споделения елемент"
+  },
+  "copyShareLink": {
+    "message": "Копиране на връзката за споделяне"
+  },
+  "unableToDetermineItemId": {
+    "message": "Идентификаторът на елемента не може да бъде определен"
   },
   "newExperienceDialogTitle": {
     "message": "Биуорден има нов облик",
@@ -18475,5 +20133,1745 @@
   },
   "resetToDefault": {
     "message": "Връщане на настройките по подразбиране"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автоматично попълване на заявки за вписване към браузъра",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отговаряне на базови искания за удостоверяване по HTTP от уеб сайтове, които съвпадат с този елемент за вписване."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Отворете помощната статия за автоматичното попълване на заявки за вписване към браузъра"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "За да използвате тази настройка, изберете начин за откриване на съвпадения, който е различен от стандартния, за всеки уеб сайт в този елемент за вписване."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включване на автоматичното попълване за заявки към браузъра?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторното искане за главна парола ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включване на повторното запитване за главната парола?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Използване на стандартното откриване на съвпадения?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Уеб сайтовете, които използват стандартното откриване на съвпадения, не могат да бъдат ползвани при заявки за вписване към браузъра. Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра е изключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
+  },
+  "pamRotation": {
+    "message": "Подновяване"
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Управлявани удостоверителни данни"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Целеви системи"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "Конектори за достъп"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Управляваните удостоверителни данни са заредени"
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "Конекторите за достъп са заредени"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Целевите системи са заредени"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Страницата е заредена"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Добавяне на управлявани удостоверителни данни"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Редактиране на управляваните удостоверителни данни"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Добавяне на целева система"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Редактиране на целевата система"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "График за подновяване"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Няма"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "На всеки час"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "На всеки 6 часа"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Ежедневно"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Ежеседмично"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Месечно"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Персонализирано"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Персонализиран израз за cron"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Въведете израз с 6 полета за cron (например 0 0 */4 * * ?). Сървърът изисква интервалът да бъде поне 15 минути."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Моля, въведете правилен израз за cron (6 или 7 полета разделени с интервал)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Няма планирано подновяване. Тези данни за удостоверяване се подновяват само когато го направите Вие, или когато определеното време за достъп приключи, ако тази настройка е включена."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Подновява се веднъж на час, в точен час."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Подновява се на всеки 6 часа, на точен час."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Подновява се веднъж на ден, в полунощ."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Подновява се веднъж на седмица, в неделя."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Подновява се веднъж на месец, на 1-во число."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Подновява се всеки ден, в $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Подновява се на всеки $COUNT$ дни, в $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Подновява се всеки месец, на $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Подновява се на всеки $COUNT$ месеца, на $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Персонализиран график на cron: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Всеки ден в $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "На всеки $COUNT$ дни в $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Всеки месец в $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "На всеки $COUNT$ месеца в $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Графиците се изпълняват по UTC, а не по местната Ви часова зона."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Интервал"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Повтаряне на всеки"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Единица"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Дни"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Месеци"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Час (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Интервалите са закачени към календара. Дневните интервали се рестартират на 1-во число всеки месец, а месечните се изпълняват на 1-во число и се рестартират през януари."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Въведете колко често да се повтаря подновяването и по кое време на деня."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Въведете цяло число."
+  },
+  "pamTargetSystemNew": {
+    "message": "Нова целева система"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Вид"
+  },
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Управлявани удостоверителни данни"
+  },
+  "pamTargetSystemNone": {
+    "message": "Няма"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Не се поддържа"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Все още няма целеви системи"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Добавете системата, чиито удостоверителни данни Битуорден трябва да подновява."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Започнете от шаблон"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Използване на шаблон"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "Вие подновявате удостоверителните данни ръчно. Битуорден следи графика и записва всяко подновяване в журнала."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Битоурден автоматично подновява тайни на приложения с Microsoft Entra ID."
+  },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Битуорден автоматично подновява паролата за акаунт към домейн за сървъра на Активна директория, с който работите."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Битоурден автоматично подновява удостоверителните данни като изпълнява Вашия скрипт в регистриран конектор за достъп."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Редактиране на целевата система"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Деактивиране"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Активиране"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Завършете настройката на тази целева система преди да я активирате или деактивирате."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Изтриване на целевата система"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Задаване на конектори за достъп"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Задаване на конектор за достъп"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Конектор за достъп"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "Всички активни конектори за достъп вече са зададени към тази целева система."
+  },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Само за автоматично подновяване."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Първо премахнете управляваните му удостоверителни данни."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Конекторите за достъп могат да бъдат зададени към целеви системи, които са настроени за автоматично подновяване."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Само активни конектори за достъп могат да бъдат зададени към тази целева система."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Няма активни конектори за достъп, които могат да бъдат зададени. Регистрирате такъв в раздела за конекторите за достъп или активирайте вече съществуващ."
+  },
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Деактивиране на целевата система"
+  },
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "За тази целева система няма да бъдат стартирани нови подновявания, докато не я активирате. Протичащите в момента подновявания ще завършат, а чакащите ще останат да чакат."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Деактивиране"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Целевата система е деактивирана."
+  },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Деактивирането не беше успешно. Опитайте отново."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Целевата система е активирана."
+  },
+  "pamTargetSystemActivateFailed": {
+    "message": "Активирането не беше успешно. Опитайте отново."
+  },
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Изтриване на целевата система"
+  },
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "Тази целева система ще бъде изтрита."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "Тази целева система ще бъде изтрита. Ако искате да я запазите и само да спрете подновяванията, може само да я деактивирате."
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Целевата система е изтрита."
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Изтриването не беше успешно. Опитайте отново."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Автоматично"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Ръчно"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Персонализиран скрипт"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Активна директория",
+    "description": "'Active Directory' is a product name and should not be translated."
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Премахване на $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Активно"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Неактивно"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Няма връзка"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Настройката е непълна"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "Обща информация"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "Системен идентификатор"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Копиране на системния идентификатор"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Въведете име"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Метод на подновяване"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "Интеграцията на целта не може да бъде потвърдена. Изберете я отново, за да завършите настройката."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Политика за паролите"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Минимална дължина"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Максимална дължина"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Минималната дължина трябва да е по-малка или равна на максималната."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Включване на поне един вид знаци."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Тази политика е твърде слаба. Увеличете дължината или включете повече видове знаци."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Поддържа се"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "Тази интеграция не може да прекратява сесии, които вече са започнали. Подновяването на удостоверителните данни блокира новите вписвания, но текущите сесии продължават, докато не приключат."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "Тази целева система е записана като поддържаща прекратяване на сесиите, а управляваните ѝ удостоверителни данни могат все още да я използват. Запазването тук оставя тези настройки както са."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Целевата система е създадена."
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Целевата система е добавена."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Целевата система е запазена."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Целевата система е запазена. Запазените стойности не могат да бъдат прочетени, така че може тази страница да не е актуална."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "Целевата система беше създадена, но настройката ѝ не успя да приключи. Запазете отново, за да завършите процеса."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Завършете настройката на подновяването"
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Добавете управлявани удостоверителни данни в съответния раздел."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Настройката е непълна"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "Целевата система беше създадена, но настройките ѝ така и не бяха съхранени. Запазете, за да завършите процеса, или я изтрийте."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Проверката на интегритета беше неуспешна"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "Настройките на тази целева система не могат да бъдат проверени. Запазете, за да я поправите, или я изтрийте."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "Настройките на тази целева система не могат да бъдат проверени."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Не може да се потвърди, че технологията на целевата система съвпада. Презаредете страницата и опитайте отново."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Целевата система не е намерена."
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Регистриране на конектор за достъп"
+  },
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "Все още няма конектори за достъп"
+  },
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Конекторите за достъп работят във Вашата мрежа и сменят паролите на целевите системи. Регистрирайте такъв, за да започнете."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Целеви системи"
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Връзка"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "Последно видян"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Зададени цели"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Свързано"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Несвързано"
+  },
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Активирайте този конектор за достъп, за да зададете целеви системи."
+  },
+  "pamAccessConnectorEdit": {
+    "message": "Редактиране на конектора за достъп"
+  },
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Задаване на целеви системи"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Изтриване на конектора за достъп"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Задаване на целева система"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Целева система"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Задаване на целеви системи"
+  },
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Изберете целевите системи, чиито пароли конекторът за достъп да може да подновява. Само целеви системи, които използват автоматично подновяване, могат да бъдат зададени."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "Всички автоматични целеви системи вече са свързани с този конектор за достъп."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Няма автоматични целеви системи, които могат да бъдат зададени. Създайте такава в раздела за целевите системи."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Към целевите системи"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Целевите системи не могат да бъдат заредени. Опреснете страницата, за да опитате отново."
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "Целевата система е зададена."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Няма зададени целеви системи."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Конекторът за достъп е зададен."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Премахване на $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Деактивиране"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Активиране"
+  },
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Деактивиране на конектора за достъп"
+  },
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "Този конектор за достъп няма да поема нови подновявания. Протичащите в момента подновявания ще бъдат прекратени."
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "Конекторът за достъп е деактивиран."
+  },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Деактивирането не беше успешно. Опитайте отново."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Конекторът за достъп е активиран."
+  },
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Изтриване на конектора за достъп"
+  },
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Идентификаторът му спира да работи, а протичащите в момента подновявания се прекратяват. Това е необратимо."
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "Конекторът за достъп е изтрит."
+  },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Изтриването не беше успешно. Опитайте отново."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "Конекторът за достъп е запазен."
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Конекторът за достъп не беше запазен. Опитайте отново."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Конекторът за достъп не беше запазен. Проверете връзката си и след това опитайте да запазите отново."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Регистриране на конектор за достъп"
+  },
+  "pamAccessConnectorRegisterDescription": {
+    "message": "Ще получите идентификатор, който да добавите към конфигурацията на конектора за достъп. Той се показва само веднъж."
+  },
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Използвайте име, което да е разпознаваемо за екипа Ви. Например: „Източен център за данни“."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Конекторът за достъп е регистриран."
+  },
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Конекторът за достъп не беше регистриран. Опитайте отново."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "Конектор за достъп"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "Подробности"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "Конфигурация"
+  },
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "История на подновяванията"
+  },
+  "pamAccessConnectorRotationHeading": {
+    "message": "Подновяване"
+  },
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Изберете на целеви системи"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "Този конектор за достъп не е свързан, така че не може да подновява пароли. Проверете дали работи на машината си и дали може да осъществи връзка с Битуорден."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Завършете настройката. Добавете идентификатора и всички подробности за връзките на целевите системи към конфигурацията на този конектор за достъп, след което го стартирайте."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Идентификатор на конектора за достъп"
+  },
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Копирайте този идентификатор сега, тъй като няма да го видите отново след като затворите това."
+  },
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Добавете го към конфигурацията на конектора за достъп, за да го свържете."
+  },
+  "pamAccessConnectorTokenStored": {
+    "message": "Запазих идентификатора на сигурно място"
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Копиране на идентификатора"
+  },
+  "pamTokenCopied": {
+    "message": "Идентификаторът е копиран."
+  },
+  "pamRotationConfigSearch": {
+    "message": "Търсене на управлявани удостоверителни данни"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Няма настроени управлявани удостоверителни данни"
+  },
+  "pamRotationConfigEmptyTitle": {
+    "message": "Все още няма управлявани удостоверителни данни"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Добавете управлявани удостоверителни данни, за да започнете да ги подновявате автоматично."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Управляваните удостоверителни данни помагат за промяната на пароли по график или когато нечий достъп приключи."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Управляваните удостоверителни данни на тази целева система се показват тук."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Управляваните удостоверителни данни помагат за промяната на пароли по график или когато нечий достъп приключи. За начало, добавете конектор за достъп и целева система."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Добавяне на конектор за достъп"
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Зареждането е невъзможно"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Проверете връзката си и опитайте отново. Ако проблемът се повтори, презаредете страницата."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Задайте целева система"
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Удостоверителни данни"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Елемент"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Целева система"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "График"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Подновяване при изтичане на времето на достъп"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Последно подновено"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Следващо подновяване"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "На пауза"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Неуспешно"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Няма връзка"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Ръчно подновяването"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Акаунт"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Предизвикване на подновяването"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "По график"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "Когато достъпът приключи"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Само по заявка"
+  },
+  "pamRotationNextInProgress": {
+    "message": "В процес на изпълнение"
+  },
+  "pamRotationNextNone": {
+    "message": "Няма"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "Преди $COUNT$мин",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "Преди $COUNT$ч",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "Преди $COUNT$д",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "Преди $COUNT$седм",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "Преди $COUNT$мес",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Вчера"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "След $COUNT$ч",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "След $COUNT$седм",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "За преди $COUNT$д",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "Няма"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Подновяването е временно преустановено, така че тези удостоверителни данни няма да се подновя според графика, нито когато нечий достъп приключи."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "Първият опит беше неуспешен, така че Битуорден опитва отново. Няма нужда да предприемате действия, освен ако всички опити не се провалят."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "Тази целева система няма активен конектор за достъп, така че тези удостоверителни данни не могат да бъдат подновени."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "Конекторите за достъп са разкачени, така че тези удостоверителни данни не могат да бъдат подновени."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "Последното подновяване не завърши навреме. Изберете $ACTION$, за да опитате отново.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "Тези удостоверителни данни трябваше да бъдат подновени $AGE$. Променете паролата, обновете елемента в трезора и ги отбележете като подновени.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "Преглед на конекторите за достъп"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Конектори за достъп за тази целева система"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Всички удостоверителни данни на тази целева система използват тези."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "Името за вписване за този акаунт, например name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "Стойността, която скриптът Ви ползва за определяне на акаунта — например потребителското му име."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "Потребителското име на акаунта за целевата система, за записките. Битуорден не го използва за подновяване."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "Потребителското име на акаунта за целевата система, въведено точно както тази система го очаква."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Насрочено за $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Насрочено по график"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Предизвикване на подновяването"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "Първият опит беше неуспешен. Вторият успя."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Подновяването е стартирано"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Краен резултат"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Опит $NUMBER$ беше неуспешен.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "Няма конектор за достъп избран за това подновяване."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Сесиите приключиха"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Сесиите не могат да бъдат приключени"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Подробности за подновяването"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Неуспешно"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Успешно"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "Целевата система не отговори."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "В момента протича подновяване."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Възобновете подновяването, за да подновите сега."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "Няма свързан конектор за достъп"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Достъпно след като подновяването приключи."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Редактиране на настройките за подновяване"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "Преглед на историята на подновяванията"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Подновяването е стартирано."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Подновяването не стартира. Опитайте отново."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Отбелязано като подновено."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Неуспешно отбелязване като подновено. Опитайте отново."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Подновяването е спряно на пауза. Протичащото в момента подновяване ще завърши."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "Тези удостоверителни данни няма да се подновят по график или когато нечий достъп приключи. Ако има протичащо в момента подновяване, то ще завърши."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Направете това само след като сте сменили паролата на целевата система и сте отразили промяната в елемента в трезора."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Управлявайте подновяването на удостоверителни данни за целевите системи, ползвайки конектори за достъп работещи вътре в мрежата Ви."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Управлявани удостоверителни данни"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Целева система"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Конектор за достъп"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Подновяване"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Подновяване на"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Подновяване сега"
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Отбелязване като подновено"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Все още няма нищо за подновяване. Това ще стане достъпно когато е време за следващото ръчно подновяване."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Отбелязване като подновено"
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Редактиране на удостоверителните данни"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Премахване от подновяването"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Временно преустановяване на подновяването"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Подновяването е временно преустановено."
+  },
+  "pamRotationConfigPauseFailed": {
+    "message": "Подновяването не беше спряно на пауза. Опитайте отново."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Стартиране на подновяването отново"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Подновяването е стартирано отново."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Премахване на управляваните удостоверителни данни"
+  },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Премахване от подновяването"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Това премахва управлението на подновяването за тези удостоверителни данни. Елементът ще остане в трезора, а историята на подновяването остава в журнала."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "Тези удостоверителни данни и настройките им ще бъдат премахнати от Управляваните удостоверителни данни. Записът в трезора няма да бъде променен, а историята му ще остане в журнала за одит."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Това не може да бъде премахнато докато протича подновяване. Изчиства се когато текущата задача завърши или превиши времето си за изчакване."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Управляваните удостоверителни данни са премахнати."
+  },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Премахнато от подновяването."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Неуспешно премахване от подновяването. Опитайте отново."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Никога"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "Все още няма подновявания"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Добавяне на управлявани удостоверителни данни"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Подновяването на тези удостоверителни данни ще отпише всички, които все още ползват текущата парола."
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Все още не са били изпълнявани подновявания."
+  },
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Подновяванията на тези удостоверителни данни ще се показват тук."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Подробности за удостоверителните данни"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Конфигурация"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "История"
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Целева система"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Изберете целева система"
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Поддръжката на целевата система за прекратяване на сесиите не може да бъде потвърдена."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Подновяване когато изтече времето за достъп"
+  },
+  "pamRotationConfigSaved": {
+    "message": "Управляваните удостоверителни данни са запазени."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Проверката на интегритета беше неуспешна"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Настройките на тези удостоверителни данни не могат да бъдат потвърдени. Запазете, за да ги подсигурите повторно."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Тази целева система не потвърждава, че поддържа прекратяване на сесиите. Махнете отметката от настройката за прекратяване на сесии или първо актуализирайте целевата система."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "Настройките на избраната целева система не могат да бъдат проверени. Оправете целевата система преди запазване."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "Не може да се потвърди, че записът с управлявани данни за удостоверяване или целевата система съвпада. Презаредете страницата и опитайте отново."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Все още няма записани задачи за подновяване."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Източник"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Опити"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Планирано"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "При поискване"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Достъпът е приключил"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "На изчакване"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Успешно"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Неуспешно"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Изтекло време"
+  },
+  "pamRotationJobStatusRetrying": {
+    "message": "Извършва се повторен опит"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Изпълнява се"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Подновено"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Възникнала грешка"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Изоставено"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "В процес на изпълнение"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Стартирано"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Целта е непроменена"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Целта е променена"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Неопределено"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Прекратяването на сесията не е заявено"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Сесиите са прекратени"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Прекратяването на сесията е неуспешно"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Неизвестно"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "Акаунтът на конектора за достъп не може да промени тази парола. Дайте му разрешение да нулира паролата на целевия акаунт."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "Целевата система отказа опита за вписване на конектора за достъп. Проверете удостоверителните данни, които конекторът използва за тази целева система, а след това опитайте да подновите отново."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "Целевата система отказа новата парола. Проверете дали политиката за паролите на тези удостоверителни данни отговаря на правилата за паролите на целевата система, а след това опитайте да подновите отново."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "Целевата система не може да намери акаунта за подновяване. Проверете идентичността на акаунта в тези управлявани удостоверителни данни, а след това опитайте да подновите отново."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "Целевата система отказа да направи промяната. Това обикновено означава, че новата парола е в противоречие с някое правило за паролите, или че връзката с целевата система не е шифрована."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "Конекторът за достъп не може да осъществи връзка с целевата система. Проверете адреса на целевата система и дали конекторът може да се свърже с него в мрежата, а след това опитайте да подновите отново."
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Задачи за подновяване, първо най-новите"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Продължителност"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Опит"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Резултат"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Опити, първо най-старите"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$сек",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$мин $SECONDS$сек",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$ч $MINUTES$мин",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Създадена е конфигурация за подновяване"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Настройките за подновяване са обновени"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Акаунтът за подновяване е обновен"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Подновяването е временно преустановено"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Подновяването е стартирано отново"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Конфигурацията за подновяване е изтрита"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Конфигурацията за подновяване е обновена"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Предложено е подновяване на конектор за достъп"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Подновяването е стартирано"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Удостоверителните данни са подновени"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Опитът за подновяване беше неуспешен"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Подновяването беше неуспешно"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Подновяването е освободено"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Времето за изчакване на подновяването изтече"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Записът в трезора беше отказан"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Докладът за подновяването е отказан"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Очаква се ръчно подновяване"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Ръчното подновяване е записано"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Конекторът за достъп е регистриран"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Конекторът за достъп е отнет"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Конекторът за достъп е деактивиран"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Конекторът за достъп е активиран"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Конекторът за достъп е изтрит"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Конекторът за достъп е свързан с цел"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Конекторът за достъп е разкачен от целта си"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Целевата система е регистрирана"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Целевата система е деактивирана"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Целевата система е активирана"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Целевата система е преименувана"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Настройките на целевата система са обновени"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Целевата система е изтрита"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Целевата система е обновена"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Целева система"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Конектор за достъп"
+  },
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ целева система",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ целеви системи",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "Няма",
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Няма активни целеви системи за избор."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Зададени конектори за достъп"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "Няма зададени конектори за достъп до тази целева система."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Конекторите за достъп до тази целева система не могат да бъдат презаредени."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "Тази целева система и връзките ѝ с конектори за достъп ще бъдат изтрити."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "Тази целева система и връзките ѝ с конектори за достъп ще бъдат изтрити. Ако искате да я запазите и само да спрете подновяванията, може само да я деактивирате."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Елемент в трезора"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Име на удостоверителните данни"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Изберете удостоверителни данни"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Удостоверителни данни, които вече са настроени за подновявания, не се показват."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "Удостоверителните данни се съхраняват в целевата система."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Ръчно"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "Няма свързан конектор за достъп"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "Тази целева система използва ръчно подновяване. Сменете паролата, след което отбележете, че е подновена."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "Тази целева система няма свързан конектор за достъп, така че удостоверителните данни няма да бъдат подновявани. Все пак може да ги запазите."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Ид. на регистрацията"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Въведете идентификатор"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "Потребителското има за целевата система. Например: name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Предизвиквания на подновяването"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "След подновяване"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "График"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Сменя паролата след като нечий достъп приключи, така че старата парола спира да работи."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Налично само за автоматично подновяване."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "Прекратяване на активните сесии"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Отписва всеки, който все още използва старата парола, след всяко подновяване. Дори това да е неуспешно, подновяването все пак се брои."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Налично след като изберете целева система, която го поддържа."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Управляваните удостоверителни данни са добавени."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Целевата система е добавена."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Използвайте име, което да е разпознаваемо за Вашия екип, като например „Entra ID — реална инсталация“. Това ще се показва навсякъде, където може да избирате целева система."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "Конекторът за достъп променя паролите на тази целева система вместо Вас."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "Вие трябва да сменяте паролите на тази целева система ръчно, а след това да ги отбелязвате като подновени."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "Вид на системата"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Обяснете на конектора за достъп как да сменя паролите на тази система."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Прекратяване на сесиите"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra може да отписва активните сесии след подновяване."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "Този вид система не може да отписва активните сесии след подновяване."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Показва се след като изберете вида на системата."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Изберете вида на системата"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Изберете конектори за достъп"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Конектори за достъп"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Конектор за достъп"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Изберете конектори за достъп, които могат да подновяват пароли за тази целева система. Може да изберете няколко, за по-сигурно."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "Никой от конекторите за достъп не е свързан, така че тази целева система все още не може да се възползва от подновявания. Въпреки това, може да я запазите."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "Никой от конекторите за достъп не е свързан, така че тази целева система все още не може да се възползва от подновявания."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Автоматично подновяване"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Конфигурация"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "Тази целева система е неактивна, така че за нея няма да бъдат стартирани нови подновявания. Активирайте я, за да ги стартирате отново."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "Няма зададени конектори за достъп. Трябва да изберете поне един, за да може тази целева система да се подновява."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "Този вид система може да отписва активните сесии след подновяване."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Премахване на последния конектор за достъп"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Премахване на конектора за достъп"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "Тази целева система няма да може да бъде подновявана, докато не бъде зададен друг конектор за достъп."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 управлявани удостоверителни данни на тази целева система ще спрат да бъдат обновявани, докато не бъде зададен конектор за достъп."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ управлявани удостоверителни данни на тази целева система ще спрат да бъдат обновявани, докато не бъде зададен конектор за достъп.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "Все още няма конектори за достъп. Те работят във Вашата мрежа и подновяват паролите за тези целева система. Запазете сега, а след това добавете конектор за достъп от съответния раздел."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Знаци за включване"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Главни букви"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Малки букви"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Цифри"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Знаци"
+  },
+  "pamEventRequestedAccess": {
+    "message": "Заявен е привилегирован достъп до елемент $ITEM$ (заявка $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Одобрен е привилегирован достъп до елемент $ITEM$ (заявка $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Отказан е привилегирован достъп до елемент $ITEM$ (заявка $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "Активиран е привилегирован достъп до елемент $ITEM$ (достъп $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "Отнет е привилегирован достъп до елемент $ITEM$ (достъп $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "Отменена е заявката за привилегирован достъп до елемент $ITEM$ (заявка $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "Удължен е привилегирован достъп до елемент $ITEM$ (достъп $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "Привилегированият достъп до елемент $ITEM$ е изтекъл (достъп $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Привилегированият достъп до елемент $ITEM$ не може да бъде активиран (заявка $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Създадено е правило за привилегирован достъп."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "Редактирано е правило за привилегирован достъп."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "Изтрито е правило за привилегирован достъп."
+  },
+  "pamEventRotatedCredential": {
+    "message": "Удостоверителните данни за елемент $ITEM$ са подновени.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "Удостоверителните данни за елемент $ITEM$ не можаха да бъдат подновени.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   }
 }

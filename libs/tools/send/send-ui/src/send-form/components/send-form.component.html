@@ -12,7 +12,42 @@
   [class]="editing() ? '' : '[&_[bitfieldcontainer]]:!tw-transition-none'"
 >
   @if (!loading) {
-    @if (!sendDisabled() && !editing()) {
+    @let isItemTypeSend = sendFormService.sendFormConfig.sendType === SendType.Item;
+    @if (isItemTypeSend) {
+      <app-item-details-v2
+        [cipher]="sendFormService.originalSendView()?.data.data"
+        [showEmptyDetails]="false"
+      >
+        @if (!sendDisabled()) {
+          <button
+            bitButton
+            buttonType="primary"
+            block
+            type="button"
+            slot="button"
+            startIcon="bwi-clone"
+            class="tw-mt-4"
+            [appCopyClick]="sendLink()"
+            showToast
+            [valueLabel]="'sendLink' | i18n"
+          >
+            {{ "copyShareLink" | i18n }}
+          </button>
+        }
+        <button
+          bitButton
+          buttonType="secondary"
+          block
+          type="button"
+          slot="button"
+          class="tw-mt-4"
+          (click)="goToItem()"
+        >
+          {{ "viewItem" | i18n }}
+        </button>
+      </app-item-details-v2>
+    }
+    @if (!sendDisabled() && !editing() && !isItemTypeSend) {
       <bit-card>
         <div bitTypography="h4">{{ "sendLink" | i18n }}</div>
         <div

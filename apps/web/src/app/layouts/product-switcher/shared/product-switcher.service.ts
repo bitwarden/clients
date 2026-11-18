@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
 import {
@@ -19,18 +17,17 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ProviderService, ProviderType, Provider } from "@bitwarden/common/provider";
 import { BitwardenIcon } from "@bitwarden/components";
 
 export type ProductSwitcherItem = {
@@ -121,8 +118,8 @@ export class ProductSwitcherService {
   }
 
   organizations$ = this.accountService.activeAccount$.pipe(
-    map((a) => a?.id),
-    switchMap((id) => this.organizationService.organizations$(id)),
+    getOptionalUserId,
+    switchMap((id) => (id == null ? of([]) : this.organizationService.organizations$(id))),
   );
 
   providers$ = this.accountService.activeAccount$.pipe(

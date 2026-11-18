@@ -10,6 +10,7 @@ import {
   PipeTransform,
   Pipe,
   inject,
+  computed,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -38,7 +39,6 @@ import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-ac
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import {
   SectionComponent,
   SectionHeaderComponent,
@@ -54,9 +54,9 @@ import {
   Option,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
 import { SendPolicyService } from "../../..";
+import { removeSendAuthI18nKeys } from "../../../send-auth/remove-send-auth-i18n";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
@@ -108,14 +108,6 @@ export class AuthTypeNamePipe implements PipeTransform {
     SelectModule,
     AsyncActionsModule,
     ButtonModule,
-    CipherViewComponent,
-  ],
-  providers: [
-    {
-      // This is required to make the CipherViewComponent work
-      provide: ViewPasswordHistoryService,
-      useClass: VaultViewPasswordHistoryService,
-    },
   ],
 })
 export class SendDetailsComponent implements OnInit {
@@ -136,6 +128,11 @@ export class SendDetailsComponent implements OnInit {
     { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
   ];
   passwordRemoved = false;
+
+  /** Label for the "remove authentication" button, specific to the Send's current auth type. */
+  protected readonly removeAuthLabelKey = computed(
+    () => removeSendAuthI18nKeys(this.sendFormService.originalSendView()?.authType).label,
+  );
   policyAllowedDomains: string[] | null = null;
   policyDeletionHoursOrgName: string | null = null;
 
@@ -467,8 +464,8 @@ export class SendDetailsComponent implements OnInit {
     });
   }
 
-  removePassword = async () => {
-    const removed = await this.sendFormService.removeSendPassword();
+  removeAuth = async () => {
+    const removed = await this.sendFormService.removeSendAuth();
     if (removed) {
       this.passwordRemoved = true;
       this.sendDetailsForm.patchValue({

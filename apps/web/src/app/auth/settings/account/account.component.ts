@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -52,7 +52,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private organizationService: OrganizationService,
-    private accountDeletionService: AccountDeletionService,
+    private accountDeletionDialogService: AccountDeletionDialogService,
     private configService: ConfigService,
   ) {}
 
@@ -95,7 +95,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   };
 
   deleteAccount = async () => {
-    await this.accountDeletionService.openDeleteAccountFlow();
+    await this.accountDeletionDialogService.openDeleteAccountFlow();
   };
 
   setNewDeviceLoginProtection = async () => {

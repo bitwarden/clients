@@ -6,6 +6,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   CommandDefinition,
   MessageListener,
@@ -16,6 +17,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -58,6 +60,8 @@ describe("CrossContextUnlockService", () => {
       mock<BiometricsService>(),
       mock<BiometricStateService>(),
       mock<V2UpgradeTokenStateService>(),
+      mock<KeyService>(),
+      mock<SdkService>(),
       mock<AutoUnlockService>(),
       messageSender,
       messageListener,

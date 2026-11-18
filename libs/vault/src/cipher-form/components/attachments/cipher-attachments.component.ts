@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -20,7 +20,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -36,6 +36,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -115,6 +116,16 @@ export class CipherAttachmentsComponent {
   protected readonly cipher = signal<CipherView | null>(null);
   protected readonly uploadProgress = signal<number | null>(null);
 
+  /** Attachment deletion follows the same rules as cipher deletion (e.g. the restrict-deletion policy) */
+  protected readonly canDeleteAttachments = toSignal(
+    toObservable(this.cipher).pipe(
+      switchMap((cipher) =>
+        cipher ? this.cipherAuthorizationService.canDeleteCipher$(cipher, this.admin()) : of(false),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
     file: new FormControl<File | null>(null, {
       nonNullable: true,
@@ -125,6 +136,7 @@ export class CipherAttachmentsComponent {
   private cipherDomain: Cipher | null = null;
   private activeUserId: UserId | null = null;
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cipherAuthorizationService = inject(CipherAuthorizationService);
 
   constructor(
     private cipherService: CipherService,
@@ -250,6 +262,9 @@ export class CipherAttachmentsComponent {
         },
       );
 
+      // Re-read rather than trust the echo, which is stripped for a PAM-gated cipher.
+      this.cipherDomain = (await this.getCipher(this.cipherId())) ?? this.cipherDomain;
+
       // re-decrypt the cipher to update the attachments
       this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
 
@@ -325,12 +340,36 @@ export class CipherAttachmentsComponent {
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
+    // A PAM-gated cipher's local copy is stripped of attachment metadata; the server releases the
+    // full copy under an active lease.
+    if (localCipher?.partialData != null) {
+      return (await this.getFullCipherFromServer(id)) ?? localCipher;
+    }
+
     // If we got the cipher or there's no organization context, return the result
     if (localCipher != null || !this.organizationId()) {
       return localCipher;
     }
 
     return null;
+  }
+
+  // SDK / Key Management ask: attachment decryption for a revealed view (decrypt from the view, or
+  // a leased_attachment call). Until then this dialog reads the full cipher from the server and
+  // never stores it.
+  /**
+   * Reads a PAM-gated cipher's full copy from the server, for this dialog only; it is never
+   * written to local state. Null when no lease covers the cipher or the read fails.
+   */
+  private async getFullCipherFromServer(id: CipherId): Promise<Cipher | null> {
+    try {
+      const cipher = new Cipher(new CipherData(await this.apiService.getFullCipherDetails(id)));
+
+      return cipher.partialData == null ? cipher : null;
+    } catch (e) {
+      this.logService.error(e);
+      return null;
+    }
   }
 
   /**

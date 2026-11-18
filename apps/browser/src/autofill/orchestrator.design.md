@@ -53,13 +53,14 @@ foreground when the fill began but is not when it lands.
 
 Verifying the target is foreground is the **default** for every fill, and exactly one path opts out:
 the popup's fill round-trip. When a popout window is focused there is no active content tab for the
-check to match, so it names its own target instead. Every other caller-supplied fill is supplied by
-active-tab controls, and thus stays foreground-verified.
+check to match, so it names its own target instead. Its target must still be its window's active
+tab, as the [tab lifecycle](./lifecycle.design.md#the-tab-lifecycle) tracks it: warming up, warm or
+hot. Opting out of the foreground check does not opt out of attention altogether. Every other
+caller-supplied fill is supplied by active-tab controls, and thus stays foreground-verified.
 
 The opt-out is more than a convention. Two barriers keep it deliberate and contained. Only the
-orchestrator's own code can request it. The key that disables the check is module-private, so no
-other part of the extension can construct it. And the single unverified entry point is guarded by a
-lint that flags every call site. Because the check is on-by-default, any _new_ fill path is
+orchestrator can request it; no other part of the extension can. And every use of the single
+unverified entry point is flagged for review. Because the check is on-by-default, any _new_ fill path is
 foreground-verified unless its author deliberately says otherwise.
 
 ### A credential reaches only the origin it was chosen for
@@ -69,32 +70,57 @@ foreground-verified unless its author deliberately says otherwise.
 > [`URL.origin`](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin).
 
 A page-load fill targets the frame that produced the transition, re-resolved live by identity at the
-moment of the fill, and proceeds only if that frame still shows the origin it reported. A transition
-can be paused while its tab is away and resolved later; in the interval the frame may have navigated.
-A fill carried from a stale snapshot would place a cipher chosen for the _old_ page into whatever now
-occupies the frame — a credential handed to the wrong origin. Re-resolving by live identity and
-re-validating the origin closes that gap; if the tab or frame is gone, or the frame has navigated,
-the fill is abandoned rather than redirected.
+moment of the fill, and proceeds only if that frame still holds the document that reported the
+transition and the transition is still within its age bound. A transition can be paused while its tab is away and resolved later; in the interval the
+frame may have navigated. A fill carried from a stale snapshot would place a cipher chosen for the
+_old_ page into whatever now occupies the frame — a credential handed to the wrong origin.
+Re-resolving by live identity and re-validating the document closes that gap. Document identity is
+stronger than any comparison of URLs: a reload of the same URL is a different document, and a frame
+identifier reused after the extension restarts can name a different document than the one that
+reported. If the tab or frame is gone, or the frame holds a different document, the fill is abandoned
+rather than redirected: a **denied** outcome, never re-attempted. The document is checked again
+after the page's fields are collected, so a navigation during the collect also abandons the fill.
+
+When the browser cannot say which document a frame holds, the fill is denied as well. A page-load
+fill is unprompted and no user is waiting on it, so declining to fill costs little, while guessing
+risks the wrong page.
 
 A user-initiated fill acts on the tab the user just used, so its window is far narrower — but not
 zero: the tab can navigate between the command and the fill. The commit guards _every_ fill against
-this by proceeding only if the live tab at time-of-fill shows the URL the fill targeted.
+this by proceeding only if the live tab at time-of-fill shows the URL the fill targeted. A
+user-initiated fill is not raised by a reporting document, so there is no document to re-validate;
+the URL is what the user acted on.
 
-### Each opportunity is executed once, on its own merits
+### Each opportunity reaches one conclusion, on its own merits
 
-The orchestrator runs each opportunity to a single conclusion and holds no retry of its own: the fill
-either lands or is abandoned, and it keeps no memory that a given page was seen. A form still
-rendering when the fill reaches it simply fills nothing. The re-attempt for such a form originates
-upstream — the reporting frame notices it has not yet been filled and raises a fresh opportunity —
-which the orchestrator then executes independently, judged only on its own merits. Keeping no
-per-opportunity memory is what lets that stay correct without state to leak or desynchronize.
+The orchestrator runs each opportunity to a single conclusion: the fill either lands or is abandoned.
+A form still rendering when the fill reaches it looks, momentarily, like a page with nothing to fill.
+So when a page-load fill attempt is **absent**, the orchestrator waits a short, tuned interval and
+re-attempts it once. A **denied** attempt is never re-attempted: a denial is a decision, and
+re-attempting would only run the same guard again. Because the decision to re-attempt is made from the honest
+outcome of the attempt, a page fills at most once per opportunity, whether it renders promptly or
+slowly.
+
+The re-attempt is internal to executing a single opportunity, so the orchestrator keeps no memory
+across opportunities. Each opportunity is judged only on its own merits, and there is no state to leak
+or desynchronize between them.
+
+When the lifecycle [retires](./lifecycle.design.md#retiring-an-opportunity) an opportunity, its
+execution cancels the remainder of its operations. For example, an opportunity cancelled while
+selecting a cipher will not re-attempt or commit the fill. A retired opportunity has no execution
+in flight.
+
+> [!IMPORTANT]
+> Cancellation keeps a fill begun with one account from completing after a switch to another.
+> It also prevents fill-after-lock.
 
 ### Fills do not race
 
 The orchestrator collects the details it fills rather than acting on details gathered elsewhere, so a
 collect is always sequenced with the fill it feeds. Fills serialize at the granularity they target:
-a page-load fill per frame, so a second arrival for a frame already filling waits its turn; a
-user-initiated fill per tab, since it fills the whole tab in one pass. Sequencing collect-then-fill
+a page-load fill per frame, so a newer opportunity for a frame already filling
+[retires](./lifecycle.design.md#retiring-an-opportunity) the one in flight and runs once its
+execution has ended; a user-initiated fill per tab, since it fills the whole tab in one pass. Sequencing collect-then-fill
 this way prevents two fills of the same scope from interleaving into a double fill or a fill of the
 wrong page.
 
@@ -126,9 +152,10 @@ described in [autofill.design.md](./autofill.design.md#automated-login-auto-subm
 
 ## Exercising a fill outside an input method
 
-A fill is normally triggered by an input method. One further entry point exists for testing: a
-`collectPageDetailsResponse` runtime message whose `sender` is a command label is routed into the
-matching command fill. It lets a test drive a fill directly, without simulating a
+A fill is normally triggered by an input method. One further entry point exists for testing. The
+`collectPageDetailsResponse` message is the contract by which a content script returns collected
+page details to the background, and its sender identifies who asked for them. A sender that names a
+command routes the message into that command's fill. It lets a test drive a fill directly, without simulating a
 particular input method. This isolates the orchestrator from the plumbing that normally triggers it.
 
 ## The seam to the autofill service
@@ -137,5 +164,5 @@ The orchestrator reaches the page through a single fill operation: given one con
 target, it fills and reports whether it did. That operation makes no selection, targeting, or
 foreground decision — the orchestrator supplies the cipher and target and runs the checks above the
 seam. Keeping the fill contract this narrow is what lets the invariants live in one place rather than
-being re-derived at each entry point. (The autofill service also carries older responsibilities that
-sit outside this seam; see [autofill.design.md](./autofill.design.md#the-autofill-service).)
+being re-derived at each entry point. (The autofill service also carries responsibilities that sit
+outside this seam; see [autofill.design.md](./autofill.design.md#the-autofill-service).)

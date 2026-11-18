@@ -6,9 +6,6 @@ import { SubscriptionPreviewResponse } from "@bitwarden/common/billing/models/re
 /**
  * Raw HTTP access to the subscription preview endpoints. No adaptation and no flow context —
  * callers go through `SubscriptionPreviewService`, which owns both.
- *
- * Both routes are gated server-side by the `PM36631_PreviewDrivenCart` flag and return 404 until
- * the corresponding server ticket lands. 404s deliberately propagate.
  */
 @Injectable({ providedIn: "root" })
 export class SubscriptionPreviewClient {

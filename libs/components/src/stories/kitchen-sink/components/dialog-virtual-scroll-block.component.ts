@@ -56,7 +56,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
         <bit-badge-group [badges]="row.tags"></bit-badge-group>
       </bit-cell>
     </bit-column>
-    <bit-column width="64px">
+    <bit-column width="80px">
       <bit-header-cell></bit-header-cell>
       <bit-cell *bitCellDef="table.columns.actions; let row">
         <button

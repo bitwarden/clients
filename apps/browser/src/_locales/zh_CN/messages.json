@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "创建账户"
   },
+  "welcomeToBitwarden": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "创建您的账户或登录"
+  },
   "newToBitwarden": {
     "message": "Bitwarden 新手吗？"
   },
@@ -559,6 +565,20 @@
   },
   "noItemsInMyVault": {
     "message": "「我的密码库」中没有项目"
+  },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ 中没有项目",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "将项目添加到此文件夹。您将可以使用密码库筛选功能快速访问它们。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "「我的项目」中没有项目"
@@ -1237,6 +1257,12 @@
   "deletedItem": {
     "message": "项目已发送到回收站"
   },
+  "deleteItemError": {
+    "message": "无法删除项目。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "此项目受到限制。您的更改未被保存。"
+  },
   "overwritePassword": {
     "message": "覆盖密码"
   },
@@ -1426,7 +1452,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
+    "message": "糟糕！我们无法保存它。请尝试手动输入详细信息。",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1469,7 +1495,7 @@
     "message": "自动填充正在此页面上使用填充辅助。"
   },
   "activateFillAssistV2": {
-    "message": "启用填充辅助"
+    "message": "开启填充辅助"
   },
   "activateFillAssistDescriptionV2": {
     "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
@@ -1490,7 +1516,7 @@
     "message": "使用网站上标记有 `data-bwautofill` 属性的任何 span 元素。"
   },
   "enableBasicAuthResponseLabel": {
-    "message": "自动填充浏览器登录提示",
+    "message": "浏览器登录自动填充提示",
     "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "enableBasicAuthResponseHint": {
@@ -1588,6 +1614,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "选择密码库",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "选择位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "选择一个密码库"
+  },
+  "selectALocationTitle": {
+    "message": "选择一个位置"
+  },
+  "importDestinationDescription": {
+    "message": "选择这些项目的导入位置。"
+  },
+  "importMyItemsOption": {
+    "message": "我的项目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "仅您可见"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "由 $ORGANIZATION$ 拥有，但仅您可见",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "组织密码库"
+  },
+  "importSharedWithOnePerson": {
+    "message": "已与某人共享"
+  },
+  "importFamilyVault": {
+    "message": "家庭密码库"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "将所有项目移动到 $ORGANIZATION$ 共享文件夹",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "将所有内容移动到父文件夹，原有的嵌套文件夹结构将被保留。"
+  },
+  "importSharedFolderRequired": {
+    "message": "必须选择共享文件夹。"
+  },
+  "importIntoOrganization": {
+    "message": "项目将被导入到 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "将所有项目移动到共享文件夹"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "项目无法导入到没有共享文件夹且您在其中无任何管理权限的 $ORGANIZATION$ 中。请选择其他位置。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "导入 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "导入 1 个项目"
+  },
+  "importToOrganization": {
+    "message": "导入到 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "您的数据可能会与此​​组织的成员共享。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ 不允许您导入 $ITEM_TYPES$。如果您的导入内容中包含这些项目，它们将被跳过。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "登录",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "安全笔记",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "支付卡",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "身份",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH 密钥",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "银行账户",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "驾驶证",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "护照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "前往 Access Intelligence"
   },
   "importItems": {
     "message": "导入项目"
@@ -2055,10 +2242,10 @@
     "message": "轻松找到自动填充建议"
   },
   "autofillSpotlightDesc": {
-    "message": "停用您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+    "message": "关闭您浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
   },
   "turnOffBrowserAutofill": {
-    "message": "停用 $BROWSER$ 自动填充",
+    "message": "关闭 $BROWSER$ 自动填充",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -2067,7 +2254,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "停用自动填充"
+    "message": "关闭自动填充"
   },
   "confirmAutofill": {
     "message": "确认自动填充"
@@ -2142,7 +2329,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "停用您浏览器的内置密码管理器设置以避免冲突。"
+    "message": "关闭您浏览器的内置密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -2169,7 +2356,7 @@
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
   "experimentalFeature": {
-    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
+    "message": "被入侵或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "进一步了解风险"
@@ -2181,7 +2368,7 @@
     "message": "登录项目的默认自动填充设置"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "您可以从项目编辑视图中为单个登录项目停用页面加载时自动填充。"
+    "message": "您可以从项目编辑视图中为单个登录项目关闭页面加载时自动填充。"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "使用默认设置"
@@ -3566,10 +3753,10 @@
     "message": "提示用户更新登录的 Bitwarden 通知示意图。"
   },
   "turnOnAutofill": {
-    "message": "启用自动填充"
+    "message": "开启自动填充"
   },
   "turnedOnAutofill": {
-    "message": "启用了自动填充"
+    "message": "开启了自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -3656,14 +3843,14 @@
     "message": "复制 Send 链接",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "移除密码"
+  "removeAuth": {
+    "message": "移除密码或电子邮箱验证"
   },
   "delete": {
     "message": "删除"
   },
-  "removedPassword": {
-    "message": "密码已移除"
+  "removedAuth": {
+    "message": "密码或电子邮箱验证已移除"
   },
   "deletedSend": {
     "message": "Send 已删除",
@@ -3676,8 +3863,28 @@
   "disabled": {
     "message": "已禁用"
   },
-  "removePasswordConfirmation": {
-    "message": "确定要移除此密码吗？"
+  "removeAuthConfirmation": {
+    "message": "确定要从此 Send 中移除密码或电子邮箱验证要求吗？"
+  },
+  "removePassword": {
+    "message": "移除密码"
+  },
+  "removeEmailVerification": {
+    "message": "移除电子邮箱验证"
+  },
+  "removedPassword": {
+    "message": "密码已移除"
+  },
+  "removedEmailVerification": {
+    "message": "电子邮箱验证已移除"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "确定要从此 Send 中移除密码要求吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "确定要从此 Send 中移除电子邮箱验证要求吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "删除 Send",
@@ -4514,7 +4721,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "您的组织策略已启用页面加载时自动填充。"
+    "message": "您的组织策略已开启页面加载时自动填充。"
   },
   "autofillSelectInfoWithCommand": {
     "message": "从此界面选择一个项目，使用快捷键 $COMMAND$，或探索设置中的其他选项。",
@@ -4686,7 +4893,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
+    "message": "您需要在某个受信任的设备上登录，或请求管理员为您分配一个密码。"
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -5001,7 +5208,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "启用"
+    "message": "开启"
   },
   "ignore": {
     "message": "忽略"
@@ -5094,7 +5301,7 @@
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "此文件使用了不受支持的加密设置，无法导入。"
   },
   "importNothingError": {
     "message": "没有导入任何内容。"
@@ -5381,7 +5588,7 @@
     "message": "我们将询问您的登录信息"
   },
   "importDataLoginInfoBody": {
-    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "message": "下一步，请登录您的 $VENDOR$ 账户。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5394,6 +5601,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "快速且安全"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "此过程是端到端加密的。无需导出文件。"
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "您只需登录即可"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "下一步，您需要输入您的 $VENDOR$ 登录详细信息。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "将要转移的内容"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "您的登录、其他项目以及文件夹将转移。通行密钥和附件可能被排除在外。"
   },
   "importAcceptedFormats": {
     "message": "可接受的格式：$FORMATS$",
@@ -5676,6 +5907,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
   },
+  "exportExcludedGatedItem": {
+    "message": "1 个项目未包含在此导出中。该项目受特权访问规则保护，因此其凭据在此设备上不可用。"
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ 个项目未包含在此导出中。这些项目受特权访问规则保护，因此其凭据在此设备上不可用。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "导出过程中跳过了 $COUNT$ 个损坏的附件。其余所有密码库数据和附件均已成功导出。",
     "placeholders": {
@@ -5778,8 +6021,92 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "必须填写电子邮箱。"
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "请输入有效的电子邮箱地址。"
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "请输入有效的密码"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "请输入有效的验证码。"
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "请输入您的 LastPass 主密码。"
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "请在下面输入验证码。"
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "正在等待 SSO 身份验证"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "登录后，我们将继续自动导入。"
+  },
   "importingYourAccount": {
     "message": "正在导入您的账户..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "服务器"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "必须填写电子邮箱。"
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "请输入有效的电子邮箱地址。"
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "不受支持的双重身份验证方式。请切换方式或手动导入。"
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "设备批准方式"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "请输入有效的验证码。"
+  },
+  "keeperLoginCodeResent": {
+    "message": "重新发送验证码"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push 通知已发送到认可的设备。"
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "选择下方的一种方式来批准此设备。"
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "请检查您的电子邮箱然后在下面输入验证码。"
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "请输入来自您的验证器 App 的代码。"
+  },
+  "keeperLoginSmsDesc": {
+    "message": "请输入通过短信发送的代码。"
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "请输入您的 Keeper 主密码。"
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA 已发送"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "批准您设备上的 Keeper DNA 通知。"
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "您的批准请求将被取消。确定要继续吗？"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "我们已经向您的管理员发送了管理员批准请求。"
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "请输入有效的密码。"
   },
   "lastPassMFARequired": {
     "message": "需要 LastPass 多重身份验证"
@@ -5821,7 +6148,7 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "$COUNT$ 个 1Password 项目或密码库无法导入",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5830,52 +6157,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "发生错误。请检查您的凭据，然后重试。"
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "仅支持带密码的登录。"
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "仅支持带密码的登录。请重试或使用其他导入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "发生错误。请重试或使用其他导入方式。"
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "必须填写电子邮箱。"
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "请输入有效的电子邮箱地址。"
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "必须填写登录地址。"
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "请输入有效的登录地址。"
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "必须填写安全密钥。"
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "请输入有效的安全密钥。"
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "必须填写密码。"
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "请输入有效的验证码。"
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "登录地址"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password 电子邮箱"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "输入您用于登录 1Password 的电子邮箱"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -6226,7 +6553,7 @@
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "停用浏览器自动填充设置以避免冲突。",
+    "message": "关闭浏览器自动填充设置以避免冲突。",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
@@ -6237,7 +6564,7 @@
     "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
+    "message": "我们将关闭您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
   },
   "defaultPasswordManagerSuccessToast": {
     "message": "已将 Bitwarden 设置为浏览器的默认密码管理器"
@@ -6407,6 +6734,9 @@
   "myItems": {
     "message": "我的项目"
   },
+  "myItemsV2": {
+    "message": "我的项目"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },
@@ -6438,7 +6768,7 @@
     "message": "潜在的安全风险有哪些？"
   },
   "autoConfirmEnabled": {
-    "message": "启用了自动确认"
+    "message": "开启了自动确认"
   },
   "availableNow": {
     "message": "目前可用"
@@ -6748,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7941,17 +8272,11 @@
   "sharedUnlock": {
     "message": "共享解锁"
   },
-  "syncUnlockWithDesktop": {
-    "message": "与桌面 App 同步解锁状态"
+  "syncUnlockWithDesktop1": {
+    "message": "与桌面端同步解锁"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Bitwarden 浏览器扩展与桌面 App 会一起锁定或解锁。"
-  },
-  "syncUnlockWithWeb": {
-    "message": "与网页 App 同步解锁状态"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Bitwarden 浏览器扩展与网页 App 会一起锁定或解锁。"
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Bitwarden 浏览器扩展与桌面 App 将同步锁定和解锁。若可用，将使用生物识别。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "共享解锁不可用，因为您选择了不记住此设备。要启用此设置，请尝试重新登录。"
@@ -8330,6 +8655,15 @@
   "passwordHasAdditionalRisks": {
     "message": "此密码还存在其他风险："
   },
+  "excludeFromList": {
+    "message": "从列表中排除"
+  },
+  "excludeFromListDesc": {
+    "message": "排除并不能消除密码风险。为保护您的账户，请先更改密码。"
+  },
+  "excludeAnyway": {
+    "message": "仍要排除"
+  },
   "reused": {
     "message": "重复使用",
     "description": "ex. A password that is reused across multiple logins."
@@ -8450,6 +8784,15 @@
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   },
+  "viewSharedItem": {
+    "message": "查看共享项目"
+  },
+  "copyShareLink": {
+    "message": "复制共享链接"
+  },
+  "unableToDetermineItemId": {
+    "message": "无法确定项目 ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden 拥有一个新的外观",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8466,6 +8809,37 @@
     "message": "探索新的密码库",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "在密码库间切换"
+  },
+  "coachmarkVaultSwitcherDescription": {
+    "message": "凭借新的密码库切换器，您可以快速查看个人项目或密码库中您与他人共享的项目。"
+  },
+  "coachmarkFiltersTitle": {
+    "message": "组合使用筛选"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "可同时选择多个筛选，精准锁定您所需的结果。即使您跳转至其他页面，筛选依然有效。"
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "集合和文件夹拥有新的名称"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "功能保持不变，名称更加直观。「集合」现更名为「共享文件夹」，「文件夹」则更名为「我的文件夹」。"
+  },
   "customize": {
     "message": "自定义"
   },
@@ -8477,5 +8851,470 @@
   },
   "resetToDefault": {
     "message": "恢复默认设置"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "浏览器登录自动填充提示",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "打开浏览器登录自动填充提示帮助文章"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "开启浏览器登录自动填充提示吗？"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "开启主密码二次验证吗？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "使用默认匹配检测吗？"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "浏览器登录自动填充提示已关闭"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1m left",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In use"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Start date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEndDate": {
+    "message": "End date"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "End must be after the start."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (now)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Custom time…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Custom end date and time…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Show suggested start times"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Back to suggested durations"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, until $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "例如：季度审计，需要运行一些只读查询"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access. Try again."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   }
 }

@@ -17,9 +17,10 @@ function failed(testInfo: TestInfo): boolean {
 }
 
 /**
- * Where a self-launched context records. Playwright's `video`, `trace` and `screenshot`
- * options only reach the contexts it creates itself, so the browser and desktop
- * fixtures record and trace on their own.
+ * Where a self-launched context records. Playwright's `video` and `screenshot` options
+ * only reach the contexts it creates itself, so the browser and desktop fixtures record
+ * on their own. Its runner traces the browser fixture's persistent context, but not
+ * Electron's, so only the desktop fixture traces on its own.
  */
 export function videoDir(testInfo: TestInfo): string {
   return join(testInfo.outputDir, VIDEO_SUBDIR);

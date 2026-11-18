@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -55,6 +56,7 @@ describe("ImportService", () => {
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -69,6 +71,7 @@ describe("ImportService", () => {
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
     configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
+    logService = mock<LogService>();
 
     importService = new ImportService(
       cipherService,
@@ -83,6 +86,7 @@ describe("ImportService", () => {
       restrictedItemTypesService,
       configService,
       sdkService,
+      logService,
     );
 
     // Feature flags are only used by certain specific importers, not the base
@@ -608,6 +612,42 @@ describe("ImportService", () => {
       await expect(
         importService.importWithSdk("keepasskdbx", file, credentials, null, null, false),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("importImportResult restricted types", () => {
+    const resultWith = (...types: CipherType[]) => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = types.map((type) => Object.assign(new CipherView(), { type, name: "item" }));
+      return result;
+    };
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      i18nService.t.mockImplementation((key) => key);
+      importService["handleIndividualImport"] = jest.fn();
+      importService["handleOrganizationalImport"] = jest.fn();
+      // Only org-1 allows cards.
+      (restrictedItemTypesService as any).restricted$ = of([
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org-1"] },
+      ]);
+    });
+
+    it("removes every restricted type from a personal import", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+
+    it("removes every restricted type from an organization import, even into an org that allows it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "org-1" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
     });
   });
 

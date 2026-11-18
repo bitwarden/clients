@@ -1,0 +1,16 @@
+<bit-simple-dialog>
+  <bit-icon bitDialogIcon name="bwi-warning" class="tw-text-3xl tw-text-fg-warning" />
+  <div bitDialogTitle>{{ "excludeFromList" | i18n }}</div>
+  <div bitDialogContent class="tw-flex tw-flex-col tw-w-full">
+    <p bitTypography="body1">
+      {{ "excludeFromListDesc" | i18n }}
+    </p>
+    <dirt-health-additional-risks [item]="data.item" [currentCategory]="data.currentCategory" />
+  </div>
+  <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
+    <button bitButton type="button" buttonType="primary" [bitDialogClose]="true">
+      {{ "excludeAnyway" | i18n }}
+    </button>
+    <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>
+  </div>
+</bit-simple-dialog>

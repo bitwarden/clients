@@ -90,8 +90,10 @@ export class CreateCommand {
       case "attachment":
         return await this.createAttachment(normalizedOptions, additionalData);
       case "folder":
+      case "my-folder":
         return await this.createFolder(req);
       case "org-collection":
+      case "org-shared-folder":
         return await this.createOrganizationCollection(req, normalizedOptions);
       default:
         return Response.badRequest("Unknown object.");
@@ -102,11 +104,7 @@ export class CreateCommand {
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      const allowDerivedSshKeys = await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.PM40201_DeriveSSHKeys),
-      );
-
-      const cipherView = CipherExport.toView(req, undefined, allowDerivedSshKeys);
+      const cipherView = CipherExport.toView(req);
 
       if (
         cipherView.type === CipherType.BankAccount ||
@@ -129,7 +127,7 @@ export class CreateCommand {
       }
 
       const newCipher = await this.cipherService.createWithServer(
-        CipherExport.toView(req, undefined, allowDerivedSshKeys),
+        CipherExport.toView(req),
         activeUserId,
       );
       const res = new CipherResponse(newCipher);
@@ -205,7 +203,10 @@ export class CreateCommand {
       const folderData = await this.folderApiService.save(folder, activeUserId);
       const newFolder = new Folder(folderData);
       const decFolder = await newFolder.decrypt(userKey);
-      const res = new FolderResponse(decFolder);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new FolderResponse(decFolder, useSharedFoldersTerm);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -283,7 +284,15 @@ export class CreateCommand {
       const serverUsers = response.users.map(
         (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
       );
-      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        view,
+        serverGroups,
+        serverUsers,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

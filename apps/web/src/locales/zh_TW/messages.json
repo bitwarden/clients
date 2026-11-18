@@ -649,12 +649,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "應用程式（URI）"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "應用程式（URI）$COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1184,7 +1185,7 @@
     "message": "集合"
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "受控存取"
   },
   "firstName": {
     "message": "名"
@@ -1259,6 +1260,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "$NAME$ 中的資料夾",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ 個資料夾",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ 個資料夾",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ 個多層共用資料夾",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -1272,6 +1301,20 @@
   "nestedSharedFolderSingular": {
     "message": "一個多層共用資料夾",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ 個多層資料夾",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1個多層資料夾",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "我的資料夾"
@@ -1959,13 +2002,13 @@
     "message": "選擇檔案。"
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file."
+    "message": "此來源不接受該檔案類別。請選擇其他檔案。"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content."
+    "message": "貼上匯出的內容。"
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "message": "不支援此檔案類型。請選取 $TYPES$ 檔案。",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1974,10 +2017,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format."
+    "message": "貼上的內容與所選格式不符。"
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read."
+    "message": "無法讀取已選的檔案。"
   },
   "maxFileSize": {
     "message": "檔案最大為 500MB。"
@@ -2090,6 +2133,12 @@
   },
   "deletedItem": {
     "message": "項目已移至垃圾桶"
+  },
+  "deleteItemError": {
+    "message": "無法刪除項目。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "此項目已受限制。您作出的變更尚未儲存。"
   },
   "deletedItems": {
     "message": "項目已移至垃圾桶"
@@ -2574,6 +2623,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ 裡沒有項目",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "將項目新增至此資料夾。您可以使用密碼庫篩選器快速存取這些項目。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "「我的項目」中沒有項目"
   },
@@ -2582,6 +2645,9 @@
   },
   "noItemsMatchSelectedFilters": {
     "message": "沒有項目符合所選篩選條件"
+  },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
   },
   "noItemsMatchSearchTerm": {
     "message": "沒有項目符合「$SEARCH_TERM$」",
@@ -2655,6 +2721,38 @@
   },
   "noMembersInList": {
     "message": "沒有可列出的成員。"
+  },
+  "noMembersInvitedToOrg": {
+    "message": "尚未邀請任何成員加入您的組織"
+  },
+  "memberCount": {
+    "message": "$COUNT$ 位成員",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 位成員"
+  },
+  "memberRangeOfTotal": {
+    "message": "共 $TOTAL$ 位成員，顯示第 $START$–$END$ 位",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "沒有可匯出的成員。"
@@ -2954,7 +3052,7 @@
     "message": "KeePass 主密碼"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "$VENDOR$ 密碼",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -2963,25 +3061,25 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "必須輸入密碼。"
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "必須輸入檔案密碼"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "輸入有效的檔案密碼。"
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "上傳的檔案受密碼保護。請輸入密碼以繼續。"
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "選取設定檔"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "輸入有效的密碼"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "此檔案只能匯入至原匯出的帳號裡。"
   },
   "addKeyFile": {
     "message": "新增金鑰檔案"
@@ -2990,7 +3088,7 @@
     "message": "上傳金鑰檔案"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "金鑰檔案"
   },
   "kdbxFileUpload": {
     "message": "上傳 KDBX 檔案"
@@ -3039,6 +3137,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "匯出時已略過 1 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。"
+  },
+  "exportExcludedGatedItem": {
+    "message": "有 1 個項目未包含在此次匯出中。此項目受到特殊權限存取規則保護，因此無法在此裝置上取得其登入憑證。"
+  },
+  "exportExcludedGatedItems": {
+    "message": "有 $COUNT$ 個項目未包含在此次匯出中。這些項目受到特殊權限存取規則保護，因此無法在此裝置上取得其登入憑證。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "匯出時已略過 $COUNT$ 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。",
@@ -3395,7 +3505,7 @@
     "message": "資料格式不正確。請檢查您匯入的檔案後再試一次。"
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "此檔案使用不支援的加密設定並無法匯入。"
   },
   "importNothingError": {
     "message": "沒有匯入任何內容。"
@@ -3527,6 +3637,164 @@
       }
     }
   },
+  "selectVault": {
+    "message": "選擇密碼庫",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "選擇位置",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "選擇一個密碼庫"
+  },
+  "selectALocationTitle": {
+    "message": "選擇一個位置"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "我的項目",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "組織密碼庫"
+  },
+  "importSharedWithOnePerson": {
+    "message": "與1人共享"
+  },
+  "importFamilyVault": {
+    "message": "家庭密碼庫"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "將所有項目移動至一個與 $ORGANIZATION$ 共享的資料夾",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "將所有項目移動至一個與 $ORGANIZATION$ 共享的資料夾",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "項目將被匯入至 $ORGANIZATION$。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "將所有項目移動至一個共享資料夾"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "匯入 $COUNT$ 項項目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "匯入1項項目"
+  },
+  "importToOrganization": {
+    "message": "匯入至 $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "你的資料可能會與此組織的成員共享。"
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ 不允許你匯入 $ITEM_TYPES$。若你匯入的項目包含了這些類型，它們將被跳過。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "銀行帳號",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "駕駛執照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "護照",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
   "chooseFile": {
     "message": "選擇檔案"
   },
@@ -3636,48 +3904,75 @@
     "message": "說明中心"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "上傳檔案"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "以純文字貼上"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "純文字"
   },
   "profile": {
-    "message": "Profile"
+    "message": "設定檔"
   },
   "lastPassEmail": {
-    "message": "LastPass Email"
+    "message": "LastPass 電子郵件"
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "必須輸入電子郵件。"
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "輸入有效的電子郵件地址。"
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "輸入有效的密碼"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "輸入有效的驗證碼。"
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "請輸入您的LastPass主密碼。"
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "請於下方輸入驗證碼。"
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "正在等待 SSO 驗證"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "登入後，我們將自動繼續匯入。"
   },
   "includeSharedFolders": {
-    "message": "Include shared folders"
+    "message": "包含共用的資料夾"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "改為手動匯入"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "改為直接匯入"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "最快"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "匯入您的資料"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "幾分鐘內即可匯入您的資料"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "直接從",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "匯入您的所有資料。",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "從 $VENDOR$ 匯入，或複製並貼上匯出的內容。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3686,13 +3981,13 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "選取您要從中匯入密碼的設定檔。"
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "找不到瀏覽器設定檔"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "登入 $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3701,13 +3996,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "您的登入憑證在傳輸過程中會經過加密，且絕不會儲存。"
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "安全設計"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "透過端對端加密傳輸資料。Bitwarden 絕不會取得您的 $VENDOR$ 登入資料。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3716,10 +4011,10 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "我們會向您索取登入資訊"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "下一個步驟中，請登入您的 $VENDOR$ 帳戶。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3728,13 +4023,37 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "完整轉移所有資料"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "登入資料、卡片、身分、加密筆記及 TOTP，並保留原有資料夾結構。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "快速又安全"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "此程序採用端對端加密，無須匯出檔案。"
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "只需提供登入資料"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "下一個步驟中，您將輸入 $VENDOR$ 登入資料。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "將轉移的資料"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "您的登入資料、其他項目及資料夾都會轉移，但可能不包含通行金鑰與附件。"
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "接受的格式：$FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -3743,7 +4062,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "$VENDOR$ 檔案類型",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4751,12 +5070,6 @@
       }
     }
   },
-  "showPricingSummary": {
-    "message": "顯示價格摘要"
-  },
-  "hidePricingSummary": {
-    "message": "隱藏價格摘要"
-  },
   "summary": {
     "message": "摘要"
   },
@@ -4835,9 +5148,6 @@
   },
   "subscriptionExpiration": {
     "message": "訂閱到期時間"
-  },
-  "subscriptionCanceled": {
-    "message": "已取消訂閱"
   },
   "pendingCancellation": {
     "message": "待取消"
@@ -5058,15 +5368,6 @@
       "count": {
         "content": "$1",
         "example": "12"
-      }
-    }
-  },
-  "discountThroughDate": {
-    "message": "至 $DATE$ 為止",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 1, 2027"
       }
     }
   },
@@ -5451,6 +5752,34 @@
   "trialConfirmationEmail": {
     "message": "我們已經將確認信件傳送至團隊的計費信箱： "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "您的試用方案包含 Privileged Controls。"
+  },
+  "trialPrivilegedControlsThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team and isn't included with this organization."
+  },
+  "contactSales": {
+    "message": "Contact sales"
+  },
+  "privilegedControlsAddThroughSales": {
+    "message": "Privileged Controls is available through the Bitwarden sales team. Contact sales to add it to your organization."
+  },
+  "privilegedControlsChangeThroughSales": {
+    "message": "To change your Privileged Controls seats, contact sales."
+  },
+  "privilegedControlsSeatsInUse": {
+    "message": "$OCCUPIED$ of $TOTAL$ seats in use",
+    "placeholders": {
+      "occupied": {
+        "content": "$1",
+        "example": "7"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
   "monthly": {
     "message": "每月"
   },
@@ -5538,6 +5867,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "刪除群組"
+  },
+  "deleteGroups": {
+    "message": "刪除了 $QUANTITY$ 個群組。",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "刪除此群組後，指派至該群組的成員可能會失去相關共享資料夾的存取權限，但成員本身不會被刪除。"
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "刪除這些群組後，指派至群組的成員可能會失去相關共享資料夾的存取權限，但成員本身不會被刪除。"
+  },
+  "groupCreated": {
+    "message": "已建立群組"
+  },
+  "groupDeleted": {
+    "message": "已刪除群組"
+  },
+  "groupsDeleted": {
+    "message": "已刪除 $QUANTITY$ 個群組",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "已編輯群組"
+  },
+  "noGroupsYet": {
+    "message": "尚無群組"
+  },
+  "noGroupsYetDesc": {
+    "message": "群組可協助管理 $ORGANIZATIONNAME$ 的成員，並授予他們共享資料夾的存取權限。",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5987,6 +6364,70 @@
       }
     }
   },
+  "sendDisabledByPolicy": {
+    "message": "Send$SENDID$ disabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "sendEnabledByPolicy": {
+    "message": "Send$SENDID$ enabled by policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "createdItemSend": {
+    "message": "Created item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "editedItemSend": {
+    "message": "Edited item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "deletedItemSend": {
+    "message": "Deleted item Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
+  },
+  "accessedItemSend": {
+    "message": "Accessed item Send$SENDID$ created by $ID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
   "sendAccessExternal": {
     "message": "外部"
   },
@@ -6273,7 +6714,7 @@
     }
   },
   "httpAuthReleasedItemId": {
-    "message": "Answered an HTTP authentication request with item $ID$.",
+    "message": "已使用項目 $ID$ 回應 HTTP 驗證要求。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6470,6 +6911,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "拒絕將項目移轉至組織"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "因不符合組織的雙重驗證政策，已撤銷 $ID$ 的組織存取權限。",
@@ -6901,10 +7350,10 @@
     "message": "重新傳送邀請"
   },
   "sendInvite": {
-    "message": "Send invite"
+    "message": "傳送邀請"
   },
   "sendInvites": {
-    "message": "Send invites"
+    "message": "傳送邀請"
   },
   "resendEmail": {
     "message": "重新傳送電子郵件"
@@ -6919,7 +7368,7 @@
     }
   },
   "hasBeenInvited": {
-    "message": "$USER$ invited",
+    "message": "已邀請$USER$",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7192,6 +7641,15 @@
   "openOrgInviteAcceptUnexpected": {
     "message": "發生錯誤，請重新載入頁面後再試一次。"
   },
+  "verify": {
+    "message": "驗證"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "若要加入此組織，請輸入傳送至您電子郵件信箱的驗證碼。"
+  },
+  "failedToSendVerificationEmail": {
+    "message": "傳送驗證電子郵件失敗。請再試一次。"
+  },
   "openOrgInviteNoSeatsMessage": {
     "message": "由於沒有可用席位，因此無法接受您的邀請。"
   },
@@ -7314,10 +7772,6 @@
     "message": "升級方案",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
-  "changeBillingPlanUpgrade": {
-    "message": "為了將您的帳戶升級至另一個方案，請提供以下資訊。同時請確保您的帳戶已經有一個有效的付款方式。",
-    "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
-  },
   "invoiceNumber": {
     "message": "帳單 #$NUMBER$",
     "description": "ex. Invoice #79C66F0-0001",
@@ -7392,6 +7846,30 @@
   },
   "limitSmSubscriptionDesc": {
     "message": "為您的機密管理員訂閲設定席位限制。達到此限制後，就無法邀請新成員。"
+  },
+  "limitPrivilegedControlsSubscriptionDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
+  },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "maxSeatLimit": {
     "message": "席位限制（選用）",
@@ -7995,6 +8473,9 @@
   "viewApiKey": {
     "message": "檢視 API 金鑰"
   },
+  "copyApiKey": {
+    "message": "複製API金鑰"
+  },
   "rotateApiKey": {
     "message": "輪換 API 金鑰"
   },
@@ -8526,14 +9007,34 @@
     "message": "複製 Send 連結",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "removeAuth": {
+    "message": "移除密碼或電子郵件驗證"
+  },
+  "removedAuth": {
+    "message": "已移除密碼或電子郵件驗證"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "移除密碼"
+  },
+  "removeEmailVerification": {
+    "message": "移除電子郵件驗證"
   },
   "removedPassword": {
     "message": "密碼已移除"
   },
-  "removePasswordConfirmation": {
-    "message": "您確定要移除此密碼嗎？"
+  "removedEmailVerification": {
+    "message": "已移除電子郵件驗證"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
     "message": "所有 Send"
@@ -8984,6 +9485,24 @@
       }
     }
   },
+  "sentInviteReminderToUserId": {
+    "message": "已向使用者 $ID$ 發出邀請。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "resentInviteToUserId": {
+    "message": "再次向使用者 $ID$ 發出邀請。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "系統"
   },
@@ -9010,6 +9529,15 @@
   },
   "desktopAutotypePolicyDescVfo1": {
     "message": "為成員啟用桌面自動輸入。"
+  },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
   },
   "disableSend": {
     "message": "停用 Send"
@@ -9161,6 +9689,9 @@
   "estimatedTax": {
     "message": "估計稅額"
   },
+  "prorationChargeMayDiffer": {
+    "message": "Your final charge may differ slightly, since proration is calculated up to the moment you submit."
+  },
   "subtotal": {
     "message": "小計"
   },
@@ -9229,6 +9760,12 @@
   },
   "manageAccountRecovery": {
     "message": "管理帳戶復原"
+  },
+  "manageAccessRules": {
+    "message": "管理存取規則"
+  },
+  "manageRotation": {
+    "message": "管理輪替"
   },
   "disableRequiredError": {
     "message": "您必須先手動停用 $POLICYNAME$ 原則，然後才能停用此原則。",
@@ -11119,7 +11656,7 @@
     }
   },
   "forwarderUnsafeUrl": {
-    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "message": "不允許使用此 URL。必須使用 https，且不得指向本機或私人網路位址。",
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
@@ -11131,11 +11668,11 @@
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
-    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "message": "此 URL 可能不安全，或指向私人網路。使用此 URL 可能導致私人資料外洩。只有在您信任此伺服器時才繼續。",
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "信任 URL",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
@@ -11645,10 +12182,6 @@
     "message": "服務帳戶",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
-  "serviceAccounts": {
-    "message": "服務帳戶",
-    "description": "The title for the section that deals with service accounts."
-  },
   "secrets": {
     "message": "機密",
     "description": "The title for the section of the application that deals with secrets."
@@ -12053,6 +12586,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "新增共用資料夾，以安全地與其他成員共用保險庫項目。"
   },
+  "pinned": {
+    "message": "已釘選",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "釘選至側邊欄",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "從側邊欄取消釘選",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "已將 $NAME$ 釘選至側邊欄",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "已將 $NAME$ 從側邊欄取消釘選",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "在此密碼庫中找到共享資料夾，然後從選項選單中選取",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "。",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "將共享資料夾釘選至側邊欄，即可在此處篩選。"
+  },
   "noMembersAdded": {
     "message": "未新增任何成員"
   },
@@ -12446,8 +13022,91 @@
   "userAccessSecretsManagerGA": {
     "message": "此使用者可以存取 Secrets Manager"
   },
+  "products": {
+    "message": "Products"
+  },
   "privilegedControls": {
     "message": "特殊權限控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Advanced access rules"
+  },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated password rotation"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsSeatsAbovePasswordManagerSeats": {
+    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
+    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
+    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "description": "'Password Manager' is a product name and should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be greater than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13201,23 +13860,8 @@
   "inviteUsers": {
     "message": "邀請使用者"
   },
-  "secretsManagerForPlan": {
-    "message": "$PLAN$ 的 Secrets Manager",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
-  "secretsManagerForPlanDesc": {
-    "message": "提供工程與 DevOps 團隊一套在軟體開發生命週期中，管理機密資訊的功能。"
-  },
-  "free2PersonOrganization": {
-    "message": "免費的 2 人組織"
-  },
-  "freePlanWithSharedVault": {
-    "message": "含共享密碼庫的免費方案"
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "unlimitedSecrets": {
     "message": "無限數量的機密"
@@ -13252,8 +13896,9 @@
       }
     }
   },
-  "subscribeToSecretsManager": {
-    "message": "訂閲機密管理員"
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "將機密管理員加入您的升級方案，來維持先前方案建立的機密資訊的存取權限。"
@@ -13334,6 +13979,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "機密管理員方案價格"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls 方案價格",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "密碼管理員"
@@ -13827,9 +14476,6 @@
     "message": "請說明取消原因",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
-  "freeForOneYear": {
-    "message": "免費 1 年"
-  },
   "newWebApp": {
     "message": "歡迎使用全新改良的網頁應用程式。瞭解更多變更內容。"
   },
@@ -14147,15 +14793,6 @@
   },
   "smAccessRemovalWarningMaMessage": {
     "message": "此動作將移除您對此機器帳號的存取權限。"
-  },
-  "machineAccountsIncluded": {
-    "message": "已包含 $COUNT$ 個機器帳號",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "additionalMachineAccountCost": {
     "message": "每月 $COST$ 可新增機器帳號",
@@ -14520,7 +15157,7 @@
     "message": "切換組織選單"
   },
   "vaultOptions": {
-    "message": "Vault options"
+    "message": "密碼庫選項"
   },
   "vaultItemSelect": {
     "message": "選擇密碼庫項目"
@@ -14629,15 +15266,6 @@
       "amount": {
         "content": "$1",
         "example": "2"
-      }
-    }
-  },
-  "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ 折扣",
-    "placeholders": {
-      "amount": {
-        "content": "$1",
-        "example": "$15.00"
       }
     }
   },
@@ -14860,9 +15488,6 @@
     "message": "請聯絡 Bitwarden 支援。",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
-  "sponsored": {
-    "message": "贊助"
-  },
   "licenseAndBillingManagementDesc": {
     "message": "在 Bitwarden 雲端伺服器完成更新後，請上傳你的授權檔以套用最新變更。"
   },
@@ -15073,9 +15698,6 @@
   },
   "accessToPremiumFeatures": {
     "message": "可使用進階版功能"
-  },
-  "additionalStorageGbMessage": {
-    "message": "GB 額外儲存空間"
   },
   "sshKeyAlgorithm": {
     "message": "金鑰演算法"
@@ -15730,6 +16352,9 @@
   },
   "restartSubscription": {
     "message": "重新啟動你的訂閱"
+  },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "無法載入您的帳單資訊。請關閉此對話方塊後再試一次。"
   },
   "suspendedManagedOrgMessage": {
     "message": "聯繫 $PROVIDER$ 以取得協助。",
@@ -16469,9 +17094,6 @@
   "familiesUpdated": {
     "message": "你已升級為家庭方案！"
   },
-  "taxCalculationError": {
-    "message": "計算你所在地區的稅額時發生錯誤。請再試一次。"
-  },
   "individualUpgradeWelcomeMessage": {
     "message": "歡迎使用 Bitwarden"
   },
@@ -16493,8 +17115,8 @@
   "upgradeNow": {
     "message": "立即升級"
   },
-  "getAdvancedOnlineSecurityWithBitwardenPremium": {
-    "message": "透過 Bitwarden Premium 取得進階線上安全防護。"
+  "getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized": {
+    "message": "Get advanced online security with Bitwarden Premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "填寫此表單將建立新的家庭組織。你可以從管理主控台升級你的免費組織。"
@@ -17194,28 +17816,28 @@
     "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "最新消息"
   },
   "tourTheNewVaultDescription": {
-    "message": "With updated navigation and design, it's easier than ever to find what you need."
+    "message": "透過更新後的導覽方式與介面設計，您可以更輕鬆地找到所需內容。"
   },
   "coachmarkSwitchProductsTitle": {
-    "message": "Switch between products"
+    "message": "切換產品"
   },
   "coachmarkSwitchProductsDescription": {
-    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+    "message": "按一下即可查看您有權存取的其他 Bitwarden 產品，或探索新產品與方案。"
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "所有密碼庫集中一處"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "快速檢視個人項目，或您與其他人共享的密碼庫中的項目。"
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "收藏集和資料夾已重新命名"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "功能不變，名稱更清楚。收藏集現在稱為共享資料夾，資料夾則改稱我的資料夾。"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "監控安全性活動"
@@ -17248,10 +17870,10 @@
     "message": "定期重新整理報表與分析，以掌握新風險，並隨著組織成長查看最新指標。"
   },
   "coachmarkFiltersTitle": {
-    "message": "Mix and match filters"
+    "message": "組合使用篩選器"
   },
   "coachmarkFiltersDescription": {
-    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+    "message": "您可以同時選取多個篩選器，縮小結果範圍以精確找到所需項目。即使離開目前頁面，篩選條件仍會保留。"
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
@@ -17280,7 +17902,7 @@
     }
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "無法匯入 $COUNT$ 個 1Password 項目或密碼庫",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17289,52 +17911,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "發生錯誤。請檢查您的登入憑證，然後再試一次。"
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "僅支援使用密碼登入。"
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "僅支援使用密碼登入。請再試一次，或使用其他匯入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "請輸入有效的電子郵件地址，或使用其他匯入方式。"
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "發生錯誤。請再試一次，或使用其他匯入方式。"
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "必須輸入電子郵件地址。"
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "請輸入有效的電子郵件地址。"
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "必須輸入登入網址。"
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "請輸入有效的登入網址。"
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "必須輸入秘密金鑰。"
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "請輸入有效的秘密金鑰。"
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "必須輸入密碼。"
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "輸入有效的驗證碼。"
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "登入網址"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password 電子郵件"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "輸入您用來登入 1Password 的電子郵件地址"
   },
   "secretKey": {
     "message": "金鑰"
@@ -17545,6 +18167,63 @@
   },
   "importingYourAccount": {
     "message": "正在匯入您的帳戶..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "伺服器"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "必須輸入電子郵件地址。"
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "請輸入有效的電子郵件地址。"
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "不支援此雙重驗證方式。請切換驗證方式或手動匯入。"
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "裝置核准方式"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "請輸入有效的驗證碼。"
+  },
+  "keeperLoginCodeResent": {
+    "message": "已重新傳送驗證碼"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "已將 Keeper Push 推播通知傳送至已核准的裝置。"
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "請選取下方其中一種方式來核准此裝置。"
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "請查看您的電子郵件，並在下方輸入驗證碼。"
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "請輸入驗證器應用程式中的驗證碼。"
+  },
+  "keeperLoginSmsDesc": {
+    "message": "請輸入透過簡訊傳送的驗證碼。"
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "請輸入您的 Keeper 主密碼。"
+  },
+  "keeperLoginDnaSent": {
+    "message": "已傳送 Keeper DNA 通知"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "請在您的裝置上核准 Keeper DNA 通知。"
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "您的核准要求將被取消。確定要繼續嗎？"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "我們已向您的管理員傳送管理員核准要求。"
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "必須輸入密碼。"
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "請輸入有效的密碼。"
   },
   "passcode": {
     "message": "驗證碼"
@@ -17797,53 +18476,1094 @@
   "copy": {
     "message": "複製"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "存取要求"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "核准、監控及稽核對您憑證的限時存取。"
+  },
+  "pamTabApprovals": {
+    "message": "核准"
+  },
+  "pamTabMyRequests": {
+    "message": "我的要求"
+  },
+  "pamTabHistory": {
+    "message": "歷史記錄"
+  },
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "無法載入您的要求"
+  },
+  "pamStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
+  },
+  "pamStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing, the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "您目前沒有任何要求"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "您目前沒有任何存取敏感憑證的要求。"
+  },
+  "pamColumnItem": {
+    "message": "項目"
+  },
+  "pamColumnWindow": {
+    "message": "視窗"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "要求的存取時段"
+  },
+  "pamColumnSubmitted": {
+    "message": "已提交"
+  },
+  "pamColumnStatus": {
+    "message": "狀態"
+  },
+  "pamColumnResolvedBy": {
+    "message": "處理者"
+  },
+  "pamColumnResolved": {
+    "message": "已處理"
+  },
+  "pamColumnRemaining": {
+    "message": "剩餘"
+  },
+  "pamColumnActions": {
+    "message": "操作"
+  },
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column, for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals, for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowOpenUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state, shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "已延長 $DURATION$ · 截至 $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "請在 $REMAINING$ 內啟用",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "存取規則"
+  },
+  "pamResolverRequester": {
+    "message": "要求者"
+  },
+  "pamResolverUnknown": {
+    "message": "未知使用者"
+  },
+  "pamInboxInSharedFolder": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReasonMissing": {
+    "message": "未提供原因"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "存取要求"
+  },
+  "pamInboxRequester": {
+    "message": "已要求"
+  },
+  "pamStartLeaseButton": {
+    "message": "開始存取"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "已開始存取。"
+  },
+  "pamInboxStartAsap": {
+    "message": "立即開始"
+  },
+  "pamInboxStartToday": {
+    "message": "今天"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "明天"
+  },
+  "pamInboxStartInDays": {
+    "message": "$DAYS$ 天後",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "無法開始存取。"
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "已取消要求"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "無法取消要求"
+  },
+  "pamEndLeaseButton": {
+    "message": "結束存取"
+  },
+  "pamEndLeaseTitle": {
+    "message": "要結束存取嗎？"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "這將立即撤銷您的存取權限。此操作無法復原。"
+  },
+  "pamEndLeaseSuccess": {
+    "message": "存取已結束。"
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "延長存取時間"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "延長時間"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "原因"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "已延長存取時間。"
+  },
+  "pamExtendLeaseError": {
+    "message": "無法延長存取時間。"
+  },
+  "pamExtendLeaseEnded": {
+    "message": "您的存取權限在延長前就已結束。您可以在歷史記錄中查看該要求。"
+  },
+  "pamStatusApproved": {
+    "message": "已核准"
+  },
+  "pamStatusActivated": {
+    "message": "有效"
+  },
+  "pamStatusDenied": {
+    "message": "拒絕"
+  },
+  "pamStatusCanceled": {
+    "message": "已取消"
+  },
+  "pamStatusExpired": {
+    "message": "已逾期"
+  },
+  "pamStatusRevoked": {
+    "message": "已撤銷"
+  },
+  "pamStatusSessionEnded": {
+    "message": "工作階段已結束"
+  },
+  "pamStatusUnknown": {
+    "message": "未知"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "特殊權限控制：存取前必須提出要求"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "特殊權限"
+  },
+  "pamAccessBadgePending": {
+    "message": "等待核准"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "無法使用"
+  },
+  "pamAccessBadgeReady": {
+    "message": "可開始使用"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "剩餘 $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "即將結束 • 剩餘 $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "工作階段已結束"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "有效",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon",
+    "description": "Controlled access filter option in the vault table: items whose access session is about to end."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "要求者已結束存取"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "存取權限已撤銷"
+  },
+  "pamAuditLoadError": {
+    "message": "無法載入稽核軌跡"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "尚無稽核活動"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "此組織的特殊權限存取活動將顯示在這裡。"
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "沒有符合條件的事件"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "沒有符合目前篩選條件的事件。"
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "請選擇過去 $DAYS$ 天內的日期。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditCustomRange": {
+    "message": "$START$ – $END$",
+    "description": "The custom range in force on the audit log's Time period filter, shown on the filter chip and as the selected option in its menu.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeFrom": {
+    "message": "From $START$",
+    "description": "A custom range on the audit log's Time period filter that has a start date but no end date.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Nov 1, 2026"
+      }
+    }
+  },
+  "pamAuditCustomRangeUntil": {
+    "message": "Until $END$",
+    "description": "A custom range on the audit log's Time period filter that has an end date but no start date.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "Nov 4, 2026"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "事件"
+  },
+  "pamAuditColumnActor": {
+    "message": "執行者"
+  },
+  "pamAuditColumnRequester": {
+    "message": "要求者"
+  },
+  "pamAuditColumnItem": {
+    "message": "項目"
+  },
+  "pamAuditColumnDuration": {
+    "message": "持續時間"
+  },
+  "pamAuditColumnDetail": {
+    "message": "詳細資訊"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "已延長至 $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "系統"
+  },
+  "pamAuditIncomplete": {
+    "message": "未完成"
+  },
+  "pamAuditOutcomeUnconfirmedTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed. It may have failed or been interrupted."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "請求進入"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "要求已核准"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "要求已拒絕"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "要求已取消"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "要求已到期，尚未作出決定"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "核准已到期且未使用"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "存取權限已啟用"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "啟用遭到拒絕"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "存取時間已延長"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "存取權限已到期"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "已存取憑證"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "憑證存取遭到拒絕"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "存取規則已建立"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "存取規則已更新"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "存取規則已刪除"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "已觸發緊急停止開關"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "已啟用存取凍結"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "已解除存取凍結"
+  },
+  "pamAuditKindUnknown": {
+    "message": "未知事件"
+  },
+  "pamAuditLog": {
+    "message": "稽核記錄"
+  },
+  "pamAccessRequestTitle": {
+    "message": "存取要求"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "要求詳細資料"
+  },
+  "pamAccessRequestDetailsHeading": {
+    "message": "Details",
+    "description": "Heading over the request's own fields in the access request dialog."
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "存取"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "決定記錄"
+  },
+  "pamAccessRequestDecisionHeading": {
+    "message": "Decision",
+    "description": "Heading over who decided a request and when, in the access request dialog."
+  },
+  "pamDecisionApprovedBy": {
+    "message": "Approved by",
+    "description": "Label for who approved an access request."
+  },
+  "pamDecisionDeniedBy": {
+    "message": "Denied by",
+    "description": "Label for who denied an access request."
+  },
+  "pamDecisionRevokedBy": {
+    "message": "Revoked by",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ended by",
+    "description": "Label for the requester who ended their own access."
+  },
+  "pamDecisionEmail": {
+    "message": "Email",
+    "description": "Label for the deciding approver's email address."
+  },
+  "pamDecisionComment": {
+    "message": "Decision comment",
+    "description": "Label for the note an approver left with their decision."
+  },
+  "pamStartSessionButton": {
+    "message": "Start session",
+    "description": "Starts the approved access window, on the access request dialog. The tables call the same action 'Start access'."
+  },
+  "pamEndSessionButton": {
+    "message": "End session",
+    "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
+  },
+  "pamDecisionAutomatic": {
+    "message": "System (automatic)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Submit new request",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
+  "pamWithdrawReasonLabel": {
+    "message": "Reason",
+    "description": "Label for the note an approver must give when withdrawing an approval."
+  },
+  "pamWithdrawReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log.",
+    "description": "Placeholder for the withdrawal reason field."
+  },
+  "pamWithdrawReasonHint": {
+    "message": "Keep it brief. The requester reads this directly.",
+    "description": "Hint under the withdrawal reason field."
+  },
+  "pamAccessRequestNotFound": {
+    "message": "無法取得存取要求"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "您無法查看此存取要求，或該要求已不存在。"
+  },
+  "pamAccessRequestLoadError": {
+    "message": "無法載入此存取要求。"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "存取要求等待核准"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "在授予存取權限前，憑證內容會保持遮蔽。"
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "您可以要求存取權限"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "尚未取得授權，無法提出存取要求。",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "已核准的存取時段尚未開始。"
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "已核准的存取時段已結束。"
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "此要求尚未核准。"
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "此要求已無法啟用。"
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "此要求的存取權限已使用，目前不再有效。"
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "此項目同一時間只能有 1 位使用者擁有有效存取權限。請在目前的存取結束後再試一次。"
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "不允許從您目前的網路存取此項目。"
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "目前時段不允許存取此項目。"
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "目前不允許存取此項目。"
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "需要 Privileged Controls 授權。請要求管理員啟用您的授權。",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "最長可存取 $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "最長可存取 $DURATION$，符合條件即可立即核准",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "要求存取權限"
+  },
+  "pamRequestSlotTaken": {
+    "message": "目前有其他人正在存取此項目。您仍可提出存取要求，但必須等對方結束存取後才能開始。"
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "目前有其他人正在存取此項目。您仍可提出存取要求，但必須等到 $TIME$ 才能開始。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "取消要求"
+  },
+  "pamKeepRequest": {
+    "message": "保留要求"
+  },
+  "pamCancelRequestTitle": {
+    "message": "取消存取要求"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "這會在核准者作出決定前撤回您的要求。您可以隨時提交新的要求。"
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "這將放棄已核准的存取權限。您可以提交新的要求，但必須重新取得核准。"
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "已取消要求"
+  },
+  "pendingStateCancelError": {
+    "message": "無法取消要求。"
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "選擇存取時間長度，即可立即取得該時段的存取權限。"
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "選擇存取時段並向核准者說明存取原因，核准者將審查並作出決定。"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
+  },
+  "requestAccessModalStartDate": {
+    "message": "開始日期"
+  },
+  "requestAccessModalStart": {
+    "message": "開始時間"
+  },
+  "requestAccessModalEndDate": {
+    "message": "結束日期"
+  },
+  "requestAccessModalEnd": {
+    "message": "結束時間"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "結束時間必須晚於開始時間。"
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$（現在）",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "自訂時間…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "自訂結束日期與時間…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "顯示建議的開始時間"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "返回建議的持續時間"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$，截至 $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "要求存取 $DURATION$：$START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "要求的存取時段已結束。請選擇較晚的日期或時間。"
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "存取時段不得超過 $DURATION$。",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalGenericError": {
+    "message": "無法提出存取要求。請再試一次。"
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "您已擁有此項目的有效存取權限。"
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "要求者"
+  },
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "更多資訊"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "選填，將儲存至稽核記錄"
+  },
+  "pamDecideApproveTitle": {
+    "message": "核准存取要求"
+  },
+  "pamDecideDenyTitle": {
+    "message": "拒絕存取要求"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "拒絕原因"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "例如：不再需要存取權限"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "拒絕此要求時必須提供原因。"
+  },
+  "pamInboxApprove": {
+    "message": "核准"
+  },
+  "pamInboxApprovedToast": {
+    "message": "要求已核准"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "撤回核准"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "您無法核准自己的要求。"
+  },
+  "pamInboxCommentLabel": {
+    "message": "留言"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "新增留言（選填）"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "無法記錄決定"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "此要求已不再等待處理，可能已被撤回或已作出決定。"
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "此要求的存取時段已結束，無法再作出決定。"
+  },
+  "pamInboxDeny": {
+    "message": "拒絕"
+  },
+  "pamInboxDeniedToast": {
+    "message": "要求已遭拒絕"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "您已有一筆此項目已核准的存取要求。"
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "您已有一筆此項目等待核准的存取要求。"
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$ 天前",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$ 週前",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "目前沒有等待您決定的要求。"
+  },
+  "pamInboxEmptyTitle": {
+    "message": "收件匣已清空"
+  },
+  "pamInboxLoadFailed": {
+    "message": "無法載入收件匣"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "要求原因"
+  },
+  "pamInboxRevoke": {
+    "message": "撤銷"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "無法撤銷存取權限"
+  },
+  "pamInboxRevokedToast": {
+    "message": "存取權限已撤銷"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "核准已撤回"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "無法撤回核准"
+  },
+  "pamAccessRequestsNoResults": {
+    "message": "No access requests match your filters."
+  },
+  "pamApprovalsLoaded": {
+    "message": "已載入存取要求"
+  },
+  "pamHistoryLoaded": {
+    "message": "已載入要求歷史記錄"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "尚無要顯示的內容"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "進行要求或核准操作後，相關活動將顯示在這裡。"
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "這將立即撤銷該成員的存取權限。成員必須重新取得核准才能恢復存取權限。"
+  },
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
+      }
+    }
+  },
+  "pamWithdrawApprovalWarningOne": {
+    "message": "This withdraws your approval for",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningTwo": {
+    "message": ". Access won't start, and",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalWarningThree": {
+    "message": "will need a new approval to get it.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence. The item name follows part one and the requester's name follows part two."
+  },
+  "pamWithdrawApprovalReasonLabel": {
+    "message": "Reason"
+  },
+  "pamWithdrawApprovalReasonPlaceholder": {
+    "message": "Shown to the requester in their decision log."
+  },
+  "pamWithdrawApprovalReasonHint": {
+    "message": "Keep it brief. The requester reads this directly."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "存取規則"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "此處項目的存取權限由以下規則控制："
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ 小時前",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "剛剛"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ 分鐘前",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "存取規則"
   },
+  "pamSharedFolderRequiresRequest": {
+    "message": "Items in this Shared folder require a request.",
+    "description": "Names the restriction on a shared folder governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the shared folder is opened; the two must always say the same thing. 'Shared folder' is the product name for a collection and stays capitalised."
+  },
+  "pamGatedCollectionBannerName": {
+    "message": "特殊權限存取",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
+  },
+  "pamNoAccessRule": {
+    "message": "無存取規則",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
+  },
   "pamAccessRuleActive": {
-    "message": "Active"
+    "message": "有效"
   },
   "pamAccessRuleInactive": {
-    "message": "Inactive"
+    "message": "未啟用"
   },
   "pamAccessRuleActiveHint": {
-    "message": "When inactive, the rule does not restrict access."
+    "message": "規則未啟用時，不會限制存取。"
   },
   "pamAccessRuleActivate": {
-    "message": "Activate rule"
-  },
-  "pamAccessRuleDeactivate": {
-    "message": "Deactivate rule"
-  },
-  "pamAccessRuleActivateSuccess": {
-    "message": "Access rule activated."
-  },
-  "pamAccessRuleDeactivateSuccess": {
-    "message": "Access rule deactivated."
-  },
-  "pamAccessRuleEnabled": {
-    "message": "已啟用"
-  },
-  "pamAccessRuleEnabledHint": {
-    "message": "停用後，此規則將不會生效，也不會限制存取。"
-  },
-  "pamAccessRuleEnable": {
     "message": "啟用規則"
   },
-  "pamAccessRuleDisable": {
+  "pamAccessRuleDeactivate": {
     "message": "停用規則"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "存取規則已啟用。"
+  "pamAccessRuleActivateSuccess": {
+    "message": "已啟用存取規則。"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "存取規則已停用。"
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "已停用存取規則。"
   },
   "pamAccessRuleNotFound": {
     "message": "找不到存取規則。"
@@ -17852,10 +19572,7 @@
     "message": "設定規則，以控制哪些人可以要求存取敏感憑證、需符合哪些條件，以及可存取多久。"
   },
   "pamAccessRuleCreate": {
-    "message": "Create access rule"
-  },
-  "pamAccessRuleNew": {
-    "message": "新增規則"
+    "message": "建立存取規則"
   },
   "pamAccessRuleCreateTitle": {
     "message": "新增存取規則"
@@ -17873,7 +19590,7 @@
     "message": "一般資訊"
   },
   "pamAccessRuleStatusHeading": {
-    "message": "Status"
+    "message": "狀態"
   },
   "pamAccessRuleAccessDurationHeading": {
     "message": "存取時間"
@@ -17881,20 +19598,20 @@
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "選用條件"
   },
-  "pamAccessRuleCollectionsSelect": {
-    "message": "選擇收藏集"
+  "pamAccessRuleSharedFoldersSelect": {
+    "message": "Select shared folders"
   },
-  "pamAccessRuleCollectionsHint": {
-    "message": "此存取規則將套用至所有選取的收藏集。"
+  "pamAccessRuleSharedFoldersHint": {
+    "message": "This access rule will apply to all selected shared folders."
   },
   "pamAccessRuleEventLogNotice": {
-    "message": "All requests and decisions are logged."
+    "message": "所有要求與決定都會記錄。"
   },
   "pamAccessRuleViewAuditLog": {
-    "message": "View audit log"
+    "message": "檢視稽核記錄"
   },
-  "pamAccessRuleCollectionsLoadError": {
-    "message": "無法載入收藏集。請重新整理頁面後再試一次。"
+  "pamAccessRuleSharedFoldersLoadError": {
+    "message": "Couldn't load shared folders. Refresh the page to try again."
   },
   "pamAccessRuleDefaultDurationHint": {
     "message": "此時間長度會預先填入存取要求中。"
@@ -17903,73 +19620,28 @@
     "message": "描述"
   },
   "pamAccessRuleDefaultDurationLabel": {
-    "message": "Default duration"
+    "message": "預設持續時間"
   },
   "pamAccessRuleMaxDurationLabel": {
-    "message": "Maximum duration"
+    "message": "最長持續時間"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "無上限"
   },
   "pamAccessRuleMaxDurationLimitHint": {
-    "message": "Access is limited to this length, whatever duration is requested."
-  },
-  "pamAccessRuleDuration15m": {
-    "message": "15 分鐘"
-  },
-  "pamAccessRuleDuration30m": {
-    "message": "30 分鐘"
-  },
-  "pamAccessRuleDuration1h": {
-    "message": "1 小時"
-  },
-  "pamAccessRuleDuration2h": {
-    "message": "2 小時"
-  },
-  "pamAccessRuleDuration4h": {
-    "message": "4 小時"
-  },
-  "pamAccessRuleDuration8h": {
-    "message": "8 小時"
-  },
-  "pamAccessRuleDuration1d": {
-    "message": "1 day"
-  },
-  "pamAccessRuleDuration2d": {
-    "message": "2 days"
-  },
-  "pamAccessRuleDuration24h": {
-    "message": "24 小時"
-  },
-  "pamAccessRuleDuration7d": {
-    "message": "7 天"
-  },
-  "pamAccessRuleDuration30d": {
-    "message": "30 days"
+    "message": "無論要求的時間有多長，存取時間都不得超過此上限。"
   },
   "pamAccessRuleSingleActiveUser": {
-    "message": "Only 1 user can have active access at a time"
+    "message": "同一時間只能有 1 位使用者擁有有效存取權限"
   },
   "pamAccessRuleSingleActiveAccessHint": {
-    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+    "message": "其他已取得核准的使用者，可在目前的存取結束或遭撤銷後嘗試開始存取。"
   },
   "pamAccessRuleAllowAccessExtensions": {
-    "message": "Allow access extensions"
+    "message": "允許延長存取時間"
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
-    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
-  },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "同一時間只能有一位使用者持有有效租用權限"
-  },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "新的要求會排入佇列，直到目前的租用結束或被撤銷。"
-  },
-  "pamAccessRuleAllowExtensions": {
-    "message": "允許延長租用"
-  },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "成員可在不重新取得核准的情況下延長一次有效租用，最長不超過下方設定的時間。"
+    "message": "成員無須重新取得核准，即可延長目前的存取時間一次，但不得超過下方設定的最長時間。"
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "最長延長時間"
@@ -17986,11 +19658,11 @@
   "pamAccessRuleApprovers": {
     "message": "核准者"
   },
-  "pamAccessRuleApproversCollectionManagers": {
-    "message": "收藏集管理員"
+  "pamAccessRuleApproversSharedFolderManagers": {
+    "message": "Shared folder managers"
   },
   "pamAccessRuleDuplicateName": {
-    "message": "$NAME$ (copy)",
+    "message": "$NAME$（複本）",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -17999,7 +19671,7 @@
     }
   },
   "pamAccessRuleDuplicateNameNumbered": {
-    "message": "$NAME$ (copy $NUMBER$)",
+    "message": "$NAME$（複本 $NUMBER$）",
     "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
     "placeholders": {
       "name": {
@@ -18012,8 +19684,8 @@
       }
     }
   },
-  "pamAccessRuleCopyCreated": {
-    "message": "Copy created. Choose the collections it applies to."
+  "pamAccessRuleCopyCreatedSharedFolder": {
+    "message": "Copy created. Choose the shared folders it applies to."
   },
   "pamAccessRuleCreated": {
     "message": "存取規則已建立。"
@@ -18022,40 +19694,34 @@
     "message": "存取規則已更新。"
   },
   "pamAccessRuleDeleted": {
-    "message": "Access rule deleted."
+    "message": "存取規則已刪除。"
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "刪除存取規則？"
   },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "要刪除「$NAME$」嗎？任何使用此規則的收藏集都將停用租用功能。",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "VPN + business hours"
-      }
-    }
+  "pamAccessRuleDeleteConfirmDescriptionSharedFolder": {
+    "message": "This will permanently remove this rule. Users in the shared folders it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
-    "message": "Deactivate access rule"
+    "message": "停用存取規則"
   },
   "pamAccessRuleDeactivateConfirmContent": {
-    "message": "This rule will stop applying to new access requests."
+    "message": "此規則將不再套用至新的存取要求。"
   },
   "pamAccessRuleSaveErrorGeneric": {
-    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+    "message": "發生錯誤，無法儲存規則，但您輸入的資訊仍會保留。"
   },
   "pamAccessRuleNameRequired": {
-    "message": "Enter a name."
+    "message": "輸入名稱。"
   },
   "pamAccessRuleErrorNameTaken": {
-    "message": "Another rule already uses this name. Enter a different name."
+    "message": "已有其他規則使用此名稱。請輸入不同的名稱。"
   },
-  "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Another access rule already covers one of these collections. Select different collections."
+  "pamAccessRuleErrorSharedFoldersGoverned": {
+    "message": "Another access rule already covers one of these shared folders. Select different shared folders."
   },
-  "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+  "pamAccessRuleErrorSharedFoldersGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different shared folders.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -18063,23 +19729,23 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "One of the collections you selected no longer exists. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersMissing": {
+    "message": "One of the shared folders you selected no longer exists. Select a different shared folder."
   },
-  "pamAccessRuleErrorCollectionsForeign": {
-    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  "pamAccessRuleErrorSharedFoldersForeign": {
+    "message": "One of the shared folders you selected is not part of this organization. Select a different shared folder."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
-    "message": "Choose a maximum extension length, or turn off extensions."
+    "message": "請選擇最長延長時間，或關閉延長存取功能。"
   },
   "pamAccessRuleErrorMissing": {
-    "message": "This rule no longer exists. It may have been deleted by another admin."
+    "message": "此規則已不存在，可能已被其他管理員刪除。"
   },
   "pamNoAccessRulesYetTitle": {
     "message": "尚無存取規則"
   },
-  "pamNoAccessRulesYetDescription": {
-    "message": "建立規則，為敏感收藏集提供額外保護。"
+  "pamNoAccessRulesYetDescriptionSharedFolder": {
+    "message": "Create a rule to add extra protection to sensitive shared folders."
   },
   "pamAccessRuleCreateCustom": {
     "message": "建立自訂規則"
@@ -18094,10 +19760,7 @@
     "message": "即時存取"
   },
   "pamTemplateJustInTimeShortSummary": {
-    "message": "Auto-approved"
-  },
-  "pamTemplateJustInTimeSummary": {
-    "message": "自動核准 • 1 小時後到期 • 記錄稽核日誌"
+    "message": "自動核准"
   },
   "pamTemplateJustInTimeName": {
     "message": "即時存取"
@@ -18106,10 +19769,7 @@
     "message": "需要核准"
   },
   "pamTemplateApprovalRequiredShortSummary": {
-    "message": "Human approval • 1 approver required"
-  },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "人工核准 • 需要 1 位核准者 • 記錄稽核日誌"
+    "message": "人工核准 • 需要 1 位核准者"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "需要核准"
@@ -18118,25 +19778,22 @@
     "message": "IP 限制"
   },
   "pamTemplateIpRestrictedShortSummary": {
-    "message": "Auto-approved • IP Allowlist"
-  },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "自動核准 • IP 允許清單 • 記錄稽核日誌"
+    "message": "自動核准 • IP 允許清單"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP 限制存取"
   },
-  "pamAccessRuleCollectionsColumn": {
-    "message": "收藏集"
+  "pamAccessRuleSharedFoldersColumn": {
+    "message": "Shared folders"
   },
   "pamAccessRuleCollectionsNone": {
     "message": "未指派"
   },
-  "pamAccessRuleCollectionCountSingular": {
-    "message": "1 collection"
+  "pamAccessRuleSharedFolderCountSingular": {
+    "message": "1 shared folder"
   },
-  "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ collections",
+  "pamAccessRuleSharedFolderCount": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18151,16 +19808,10 @@
     "message": "套用至"
   },
   "pamAccessRuleApprovalMethodColumn": {
-    "message": "Approval method"
+    "message": "核准方式"
   },
   "pamAccessRuleDurationColumn": {
-    "message": "Maximum duration"
-  },
-  "pamAccessRuleConditionsColumn": {
-    "message": "條件"
-  },
-  "pamAccessWindow": {
-    "message": "存取時段"
+    "message": "最長持續時間"
   },
   "pamAccessRuleLastModified": {
     "message": "上次修改"
@@ -18178,15 +19829,9 @@
     "message": "沒有符合篩選條件的存取規則。"
   },
   "pamAccessRuleBulkActivate": {
-    "message": "Activate"
-  },
-  "pamAccessRuleBulkDeactivate": {
-    "message": "Deactivate"
-  },
-  "pamAccessRuleBulkEnable": {
     "message": "啟用"
   },
-  "pamAccessRuleBulkDisable": {
+  "pamAccessRuleBulkDeactivate": {
     "message": "停用"
   },
   "pamAccessRulesUpdated": {
@@ -18208,10 +19853,10 @@
     }
   },
   "pamAccessRuleBulkDeactivateConfirmTitle": {
-    "message": "Deactivate access rules"
+    "message": "停用存取規則"
   },
   "pamAccessRuleBulkDeactivateConfirmContent": {
-    "message": "$COUNT$ rules will stop applying to new access requests.",
+    "message": "$COUNT$ 個規則將不再套用至新的存取要求。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18448,8 +20093,21 @@
   "secretsManagerProratedCharge": {
     "message": "Secrets Manager 按比例計算的費用"
   },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls 按比例計算的費用",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "serviceAccountsProratedCharge": {
     "message": "服務帳戶按比例計算的費用"
+  },
+  "viewSharedItem": {
+    "message": "檢視共享項目"
+  },
+  "copyShareLink": {
+    "message": "複製分享連結"
+  },
+  "unableToDetermineItemId": {
+    "message": "無法判定項目 ID"
   },
   "newExperienceDialogTitle": {
     "message": "Bitwarden 有了新外觀",
@@ -18475,5 +20133,1745 @@
   },
   "resetToDefault": {
     "message": "重設至預設值"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "自動填入瀏覽器登入提示",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "回應與此登入項目相符的網站所顯示的 HTTP 基本驗證提示。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "開啟自動填入瀏覽器登入提示的說明文章"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "若要使用此設定，請為此登入項目的每個網站選取「預設」以外的比對偵測選項。"
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "要開啟瀏覽器登入提示的自動填入功能嗎？"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "此項目的主密碼重新提示功能將關閉。這兩項設定無法同時啟用。"
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "要開啟主密碼重新提示功能嗎？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "此項目的瀏覽器登入提示自動填入功能將關閉。這兩項設定無法同時啟用。"
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "要使用預設比對偵測嗎？"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "使用預設比對偵測的網站無法搭配瀏覽器登入提示使用。此項目的瀏覽器登入提示自動填入功能將關閉。"
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "已關閉瀏覽器登入提示自動填入功能"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "此項目已啟用主密碼重新提示功能，因此已關閉瀏覽器登入提示自動填入功能。請儲存項目以保留此變更。"
+  },
+  "pamRotation": {
+    "message": "輪替"
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "受管理憑證"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "目標系統"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "存取連接器"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "已載入受管理憑證"
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "已載入存取連接器"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "已載入目標系統"
+  },
+  "pamRotationPageLoaded": {
+    "message": "已載入頁面"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "新增受管理憑證"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "編輯受管理憑證"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "新增目標系統"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "編輯目標系統"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "輪替排程"
+  },
+  "pamRotationScheduleNone": {
+    "message": "無"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "每小時"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "每 6 小時"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "每天"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "每週"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "每月"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "自訂"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "自訂 cron 運算式"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "請輸入包含 6 個欄位的 Quartz cron 運算式（例如 0 0 */4 * * ?）。伺服器會強制執行至少 15 分鐘的間隔。"
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "請輸入有效的 Quartz cron 運算式（包含 6 或 7 個以空格分隔的欄位）。"
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "未設定輪替排程。此憑證僅會在您手動啟動輪替時，或啟用存取結束時輪替選項且存取結束後進行輪替。"
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "每小時整點輪替一次。"
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "每 6 小時於整點輪替一次。"
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "每天午夜輪替一次。"
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "每週日午夜輪替一次。"
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "每月 1 日午夜輪替一次。"
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "每天 $TIME$ 輪替。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "每 $COUNT$ 天於 $TIME$ 輪替。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "每月於 $TIME$ 輪替。",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "每 $COUNT$ 個月於 $TIME$ 輪替。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "自訂 Quartz 排程：$CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryDayUtc": {
+    "message": "Every day at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNDaysUtc": {
+    "message": "Every $COUNT$ days at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryMonthUtc": {
+    "message": "Every month at $TIME$ UTC",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleColumnEveryNMonthsUtc": {
+    "message": "Every $COUNT$ months at $TIME$ UTC",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "排程使用 UTC 時間執行，而非您的當地時區。"
+  },
+  "pamRotationScheduleInterval": {
+    "message": "間隔"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "重複間隔"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "單位"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "天"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "個月"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "每日執行時間（UTC）"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "間隔依日曆計算。以天為單位的間隔會在每月 1 日重新起算；以月為單位的間隔會在每月 1 日執行，並於每年 1 月重新起算。"
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "請輸入輪替的重複間隔及每日執行時間。"
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "請輸入整數。"
+  },
+  "pamTargetSystemNew": {
+    "message": "新增目標系統"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "類型"
+  },
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Managed credentials"
+  },
+  "pamTargetSystemNone": {
+    "message": "None"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "不支援"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "尚無目標系統"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "新增要讓 Bitwarden 輪替其憑證的系統。"
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "從範本開始"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "使用範本"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "您自行輪替憑證；Bitwarden 會追蹤排程並記錄每次輪替。"
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden 會自動輪替 Microsoft Entra ID 應用程式祕密。"
+  },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden 會在已註冊的存取連接器上執行您的指令碼，自動輪替憑證。"
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "編輯目標系統"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "停用"
+  },
+  "pamTargetSystemActivate": {
+    "message": "啟用"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "請先完成此目標系統的設定，再啟用或停用。"
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "刪除目標系統"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "指派存取連接器"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "指派存取連接器"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "存取連接器"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "所有有效的存取連接器都已指派至此目標系統。"
+  },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Only for automatic rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Remove its managed credentials first."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "只能將存取連接器指派至設定為自動輪替的目標系統。"
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "只能將有效的存取連接器指派至此目標系統。"
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "沒有可指派的有效存取連接器。請在「存取連接器」分頁註冊一個，或啟用現有的連接器。"
+  },
+  "pamTargetSystemDeactivateDialogTitle": {
+    "message": "Deactivate target system"
+  },
+  "pamTargetSystemDeactivateDialogContent": {
+    "message": "No new rotations will start on this target system until you activate it. Rotations already in progress will finish, and pending ones are held."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "停用"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "已停用目標系統。"
+  },
+  "pamTargetSystemDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "已啟用目標系統。"
+  },
+  "pamTargetSystemActivateFailed": {
+    "message": "Couldn't activate. Try again."
+  },
+  "pamTargetSystemDeleteDialogTitle": {
+    "message": "Delete target system"
+  },
+  "pamTargetSystemDeleteDialogContent": {
+    "message": "This target system will be deleted."
+  },
+  "pamTargetSystemDeleteDialogContentDeactivateInstead": {
+    "message": "This target system will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "已刪除目標系統。"
+  },
+  "pamTargetSystemDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "自動"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "手動"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "自訂指令碼"
+  },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory",
+    "description": "'Active Directory' is a product name and should not be translated."
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$（$DETAIL$）",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Remove $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "生效中"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "已失效"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "設定尚未完成"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "一般資訊"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "系統 ID"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "複製系統 ID"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "輸入名稱"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "輪替方式"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "無法確認此目標系統的整合設定。請重新選取以完成設定。"
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "密碼政策"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "最小長度"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "最大長度"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "最小長度必須小於或等於最大長度。"
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "請至少包含一種字元類型。"
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "此政策的密碼強度不足。請增加長度或包含更多字元類型。"
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "支援"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
+  },
+  "pamTargetSystemCreated": {
+    "message": "已建立目標系統。"
+  },
+  "pamTargetSystemCreatedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemSaved": {
+    "message": "已儲存目標系統。"
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "已儲存目標系統，但無法重新讀取儲存的值，因此此頁面可能不是最新狀態。"
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "已建立目標系統，但未能完成設定。請再次儲存以完成安全設定。"
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "完成輪替設定"
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "在「受管理憑證」分頁中新增受管理憑證。"
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "設定尚未完成"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "此目標系統已建立，但尚未完成設定的安全保護。請儲存以完成設定，或將其刪除。"
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "完整性檢查失敗"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "無法驗證此目標系統的設定。請儲存以重新進行安全保護，或將其刪除。"
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "無法驗證此目標系統的設定。"
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "無法確認此目標系統的技術類型是否相符。請重新載入頁面後再試一次。"
+  },
+  "pamTargetSystemNotFound": {
+    "message": "找不到目標系統。"
+  },
+  "pamAccessConnectorRegister": {
+    "message": "註冊存取連接器"
+  },
+  "pamAccessConnectorsEmptyTitle": {
+    "message": "No access connectors yet"
+  },
+  "pamAccessConnectorsEmptyDescription": {
+    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+  },
+  "pamAccessConnectorTargetSystems": {
+    "message": "Target systems"
+  },
+  "pamAccessConnectorConnection": {
+    "message": "連線"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "上次連線時間"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "已指派的目標系統"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "已連線"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "已中斷連線"
+  },
+  "pamAccessConnectorAssignTargetSystemsDisabled": {
+    "message": "Activate this access connector to assign target systems."
+  },
+  "pamAccessConnectorEdit": {
+    "message": "Edit access connector"
+  },
+  "pamAccessConnectorAssignTargetSystems": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "刪除存取連接器"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "指派目標系統"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "目標系統"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "指派目標系統"
+  },
+  "pamAccessConnectorTargetSystemsHint": {
+    "message": "Choose the target systems this access connector can rotate passwords on. Only target systems that use automatic rotation can be assigned."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "所有設定為自動輪替的目標系統都已指派至此存取連接器。"
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "沒有可指派的自動輪替目標系統。請在「目標系統」分頁中建立一個。"
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "前往目標系統"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "無法載入目標系統。請重新整理頁面後再試一次。"
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "已指派目標系統。"
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "尚未指派目標系統。"
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "已指派存取連接器。"
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "移除 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "停用"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "啟用"
+  },
+  "pamAccessConnectorDeactivateDialogTitle": {
+    "message": "Deactivate access connector"
+  },
+  "pamAccessConnectorDeactivateDialogContent": {
+    "message": "This access connector won't take new rotations. Rotations in progress are released."
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "已停用存取連接器。"
+  },
+  "pamAccessConnectorDeactivateFailed": {
+    "message": "Couldn't deactivate. Try again."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "已啟用存取連接器。"
+  },
+  "pamAccessConnectorDeleteDialogTitle": {
+    "message": "Delete access connector"
+  },
+  "pamAccessConnectorDeleteDialogContent": {
+    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "已刪除存取連接器。"
+  },
+  "pamAccessConnectorDeleteFailed": {
+    "message": "Couldn't delete. Try again."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "已儲存存取連接器。"
+  },
+  "pamAccessConnectorSaveFailed": {
+    "message": "Access connector wasn't saved. Try again."
+  },
+  "pamAccessConnectorSaveFailedCallout": {
+    "message": "Access connector wasn't saved. Check your connection, then select Save again."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "註冊存取連接器"
+  },
+  "pamAccessConnectorRegisterDescription": {
+    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
+  },
+  "pamAccessConnectorNameRecognizableHint": {
+    "message": "Use a name your team will recognize, for example East datacenter."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "已註冊存取連接器。"
+  },
+  "pamAccessConnectorRegisterFailed": {
+    "message": "Access connector wasn't registered. Try again."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "存取連接器"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "詳細資料"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "設定"
+  },
+  "pamAccessConnectorTabRotationHistory": {
+    "message": "Rotation history"
+  },
+  "pamAccessConnectorRotationHeading": {
+    "message": "Rotation"
+  },
+  "pamAccessConnectorTargetSystemsPlaceholder": {
+    "message": "Choose target systems"
+  },
+  "pamAccessConnectorDisconnectedCallout": {
+    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+  },
+  "pamAccessConnectorNeverConnectedCallout": {
+    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "存取連接器權杖"
+  },
+  "pamAccessConnectorTokenShownOnceWarning": {
+    "message": "Copy this token now, since you can't see it again after you close this."
+  },
+  "pamAccessConnectorTokenConfigurationHint": {
+    "message": "Add it to the access connector's configuration to connect it."
+  },
+  "pamAccessConnectorTokenStored": {
+    "message": "I stored this token securely"
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "複製權杖"
+  },
+  "pamTokenCopied": {
+    "message": "Token copied."
+  },
+  "pamRotationConfigSearch": {
+    "message": "搜尋受管理憑證"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "尚未設定受管理憑證"
+  },
+  "pamRotationConfigEmptyTitle": {
+    "message": "No managed credentials yet"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "新增受管理憑證即可開始自動輪替。"
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+  },
+  "pamTargetSystemCredentialsEmptyDescription": {
+    "message": "Managed credentials on this target system show here."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Add access connector"
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "無法載入"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "請檢查網路連線後再試一次。如果問題持續發生，請重新整理頁面。"
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "設定目標系統"
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "憑證"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "項目"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "目標系統"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "排程"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "存取結束時輪替"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "上次輪替時間"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "下次輪替"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "已暫停"
+  },
+  "pamRotationConfigStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationConfigStatusNotConnected": {
+    "message": "Not connected"
+  },
+  "pamRotationConfigStatusManualRotation": {
+    "message": "Manual rotation"
+  },
+  "pamRotationConfigColumnAccount": {
+    "message": "Account"
+  },
+  "pamRotationFilterTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationTriggerSchedule": {
+    "message": "On a schedule"
+  },
+  "pamRotationTriggerAccessEnd": {
+    "message": "When access ends"
+  },
+  "pamRotationTriggerOnDemand": {
+    "message": "Only on demand"
+  },
+  "pamRotationNextInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationNextNone": {
+    "message": "None"
+  },
+  "pamRotationRelativeMinutesAgo": {
+    "message": "$COUNT$m ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$hr ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDaysAgo": {
+    "message": "$COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeWeeksAgo": {
+    "message": "$COUNT$w ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeMonthsAgo": {
+    "message": "$COUNT$mo ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeYesterday": {
+    "message": "Yesterday"
+  },
+  "pamRotationRelativeInHours": {
+    "message": "In $COUNT$hr",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeInWeeks": {
+    "message": "In $COUNT$w",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationRelativeDueDaysAgo": {
+    "message": "Due $COUNT$d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamRotationDetailNone": {
+    "message": "None"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "This target system has no access connector, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "The access connectors are disconnected, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "View access connectors"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Access connectors for this target system"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Every credential on this target system uses these."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "The value your script uses to identify the account, for example its username."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "The account's username on the target system, entered exactly as that system expects it."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Due $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Due schedule"
+  },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Rotation trigger"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "The first attempt failed; the retry succeeded."
+  },
+  "pamRotationHistoryColumnRotationStarted": {
+    "message": "Rotation started"
+  },
+  "pamRotationHistoryColumnFinalResult": {
+    "message": "Final result"
+  },
+  "pamRotationHistoryAttemptFailed": {
+    "message": "Attempt $NUMBER$ failed.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamRotationHistoryNoConnectorPickedUp": {
+    "message": "No access connector picked up this rotation."
+  },
+  "pamRotationHistorySessionsEnded": {
+    "message": "Sessions ended"
+  },
+  "pamRotationHistorySessionsNotEnded": {
+    "message": "Couldn't end sessions"
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Rotation details"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Failed"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "The target system didn't respond."
+  },
+  "pamRotationConfigRotateNowInProgress": {
+    "message": "A rotation is in progress."
+  },
+  "pamRotationConfigRotateNowPaused": {
+    "message": "Resume rotation to rotate now."
+  },
+  "pamRotationConfigRotateNowNotConnected": {
+    "message": "No access connector is connected"
+  },
+  "pamRotationConfigRemoveLockedReason": {
+    "message": "Available when the rotation finishes."
+  },
+  "pamRotationConfigEditSettings": {
+    "message": "Edit rotation settings"
+  },
+  "pamRotationConfigViewHistory": {
+    "message": "View rotation history"
+  },
+  "pamRotationConfigRotateNowStarted": {
+    "message": "Rotation started."
+  },
+  "pamRotationConfigRotateNowFailed": {
+    "message": "Rotation didn't start. Try again."
+  },
+  "pamRotationConfigMarkedRotated": {
+    "message": "Marked as rotated."
+  },
+  "pamRotationConfigMarkRotatedFailed": {
+    "message": "Couldn't mark as rotated. Try again."
+  },
+  "pamRotationConfigPauseWhileRotatingSuccess": {
+    "message": "Rotation paused. The rotation in progress will finish."
+  },
+  "pamRotationConfigPauseContent": {
+    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
+  },
+  "pamRotationConfigMarkRotatedContent": {
+    "message": "Only do this after you've changed the password on the target system and updated the vault item."
+  },
+  "pamRotationSubtitleManage": {
+    "message": "Manage credential rotation across target systems, using access connectors running inside your network."
+  },
+  "pamRotationAddManagedCredential": {
+    "message": "Managed credential"
+  },
+  "pamRotationAddTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationAddAccessConnector": {
+    "message": "Access connector"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "輪替中"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "輪替期限已到"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "立即輪替"
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "標記為已輪替"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "目前沒有需要標記的輪替。下次手動輪替期限到達時，即可使用此功能。"
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "標記為已輪替"
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "編輯憑證"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "從輪替管理中移除"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "暫停輪替"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "已暫停輪替。"
+  },
+  "pamRotationConfigPauseFailed": {
+    "message": "Rotation wasn't paused. Try again."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "恢復輪替"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "已恢復輪替。"
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "移除受管理憑證"
+  },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Remove from rotation"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "這將取消此憑證的輪替管理。項目仍會保留在您的密碼庫中，輪替歷史記錄也會保留在稽核記錄中。"
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "輪替進行中無法移除。請等目前工作完成或逾時後再移除。"
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "已移除受管理憑證。"
+  },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Removed from rotation."
+  },
+  "pamRotationConfigRemoveFailed": {
+    "message": "Couldn't remove from rotation. Try again."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "永不"
+  },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "No rotations yet"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "尚未執行任何輪替。"
+  },
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotations for this credential will show up here."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "憑證詳細資料"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "設定"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "歷史記錄"
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "目標系統"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "選取目標系統"
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "無法確認此目標系統是否支援終止工作階段。"
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "存取結束時輪替"
+  },
+  "pamRotationConfigSaved": {
+    "message": "已儲存受管理憑證。"
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "完整性檢查失敗"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "無法驗證此受管理憑證的設定。請儲存以重新進行安全保護。"
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "無法確認此目標系統是否支援終止工作階段。請取消勾選工作階段終止選項，或先更新目標系統。"
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "無法驗證所選目標系統的設定。請先修正目標系統，再進行儲存。"
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "無法確認此受管理憑證的項目或目標系統是否相符。請重新載入頁面後再試一次。"
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "尚未記錄任何輪替工作。"
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "來源"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "嘗試次數"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "排程執行"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "隨選執行"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "存取已結束"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "未知"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "待處理"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "成功"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "失敗"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "已逾時"
+  },
+  "pamRotationJobStatusRetrying": {
+    "message": "Retrying"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "未知"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "執行中"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "已輪替"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "發生錯誤"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "已放棄"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "未知"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "進行中"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "已開始"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "目標系統未變更"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "目標系統已更新"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "無法判定"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "未知"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "未要求終止工作階段"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "工作階段已終止"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "終止工作階段失敗"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "未知"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "存取連接器的帳戶沒有權限變更此密碼。請授予該帳戶重設目標帳戶密碼的權限，然後再次輪替。"
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "目標系統拒絕存取連接器登入。請檢查連接器用於登入此目標系統的憑證，然後再次輪替。"
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "目標系統拒絕新密碼。請確認此憑證的密碼政策符合目標系統的密碼規則，然後再次輪替。"
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "目標系統找不到要輪替的帳戶。請檢查此受管理憑證的帳戶識別資訊，然後再次輪替。"
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "目標系統拒絕進行變更。常見原因是新密碼不符合密碼規則，或與目標系統的連線未加密。"
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "存取連接器無法連線至目標系統。請檢查目標系統位址，並確認連接器可以透過網路連線至該系統，然後再次輪替。"
+  },
+  "pamRotationHistoryCaption": {
+    "message": "輪替工作（由新到舊）"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "持續時間"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "嘗試"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "結果"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "嘗試記錄（由舊到新）"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$ 秒",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$ 分 $SECONDS$ 秒",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$ 小時 $MINUTES$ 分鐘",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "已建立輪替設定"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "已更新輪替設定"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "已更新輪替帳戶"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "已暫停輪替"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "已恢復輪替"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "已刪除輪替設定"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "已更新輪替設定"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "已向存取連接器提供輪替工作"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "已派送輪替工作"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "憑證已輪替"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "輪替嘗試失敗"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "輪替失敗"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "輪替工作已釋放"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "輪替已逾時"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "密碼庫寫入遭到拒絕"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "輪替報告遭到拒絕"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "手動輪替期限已到"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "已記錄手動輪替"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "已註冊存取連接器"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "已撤銷存取連接器"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "已停用存取連接器"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "已啟用存取連接器"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "已刪除存取連接器"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "已將存取連接器指派至目標系統"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "已取消存取連接器與目標系統的指派"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "已註冊目標系統"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "已停用目標系統"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "已啟用目標系統"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "已重新命名目標系統"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "已更新目標系統設定"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "已刪除目標系統"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "已更新目標系統"
+  },
+  "pamAuditTargetSystem": {
+    "message": "目標系統"
+  },
+  "pamAuditAccessConnector": {
+    "message": "存取連接器"
+  },
+  "pamAccessConnectorTargetSystemCountSingular": {
+    "message": "$COUNT$ target system",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorTargetSystemCount": {
+    "message": "$COUNT$ target systems",
+    "description": "Count of target systems assigned to an access connector, in the access connectors table.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "無",
+    "description": "Shown in the target systems column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "沒有可選擇的有效目標系統。"
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "已指派的存取連接器"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "尚未將任何存取連接器指派至此目標系統。"
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "無法載入此目標系統的存取連接器。"
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
+    "message": "This target system and its access connector assignments will be deleted."
+  },
+  "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
+    "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
+  },
+  "pamRotationConfigVaultItem": {
+    "message": "Vault item"
+  },
+  "pamRotationConfigCredentialName": {
+    "message": "Credential name"
+  },
+  "pamRotationConfigCredentialPlaceholder": {
+    "message": "Select credential"
+  },
+  "pamRotationConfigCredentialHint": {
+    "message": "Credentials that are already in rotation aren't listed."
+  },
+  "pamRotationConfigTargetSystemHint": {
+    "message": "The credential lives on the target system."
+  },
+  "pamRotationConfigTargetManual": {
+    "message": "Manual"
+  },
+  "pamRotationConfigTargetNoConnector": {
+    "message": "No connected access connector"
+  },
+  "pamRotationConfigCalloutTargetManual": {
+    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
+  },
+  "pamRotationConfigCalloutTargetNotConnected": {
+    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
+  },
+  "pamRotationConfigAccountId": {
+    "message": "Account ID"
+  },
+  "pamRotationConfigAccountIdPlaceholder": {
+    "message": "Enter an ID"
+  },
+  "pamRotationConfigUsernameHint": {
+    "message": "The username on the target system, for example name@company.com."
+  },
+  "pamRotationConfigTriggersHeading": {
+    "message": "Rotation triggers"
+  },
+  "pamRotationConfigAfterRotationHeading": {
+    "message": "After rotation"
+  },
+  "pamRotationConfigScheduleLabel": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigRotateOnAccessEndHintAdd": {
+    "message": "Changes the password when someone's access ends, so the old password stops working."
+  },
+  "pamRotationConfigAutomaticOnly": {
+    "message": "Only available for automatic rotation."
+  },
+  "pamRotationConfigEndSessions": {
+    "message": "End active sessions"
+  },
+  "pamRotationConfigEndSessionsHint": {
+    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+  },
+  "pamRotationConfigEndSessionsAvailableOnce": {
+    "message": "Available once you select a target system that supports it."
+  },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Managed credential added."
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Target system added."
+  },
+  "pamTargetSystemNameHelp": {
+    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
+  },
+  "pamTargetSystemMethodAutomaticDescription": {
+    "message": "An access connector changes passwords on this target system for you."
+  },
+  "pamTargetSystemMethodManualDescription": {
+    "message": "You change passwords on this target system yourself, then mark them as rotated."
+  },
+  "pamTargetSystemSystemTypeLabel": {
+    "message": "System type"
+  },
+  "pamTargetSystemSystemTypeHint": {
+    "message": "Tells the access connector how to change passwords on this system."
+  },
+  "pamTargetSystemEndingSessions": {
+    "message": "Ending sessions"
+  },
+  "pamTargetSystemEndingSessionsEntraHint": {
+    "message": "Entra can sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "This system type can't sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Shows once you choose a system type."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Select a system type"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Choose access connectors"
+  },
+  "pamTargetSystemAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamTargetSystemAccessConnectorFilter": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAccessConnectorsHint": {
+    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+  },
+  "pamTargetSystemCalloutNoConnectorConnected": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+  },
+  "pamTargetSystemCalloutNoConnectorConnectedEditing": {
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatic rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Remove last access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Remove access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "This target system won't be able to rotate until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "pamTargetSystemCalloutNoConnectorsExist": {
+    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+  },
+  "pamTargetSystemPolicyCharacters": {
+    "message": "Characters to include"
+  },
+  "pamTargetSystemPolicyUppercaseLetters": {
+    "message": "Uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercaseLetters": {
+    "message": "Lowercase letters"
+  },
+  "pamTargetSystemPolicyDigitsOption": {
+    "message": "Digits"
+  },
+  "pamTargetSystemPolicySymbolsOption": {
+    "message": "Symbols"
+  },
+  "pamEventRequestedAccess": {
+    "message": "已要求特殊權限存取項目 $ITEM$（要求 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "已核准項目 $ITEM$ 的特殊權限存取要求（要求 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "已拒絕項目 $ITEM$ 的特殊權限存取要求（要求 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "已啟用項目 $ITEM$ 的特殊權限存取（存取 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "已撤銷項目 $ITEM$ 的特殊權限存取（存取 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "已取消項目 $ITEM$ 的特殊權限存取要求（要求 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "已延長項目 $ITEM$ 的特殊權限存取時間（存取 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "項目 $ITEM$ 的特殊權限存取已到期（存取 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "無法啟用項目 $ITEM$ 的特殊權限存取（要求 $ID$）。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "已建立特殊權限存取規則。"
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "已編輯特殊權限存取規則。"
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "已刪除特殊權限存取規則。"
+  },
+  "pamEventRotatedCredential": {
+    "message": "已輪替項目 $ITEM$ 的憑證。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "無法輪替項目 $ITEM$ 的憑證。",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   }
 }

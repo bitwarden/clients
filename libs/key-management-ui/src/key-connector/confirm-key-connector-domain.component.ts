@@ -3,8 +3,8 @@ import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";

@@ -10,7 +10,6 @@ import {
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
-import { UserKey } from "../../types/key";
 import { SdkService, UserNotLoggedInError } from "../abstractions/sdk/sdk.service";
 import { Rc } from "../misc/reference-counting/rc";
 
@@ -35,7 +34,17 @@ export class MockSdkService implements SdkService {
     );
   }
 
-  unlock(): Promise<UserKey | null> {
+  /**
+   * Ready whenever a client exists. A spec needing the unlock/org-keys gap should use the real service.
+   */
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    return this.userClients$.pipe(
+      map((clients) => clients[userId] !== undefined),
+      distinctUntilChanged(),
+    );
+  }
+
+  unlock(): Promise<Rc<PasswordManagerClient> | null> {
     throw new Error("Not supported in mock service. Use simulate.userLogin instead.");
   }
 

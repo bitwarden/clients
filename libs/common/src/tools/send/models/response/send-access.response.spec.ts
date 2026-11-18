@@ -16,6 +16,15 @@ describe("SendAccessResponse", () => {
     const sdk = SendAccessResponse.toSdkAccessResponse(response);
 
     expect(sdk.data?.data).toBe("sealed");
-    expect(sdk.data?.metadata).toEqual({ itemId: "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71" });
+    // The client only parses `ItemId` today; the rest of the SDK's metadata fields are
+    // required keys that it has no plumbing for yet.
+    expect(sdk.data?.metadata).toStrictEqual({
+      itemId: "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71",
+      folderName: undefined,
+      collectionNames: undefined,
+      organizationName: undefined,
+      creationDate: undefined,
+      revisionDate: undefined,
+    });
   });
 });

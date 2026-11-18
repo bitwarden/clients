@@ -1,3 +1,4 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -52,6 +53,12 @@ export class KeeperDirectImporter extends BaseImporter {
 
     result.success = true;
     return { result, errors };
+  }
+
+  /** What `convertVaultToImportResult` does for an organization, for a result converted without one. */
+  moveToOrganization(result: ImportResult, organizationId: OrganizationId): void {
+    this.organizationId = organizationId;
+    this.moveFoldersToCollections(result);
   }
 
   private mapVaultErrors(vaultErrors: VaultRecordError[], errors: ImportRecordError[]): void {

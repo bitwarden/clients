@@ -24,12 +24,12 @@ export class LastPassDirectImportUIService implements Ui {
 
   private async getOTPResult(variant: OtpDialogVariant) {
     const passcode = await this.openMFADialog(variant);
-    return new OtpResult(passcode, false);
+    return new OtpResult(passcode);
   }
 
   private async getOOBResult(variant: OobDialogVariant) {
     const passcode = await this.openMFADialog(variant);
-    return new OobResult(false, passcode, false);
+    return new OobResult(false, passcode);
   }
 
   private openMFADialog(variant: LastPassMultifactorPromptVariant) {

@@ -1,15 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { ObservedValueOf, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 import { newGuid } from "@bitwarden/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { EventRequest } from "../dirt/event-logs";
 import { EventType } from "../dirt/event-logs/enums/event-type.enum";
 import { DeviceType } from "../enums";
@@ -1269,6 +1267,38 @@ describe("ApiService", () => {
       } satisfies Partial<Response> as Response);
 
       await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("getSync", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue({});
+
+      await sut.getSync(userId);
+
+      expect(send).toHaveBeenCalledWith(
+        "GET",
+        expect.stringContaining("/sync"),
+        null,
+        expectedAuth,
+        true,
+      );
+    });
+  });
+
+  describe("getAccountRevisionDate", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue(1);
+
+      await sut.getAccountRevisionDate(userId);
+
+      expect(send).toHaveBeenCalledWith("GET", "/accounts/revision-date", null, expectedAuth, true);
     });
   });
 

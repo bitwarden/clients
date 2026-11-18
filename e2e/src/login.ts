@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-import { account } from "./credentials";
+import { Account, account } from "./credentials";
 import { SETUP_EXTENSION_URL, skipExtensionSetup, skipOnboardingDialogs } from "./web/onboarding";
 
 // Desktop and browser share a button-triggered selector that offers self-hosted. Web's
@@ -14,10 +14,10 @@ const WEB_POST_LOGIN_URL = new RegExp(`#\\/vault|${SETUP_EXTENSION_URL.source}`)
 const WEB_POST_LOGIN_TIMEOUT_MS = 60_000;
 
 /** Logs in to the web vault and skips onboarding, leaving the page on the vault. */
-export async function logInToWebVault(page: Page) {
+export async function logInToWebVault(page: Page, targetAccount: Account = account()) {
   await skipOnboardingDialogs(page);
   await page.goto("/");
-  await new LoginPage(page).logIn();
+  await new LoginPage(page).logIn(targetAccount);
   await page.waitForURL(WEB_POST_LOGIN_URL, { timeout: WEB_POST_LOGIN_TIMEOUT_MS });
   await skipExtensionSetup(page);
 }
@@ -29,9 +29,7 @@ export async function logInToWebVault(page: Page) {
 export class LoginPage {
   constructor(private page: Page) {}
 
-  async logIn() {
-    const targetAccount = account();
-
+  async logIn(targetAccount: Account = account()) {
     // Wait for the page before probing for the selector, which renders alongside it.
     const email = this.page.getByTestId("login-email-input");
     await expect(email).toBeVisible();

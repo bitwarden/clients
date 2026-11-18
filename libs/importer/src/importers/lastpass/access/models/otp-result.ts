@@ -1,8 +1,5 @@
 export class OtpResult {
-  static cancel = new OtpResult("cancel", false);
+  static cancel = new OtpResult("cancel");
 
-  constructor(
-    public passcode: string,
-    public rememberMe: boolean,
-  ) {}
+  constructor(public passcode: string) {}
 }

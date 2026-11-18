@@ -15,6 +15,7 @@ import {
   throwIfEmpty,
   firstValueFrom,
   filter,
+  of,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -40,7 +41,6 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -141,7 +141,16 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    // Per-user clients are rebuilt from the same state their consumers read, so there is no
+    // window in which the state shows a user key that the client cannot decrypt with.
+    return of(true);
+  }
+
+  async unlock(
+    userId: UserId,
+    request: SdkUnlockRequest,
+  ): Promise<Rc<PasswordManagerClient> | null> {
     return null;
   }
 
