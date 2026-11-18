@@ -13,12 +13,10 @@ import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 
-import {
-  SsoJitProvisionFinishKeyConnectorParams,
-  SsoJitProvisionFinishPasswordParams,
-  SsoJitProvisionFinishService,
-  SsoJitProvisionFinishTrustedDeviceParams,
-} from "./sso-jit-provision-finish.service";
+import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
+import { SsoJitProvisionFinishPasswordParams } from "./sso-jit-provision-finish-password.params";
+import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-finish-trusted-device.params";
+import { SsoJitProvisionFinishService } from "./sso-jit-provision-finish.service";
 
 export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinishService {
   constructor(private registerSdkService: RegisterSdkService) {}

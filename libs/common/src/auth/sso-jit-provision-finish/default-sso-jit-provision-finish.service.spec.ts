@@ -18,11 +18,9 @@ import { Rc } from "../../platform/misc/reference-counting/rc";
 import { UserId } from "../../types/guid";
 
 import { DefaultSsoJitProvisionFinishService } from "./default-sso-jit-provision-finish.service";
-import {
-  SsoJitProvisionFinishKeyConnectorParams,
-  SsoJitProvisionFinishPasswordParams,
-  SsoJitProvisionFinishTrustedDeviceParams,
-} from "./sso-jit-provision-finish.service";
+import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
+import { SsoJitProvisionFinishPasswordParams } from "./sso-jit-provision-finish-password.params";
+import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-finish-trusted-device.params";
 
 describe("DefaultSsoJitProvisionFinishService", () => {
   let registerSdkService: MockProxy<RegisterSdkService>;

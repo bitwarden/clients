@@ -1,0 +1,23 @@
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
+import { UserId } from "../../types/guid";
+
+export interface SsoJitProvisionFinishPasswordParams {
+  userId: UserId;
+  orgId: string;
+  /** The organization public key (B64). The SDK uses it to make the account recovery key. */
+  orgPublicKey: string;
+  orgSsoIdentifier: string;
+  newPassword: string;
+  newPasswordHint: string;
+  salt: MasterPasswordSalt;
+  /**
+   * Whether the SDK enrolls the user in account recovery. The SDK skips enrollment when
+   * `acceptOrganizationInvite` is `false`, because enrollment accepts the invite.
+   */
+  resetPasswordAutoEnroll: boolean;
+  /**
+   * Whether the server moves the organization membership from Invited to Accepted. `undefined`
+   * means accept.
+   */
+  acceptOrganizationInvite?: boolean;
+}
