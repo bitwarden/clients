@@ -10,7 +10,7 @@ use std::{
 };
 
 use agent_access::{
-    protocol::{ApprovalPrompt, CredentialData, CredentialQuery, Purpose},
+    protocol::{CredentialData, CredentialQuery, Purpose},
     AgentRequest, Answerer, BitwardenCredentialAgent, Outcome, RequestKind, Router,
 };
 use async_trait::async_trait;
@@ -99,9 +99,7 @@ fn stdout(output: &Output) -> &str {
 }
 
 fn credential_request(kind: RequestKind) -> (CredentialQuery, Option<Purpose>) {
-    let RequestKind::Credential { query, purpose } = kind else {
-        panic!("expected a credential request, got {kind:?}");
-    };
+    let RequestKind::Credential { query, purpose } = kind;
     (query, purpose)
 }
 
@@ -168,49 +166,4 @@ async fn test_denied_exits_2_with_nothing_on_stdout() {
 
     assert_eq!(output.status.code(), Some(2));
     assert_eq!(stdout(&output), "");
-}
-
-#[tokio::test]
-#[serial_test::serial]
-async fn test_git_credential_get_answers_git() {
-    let desktop = Desktop::start("git", granted);
-
-    let output = desktop
-        .bw_access(
-            &["git-credential", "get"],
-            "protocol=https\nhost=github.com:443\n\n",
-        )
-        .await;
-
-    assert_eq!(output.status.code(), Some(0));
-    assert_eq!(stdout(&output), "username=me\npassword=hunter2\n");
-    let (query, purpose) = credential_request(desktop.seen());
-    assert_eq!(query, CredentialQuery::Domain("github.com".into()));
-    assert_eq!(
-        purpose.and_then(|purpose| purpose.command).as_deref(),
-        Some("git credential for https://github.com:443")
-    );
-}
-
-#[tokio::test]
-#[serial_test::serial]
-async fn test_ask_prints_no_when_denied() {
-    let desktop = Desktop::start("ask", || Outcome::Denied);
-
-    let output = desktop
-        .bw_access(&["ask", "Deploy?", "--body", "3 to add"], "")
-        .await;
-
-    assert_eq!(output.status.code(), Some(2));
-    assert_eq!(stdout(&output), "no\n");
-    let RequestKind::Approval { prompt } = desktop.seen() else {
-        panic!("expected an approval request");
-    };
-    assert_eq!(
-        prompt,
-        ApprovalPrompt {
-            title: "Deploy?".into(),
-            body: Some("3 to add".into()),
-        }
-    );
 }

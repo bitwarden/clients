@@ -212,7 +212,6 @@ export declare namespace agent_access {
   }
   export type AgentRequestKind =
     | { type: 'credential', query: CredentialQuery, purpose?: Purpose }
-    | { type: 'approval', title: string, body?: string }
   export interface Credential {
     username?: string
     password?: string

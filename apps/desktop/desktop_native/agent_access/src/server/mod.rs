@@ -116,9 +116,6 @@ async fn process(request: Request, peer_pid: Option<u32>, router: &Router) -> Re
             query,
             purpose,
         } => (request_id, RequestKind::Credential { query, purpose }),
-        Request::ApprovalRequest { request_id, prompt } => {
-            (request_id, RequestKind::Approval { prompt })
-        }
     };
 
     info!(app = %requester.app.name, "agent request");
@@ -152,11 +149,6 @@ fn answer(request: &Request, outcome: Outcome, error: Option<&str>) -> Response 
             request_id,
             status,
             credential,
-            error,
-        },
-        Request::ApprovalRequest { .. } => Response::ApprovalResponse {
-            request_id,
-            status,
             error,
         },
     }

@@ -338,18 +338,6 @@ describe("AgentAccessService", () => {
     expect(dialogService.open).toHaveBeenCalledTimes(2);
   });
 
-  it("answers an approval request with the user's choice", async () => {
-    dialogResult = { approved: false };
-    send({ type: "approval", title: "Deploy?" });
-    await flush();
-
-    expect(dialogData().approval).toEqual({
-      type: "approval",
-      title: "Deploy?",
-    });
-    expect(answer()).toEqual({ status: "denied" });
-  });
-
   it("refuses without touching the vault when the setting is off", async () => {
     enabled.next(false);
     send(github);

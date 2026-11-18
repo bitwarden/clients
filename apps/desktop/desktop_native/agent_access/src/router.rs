@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use tokio::time::timeout;
 
 use crate::{
-    protocol::{ApprovalPrompt, CredentialData, CredentialQuery, Purpose},
+    protocol::{CredentialData, CredentialQuery, Purpose},
     requester::Requester,
 };
 
@@ -22,9 +22,6 @@ pub enum RequestKind {
     Credential {
         query: CredentialQuery,
         purpose: Option<Purpose>,
-    },
-    Approval {
-        prompt: ApprovalPrompt,
     },
 }
 
@@ -40,7 +37,7 @@ pub struct AgentRequest {
 
 #[derive(Debug)]
 pub enum Outcome {
-    /// Carries the released credential for credential requests, nothing for approvals.
+    /// Carries the released credential.
     Approved(Option<CredentialData>),
     Denied,
     NotFound,
@@ -123,11 +120,9 @@ mod tests {
     }
 
     async fn route(router: &Router) -> Outcome {
-        let kind = RequestKind::Approval {
-            prompt: ApprovalPrompt {
-                title: "t".into(),
-                body: None,
-            },
+        let kind = RequestKind::Credential {
+            query: CredentialQuery::Domain("example.com".into()),
+            purpose: None,
         };
         router.route("r".into(), kind, requester()).await
     }

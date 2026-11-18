@@ -1,7 +1,7 @@
 # Agent access
 
-Programs on this machine ask the running desktop app for a vault login, or for a yes/no decision,
-over a local socket. A human approves every request in a Bitwarden dialog.
+Programs on this machine ask the running desktop app for a vault login over a local socket. A
+human approves every request in a Bitwarden dialog.
 
 ```text
 client ──socket──▶ listener ──▶ Router ──▶ Answerer (napi) ──▶ main broker ──▶ AgentRequestGate ──▶ dialog
@@ -29,8 +29,6 @@ One JSON line in, one out, then the connection closes.
 ```jsonc
 {"v":1,"type":"credential-request","requestId":"8f2c","query":{"domain":"github.com"},"purpose":{"command":"gh pr create --fill"}}
 {"v":1,"type":"credential-response","requestId":"8f2c","status":"approved","credential":{"username":"…","password":"…","totp":"…","uri":"…","credentialId":"…"}}
-{"v":1,"type":"approval-request","requestId":"9a1b","prompt":{"title":"Run terraform apply on prod?","body":"3 to add, 1 to change"}}
-{"v":1,"type":"approval-response","requestId":"9a1b","status":"approved"}
 ```
 
 - `query` is `{"domain"}`, `{"id"}` or `{"search"}`.
@@ -46,8 +44,6 @@ One JSON line in, one out, then the connection closes.
 ```console
 $ bw-access get --domain github.com --field password
 $ bw-access run --domain github.com --env GH_TOKEN=password -- gh pr create --fill
-$ git config --global credential.helper '!bw-access git-credential'
-$ bw-access ask "Run terraform apply on prod?" --body "3 to add" && terraform apply
 $ claude mcp add bitwarden -- /path/to/bw-access mcp
 $ printf '%s\n' '{"v":1,"type":"credential-request","requestId":"1","query":{"domain":"github.com"}}' \
     | nc -U ~/.bitwarden-access.sock
@@ -56,5 +52,5 @@ $ printf '%s\n' '{"v":1,"type":"credential-request","requestId":"1","query":{"do
 `run` redacts the released secrets from the command's output.
 
 `mcp` is a stdio MCP server (newline-delimited JSON-RPC, protocol 2024-11-05 to 2025-11-25) with
-two tools: `run_with_credential` (`run`, output captured, 1 MiB per stream) and `ask_human`. No tool
-result carries a secret value. Closing stdin exits and kills commands still running.
+one tool: `run_with_credential` (`run`, output captured, 1 MiB per stream). No tool result carries
+a secret value. Closing stdin exits and kills commands still running.

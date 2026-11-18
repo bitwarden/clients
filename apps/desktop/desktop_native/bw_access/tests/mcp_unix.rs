@@ -11,7 +11,7 @@ use std::{
 };
 
 use agent_access::{
-    protocol::{CredentialData, Purpose},
+    protocol::{CredentialData, CredentialQuery, Purpose},
     AgentRequest, Answerer, BitwardenCredentialAgent, Outcome, RequestKind, Router,
 };
 use async_trait::async_trait;
@@ -23,7 +23,7 @@ use tokio::{
 
 const ENV_SOCKET_PATH: &str = "BITWARDEN_ACCESS_SOCK";
 
-/// Grants logins at once; denies approvals slowly, so other requests overtake them.
+/// Grants logins at once; denies `--search slow` slowly, so other requests overtake it.
 #[derive(Default)]
 struct Stub {
     seen: Mutex<Vec<RequestKind>>,
@@ -33,7 +33,8 @@ struct Stub {
 impl Answerer for Stub {
     async fn answer(&self, request: AgentRequest) -> Outcome {
         self.seen.lock().expect("lock").push(request.kind.clone());
-        if let RequestKind::Credential { .. } = request.kind {
+        let RequestKind::Credential { query, .. } = request.kind;
+        if query != CredentialQuery::Search("slow".into()) {
             return Outcome::Approved(Some(CredentialData {
                 username: Some("me".into()),
                 password: Some("hunter2".into()),
@@ -112,7 +113,6 @@ async fn test_serves_the_tools_without_returning_secrets() {
     server.send(initialized).await;
     let result = server.call(2, "tools/list", json!({})).await;
     assert_eq!(result["tools"][0]["name"], "run_with_credential");
-    assert_eq!(result["tools"][1]["name"], "ask_human");
 
     let script = r#"echo "$TOKEN""#;
     let arguments =
@@ -142,8 +142,8 @@ async fn test_serves_the_tools_without_returning_secrets() {
         })
     );
 
-    let arguments = json!({ "title": "Deploy?" });
-    let params = json!({ "name": "ask_human", "arguments": arguments });
+    let arguments = json!({ "search": "slow", "env": { "T": "password" }, "command": ["true"] });
+    let params = json!({ "name": "run_with_credential", "arguments": arguments });
     server
         .send(json!({ "jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": params }))
         .await;
@@ -158,7 +158,10 @@ async fn test_serves_the_tools_without_returning_secrets() {
     assert_eq!(reply["id"], 4);
     assert_eq!(
         reply["result"],
-        json!({ "content": [{ "type": "text", "text": "no" }], "isError": false })
+        json!({
+            "content": [{ "type": "text", "text": "The user denied the request." }],
+            "isError": true
+        })
     );
 
     drop(server.stdin);

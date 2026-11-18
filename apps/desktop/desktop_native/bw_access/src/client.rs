@@ -6,8 +6,7 @@ use std::{
 };
 
 use agent_access::protocol::{
-    ApprovalPrompt, CredentialData, CredentialQuery, Purpose, Request, Response, Status,
-    PROTOCOL_VERSION,
+    CredentialData, CredentialQuery, Purpose, Request, Response, Status, PROTOCOL_VERSION,
 };
 use anyhow::{bail, Context as _, Result};
 use tokio::io::{AsyncBufReadExt as _, AsyncWriteExt as _, BufReader};
@@ -57,29 +56,9 @@ pub async fn credential(
     }
 }
 
-/// `Ok(false)` when denied; other outcomes fail with [`Refused`].
-pub async fn approve(prompt: ApprovalPrompt) -> Result<bool> {
-    let message = Request::ApprovalRequest {
-        request_id: request_id(),
-        prompt,
-    };
-    match request(&message).await? {
-        Response::ApprovalResponse {
-            status: Status::Approved,
-            ..
-        } => Ok(true),
-        Response::ApprovalResponse {
-            status: Status::Denied,
-            ..
-        } => Ok(false),
-        response => Err(refused(response)),
-    }
-}
-
 fn refused(response: Response) -> anyhow::Error {
     let (status, error) = match response {
-        Response::CredentialResponse { status, error, .. }
-        | Response::ApprovalResponse { status, error, .. } => (status, error),
+        Response::CredentialResponse { status, error, .. } => (status, error),
         Response::Error { status, error } => (status, Some(error)),
     };
     Refused { status, error }.into()

@@ -82,9 +82,7 @@ async fn test_serves_a_granted_credential() {
 #[serial_test::serial]
 async fn test_forwards_query_purpose_and_requester() {
     fn check(request: AgentRequest) -> Outcome {
-        let RequestKind::Credential { query, purpose } = request.kind else {
-            return Outcome::Error;
-        };
+        let RequestKind::Credential { query, purpose } = request.kind;
         assert_eq!(query, CredentialQuery::Domain("github.com".into()));
         assert_eq!(
             purpose.and_then(|p| p.command).as_deref(),
@@ -100,23 +98,6 @@ async fn test_forwards_query_purpose_and_requester() {
     assert_eq!(
         response,
         r#"{"v":1,"type":"credential-response","requestId":"r1","status":"notFound"}"#
-    );
-}
-
-#[tokio::test]
-#[serial_test::serial]
-async fn test_answers_an_approval_request() {
-    let (_agent, path) = start_agent("approval", |_| Outcome::Approved(None));
-
-    let response = round_trip(
-        &path,
-        r#"{"v":1,"type":"approval-request","requestId":"a1","prompt":{"title":"Deploy?"}}"#,
-    )
-    .await;
-
-    assert_eq!(
-        response,
-        r#"{"v":1,"type":"approval-response","requestId":"a1","status":"approved"}"#
     );
 }
 

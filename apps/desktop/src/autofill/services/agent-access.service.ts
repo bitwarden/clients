@@ -117,14 +117,6 @@ export class AgentAccessService implements OnDestroy {
   private async handle(request: AgentRequest, userId: UserId): Promise<AgentOutcome> {
     const { kind, requester, deadline } = request;
 
-    if (kind.type === "approval") {
-      const result = await this.gate.confirm(
-        () => ApproveAgentRequestComponent.open(this.dialogService, { requester, approval: kind }),
-        deadline,
-      );
-      return { status: toStatus(result?.approved, deadline) };
-    }
-
     const ciphers = await this.find(kind.query, userId);
     if (ciphers.length === 0) {
       return { status: AgentOutcomeStatus.NotFound };

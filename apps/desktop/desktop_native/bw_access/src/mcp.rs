@@ -3,7 +3,7 @@
 
 use std::collections::BTreeMap;
 
-use agent_access::protocol::{ApprovalPrompt, CredentialQuery, Status};
+use agent_access::protocol::{CredentialQuery, Status};
 use anyhow::Result;
 use serde_json::{json, Value};
 use tokio::{
@@ -21,11 +21,10 @@ use crate::{
 const VERSIONS: [&str; 4] = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 
 const INSTRUCTIONS: &str = "\
-These tools reach the user's Bitwarden vault through the Bitwarden desktop app, which must be \
+This tool reaches the user's Bitwarden vault through the Bitwarden desktop app, which must be \
 running. Each call opens a dialog there and waits, up to a minute, for the user to approve or deny \
 it. Secret values never come back to you: run_with_credential puts a login into a command's \
-environment and returns the command's output with those values replaced by [redacted]. Use \
-ask_human for a yes/no decision from the user before a risky step.";
+environment and returns the command's output with those values replaced by [redacted].";
 
 const PARSE_ERROR: i64 = -32700;
 const INVALID_REQUEST: i64 = -32600;
@@ -38,7 +37,6 @@ enum Call {
         env: BTreeMap<String, Field>,
         command: Vec<String>,
     },
-    Ask(ApprovalPrompt),
 }
 
 /// Until stdin closes. Each tool call runs on its own task, so a pending approval blocks nothing.
@@ -90,7 +88,6 @@ fn dispatch(line: &str, calls: &mut JoinSet<Value>) -> Option<Value> {
         "tools/call" => {
             let call = match params["name"].as_str() {
                 Some("run_with_credential") => parse_run(&params["arguments"]),
-                Some("ask_human") => parse_ask(&params["arguments"]),
                 _ => return Some(error(id, INVALID_PARAMS, "Unknown tool")),
             };
             match call {
@@ -157,23 +154,6 @@ fn tools() -> Value {
                 "required": ["env", "command"],
                 "additionalProperties": false
             }
-        },
-        {
-            "name": "ask_human",
-            "description": "Ask the user a yes/no question in the Bitwarden desktop app. Returns \
-                yes or no.",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "The question, e.g. Run terraform apply on prod?"
-                    },
-                    "body": { "type": "string", "description": "Details to help the user decide" }
-                },
-                "required": ["title"],
-                "additionalProperties": false
-            }
         }
     ])
 }
@@ -229,28 +209,9 @@ fn parse_run(arguments: &Value) -> Result<Call, String> {
     })
 }
 
-fn parse_ask(arguments: &Value) -> Result<Call, String> {
-    let title = arguments["title"]
-        .as_str()
-        .filter(|title| !title.trim().is_empty())
-        .ok_or("title is required")?;
-    let body = match &arguments["body"] {
-        Value::Null => None,
-        body => Some(body.as_str().ok_or("body must be a string")?.to_owned()),
-    };
-    Ok(Call::Ask(ApprovalPrompt {
-        title: title.to_owned(),
-        body,
-    }))
-}
-
 impl Call {
     async fn answer(self) -> Value {
         match self {
-            Self::Ask(prompt) => match client::approve(prompt).await {
-                Ok(approved) => tool_result(if approved { "yes" } else { "no" }, false),
-                Err(error) => tool_result(&refusal(&error), true),
-            },
             Self::Run {
                 query,
                 env,
@@ -370,7 +331,7 @@ mod tests {
             .iter()
             .map(|tool| &tool["name"])
             .collect();
-        assert_eq!(names, ["run_with_credential", "ask_human"]);
+        assert_eq!(names, ["run_with_credential"]);
     }
 
     #[test]
@@ -429,8 +390,6 @@ mod tests {
             run_with("command", json!([])),
             run_with("command", json!(["ls", 1])),
             ("run_with_credential", Value::Null),
-            ("ask_human", json!({})),
-            ("ask_human", json!({ "title": "Deploy?", "body": 3 })),
         ] {
             let reply = request(
                 "tools/call",

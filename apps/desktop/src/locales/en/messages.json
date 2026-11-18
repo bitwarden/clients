@@ -726,7 +726,7 @@
     "message": "Allow apps and agents to request items"
   },
   "allowAgentAccessDesc": {
-    "message": "Programs on this device, such as AI agents and scripts, can ask for a login or a yes/no decision. You approve each request."
+    "message": "Programs on this device, such as AI agents and scripts, can ask for a login. You approve each request."
   },
   "agentAccessPromptBehavior": {
     "message": "Ask for approval"
@@ -739,15 +739,6 @@
   },
   "agentAccessCredentialTitle": {
     "message": "Allow $APP$ to use a login?",
-    "placeholders": {
-      "app": {
-        "content": "$1",
-        "example": "Claude Code"
-      }
-    }
-  },
-  "agentAccessApprovalTitle": {
-    "message": "$APP$ is asking",
     "placeholders": {
       "app": {
         "content": "$1",
@@ -789,9 +780,6 @@
   "agentAccessToRun": {
     "message": "To run"
   },
-  "agentAccessQuestion": {
-    "message": "Question"
-  },
   "agentAccessRemember": {
     "message": "Remember until vault is locked"
   },
@@ -810,9 +798,6 @@
   "agentAccessFor": {
     "message": "For"
   },
-  "agentAccessDetails": {
-    "message": "Details"
-  },
   "agentAccessLeavesRun": {
     "message": "The command gets the secrets. Only its output goes back."
   },
@@ -827,9 +812,6 @@
   },
   "agentAccessLeavesShareApp": {
     "message": "The login is returned to the requesting app."
-  },
-  "agentAccessLeavesAsk": {
-    "message": "Nothing from your vault is shared."
   },
   "agentAccessUnlockRequired": {
     "message": "Unlock your vault to answer a request from an app or agent."

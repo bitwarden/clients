@@ -27,10 +27,6 @@ pub mod agent_access {
             query: CredentialQuery,
             purpose: Option<Purpose>,
         },
-        Approval {
-            title: String,
-            body: Option<String>,
-        },
     }
 
     /// Exactly one field is set, as on the wire.
@@ -184,10 +180,6 @@ pub mod agent_access {
                         command: p.command,
                         env: p.env.into_iter().collect(),
                     }),
-                },
-                RequestKind::Approval { prompt } => AgentRequestKind::Approval {
-                    title: prompt.title,
-                    body: prompt.body,
                 },
             };
             let deadline = request

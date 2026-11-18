@@ -76,30 +76,6 @@
           </div>
         }
       }
-      @if (params.approval; as approval) {
-        <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
-          <span
-            bitTypography="body2"
-            class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
-            ><bit-icon name="bwi-question-circle" aria-hidden="true" />{{
-              "agentAccessQuestion" | i18n
-            }}</span
-          >
-          <span bitTypography="body2" class="tw-font-semibold">{{ approval.title }}</span>
-        </div>
-        @if (approval.body) {
-          <div class="tw-flex tw-gap-4 tw-px-4 tw-py-3">
-            <span
-              bitTypography="body2"
-              class="tw-flex tw-w-28 tw-shrink-0 tw-items-center tw-gap-2 tw-text-muted"
-              ><bit-icon name="bwi-list" aria-hidden="true" />{{
-                "agentAccessDetails" | i18n
-              }}</span
-            >
-            <span bitTypography="body2" class="tw-whitespace-pre-line">{{ approval.body }}</span>
-          </div>
-        }
-      }
     </bit-card-segmented>
 
     <p

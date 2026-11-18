@@ -34,19 +34,12 @@ pub enum Request {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         purpose: Option<Purpose>,
     },
-    /// Generic human-in-the-loop prompt; answered by whoever answers credential requests.
-    ApprovalRequest {
-        #[serde(rename = "requestId")]
-        request_id: String,
-        prompt: ApprovalPrompt,
-    },
 }
 
 impl Request {
     pub fn request_id(&self) -> &str {
         match self {
-            Self::CredentialRequest { request_id, .. }
-            | Self::ApprovalRequest { request_id, .. } => request_id,
+            Self::CredentialRequest { request_id, .. } => request_id,
         }
     }
 }
@@ -76,13 +69,6 @@ pub struct Purpose {
     /// Environment variable → credential field, as `bw-access run --env` will set them.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub env: BTreeMap<String, String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ApprovalPrompt {
-    pub title: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub body: Option<String>,
 }
 
 /// Wire-identical to `ap_client::CredentialData`; `notes` is never sent locally.
@@ -140,13 +126,6 @@ pub enum Response {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         error: Option<String>,
     },
-    ApprovalResponse {
-        #[serde(rename = "requestId")]
-        request_id: String,
-        status: Status,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        error: Option<String>,
-    },
     /// The request could not be parsed, so its kind and id are unknown.
     Error { status: Status, error: String },
 }
@@ -171,10 +150,9 @@ pub(crate) fn parse_request(line: &str) -> Result<Request, &'static str> {
     }
 
     let Envelope { request, .. } = serde_json::from_str(line).map_err(|_| "malformed request")?;
-    if let Request::CredentialRequest { query, .. } = &request {
-        if query.value().trim().is_empty() {
-            return Err("the query must not be empty");
-        }
+    let Request::CredentialRequest { query, .. } = &request;
+    if query.value().trim().is_empty() {
+        return Err("the query must not be empty");
     }
     Ok(request)
 }
@@ -192,10 +170,7 @@ mod tests {
         assert_eq!(envelope.v, PROTOCOL_VERSION);
         let Request::CredentialRequest {
             request_id, query, ..
-        } = envelope.request
-        else {
-            panic!("expected a credential request");
-        };
+        } = envelope.request;
         assert_eq!(request_id, "r1");
         assert_eq!(query, CredentialQuery::Domain("github.com".into()));
     }
@@ -219,9 +194,7 @@ mod tests {
     fn test_parses_purpose() {
         let raw = r#"{"v":1,"type":"credential-request","requestId":"r1","query":{"id":"x"},"purpose":{"command":"gh pr create","env":{"GH_TOKEN":"password"}}}"#;
 
-        let Request::CredentialRequest { purpose, .. } = parse_request(raw).unwrap() else {
-            panic!("expected a credential request");
-        };
+        let Request::CredentialRequest { purpose, .. } = parse_request(raw).unwrap();
 
         let purpose = purpose.unwrap();
         assert_eq!(purpose.command.as_deref(), Some("gh pr create"));
@@ -254,19 +227,9 @@ mod tests {
 
     #[test]
     fn test_ignores_unknown_fields() {
-        let raw = r#"{"v":1,"type":"approval-request","requestId":"r","prompt":{"title":"t","x":1},"client":"y"}"#;
+        let raw = r#"{"v":1,"type":"credential-request","requestId":"r","query":{"domain":"a"},"client":"y"}"#;
 
         assert!(parse_request(raw).is_ok());
-    }
-
-    #[test]
-    fn test_parses_approval_request() {
-        let raw =
-            r#"{"v":1,"type":"approval-request","requestId":"r2","prompt":{"title":"Deploy?"}}"#;
-
-        let envelope: Envelope = serde_json::from_str(raw).unwrap();
-
-        assert!(matches!(envelope.request, Request::ApprovalRequest { .. }));
     }
 
     #[test]

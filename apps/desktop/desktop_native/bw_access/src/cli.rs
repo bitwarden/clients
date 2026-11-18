@@ -2,25 +2,22 @@
 
 use std::collections::BTreeMap;
 
-use agent_access::protocol::{ApprovalPrompt, CredentialData, CredentialQuery};
+use agent_access::protocol::{CredentialData, CredentialQuery};
 use anyhow::{anyhow, bail, ensure, Context as _, Result};
 
 pub const USAGE: &str = "\
 Usage:
   bw-access get <query> [--field json|username|password|totp]
   bw-access run <query> --env VAR=field [--env ...] -- <command> [args...]
-  bw-access git-credential get|store|erase
-  bw-access ask <title> [--body <text>]
   bw-access mcp
 
-Asks the running Bitwarden desktop app for a login, or for a yes/no decision. Each request waits
-for you to approve it there.
+Asks the running Bitwarden desktop app for a login. Each request waits for you to approve it
+there.
 
   <query>  --domain <domain> | --id <item id> | --search <name>
   run      sets each VAR to a field (username, password, totp) and redacts secrets from the
            command's output
-  ask      prints yes or no
-  mcp      serves run and ask as MCP tools over stdio, e.g.
+  mcp      serves run as an MCP tool over stdio, e.g.
            claude mcp add bitwarden -- /path/to/bw-access mcp
 
 Exit codes: 0 approved, 2 denied, 3 not found, 4 error";
@@ -37,10 +34,6 @@ pub enum Command {
         env: BTreeMap<String, Field>,
         command: Vec<String>,
     },
-    GitCredential {
-        get: bool,
-    },
-    Ask(ApprovalPrompt),
     Mcp,
 }
 
@@ -92,8 +85,6 @@ pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Command> {
     let mut field = Field::Json;
     let mut env = BTreeMap::new();
     let mut command = Vec::new();
-    let mut positional = None;
-    let mut body = None;
 
     while let Some(arg) = args.next() {
         let mut value = || args.next().ok_or_else(|| anyhow!("{arg} needs a value"));
@@ -114,14 +105,6 @@ pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Command> {
             ("run", "--") => {
                 command.extend(args);
                 break;
-            }
-            ("ask", "--body") => {
-                body = Some(value()?);
-                continue;
-            }
-            ("git-credential" | "ask", text) if positional.is_none() && !text.starts_with('-') => {
-                positional = Some(arg);
-                continue;
             }
             (_, other) => bail!("unexpected argument '{other}'"),
         };
@@ -147,15 +130,6 @@ pub fn parse(args: impl IntoIterator<Item = String>) -> Result<Command> {
                 command,
             }
         }
-        "git-credential" => match positional.as_deref() {
-            Some("get") => Command::GitCredential { get: true },
-            Some("store" | "erase") => Command::GitCredential { get: false },
-            _ => bail!("git-credential needs get, store or erase"),
-        },
-        "ask" => Command::Ask(ApprovalPrompt {
-            title: positional.context("ask needs a title")?,
-            body,
-        }),
         "mcp" => Command::Mcp,
         other => bail!("unknown command '{other}'"),
     })
@@ -226,28 +200,13 @@ mod tests {
     }
 
     #[test]
-    fn test_parses_git_credential_ask_and_mcp() {
-        assert_eq!(
-            parse_str("git-credential get").unwrap(),
-            Command::GitCredential { get: true }
-        );
-        assert_eq!(
-            parse_str("git-credential erase").unwrap(),
-            Command::GitCredential { get: false }
-        );
-        assert_eq!(
-            parse(["ask", "Deploy?", "--body", "3 to add"].map(String::from)).unwrap(),
-            Command::Ask(ApprovalPrompt {
-                title: "Deploy?".into(),
-                body: Some("3 to add".into()),
-            })
-        );
+    fn test_parses_mcp() {
         assert_eq!(parse_str("mcp").unwrap(), Command::Mcp);
     }
 
     #[test]
     fn test_help_anywhere_before_the_command() {
-        for args in ["--help", "-h", "get --domain x -h", "ask --help"] {
+        for args in ["--help", "-h", "get --domain x -h", "mcp --help"] {
             assert_eq!(parse_str(args).unwrap(), Command::Help, "for {args}");
         }
     }
@@ -264,10 +223,8 @@ mod tests {
             "run --domain a --env A=password",
             "run --domain a --env A=json -- ls",
             "run --domain a --env =password -- ls",
-            "git-credential",
-            "git-credential fill",
-            "ask",
-            "ask a b",
+            "git-credential get",
+            "ask Deploy?",
             "mcp --stdio",
             "nope",
         ] {

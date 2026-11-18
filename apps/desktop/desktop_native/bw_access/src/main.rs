@@ -3,7 +3,6 @@
 
 mod cli;
 mod client;
-mod git;
 mod mcp;
 mod redact;
 mod run;
@@ -56,21 +55,6 @@ async fn execute(command: Command) -> Result<i32> {
             let credential = client::credential(query, Some(run::purpose(&command, &env))).await?;
             let (env, secrets) = run::inject(env, credential)?;
             return run::stream(&command, env, &secrets).await;
-        }
-        Command::GitCredential { get } => {
-            let attributes = git::read(std::io::stdin().lock())?;
-            if get {
-                let (query, purpose) = git::query(&attributes)?;
-                let credential = client::credential(query, Some(purpose)).await?;
-                print(&git::answer(&credential))?;
-            }
-        }
-        Command::Ask(prompt) => {
-            let approved = client::approve(prompt).await?;
-            print(if approved { "yes\n" } else { "no\n" })?;
-            if !approved {
-                return Ok(EXIT_DENIED);
-            }
         }
         Command::Mcp => mcp::serve(tokio::io::stdin(), tokio::io::stdout()).await?,
     }

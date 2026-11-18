@@ -46,7 +46,6 @@ export type ApproveAgentRequestParams = {
     purpose?: AgentPurpose;
     rememberable: boolean;
   };
-  approval?: { title: string; body?: string };
 };
 
 export type ApproveAgentRequestResult = {
@@ -79,13 +78,6 @@ const KIND_STYLES = Object.freeze({
     approve: "share",
     deny: "deny",
     icon: "bwi-share",
-  },
-  ask: {
-    title: "agentAccessApprovalTitle",
-    leaves: "agentAccessLeavesAsk",
-    approve: "yes",
-    deny: "no",
-    icon: "bwi-question-circle",
   },
 } satisfies Record<string, KindStyle>);
 type Kind = keyof typeof KIND_STYLES;
@@ -163,10 +155,7 @@ export class ApproveAgentRequestComponent {
 }
 
 /** Env vars mean `bw-access run` or MCP `run_with_credential`; the service drops unverified ones. */
-function kindOf({ approval, credential }: ApproveAgentRequestParams): Kind {
-  if (approval) {
-    return "ask";
-  }
+function kindOf({ credential }: ApproveAgentRequestParams): Kind {
   return Object.keys(credential?.purpose?.env ?? {}).length > 0 ? "run" : "share";
 }
 
