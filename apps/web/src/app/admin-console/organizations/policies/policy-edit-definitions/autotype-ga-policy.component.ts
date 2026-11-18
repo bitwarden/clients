@@ -12,6 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
 import {
+  alwaysAskBeforeFillingEnabled,
   AutotypeGaPolicyData,
   AutotypeShortcutOption,
   DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT,
@@ -20,6 +21,7 @@ import {
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
+  CheckboxModule,
   LinkComponent,
   RadioButtonModule,
   SwitchComponent,
@@ -103,11 +105,22 @@ export class DesktopAutotypeGaPolicy extends BasePolicyEditDefinition {
           (shortcutChange)="onCustomShortcut($event)"
         />
       }
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="alwaysAskBeforeFilling"
+          id="autotype-ga-policy_input_always-ask-before-filling"
+        />
+        <bit-label>{{ "alwaysAskBeforeFilling" | i18n }}</bit-label>
+        <bit-hint>{{ "alwaysAskBeforeFillingDesc" | i18n }}</bit-hint>
+      </bit-form-control>
     </div>
   `,
   imports: [
     ReactiveFormsModule,
     AutotypeShortcutComponent,
+    CheckboxModule,
     LinkComponent,
     RadioButtonModule,
     SwitchComponent,
@@ -126,6 +139,8 @@ export class DesktopAutotypeGaPolicyComponent extends BasePolicyEditComponent {
     AutotypeShortcutOption.Default,
     { nonNullable: true },
   );
+
+  private readonly alwaysAskBeforeFilling = new FormControl<boolean>(false, { nonNullable: true });
 
   /**
    * The custom shortcut. Kept while Default is selected so switching back restores it.
@@ -156,6 +171,7 @@ export class DesktopAutotypeGaPolicyComponent extends BasePolicyEditComponent {
   readonly data = new FormGroup({
     shortcutOption: this.shortcutOption,
     defaultKeyboardShortcut: this.defaultKeyboardShortcut,
+    alwaysAskBeforeFilling: this.alwaysAskBeforeFilling,
   });
 
   constructor() {
@@ -185,19 +201,24 @@ export class DesktopAutotypeGaPolicyComponent extends BasePolicyEditComponent {
     this.shortcutOption.setValue(
       custom ? AutotypeShortcutOption.Custom : AutotypeShortcutOption.Default,
     );
+    this.alwaysAskBeforeFilling.setValue(alwaysAskBeforeFillingEnabled(data));
   }
 
   protected override buildRequestData(): AutotypeGaPolicyData {
+    const alwaysAskBeforeFilling = this.alwaysAskBeforeFilling.value;
+
     if (this.shortcutOption.value === AutotypeShortcutOption.Custom) {
       return {
         shortcutOption: AutotypeShortcutOption.Custom,
         defaultKeyboardShortcut: this.defaultKeyboardShortcut.value,
+        alwaysAskBeforeFilling,
       };
     }
 
     return {
       shortcutOption: AutotypeShortcutOption.Default,
       defaultKeyboardShortcut: [...DEFAULT_AUTOTYPE_GA_KEYBOARD_SHORTCUT],
+      alwaysAskBeforeFilling,
     };
   }
 }

@@ -436,27 +436,43 @@ export class FilterMenuComponent
    */
   protected readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionRow, number | undefined>();
-    const host = this.filterHost;
-    const key = this.key();
-    const multiple = this.multiple();
+    const hostCounts = this.hostCounts().options;
     for (const option of this.allOptions()) {
-      const explicit = option.count();
-      if (explicit != null) {
-        counts.set(option, explicit);
+      counts.set(option, option.count() ?? hostCounts.get(option));
+    }
+    return counts;
+  });
+
+  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
+  protected readonly unsetCount = computed(() => this.hostCounts().unset);
+
+  /**
+   * The host's counts for the "All" row and for every option without an explicit `count`, from
+   * one host call so the host can count them all in one pass.
+   */
+  private readonly hostCounts = computed(() => {
+    const multiple = this.multiple();
+    const options: FilterOptionRow[] = [];
+    // `null` pins nothing: the "All" row, which only a single-select chip shows.
+    const pinned: unknown[] = multiple ? [] : [null];
+    const firstOption = pinned.length;
+    for (const option of this.allOptions()) {
+      if (option.count() != null) {
         continue;
       }
       const resolved = this.optionValue(option);
       if (!resolved) {
         continue;
       }
-      const pinned = multiple ? this.subtreeValues(option) : resolved.value;
-      counts.set(option, host?.optionCount?.(key, pinned));
+      options.push(option);
+      pinned.push(multiple ? this.subtreeValues(option) : resolved.value);
     }
-    return counts;
+    const counts = this.filterHost?.optionCounts?.(this.key(), pinned);
+    return {
+      unset: multiple ? undefined : counts?.[0],
+      options: new Map(options.map((option, index) => [option, counts?.[firstOption + index]])),
+    };
   });
-
-  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
-  protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**
    * An option can appear in {@link allOptions} a tick before Angular binds its required
