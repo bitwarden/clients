@@ -2380,3 +2380,65 @@ describe("RotationConfigEditComponent: while a rotation job runs", () => {
     expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("RotationConfigEditComponent: checkbox look follows the control", () => {
+  const manual = targetSystem({ id: sysId("sys-manual"), method: "manual", sealed: undefined });
+
+  /** Whether the checkbox's `bit-form-control` draws its label as disabled. */
+  function looksDisabled(fixture: ComponentFixture<RotationConfigEditComponent>, id: string) {
+    fixture.detectChanges();
+    const control = (fixture.nativeElement as HTMLElement)
+      .querySelector(`#${id}`)!
+      .closest("bit-form-control")!;
+    return control.querySelector(".tw-text-fg-inactive") != null;
+  }
+
+  it("draws End active sessions as enabled once a target that supports it is picked", async () => {
+    const { component, fixture } = setup({ template: "real", targetSystems: [targetSystem()] });
+    await fixture.whenStable();
+    const id = "rotation-config-edit_checkbox_terminate-sessions";
+    expect(looksDisabled(fixture, id)).toBe(true);
+
+    component.createForm.controls.targetSystemId.setValue(TARGET_SYSTEM_ID);
+
+    expect(component.createForm.controls.terminateSessions.disabled).toBe(false);
+    expect(looksDisabled(fixture, id)).toBe(false);
+  });
+
+  it("draws access-end rotation as disabled for a manual target, then enabled again", async () => {
+    const { component, fixture } = setup({
+      template: "real",
+      targetSystems: [targetSystem(), manual],
+    });
+    await fixture.whenStable();
+    const id = "rotation-config-edit_checkbox_rotate-on-access-end";
+
+    component.createForm.controls.targetSystemId.setValue(String(manual.id));
+    expect(looksDisabled(fixture, id)).toBe(true);
+
+    component.createForm.controls.targetSystemId.setValue(TARGET_SYSTEM_ID);
+    expect(looksDisabled(fixture, id)).toBe(false);
+  });
+
+  describe("on the edit page", () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it("draws End active sessions as enabled once a running job ends", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        template: "real",
+        configId: configId("cfg-1"),
+        existingConfig: loadedConfig({ hasActiveJob: true }),
+      });
+      await jest.advanceTimersByTimeAsync(0);
+      const id = "rotation-config-edit_checkbox_terminate-sessions-edit";
+      expect(looksDisabled(fixture, id)).toBe(true);
+
+      rotationSdk.getConfig.mockResolvedValue(loadedConfig({ hasActiveJob: false }));
+      await jest.advanceTimersByTimeAsync(10_000);
+
+      expect(component.accountForm.controls.terminateSessions.disabled).toBe(false);
+      expect(looksDisabled(fixture, id)).toBe(false);
+    });
+  });
+});

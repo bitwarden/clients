@@ -113,6 +113,18 @@ const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
 /**
+ * Emits on purpose: `bit-form-control` redraws its label's disabled look from the control's status
+ * events, so a silent toggle leaves an enabled checkbox looking disabled until it is clicked.
+ */
+function setControlEnabled(control: AbstractControl, enabled: boolean): void {
+  if (enabled) {
+    control.enable();
+  } else {
+    control.disable();
+  }
+}
+
+/**
  * Create and edit page for a rotation config. It provides its own `OrgCiphersService` and
  * `TargetSystemsService`, since the shell route's providers don't reach a sibling page.
  */
@@ -735,27 +747,14 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     const { rotateOnAccessEnd } = this.settingsForm.controls;
     const manual = config.targetSystemMethod === TargetSystemMethod.Manual;
 
-    if (config.hasActiveJob) {
-      accountIdentity.disable({ emitEvent: false });
-    } else {
-      accountIdentity.enable({ emitEvent: false });
-    }
-
-    const canTerminate =
+    setControlEnabled(accountIdentity, !config.hasActiveJob);
+    setControlEnabled(
+      terminateSessions,
       !manual &&
-      !config.hasActiveJob &&
-      this.configTargetSystem()?.sealed?.supportsSessionTermination === true;
-    if (canTerminate) {
-      terminateSessions.enable({ emitEvent: false });
-    } else {
-      terminateSessions.disable({ emitEvent: false });
-    }
-
-    if (manual) {
-      rotateOnAccessEnd.disable({ emitEvent: false });
-    } else {
-      rotateOnAccessEnd.enable({ emitEvent: false });
-    }
+        !config.hasActiveJob &&
+        this.configTargetSystem()?.sealed?.supportsSessionTermination === true,
+    );
+    setControlEnabled(rotateOnAccessEnd, !manual);
   }
 
   /** True for an automatic target with no verified sealed fields, the checkbox is disabled for "unknown", not "unsupported". */
@@ -782,19 +781,17 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     const targetId = this.createForm.controls.targetSystemId.value;
     const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
 
-    if (this.terminateAllowedFor(target)) {
-      terminateControl.enable({ emitEvent: false });
-    } else {
+    const terminateAllowed = this.terminateAllowedFor(target);
+    if (!terminateAllowed) {
       terminateControl.setValue(false, { emitEvent: false });
-      terminateControl.disable({ emitEvent: false });
     }
+    setControlEnabled(terminateControl, terminateAllowed);
 
-    if (target?.method === TargetSystemMethod.Manual) {
+    const manual = target?.method === TargetSystemMethod.Manual;
+    if (manual) {
       accessEndControl.setValue(false, { emitEvent: false });
-      accessEndControl.disable({ emitEvent: false });
-    } else {
-      accessEndControl.enable({ emitEvent: false });
     }
+    setControlEnabled(accessEndControl, !manual);
   }
 
   private terminateAllowedFor(target: TargetSystemView | undefined): boolean {
