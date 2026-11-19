@@ -16,6 +16,7 @@
   same for every member, and the desktop shared-folders page renders the shared `vault-shared-folders`
   list, which honours the token), and the SSH agent's `LeasedSshKeyService` with
   `DesktopLeasedSshKeyService` (see "SSH agent and leased keys" below).
+
 ## Unlicensed members
 
 - Unlicensed members (`unlicensedForPam`: a `usePam` organization, `accessPam === false`) get no
@@ -23,6 +24,7 @@
   open item; `vault/desktop-gated-collection-banner.component.*` shows `pamSharedFolderUnlicensed`
   on a governed shared folder, read off the synced collection's `hasEnabledAccessRule`, and the
   shared `GatedCollectionBannerComponent` for everyone else.
+
 ## Shell and tabs
 
 - `pam-shell.routes.ts` and `pam-shell.component.*`: the `/pam` shell with Approvals, My requests and
@@ -43,6 +45,7 @@
   `DialogService` over the tab the caller came from (read off the previous navigation) and, on
   close, replaces the URL with that tab. A `/pam/requests/<id>` notification click lands here.
   `AccessRequestDetailService` is provided on the host because it reads `:id` off the route.
+
 ## Vault surfaces and leases
 
 - `vault/desktop-revealed-cipher.service.ts`: the `RevealedCipherService` behind the shared item
@@ -89,6 +92,7 @@
   widths, so keep the two in step when changing a column. Item, Status and Actions (Resolved on
   History) always show; the table scrolls sideways only when even those do not fit (the 600px
   minimum window with the side nav open). Specs stub the width with `testing/stub-tab-width.ts`.
+
 ## Connectivity and offline rules
 
 - `connectivity/`: whether PAM can reach the server, and the offline rules.
@@ -124,12 +128,14 @@
   at its own `notAfter`; a lease that ends offline shows `pamOfflineAccessEnded` in the banner and
   in its My requests row. Limit: a lease revoked by an approver stays usable offline until its
   normal `notAfter`, since the client cannot hear the revoke; the reconnect re-read drops it.
+
 ## Shared code
 
 - Shared code comes from `@bitwarden/bit-pam` and `@bitwarden/bit-pam-components`; strings live in
   `apps/desktop/src/locales/en/messages.json`. The shared surfaces read connectivity through the
   optional `PamConnectivityService` (`injectPamOffline()`), so a client that does not provide it,
   the web vault and the browser extension, behaves as before.
+
 ## Notifications
 
 - `notifications/`: system notifications for access requests and decisions.
