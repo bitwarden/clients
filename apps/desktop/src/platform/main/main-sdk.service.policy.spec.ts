@@ -27,7 +27,6 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
@@ -100,8 +99,6 @@ function createMainProcess() {
     logService,
   );
   const accountService = new AccountServiceImplementation(
-    MessageSender.EMPTY,
-    logService,
     globalStateProvider,
     singleUserStateProvider,
   );
@@ -173,8 +170,6 @@ function createRenderer() {
     logService,
   );
   const accountService = new AccountServiceImplementation(
-    MessageSender.EMPTY,
-    logService,
     globalStateProvider,
     singleUserStateProvider,
   );

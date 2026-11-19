@@ -142,8 +142,6 @@ export class GroupsV2Component {
 
   protected readonly searchControl = new FormControl("");
 
-  protected readonly ModalTabType = GroupAddEditTabType;
-
   protected readonly selection: SelectionConfig<GroupRow> = { multiple: true };
 
   protected readonly selectedGroups = signal<readonly GroupRow[]>([]);

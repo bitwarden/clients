@@ -136,7 +136,7 @@ describe("AppComponent (browser popup)", () => {
   });
 
   it("syncs once when a premium checkout was pending on popup open", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
 
     await component.ngOnInit();
 
@@ -145,7 +145,7 @@ describe("AppComponent (browser popup)", () => {
   });
 
   it("does not sync when no premium checkout was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
 
     await component.ngOnInit();
 
@@ -178,11 +178,11 @@ describe("AppComponent (browser popup)", () => {
     const flushAsync = () => new Promise(process.nextTick);
 
     it("syncs when the window regains focus with a checkout pending", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
       await component.ngOnInit();
       expect(syncService.fullSync).not.toHaveBeenCalled();
 
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
       window.dispatchEvent(new Event("focus"));
       await flushAsync();
 
@@ -190,7 +190,7 @@ describe("AppComponent (browser popup)", () => {
     });
 
     it("does not sync on refocus when no checkout is pending", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
       await component.ngOnInit();
 
       window.dispatchEvent(new Event("focus"));
@@ -200,11 +200,11 @@ describe("AppComponent (browser popup)", () => {
     });
 
     it("stops listening for focus after the component is destroyed", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
       await component.ngOnInit();
       component.ngOnDestroy();
 
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
       window.dispatchEvent(new Event("focus"));
       await flushAsync();
 
