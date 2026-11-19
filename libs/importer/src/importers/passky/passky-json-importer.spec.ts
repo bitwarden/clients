@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { testData as EncryptedData } from "../spec-data/passky-json/passky-encrypted.json";
 import { testData as UnencryptedData } from "../spec-data/passky-json/passky-unencrypted.json";
 
@@ -6,7 +10,7 @@ import { PasskyJsonImporter } from "./passky-json-importer";
 describe("Passky Json Importer", () => {
   let importer: PasskyJsonImporter;
   beforeEach(() => {
-    importer = new PasskyJsonImporter();
+    importer = new PasskyJsonImporter(mock<LogService>());
   });
 
   it("should not import encrypted backups", async () => {

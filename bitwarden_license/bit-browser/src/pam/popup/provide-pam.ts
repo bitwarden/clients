@@ -13,9 +13,11 @@ import {
 import {
   CipherViewBannerComponent,
   ItemDetailsStateBadgeComponent,
+  AccessBadgeTickerService,
   AccessRequestCancelService,
   controlledAccessItemFilter,
   ControlledAccessVaultFilterService,
+  MyAccessRequestsService,
   MyLeasesService,
   CIPHER_VIEW_BANNER_LAYOUT,
 } from "@bitwarden/bit-pam-components";
@@ -126,7 +128,18 @@ export function providePam(): SafeProvider[] {
       provide: CIPHER_VIEW_BANNER_LAYOUT,
       useValue: "popup",
     }),
-    // One per-row state read per list, shared by every option's count and the selection.
+    // One read of the caller's requests behind every chip option's count and the selection.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
+    }),
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,

@@ -12,7 +12,7 @@ import {
   inject,
   computed,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
   FormControl,
@@ -144,6 +144,18 @@ export class SendDetailsComponent implements OnInit {
 
   private sendPolicyService = inject(SendPolicyService);
   private orgService = inject(OrganizationService);
+
+  private readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
+  /**
+   * Whether the user may remove the Send's authentication. Not allowed when policy requires
+   * authentication or when the Send doesn't comply with policy.
+   */
+  protected readonly canRemoveAuth = computed(
+    () => !this.sendAuthRequired() && !this.sendFormService.originalSendView()?.disabled,
+  );
 
   availableAuthTypes$ = combineLatest([
     this.hasPremium$,
