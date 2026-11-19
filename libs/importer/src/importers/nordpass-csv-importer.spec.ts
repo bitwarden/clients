@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
@@ -137,7 +140,7 @@ function expectFields(cipher: CipherView) {
 describe("NordPass CSV Importer", () => {
   let importer: NordPassCsvImporter;
   beforeEach(() => {
-    importer = new NordPassCsvImporter();
+    importer = new NordPassCsvImporter(mock<LogService>());
   });
 
   it("should return false when not able to parse data", async () => {

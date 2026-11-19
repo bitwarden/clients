@@ -7,6 +7,7 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -41,6 +42,7 @@ describe("SendFabComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptServiceMock },
         {
           provide: AccountService,

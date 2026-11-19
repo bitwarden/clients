@@ -752,8 +752,6 @@ export default class MainBackground {
       this.logService,
     );
     this.accountService = new AccountServiceImplementation(
-      this.messagingService,
-      this.logService,
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
@@ -1044,7 +1042,6 @@ export default class MainBackground {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1439,6 +1436,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1588,6 +1586,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
     const logoutService = new DefaultLogoutService(

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -8,7 +11,7 @@ describe("BitwardenCsvImporter", () => {
   let importer: BitwardenCsvImporter;
 
   beforeEach(() => {
-    importer = new BitwardenCsvImporter();
+    importer = new BitwardenCsvImporter(mock<LogService>());
     importer.organizationId = "orgId" as OrganizationId;
   });
 

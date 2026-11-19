@@ -14,6 +14,8 @@ import {
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -31,10 +33,22 @@ import {
   provideStoryLogService,
 } from "../testing/story-fixtures";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 const ORGANIZATION_ID = "org-1";
 
 function organization(licensed: boolean): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORGANIZATION_ID,
     enabled: true,
     usePam: true,

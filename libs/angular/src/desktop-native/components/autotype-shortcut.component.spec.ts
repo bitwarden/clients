@@ -1,21 +1,95 @@
-import { AbstractControl, FormBuilder, ValidationErrors } from "@angular/forms";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { AbstractControl, ValidationErrors } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { AutotypeShortcutComponent } from "./autotype-shortcut.component";
 
+describe("AutotypeShortcutComponent inline field", () => {
+  let field: AutotypeShortcutComponent;
+  let fixture: ComponentFixture<AutotypeShortcutComponent>;
+
+  beforeEach(() => {
+    const i18nService = mock<I18nService>();
+    i18nService.t.mockReturnValue("Invalid shortcut");
+    fixture = TestBed.configureTestingModule({
+      providers: [{ provide: I18nService, useValue: i18nService }],
+    }).createComponent(AutotypeShortcutComponent);
+    fixture.componentRef.setInput("inline", true);
+    field = fixture.componentInstance;
+  });
+
+  const keydown = (init: KeyboardEventInit) => new KeyboardEvent("keydown", init);
+
+  it("shows, captures, and clears a shortcut without taking Tab or Escape", () => {
+    const emitted: (string[] | null)[] = [];
+    field.shortcutChange.subscribe((keys) => emitted.push(keys));
+    fixture.componentRef.setInput("shortcut", ["Control", "Super", "K"]);
+    fixture.detectChanges();
+
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Ctrl + Win + K");
+
+    fixture.componentRef.setInput("shortcut", ["Control", "K"]);
+    fixture.detectChanges();
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Ctrl + K");
+
+    for (const init of [
+      { key: "@", code: "KeyQ", altKey: true, ctrlKey: true },
+      { key: "1", ctrlKey: true },
+      { key: "k", ctrlKey: true, shiftKey: true },
+      { key: "k", ctrlKey: true, altKey: true, metaKey: true },
+    ]) {
+      field.onShortcutKeydown(keydown(init));
+    }
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Ctrl + K");
+    expect(emitted).toEqual([]);
+
+    field.onShortcutKeydown(keydown({ key: "a", code: "KeyQ", altKey: true, ctrlKey: true }));
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Ctrl + Alt + A");
+
+    field.onShortcutKeydown(keydown({ key: "k", metaKey: true }));
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Win + K");
+
+    for (const key of ["Tab", "Escape"]) {
+      const event = keydown({ key, cancelable: true });
+      field.onShortcutKeydown(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("Win + K");
+
+    const backspace = keydown({ key: "Backspace", cancelable: true });
+    field.onShortcutKeydown(backspace);
+
+    expect(backspace.defaultPrevented).toBe(true);
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("");
+    expect(emitted).toEqual([["Control", "Alt", "A"], ["Super", "K"], null]);
+  });
+
+  it("is required when empty and touched, and ignores pasted text", () => {
+    field.setShortcutForm.controls.shortcut.markAsTouched();
+    expect(field.setShortcutForm.controls.shortcut.errors).toEqual({ required: true });
+
+    const event = new Event("paste", { cancelable: true });
+    field.onShortcutTextInsert(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(field.setShortcutForm.controls.shortcut.value).toBe("");
+  });
+});
+
 describe("AutotypeShortcutComponent", () => {
   let component: AutotypeShortcutComponent;
   let validator: (control: AbstractControl) => ValidationErrors | null;
-  let formBuilder: MockProxy<FormBuilder>;
   let i18nService: MockProxy<I18nService>;
 
   beforeEach(() => {
-    formBuilder = mock<FormBuilder>();
     i18nService = mock<I18nService>();
     i18nService.t.mockReturnValue("Invalid shortcut");
-    component = new AutotypeShortcutComponent(null as any, formBuilder, i18nService);
+    TestBed.configureTestingModule({
+      providers: [{ provide: I18nService, useValue: i18nService }],
+    });
+    component = TestBed.runInInjectionContext(() => new AutotypeShortcutComponent());
     validator = component["shortcutCombinationValidator"]();
   });
 
@@ -114,8 +188,18 @@ describe("AutotypeShortcutComponent", () => {
         });
       });
 
+      it("should accept the displayed format", () => {
+        const validShortcuts = ["Ctrl + Alt + L", "Win + K", "Ctrl+A", "Alt + Win + B"];
+
+        validShortcuts.forEach((shortcut) => {
+          const control = createControl(shortcut);
+          const result = validator(control);
+          expect(result).toBeNull();
+        });
+      });
+
       it("should reject shortcuts with invalid modifier names", () => {
-        const invalidShortcuts = ["Ctrl+A", "Command+A", "Meta+A", "Cmd+A", "Invalid+A"];
+        const invalidShortcuts = ["Command+A", "Meta+A", "Cmd+A", "Invalid+A"];
 
         invalidShortcuts.forEach((shortcut) => {
           const control = createControl(shortcut);
@@ -131,6 +215,12 @@ describe("AutotypeShortcutComponent", () => {
           const control = createControl(shortcut);
           const result = validator(control);
           expect(result).toEqual({ invalidShortcut: { message: "Invalid shortcut" } });
+        });
+      });
+
+      it("should reject a repeated modifier", () => {
+        expect(validator(createControl("Alt+Alt+K"))).toEqual({
+          invalidShortcut: { message: "Invalid shortcut" },
         });
       });
 
