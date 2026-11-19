@@ -183,12 +183,13 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     return MANAGED_ITEM_TYPES.filter(
       ({ requiresNewItemTypes }) => !requiresNewItemTypes || newItemTypesEnabled,
     ).map(({ cipherType, labelKey, hiddenKey }) => {
-      // Only warn while turning the policy on; when returning to edit a policy that is already on
-      // the items are already hidden.
+      // Only warn about types the saved policy isn't already restricting; those items are
+      // already hidden.
+      const alreadyRestricted =
+        this.policyResponse()?.enabled === true &&
+        this.restrictedTypesFromResponse().includes(cipherType);
       const hiddenItemCount =
-        !this.policyResponse()?.enabled && checked[cipherType] === false
-          ? (counts[cipherType] ?? 0)
-          : 0;
+        !alreadyRestricted && checked[cipherType] === false ? (counts[cipherType] ?? 0) : 0;
 
       return {
         cipherType,
@@ -214,7 +215,9 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
       .subscribe((singleOrgEnabled) => {
         this.singleOrgEnabled.set(singleOrgEnabled);
 
-        if (singleOrgEnabled) {
+        // The prerequisite only blocks turning the policy on. Policies that are already on (legacy
+        // policies may predate the requirement) must remain switchable off.
+        if (singleOrgEnabled || this.policyResponse()?.enabled === true) {
           this.enabled.enable();
         } else {
           this.enabled.disable();
