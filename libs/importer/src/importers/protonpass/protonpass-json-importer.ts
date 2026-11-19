@@ -20,6 +20,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
@@ -142,7 +143,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     const useNewDedicatedTypes = await this.configService.getFeatureFlag(
       FeatureFlag.PM32009NewItemTypes,
     );
-    const result = new ImportResult();
+    const result = new ImportUpgradeResult();
     const results: ProtonPassJsonFile = JSON.parse(data);
     if (results == null || results.vaults == null) {
       result.success = false;
@@ -152,6 +153,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     if (results.encrypted) {
       result.success = false;
       result.errorMessage = this.i18nService.t("unsupportedEncryptedImport");
+      result.errorKey = ImportResultErrorKey.EncryptedUnsupported;
       return Promise.resolve(result);
     }
 

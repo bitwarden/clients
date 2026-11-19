@@ -29,6 +29,7 @@ export {
 export { DefaultImportDestinationService } from "./default-import-destination.service";
 export { OrganizationImportDestinationService } from "./organization-import-destination.service";
 export {
+  FileStepReturn,
   ImportStagingServiceAbstraction,
   StagedImport,
 } from "./import-staging.service.abstraction";

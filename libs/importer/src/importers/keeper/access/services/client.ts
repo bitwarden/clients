@@ -1117,7 +1117,7 @@ export class Client {
       !validateResponse.encryptedLoginToken ||
       validateResponse.encryptedLoginToken.length === 0
     ) {
-      throw new Error("2FA validation failed: no encrypted login token returned");
+      throw new Error("2FA validation failed: no encrypted login token returned.");
     }
 
     return new Uint8Array(validateResponse.encryptedLoginToken) as LoginToken;

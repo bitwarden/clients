@@ -1,5 +1,6 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent } from "storybook/test";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,6 +36,8 @@ export default {
               importSourceShowAll: "Show all",
               importSourceShowLess: "Show less",
               noMatchingItems: "No matching items",
+              noSourcesMatch: (value?: string) => `No sources match “${value}”`,
+              clearSearch: "Clear search",
             });
           },
         },
@@ -50,4 +53,14 @@ export const Default: Story = {
     props: args,
     template: `<importer-source-select></importer-source-select>`,
   }),
+};
+
+export const NoMatches: Story = {
+  ...Default,
+  play: async ({ canvasElement }) => {
+    const search = canvasElement.querySelector<HTMLInputElement>("bit-search input");
+    if (search != null) {
+      await userEvent.type(search, "Other");
+    }
+  },
 };

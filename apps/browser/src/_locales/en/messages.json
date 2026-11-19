@@ -5960,6 +5960,103 @@
   "filePasswordInvalid": {
     "message": "Enter a valid file password."
   },
+  "filePasswordInvalidV2": {
+    "message": "Invalid file password."
+  },
+  "importPasteContent": {
+    "message": "Paste content"
+  },
+  "importFileLabel": {
+    "message": "Import file"
+  },
+  "importDataManualSubtitleV2": {
+    "message": "Select the export file from $VENDOR$ or copy and paste the file content. We'll parse it and show you a preview before importing.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importHelpSiteInstructions": {
+    "message": "See detailed $NAME$ instructions on our",
+    "description": "Followed by a hyperlink whose text is importHelpSiteLinkText, e.g. 'See detailed Safari instructions on our help site'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpSiteLinkText": {
+    "message": "help site"
+  },
+  "importPasteContentRequired": {
+    "message": "Add the text you want to import."
+  },
+  "importFileRequired": {
+    "message": "Select a $TYPES$ file to upload.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "fileTypeNotSupportedV2": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "importDataFormatInvalid": {
+    "message": "Data is formatted incorrectly. Copy and paste the file data."
+  },
+  "importFileStructureInvalid": {
+    "message": "File formatted incorrectly. Check your file and try again."
+  },
+  "importFileEmpty": {
+    "message": "Import file is empty"
+  },
+  "importEncryptionKeyMismatch": {
+    "message": "Encryption key does not match the key used to export."
+  },
+  "unsupportedEncryptedImport": {
+    "message": "Importing encrypted files is currently not supported."
+  },
+  "importTooMuchData": {
+    "message": "This file has too many items to import at once. Split it into smaller files and try again."
+  },
+  "noSourcesMatch": {
+    "message": "No sources match “$VALUE$”",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Other"
+      }
+    }
+  },
+  "kdbxPasswordInvalidV2": {
+    "message": "Enter a valid password."
+  },
+  "lastPassLoginPasswordInvalidV2": {
+    "message": "Enter a valid password."
+  },
+  "multifactorAuthenticationCancelledV2": {
+    "message": "Multifactor authentication cancelled."
+  },
+  "multifactorAuthenticationFailedV2": {
+    "message": "Multifactor authentication failed."
+  },
+  "noLastPassDataFoundV2": {
+    "message": "No LastPass data found."
+  },
+  "incorrectUsernameOrPasswordV2": {
+    "message": "Incorrect username or password."
+  },
   "filePasswordProtectedSubtitle": {
     "message": "The file uploaded is password protected. Enter the password to continue."
   },

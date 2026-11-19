@@ -1,4 +1,5 @@
 import { ImportResult } from "../../models/import-result";
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
@@ -6,7 +7,7 @@ import { PasskyJsonExport } from "./passky-json-types";
 
 export class PasskyJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
-    const result = new ImportResult();
+    const result = new ImportUpgradeResult();
     const passkyExport: PasskyJsonExport = JSON.parse(data);
     if (
       passkyExport == null ||
@@ -20,6 +21,7 @@ export class PasskyJsonImporter extends BaseImporter implements Importer {
     if (passkyExport.encrypted == true) {
       result.success = false;
       result.errorMessage = "Unable to import an encrypted passky backup.";
+      result.errorKey = ImportResultErrorKey.EncryptedUnsupported;
       return Promise.resolve(result);
     }
 

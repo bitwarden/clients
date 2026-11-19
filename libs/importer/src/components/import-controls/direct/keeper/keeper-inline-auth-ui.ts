@@ -194,9 +194,7 @@ export class KeeperInlineAuthUi {
     this.toastService.showToast({
       variant: "error",
       title: undefined,
-      message: this.i18nService.t(
-        unsupportedTwoFactor ? "keeperLoginUnsupportedTwoFactor" : message,
-      ),
+      message: this.i18nService.t(message),
     });
     // The user can still switch methods or import manually, so they keep their email and server.
     if (!unsupportedTwoFactor) {

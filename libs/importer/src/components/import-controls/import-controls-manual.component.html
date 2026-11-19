@@ -4,7 +4,7 @@
     @if (needsFilePassword()) {
       {{ "filePasswordProtectedSubtitle" | i18n }}
     } @else {
-      {{ "importDataManualSubtitle" | i18n: vendorName() }}
+      {{ "importDataManualSubtitleV2" | i18n: vendorName() }}
     }
   </p>
 
@@ -21,7 +21,7 @@
         <bit-label>{{ "uploadFile" | i18n }}</bit-label>
       </bit-radio-button>
       <bit-radio-button class="tw-block" value="paste" id="importer-controls_radio_paste">
-        <bit-label>{{ "pasteAsPlainText" | i18n }}</bit-label>
+        <bit-label>{{ "importPasteContent" | i18n }}</bit-label>
       </bit-radio-button>
     </bit-radio-group>
   }
@@ -94,7 +94,7 @@
     }
   } @else {
     <bit-form-field disableMargin>
-      <bit-label>{{ "plainText" | i18n }}</bit-label>
+      <bit-label>{{ "importFileLabel" | i18n }}</bit-label>
       <textarea
         bitInput
         formControlName="fileContents"

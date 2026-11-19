@@ -10,16 +10,16 @@ export function lastPassValidationErrorI18nKey(error: unknown): string {
     case "SSO auth cancelled":
     case "Second factor step is canceled by the user":
     case "Out of band step is canceled by the user":
-      return "multifactorAuthenticationCancelled";
+      return "multifactorAuthenticationCancelledV2";
     case "No accounts to transform":
     case "Vault has not opened any accounts.":
-      return "noLastPassDataFound";
+      return "noLastPassDataFoundV2";
     case "Invalid username":
     case "Invalid password":
-      return "incorrectUsernameOrPassword";
+      return "incorrectUsernameOrPasswordV2";
     case "Second factor code is incorrect":
     case "Out of band authentication failed":
-      return "multifactorAuthenticationFailed";
+      return "multifactorAuthenticationFailedV2";
     case "unifiedloginresult":
       return "lastPassTryAgainCheckEmail";
     default:

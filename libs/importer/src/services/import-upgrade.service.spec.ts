@@ -38,6 +38,7 @@ import {
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportUpgradeService } from "./import-upgrade.service";
+import { ImportService } from "./import.service";
 
 describe("ImportUpgradeService", () => {
   let importService: ImportUpgradeService;
@@ -105,7 +106,7 @@ describe("ImportUpgradeService", () => {
       expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidFilePassword);
     });
 
-    it("throws with an undefined errorKey when the failed result didn't set one", async () => {
+    it("throws the structure errorKey when the failed result didn't set one", async () => {
       const importResult = new ImportUpgradeResult();
       importResult.success = false;
       importResult.errorMessage = "Missing `database` node.";
@@ -113,10 +114,10 @@ describe("ImportUpgradeService", () => {
       const thrown = await failedWith(importResult);
 
       expect(thrown).toBeInstanceOf(ImportResultError);
-      expect((thrown as ImportResultError).errorKey).toBeUndefined();
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidStructure);
     });
 
-    it("throws with an undefined errorKey for a plain ImportResult", async () => {
+    it("throws the structure errorKey for a plain ImportResult", async () => {
       const importResult = new ImportResult();
       importResult.success = false;
       importResult.errorMessage = "Missing `database` node.";
@@ -124,7 +125,76 @@ describe("ImportUpgradeService", () => {
       const thrown = await failedWith(importResult);
 
       expect(thrown).toBeInstanceOf(ImportResultError);
-      expect((thrown as ImportResultError).errorKey).toBeUndefined();
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidStructure);
+    });
+
+    it("throws the encrypted-unsupported errorKey set by the importer", async () => {
+      const importResult = new ImportUpgradeResult();
+      importResult.success = false;
+      importResult.errorMessage = "Encrypted Password Depot files are not supported.";
+      importResult.errorKey = ImportResultErrorKey.EncryptedUnsupported;
+
+      const thrown = await failedWith(importResult);
+
+      expect((thrown as ImportResultError).errorKey).toBe(
+        ImportResultErrorKey.EncryptedUnsupported,
+      );
+    });
+
+    it("throws the nothing-imported errorKey for a result with no items", async () => {
+      const importResult = new ImportResult();
+      importResult.success = true;
+
+      const thrown = await failedWith(importResult);
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).message).toBe("importNothingError");
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.NothingImported);
+    });
+
+    it("throws the invalid-format errorKey for a failed result with no message", async () => {
+      const importResult = new ImportResult();
+      importResult.success = false;
+
+      const thrown = await failedWith(importResult);
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidFormat);
+    });
+
+    it("throws the too-much-data errorKey, localized, when the server refuses the size", async () => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.name = "Example";
+      cipher.login = new LoginView();
+      cipher.login.password = "secret";
+      const importResult = new ImportResult();
+      importResult.success = true;
+      importResult.ciphers = [cipher];
+      const baseImport = jest
+        .spyOn(ImportService.prototype, "importImportResult")
+        .mockRejectedValue(new Error("You cannot import this much data at once."));
+
+      const thrown = await failedWith(importResult);
+      baseImport.mockRestore();
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).message).toBe("importTooMuchData");
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.TooMuchData);
+    });
+
+    it("rethrows any other server error unchanged", async () => {
+      const error = new Error("Something else.");
+      const importResult = new ImportResult();
+      importResult.success = true;
+      const baseImport = jest
+        .spyOn(ImportService.prototype, "importImportResult")
+        .mockRejectedValue(error);
+
+      const thrown = await failedWith(importResult);
+      baseImport.mockRestore();
+
+      expect(thrown).toBe(error);
     });
   });
 
@@ -173,6 +243,19 @@ describe("ImportUpgradeService", () => {
       const thrown = await failedWith(() => importService.parse(importer, "contents"));
 
       expect((thrown as Error).message).toBe("importFormatError");
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidFormat);
+    });
+
+    it("maps a SyntaxError from the importer to the format error when importing too", async () => {
+      const importer = mock<Importer>();
+      importer.parse.mockRejectedValue(new SyntaxError("Unexpected token"));
+
+      const thrown = await failedWith(() =>
+        importService.import(importer, "contents", undefined, undefined, false),
+      );
+
+      expect(thrown).toBeInstanceOf(ImportResultError);
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.InvalidFormat);
     });
 
     it("rethrows any other importer error unchanged", async () => {
