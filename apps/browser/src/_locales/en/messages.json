@@ -8998,6 +8998,9 @@
     "message": "Use browser instead",
     "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
+  "vaultItem": {
+    "message": "Vault item"
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
   },
