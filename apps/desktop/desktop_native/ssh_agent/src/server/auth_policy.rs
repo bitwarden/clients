@@ -24,6 +24,10 @@ pub struct ConnectionContext {
     pub caller_app: Option<String>,
     /// Outermost app above the process, e.g. `iTerm2`.
     pub host_app: Option<String>,
+    /// Nearest AI agent above the process, e.g. `claude`.
+    pub ai_agent: Option<String>,
+    /// Server an `ssh` process logs in to, e.g. `git@github.com`.
+    pub destination: Option<String>,
     /// Session-bind context. `None` when no session-bind extension was received.
     pub session_bind: Option<SessionBindContext>,
 }

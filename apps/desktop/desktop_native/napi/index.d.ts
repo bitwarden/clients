@@ -467,6 +467,10 @@ export declare namespace sshagent {
     callerApp?: string
     /** The outermost app above the requesting process, e.g. `iTerm2`. */
     hostApp?: string
+    /** The nearest AI agent above the requesting process, e.g. `claude`. */
+    aiAgent?: string
+    /** The server an `ssh` process logs in to, e.g. `git@github.com`. */
+    destination?: string
     isForwarding: boolean
     hostFingerprint?: string
   }
@@ -496,6 +500,8 @@ export declare namespace sshagent {
   export interface SignRequest {
     publicKey: PublicKey
     processName?: string
+    /** The nearest AI agent above the requesting process, e.g. `claude`. */
+    aiAgent?: string
     isForwarding: boolean
     namespace?: SIGNamespace
     hostFingerprint?: string

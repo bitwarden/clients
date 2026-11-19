@@ -14,6 +14,14 @@
     >
       {{ 'agentForwardingWarningText' | i18n }}
     </bit-callout>
+    } @if (params.aiAgent) {
+    <bit-callout
+      type="warning"
+      title="{{ 'sshAgentAiAgentWarningTitle' | i18n }}"
+      data-testid="ssh-approval-ai-agent-warning"
+    >
+      {{ 'sshAgentAiAgentWarningText' | i18n: params.aiAgent }}
+    </bit-callout>
     }
 
     <b>{{params.applicationName}}</b> {{ "sshkeyApprovalMessageInfix" | i18n }}

@@ -13,7 +13,13 @@ import { firstValueFrom, startWith, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { ButtonModule, DialogModule, DialogService, TableModule } from "@bitwarden/components";
+import {
+  BadgeComponent,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  TableModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
@@ -28,6 +34,9 @@ interface ActivityRow {
   timestamp: number;
   app: string;
   hostApp?: string;
+  aiAgent?: string;
+  /** The server logged in to, or that forwarded the request. */
+  destination?: string;
   command: string;
   keyName?: string;
   requestKey: string;
@@ -51,7 +60,7 @@ const GIT_NAMESPACE = "git";
   selector: "app-ssh-agent-activity",
   templateUrl: "ssh-agent-activity.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DatePipe, DialogModule, I18nPipe, TableModule],
+  imports: [BadgeComponent, ButtonModule, DatePipe, DialogModule, I18nPipe, TableModule],
 })
 export class SshAgentActivityComponent implements OnInit {
   private readonly accountService = inject(AccountService);
@@ -95,12 +104,19 @@ export class SshAgentActivityComponent implements OnInit {
       app: entry.callerApp ?? entry.hostApp ?? entry.processName ?? "",
       // Only worth showing when it adds something, e.g. `claude` in `iTerm2`.
       hostApp: entry.hostApp !== entry.callerApp ? entry.hostApp : undefined,
+      aiAgent: entry.aiAgent,
+      destination: SshAgentActivityComponent.isLogin(entry) ? entry.destination : undefined,
       command: entry.command ?? entry.processName ?? "",
       keyName: entry.cipherId != null ? keyNames.get(entry.cipherId) : undefined,
       requestKey: SshAgentActivityComponent.requestKey(entry),
       outcomeKey: OUTCOME_KEYS[entry.outcome],
       isForwarding: entry.isForwarding,
     }));
+  }
+
+  // Whether `entry` signed a server login; git and file signatures name no server.
+  private static isLogin(entry: SshAgentActivity): boolean {
+    return entry.operation === SshAgentActivityOperation.Sign && entry.namespace == null;
   }
 
   // The i18n key describing what the client asked for.

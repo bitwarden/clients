@@ -66,6 +66,8 @@ pub mod sshagent {
     pub struct SignRequest {
         pub public_key: PublicKey,
         pub process_name: Option<String>,
+        /// The nearest AI agent above the requesting process, e.g. `claude`.
+        pub ai_agent: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SIGNamespace>,
         pub host_fingerprint: Option<String>,
@@ -79,6 +81,7 @@ pub mod sshagent {
                     blob: r.public_key.blob,
                 },
                 process_name: r.connection.process_name,
+                ai_agent: r.connection.ai_agent,
                 is_forwarding: r
                     .connection
                     .session_bind
@@ -149,6 +152,10 @@ pub mod sshagent {
         pub caller_app: Option<String>,
         /// The outermost app above the requesting process, e.g. `iTerm2`.
         pub host_app: Option<String>,
+        /// The nearest AI agent above the requesting process, e.g. `claude`.
+        pub ai_agent: Option<String>,
+        /// The server an `ssh` process logs in to, e.g. `git@github.com`.
+        pub destination: Option<String>,
         pub is_forwarding: bool,
         pub host_fingerprint: Option<String>,
     }
@@ -173,6 +180,8 @@ pub mod sshagent {
                 command: connection.command,
                 caller_app: connection.caller_app,
                 host_app: connection.host_app,
+                ai_agent: connection.ai_agent,
+                destination: connection.destination,
                 is_forwarding: connection
                     .session_bind
                     .as_ref()

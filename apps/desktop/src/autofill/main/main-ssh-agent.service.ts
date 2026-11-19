@@ -107,6 +107,8 @@ export class MainSshAgentService {
       command: data.command,
       callerApp: data.callerApp,
       hostApp: data.hostApp,
+      aiAgent: data.aiAgent,
+      destination: data.destination,
       isForwarding: data.isForwarding,
     };
 
@@ -130,6 +132,7 @@ export class MainSshAgentService {
         cipherId: data.cipherId,
         requestId: id,
         processName: data.signRequest.processName,
+        aiAgent: data.signRequest.aiAgent,
         isAgentForwarding: data.signRequest.isForwarding,
         namespace: data.signRequest.namespace,
         hostFingerprint: data.signRequest.hostFingerprint,

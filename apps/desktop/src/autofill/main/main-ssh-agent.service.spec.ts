@@ -144,6 +144,7 @@ describe("MainSshAgentService", () => {
       signRequest: {
         publicKey: { keyType: "Ed25519", keypair: "keypair-data" },
         processName: "ssh",
+        aiAgent: "claude",
         isForwarding: false,
         namespace: "ssh",
       },
@@ -156,6 +157,7 @@ describe("MainSshAgentService", () => {
         cipherId: "cipher-abc",
         requestId: 1,
         processName: "ssh",
+        aiAgent: "claude",
         isAgentForwarding: false,
         namespace: "ssh",
         hostFingerprint: undefined,
@@ -269,6 +271,8 @@ describe("MainSshAgentService", () => {
         command,
         callerApp: "claude",
         hostApp: "iTerm2",
+        aiAgent: "claude",
+        destination: "git@github.com",
         isForwarding: false,
       }) as sshagent.ActivityData;
 
@@ -284,7 +288,13 @@ describe("MainSshAgentService", () => {
         "ssh second",
         "ssh first",
       ]);
-      expect(log[0]).toMatchObject({ callerApp: "claude", hostApp: "iTerm2", outcome: "allowed" });
+      expect(log[0]).toMatchObject({
+        callerApp: "claude",
+        hostApp: "iTerm2",
+        aiAgent: "claude",
+        destination: "git@github.com",
+        outcome: "allowed",
+      });
     });
 
     it("should notify the renderer of new activity", () => {

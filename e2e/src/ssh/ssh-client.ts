@@ -32,15 +32,25 @@ export class SshClient {
     return run("ssh-add", ["-L"], { env: { SSH_AUTH_SOCK: agentSocket } });
   }
 
-  /** Logs in to the server with `key` from the agent, and logs out. */
-  async login(key: SshKey): Promise<ProcessResult> {
-    return run("ssh", [
+  /**
+   * Logs in to the server with `key` from the agent, and logs out. A `launcher` script runs
+   * `ssh` as its child, e.g. to pose as an AI agent.
+   */
+  async login(key: SshKey, launcher?: string): Promise<ProcessResult> {
+    const args = [
       ...this.options(key),
       "-o",
       `IdentityAgent=${this.agentSocket}`,
       SSH_HOST,
       "true",
-    ]);
+    ];
+
+    return launcher == null ? run("ssh", args) : run(launcher, ["ssh", ...args]);
+  }
+
+  /** `host:port`, as the agent's activity log names this server. */
+  get destination(): string {
+    return `${SSH_HOST}:${this.server.port}`;
   }
 
   /**

@@ -256,6 +256,8 @@ fn connection_context(
         command: owned(peer_info.and_then(PeerInfo::command)),
         caller_app: owned(peer_info.and_then(PeerInfo::caller_app)),
         host_app: owned(peer_info.and_then(PeerInfo::host_app)),
+        ai_agent: owned(peer_info.and_then(PeerInfo::ai_agent)),
+        destination: owned(peer_info.and_then(PeerInfo::destination)),
         session_bind: if session_bind_state.host_fingerprint.is_empty() {
             None
         } else {

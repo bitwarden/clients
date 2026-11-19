@@ -38,6 +38,35 @@ const SESSION_ROOTS: &[&str] = &[
     "explorer", "init", "launchd", "services", "systemd", "wininit",
 ];
 
+/// Command-line AI agents. A request with one of these above it is flagged, e.g. `ssh ← zsh ←
+/// claude`. Matches the process name, or the script an interpreter runs, e.g. `node …/bin/codex`.
+const AI_AGENTS: &[&str] = &[
+    "aider",
+    "amp",
+    "claude",
+    "codex",
+    "copilot",
+    "crush",
+    "cursor-agent",
+    "droid",
+    "gemini",
+    "goose",
+    "kiro-cli",
+    "opencode",
+    "qwen",
+];
+
+/// Processes that run a script named in their first argument, e.g. `node /usr/local/bin/claude`.
+const INTERPRETERS: &[&str] = &[
+    "bash", "bun", "dash", "deno", "node", "python", "python3", "sh", "zsh",
+];
+
+/// The OpenSSH client, whose destination argument names the server it logs in to.
+const SSH_CLIENT: &str = "ssh";
+
+/// `ssh` flags that take a value, from `man ssh`. E.g. `-p 22`, or `-p22`.
+const SSH_FLAGS_WITH_VALUE: &str = "BbcDEeFIiJLlmOoPpQRSWw";
+
 /// Information about the connecting peer process
 #[derive(Debug, Clone)]
 pub(crate) struct PeerInfo {
@@ -55,6 +84,19 @@ struct PeerOrigin {
     caller_app: Option<String>,
     /// The outermost ancestor below the session root, e.g. `iTerm2`.
     host_app: Option<String>,
+    /// The nearest AI agent above the peer, e.g. `claude`.
+    ai_agent: Option<String>,
+    /// The server an `ssh` peer logs in to, e.g. `git@github.com` or `example.com:2222`.
+    destination: Option<String>,
+}
+
+/// A process above the peer, named as the user knows it.
+#[derive(Debug, Clone)]
+struct Ancestor {
+    /// E.g. `node`.
+    name: String,
+    /// The script an interpreter runs, e.g. `codex` for `node /usr/local/bin/codex.js`.
+    script: Option<String>,
 }
 
 impl PeerInfo {
@@ -105,6 +147,14 @@ impl PeerInfo {
     pub(crate) fn host_app(&self) -> Option<&str> {
         self.origin.host_app.as_deref()
     }
+
+    pub(crate) fn ai_agent(&self) -> Option<&str> {
+        self.origin.ai_agent.as_deref()
+    }
+
+    pub(crate) fn destination(&self) -> Option<&str> {
+        self.origin.destination.as_deref()
+    }
 }
 
 impl PeerOrigin {
@@ -116,14 +166,21 @@ impl PeerOrigin {
             return Self::default();
         };
         let command = command_line(peer.cmd());
+        let destination = if is_listed(&display_name(peer), &[SSH_CLIENT]) {
+            ssh_destination(peer.cmd())
+        } else {
+            None
+        };
         let parent = peer.parent();
 
-        let ancestors = ancestor_names(&mut system, parent);
+        let ancestors = ancestors(&mut system, parent);
 
         Self {
             command,
             caller_app: caller_app(&ancestors),
-            host_app: ancestors.last().cloned(),
+            host_app: ancestors.last().map(|ancestor| ancestor.name.clone()),
+            ai_agent: ai_agent(&ancestors),
+            destination,
         }
     }
 }
@@ -138,13 +195,13 @@ fn refresh_process(system: &mut System, pid: u32) -> Option<&Process> {
     system.process(pid)
 }
 
-/// Display names of `parent` and its ancestors, nearest first, stopping below the session root.
+/// `parent` and its ancestors, nearest first, stopping below the session root.
 /// E.g. `[zsh, claude, zsh, login, iTerm2]`.
-fn ancestor_names(system: &mut System, mut parent: Option<Pid>) -> Vec<String> {
-    let mut names = Vec::new();
+fn ancestors(system: &mut System, mut parent: Option<Pid>) -> Vec<Ancestor> {
+    let mut ancestors = Vec::new();
 
     while let Some(pid) = parent {
-        if names.len() >= MAX_ANCESTRY_DEPTH {
+        if ancestors.len() >= MAX_ANCESTRY_DEPTH {
             break;
         }
 
@@ -159,19 +216,129 @@ fn ancestor_names(system: &mut System, mut parent: Option<Pid>) -> Vec<String> {
 
         // A process that is its own parent (pid 0 on some platforms) ends the walk.
         let next = process.parent().filter(|&next| next != pid);
-        names.push(name);
+        let script = if is_listed(&name, INTERPRETERS) {
+            script_name(process.cmd())
+        } else {
+            None
+        };
+        ancestors.push(Ancestor { name, script });
         parent = next;
     }
 
-    names
+    ancestors
 }
 
 /// The nearest ancestor that is not a relay process.
-fn caller_app(ancestors: &[String]) -> Option<String> {
+fn caller_app(ancestors: &[Ancestor]) -> Option<String> {
     ancestors
         .iter()
-        .find(|name| !is_listed(name, RELAY_PROCESSES))
-        .cloned()
+        .find(|ancestor| !is_listed(&ancestor.name, RELAY_PROCESSES))
+        .map(|ancestor| ancestor.name.clone())
+}
+
+/// The nearest ancestor that is an AI agent, by its name or the script it runs.
+fn ai_agent(ancestors: &[Ancestor]) -> Option<String> {
+    ancestors.iter().find_map(|ancestor| {
+        [Some(&ancestor.name), ancestor.script.as_ref()]
+            .into_iter()
+            .flatten()
+            .find(|name| is_listed(name, AI_AGENTS))
+            .cloned()
+    })
+}
+
+/// The file stem of the script an interpreter runs: its first argument that is not a flag.
+/// E.g. `codex` for `node --no-warnings /usr/local/lib/codex/bin/codex.js`.
+fn script_name(args: &[std::ffi::OsString]) -> Option<String> {
+    let script = args
+        .iter()
+        .skip(1)
+        .find(|arg| !arg.to_string_lossy().starts_with('-'))?;
+    Path::new(script)
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .map(str::to_string)
+}
+
+/// The server `ssh` logs in to, from its arguments, with `-l` and `-p` applied.
+/// E.g. `git@github.com` for `ssh -T git@github.com`, `me@example.com:2222` for
+/// `ssh -l me -p 2222 example.com`. `None` when no destination is given, e.g. `ssh -V`.
+fn ssh_destination(args: &[std::ffi::OsString]) -> Option<String> {
+    let args: Vec<String> = args
+        .iter()
+        .skip(1)
+        .map(|arg| arg.to_string_lossy().into_owned())
+        .collect();
+
+    let mut user = None;
+    let mut port = None;
+    let mut destination = None;
+    let mut index = 0;
+
+    while index < args.len() {
+        let arg = &args[index];
+        index += 1;
+
+        // `--` ends the flags; the destination follows.
+        if arg == "--" {
+            destination = args.get(index).cloned();
+            break;
+        }
+
+        let Some(flags) = arg.strip_prefix('-').filter(|flags| !flags.is_empty()) else {
+            destination = Some(arg.clone());
+            break;
+        };
+
+        // Flags combine, e.g. `-tA`; the first that takes a value consumes the rest, or the next
+        // argument, e.g. `-p2222` or `-p 2222`.
+        for (offset, flag) in flags.char_indices() {
+            if !SSH_FLAGS_WITH_VALUE.contains(flag) {
+                continue;
+            }
+
+            let inline = flags.get(offset + flag.len_utf8()..).unwrap_or_default();
+            let value = if inline.is_empty() {
+                index += 1;
+                args.get(index - 1).cloned()
+            } else {
+                Some(inline.to_string())
+            };
+
+            match (flag, value) {
+                ('l', Some(value)) => user = Some(value),
+                ('p', Some(value)) => port = Some(value),
+                ('o', Some(value)) => apply_ssh_option(&value, &mut user, &mut port),
+                _ => {}
+            }
+            break;
+        }
+    }
+
+    let destination = destination?;
+    let destination = match user {
+        Some(user) if !destination.contains('@') => format!("{user}@{destination}"),
+        _ => destination,
+    };
+
+    Some(match port {
+        Some(port) => format!("{destination}:{port}"),
+        None => destination,
+    })
+}
+
+/// Applies an `ssh -o` option that changes the destination, e.g. `Port=2222` or `User me`.
+fn apply_ssh_option(option: &str, user: &mut Option<String>, port: &mut Option<String>) {
+    let Some((key, value)) = option.split_once(['=', ' ']) else {
+        return;
+    };
+    let value = value.trim().to_string();
+
+    match key.trim().to_ascii_lowercase().as_str() {
+        "user" => *user = Some(value),
+        "port" => *port = Some(value),
+        _ => {}
+    }
 }
 
 /// The name `ps` shows: argv[0]'s file name, e.g. `claude` for a binary installed as
@@ -336,16 +503,92 @@ mod tests {
         assert!(peer_info.host_app().is_some());
     }
 
+    fn named(names: &[&str]) -> Vec<Ancestor> {
+        names
+            .iter()
+            .map(|name| Ancestor {
+                name: name.to_string(),
+                script: None,
+            })
+            .collect()
+    }
+
+    fn args(line: &str) -> Vec<std::ffi::OsString> {
+        line.split(' ').map(std::ffi::OsString::from).collect()
+    }
+
     #[test]
     fn test_caller_app_skips_relay_processes() {
-        let ancestors = ["zsh", "claude", "zsh", "login", "iTerm2"].map(String::from);
+        let ancestors = named(&["zsh", "claude", "zsh", "login", "iTerm2"]);
         assert_eq!(caller_app(&ancestors).as_deref(), Some("claude"));
     }
 
     #[test]
     fn test_caller_app_relay_processes_only_returns_none() {
-        let ancestors = ["git", "zsh", "login"].map(String::from);
+        let ancestors = named(&["git", "zsh", "login"]);
         assert_eq!(caller_app(&ancestors), None);
+    }
+
+    #[test]
+    fn test_ai_agent_matches_process_name() {
+        let ancestors = named(&["zsh", "claude", "zsh", "login", "iTerm2"]);
+        assert_eq!(ai_agent(&ancestors).as_deref(), Some("claude"));
+    }
+
+    #[test]
+    fn test_ai_agent_matches_interpreter_script() {
+        let ancestors = vec![Ancestor {
+            name: "node".to_string(),
+            script: script_name(&args(
+                "node --no-warnings /usr/local/lib/codex/bin/codex.js",
+            )),
+        }];
+        assert_eq!(ai_agent(&ancestors).as_deref(), Some("codex"));
+    }
+
+    #[test]
+    fn test_ai_agent_none_without_agent() {
+        let ancestors = named(&["zsh", "login", "iTerm2"]);
+        assert_eq!(ai_agent(&ancestors), None);
+    }
+
+    #[test]
+    fn test_ssh_destination_user_at_host() {
+        assert_eq!(
+            ssh_destination(&args("ssh -T git@github.com")).as_deref(),
+            Some("git@github.com")
+        );
+    }
+
+    #[test]
+    fn test_ssh_destination_skips_flag_values_and_applies_port_and_user() {
+        let line = "ssh -i key -o IdentitiesOnly=yes -l me -p 2222 example.com uptime";
+        assert_eq!(
+            ssh_destination(&args(line)).as_deref(),
+            Some("me@example.com:2222")
+        );
+    }
+
+    #[test]
+    fn test_ssh_destination_combined_and_inline_flags() {
+        assert_eq!(
+            ssh_destination(&args("ssh -tAp2222 -oUser=me example.com")).as_deref(),
+            Some("me@example.com:2222")
+        );
+    }
+
+    #[test]
+    fn test_ssh_destination_git_command() {
+        let line = "ssh -o SendEnv=GIT_PROTOCOL git@github.com git-upload-pack 'repo.git'";
+        assert_eq!(
+            ssh_destination(&args(line)).as_deref(),
+            Some("git@github.com")
+        );
+    }
+
+    #[test]
+    fn test_ssh_destination_none_without_destination() {
+        assert_eq!(ssh_destination(&args("ssh -V")), None);
     }
 
     #[test]

@@ -203,6 +203,8 @@ mod tests {
             command: Some(TEST_COMMAND.to_string()),
             caller_app: Some(TEST_CALLER_APP.to_string()),
             host_app: Some(TEST_HOST_APP.to_string()),
+            ai_agent: Some(TEST_CALLER_APP.to_string()),
+            destination: Some(TEST_DESTINATION.to_string()),
             session_bind: None,
         }
     }
@@ -248,6 +250,7 @@ mod tests {
     const TEST_COMMAND: &str = "ssh -t example.com";
     const TEST_CALLER_APP: &str = "claude";
     const TEST_HOST_APP: &str = "iTerm2";
+    const TEST_DESTINATION: &str = "example.com";
 
     #[tokio::test]
     async fn test_authorize_list_initialized_keystore_allows_without_callback() {
@@ -480,6 +483,8 @@ mod tests {
                 command: None,
                 caller_app: None,
                 host_app: None,
+                ai_agent: None,
+                destination: None,
                 session_bind: Some(SessionBindContext {
                     is_forwarding: true,
                     host_fingerprint: "test-fingerprint".to_string(),
@@ -502,6 +507,8 @@ mod tests {
                 && activity.connection.command.as_deref() == Some(TEST_COMMAND)
                 && activity.connection.caller_app.as_deref() == Some(TEST_CALLER_APP)
                 && activity.connection.host_app.as_deref() == Some(TEST_HOST_APP)
+                && activity.connection.ai_agent.as_deref() == Some(TEST_CALLER_APP)
+                && activity.connection.destination.as_deref() == Some(TEST_DESTINATION)
         });
 
         let policy =

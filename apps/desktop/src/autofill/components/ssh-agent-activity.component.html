@@ -23,6 +23,11 @@
                     {{ "sshAgentActivityHostApp" | i18n: row.hostApp }}
                   </span>
                 }
+                @if (row.aiAgent) {
+                  <span bitBadge variant="warning" data-testid="ssh-agent-activity-ai-agent">
+                    {{ "sshAgentActivityAiAgent" | i18n: row.aiAgent }}
+                  </span>
+                }
               </div>
               <!-- Commands can be long, e.g. with many -o options; wrap anywhere. -->
               <div
@@ -38,7 +43,14 @@
               @if (row.keyName) {
                 <div class="tw-text-sm tw-text-muted">{{ row.keyName }}</div>
               }
-              @if (row.isForwarding) {
+              @if (row.destination) {
+                <div class="tw-text-sm" data-testid="ssh-agent-activity-destination">
+                  {{
+                    (row.isForwarding ? "sshAgentActivityForwardedFrom" : "sshAgentActivityHost")
+                      | i18n: row.destination
+                  }}
+                </div>
+              } @else if (row.isForwarding) {
                 <div class="tw-text-sm tw-text-muted">{{ "sshAgentActivityForwarded" | i18n }}</div>
               }
             </td>

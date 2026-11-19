@@ -34,5 +34,9 @@ export interface SshAgentActivity {
   callerApp?: string;
   /** The outermost app above the requesting process, e.g. `iTerm2`. */
   hostApp?: string;
+  /** The nearest AI agent above the requesting process, e.g. `claude`. */
+  aiAgent?: string;
+  /** The server an `ssh` process logs in to, e.g. `git@github.com`. */
+  destination?: string;
   isForwarding: boolean;
 }

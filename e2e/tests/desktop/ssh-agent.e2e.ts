@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -21,6 +21,8 @@ const SIGNED_CONTENTS = "signed by the Bitwarden SSH agent\n";
 const KEY_TYPES = Object.values(SshKeyType);
 // How the activity log shows a key listing.
 const LIST_KEYS = "list keys";
+// Poses as an AI agent: the agent flags a request with a process of this name above it.
+const AI_AGENT = "codex";
 
 let dir: string;
 // One server per host key type, started on first use.
@@ -195,6 +197,7 @@ test("logs which app used the agent with which command", async ({ app, window, a
       app: expect.stringMatching(/^node\b/),
       command: expect.stringContaining(`IdentityFile=${allowedKey.publicKeyPath}`),
       request: expect.stringContaining(allowedKey.name),
+      destination: `to ${ssh.destination}`,
       result: "Allowed",
     }),
   ]);
@@ -203,4 +206,34 @@ test("logs which app used the agent with which command", async ({ app, window, a
   expect(entries).toContainEqual(
     expect.objectContaining({ command: "ssh-add -L", request: LIST_KEYS, result: "Allowed" }),
   );
+});
+
+test("flags requests that an AI agent started", async ({ app, window, approval }) => {
+  const key = keyOf(SshKeyType.Ed25519);
+
+  // A script named like an agent that runs ssh as its child, as an agent's shell tool would
+  const agent = join(dir, AI_AGENT);
+  writeFileSync(agent, '#!/bin/sh\n"$@"\n');
+  chmodSync(agent, 0o755);
+
+  // When the agent logs in with the key
+  const login = ssh.login(key, agent);
+
+  // Then the approval dialog warns that the agent asked, and the user authorizes it
+  await approval.expectAiAgent(AI_AGENT);
+  await approval.authorize(key, SshRequestOrigin.Local);
+  expect((await login).code).toBe(0);
+
+  // And the activity log flags the login and names the server
+  const settings = new DesktopSettings(app, window);
+  await settings.open();
+  await settings.openSshAgentActivity();
+  const [latest] = (await new SshActivityLog(window).entries()).filter(
+    (entry) => entry.request !== LIST_KEYS,
+  );
+  expect(latest).toMatchObject({
+    aiAgent: `AI agent: ${AI_AGENT}`,
+    destination: `to ${ssh.destination}`,
+    result: "Allowed",
+  });
 });

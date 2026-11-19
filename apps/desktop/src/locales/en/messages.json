@@ -801,6 +801,45 @@
   "sshAgentActivityEmpty": {
     "message": "No activity yet"
   },
+  "sshAgentActivityAiAgent": {
+    "message": "AI agent: $AGENT$",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
+  "sshAgentActivityHost": {
+    "message": "to $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "git@github.com"
+      }
+    }
+  },
+  "sshAgentActivityForwardedFrom": {
+    "message": "forwarded from $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "sshAgentAiAgentWarningTitle": {
+    "message": "Requested by an AI agent"
+  },
+  "sshAgentAiAgentWarningText": {
+    "message": "$AGENT$ started this request. Only authorize it if you asked the agent to use this key.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
   "sshAgentActivityHostApp": {
     "message": "in $APP$",
     "placeholders": {
