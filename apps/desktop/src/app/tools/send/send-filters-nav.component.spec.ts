@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -88,6 +88,7 @@ describe("SendFiltersNavComponent", () => {
           { path: "vault", component: DummyComponent },
           { path: "send", component: DummyComponent },
         ]),
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           provide: SendListFiltersService,
           useValue: mockSendListFiltersService,

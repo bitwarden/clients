@@ -362,10 +362,10 @@ describe("AutofillOptionsComponent", () => {
       expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
     });
 
-    it("adds a desktop app URI requested by the user with the Never match strategy", async () => {
+    it("adds a desktop app URI requested by the user with the Never match strategy", () => {
       fixture.detectChanges();
 
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
       expect(component.autofillOptionsForm.value.uris[1]).toEqual({
         uri: DESKTOP_APP_URI_PREFIX,
@@ -373,24 +373,24 @@ describe("AutofillOptionsComponent", () => {
       });
     });
 
-    it("adds a desktop app URI requested by the user without confirming the default match strategy", async () => {
+    it("adds a desktop app URI requested by the user without confirming the default match strategy", () => {
       httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
       fixture.detectChanges();
 
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
       expect(httpAuthenticationService.confirmDefaultMatchStrategy).not.toHaveBeenCalled();
       expect(component.autofillOptionsForm.value.uris.length).toEqual(2);
     });
 
-    it("shares the Never match strategy of a desktop app URI as an explicit match strategy", async () => {
+    it("shares the Never match strategy of a desktop app URI as an explicit match strategy", () => {
       fixture.detectChanges();
       component.autofillOptionsForm.controls.uris.at(0).setValue({
         uri: "https://example.com",
         matchDetection: UriMatchStrategy.Exact,
       });
 
-      await component.addDesktopAppUriFromUser();
+      component.addDesktopAppUriFromUser();
 
       expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
         UriMatchStrategy.Exact,
@@ -683,10 +683,10 @@ describe("AutofillOptionsComponent", () => {
       expect(localFixture.componentInstance["recognizeDesktopApps"]()).toBe(false);
     });
 
-    it("adds a desktop app requested by the user as a new desktop app row", async () => {
+    it("adds a desktop app requested by the user as a new desktop app row", () => {
       const localFixture = createComponent(true);
 
-      await localFixture.componentInstance.addDesktopAppUriFromUser();
+      localFixture.componentInstance.addDesktopAppUriFromUser();
       localFixture.detectChanges();
 
       expect(getDesktopAppRows(localFixture)).toEqual([null, DesktopAppRow.New]);
