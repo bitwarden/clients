@@ -16,7 +16,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -463,6 +463,7 @@ type StoryProps = {
   hasMultipleVaults: boolean;
   sharedFolderName?: string;
   defaultCollectionId?: string;
+  folderName?: string;
 };
 
 /**
@@ -495,6 +496,7 @@ const template = `
       [hasMultipleVaults]="hasMultipleVaults"
       [sharedFolderName]="sharedFolderName"
       [defaultCollectionId]="defaultCollectionId"
+      [folderName]="folderName"
     >
       <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
         Add item
@@ -805,12 +807,15 @@ export const Loading: Story = {
  * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
  * anything.
  *
- * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`
- * are what a host relays from its own vault-scope resolution — the table has no notion of scope
- * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
+ * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`/`defaultCollectionId`/
+ * `folderName` are what a host relays from its own vault-scope resolution — the table has no
+ * notion of scope itself, so an empty `ciphers` array with none of them set renders no empty
+ * state at all. See
  * [Empty Organization Vault](#empty-organization-vault),
  * [Empty Multiple Vaults](#empty-multiple-vaults),
  * [Empty Shared Folder](#empty-shared-folder),
+ * [Empty My Items](#empty-my-items),
+ * [Empty Folder](#empty-folder),
  * [Empty Trash](#empty-trash), and
  * [Empty Archive](#empty-archive) for the other variants.
  */
@@ -843,6 +848,32 @@ export const EmptySharedFolder: Story = {
     scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
     organizationName: "Acme corporation",
     sharedFolderName: "Engineering",
+  },
+};
+
+/**
+ * An organization's "My items" default collection with nothing in it. Recognised by `scope`
+ * drilling into the collection `defaultCollectionId` names; the copy has no icon.
+ */
+export const EmptyMyItems: Story = {
+  args: {
+    ciphers: [],
+    scope: {
+      type: VaultScopeType.Organization,
+      organizationId: "org-1" as OrganizationId,
+      collectionId: "col-my-items" as CollectionId,
+    },
+    organizationName: "Acme corporation",
+    defaultCollectionId: "col-my-items",
+  },
+};
+
+/** One of the user's own folders, with nothing filed in it. */
+export const EmptyFolder: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Folder, folderId: "folder-1" },
+    folderName: "Streaming services",
   },
 };
 

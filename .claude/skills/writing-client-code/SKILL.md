@@ -97,6 +97,11 @@ export enum CipherType {
 }
 ```
 
+## Stories
+
+Every new component with a template gets a `*.stories.ts`. Use the `storybook-stories` skill — it
+covers mocking injected services, routing, and verifying in the running Storybook.
+
 ## Further Reading
 
 - [Angular conventions](https://contributing.bitwarden.com/contributing/code-style/web/angular)
