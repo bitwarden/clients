@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { StickyPasswordXmlImporter } from "./stickypassword-xml-importer";
 
 const xmlWithRemark = `<?xml version="1.0" encoding="utf-8"?>
@@ -34,7 +38,7 @@ const xmlWithoutRemark = `<?xml version="1.0" encoding="utf-8"?>
 
 describe("Sticky Password XML Importer", () => {
   it("uses RealName as username and Name as remark when a remark is present", async () => {
-    const importer = new StickyPasswordXmlImporter();
+    const importer = new StickyPasswordXmlImporter(mock<LogService>());
     const result = await importer.parse(xmlWithRemark);
     expect(result.success).toBe(true);
     expect(result.ciphers.length).toBe(1);
@@ -43,7 +47,7 @@ describe("Sticky Password XML Importer", () => {
   });
 
   it("falls back to Name as username when RealName is absent", async () => {
-    const importer = new StickyPasswordXmlImporter();
+    const importer = new StickyPasswordXmlImporter(mock<LogService>());
     const result = await importer.parse(xmlWithoutRemark);
     expect(result.success).toBe(true);
     expect(result.ciphers.length).toBe(1);
