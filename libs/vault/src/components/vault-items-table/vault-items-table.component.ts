@@ -61,6 +61,7 @@ import {
   IconModule,
   IconTileComponent,
   IconTileOptions,
+  PopoverModule,
   PopoverService,
   SearchModule,
   SelectionConfig,
@@ -295,6 +296,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     IconModule,
     IconTileComponent,
     NgComponentOutlet,
+    PopoverModule,
     SearchModule,
     SkeletonTextComponent,
     TableRowNameDirective,
@@ -898,7 +900,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   private readonly tableComponent = viewChild(BitTableV2Component<C>);
 
-  private readonly coachmark = inject(CoachmarkService);
+  protected readonly coachmark = inject(CoachmarkService);
   private readonly popoverService = inject(PopoverService);
   private readonly toolbar = viewChild(BitTableToolbarComponent);
   private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");

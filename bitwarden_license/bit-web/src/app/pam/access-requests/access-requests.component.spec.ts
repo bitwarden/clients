@@ -5,13 +5,17 @@ import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { coachmarkServiceStub } from "../testing/coachmark-service-stub";
 
 import { AccessRequestsComponent } from "./access-requests.component";
 import { MyAccessService } from "./my-access.service";
@@ -56,6 +60,10 @@ describe("AccessRequestsComponent", () => {
         { provide: ConfigService, useValue: configService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-id" }) } },
+        { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
+        coachmarkServiceStub,
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },

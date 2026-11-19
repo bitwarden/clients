@@ -15,7 +15,8 @@ import {
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
-import { GlobalStateProvider } from "@bitwarden/state";
+import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
+import { CoachmarkService } from "@bitwarden/vault";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
@@ -107,6 +108,16 @@ export default {
     applicationConfig({
       providers: [
         provideRouter(routes, withHashLocation()),
+        // Inert tour engine: the story shows the nav, not the walkthrough.
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            getStepPosition: (): undefined => undefined,
+            startTour: () => Promise.resolve(),
+          },
+        },
+        { provide: StateProvider, useValue: {} },
         {
           provide: GlobalStateProvider,
           useClass: StorybookGlobalStateProvider,

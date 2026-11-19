@@ -34,7 +34,11 @@ import { CoachmarkService } from "./coachmark.service";
   exportAs: "coachmark",
   // The popover is portaled into a CDK overlay, so the host renders nothing inline. Hiding it keeps
   // the empty element from counting as a flex/grid item and adding a stray gap at every call site.
-  host: { class: "tw-hidden" },
+  host: {
+    class: "tw-hidden",
+    // Lets the tour tell a mounted anchor from one this page never renders.
+    "[attr.data-coachmark-step]": "stepId()",
+  },
 })
 export class CoachmarkComponent {
   /** Which coachmark step this instance represents */

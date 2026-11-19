@@ -262,6 +262,9 @@ export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
 export const VAULT_WELCOME_DIALOG_DISK = new StateDefinition("vaultWelcomeDialog", "disk", {
   web: "disk-local",
 });
+export const PAM_COACHMARK_DISK = new StateDefinition("pamCoachmark", "disk", {
+  web: "disk-local",
+});
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",

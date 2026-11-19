@@ -1,0 +1,52 @@
+<bit-dialog dialogSize="default" [title]="'pamWelcomeTitle' | i18n">
+  <div bitDialogContent>
+    <div class="tw-flex tw-items-start tw-gap-4">
+      <bit-icon-tile icon="bwi-shield" variant="primary" size="xl" class="tw-shrink-0" />
+      <p
+        id="pam-welcome-dialog_description"
+        bitTypography="body1"
+        class="tw-mb-0 tw-min-w-0 tw-break-words tw-text-muted"
+      >
+        {{ "pamWelcomeDescription" | i18n }}
+      </p>
+    </div>
+    <ol
+      class="tw-m-0 tw-mt-6 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-rounded-lg tw-border tw-border-solid tw-border-border-light tw-bg-background-alt tw-p-4"
+    >
+      @for (step of steps; track step.titleKey) {
+        <li class="tw-flex tw-items-start tw-gap-3">
+          <bit-icon-tile [icon]="step.icon" variant="primary" size="base" class="tw-shrink-0" />
+          <div class="tw-min-w-0 tw-break-words">
+            <p bitTypography="body1" class="tw-mb-0 tw-font-semibold tw-text-main">
+              {{ step.titleKey | i18n }}
+            </p>
+            <p bitTypography="body2" class="tw-mb-0 tw-text-muted">
+              {{ step.descriptionKey | i18n }}
+            </p>
+          </div>
+        </li>
+      }
+    </ol>
+  </div>
+  <div bitDialogFooter class="tw-flex tw-w-full tw-flex-wrap tw-justify-end tw-gap-2">
+    <button
+      id="pam-welcome-dialog_button_dismiss"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      (click)="dismiss()"
+    >
+      {{ "pamWelcomeDismiss" | i18n }}
+    </button>
+    <button
+      id="pam-welcome-dialog_button_start-tour"
+      bitButton
+      bitAutofocus
+      buttonType="primary"
+      type="button"
+      (click)="startTour()"
+    >
+      {{ "pamWelcomeStartTour" | i18n }}
+    </button>
+  </div>
+</bit-dialog>

@@ -1,4 +1,4 @@
-import { signal } from "@angular/core";
+import { Injector, signal } from "@angular/core";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -27,6 +27,7 @@ import {
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
+import { VAULT_PAM_WELCOME_PROMPT } from "../individual-vault/vault-pam-welcome-prompt.token";
 
 import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "./web-vault-prompt.service";
@@ -55,6 +56,10 @@ describe("WebVaultPromptService", () => {
   const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
   const sideNavOpen = signal(false);
   const tourRunning = signal(false);
+  const releaseHold = jest.fn();
+  const holdStarts = jest.fn();
+  const shouldPromptPam = jest.fn();
+  const promptPam = jest.fn();
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
@@ -70,6 +75,9 @@ describe("WebVaultPromptService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     tourRunning.set(false);
+    holdStarts.mockReset().mockReturnValue(releaseHold);
+    shouldPromptPam.mockReset().mockResolvedValue(false);
+    promptPam.mockReset().mockResolvedValue(undefined);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
@@ -102,7 +110,14 @@ describe("WebVaultPromptService", () => {
           useValue: { conditionallyOpen: conditionallyOpenNewExperience },
         },
         { provide: SideNavService, useValue: { open: sideNavOpen } },
-        { provide: CoachmarkService, useValue: { isRunning: tourRunning.asReadonly() } },
+        {
+          provide: CoachmarkService,
+          useValue: { isRunning: tourRunning.asReadonly(), holdStarts },
+        },
+        {
+          provide: VAULT_PAM_WELCOME_PROMPT,
+          useValue: { shouldPrompt: shouldPromptPam, prompt: promptPam },
+        },
       ],
     });
 
@@ -156,6 +171,152 @@ describe("WebVaultPromptService", () => {
       expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
       expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
       expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PAM welcome", () => {
+    it("is shown when due, and ends the visit's prompts", async () => {
+      shouldPromptPam.mockResolvedValue(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(promptPam).toHaveBeenCalledTimes(1);
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+    });
+
+    it("is not shown when it is not due", async () => {
+      await service.conditionallyPromptUser();
+
+      expect(promptPam).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).toHaveBeenCalled();
+    });
+
+    it("waits for a later visit when the Bitwarden welcome was shown", async () => {
+      conditionallyShowWelcomeDialog.mockResolvedValueOnce(true);
+      shouldPromptPam.mockResolvedValue(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(shouldPromptPam).not.toHaveBeenCalled();
+      expect(promptPam).not.toHaveBeenCalled();
+    });
+
+    it("is skipped when onboarding interstitials are suppressed", async () => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+      shouldPromptPam.mockResolvedValue(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(promptPam).not.toHaveBeenCalled();
+    });
+
+    it("is skipped while a tour is running", async () => {
+      tourRunning.set(true);
+      shouldPromptPam.mockResolvedValue(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(promptPam).not.toHaveBeenCalled();
+    });
+
+    it("is skipped when a tour started while eligibility was being checked", async () => {
+      shouldPromptPam.mockImplementation(async () => {
+        tourRunning.set(true);
+        return true;
+      });
+
+      await service.conditionallyPromptUser();
+
+      expect(promptPam).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("without the PAM welcome token (OSS build)", () => {
+    // An unprovided optional token injects null; a child injector reproduces that for one service.
+    let ossService: WebVaultPromptService;
+
+    beforeEach(() => {
+      const injector = Injector.create({
+        parent: TestBed.inject(Injector),
+        providers: [
+          { provide: VAULT_PAM_WELCOME_PROMPT, useValue: null },
+          { provide: WebVaultPromptService, useClass: WebVaultPromptService, deps: [] },
+        ],
+      });
+      ossService = injector.get(WebVaultPromptService);
+    });
+
+    it("runs the remaining prompts exactly as before", async () => {
+      await ossService.conditionallyPromptUser();
+
+      expect(conditionallyShowWelcomeDialog).toHaveBeenCalled();
+      expect(shouldPromptPam).not.toHaveBeenCalled();
+      expect(promptPam).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).toHaveBeenCalled();
+      expect(displayUpgradePromptConditionally).toHaveBeenCalled();
+      expect(releaseHold).toHaveBeenCalledTimes(1);
+    });
+
+    it("still ends the visit's prompts when the Bitwarden welcome shows", async () => {
+      conditionallyShowWelcomeDialog.mockResolvedValueOnce(true);
+
+      await ossService.conditionallyPromptUser();
+
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("tour start hold", () => {
+    it("is taken before the dialogs and released after the PAM welcome closes", async () => {
+      shouldPromptPam.mockResolvedValue(true);
+      const order: string[] = [];
+      holdStarts.mockImplementation(() => {
+        order.push("hold");
+        return () => order.push("release");
+      });
+      promptPam.mockImplementation(async () => {
+        order.push("prompt");
+      });
+
+      await service.conditionallyPromptUser();
+
+      expect(order).toEqual(["hold", "prompt", "release"]);
+    });
+
+    it("is released after the Bitwarden welcome closes", async () => {
+      const order: string[] = [];
+      holdStarts.mockImplementation(() => {
+        order.push("hold");
+        return () => order.push("release");
+      });
+      conditionallyShowWelcomeDialog.mockImplementationOnce(async () => {
+        order.push("welcome");
+        return true;
+      });
+
+      await service.conditionallyPromptUser();
+
+      expect(order).toEqual(["hold", "welcome", "release"]);
+    });
+
+    it("is released even when a dialog throws", async () => {
+      shouldPromptPam.mockResolvedValue(true);
+      promptPam.mockRejectedValue(new Error("boom"));
+
+      await expect(service.conditionallyPromptUser()).rejects.toThrow("boom");
+
+      expect(releaseHold).toHaveBeenCalledTimes(1);
+    });
+
+    it("is not taken while a tour is running or interstitials are suppressed", async () => {
+      tourRunning.set(true);
+      await service.conditionallyPromptUser();
+      tourRunning.set(false);
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+      await service.conditionallyPromptUser();
+
+      expect(holdStarts).not.toHaveBeenCalled();
     });
   });
 

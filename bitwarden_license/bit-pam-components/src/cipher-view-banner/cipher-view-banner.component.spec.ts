@@ -31,6 +31,8 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonComponent, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
+import { CoachmarkService } from "@bitwarden/vault";
 
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
@@ -137,6 +139,7 @@ describe("CipherViewBannerComponent", () => {
   let toastService: MockProxy<ToastService>;
   let organizations$: BehaviorSubject<Organization[]>;
   let myLeases: MockProxy<MyLeasesService>;
+  let coachmarkService: MockProxy<CoachmarkService>;
 
   function gatedCipher(overrides: Partial<CipherView> = {}): CipherView {
     const cipher = new CipherView();
@@ -195,6 +198,9 @@ describe("CipherViewBannerComponent", () => {
     leasesApi = mock<AccessLeaseSdkService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    coachmarkService = mock<CoachmarkService>();
+    coachmarkService.isStepActive.mockReturnValue(false);
+    coachmarkService.startTour.mockResolvedValue(undefined);
     // Licensed by default, so only the licensing tests below concern themselves with it.
     organizations$ = new BehaviorSubject<Organization[]>([
       organization({ usePam: true, accessPam: true }),
@@ -245,11 +251,48 @@ describe("CipherViewBannerComponent", () => {
         { provide: CIPHER_VIEW_BANNER_LAYOUT, useValue: "dialog" },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
         { provide: MyLeasesService, useValue: myLeases },
         { provide: RevealedCipherService, useValue: { revealed$: () => revealed$ } },
       ],
+    });
+  });
+
+  describe("the end-user vault tour", () => {
+    it("starts once the request control has rendered for a licensed member", async () => {
+      await create(gatedCipher());
+
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(coachmarkService.startTour).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not start when the PAM feature flag is off", async () => {
+      enabled$.next(false);
+
+      await create(gatedCipher());
+
+      expect(coachmarkService.startTour).not.toHaveBeenCalled();
+    });
+
+    it("does not start for an unlicensed member", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+
+      await create(gatedCipher({ organizationId: "org-1" } as unknown as Partial<CipherView>));
+
+      expect(coachmarkService.startTour).not.toHaveBeenCalled();
+    });
+
+    it("does not start when the request control is not rendered (pending request)", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(coachmarkService.startTour).not.toHaveBeenCalled();
     });
   });
 

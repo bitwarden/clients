@@ -12,7 +12,22 @@ export type CoachmarkStepId =
   | "sharedFolders"
   | "filters"
   //extension vault tour
-  | "switchVaults";
+  | "switchVaults"
+  // PAM end-user vault tour
+  | "pamRequestAccess"
+  | "pamMyRequestsNav"
+  // PAM welcome tour
+  | "pamPrivilegedItems"
+  // PAM end-user access requests tour
+  | "pamMyRequestsTab"
+  | "pamActiveAccess"
+  | "pamHistoryTab"
+  | "pamApprovalsTab"
+  // PAM admin tour
+  | "pamOrgGroup"
+  | "pamAccessRules"
+  | "pamAuditLog"
+  | "pamRotation";
 
 /** Configuration for a single coachmark step */
 export interface CoachmarkStep {
@@ -54,4 +69,18 @@ export interface CoachmarkStep {
    * the nav before the step starts.
    */
   opensSideNav?: boolean;
+
+  /**
+   * Whether the tour drops this step, rather than stalling on it, when no `vault-coachmark` for
+   * it has mounted by the time the step is due. For anchors that only exist on some pages or
+   * under some flags.
+   */
+  skipWhenUnanchored?: boolean;
+
+  /**
+   * Whether the tour ends without being marked complete, rather than stalling or moving on, when
+   * no `vault-coachmark` for this step has mounted by the time it is due. For a tour whose start
+   * was requested for an anchor that has since gone, such as one replayed after a dialog closed.
+   */
+  endWhenUnanchored?: boolean;
 }

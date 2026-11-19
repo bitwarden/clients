@@ -59,11 +59,14 @@ import {
   ButtonModule,
   DialogRef,
   DialogService,
+  PopoverModule,
   ToastService,
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CoachmarkComponent, CoachmarkService, pamVaultTour } from "@bitwarden/vault";
 
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
@@ -93,7 +96,9 @@ import { type RequestTerms, requestTerms } from "./request-terms";
   imports: [
     AsyncActionsModule,
     ButtonModule,
+    CoachmarkComponent,
     NgTemplateOutlet,
+    PopoverModule,
     TooltipDirective,
     TypographyModule,
     I18nPipe,
@@ -130,12 +135,16 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
+  private readonly stateProvider = inject(StateProvider);
+  protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly popupLayout = injectPopupLayout();
 
   /** Advanced every second while {@link clockAdvances}. */
   protected readonly nowMs = signal(Date.now());
 
   private readonly enabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+  private readonly pamEnabled = toSignal(this.enabled$, { initialValue: false });
+  private readonly vaultTourRequested = signal(false);
 
   private readonly organizations$ = callerOrganizations$(
     this.accountService,
@@ -308,6 +317,27 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly requestFoldOut = viewChild("requestFoldOut", { read: ElementRef<HTMLElement> });
 
   constructor() {
+    // Starts the end-user vault tour the first time a gated cipher is opened. Waits for the
+    // request control to render, and for licensing to be known (`unlicensed()` is `undefined`
+    // until then), so it never anchors on a card that is about to be replaced. The popup opens a
+    // sheet instead of the inline control, so the tour is web-only.
+    effect(() => {
+      if (
+        this.popupLayout ||
+        this.vaultTourRequested() ||
+        !this.pamEnabled() ||
+        this.unlicensed() !== false ||
+        !this.canRequestAccess() ||
+        this.requestToggleButton() == null
+      ) {
+        return;
+      }
+      this.vaultTourRequested.set(true);
+      untracked(() => {
+        void this.coachmarkService.startTour(pamVaultTour(this.stateProvider));
+      });
+    });
+
     effect(() => {
       const lease = this.activeLease();
       const request = this.approvedRequest() ?? this.pendingRequest();

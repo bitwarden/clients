@@ -1,9 +1,19 @@
 @if (showPam()) {
-  <bit-nav-item icon="bwi-lock-encrypted" [text]="'pamAccessRequestsTitle' | i18n" route="pam">
+  <bit-nav-item
+    icon="bwi-lock-encrypted"
+    [text]="'pamAccessRequestsTitle' | i18n"
+    route="pam"
+    [bitPopoverAnchorFor]="pamMyRequestsNavCoachmark.popover()"
+    [popoverOpen]="coachmarkService.isStepActive('pamMyRequestsNav')"
+    [position]="coachmarkService.getStepPosition('pamMyRequestsNav')"
+    [closeOnBackdropClick]="false"
+    [spotlight]="coachmarkService.isStepActive('pamMyRequestsNav')"
+  >
     @if (badgeCount() > 0) {
       <span slot="end" class="tw-flex tw-items-center">
         <span bitBadge variant="primary" size="small">{{ badgeCount() }}</span>
       </span>
     }
   </bit-nav-item>
+  <vault-coachmark #pamMyRequestsNavCoachmark stepId="pamMyRequestsNav" />
 }

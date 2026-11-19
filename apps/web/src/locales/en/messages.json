@@ -22013,5 +22013,125 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "pamWelcomeTitle": {
+    "message": "You now have access to privileged items"
+  },
+  "pamWelcomeDescription": {
+    "message": "Some items in your vault are protected. To use one, you request access (some requests are approved instantly, others are reviewed by an approver) and get a time-limited lease. We'll show you where everything is."
+  },
+  "pamWelcomeFindTitle": {
+    "message": "Find privileged items"
+  },
+  "pamWelcomeFindDescription": {
+    "message": "Look for the Privileged badge in the Controlled access column."
+  },
+  "pamWelcomeRequestTitle": {
+    "message": "Request access"
+  },
+  "pamWelcomeRequestDescription": {
+    "message": "Open a protected item and choose Request access."
+  },
+  "pamWelcomeLeaseTitle": {
+    "message": "Start your lease"
+  },
+  "pamWelcomeLeaseDescription": {
+    "message": "Once approved, start your access and use the item until the lease ends."
+  },
+  "pamWelcomeStartTour": {
+    "message": "Start the tour",
+    "description": "Primary button on the PAM welcome dialog that starts the onboarding tour"
+  },
+  "pamWelcomeDismiss": {
+    "message": "Not now",
+    "description": "Secondary button on the PAM welcome dialog that closes it without starting the tour"
+  },
+  "pamCoachmarkRequestAccessTitle": {
+    "message": "Request access",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkRequestAccessDescription": {
+    "message": "Request access to use this item. Some items are approved instantly; others are reviewed by an approver. Once approved, you still need to start your access.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkMyRequestsNavTitle": {
+    "message": "Access requests",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkMyRequestsNavDescription": {
+    "message": "Track your requests here, and start your access once a request is approved.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkMyRequestsTabTitle": {
+    "message": "My requests",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkMyRequestsTabDescription": {
+    "message": "Your pending and active access requests appear here.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkPrivilegedItemsTitle": {
+    "message": "Privileged items",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkPrivilegedItemsDescription": {
+    "message": "Items marked Privileged in the Controlled access column need approval before you can use them.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkActiveAccessTitle": {
+    "message": "Approved requests",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkActiveAccessDescription": {
+    "message": "Approved requests show up here. Start your access from the Actions column when you are ready to use the item.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkHistoryTabTitle": {
+    "message": "History",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkHistoryTabDescription": {
+    "message": "Review your past access requests and their outcomes.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkApprovalsTabTitle": {
+    "message": "Approvals",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkApprovalsTabDescription": {
+    "message": "Review and decide on access requests assigned to you.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkOrgGroupTitle": {
+    "message": "Privileged controls",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkOrgGroupDescription": {
+    "message": "Manage privileged access for your organization from this section.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkAccessRulesTitle": {
+    "message": "Access rules",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkAccessRulesDescription": {
+    "message": "Start here: create a rule from a template to choose which items require approval and who can approve them.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkAuditLogTitle": {
+    "message": "Audit log",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkAuditLogDescription": {
+    "message": "See a record of privileged access activity.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkRotationTitle": {
+    "message": "Rotation",
+    "description": "Placeholder coachmark title for the Privileged controls onboarding tours"
+  },
+  "pamCoachmarkRotationDescription": {
+    "message": "Configure automatic credential rotation for privileged items.",
+    "description": "Placeholder coachmark description for the Privileged controls onboarding tours"
   }
 }

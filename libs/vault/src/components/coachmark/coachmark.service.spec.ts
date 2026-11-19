@@ -495,6 +495,239 @@ describe("CoachmarkService", () => {
     }));
   });
 
+  describe("holdStarts", () => {
+    const makeTour = (id: string, overrides: Partial<CoachmarkTour> = {}): CoachmarkTour => ({
+      id,
+      steps: [
+        {
+          id: "addItem",
+          titleKey: id,
+          descriptionKey: id,
+          position: "below-center",
+        },
+      ],
+      completed: jest.fn().mockResolvedValue(false),
+      markCompleted: jest.fn().mockResolvedValue(undefined),
+      ...overrides,
+    });
+
+    it("defers startTour while held and replays it on release", fakeAsync(() => {
+      const t1 = makeTour("a");
+      const release = service.holdStarts();
+
+      void service.startTour(t1);
+      tick(200);
+      expect(service.isRunning()).toBe(false);
+      expect(t1.completed).not.toHaveBeenCalled();
+
+      release();
+      tick(200);
+      expect(service.isRunning()).toBe(true);
+      expect(service.getStepTitle("addItem")).toBe("a");
+    }));
+
+    it("keeps only the latest request per tour id", fakeAsync(() => {
+      const first = makeTour("a");
+      const second = makeTour("a");
+      const release = service.holdStarts();
+
+      void service.startTour(first);
+      void service.startTour(second);
+      release();
+      tick(200);
+
+      expect(first.completed).not.toHaveBeenCalled();
+      expect(second.completed).toHaveBeenCalledTimes(1);
+    }));
+
+    it("replays in order of arrival through the normal checks", fakeAsync(() => {
+      const t1 = makeTour("a");
+      const t2 = makeTour("b");
+      const release = service.holdStarts();
+
+      void service.startTour(t1);
+      void service.startTour(t2);
+      release();
+      tick(200);
+
+      expect(service.getStepTitle("addItem")).toBe("a");
+      expect(t1.completed).toHaveBeenCalled();
+      expect(t2.completed).not.toHaveBeenCalled();
+    }));
+
+    it("does not replay tours that are already completed", fakeAsync(() => {
+      const done = makeTour("a", { completed: jest.fn().mockResolvedValue(true) });
+      const release = service.holdStarts();
+
+      void service.startTour(done);
+      release();
+      tick(200);
+
+      expect(done.completed).toHaveBeenCalled();
+      expect(service.isRunning()).toBe(false);
+    }));
+
+    it("waits for the last of multiple holds", fakeAsync(() => {
+      const t1 = makeTour("a");
+      const releaseOne = service.holdStarts();
+      const releaseTwo = service.holdStarts();
+
+      void service.startTour(t1);
+      releaseOne();
+      tick(200);
+      expect(service.isRunning()).toBe(false);
+
+      releaseTwo();
+      tick(200);
+      expect(service.isRunning()).toBe(true);
+    }));
+
+    it("treats a second release of the same hold as a no-op", fakeAsync(() => {
+      const t1 = makeTour("a");
+      const releaseOne = service.holdStarts();
+      const releaseTwo = service.holdStarts();
+
+      void service.startTour(t1);
+      releaseOne();
+      releaseOne();
+      tick(200);
+      expect(service.isRunning()).toBe(false);
+
+      releaseTwo();
+      tick(200);
+      expect(service.isRunning()).toBe(true);
+    }));
+
+    it("starts tours immediately again after release", fakeAsync(() => {
+      service.holdStarts()();
+      tick(200);
+
+      void service.startTour(makeTour("a"));
+      tick(200);
+
+      expect(service.isRunning()).toBe(true);
+    }));
+  });
+
+  describe("skipWhenUnanchored", () => {
+    const makeTour = (steps: CoachmarkStep[]): CoachmarkTour => ({
+      steps,
+      completed: jest.fn().mockResolvedValue(false),
+      markCompleted: jest.fn().mockResolvedValue(undefined),
+    });
+    const step = (id: CoachmarkStep["id"], skip = false): CoachmarkStep => ({
+      id,
+      titleKey: id,
+      descriptionKey: id,
+      position: "below-center",
+      skipWhenUnanchored: skip,
+    });
+
+    const mountAnchor = (id: string) => {
+      const el = document.createElement("vault-coachmark");
+      el.setAttribute("data-coachmark-step", id);
+      document.body.appendChild(el);
+      return el;
+    };
+    afterEach(() => document.querySelectorAll("vault-coachmark").forEach((e) => e.remove()));
+
+    it("drops an unanchored first step and starts on the next one", fakeAsync(() => {
+      const t = makeTour([step("addItem", true), step("importData")]);
+      void service.startTour(t);
+      tick(2000);
+
+      expect(service.activeStepId()).toBe("importData");
+      expect(service.totalSteps()).toBe(1);
+      expect(service.currentStepNumber()).toBe(1);
+    }));
+
+    it("starts on an anchored step", fakeAsync(() => {
+      mountAnchor("addItem");
+      void service.startTour(makeTour([step("addItem", true), step("importData")]));
+      tick(2000);
+
+      expect(service.activeStepId()).toBe("addItem");
+      expect(service.totalSteps()).toBe(2);
+    }));
+
+    it("waits for a slow anchor", fakeAsync(() => {
+      void service.startTour(makeTour([step("addItem", true), step("importData")]));
+      tick(300);
+      mountAnchor("addItem");
+      tick(500);
+
+      expect(service.activeStepId()).toBe("addItem");
+    }));
+
+    it("ends without completing when no step has an anchor", fakeAsync(() => {
+      const t = makeTour([step("addItem", true)]);
+      void service.startTour(t);
+      tick(2000);
+
+      expect(service.isRunning()).toBe(false);
+      expect(t.markCompleted).not.toHaveBeenCalled();
+      // And a later start is not blocked by a half-started tour.
+      mountAnchor("addItem");
+      void service.startTour(t);
+      tick(2000);
+      expect(service.activeStepId()).toBe("addItem");
+    }));
+
+    it("completes when the last step is dropped after earlier ones were shown", fakeAsync(() => {
+      const t = makeTour([step("importData"), step("addItem", true)]);
+      void service.startTour(t);
+      tick(200);
+      void service.nextStep();
+      tick(2000);
+
+      expect(service.isRunning()).toBe(false);
+      expect(t.markCompleted).toHaveBeenCalled();
+    }));
+
+    it("stays on the current step when going back onto a dropped step", fakeAsync(() => {
+      const t = makeTour([step("addItem", true), step("importData")]);
+      void service.startTour(t);
+      tick(2000);
+      void service.previousStep();
+      tick(2000);
+
+      expect(service.activeStepId()).toBe("importData");
+    }));
+
+    it("ends a tour whose first step must be anchored, without completing it", fakeAsync(() => {
+      const t = makeTour([{ ...step("addItem"), endWhenUnanchored: true }, step("importData")]);
+      void service.startTour(t);
+      tick(2000);
+
+      expect(service.isRunning()).toBe(false);
+      expect(t.markCompleted).not.toHaveBeenCalled();
+
+      // The engine is free again, and the tour can start once its anchor is there.
+      mountAnchor("addItem");
+      void service.startTour(t);
+      tick(200);
+      expect(service.activeStepId()).toBe("addItem");
+    }));
+
+    it("does not start a second tour while the first waits for its anchor", fakeAsync(() => {
+      const first = makeTour([step("addItem", true)]);
+      const second = makeTour([step("importData")]);
+      void service.startTour(first);
+      tick(300);
+      void service.startTour(second);
+      tick(2000);
+
+      expect(second.completed).not.toHaveBeenCalled();
+    }));
+
+    it("does not wait for steps that are not flagged", fakeAsync(() => {
+      void service.startTour(makeTour([step("addItem")]));
+      tick(200);
+
+      expect(service.activeStepId()).toBe("addItem");
+    }));
+  });
+
   describe("computed signals", () => {
     it("currentStepNumber returns 0 when not running", () => {
       expect(service.currentStepNumber()).toBe(0);
