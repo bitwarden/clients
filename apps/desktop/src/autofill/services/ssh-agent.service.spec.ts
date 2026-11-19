@@ -522,6 +522,8 @@ describe("SshAgentService – sign request authorization", () => {
   let service: SshAgentService;
   let signRequestSubject: Subject<Record<string, unknown>>;
   let promptBehaviorSubject: BehaviorSubject<SshAgentPromptType>;
+  let promptForwardedSubject: BehaviorSubject<boolean>;
+  let promptAiAgentsSubject: BehaviorSubject<boolean>;
   let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let mockSignRequestResponse: jest.Mock;
@@ -533,6 +535,8 @@ describe("SshAgentService – sign request authorization", () => {
   beforeEach(async () => {
     signRequestSubject = new Subject();
     promptBehaviorSubject = new BehaviorSubject<SshAgentPromptType>(SshAgentPromptType.Always);
+    promptForwardedSubject = new BehaviorSubject<boolean>(true);
+    promptAiAgentsSubject = new BehaviorSubject<boolean>(true);
     authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
@@ -584,6 +588,8 @@ describe("SshAgentService – sign request authorization", () => {
       {
         sshAgentEnabled$: of(true),
         sshAgentPromptBehavior$: promptBehaviorSubject.asObservable(),
+        sshAgentPromptForwarded$: promptForwardedSubject.asObservable(),
+        sshAgentPromptAiAgents$: promptAiAgentsSubject.asObservable(),
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
     );
@@ -596,7 +602,7 @@ describe("SshAgentService – sign request authorization", () => {
     jest.clearAllMocks();
   });
 
-  function sendSignRequest(isAgentForwarding = false, hostFingerprint?: string) {
+  function sendSignRequest(isAgentForwarding = false, hostFingerprint?: string, aiAgent?: string) {
     signRequestSubject.next({
       cipherId: CIPHER_ID,
       requestId: REQUEST_ID,
@@ -604,6 +610,7 @@ describe("SshAgentService – sign request authorization", () => {
       namespace: "",
       isAgentForwarding,
       hostFingerprint,
+      aiAgent,
     });
   }
 
@@ -770,13 +777,52 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
-  it("Never: approves forwarded requests without showing dialog", async () => {
+  it("Never: still prompts for forwarded requests by default", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.Never);
+    sendSignRequest(true, "SHA256:fp-server1");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("Never: approves forwarded requests without showing dialog when not asked to", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.Never);
+    promptForwardedSubject.next(false);
     sendSignRequest(true, "SHA256:fp-server1");
     await flush();
 
     expect(mockDialogOpen).not.toHaveBeenCalled();
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("Never: still prompts for AI agent requests by default", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.Never);
+    sendSignRequest(false, "SHA256:fp-server1", "claude");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockDialogOpen.mock.calls[0][1].data.aiAgent).toBe("claude");
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("Never: approves AI agent requests without showing dialog when not asked to", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.Never);
+    promptAiAgentsSubject.next(false);
+    sendSignRequest(false, "SHA256:fp-server1", "claude");
+    await flush();
+
+    expect(mockDialogOpen).not.toHaveBeenCalled();
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("Never: prompts for a forwarded AI agent request when only AI agents are asked", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.Never);
+    promptForwardedSubject.next(false);
+    sendSignRequest(true, "SHA256:fp-server1", "claude");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
   });
 
   it("RememberUntilLock: forwarded requests to same host are remembered by host fingerprint", async () => {
@@ -1171,6 +1217,8 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgentEnabled$: of(true),
         // Never: no dialog shown, signRequestResponse called immediately after decrypt.
         sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
+        sshAgentPromptForwarded$: of(true),
+        sshAgentPromptAiAgents$: of(true),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
     );

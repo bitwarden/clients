@@ -15,6 +15,7 @@ import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/m
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   BadgeComponent,
+  BadgeVariant,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -41,6 +42,7 @@ interface ActivityRow {
   keyName?: string;
   requestKey: string;
   outcomeKey: string;
+  outcomeVariant: BadgeVariant;
   isForwarding: boolean;
 }
 
@@ -49,6 +51,13 @@ const OUTCOME_KEYS: Record<SshAgentActivityOutcome, string> = {
   [SshAgentActivityOutcome.Allowed]: "sshAgentActivityAllowed",
   [SshAgentActivityOutcome.Denied]: "sshAgentActivityDenied",
   [SshAgentActivityOutcome.Failed]: "sshAgentActivityFailed",
+};
+
+// Badge colors for each answer: green allowed, red denied, grey when undecided.
+const OUTCOME_VARIANTS: Record<SshAgentActivityOutcome, BadgeVariant> = {
+  [SshAgentActivityOutcome.Allowed]: "success",
+  [SshAgentActivityOutcome.Denied]: "danger",
+  [SshAgentActivityOutcome.Failed]: "subtle",
 };
 
 const GIT_NAMESPACE = "git";
@@ -101,15 +110,17 @@ export class SshAgentActivityComponent implements OnInit {
   private toRows(log: SshAgentActivity[], keyNames: Map<string, string>): ActivityRow[] {
     return log.map((entry) => ({
       timestamp: entry.timestamp,
-      app: entry.callerApp ?? entry.hostApp ?? entry.processName ?? "",
+      // The program that asked, e.g. `ssh`, shown with the app it runs in.
+      app: entry.processName ?? entry.callerApp ?? entry.hostApp ?? "",
       // Only worth showing when it adds something, e.g. `claude` in `iTerm2`.
-      hostApp: entry.hostApp !== entry.callerApp ? entry.hostApp : undefined,
+      hostApp: entry.hostApp !== entry.processName ? entry.hostApp : undefined,
       aiAgent: entry.aiAgent,
       destination: SshAgentActivityComponent.isLogin(entry) ? entry.destination : undefined,
       command: entry.command ?? entry.processName ?? "",
       keyName: entry.cipherId != null ? keyNames.get(entry.cipherId) : undefined,
       requestKey: SshAgentActivityComponent.requestKey(entry),
       outcomeKey: OUTCOME_KEYS[entry.outcome],
+      outcomeVariant: OUTCOME_VARIANTS[entry.outcome],
       isForwarding: entry.isForwarding,
     }));
   }
@@ -125,11 +136,11 @@ export class SshAgentActivityComponent implements OnInit {
       return "sshAgentActivityListKeys";
     }
     if (entry.namespace === GIT_NAMESPACE) {
-      return "sshActionGitSign";
+      return "sshAgentActivityGitSign";
     }
     if (entry.namespace != null) {
-      return "sshActionSign";
+      return "sshAgentActivitySign";
     }
-    return "sshActionLogin";
+    return "sshAgentActivityLogin";
   }
 }

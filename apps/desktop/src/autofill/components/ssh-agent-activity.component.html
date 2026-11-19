@@ -6,55 +6,79 @@
       <ng-container header>
         <tr>
           <th bitCell>{{ "sshAgentActivityTime" | i18n }}</th>
-          <th bitCell>{{ "sshAgentActivityApp" | i18n }}</th>
+          <th bitCell class="tw-w-2/5">{{ "sshAgentActivityApp" | i18n }}</th>
           <th bitCell>{{ "sshAgentActivityRequest" | i18n }}</th>
           <th bitCell>{{ "sshAgentActivityResult" | i18n }}</th>
         </tr>
       </ng-container>
       <ng-template body>
         @for (row of rows(); track $index) {
-          <tr bitRow data-testid="ssh-agent-activity-row">
-            <td bitCell class="tw-text-sm">{{ row.timestamp | date: "short" }}</td>
+          <tr bitRow class="tw-align-top" data-testid="ssh-agent-activity-row">
+            <td bitCell class="tw-whitespace-nowrap">
+              <div>{{ row.timestamp | date: "shortTime" }}</div>
+              <div class="tw-text-sm tw-text-muted">{{ row.timestamp | date: "mediumDate" }}</div>
+            </td>
             <td bitCell>
-              <div data-testid="ssh-agent-activity-app">
-                {{ row.app }}
-                @if (row.hostApp) {
-                  <span class="tw-text-muted">
-                    {{ "sshAgentActivityHostApp" | i18n: row.hostApp }}
+              <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-x-2 tw-gap-y-1">
+                <span data-testid="ssh-agent-activity-app">
+                  <span class="tw-font-medium">{{ row.app }}</span>
+                  @if (row.hostApp) {
+                    <span class="tw-text-muted">
+                      {{ "sshAgentActivityHostApp" | i18n: row.hostApp }}
+                    </span>
+                  }
+                </span>
+                @if (row.aiAgent) {
+                  <span
+                    bitBadge
+                    variant="warning"
+                    size="small"
+                    data-testid="ssh-agent-activity-ai-agent"
+                  >
+                    {{ "sshAgentActivityAiAgent" | i18n: row.aiAgent }}
                   </span>
                 }
-                @if (row.aiAgent) {
-                  <span bitBadge variant="warning" data-testid="ssh-agent-activity-ai-agent">
-                    {{ "sshAgentActivityAiAgent" | i18n: row.aiAgent }}
+                @if (row.isForwarding) {
+                  <span
+                    bitBadge
+                    variant="warning"
+                    size="small"
+                    data-testid="ssh-agent-activity-forwarded"
+                  >
+                    {{ "sshAgentActivityForwarded" | i18n }}
                   </span>
                 }
               </div>
               <!-- Commands can be long, e.g. with many -o options; wrap anywhere. -->
-              <div
-                class="tw-break-all tw-font-mono tw-text-sm tw-text-muted"
+              <code
+                class="tw-mt-1.5 tw-block tw-break-all tw-rounded tw-bg-bg-secondary tw-px-2 tw-py-1 tw-font-mono tw-text-xs tw-text-muted"
                 [attr.title]="'sshAgentActivityCommand' | i18n"
                 data-testid="ssh-agent-activity-command"
+                >{{ row.command }}</code
               >
-                {{ row.command }}
-              </div>
             </td>
             <td bitCell data-testid="ssh-agent-activity-request">
-              {{ row.requestKey | i18n }}
-              @if (row.keyName) {
-                <div class="tw-text-sm tw-text-muted">{{ row.keyName }}</div>
-              }
+              <div class="tw-font-medium">{{ row.requestKey | i18n }}</div>
               @if (row.destination) {
-                <div class="tw-text-sm" data-testid="ssh-agent-activity-destination">
+                <div
+                  class="tw-whitespace-nowrap tw-text-sm"
+                  data-testid="ssh-agent-activity-destination"
+                >
                   {{
                     (row.isForwarding ? "sshAgentActivityForwardedFrom" : "sshAgentActivityHost")
                       | i18n: row.destination
                   }}
                 </div>
-              } @else if (row.isForwarding) {
-                <div class="tw-text-sm tw-text-muted">{{ "sshAgentActivityForwarded" | i18n }}</div>
+              }
+              @if (row.keyName) {
+                <div class="tw-text-sm tw-text-muted">{{ row.keyName }}</div>
               }
             </td>
-            <td bitCell data-testid="ssh-agent-activity-result">{{ row.outcomeKey | i18n }}</td>
+            <td bitCell>
+              <span bitBadge [variant]="row.outcomeVariant" data-testid="ssh-agent-activity-result">
+                {{ row.outcomeKey | i18n }}
+              </span>
+            </td>
           </tr>
         } @empty {
           <tr bitRow>

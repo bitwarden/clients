@@ -2,6 +2,8 @@ import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { ElectronApplication, Page } from "@playwright/test";
+
 import { DesktopSettings } from "../../src/desktop/settings";
 import { expect, SshActivityLog, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
 import { disableFlags, FeatureFlag } from "../../src/feature-flags";
@@ -20,7 +22,7 @@ const SSH_LOGIN_FAILED = 255;
 const SIGNED_CONTENTS = "signed by the Bitwarden SSH agent\n";
 const KEY_TYPES = Object.values(SshKeyType);
 // How the activity log shows a key listing.
-const LIST_KEYS = "list keys";
+const LIST_KEYS = "Key list";
 // Poses as an AI agent: the agent flags a request with a process of this name above it.
 const AI_AGENT = "codex";
 
@@ -181,23 +183,23 @@ test("logs which app used the agent with which command", async ({ app, window, a
   await settings.openSshAgentActivity();
   const entries = await new SshActivityLog(window).entries();
 
-  // Then it names the test runner as the app, and shows each command and answer, newest first.
+  // Then it names ssh as the app, and shows each command and answer, newest first.
   // Each ssh also lists the agent's keys before signing; keep its sign requests.
   const logins = entries.filter(
     (entry) => entry.command.startsWith("ssh -F /dev/null") && entry.request !== LIST_KEYS,
   );
   expect(logins.slice(0, 2)).toEqual([
     expect.objectContaining({
-      app: expect.stringMatching(/^node\b/),
+      app: expect.stringMatching(/^ssh\b/),
       command: expect.stringContaining(`IdentityFile=${deniedKey.publicKeyPath}`),
       request: expect.stringContaining(deniedKey.name),
       result: "Denied",
     }),
     expect.objectContaining({
-      app: expect.stringMatching(/^node\b/),
+      app: expect.stringMatching(/^ssh\b/),
       command: expect.stringContaining(`IdentityFile=${allowedKey.publicKeyPath}`),
       request: expect.stringContaining(allowedKey.name),
-      destination: `to ${ssh.destination}`,
+      destination: `→ ${ssh.destination}`,
       result: "Allowed",
     }),
   ]);
@@ -208,13 +210,29 @@ test("logs which app used the agent with which command", async ({ app, window, a
   );
 });
 
-test("flags requests that an AI agent started", async ({ app, window, approval }) => {
-  const key = keyOf(SshKeyType.Ed25519);
-
-  // A script named like an agent that runs ssh as its child, as an agent's shell tool would
+/** A script named like an AI agent that runs its arguments as a child, as an agent's shell would. */
+function aiAgentLauncher(): string {
   const agent = join(dir, AI_AGENT);
   writeFileSync(agent, '#!/bin/sh\n"$@"\n');
   chmodSync(agent, 0o755);
+  return agent;
+}
+
+/** Sets "Ask for authorization" to "Never" with the given exceptions. */
+async function promptNever(
+  app: ElectronApplication,
+  window: Page,
+  exceptions: { forwarded: boolean; aiAgents: boolean },
+) {
+  const settings = new DesktopSettings(app, window);
+  await settings.open();
+  await settings.setSshAgentPromptNever(exceptions);
+  await settings.close();
+}
+
+test("flags requests that an AI agent started", async ({ app, window, approval }) => {
+  const key = keyOf(SshKeyType.Ed25519);
+  const agent = aiAgentLauncher();
 
   // When the agent logs in with the key
   const login = ssh.login(key, agent);
@@ -233,7 +251,55 @@ test("flags requests that an AI agent started", async ({ app, window, approval }
   );
   expect(latest).toMatchObject({
     aiAgent: `AI agent: ${AI_AGENT}`,
-    destination: `to ${ssh.destination}`,
+    destination: `→ ${ssh.destination}`,
     result: "Allowed",
+  });
+});
+
+test.describe("asking never", () => {
+  test("still asks for AI agents", async ({ app, window, approval }) => {
+    const key = keyOf(SshKeyType.Ed25519);
+    await promptNever(app, window, { forwarded: false, aiAgents: true });
+
+    // When an AI agent logs in, then the user is still asked
+    const login = ssh.login(key, aiAgentLauncher());
+    await approval.expectAiAgent(AI_AGENT);
+    await approval.authorize(key, SshRequestOrigin.Local);
+
+    expect((await login).code).toBe(0);
+  });
+
+  test("still asks for forwarded requests", async ({ app, window, approval }) => {
+    const key = keyOf(SshKeyType.Ed25519);
+    await promptNever(app, window, { forwarded: true, aiAgents: false });
+
+    // When ssh logs in with agent forwarding, then only the forwarded login asks
+    const login = ssh.loginForwarded(key);
+    await approval.authorize(key, SshRequestOrigin.Forwarded);
+    expect((await login).code).toBe(0);
+
+    // And the activity log marks the forwarded login, and the server it came through
+    const settings = new DesktopSettings(app, window);
+    await settings.open();
+    await settings.openSshAgentActivity();
+    const [latest] = (await new SshActivityLog(window).entries()).filter(
+      (entry) => entry.request !== LIST_KEYS,
+    );
+    expect(latest).toMatchObject({
+      forwarded: "Forwarded",
+      destination: `Forwarded from ${ssh.destination}`,
+      result: "Allowed",
+    });
+  });
+
+  test("asks for nothing without exceptions", async ({ app, window }) => {
+    const key = keyOf(SshKeyType.Ed25519);
+    await promptNever(app, window, { forwarded: false, aiAgents: false });
+
+    // When an AI agent logs in with agent forwarding, then both logins pass unasked; a prompt
+    // would hold ssh until the agent's approval timeout and fail the login
+    const result = await ssh.loginForwarded(key, aiAgentLauncher());
+
+    expect(result.code, result.stderr).toBe(0);
   });
 });

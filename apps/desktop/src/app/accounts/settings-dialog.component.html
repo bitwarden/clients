@@ -237,9 +237,37 @@
             <bit-select
               formControlName="sshAgentPromptBehavior"
               [items]="sshAgentPromptBehaviorOptions"
+              data-testid="settings-ssh-agent-prompt-select"
             />
             <bit-hint>{{ "sshAgentPromptBehaviorDesc" | i18n }}</bit-hint>
           </bit-form-field>
+          @if (form.value.sshAgentPromptBehavior === SshAgentPromptType.Never) {
+            <div class="tw-ms-6">
+              <bit-form-control>
+                <input
+                  type="checkbox"
+                  id="settings_input_ssh-agent-prompt-forwarded"
+                  bitCheckbox
+                  formControlName="sshAgentPromptForwarded"
+                  (change)="saveSshAgentPromptForwarded()"
+                  data-testid="settings-ssh-agent-prompt-forwarded-checkbox"
+                />
+                <bit-label>{{ "sshAgentPromptForwarded" | i18n }}</bit-label>
+              </bit-form-control>
+              <bit-form-control>
+                <input
+                  type="checkbox"
+                  id="settings_input_ssh-agent-prompt-ai-agents"
+                  bitCheckbox
+                  formControlName="sshAgentPromptAiAgents"
+                  (change)="saveSshAgentPromptAiAgents()"
+                  data-testid="settings-ssh-agent-prompt-ai-agents-checkbox"
+                />
+                <bit-label>{{ "sshAgentPromptAiAgents" | i18n }}</bit-label>
+                <bit-hint>{{ "sshAgentPromptAiAgentsDesc" | i18n }}</bit-hint>
+              </bit-form-control>
+            </div>
+          }
           <button
             type="button"
             id="settings_button_ssh-agent-activity"

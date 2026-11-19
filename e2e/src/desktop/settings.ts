@@ -14,6 +14,11 @@ const SET_PIN_ON_RESTART_CHECKBOX = "set-pin-require-master-password-checkbox";
 const SET_PIN_SUBMIT_BUTTON = "set-pin-submit-button";
 const SSH_AGENT_CHECKBOX = "settings-ssh-agent-checkbox";
 const SSH_AGENT_ACTIVITY_BUTTON = "settings-ssh-agent-activity-button";
+const SSH_AGENT_PROMPT_SELECT = "settings-ssh-agent-prompt-select";
+const SSH_AGENT_PROMPT_FORWARDED = "settings-ssh-agent-prompt-forwarded-checkbox";
+const SSH_AGENT_PROMPT_AI_AGENTS = "settings-ssh-agent-prompt-ai-agents-checkbox";
+// The "Ask for authorization" option that approves without asking.
+const PROMPT_NEVER = "Never";
 // The tab holding settings shared by every account ("appPreferences").
 const APP_SETTINGS_TAB = "App settings (all accounts)";
 
@@ -81,6 +86,19 @@ export class DesktopSettings {
   async enableSshAgent() {
     await this.dialog().getByRole("tab", { name: APP_SETTINGS_TAB }).click();
     await this.dialog().getByTestId(SSH_AGENT_CHECKBOX).check();
+  }
+
+  /**
+   * Sets "Ask for authorization" to "Never", with its exceptions: whether to still ask for
+   * forwarded requests, and for requests from AI agents.
+   */
+  async setSshAgentPromptNever(exceptions: { forwarded: boolean; aiAgents: boolean }) {
+    await this.dialog().getByRole("tab", { name: APP_SETTINGS_TAB }).click();
+    await this.dialog().getByTestId(SSH_AGENT_PROMPT_SELECT).getByRole("combobox").click();
+    await this.window.getByRole("option", { name: PROMPT_NEVER, exact: true }).click();
+
+    await this.dialog().getByTestId(SSH_AGENT_PROMPT_FORWARDED).setChecked(exceptions.forwarded);
+    await this.dialog().getByTestId(SSH_AGENT_PROMPT_AI_AGENTS).setChecked(exceptions.aiAgents);
   }
 
   /** Opens the SSH agent's activity log on top of the settings dialog. */

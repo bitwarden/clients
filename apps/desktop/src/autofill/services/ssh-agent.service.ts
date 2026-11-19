@@ -425,7 +425,7 @@ export class SshAgentService implements OnDestroy {
       return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
     }
 
-    if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint)) {
+    if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint, aiAgent)) {
       ipc.platform.focusWindow();
       const dialogRef = ApproveSshRequestComponent.open(
         this.dialogService,
@@ -527,14 +527,34 @@ export class SshAgentService implements OnDestroy {
     cipherId: string,
     isForwarded: boolean,
     hostFingerprint?: string,
+    aiAgent?: string,
   ): Promise<boolean> {
     const scope = SshAgentService.authorizationScope(isForwarded);
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
 
     switch (promptType) {
-      case SshAgentPromptType.Never:
+      case SshAgentPromptType.Never: {
+        // The user can still require a prompt for the riskier requests, e.g. a key used from a
+        // server they logged in to, or by an AI agent acting on their behalf.
+        const promptForwarded = await firstValueFrom(
+          this.desktopSettingsService.sshAgentPromptForwarded$,
+        );
+        if (isForwarded && promptForwarded) {
+          this.logAuthorizationDecision(scope, promptType, "prompting- forwarded request.");
+          return true;
+        }
+
+        const promptAiAgents = await firstValueFrom(
+          this.desktopSettingsService.sshAgentPromptAiAgents$,
+        );
+        if (aiAgent != null && promptAiAgents) {
+          this.logAuthorizationDecision(scope, promptType, "prompting- AI agent request.");
+          return true;
+        }
+
         this.logAuthorizationDecision(scope, promptType, "approving.");
         return false;
+      }
 
       case SshAgentPromptType.Always:
         this.logAuthorizationDecision(scope, promptType, "prompting.");

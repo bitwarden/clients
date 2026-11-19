@@ -22,6 +22,7 @@ const ACTIVITY_COMMAND = "ssh-agent-activity-command";
 const ACTIVITY_REQUEST = "ssh-agent-activity-request";
 const ACTIVITY_RESULT = "ssh-agent-activity-result";
 const ACTIVITY_AI_AGENT = "ssh-agent-activity-ai-agent";
+const ACTIVITY_FORWARDED = "ssh-agent-activity-forwarded";
 const ACTIVITY_DESTINATION = "ssh-agent-activity-destination";
 const AI_AGENT_WARNING = "ssh-approval-ai-agent-warning";
 
@@ -86,7 +87,9 @@ export type SshActivityEntry = {
   app: string;
   /** The AI agent badge, e.g. `AI agent: codex`; empty without one. */
   aiAgent: string;
-  /** E.g. `to 127.0.0.1:2222`; empty when not a login. */
+  /** The forwarded badge, `Forwarded`; empty when the request was local. */
+  forwarded: string;
+  /** E.g. `→ 127.0.0.1:2222`; empty when not a login. */
   destination: string;
   command: string;
   request: string;
@@ -109,6 +112,7 @@ export class SshActivityLog {
         request: await text(row.getByTestId(ACTIVITY_REQUEST)),
         result: await text(row.getByTestId(ACTIVITY_RESULT)),
         aiAgent: await optionalText(row.getByTestId(ACTIVITY_AI_AGENT)),
+        forwarded: await optionalText(row.getByTestId(ACTIVITY_FORWARDED)),
         destination: await optionalText(row.getByTestId(ACTIVITY_DESTINATION)),
       })),
     );

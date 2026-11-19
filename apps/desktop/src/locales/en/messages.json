@@ -454,45 +454,45 @@
     }
   },
   "deletionDateDescV2": {
-     "message": "The Send will be permanently deleted on this date.",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "fileToShare": {
-     "message": "File to share"
-   },
-   "hideTextByDefault": {
-     "message": "Hide text by default"
-   },
-   "hideYourEmail": {
-     "message": "Hide your email address from viewers."
-   },
-   "limitSendViews": {
-     "message": "Limit views"
-   },
-   "limitSendViewsCount": {
-     "message": "$ACCESSCOUNT$ views left",
-     "description": "Displayed under the limit views field on Send",
-     "placeholders": {
-       "accessCount": {
-         "content": "$1",
-         "example": "2"
-       }
-     }
-   },
-   "limitSendViewsHint": {
-     "message": "No one can view this Send after the limit is reached.",
-     "description": "Displayed under the limit views field on Send"
-   },
-   "privateNote": {
-     "message": "Private note"
-   },
-   "sendDetails": {
-     "message": "Send details",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "sendTypeTextToShare": {
-     "message": "Text to share"
-   },
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private note"
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "newItemHeaderTextSendV2": {
     "message": "New text",
     "description": "Header for new text send"
@@ -756,6 +756,15 @@
   "sshAgentPromptBehavior": {
     "message": "Ask for authorization when using SSH agent"
   },
+  "sshAgentPromptForwarded": {
+    "message": "Still ask for forwarded connections"
+  },
+  "sshAgentPromptAiAgents": {
+    "message": "Still ask for AI agents"
+  },
+  "sshAgentPromptAiAgentsDesc": {
+    "message": "Applies to requests from command-line agents such as Claude Code or Codex."
+  },
   "sshAgentPromptBehaviorDesc": {
     "message": "Choose how to handle SSH-agent authorization requests."
   },
@@ -784,7 +793,16 @@
     "message": "Result"
   },
   "sshAgentActivityListKeys": {
-    "message": "list keys"
+    "message": "Key list"
+  },
+  "sshAgentActivityLogin": {
+    "message": "Login"
+  },
+  "sshAgentActivitySign": {
+    "message": "Signature"
+  },
+  "sshAgentActivityGitSign": {
+    "message": "Git signature"
   },
   "sshAgentActivityForwarded": {
     "message": "Forwarded"
@@ -811,7 +829,7 @@
     }
   },
   "sshAgentActivityHost": {
-    "message": "to $HOST$",
+    "message": "→ $HOST$",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -820,7 +838,7 @@
     }
   },
   "sshAgentActivityForwardedFrom": {
-    "message": "forwarded from $HOST$",
+    "message": "Forwarded from $HOST$",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -4837,7 +4855,7 @@
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
   },
-    "importTargetHintCollection": {
+  "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
   "importTargetHintFolder": {
@@ -5997,15 +6015,15 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
-     "uriMatchDefaultStrategyHint": {
+  "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
-   "regExAdvancedOptionWarning": {
+  "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
-   "startsWithAdvancedOptionWarning": {
+  "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
@@ -6013,11 +6031,11 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
-   "uriAdvancedOption":{
+  "uriAdvancedOption": {
     "message": "Advanced options",
     "description": "Advanced option placeholder for uri option component"
   },
-   "warningCapitalized": {
+  "warningCapitalized": {
     "message": "Warning",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
@@ -6339,7 +6357,7 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   },
-   "vulnerablePassword": {
+  "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
@@ -6476,10 +6494,10 @@
   "transferAndAdd": {
     "message": "Transfer and add"
   },
-  "itemLower":{
+  "itemLower": {
     "message": "item"
   },
-  "itemsLower":{
+  "itemsLower": {
     "message": "items"
   },
   "assignToTheseCollections": {
@@ -6857,7 +6875,7 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
-  "removeMasterPasswordForOrgUserKeyConnector":{
+  "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
@@ -6875,10 +6893,10 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
-  "organizationVerified":{
+  "organizationVerified": {
     "message": "Organization verified"
   },
-  "domainVerified":{
+  "domainVerified": {
     "message": "Domain verified"
   },
   "leaveOrganizationContent": {
@@ -7003,7 +7021,7 @@
       }
     }
   },
-   "howToManageMyVault": {
+  "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
@@ -7015,7 +7033,7 @@
       }
     }
   },
- "transferItemsToOrganizationDescription": {
+  "transferItemsToOrganizationDescription": {
     "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {

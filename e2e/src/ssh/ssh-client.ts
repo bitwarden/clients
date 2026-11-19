@@ -55,13 +55,13 @@ export class SshClient {
 
   /**
    * Logs in with agent forwarding, then from that session logs in again through the forwarded
-   * agent. The agent sees the second sign request as forwarded.
+   * agent. The agent sees the second sign request as forwarded. A `launcher` script runs the
+   * first `ssh` as its child.
    */
-  async loginForwarded(key: SshKey): Promise<ProcessResult> {
+  async loginForwarded(key: SshKey, launcher?: string): Promise<ProcessResult> {
     // The second hop runs on the server, in the user's login shell, against $SSH_AUTH_SOCK.
     const secondHop = ["ssh", ...this.options(key), SSH_HOST, "true"].join(" ");
-
-    return run("ssh", [
+    const args = [
       ...this.options(key),
       "-o",
       `IdentityAgent=${this.agentSocket}`,
@@ -69,7 +69,9 @@ export class SshClient {
       "ForwardAgent=yes",
       SSH_HOST,
       secondHop,
-    ]);
+    ];
+
+    return launcher == null ? run("ssh", args) : run(launcher, ["ssh", ...args]);
   }
 
   /** `ssh-keygen -Y sign` with `key` from the agent; writes `<file>.sig`. */
