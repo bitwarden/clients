@@ -112,10 +112,6 @@ const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
-/**
- * Emits on purpose: `bit-form-control` redraws its label's disabled look from the control's status
- * events, so a silent toggle leaves an enabled checkbox looking disabled until it is clicked.
- */
 function setControlEnabled(control: AbstractControl, enabled: boolean): void {
   if (enabled) {
     control.enable();
@@ -747,13 +743,13 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     const { rotateOnAccessEnd } = this.settingsForm.controls;
     const manual = config.targetSystemMethod === TargetSystemMethod.Manual;
 
-    setControlEnabled(accountIdentity, !config.hasActiveJob);
-    setControlEnabled(
-      terminateSessions,
+    const canTerminate =
       !manual &&
-        !config.hasActiveJob &&
-        this.configTargetSystem()?.sealed?.supportsSessionTermination === true,
-    );
+      !config.hasActiveJob &&
+      this.configTargetSystem()?.sealed?.supportsSessionTermination === true;
+
+    setControlEnabled(accountIdentity, !config.hasActiveJob);
+    setControlEnabled(terminateSessions, canTerminate);
     setControlEnabled(rotateOnAccessEnd, !manual);
   }
 

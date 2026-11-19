@@ -2381,6 +2381,7 @@ describe("RotationConfigEditComponent: while a rotation job runs", () => {
   });
 });
 
+// Remove once #24875 lands: the label's look then belongs in form-control.component.spec.ts.
 describe("RotationConfigEditComponent: checkbox look follows the control", () => {
   const manual = targetSystem({ id: sysId("sys-manual"), method: "manual", sealed: undefined });
 
