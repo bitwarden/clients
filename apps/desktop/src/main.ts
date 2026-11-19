@@ -63,6 +63,7 @@ import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
+import { OnePasswordSsoMain } from "./main/tools/import/onepassword-sso.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -154,7 +155,11 @@ export class Main {
       });
     }
 
-    const storageBackend = new CachedBackend(new ElectronStoreBackend(app.getPath("userData")));
+    // logService is created below, but flushes only run from timers after construction.
+    const storageBackend = new CachedBackend(
+      new ElectronStoreBackend(app.getPath("userData")),
+      (error) => this.logService.error("Failed to write the storage file, will retry", error),
+    );
 
     // Main has no ConfigService, so it reads the cached server configs straight from the store.
     let flightRecorderEnabled = false;
@@ -208,8 +213,6 @@ export class Main {
     );
 
     const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
       globalStateProvider,
       singleUserStateProvider,
     );
@@ -374,6 +377,7 @@ export class Main {
     );
 
     new ChromiumImporterService();
+    new OnePasswordSsoMain(this.logService, this.windowMain);
 
     this.desktopAutofillMain = new DesktopAutofillMain(this.logService, this.windowMain);
     void this.desktopAutofillMain.init();

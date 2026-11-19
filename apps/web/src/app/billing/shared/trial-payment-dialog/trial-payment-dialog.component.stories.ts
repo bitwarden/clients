@@ -5,6 +5,8 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
@@ -33,9 +35,21 @@ import { PlanCardComponent } from "../plan-card/plan-card.component";
 
 import { TrialPaymentDialogComponent } from "./trial-payment-dialog.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 const ORG_ID = "org-1" as OrganizationId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = buildTestOrganization({
   id: ORG_ID,
   name: "Acme Families",
   productTierType: ProductTierType.Families,

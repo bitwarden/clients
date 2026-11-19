@@ -505,7 +505,7 @@ describe("ViewComponent", () => {
       mockCipherService.cipherViews$.mockImplementation(() => of([mockCipher]));
     });
 
-    it("shows the revealed view and allows edit, but not share, clone, or delete", fakeAsync(() => {
+    it("shows the revealed view and allows edit and delete, but not share or clone", fakeAsync(() => {
       revealedCipherService.displayView$.mockReturnValue(display$);
 
       params$.next({ cipherId: mockCipher.id });
@@ -515,7 +515,7 @@ describe("ViewComponent", () => {
       expect(component["allows"](RestrictedCipherAction.Edit)).toBe(true);
       expect(component["allows"](RestrictedCipherAction.Share)).toBe(false);
       expect(component["allows"](RestrictedCipherAction.Clone)).toBe(false);
-      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.Delete)).toBe(true);
       expect(component.showAutofillButton()).toBe(true);
     }));
 

@@ -15,6 +15,8 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -22,6 +24,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
@@ -46,6 +49,7 @@ import {
   SendListState,
   SendListFiltersService,
   SendPolicyService,
+  SendTableV2Component,
   removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -71,6 +75,7 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
     ToggleGroupModule,
     SendFormModule,
     SendListComponent,
+    SendTableV2Component,
   ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
@@ -113,6 +118,7 @@ export class SendComponent implements OnDestroy {
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
+  protected readonly allSends = toSignal(this.sendService.sendViews$);
 
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -183,9 +189,17 @@ export class SendComponent implements OnDestroy {
         if (st === SendType.File) {
           return { filter: SendFilterType.File, translationKey: "sendTypeFile" };
         }
+        if (st === SendType.Item) {
+          return { filter: SendFilterType.Item, translationKey: "item" };
+        }
         return [];
       }),
     );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   constructor(
     private i18nService: I18nService,
@@ -207,6 +221,8 @@ export class SendComponent implements OnDestroy {
     private validationService: ValidationService,
     private sendPolicyService: SendPolicyService,
     authService: AuthService,
+    private configService: ConfigService,
+    private sendService: SendService,
   ) {
     // Lock/logout always wins over the unsaved-edits guard. We listen for the
     // active account's auth status leaving `Unlocked` — `lockService.lock`
@@ -236,6 +252,10 @@ export class SendComponent implements OnDestroy {
           toggleValue = SendFilterType.File;
           sendType = SendType.File;
         }
+        if (typeParam === SendFilterType.Item && hasPremium) {
+          toggleValue = SendFilterType.Item;
+          sendType = SendType.Item;
+        }
         this.selectedToggleValue = toggleValue;
         this.sendItemsFiltersService.filterForm.patchValue({ sendType });
       });
@@ -245,12 +265,12 @@ export class SendComponent implements OnDestroy {
     this.dialogService.closeAll();
   }
 
-  async addSend() {
+  async addSend(sendType: SendType) {
     if (this.disableSend()) {
       return;
     }
 
-    const config = await this.sendFormConfigService.buildConfig("add", null, SendType.Text);
+    const config = await this.sendFormConfigService.buildConfig("add", null, sendType);
 
     await this.openSendItemDialog(config);
   }
@@ -399,10 +419,5 @@ export class SendComponent implements OnDestroy {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-  }
-
-  // Legacy method. TODO: Remove once the SendUI refresh is permanently enabled
-  searchTextChanged(newSearchText: string) {
-    this.sendItemsService.applyFilter(newSearchText);
   }
 }

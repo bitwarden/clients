@@ -9,6 +9,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -71,6 +72,7 @@ describe("OpenAttachmentsComponent", () => {
       imports: [OpenAttachmentsComponent, RouterTestingModule],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         { provide: BillingAccountProfileStateService, useValue: { hasPremiumFromAnySource$ } },
         {
           provide: CipherService,
