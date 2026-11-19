@@ -28,6 +28,7 @@ export interface OpenOrgInviteLinkData {
  */
 export class OpenOrganizationInvite {
   readonly kind = OrgInviteKind.Open;
+  // TODO: PM-47347 - Type organizationId as OrganizationId. Validate it with isId() in fromLinkDataAndStatus before the cast.
   organizationId: string;
   inviteLinkCode: string;
   inviteKey: string;
