@@ -330,6 +330,24 @@ describe("WebLoginComponentService", () => {
           expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
+
+        it.each([
+          ["direct", directOrgInviteFor],
+          ["open", openOrgInviteFor],
+        ])("treats the %s-invite org id match as case-insensitive", async (_, inviteFor) => {
+          const lowerCaseOrgId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            inviteFor({ organizationId: lowerCaseOrgId.toUpperCase() }),
+          );
+
+          const result = await service.handleQueryParamErrors(
+            paramsFor({ organizationId: lowerCaseOrgId }),
+          );
+
+          expect(result.kind).toBe("auto-submit");
+          expect(toastService.showToast).not.toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
+        });
       });
 
       describe("with no matching stashed invite", () => {

@@ -43,7 +43,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     }
 
     // An open invite for a different organization does not apply to this provisioning.
-    return openOrgInvite.organizationId.toLowerCase() !== orgId.toLowerCase();
+    return !openOrgInvite.isForOrganization(orgId);
   }
 
   async finishPassword(

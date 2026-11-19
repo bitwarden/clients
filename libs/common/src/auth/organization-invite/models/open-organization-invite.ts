@@ -76,4 +76,9 @@ export class OpenOrganizationInvite {
     }
     return new OpenOrganizationInvite(json);
   }
+
+  /** Whether this invite is for the organization. Compares IDs case-insensitively. */
+  isForOrganization(organizationId: string): boolean {
+    return this.organizationId.toLowerCase() === organizationId.toLowerCase();
+  }
 }
