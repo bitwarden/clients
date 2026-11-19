@@ -285,7 +285,7 @@ export interface FilterTreeOwner {
   /** The count shown on each option row; an option with none is absent or `undefined`. */
   readonly optionCounts: Signal<ReadonlyMap<FilterOptionRow, number | undefined>>;
   /** A row's checked state, or `null` for a section header, which isn't selectable. */
-  nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null;
+  rowChecked(row: FilterRow): "true" | "false" | "mixed" | null;
   /** How many of a section's options are selected, nesting included. */
   sectionSelectedCount(section: FilterSectionComponent): number;
   /** Toggles an option, or expands a section header. */
