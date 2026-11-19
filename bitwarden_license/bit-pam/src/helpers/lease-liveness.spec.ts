@@ -1,4 +1,4 @@
-import { of, Subject } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 
@@ -112,7 +112,7 @@ describe("rereadOnLapse", () => {
   it.each(lapsingStates)("reads again once %s ends", (_, stateEndingAt) => {
     const ticks$ = new Subject<number>();
     const read$ = jest
-      .fn()
+      .fn<Observable<CipherAccessStateView>, []>()
       .mockReturnValueOnce(of(stateEndingAt(NOW + 1_000)))
       .mockReturnValueOnce(of(restingState()));
     const emitted: CipherAccessStateView[] = [];

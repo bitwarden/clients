@@ -260,10 +260,10 @@ describe("ItemDetailsStateBadgeComponent", () => {
     jest.useFakeTimers();
     accessRequestSdkService.getCipherAccessState
       .mockResolvedValueOnce({
-        ...activeLeaseState(Date.now() + 1_800_000),
+        ...activeLeaseState(Date.now() + 90_000),
         pendingRequest: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
       } as unknown as CipherAccessStateView)
-      .mockRejectedValueOnce(new Error("offline"));
+      .mockRejectedValue(new Error("offline"));
 
     create(gatedCipher());
     await jest.advanceTimersByTimeAsync(0);
@@ -275,6 +275,30 @@ describe("ItemDetailsStateBadgeComponent", () => {
 
     expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
     expect(component["badge"]()).toBeNull();
+  });
+
+  it("still ends the session when a re-read on an early request lapse fails", async () => {
+    // The failed re-read says nothing about the lease it held, so that lease stays watched and
+    // ending it still lands on "Session ended".
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState
+      .mockResolvedValueOnce({
+        ...activeLeaseState(Date.now() + 90_000),
+        pendingRequest: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+      } as unknown as CipherAccessStateView)
+      .mockRejectedValue(new Error("offline"));
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+
+    await jest.advanceTimersByTimeAsync(91_000);
+    fixture.detectChanges();
+
+    expect(component["badge"]()?.kind).toBe("active");
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
+    ).not.toBeNull();
   });
 
   it("shows the badge for a lease the server still reports past its window", async () => {
