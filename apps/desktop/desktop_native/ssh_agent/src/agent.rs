@@ -7,33 +7,39 @@ use anyhow::Result;
 use tracing::{debug, info};
 
 use crate::{
-    approval::ApprovalRequester, authorization::BitwardenAuthPolicy, server::SSHAgentServer,
-    storage::keystore::KeyStore,
+    activity::ActivityObserver, approval::ApprovalRequester, authorization::BitwardenAuthPolicy,
+    server::SSHAgentServer, storage::keystore::KeyStore,
 };
 
 /// - contains the [`KeyStore`] of ssh keys
 /// - manages the [`SSHAgentServer`]
 /// - provides an Authentication policy for server requests
-pub struct BitwardenSSHAgent<K, H>
+pub struct BitwardenSSHAgent<K, H, O>
 where
     K: KeyStore,
     H: ApprovalRequester,
+    O: ActivityObserver,
 {
     /// store of ssh keys. shared with the authorization policy and server.
     keystore: Arc<K>,
     // the agent's server
-    server: SSHAgentServer<K, BitwardenAuthPolicy<K, H>>,
+    server: SSHAgentServer<K, BitwardenAuthPolicy<K, H, O>>,
 }
 
-impl<K, H> BitwardenSSHAgent<K, H>
+impl<K, H, O> BitwardenSSHAgent<K, H, O>
 where
     K: KeyStore + Send + Sync + 'static,
     H: ApprovalRequester + 'static,
+    O: ActivityObserver + 'static,
 {
     /// Creates a new [`BitwardenSSHAgent`]
-    pub fn new(keystore: K, approval_handler: H) -> Self {
+    pub fn new(keystore: K, approval_handler: H, activity_observer: O) -> Self {
         let keystore = Arc::new(keystore);
-        let auth_policy = Arc::new(BitwardenAuthPolicy::new(keystore.clone(), approval_handler));
+        let auth_policy = Arc::new(BitwardenAuthPolicy::new(
+            keystore.clone(),
+            approval_handler,
+            activity_observer,
+        ));
         let server = SSHAgentServer::new(keystore.clone(), auth_policy);
 
         Self { keystore, server }
@@ -72,7 +78,10 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{approval::MockApprovalRequester, storage::keystore::MockKeyStore};
+    use crate::{
+        activity::MockActivityObserver, approval::MockApprovalRequester,
+        storage::keystore::MockKeyStore,
+    };
 
     #[test]
     fn stop_clears_the_keystore() {
@@ -80,7 +89,8 @@ mod tests {
         keystore.expect_clear().once().return_const(());
         let approval_handler = MockApprovalRequester::new();
 
-        let mut agent = BitwardenSSHAgent::new(keystore, approval_handler);
+        let mut agent =
+            BitwardenSSHAgent::new(keystore, approval_handler, MockActivityObserver::new());
 
         agent.stop();
     }

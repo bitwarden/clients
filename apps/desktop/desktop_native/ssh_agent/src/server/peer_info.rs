@@ -1,13 +1,60 @@
 //! Peer process information for SSH agent connections
 
-use sysinfo::{Pid, System};
+use std::path::Path;
+
+use sysinfo::{Pid, Process, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 use tracing::warn;
+
+/// Stops the ancestry walk on deep or cyclic process trees.
+const MAX_ANCESTRY_DEPTH: usize = 32;
+
+/// Processes that only relay a request to the agent. They are skipped when looking for the app
+/// that caused it, e.g. `ssh ← zsh ← claude` is attributed to `claude`.
+const RELAY_PROCESSES: &[&str] = &[
+    "bash",
+    "cmd",
+    "csh",
+    "dash",
+    "env",
+    "fish",
+    "git",
+    "ksh",
+    "login",
+    "nu",
+    "powershell",
+    "pwsh",
+    "sh",
+    "ssh",
+    "ssh-add",
+    "ssh-keygen",
+    "sudo",
+    "tcsh",
+    "zsh",
+];
+
+/// Processes that start a user's apps. The process right below one is the host app, e.g.
+/// `iTerm2` in `ssh ← zsh ← login ← iTerm2 ← launchd`.
+const SESSION_ROOTS: &[&str] = &[
+    "explorer", "init", "launchd", "services", "systemd", "wininit",
+];
 
 /// Information about the connecting peer process
 #[derive(Debug, Clone)]
 pub(crate) struct PeerInfo {
     pid: u32,
     process_name: String,
+    origin: PeerOrigin,
+}
+
+/// Where a peer's request comes from: its command line and the apps that started it.
+#[derive(Debug, Clone, Default)]
+struct PeerOrigin {
+    /// The peer's command line, e.g. `ssh -t example.com`.
+    command: Option<String>,
+    /// The nearest ancestor that is not a relay process, e.g. `claude`.
+    caller_app: Option<String>,
+    /// The outermost ancestor below the session root, e.g. `iTerm2`.
+    host_app: Option<String>,
 }
 
 impl PeerInfo {
@@ -16,6 +63,12 @@ impl PeerInfo {
     /// Intermediate failures are logged; returns `None` only when both
     /// paths fail.
     pub(crate) fn from_pid(pid: u32) -> Option<Self> {
+        let mut info = Self::name_from_pid(pid)?;
+        info.origin = PeerOrigin::from_pid(pid);
+        Some(info)
+    }
+
+    fn name_from_pid(pid: u32) -> Option<Self> {
         #[cfg(target_os = "macos")]
         match peer_info_from_libproc(pid) {
             Ok(info) => return Some(info),
@@ -40,6 +93,132 @@ impl PeerInfo {
     pub(crate) fn process_name(&self) -> &str {
         &self.process_name
     }
+
+    pub(crate) fn command(&self) -> Option<&str> {
+        self.origin.command.as_deref()
+    }
+
+    pub(crate) fn caller_app(&self) -> Option<&str> {
+        self.origin.caller_app.as_deref()
+    }
+
+    pub(crate) fn host_app(&self) -> Option<&str> {
+        self.origin.host_app.as_deref()
+    }
+}
+
+impl PeerOrigin {
+    /// Reads the peer's command line and walks its parents up to the session root. Fields stay
+    /// `None` where the OS refuses the lookup, e.g. in sandboxed Mac App Store builds.
+    fn from_pid(pid: u32) -> Self {
+        let mut system = System::new();
+        let Some(peer) = refresh_process(&mut system, pid) else {
+            return Self::default();
+        };
+        let command = command_line(peer.cmd());
+        let parent = peer.parent();
+
+        let ancestors = ancestor_names(&mut system, parent);
+
+        Self {
+            command,
+            caller_app: caller_app(&ancestors),
+            host_app: ancestors.last().cloned(),
+        }
+    }
+}
+
+/// Loads `pid`'s name, command line, executable and parent into `system`.
+fn refresh_process(system: &mut System, pid: u32) -> Option<&Process> {
+    let pid = Pid::from_u32(pid);
+    let refresh = ProcessRefreshKind::nothing()
+        .with_cmd(UpdateKind::Always)
+        .with_exe(UpdateKind::Always);
+    system.refresh_processes_specifics(ProcessesToUpdate::Some(&[pid]), true, refresh);
+    system.process(pid)
+}
+
+/// Display names of `parent` and its ancestors, nearest first, stopping below the session root.
+/// E.g. `[zsh, claude, zsh, login, iTerm2]`.
+fn ancestor_names(system: &mut System, mut parent: Option<Pid>) -> Vec<String> {
+    let mut names = Vec::new();
+
+    while let Some(pid) = parent {
+        if names.len() >= MAX_ANCESTRY_DEPTH {
+            break;
+        }
+
+        let Some(process) = refresh_process(system, pid.as_u32()) else {
+            break;
+        };
+
+        let name = display_name(process);
+        if is_listed(&name, SESSION_ROOTS) {
+            break;
+        }
+
+        // A process that is its own parent (pid 0 on some platforms) ends the walk.
+        let next = process.parent().filter(|&next| next != pid);
+        names.push(name);
+        parent = next;
+    }
+
+    names
+}
+
+/// The nearest ancestor that is not a relay process.
+fn caller_app(ancestors: &[String]) -> Option<String> {
+    ancestors
+        .iter()
+        .find(|name| !is_listed(name, RELAY_PROCESSES))
+        .cloned()
+}
+
+/// The name `ps` shows: argv[0]'s file name, e.g. `claude` for a binary installed as
+/// `~/.local/share/claude/versions/2.0.0`. Falls back to the executable's name.
+fn display_name(process: &Process) -> String {
+    let argv0 = process
+        .cmd()
+        .first()
+        .and_then(|arg| Path::new(arg).file_name())
+        .and_then(|name| name.to_str())
+        // Login shells prefix argv[0] with a dash, e.g. `-zsh`.
+        .map(|name| name.trim_start_matches('-'))
+        .filter(|name| !name.is_empty());
+
+    match argv0 {
+        Some(name) => name.to_string(),
+        None => process.name().to_string_lossy().into_owned(),
+    }
+}
+
+/// Whether `name` is in `list`, ignoring case and a Windows `.exe` suffix.
+fn is_listed(name: &str, list: &[&str]) -> bool {
+    let name = name.to_ascii_lowercase();
+    let name = name.strip_suffix(".exe").unwrap_or(&name);
+    list.contains(&name)
+}
+
+/// Joins `args` into one line, quoting arguments that contain whitespace.
+/// E.g. `["ssh", "-t", "host", "ls -l"]` becomes `ssh -t host 'ls -l'`.
+fn command_line(args: &[std::ffi::OsString]) -> Option<String> {
+    if args.is_empty() {
+        return None;
+    }
+
+    let quoted: Vec<String> = args
+        .iter()
+        .map(|arg| {
+            let arg = arg.to_string_lossy();
+            if arg.chars().any(char::is_whitespace) {
+                format!("'{arg}'")
+            } else {
+                arg.into_owned()
+            }
+        })
+        .collect();
+
+    Some(quoted.join(" "))
 }
 
 /// Alternative to the `sysinfo`-based lookup that is permissive within
@@ -52,7 +231,11 @@ fn peer_info_from_libproc(pid: u32) -> Result<PeerInfo, String> {
     if process_name.is_empty() {
         return Err("Process name is empty".to_string());
     }
-    Ok(PeerInfo { pid, process_name })
+    Ok(PeerInfo {
+        pid,
+        process_name,
+        origin: PeerOrigin::default(),
+    })
 }
 
 /// Safe wrapper over `proc_pidpath(2)`, declared in macOS's
@@ -110,7 +293,11 @@ fn peer_info_from_sysinfo(pid: u32) -> Result<PeerInfo, String> {
         .to_str()
         .ok_or_else(|| format!("sysinfo: process {pid} name is not valid UTF-8"))?
         .to_string();
-    Ok(PeerInfo { pid, process_name })
+    Ok(PeerInfo {
+        pid,
+        process_name,
+        origin: PeerOrigin::default(),
+    })
 }
 
 /// Extract the basename from a path string, falling back to the original
@@ -138,6 +325,45 @@ mod tests {
         let peer_info = PeerInfo::from_pid(pid).unwrap();
         assert_eq!(peer_info.pid(), pid);
         assert!(!peer_info.process_name().is_empty());
+    }
+
+    #[test]
+    fn test_from_pid_current_process_resolves_origin() {
+        let peer_info = PeerInfo::from_pid(std::process::id()).unwrap();
+
+        // The test binary runs with arguments, under cargo or a shell.
+        assert!(peer_info.command().is_some_and(|c| !c.is_empty()));
+        assert!(peer_info.host_app().is_some());
+    }
+
+    #[test]
+    fn test_caller_app_skips_relay_processes() {
+        let ancestors = ["zsh", "claude", "zsh", "login", "iTerm2"].map(String::from);
+        assert_eq!(caller_app(&ancestors).as_deref(), Some("claude"));
+    }
+
+    #[test]
+    fn test_caller_app_relay_processes_only_returns_none() {
+        let ancestors = ["git", "zsh", "login"].map(String::from);
+        assert_eq!(caller_app(&ancestors), None);
+    }
+
+    #[test]
+    fn test_is_listed_ignores_case_and_exe_suffix() {
+        assert!(is_listed("PowerShell.exe", RELAY_PROCESSES));
+        assert!(is_listed("explorer.exe", SESSION_ROOTS));
+        assert!(!is_listed("WindowsTerminal.exe", RELAY_PROCESSES));
+    }
+
+    #[test]
+    fn test_command_line_quotes_whitespace() {
+        let args = ["ssh", "-t", "host", "ls -l"].map(std::ffi::OsString::from);
+        assert_eq!(command_line(&args).as_deref(), Some("ssh -t host 'ls -l'"));
+    }
+
+    #[test]
+    fn test_command_line_empty_returns_none() {
+        assert_eq!(command_line(&[]), None);
     }
 
     #[test]

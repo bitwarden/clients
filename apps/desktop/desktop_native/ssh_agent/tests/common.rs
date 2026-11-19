@@ -1,8 +1,10 @@
 //! Shared helpers for integration tests
 
+use std::sync::{Arc, Mutex};
+
 use ssh_agent::{
-    ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore, SSHKeyData,
-    SignApprovalRequest,
+    Activity, ActivityObserver, ApprovalError, ApprovalRequester, BitwardenSSHAgent,
+    InMemoryEncryptedKeyStore, SSHKeyData, SignApprovalRequest,
 };
 
 // Unencrypted Ed25519 test key for testing only
@@ -80,12 +82,30 @@ SP5DsnXG3RJCI4fE9sUM81avDnDXKbDH7IgbqRc8hHnhQnE2d2wBnpiDedVu4m6BKTGWKM
 vt8T5DsruwPs+r0AAAAQdGVzdEBleGFtcGxlLmNvbQECAw==
 -----END OPENSSH PRIVATE KEY-----";
 
+pub type TestAgent =
+    BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester, RecordingObserver>;
+
+/// Collects the activity the agent reports, for assertions.
+#[derive(Clone, Default)]
+pub struct RecordingObserver(Arc<Mutex<Vec<Activity>>>);
+
+impl RecordingObserver {
+    pub fn activities(&self) -> Vec<Activity> {
+        self.0.lock().expect("observer lock").clone()
+    }
+}
+
+impl ActivityObserver for RecordingObserver {
+    fn observe(&self, activity: Activity) {
+        self.0.lock().expect("observer lock").push(activity);
+    }
+}
+
 pub fn init_tracing() {
     let _ = tracing_subscriber::fmt().with_test_writer().try_init();
 }
 
-pub fn always_approving_agent(
-) -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester> {
+pub fn always_approving_agent() -> TestAgent {
     let mut requester = MockApprovalRequester::new();
     requester
         .expect_request_sign_approval()
@@ -93,12 +113,14 @@ pub fn always_approving_agent(
     requester
         .expect_request_list_approval()
         .returning(|| Ok(true));
-    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
+    BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        RecordingObserver::default(),
+    )
 }
 
-pub fn agent_with_keys(
-    keys: Vec<SSHKeyData>,
-) -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester> {
+pub fn agent_with_keys(keys: Vec<SSHKeyData>) -> TestAgent {
     let agent = always_approving_agent();
     agent.replace(keys).expect("failed to replace test keys");
     agent
@@ -239,8 +261,7 @@ pub fn parse_sign_response_algorithm(response: &[u8]) -> String {
 }
 
 /// Creates an agent whose approval handler always denies sign requests.
-pub fn always_denying_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester>
-{
+pub fn always_denying_agent() -> TestAgent {
     let mut requester = MockApprovalRequester::new();
     requester
         .expect_request_sign_approval()
@@ -248,7 +269,11 @@ pub fn always_denying_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, Mo
     requester
         .expect_request_list_approval()
         .returning(|| Ok(false));
-    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
+    BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        RecordingObserver::default(),
+    )
 }
 
 /// Reads a single length-prefixed response frame from any async reader.

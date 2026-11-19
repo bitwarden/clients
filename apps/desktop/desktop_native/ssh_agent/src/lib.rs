@@ -14,6 +14,8 @@
 //!   are received by connections.
 //! - `authorization` provides Bitwarden's business logic for the requested authorization from the
 //!   server, for the various agent operations.
+//! - `activity` provides an interface for the agent to report each answered operation and the
+//!   process that requested it.
 //! - `approval` provides an interface for the agent itself to request approval from an external
 //!   entity (currently, Electron via napi) to approve requests.
 //! - `agent` contains the store of keys, and the server, and uses the authorization and approval
@@ -22,6 +24,7 @@
 
 #![allow(dead_code)] // TODO remove when all code is used in follow-up PR
 
+mod activity;
 mod agent;
 mod approval;
 mod authorization;
@@ -30,6 +33,7 @@ mod server;
 mod storage;
 
 // external exports for napi
+pub use activity::{Activity, ActivityObserver, ActivityOperation, ActivityOutcome};
 pub use agent::BitwardenSSHAgent;
 pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
 pub use authorization::BitwardenAuthPolicy;
