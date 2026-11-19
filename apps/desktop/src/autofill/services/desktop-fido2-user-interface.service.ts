@@ -99,6 +99,9 @@ export type NativeWindowObject = {
  */
 const MODAL_WINDOW_CLOSED = new CommandDefinition("modalWindowClosed");
 
+/** Sent by the lock screen once it has unlocked the vault and started its post-unlock work. */
+const UNLOCKED = new CommandDefinition("unlocked");
+
 /** A ceremony that can be refused because of its RP ID. */
 export type RpIdNotAllowedOperation = "registration" | "assertion";
 
@@ -864,25 +867,29 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // The user authenticated to Bitwarden to get here, which satisfies user
       // verification for the rest of this ceremony.
       this.vaultUnlockedDuringCeremony = true;
-      // TODO: Navigate straight to the next modal screen instead of home. The
-      // caller shows its own route immediately afterwards, so routing through
-      // "/" flashes the main vault screen in between.
-      await this.router.navigate(["/"]);
+      // Stay on the lock screen. The caller either shows the next modal screen
+      // or hides the window if the ceremony needs no further UI.
     }
   }
 
   /**
-   * Waits for the vault to become unlocked, rejecting if the request is aborted
+   * Waits for the lock screen to report that it unlocked the vault, then
+   * returns the active account's status. Rejects if the request is aborted
    * (with the abort `reason`).
+   *
+   * The status changes to unlocked before the lock screen finishes handling the
+   * unlock. Leaving the lock screen at that point destroys it before it can run
+   * its post-unlock work, such as syncing and reporting the unlock to the rest
+   * of the app, so wait for its message instead.
    */
-  private waitForVaultUnlock({ signal }: { signal: AbortSignal }): Promise<AuthenticationStatus> {
+  private async waitForVaultUnlock({
+    signal,
+  }: {
+    signal: AbortSignal;
+  }): Promise<AuthenticationStatus> {
     signal.throwIfAborted();
-    return firstValueFrom(
-      this.authService.activeAccountStatus$.pipe(
-        filter((s) => s === AuthenticationStatus.Unlocked),
-        throwOnAbort(signal),
-      ),
-    );
+    await firstValueFrom(this.messageListener.messages$(UNLOCKED).pipe(throwOnAbort(signal)));
+    return await firstValueFrom(this.authService.activeAccountStatus$);
   }
 
   /**
