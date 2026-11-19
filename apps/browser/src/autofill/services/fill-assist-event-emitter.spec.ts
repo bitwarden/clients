@@ -54,7 +54,7 @@ describe("DefaultFillAssistEventEmitter", () => {
     expect(result).toBeUndefined();
   });
 
-  it("swallows rejections from the dispatch so the caller never sees them", async () => {
+  it("drops rejections from the dispatch so the caller never sees them", async () => {
     jest
       .mocked(autofillUtils.sendExtensionMessage)
       .mockRejectedValueOnce(new Error("relay unavailable"));

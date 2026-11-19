@@ -959,10 +959,6 @@ describe("RuntimeBackground fillAssistEmit", () => {
       ruleId: "0",
     },
   };
-  const sender = {
-    frameId: 0,
-    tab: createChromeTabMock({ id: 1 }),
-  } as chrome.runtime.MessageSender;
 
   beforeEach(() => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
@@ -973,7 +969,7 @@ describe("RuntimeBackground fillAssistEmit", () => {
   });
 
   it("routes an externally-tagged message to the receiver with its event fields intact", async () => {
-    await runtimeBackground.processMessageWithSender(tagAsExternalMessage(message), sender);
+    await runtimeBackground.processMessage(tagAsExternalMessage(message));
 
     expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(
       expect.objectContaining({ name: event.name, payload: event.payload }),
@@ -983,7 +979,7 @@ describe("RuntimeBackground fillAssistEmit", () => {
   it("passes the original message through so the external tag survives for downstream consumers", async () => {
     const taggedMessage = tagAsExternalMessage(message);
 
-    await runtimeBackground.processMessageWithSender(taggedMessage, sender);
+    await runtimeBackground.processMessage(taggedMessage);
 
     // Receiver must see the same object the handler received, not a reconstructed
     // copy. Identity check pins the pass-through contract.
@@ -991,11 +987,11 @@ describe("RuntimeBackground fillAssistEmit", () => {
     expect(fillAssistEventReceiver.receive.mock.calls[0][0]).toBe(taggedMessage);
   });
 
-  // Trusted-sender boundary: the handler rejects any message not tagged by the
-  // chrome.runtime ingest boundary. Matches the convention used by sibling
-  // handlers in this file.
+  // Intraprocess messages are not externally tagged. The handler sits on the
+  // `allMessages$` ingest path, which emits both external and intraprocess
+  // messages, so the external-tag check is the real discriminator here.
   it("security: rejects a message that was not tagged as external", async () => {
-    await runtimeBackground.processMessageWithSender(message, sender);
+    await runtimeBackground.processMessage(message);
 
     expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
   });

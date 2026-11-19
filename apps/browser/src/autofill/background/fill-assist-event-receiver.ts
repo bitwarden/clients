@@ -24,8 +24,7 @@ export function isFillAssistEvent(msg: unknown): msg is FillAssistEvent {
   return (
     typeof p.domain === "string" &&
     typeof p.ruleId === "string" &&
-    (p.missReason === FillAssistMissReason.Structural ||
-      p.missReason === FillAssistMissReason.InScopeExtras)
+    (Object.values(FillAssistMissReason) as unknown[]).includes(p.missReason)
   );
 }
 

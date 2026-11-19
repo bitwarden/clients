@@ -310,16 +310,6 @@ export default class RuntimeBackground {
 
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
-      case "fillAssistEmit": {
-        // Combined tag and shape check. The guard rejects anything not tagged
-        // by the chrome.runtime ingest boundary, and narrows the type so the
-        // message passes through to the receiver without a cast.
-        if (!isFillAssistEvent(msg)) {
-          return;
-        }
-        this.fillAssistEventReceiver.receive(msg);
-        return;
-      }
       case "runFillAssistHeuristicFallback": {
         // Trusted-sender gate: only the content-script emitter routes this message.
         // Content scripts carry a sender.tab; popup and options senders do not.
@@ -432,6 +422,19 @@ export default class RuntimeBackground {
 
   async processMessage(msg: any) {
     switch (msg.command) {
+      case "fillAssistEmit": {
+        // Combined tag and shape check. The guard rejects anything not tagged
+        // by the chrome.runtime ingest boundary, and narrows the type so the
+        // message passes through to the receiver without a cast. Handled on
+        // the `allMessages$` ingest path so the external tag is applied by
+        // the time this handler runs.
+        if (!isFillAssistEvent(msg)) {
+          this.logService.warning("Discarded malformed fillAssistEmit message.");
+          return;
+        }
+        this.fillAssistEventReceiver.receive(msg);
+        return;
+      }
       case "loggedIn":
       case "unlocked": {
         let item: LockedVaultPendingNotificationsData;
