@@ -14,28 +14,62 @@ describe("DefaultPremiumCheckoutPendingService", () => {
     sut = new DefaultPremiumCheckoutPendingService(stateProvider);
   });
 
-  it("consumeCheckoutPending returns false by default", async () => {
-    expect(await sut.consumeCheckoutPending(userId)).toBe(false);
+  describe("getCheckoutPending", () => {
+    it("returns null when no checkout is pending", async () => {
+      expect(await sut.getCheckoutPending(userId)).toBeNull();
+    });
+
+    it("returns the feature context recorded at launch", async () => {
+      await sut.markCheckoutLaunched(userId, { featureNameKey: "premiumFeature" });
+
+      expect(await sut.getCheckoutPending(userId)).toEqual({ featureNameKey: "premiumFeature" });
+    });
+
+    it("returns an empty object when launched without context", async () => {
+      await sut.markCheckoutLaunched(userId);
+
+      expect(await sut.getCheckoutPending(userId)).toEqual({});
+    });
+
+    it("leaves the pending checkout in place across reads", async () => {
+      await sut.markCheckoutLaunched(userId, { featureNameKey: "premiumFeature" });
+
+      expect(await sut.getCheckoutPending(userId)).toEqual({ featureNameKey: "premiumFeature" });
+      expect(await sut.getCheckoutPending(userId)).toEqual({ featureNameKey: "premiumFeature" });
+    });
   });
 
-  it("markCheckoutLaunched makes the next consume return true", async () => {
-    await sut.markCheckoutLaunched(userId);
+  describe("clearCheckoutPending", () => {
+    it("clears the pending checkout so the next read returns null", async () => {
+      await sut.markCheckoutLaunched(userId, { featureNameKey: "premiumFeature" });
 
-    expect(await sut.consumeCheckoutPending(userId)).toBe(true);
+      await sut.clearCheckoutPending(userId);
+
+      expect(await sut.getCheckoutPending(userId)).toBeNull();
+    });
   });
 
-  it("consumeCheckoutPending clears the flag so a second consume returns false", async () => {
-    await sut.markCheckoutLaunched(userId);
+  describe("consumeCheckoutPending", () => {
+    it("returns null when no checkout is pending", async () => {
+      expect(await sut.consumeCheckoutPending(userId)).toBeNull();
+    });
 
-    expect(await sut.consumeCheckoutPending(userId)).toBe(true);
-    expect(await sut.consumeCheckoutPending(userId)).toBe(false);
+    it("returns the pending checkout and clears it", async () => {
+      await sut.markCheckoutLaunched(userId, { featureNameKey: "premiumFeature" });
+
+      expect(await sut.consumeCheckoutPending(userId)).toEqual({
+        featureNameKey: "premiumFeature",
+      });
+      expect(await sut.consumeCheckoutPending(userId)).toBeNull();
+      expect(await sut.getCheckoutPending(userId)).toBeNull();
+    });
   });
 
   it("is scoped per user", async () => {
     const otherUserId = "user-2" as UserId;
     await sut.markCheckoutLaunched(userId);
 
-    expect(await sut.consumeCheckoutPending(otherUserId)).toBe(false);
+    expect(await sut.getCheckoutPending(otherUserId)).toBeNull();
   });
 
   // The "no stale flag survives a restart" guarantee depends entirely on this being

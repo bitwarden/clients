@@ -479,8 +479,6 @@ export class ServiceContainer {
     this.messagingService = MessageSender.EMPTY;
 
     this.accountService = new AccountServiceImplementation(
-      this.messagingService,
-      this.logService,
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
@@ -903,6 +901,7 @@ export class ServiceContainer {
       passwordPreloginApiService,
       this.sdkService,
       this.configService,
+      this.masterPasswordService,
     );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
@@ -1131,6 +1130,7 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

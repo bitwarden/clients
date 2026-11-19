@@ -9,17 +9,15 @@ import {
   AbstractControl,
 } from "@angular/forms";
 
+import { BulkOperationStatus, ProjectListView, ProjectService } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
-import { ProjectListView } from "../../models/view/project-list.view";
 import {
-  BulkOperationStatus,
   BulkStatusDetails,
   BulkStatusDialogComponent,
 } from "../../shared/dialogs/bulk-status-dialog.component";
-import { ProjectService } from "../project.service";
 
 export interface ProjectDeleteOperation {
   projects: ProjectListView[];

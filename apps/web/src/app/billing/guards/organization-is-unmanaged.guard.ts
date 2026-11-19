@@ -30,7 +30,7 @@ export const organizationIsUnmanaged: CanActivateFn = async (route: ActivatedRou
     throw new Error("No organization found.");
   }
 
-  if (!organization.hasProvider) {
+  if (!organization.hasProvider || organization.providerId == null) {
     return true;
   }
 

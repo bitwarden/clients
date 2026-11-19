@@ -828,6 +828,10 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-bg-gray) transparent;
   }
+
+  body {
+    position: relative;
+  }
 }
 
 @layer components {
