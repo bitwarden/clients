@@ -257,7 +257,7 @@ describe("ImportCommand", () => {
 
     // A member without the accessImportExport permission cannot import into the org.
     const orgWithoutImportAccess = (): Organization =>
-      Object.assign(new Organization(), {
+      Object.assign(new Organization({} as any), {
         id: orgId,
         type: OrganizationUserType.User,
         permissions: { accessImportExport: false },
