@@ -1,8 +1,11 @@
 <!-- One row, with the divider that precedes it. Shared by the plain list, the virtualized
      list and the sizer, so all three draw a row the same way. -->
 <ng-template #row let-node let-index="index">
-  @let expandable = node.row.expandable();
-  @let checked = owner.nodeChecked(node);
+  <!-- Everything the row shows that comes from a signal, read once here through the row's own
+       `computed`.
+       Avoids: reading a row's signals directly in this template, which would make drawing the
+       tree cost the square of its length. See `rowState`. -->
+  @let state = rowState(node);
   @if (node.dividerBefore) {
     <!-- The dialog hides this and separates the groups with a gap instead.
          `aria-hidden` because the rule is decorative and `role="tree"` owns only
@@ -28,15 +31,15 @@
     [attr.aria-level]="node.level"
     [attr.aria-setsize]="node.setsize"
     [attr.aria-posinset]="node.posinset"
-    [attr.aria-expanded]="expandable ? node.expanded : null"
-    [attr.aria-checked]="checked"
-    [attr.aria-disabled]="node.row.disabled() ? true : null"
-    (click)="node.row.disabled() ? null : owner.activateNode(node)"
+    [attr.aria-expanded]="state.expandable ? node.expanded : null"
+    [attr.aria-checked]="state.checked"
+    [attr.aria-disabled]="state.disabled ? true : null"
+    (click)="state.disabled ? null : owner.activateNode(node)"
     (focus)="onRowFocus(index)"
     (blur)="onRowBlur($event)"
   >
     @if (node.row.kind !== "section") {
-      @if (expandable) {
+      @if (state.expandable) {
         <span
           data-filter-expander
           class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
@@ -56,7 +59,7 @@
         <span class="-tw-me-1 tw-size-6 tw-flex-none" aria-hidden="true"></span>
       }
     }
-    @if (checked !== null) {
+    @if (state.checked !== null) {
       <!-- Draws the control only; the row owns the semantics via `aria-checked`. -->
       <input
         type="checkbox"
@@ -64,23 +67,20 @@
         class="tw-pointer-events-none"
         aria-hidden="true"
         tabindex="-1"
-        [checked]="checked === 'true'"
-        [indeterminate]="checked === 'mixed'"
-        [disabled]="node.row.disabled()"
+        [checked]="state.checked === 'true'"
+        [indeterminate]="state.checked === 'mixed'"
+        [disabled]="state.disabled"
       />
     }
-    @if (asOption(node.row); as option) {
-      @let tile = option.iconTile();
-      @if (tile) {
-        <bit-icon-tile
-          class="!tw-flex tw-flex-none"
-          [icon]="tile.icon"
-          [variant]="tileVariant(option)"
-          [color]="tileColor(option)"
-          [emphasis]="tile.emphasis ?? 'subtle'"
-          size="xs"
-        />
-      }
+    @if (state.tile; as tile) {
+      <bit-icon-tile
+        class="!tw-flex tw-flex-none"
+        [icon]="tile.icon"
+        [variant]="tile.variant"
+        [color]="tile.color"
+        [emphasis]="tile.emphasis"
+        size="xs"
+      />
     }
     <!-- Clamped, not `truncate`: a `nowrap` label's min-content is its full text, so the grid never shrinks it.
          Tooltipped here, not on the row, which overflows the clipped tree; the row opens it on keyboard focus. -->
@@ -89,20 +89,20 @@
         data-filter-row-label
         bitTypography="helper"
         class="tw-me-auto tw-min-w-0 tw-line-clamp-1 tw-break-all tw-font-semibold"
-        [bitTooltip]="node.row.label()"
-        >{{ node.row.label() }}</span
+        [bitTooltip]="state.label"
+        >{{ state.label }}</span
       >
     } @else {
       <span
         data-filter-row-label
         class="tw-me-auto tw-min-w-16 tw-line-clamp-1 tw-break-all"
-        [bitTooltip]="node.row.label()"
-        >{{ node.row.label() }}</span
+        [bitTooltip]="state.label"
+        >{{ state.label }}</span
       >
     }
-    @if (asSection(node.row); as section) {
-      <bit-berry [value]="owner.sectionSelectedCount(section)"></bit-berry>
-      @if (expandable) {
+    @if (node.row.kind === "section") {
+      <bit-berry [value]="state.sectionSelectedCount"></bit-berry>
+      @if (state.expandable) {
         <span
           data-filter-expander
           class="tw-ms-1 tw-flex tw-flex-none tw-items-center tw-text-fg-body-subtle"
@@ -115,13 +115,10 @@
           ></bit-icon>
         </span>
       }
-    } @else if (asOption(node.row); as option) {
-      @let count = owner.optionCounts().get(option);
-      @if (count != null) {
-        <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
-          count
-        }}</span>
-      }
+    } @else if (state.count != null) {
+      <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+        state.count
+      }}</span>
     }
   </div>
 </ng-template>

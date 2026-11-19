@@ -241,6 +241,19 @@ export class FilterMenuComponent
   /** The selection: a single value (single-select) or an array (multi-select). */
   private readonly _value = signal<unknown>(undefined);
 
+  /**
+   * A multi-select chip's selected values as a set, so checking whether a value is selected
+   * takes the same time however many are.
+   *
+   * Avoids: checking against the selection array. Every option checks on each change, and a
+   * parent checks its whole subtree, so searching the array each time would cost the number of
+   * options times the number selected.
+   */
+  private readonly selectedValues = computed<ReadonlySet<unknown>>(() => {
+    const value = this._value();
+    return new Set(this.multiple() && Array.isArray(value) ? value : []);
+  });
+
   /** In-menu search term; options self-hide when their label doesn't match. */
   private readonly _searchTerm = signal("");
   readonly searchTerm = this._searchTerm.asReadonly();
@@ -477,10 +490,11 @@ export class FilterMenuComponent
       if (options.length === 0) {
         return;
       }
+      const isSelected = this.selectionTest();
       const selected: FilterSelection[] = [];
       for (const option of options) {
         const resolved = this.optionValue(option);
-        if (resolved && this.isSelected(resolved.value)) {
+        if (resolved && isSelected(resolved.value)) {
           selected.push({ value: resolved.value, label: option.label() });
         }
       }
@@ -527,17 +541,46 @@ export class FilterMenuComponent
     return entry.kind === "option" ? (entry as FilterOptionRow) : null;
   }
 
-  /** A parent stays visible when a child matches; a section has no label of its own to match. */
-  protected rowVisible(row: FilterRow): boolean {
+  /**
+   * The rows a running search leaves visible, or `null` with no search, when every row is.
+   * A parent stays visible when a child matches; a section has no label of its own to match.
+   *
+   * Worked out in one pass over the whole tree, so each row's label and children are read once
+   * however many places ask whether a row is visible.
+   *
+   * Avoids: working out visibility row by row. That would read a parent's subtree again for
+   * every ancestor and every caller, and re-reading a signal inside one `computed` or view
+   * costs more the more signals it has already read.
+   */
+  private readonly visibleRows = computed<ReadonlySet<FilterRow> | null>(() => {
     const term = this._searchTerm().trim().toLowerCase();
-    if (row.kind === "section") {
-      return row.children().some((child) => this.rowVisible(child));
+    if (term === "") {
+      return null;
     }
-    return (
-      term === "" ||
-      row.label().toLowerCase().includes(term) ||
-      row.children().some((child) => this.rowVisible(child))
-    );
+    const visible = new Set<FilterRow>();
+    const visit = (row: FilterRow): boolean => {
+      // Every child is visited, matched or not: each needs its own answer.
+      let shown = false;
+      for (const child of row.children()) {
+        shown = visit(child) || shown;
+      }
+      shown ||= row.kind !== "section" && row.label().toLowerCase().includes(term);
+      if (shown) {
+        visible.add(row);
+      }
+      return shown;
+    };
+    for (const entry of this.entries()) {
+      if (entry.kind !== "divider") {
+        visit(entry as FilterRow);
+      }
+    }
+    return visible;
+  });
+
+  protected rowVisible(row: FilterRow): boolean {
+    const visible = this.visibleRows();
+    return visible === null || visible.has(row);
   }
 
   /**
@@ -570,9 +613,10 @@ export class FilterMenuComponent
 
   /** How many of a section's options are selected, nesting included — the header berry. */
   sectionSelectedCount(section: FilterSectionComponent): number {
+    const selected = this.selectionTest();
     return section.allOptions().filter((option) => {
       const resolved = this.optionValue(option);
-      return resolved != null && this.isSelected(resolved.value);
+      return resolved != null && selected(resolved.value);
     }).length;
   }
 
@@ -643,15 +687,16 @@ export class FilterMenuComponent
   private readonly tree = viewChild(FilterTreeComponent);
 
   /** A section header isn't selectable; only options carry a checked state. */
-  nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null {
-    if (node.row.kind === "section") {
+  rowChecked(row: FilterRow): "true" | "false" | "mixed" | null {
+    if (row.kind === "section") {
       return null;
     }
-    const option = node.row as FilterOptionRow;
-    if (this.partiallySelected(option)) {
-      return "mixed";
+    const values = this.subtreeValues(row as FilterOptionRow);
+    const selected = values.filter(this.selectionTest()).length;
+    if (selected === 0) {
+      return "false";
     }
-    return this.optionSelected(option) ? "true" : "false";
+    return selected === values.length ? "true" : "mixed";
   }
 
   /** Section headers aren't selectable, so they expand instead. */
@@ -663,26 +708,45 @@ export class FilterMenuComponent
     }
   }
 
-  private subtreeValues(option: FilterOptionRow): unknown[] {
-    const own = this.optionValue(option);
-    const values = own ? [own.value] : [];
-    for (const child of option.children()) {
-      values.push(...this.subtreeValues(child));
+  /**
+   * Every option's own value followed by those of everything beneath it, worked out in one pass
+   * over the tree so each option's children are read once.
+   *
+   * Avoids: walking a subtree each time its values are wanted. That would read each option's
+   * children again for every ancestor and every caller, with the cost described on
+   * {@link visibleRows}.
+   */
+  private readonly subtrees = computed(() => {
+    const subtrees = new Map<FilterOptionRow, readonly unknown[]>();
+    const visit = (option: FilterOptionRow): readonly unknown[] => {
+      const own = this.optionValue(option);
+      const values = own ? [own.value] : [];
+      for (const child of option.children()) {
+        for (const value of visit(child)) {
+          values.push(value);
+        }
+      }
+      subtrees.set(option, values);
+      return values;
+    };
+    for (const entry of this.entries()) {
+      if (entry.kind === "option") {
+        visit(entry as FilterOptionRow);
+      } else if (entry.kind === "section") {
+        (entry as FilterSectionComponent).children().forEach(visit);
+      }
     }
-    return values;
+    return subtrees;
+  });
+
+  private subtreeValues(option: FilterOptionRow): readonly unknown[] {
+    return this.subtrees().get(option) ?? [];
   }
 
   /** Whether a row draws selected: a leaf's own value, or a parent's whole subtree. */
   protected optionSelected(option: FilterOptionRow): boolean {
     const values = this.subtreeValues(option);
-    return values.length > 0 && values.every((value) => this.isSelected(value));
-  }
-
-  protected partiallySelected(option: FilterOptionRow): boolean {
-    const values = this.subtreeValues(option);
-    return (
-      values.some((value) => this.isSelected(value)) && !values.every((v) => this.isSelected(v))
-    );
+    return values.length > 0 && values.every(this.selectionTest());
   }
 
   /** Selecting a row selects everything beneath it; clearing it clears the same set. */
@@ -693,12 +757,14 @@ export class FilterMenuComponent
       return;
     }
     const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
-    const selectAll = !values.every((value) => current.includes(value));
-    this._value.set(
-      selectAll
-        ? [...current, ...values.filter((value) => !current.includes(value))]
-        : current.filter((value) => !values.includes(value)),
-    );
+    const selected = this.selectedValues();
+    const selectAll = !values.every((value) => selected.has(value));
+    if (selectAll) {
+      this._value.set([...current, ...values.filter((value) => !selected.has(value))]);
+    } else {
+      const cleared = new Set(values);
+      this._value.set(current.filter((value) => !cleared.has(value)));
+    }
   }
 
   isSelected(value: unknown): boolean {
@@ -706,8 +772,24 @@ export class FilterMenuComponent
     if (value === CLEAR_FILTER) {
       return !this.active();
     }
+    return this.selectionTest()(value);
+  }
+
+  /**
+   * Returns a test for whether a value is selected. The selection is read once, when this is
+   * called, and the returned test reads no signals. Use it to test many values in a row.
+   *
+   * Avoids: reading the selection again for each value. That is a repeated signal read, which
+   * would get slower the more signals the caller has read in between: a parent's whole subtree,
+   * in the worst case.
+   */
+  private selectionTest(): (value: unknown) => boolean {
+    if (this.multiple()) {
+      const selected = this.selectedValues();
+      return (value) => selected.has(value);
+    }
     const current = this._value();
-    return this.multiple() ? Array.isArray(current) && current.includes(value) : current === value;
+    return (value) => current === value;
   }
 
   toggle(value: unknown): void {

@@ -35,7 +35,7 @@ export class FilterTreeRowDirective {
   }
 
   hasFocus(): boolean {
-    // Not `:focus`, which stops matching whenever the window itself loses focus.
+    // Avoids: `:focus`, which would stop matching whenever the window itself loses focus.
     return document.activeElement === this.el.nativeElement;
   }
 }
