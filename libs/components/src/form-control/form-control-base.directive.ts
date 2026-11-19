@@ -78,7 +78,8 @@ export class FormControlBaseDirective {
           return EMPTY;
         }
         return merge(
-          control.events.pipe(
+          // Signal forms' `[formField]` provides an `NgControl` without `events`.
+          (control.events ?? EMPTY).pipe(
             filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
           ),
           disabledChanges(control),

@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { disabled, form, FormField } from "@angular/forms/signals";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -26,6 +27,23 @@ class TestHostComponent {
   readonly formObj = new FormGroup({
     accept: new FormControl(false, Validators.requiredTrue),
   });
+}
+
+@Component({
+  selector: "test-signal-forms-host",
+  imports: [FormField, FormControlModule, CheckboxComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox [formField]="fields.accept" />
+      <bit-label>Accept terms</bit-label>
+    </bit-form-control>
+  `,
+})
+class SignalFormsHostComponent {
+  readonly locked = signal(true);
+  readonly model = signal({ accept: false });
+  readonly fields = form(this.model, (path) => disabled(path.accept, () => this.locked()));
 }
 
 describe("FormControlComponent", () => {
@@ -92,5 +110,26 @@ describe("FormControlComponent", () => {
     await fixture.whenStable();
 
     expect(label().classList).toContain("tw-cursor-auto");
+  });
+});
+
+describe("FormControlComponent with signal forms", () => {
+  it("follows the field's derived disabled state", async () => {
+    await TestBed.configureTestingModule({
+      imports: [SignalFormsHostComponent],
+      providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(SignalFormsHostComponent);
+    const label = (): HTMLLabelElement => fixture.nativeElement.querySelector("label");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label().classList).toContain("tw-cursor-auto");
+
+    fixture.componentInstance.locked.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label().classList).toContain("tw-cursor-pointer");
   });
 });
