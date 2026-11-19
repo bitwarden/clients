@@ -256,7 +256,7 @@ which spells out which happened and when; the row builders have no need for it, 
 ## Refresh model
 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
-Two services drive every refresh:
+Two services drive almost every refresh:
 
 - `AccessEventService`, the server's pushes for the active user, filtered to bare ticks:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
@@ -265,9 +265,10 @@ Two services drive every refresh:
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
 
-`PamRevealedCipherService` also reads a held view again on a `SyncCipherUpdate` push, since core sync
-keeps the stored restricted copy during a lease and so never sees the edit. The extension's
-`PamLeaseRefreshService` does the same for its held copies.
+The one exception: `PamRevealedCipherService` listens for `SyncCipherUpdate` itself and reads a
+held view again. During a lease, core sync keeps the stored restricted copy on that push, so
+neither service above carries the edit. The extension's `PamLeaseRefreshService` does the same for
+its held copies.
 
 Page-level services reload on these streams. `MyAccessService` listens on
 `AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
