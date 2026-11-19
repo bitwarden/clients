@@ -95,25 +95,25 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
     },
   } as const);
 
-/**
- * Every status the status filter offers, in urgency order. Failed is withheld because the list
- * view carries no last-job outcome to derive it from.
- */
+/** Every status the status filter offers, in urgency order, so Failed leads. */
 export const ROTATION_STATUS_BADGES = Object.freeze(
-  Object.values(STATUS_BADGES)
-    .filter((badge) => badge.status !== RotationRowStatus.Failed)
-    .sort((a, b) => a.sortOrder - b.sortOrder),
+  Object.values(STATUS_BADGES).sort((a, b) => a.sortOrder - b.sortOrder),
 );
 
 /**
  * Resolves the one status a row shows, first match winning: Rotating, Paused, Not connected,
- * Rotation due, Manual rotation, Active. `hasConnectedConnector` is `null` when connectivity is
- * unknown, which never reads as Not connected.
+ * Failed, Rotation due, Manual rotation, Active. `hasConnectedConnector` is `null` when
+ * connectivity is unknown, which never reads as Not connected.
+ *
+ * Failed sits exactly where `resolveDetailStatus` puts it, so a credential can never read
+ * one way in the list and another on its own page. The two reach it from different places: the
+ * list has no job history, so it trusts the server's `lastJobFailed`, while the detail page
+ * derives the same verdict from the history it already holds.
  */
 export function resolveRotationStatus(
   config: Pick<
     RotationConfigView,
-    "enabled" | "hasActiveJob" | "awaitingManualRotation" | "targetSystemMethod"
+    "enabled" | "hasActiveJob" | "awaitingManualRotation" | "targetSystemMethod" | "lastJobFailed"
   >,
   hasConnectedConnector: boolean | null = null,
 ): RotationRowStatus {
@@ -128,6 +128,9 @@ export function resolveRotationStatus(
     hasConnectedConnector === false
   ) {
     return RotationRowStatus.NotConnected;
+  }
+  if (config.lastJobFailed) {
+    return RotationRowStatus.Failed;
   }
   if (config.targetSystemMethod === TargetSystemMethod.Manual) {
     return config.awaitingManualRotation

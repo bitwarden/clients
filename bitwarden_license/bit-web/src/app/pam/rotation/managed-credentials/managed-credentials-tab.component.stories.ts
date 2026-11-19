@@ -42,6 +42,7 @@ const CIPHER_CI = asUuid<CipherId>(id("6"));
 const CIPHER_MAINFRAME = asUuid<CipherId>(id("7"));
 const CIPHER_FIREWALL = asUuid<CipherId>(id("8"));
 const CIPHER_LEDGER = asUuid<CipherId>(id("9"));
+const CIPHER_BILLING = asUuid<CipherId>(id("b"));
 
 const DAY = 86_400_000;
 const fromNow = (offsetMs: number) => new Date(Date.now() + offsetMs).toISOString();
@@ -123,6 +124,25 @@ const ROWS: RotationConfigRow[] = [
     rotationConfigDescription({
       schedulePreset: QuartzSchedulePreset.Custom,
       actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
+    }),
+  ),
+  // The most attention-worthy status, so the Status filter lists it first (PAM-544).
+  buildRotationConfigRow(
+    rotationConfig({
+      id: configId("7"),
+      cipherId: CIPHER_BILLING,
+      targetSystemId: sysId("1"),
+      targetSystemName: "Prod Entra",
+      enabled: true,
+      lastJobFailed: true,
+      sealed: rotationConfigSealedFields({ accountIdentity: "svc-billing" }),
+      lastRotationAt: fromNow(-9 * DAY),
+    }),
+    undefined,
+    "Billing service account",
+    rotationConfigDescription({
+      schedulePreset: QuartzSchedulePreset.Custom,
+      actions: rotationConfigActions(),
     }),
   ),
   buildRotationConfigRow(
