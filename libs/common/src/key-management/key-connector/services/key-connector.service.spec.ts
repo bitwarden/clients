@@ -889,3 +889,34 @@ describe("KeyConnectorService", () => {
     return masterKey;
   }
 });
+
+describe("NEW_SSO_USER_KEY_CONNECTOR_CONVERSION", () => {
+  it.each([
+    ["PBKDF2", new PBKDF2KdfConfig(600_000), PBKDF2KdfConfig],
+    ["Argon2", new Argon2KdfConfig(3, 64, 4), Argon2KdfConfig],
+  ])(
+    "deserializes stored conversion data with the %s KDF",
+    (_, kdfConfig, expectedKdfConfigClass) => {
+      const stored = JSON.parse(
+        JSON.stringify({
+          kdfConfig,
+          keyConnectorUrl: "https://key-connector-url.com",
+          organizationSsoIdentifier: "test-sso-org-id",
+        }),
+      );
+
+      const result = NEW_SSO_USER_KEY_CONNECTOR_CONVERSION.deserializer(stored);
+
+      expect(result).toEqual({
+        kdfConfig,
+        keyConnectorUrl: "https://key-connector-url.com",
+        organizationSsoIdentifier: "test-sso-org-id",
+      });
+      expect(result!.kdfConfig).toBeInstanceOf(expectedKdfConfigClass);
+    },
+  );
+
+  it("deserializes null to null", () => {
+    expect(NEW_SSO_USER_KEY_CONNECTOR_CONVERSION.deserializer(null)).toBeNull();
+  });
+});

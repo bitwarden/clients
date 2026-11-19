@@ -80,7 +80,45 @@ describe("RenameKeyConnectorConversionSsoIdentifier", () => {
       expect(output).toEqual(input);
     });
 
-    it("does nothing when no conversion data exists", async () => {
+    it("migrates old data and leaves new data unchanged when accounts differ", async () => {
+      const output = await runMigrator(sut, {
+        global_account_accounts: accounts,
+        user_user1_keyConnector_newSsoUserKeyConnectorConversion: {
+          kdfConfig,
+          keyConnectorUrl,
+          organizationId: "sso-identifier-1",
+        },
+        user_user2_keyConnector_newSsoUserKeyConnectorConversion: {
+          kdfConfig,
+          keyConnectorUrl,
+          organizationSsoIdentifier: "sso-identifier-2",
+        },
+      });
+
+      expect(output).toEqual({
+        global_account_accounts: accounts,
+        user_user1_keyConnector_newSsoUserKeyConnectorConversion: {
+          kdfConfig,
+          keyConnectorUrl,
+          organizationSsoIdentifier: "sso-identifier-1",
+        },
+        user_user2_keyConnector_newSsoUserKeyConnectorConversion: {
+          kdfConfig,
+          keyConnectorUrl,
+          organizationSsoIdentifier: "sso-identifier-2",
+        },
+      });
+    });
+
+    it("does nothing when no account has conversion data", async () => {
+      const input = { global_account_accounts: accounts };
+
+      const output = await runMigrator(sut, input);
+
+      expect(output).toEqual(input);
+    });
+
+    it("leaves null conversion data unchanged", async () => {
       const output = await runMigrator(sut, {
         global_account_accounts: accounts,
         user_user1_keyConnector_newSsoUserKeyConnectorConversion: null,
