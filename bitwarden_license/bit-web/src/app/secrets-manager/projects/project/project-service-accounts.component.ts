@@ -5,12 +5,12 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Subject, switchMap, takeUntil } from "rxjs";
 
+import { AccessPolicyService, ProjectServiceAccountsAccessPoliciesView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
-import { ProjectServiceAccountsAccessPoliciesView } from "../../models/view/access-policies/project-service-accounts-access-policies.view";
 import {
   ApItemValueType,
   convertToProjectServiceAccountsAccessPoliciesView,
@@ -20,7 +20,6 @@ import {
   convertPotentialGranteesToApItemViewType,
   convertProjectServiceAccountsViewToApItemViews,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

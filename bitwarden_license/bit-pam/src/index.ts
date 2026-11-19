@@ -56,6 +56,11 @@ export { conflictingCollectionIds } from "./helpers/collection-conflicts";
 export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
+  badgesFromMyRequests,
+  listedBadgeFor,
+  nextRequestListChangeMs,
+} from "./helpers/request-list-badges";
+export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
   accessRuleMatchesFilter,
@@ -63,9 +68,11 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
+export { unactivatedApprovedRequest } from "./helpers/unactivated-approved-request";
 export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";

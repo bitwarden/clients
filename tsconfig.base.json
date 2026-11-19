@@ -32,6 +32,7 @@
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
       "@bitwarden/bit-pam": ["./bitwarden_license/bit-pam/src"],
       "@bitwarden/bit-pam-components": ["./bitwarden_license/bit-pam-components/src"],
+      "@bitwarden/bit-sm": ["./bitwarden_license/bit-sm/src"],
       "@bitwarden/browser/*": ["./apps/browser/src/*"],
       "@bitwarden/cli/*": ["./apps/cli/src/*"],
       "@bitwarden/client-type": ["./libs/client-type/src/index.ts"],

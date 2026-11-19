@@ -458,6 +458,7 @@ export class Program extends BaseProgram {
         const command = new UpdateCommand(
           this.serviceContainer.platformUtilsService,
           this.serviceContainer.apiService,
+          this.serviceContainer.licenseType,
         );
         const response = await command.run();
         this.processResponse(response);

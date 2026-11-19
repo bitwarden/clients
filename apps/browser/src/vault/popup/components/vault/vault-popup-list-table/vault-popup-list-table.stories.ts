@@ -26,7 +26,9 @@ import {
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -41,6 +43,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -48,6 +51,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CalloutModule,
@@ -93,6 +97,18 @@ import { VaultPopupTourService } from "../../../services/vault-popup-tour.servic
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 // Real `CipherView` instances rather than hand-mocked shapes: the row reads derived values (e.g. the
 // `subTitle` getter that surfaces a login's username) straight off the model, so building the actual
@@ -211,9 +227,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => crypto.randomUUID());
 
-  const organization = new Organization();
-  organization.id = organizationId;
-  organization.productTierType = productTierType;
+  const organization = buildTestOrganization({
+    id: organizationId,
+    productTierType,
+  });
 
   const collections = collectionNames.map(
     (name, i) =>
@@ -353,7 +370,7 @@ const inSharedFolders = (
   cipher: CipherView,
   folders: typeof SHARED_FOLDER_OPTIONS,
 ): PopupCipherViewLike => {
-  const organization = new Organization();
+  const organization = buildTestOrganization();
   organization.id = "org-engineering" as OrganizationId;
   organization.productTierType = ProductTierType.Enterprise;
 
@@ -695,6 +712,7 @@ const buildProviders = (args: StoryArgs) => {
         getUser: () => ({ update: async () => {} }),
       },
     },
+    { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
     {
       provide: RestrictedItemTypesService,
       useValue: { restricted$: of([]) },
