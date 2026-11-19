@@ -265,6 +265,10 @@ Two services drive every refresh:
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
 
+`PamRevealedCipherService` also reads a held view again on a `SyncCipherUpdate` push, since core sync
+keeps the stored restricted copy during a lease and so never sees the edit. The extension's
+`PamLeaseRefreshService` does the same for its held copies.
+
 Page-level services reload on these streams. `MyAccessService` listens on
 `AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
 elsewhere in this client (the request dialog, the vault) updates its tabs and counts even when the
