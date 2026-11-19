@@ -230,11 +230,14 @@ export class PamApprovalsTabComponent {
    * Whether the loading region replaces the tab. It covers all of the first load but later only the
    * skeleton's time, so a reload of an empty inbox keeps its empty state up.
    */
-  protected readonly loadingVisible = computed(() =>
-    this.hasLoadedOnce()
-      ? this.skeletonVisible()
-      : (this.loading() || this.showSkeleton()) && !this.hasRows(),
-  );
+  protected readonly loadingVisible = computed(() => {
+    if (this.hasLoadedOnce()) {
+      return this.skeletonVisible();
+    }
+
+    const loading = this.loading() || this.showSkeleton();
+    return loading && !this.hasRows();
+  });
 
   /** Five rows fill the table's space without implying a real row count. */
   protected readonly skeletonRows = 5;
