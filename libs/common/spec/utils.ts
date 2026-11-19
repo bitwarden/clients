@@ -12,6 +12,9 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
+import { PermissionsApi } from "../src/admin-console/models/api/permissions.api";
+import { OrganizationData } from "../src/admin-console/models/data/organization.data";
+import { Organization } from "../src/admin-console/models/domain/organization";
 import { Utils } from "../src/platform/misc/utils";
 
 function newGuid() {
@@ -31,6 +34,22 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
   constructor?: new () => T,
 ): T {
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
+}
+
+/**
+ * Builds an `Organization` for use in tests, with all fields defaulted (mostly `undefined`)
+ * except for the given overrides.
+ */
+export function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
 }
 
 export function mockEnc(s: string): MockProxy<EncString> {

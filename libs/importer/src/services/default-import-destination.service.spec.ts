@@ -13,7 +13,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { buildTestOrganization, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -36,7 +36,7 @@ function org(
   productTierType = ProductTierType.Teams,
   access: { enabled?: boolean; status?: OrganizationUserStatusType } = {},
 ): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id,
     name,
     productTierType,
