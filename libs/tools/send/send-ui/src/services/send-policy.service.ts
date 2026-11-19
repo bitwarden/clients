@@ -121,7 +121,9 @@ export class SendPolicyService {
             (p) => p.data.allowedSendTypes ?? [],
           );
           const restrictedTypes = [...new Set(allowedSendTypes)];
-          return restrictedTypes.length === 0 ? [SendType.Text, SendType.File] : restrictedTypes;
+          return restrictedTypes.length === 0
+            ? [SendType.Text, SendType.File, SendType.Item]
+            : restrictedTypes;
         }),
       ),
     ),
