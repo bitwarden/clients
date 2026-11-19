@@ -32,7 +32,7 @@ export class SsoLoginCredentials {
     public code: string,
     public codeVerifier: string,
     public redirectUrl: string,
-    public orgId: string,
+    public orgSsoIdentifier: string,
     /**
      * Optional email address for SSO login.
      * Used for looking up 2FA token on clients that support remembering 2FA token.

@@ -30,10 +30,10 @@ export class SsoLoginStrategyData implements LoginStrategyData {
    */
   readonly email?: string;
   /**
-   * The organization ID that the user is logging into. Used for Key Connector
-   * purposes after authentication.
+   * The SSO identifier of the organization that the user is logging into.
+   * Used for Key Connector purposes after authentication.
    */
-  readonly orgId: string;
+  readonly orgSsoIdentifier: string;
   /**
    * A token provided by the server as an authentication factor for sending
    * email OTPs to the user's configured 2FA email address. This is required
@@ -45,7 +45,7 @@ export class SsoLoginStrategyData implements LoginStrategyData {
     this.tokenRequest = fields.tokenRequest;
     this.userEnteredEmail = fields.userEnteredEmail;
     this.email = fields.email;
-    this.orgId = fields.orgId;
+    this.orgSsoIdentifier = fields.orgSsoIdentifier;
     this.ssoEmail2FaSessionToken = fields.ssoEmail2FaSessionToken;
   }
 
@@ -63,9 +63,9 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
    */
   email$: Observable<string | undefined>;
   /**
-   * @see {@link SsoLoginStrategyData.orgId}
+   * @see {@link SsoLoginStrategyData.orgSsoIdentifier}
    */
-  orgId$: Observable<string | undefined>;
+  orgSsoIdentifier$: Observable<string | undefined>;
   /**
    * @see {@link SsoLoginStrategyData.ssoEmail2FaSessionToken}
    */
@@ -85,7 +85,7 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
 
     this.cache = new BehaviorSubject(data);
     this.email$ = this.cache.pipe(map((state) => state?.email));
-    this.orgId$ = this.cache.pipe(map((state) => state?.orgId));
+    this.orgSsoIdentifier$ = this.cache.pipe(map((state) => state?.orgSsoIdentifier));
     this.ssoEmail2FaSessionToken$ = this.cache.pipe(map((state) => state?.ssoEmail2FaSessionToken));
   }
 
@@ -106,7 +106,7 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
       new SsoLoginStrategyData({
         tokenRequest,
         userEnteredEmail: credentials.email,
-        orgId: credentials.orgId,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
       }),
     );
 
@@ -160,7 +160,7 @@ export class SsoLoginStrategy extends LoginStrategy<SsoLoginStrategyData> {
         {
           kdfConfig: tokenResponse.kdfConfig,
           keyConnectorUrl: newUserKeyConnectorUrl,
-          organizationId: this.getLoginStrategyDataOrThrow().orgId,
+          organizationSsoIdentifier: this.getLoginStrategyDataOrThrow().orgSsoIdentifier,
         },
         userId,
       );

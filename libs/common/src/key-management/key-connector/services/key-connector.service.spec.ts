@@ -83,7 +83,7 @@ describe("KeyConnectorService", () => {
   const conversion: NewSsoUserKeyConnectorConversion = {
     kdfConfig: new PBKDF2KdfConfig(600_000),
     keyConnectorUrl,
-    organizationId: mockSsoOrgIdentifier,
+    organizationSsoIdentifier: mockSsoOrgIdentifier,
   };
 
   beforeEach(() => {
@@ -635,7 +635,7 @@ describe("KeyConnectorService", () => {
           const conversion: NewSsoUserKeyConnectorConversion = {
             kdfConfig: expectedKdfConfig,
             keyConnectorUrl: keyConnectorUrl,
-            organizationId: mockSsoOrgIdentifier,
+            organizationSsoIdentifier: mockSsoOrgIdentifier,
           };
           const conversionState = stateProvider.singleUser.getFake(
             mockUserId,
@@ -762,7 +762,7 @@ describe("KeyConnectorService", () => {
       const existingConversion: NewSsoUserKeyConnectorConversion = {
         kdfConfig: new Argon2KdfConfig(3, 64, 4),
         keyConnectorUrl: "https://old.example.com",
-        organizationId: "old-org-id" as OrganizationId,
+        organizationSsoIdentifier: "old-sso-org-id",
       };
       state.nextState(existingConversion);
 
@@ -785,7 +785,7 @@ describe("KeyConnectorService", () => {
 
       expect(data).toEqual({
         keyConnectorUrl: conversion.keyConnectorUrl,
-        organizationSsoIdentifier: conversion.organizationId,
+        organizationSsoIdentifier: conversion.organizationSsoIdentifier,
       });
     });
 

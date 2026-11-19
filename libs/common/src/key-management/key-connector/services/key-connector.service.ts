@@ -67,7 +67,7 @@ export const NEW_SSO_USER_KEY_CONNECTOR_CONVERSION =
                   ? PBKDF2KdfConfig.fromJSON(conversion.kdfConfig)
                   : Argon2KdfConfig.fromJSON(conversion.kdfConfig),
               keyConnectorUrl: conversion.keyConnectorUrl,
-              organizationId: conversion.organizationId,
+              organizationSsoIdentifier: conversion.organizationSsoIdentifier,
             },
       clearOn: ["logout"],
       cleanupDelayMs: 0,
@@ -169,7 +169,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       throw new Error("Key Connector conversion not found");
     }
 
-    const { kdfConfig, keyConnectorUrl, organizationId: ssoOrganizationIdentifier } = conversion;
+    const { kdfConfig, keyConnectorUrl, organizationSsoIdentifier } = conversion;
 
     if (
       await firstValueFrom(
@@ -181,14 +181,14 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       await this.convertNewSsoUserToKeyConnectorV2(
         userId,
         keyConnectorUrl,
-        ssoOrganizationIdentifier,
+        organizationSsoIdentifier,
       );
     } else {
       await this.convertNewSsoUserToKeyConnectorV1(
         userId,
         kdfConfig,
         keyConnectorUrl,
-        ssoOrganizationIdentifier,
+        organizationSsoIdentifier,
       );
     }
 
@@ -303,7 +303,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         data != null
           ? {
               keyConnectorUrl: data.keyConnectorUrl,
-              organizationSsoIdentifier: data.organizationId,
+              organizationSsoIdentifier: data.organizationSsoIdentifier,
             }
           : null,
       ),

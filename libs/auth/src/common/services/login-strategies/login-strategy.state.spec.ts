@@ -95,7 +95,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
           twoFactorRequest,
           deviceRequest,
         ),
-        orgId: "ORG_ID",
+        orgSsoIdentifier: "ORG_SSO_IDENTIFIER",
       }),
     };
 

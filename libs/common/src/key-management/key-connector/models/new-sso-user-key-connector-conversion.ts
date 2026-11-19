@@ -5,6 +5,5 @@ import { KdfConfig } from "@bitwarden/legacy-crypto";
 export interface NewSsoUserKeyConnectorConversion {
   kdfConfig: KdfConfig;
   keyConnectorUrl: string;
-  // SSO organization identifier, not UUID
-  organizationId: string;
+  organizationSsoIdentifier: string;
 }
