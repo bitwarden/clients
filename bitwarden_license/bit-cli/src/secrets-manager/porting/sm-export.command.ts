@@ -1,3 +1,5 @@
+import * as path from "path";
+
 import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
@@ -39,6 +41,11 @@ export class SmExportCommand {
       return Response.error("Only organization owners and admins can export Secrets Manager data.");
     }
 
+    const outputError = this.validateOutput(options);
+    if (outputError) {
+      return outputError;
+    }
+
     const verificationError = await this.verifyMasterPassword(options);
     if (verificationError) {
       return verificationError;
@@ -68,6 +75,27 @@ export class SmExportCommand {
     } catch (e) {
       return Response.error(String(e));
     }
+  }
+
+  /**
+   * Secrets Manager exports are always JSON, so reject output file names with any other extension.
+   * Directories (trailing separator) and extensionless names are allowed. Not applicable under
+   * `bw serve`, which never writes a file.
+   */
+  private validateOutput(options: SmExportOptions): Response | undefined {
+    if (process.env.BW_SERVE === "true" || Utils.isNullOrWhitespace(options.output)) {
+      return undefined;
+    }
+    if (options.output.endsWith("/") || options.output.endsWith(path.sep)) {
+      return undefined;
+    }
+    const extension = path.extname(options.output);
+    if (extension !== "" && extension.toLowerCase() !== ".json") {
+      return Response.badRequest(
+        `Unsupported output file extension "${extension}". Secrets Manager exports are JSON; use a ".json" file name or a directory.`,
+      );
+    }
+    return undefined;
   }
 
   /**
