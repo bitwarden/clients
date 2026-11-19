@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, take, withLatestFrom } from "rxjs";
+import { combineLatest, filter, map, Observable, of, switchMap, take, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
@@ -112,7 +112,9 @@ export class OrganizationLayoutComponent {
     this.userId$,
   ]).pipe(
     switchMap(([organization, userId]) =>
-      this.providerService.get$(organization.providerId, userId),
+      organization.providerId == null
+        ? of(undefined)
+        : this.providerService.get$(organization.providerId, userId),
     ),
   );
 
