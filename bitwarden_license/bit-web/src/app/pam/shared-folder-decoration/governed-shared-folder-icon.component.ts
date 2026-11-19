@@ -7,6 +7,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { IconModule, TooltipDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { controlledSharedFolder } from "./controlled-shared-folder";
+
 /**
  * Binds `SHARED_FOLDER_DECORATION`: the lock beside a shared folder an access rule governs, read
  * off the collection's server-derived `hasEnabledAccessRule`. Renders nothing for any other folder,
@@ -36,6 +38,6 @@ export class GovernedSharedFolderIconComponent {
   });
 
   protected readonly governed = computed(
-    () => this.pamEnabled() && this.collection().hasEnabledAccessRule === true,
+    () => this.pamEnabled() && controlledSharedFolder(this.collection()),
   );
 }

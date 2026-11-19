@@ -18884,6 +18884,26 @@
   "pamSharedFolderPrivilegedControls": {
     "message": "Privileged controls: access requires a request"
   },
+  "pamSharedFolderFieldHintSingular": {
+    "message": "You'll need an approved access request to use this item. $NAMES$ has controlled access.",
+    "description": "Hint under the Shared folders field in the add/edit item form, shown when exactly one selected shared folder is under controlled access. The placeholder is that folder's name, which is shown in italics. Screen readers announce this hint when the selection changes.",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "Production servers"
+      }
+    }
+  },
+  "pamSharedFolderFieldHintPlural": {
+    "message": "You'll need an approved access request to use this item. $NAMES$ have controlled access.",
+    "description": "Hint under the Shared folders field in the add/edit item form, shown when two or more selected shared folders are under controlled access. The placeholder is the folder names, already joined as a localized list (for example \"A, B, and C\") and shown in italics. Screen readers announce this hint when the selection changes.",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "Production servers, Databases, and Network"
+      }
+    }
+  },
   "pamAccessBadgePrivileged": {
     "message": "Privileged"
   },
