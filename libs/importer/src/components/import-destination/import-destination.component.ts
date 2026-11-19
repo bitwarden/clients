@@ -606,14 +606,18 @@ export class ImportDestinationComponent {
     // Shown as toasts, as in credential parsing. A mismatch comes only from the encrypted Bitwarden
     // JSON importer.
     if (error instanceof ImportResultError) {
-      const toastKey =
-        error.errorKey === ImportResultErrorKey.AccountMismatch
-          ? "importEncryptionKeyMismatch"
-          : error.errorKey === ImportResultErrorKey.TooMuchData
-            ? "importTooMuchData"
-            : error.errorKey === ImportResultErrorKey.NothingImported
-              ? "importFileEmpty"
-              : undefined;
+      let toastKey: string | undefined;
+      switch (error.errorKey) {
+        case ImportResultErrorKey.AccountMismatch:
+          toastKey = "importEncryptionKeyMismatch";
+          break;
+        case ImportResultErrorKey.TooMuchData:
+          toastKey = "importTooMuchData";
+          break;
+        case ImportResultErrorKey.NothingImported:
+          toastKey = "importFileEmpty";
+          break;
+      }
       if (toastKey != null) {
         this.toastService.showToast({
           variant: "error",
