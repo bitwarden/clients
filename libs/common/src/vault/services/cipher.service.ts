@@ -1095,6 +1095,11 @@ export class CipherService implements CipherServiceAbstraction {
       await this.delete(cipher.id, userId);
       return undefined;
     }
+    // The change left the cipher reachable only through privileged collections, so the result is
+    // restricted and cannot be encrypted. The SDK already stored it, so return the stored copy.
+    if (CipherViewLikeUtils.isRestricted(cipherView)) {
+      return (await this.get(cipher.id, userId)) ?? undefined;
+    }
     const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
     return encryptResult.cipher;
   }

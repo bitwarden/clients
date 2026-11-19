@@ -2103,5 +2103,20 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
       expect(result).toBeUndefined();
     });
+
+    it("returns the stored cipher without encrypting when the result is restricted", async () => {
+      const restrictedView = new CipherView(cipher);
+      restrictedView.partial = true;
+      const storedCipher = new Cipher(cipherData);
+
+      jest.spyOn(cipherSdkService, "saveCollectionsWithServer").mockResolvedValue(restrictedView);
+      const getSpy = jest.spyOn(cipherService, "get").mockResolvedValue(storedCipher);
+
+      const result = await cipherService.saveCollectionsWithServer(cipher, mockUserId);
+
+      expect(getSpy).toHaveBeenCalledWith(cipher.id, mockUserId);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+      expect(result).toBe(storedCipher);
+    });
   });
 });
