@@ -23,6 +23,7 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 import { cleanUserAgent, DEV_ICON_FILE, isDev } from "../utils";
 
 import {
+  isFlatpak,
   isLinux,
   isMac,
   isMacAppStore,
@@ -101,6 +102,32 @@ export function isConfinedSnap() {
     return false; // can't confirm -> treat as not-snap -> isolate
   }
 }
+
+/**
+ * Whether file dialogs must avoid xdg-desktop-portal on this build.
+ *
+ * Chromium's Linux file dialogs go through the portal, and the portal identifies a caller by
+ * opening `/proc/<pid>/root`. Process isolation (`PR_SET_DUMPABLE=0`, applied in
+ * {@link WindowMain.init}) makes that path root-only, so the portal refuses every FileChooser
+ * request with `AccessDenied` and Chromium cancels silently: no attachment, import, export or
+ * download dialog ever appears. Upstream considers the refusal correct
+ * (https://github.com/flatpak/xdg-desktop-portal/issues/1490), so the app avoids the portal
+ * instead and lets Chromium use its toolkit (GTK, or kdialog on KDE) dialogs.
+ *
+ * True for the builds that are isolated and can show a toolkit dialog themselves: deb, rpm,
+ * AppImage, tar.gz and distro packages. Snap is never isolated, so its portal dialogs work.
+ * Flatpak needs the portal to reach files outside its sandbox, and its portal calls succeed
+ * because Flatpak's D-Bus proxy identifies the app on its behalf.
+ */
+export function shouldBypassXdgPortalFileDialogs(): boolean {
+  return isLinux() && !isConfinedSnap() && !isFlatpak();
+}
+
+/**
+ * Value for Chromium's `--xdg-portal-required-version` switch. No portal reports this version,
+ * so Chromium never picks the portal and falls back to its toolkit file dialogs.
+ */
+export const XDG_PORTAL_BYPASS_REQUIRED_VERSION = "999";
 
 export class WindowMain {
   win: BrowserWindow;
@@ -276,7 +303,10 @@ export class WindowMain {
           this.setupAppProtocol();
 
           if (!isDev()) {
-            // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            // Isolation stops xdg-desktop-portal from identifying this process
+            // (https://github.com/flatpak/xdg-desktop-portal/issues/785). Snap depends on the
+            // portal, so it stays dumpable; the other Linux builds keep isolation and bypass the
+            // portal for file dialogs instead, see shouldBypassXdgPortalFileDialogs().
             if (!isConfinedSnap()) {
               this.logService.info(
                 "[Process Isolation] Isolating process from debuggers and memory dumps",

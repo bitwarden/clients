@@ -228,6 +228,7 @@ import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-ite
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { InitService } from "./init.service";
+import { NativeFilePickerService } from "./native-file-picker.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
@@ -404,6 +405,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: FileDownloadService,
     useClass: DesktopFileDownloadService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: NativeFilePickerService,
+    useClass: NativeFilePickerService,
     deps: [],
   }),
   safeProvider({

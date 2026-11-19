@@ -66,11 +66,16 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { OnePasswordSsoMain } from "./main/tools/import/onepassword-sso.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
-import { WindowMain } from "./main/window.main";
+import {
+  shouldBypassXdgPortalFileDialogs,
+  WindowMain,
+  XDG_PORTAL_BYPASS_REQUIRED_VERSION,
+} from "./main/window.main";
 import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { FilePickerMain } from "./platform/main/file-picker.main";
 import { MainSdkService } from "./platform/main/main-sdk.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
@@ -109,6 +114,7 @@ export class Main {
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  filePickerMain: FilePickerMain;
   desktopAutofillMain: DesktopAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
@@ -132,6 +138,14 @@ export class Main {
       appDataPath = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "bitwarden-appdata");
     } else if (process.platform === "linux" && process.env.SNAP_USER_DATA != null) {
       appDataPath = path.join(process.env.SNAP_USER_DATA, "appdata");
+    }
+
+    // Chromium reads its command line switches before "ready", so this has to happen here.
+    if (shouldBypassXdgPortalFileDialogs()) {
+      app.commandLine.appendSwitch(
+        "xdg-portal-required-version",
+        XDG_PORTAL_BYPASS_REQUIRED_VERSION,
+      );
     }
 
     app.on("ready", () => {
@@ -364,6 +378,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.filePickerMain = new FilePickerMain(this.i18nService);
+    this.filePickerMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 

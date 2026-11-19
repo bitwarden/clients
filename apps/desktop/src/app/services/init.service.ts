@@ -1,4 +1,4 @@
-import { Inject, Injectable, DOCUMENT } from "@angular/core";
+import { Inject, Injectable, DOCUMENT, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
@@ -35,10 +35,13 @@ import { VersionService } from "../../platform/services/version.service";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
+import { NativeFilePickerService } from "./native-file-picker.service";
 import { UpdateRestartService } from "./update-restart.service";
 
 @Injectable()
 export class InitService {
+  private readonly nativeFilePickerService = inject(NativeFilePickerService);
+
   constructor(
     @Inject(WINDOW) private win: Window,
     private vaultTimeoutService: DefaultVaultTimeoutService,
@@ -81,6 +84,7 @@ export class InitService {
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
+      await this.nativeFilePickerService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
       const accounts = await firstValueFrom(this.accountService.accounts$);

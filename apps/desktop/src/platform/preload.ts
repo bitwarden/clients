@@ -27,6 +27,7 @@ import {
 import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
+import { PickedFile, PickFilesOptions } from "./types/file-picker";
 
 type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
 type MessagingServiceCallback = (message: MessagingServiceMessage) => void;
@@ -179,6 +180,12 @@ export default {
   },
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),
+
+  filePicker: {
+    isEnabled: (): Promise<boolean> => ipcRenderer.invoke("filePicker.isEnabled"),
+    pickFiles: (options: PickFilesOptions): Promise<PickedFile[] | null> =>
+      ipcRenderer.invoke("filePicker.pickFiles", options),
+  },
 
   storage,
   passwords,
