@@ -35,6 +35,7 @@ describe("MainSshAgentService", () => {
 
   let capturedSignCb: (err: Error | null, data: sshagent.SignRequestData) => Promise<boolean>;
   let capturedListCb: (err: Error | null) => Promise<boolean>;
+  let capturedActivityCb: (err: Error | null, data: sshagent.ActivityData) => void;
 
   beforeEach(async () => {
     ipcHandlers = new Map();
@@ -61,9 +62,10 @@ describe("MainSshAgentService", () => {
     });
 
     (sshagent.SshAgentState.serve as jest.Mock).mockImplementation(
-      (sign: Function, list: Function) => {
+      (sign: Function, list: Function, activity: Function) => {
         capturedSignCb = sign as any;
         capturedListCb = list as any;
+        capturedActivityCb = activity as any;
         return Promise.resolve(mockAgentState);
       },
     );
@@ -83,6 +85,7 @@ describe("MainSshAgentService", () => {
       "sshagent.signrequestresponse",
       "sshagent.stop",
       "sshagent.listkeysresponse",
+      "sshagent.activitylog",
     ])("should register the %s IPC handler", (channel) => {
       expect(ipcHandlers.has(channel)).toBe(true);
     });
@@ -109,8 +112,9 @@ describe("MainSshAgentService", () => {
   });
 
   describe("sshagent.init IPC handler", () => {
-    it("should call sshagent.SshAgentState.serve with sign and list callbacks", () => {
+    it("should call sshagent.SshAgentState.serve with sign, list and activity callbacks", () => {
       expect(sshagent.SshAgentState.serve).toHaveBeenCalledWith(
+        expect.any(Function),
         expect.any(Function),
         expect.any(Function),
       );
@@ -253,6 +257,59 @@ describe("MainSshAgentService", () => {
       await Promise.resolve();
 
       expect(sshagent.SshAgentState.serve).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("activity log", () => {
+    const activity = (command: string): sshagent.ActivityData =>
+      ({
+        operation: "sign",
+        outcome: "allowed",
+        cipherId: "cipher-1",
+        command,
+        callerApp: "claude",
+        hostApp: "iTerm2",
+        isForwarding: false,
+      }) as sshagent.ActivityData;
+
+    const activityLog = () => ipcHandlers.get("sshagent.activitylog")!({});
+
+    it("should return recorded activity newest first", async () => {
+      capturedActivityCb(null, activity("ssh first"));
+      capturedActivityCb(null, activity("ssh second"));
+
+      const log = await activityLog();
+
+      expect(log.map((entry: { command: string }) => entry.command)).toEqual([
+        "ssh second",
+        "ssh first",
+      ]);
+      expect(log[0]).toMatchObject({ callerApp: "claude", hostApp: "iTerm2", outcome: "allowed" });
+    });
+
+    it("should notify the renderer of new activity", () => {
+      capturedActivityCb(null, activity("ssh -t example.com"));
+
+      expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.activity");
+    });
+
+    it("should keep at most 500 entries", async () => {
+      for (let i = 0; i < 501; i++) {
+        capturedActivityCb(null, activity(`ssh ${i}`));
+      }
+
+      const log = await activityLog();
+
+      expect(log).toHaveLength(500);
+      expect(log[0].command).toBe("ssh 500");
+    });
+
+    it("should clear when the agent stops", async () => {
+      capturedActivityCb(null, activity("ssh -t example.com"));
+
+      await ipcHandlers.get("sshagent.stop")!({});
+
+      expect(await activityLog()).toEqual([]);
     });
   });
 });

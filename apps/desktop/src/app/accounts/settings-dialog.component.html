@@ -240,6 +240,16 @@
             />
             <bit-hint>{{ "sshAgentPromptBehaviorDesc" | i18n }}</bit-hint>
           </bit-form-field>
+          <button
+            type="button"
+            id="settings_button_ssh-agent-activity"
+            bitLink
+            class="tw-mb-4"
+            (click)="openSshAgentActivity()"
+            data-testid="settings-ssh-agent-activity-button"
+          >
+            {{ "viewSshAgentActivity" | i18n }}
+          </button>
         }
 
         @if (!isLinux) {

@@ -759,6 +759,57 @@
   "sshAgentPromptBehaviorDesc": {
     "message": "Choose how to handle SSH-agent authorization requests."
   },
+  "viewSshAgentActivity": {
+    "message": "View SSH agent activity"
+  },
+  "sshAgentActivity": {
+    "message": "SSH agent activity"
+  },
+  "sshAgentActivityDesc": {
+    "message": "Apps that used the SSH agent since it started, newest first."
+  },
+  "sshAgentActivityTime": {
+    "message": "Time"
+  },
+  "sshAgentActivityApp": {
+    "message": "App"
+  },
+  "sshAgentActivityCommand": {
+    "message": "Command"
+  },
+  "sshAgentActivityRequest": {
+    "message": "Request"
+  },
+  "sshAgentActivityResult": {
+    "message": "Result"
+  },
+  "sshAgentActivityListKeys": {
+    "message": "list keys"
+  },
+  "sshAgentActivityForwarded": {
+    "message": "Forwarded"
+  },
+  "sshAgentActivityAllowed": {
+    "message": "Allowed"
+  },
+  "sshAgentActivityDenied": {
+    "message": "Denied"
+  },
+  "sshAgentActivityFailed": {
+    "message": "Failed"
+  },
+  "sshAgentActivityEmpty": {
+    "message": "No activity yet"
+  },
+  "sshAgentActivityHostApp": {
+    "message": "in $APP$",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "iTerm2"
+      }
+    }
+  },
   "sshAgentPromptBehaviorHelp": {
     "message": "Remember SSH authorizations"
   },

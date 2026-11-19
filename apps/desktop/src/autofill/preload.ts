@@ -5,6 +5,7 @@ import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import { SshAgentActivity } from "./models/ssh-agent-activity";
 
 const sshAgent = {
   init: async () => {
@@ -22,6 +23,9 @@ const sshAgent = {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
+  activityLog(): Promise<SshAgentActivity[]> {
+    return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG);
+  },
 };
 
 // MVP, delete with PM-41067

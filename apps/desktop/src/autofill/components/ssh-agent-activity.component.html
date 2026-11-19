@@ -1,0 +1,68 @@
+<bit-dialog dialogSize="large" data-testid="ssh-agent-activity-dialog">
+  <span bitDialogTitle>{{ "sshAgentActivity" | i18n }}</span>
+  <div bitDialogContent>
+    <p>{{ "sshAgentActivityDesc" | i18n }}</p>
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "sshAgentActivityTime" | i18n }}</th>
+          <th bitCell>{{ "sshAgentActivityApp" | i18n }}</th>
+          <th bitCell>{{ "sshAgentActivityRequest" | i18n }}</th>
+          <th bitCell>{{ "sshAgentActivityResult" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of rows(); track $index) {
+          <tr bitRow data-testid="ssh-agent-activity-row">
+            <td bitCell class="tw-text-sm">{{ row.timestamp | date: "short" }}</td>
+            <td bitCell>
+              <div data-testid="ssh-agent-activity-app">
+                {{ row.app }}
+                @if (row.hostApp) {
+                  <span class="tw-text-muted">
+                    {{ "sshAgentActivityHostApp" | i18n: row.hostApp }}
+                  </span>
+                }
+              </div>
+              <!-- Commands can be long, e.g. with many -o options; wrap anywhere. -->
+              <div
+                class="tw-break-all tw-font-mono tw-text-sm tw-text-muted"
+                [attr.title]="'sshAgentActivityCommand' | i18n"
+                data-testid="ssh-agent-activity-command"
+              >
+                {{ row.command }}
+              </div>
+            </td>
+            <td bitCell data-testid="ssh-agent-activity-request">
+              {{ row.requestKey | i18n }}
+              @if (row.keyName) {
+                <div class="tw-text-sm tw-text-muted">{{ row.keyName }}</div>
+              }
+              @if (row.isForwarding) {
+                <div class="tw-text-sm tw-text-muted">{{ "sshAgentActivityForwarded" | i18n }}</div>
+              }
+            </td>
+            <td bitCell data-testid="ssh-agent-activity-result">{{ row.outcomeKey | i18n }}</td>
+          </tr>
+        } @empty {
+          <tr bitRow>
+            <td bitCell colspan="4" class="tw-text-center tw-text-muted">
+              {{ "sshAgentActivityEmpty" | i18n }}
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      id="ssh-agent-activity_button_close"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+    >
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

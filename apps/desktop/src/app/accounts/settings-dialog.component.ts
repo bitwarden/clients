@@ -69,6 +69,7 @@ import {
 } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { SshAgentActivityComponent } from "../../autofill/components/ssh-agent-activity.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import {
@@ -725,6 +726,10 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  protected openSshAgentActivity() {
+    SshAgentActivityComponent.open(this.dialogService);
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
