@@ -16,6 +16,7 @@ import {
   inject,
   input,
   signal,
+  linkedSignal,
   viewChild,
   viewChildren,
 } from "@angular/core";
@@ -73,6 +74,9 @@ import {
   flattenFilterOptions,
 } from "./filter-tokens";
 import { FilterTreeRowDirective } from "./filter-tree-row.directive";
+
+/** What the chip itself renders, committed as one unit. @see FilterMenuComponent.committedLook */
+type ChipLook = { active: boolean; count: number; label: string };
 
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
@@ -328,19 +332,27 @@ export class FilterMenuComponent
     return this.multiple() ? Array.isArray(value) && value.length > 0 : value != null;
   });
 
-  /** The chip's display label: `prefix`, `prefix: unsetLabel`, or (single-select) `prefix: selected`. */
-  protected readonly displayLabel = computed(() => {
+  /**
+   * The chip's label as it would read right now: `prefix`, `prefix: unsetLabel`, or
+   * (single-select) `prefix: selected`. Committed with the rest of the chip's look rather than
+   * read directly, so it can't be half-deferred — which matters most for a single-select chip,
+   * since picking an option doesn't close the menu.
+   */
+  private readonly liveLabel = computed(() => {
     const prefix = this.placeholderText();
     // Single-select reflects the selected value in the label; multi-select doesn't.
     if (!this.multiple() && this.selected().length > 0) {
       return `${prefix}: ${this.summary()}`;
     }
-    if (this.committedActive()) {
+    if (this.active()) {
       return prefix;
     }
     const unsetLabel = this.unsetLabel();
     return unsetLabel ? `${prefix}: ${unsetLabel}` : prefix;
   });
+
+  /** @see committedLook */
+  protected readonly displayLabel = computed(() => this.committedLook().label);
 
   /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
   protected readonly showDisabledReason = computed(
@@ -365,17 +377,30 @@ export class FilterMenuComponent
   protected readonly menuOpen = computed(() => this.menuTrigger()?.isOpen() ?? false);
 
   /**
-   * What the chip itself renders, snapshotted while the menu is open so the chip does not change
-   * under the user mid-selection: the label, the chevron, the dismiss button and the berry all
-   * hold their last committed look until the menu closes.
+   * Everything the chip itself renders, committed as one unit so no part of it can move while
+   * another is held: the label, the chevron, the dismiss button and the berry.
+   *
+   * It keeps its previous value while the menu is open, so the chip doesn't change under the
+   * user mid-decision, and catches up the moment the menu closes — or immediately for a change
+   * made with the menu already closed (the applied-filters row, the chip's own dismiss button, a
+   * host-level clear, seeding).
    *
    * The live state stays in {@link active} and {@link selectedCount}, which the menu body and the
    * applied-filters row read — only the chip's own chrome is deferred.
    */
-  protected readonly committedActive = signal(false);
+  private readonly committedLook = linkedSignal<{ open: boolean; look: ChipLook }, ChipLook>({
+    source: () => ({
+      open: this.menuOpen(),
+      look: { active: this.active(), count: this.selectedCount(), label: this.liveLabel() },
+    }),
+    computation: (next, previous) => (next.open && previous ? previous.value : next.look),
+  });
 
-  /** @see committedActive — the berry's value, snapshotted with it. */
-  protected readonly committedCount = signal(0);
+  /** @see committedLook */
+  protected readonly committedActive = computed(() => this.committedLook().active);
+
+  /** @see committedLook — the berry's value. */
+  protected readonly committedCount = computed(() => this.committedLook().count);
 
   // `bitRadio` itself can't be used here: it drives `checked` and `name` from a form
   // control group this row doesn't have. Its classes are the same definition.
@@ -527,18 +552,6 @@ export class FilterMenuComponent
     effect(() => this.baseChip.selectedState.set(this.committedActive()));
     // Tighter trailing padding while the dismiss button shows.
     effect(() => this.baseChip.hasTrailingIcon.set(this.committedActive()));
-    /*
-     * The one place the chip's look is committed. While the menu is open it holds still; the
-     * moment it closes, and for any change made with it already closed (the applied-filters
-     * row, the chip's own dismiss button, a host-level clear, seeding), it catches up.
-     */
-    effect(() => {
-      if (this.menuOpen()) {
-        return;
-      }
-      this.committedActive.set(this.active());
-      this.committedCount.set(this.selectedCount());
-    });
   }
 
   ngOnInit(): void {

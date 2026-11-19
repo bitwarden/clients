@@ -776,3 +776,93 @@ describe("FilterMenuComponent host counts", () => {
     expect(filterHost.optionCounts).toHaveBeenCalledWith("vault", [["org-1"], ["org-2"]]);
   });
 });
+
+/*
+ * PAM-570 follow-up: a single-select chip shows its selection in the label, and picking an option
+ * doesn't close the menu — so the label is the part most able to drift out of step with the rest
+ * of the chip. It has to commit with everything else, not on its own.
+ */
+describe("FilterMenuComponent single-select label while the menu is open", () => {
+  let fixture: ComponentFixture<UnsetLabelHostComponent>;
+  let host: UnsetLabelHostComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UnsetLabelHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UnsetLabelHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  const triggerEl = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective)).nativeElement as HTMLElement;
+
+  /** The trigger toggles, so the same click opens and closes it. */
+  const toggleMenu = () => {
+    triggerEl().click();
+    fixture.detectChanges();
+  };
+
+  const label = () => triggerEl().textContent?.trim();
+
+  it("holds the committed label when the menu's All row clears the selection", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+    expect(label()).toBe("Type: Login");
+
+    toggleMenu();
+    host.single().clear();
+    fixture.detectChanges();
+
+    // Without committing the label as a unit this read "Type" — neither the old
+    // selection nor the new cleared state.
+    expect(label()).toBe("Type: Login");
+
+    toggleMenu();
+    expect(label()).toBe("Type: All");
+  });
+
+  it("holds the committed label while another option is picked", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+
+    toggleMenu();
+    host.single().toggle("card");
+    fixture.detectChanges();
+
+    expect(host.single().selections()).toEqual([{ value: "card", label: "Card" }]);
+    expect(label()).toBe("Type: Login");
+
+    toggleMenu();
+    expect(label()).toBe("Type: Card");
+  });
+
+  it("updates straight away when the selection changes with the menu closed", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+    expect(label()).toBe("Type: Login");
+
+    host.single().clear();
+    fixture.detectChanges();
+
+    expect(label()).toBe("Type: All");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #single key="type" placeholderText="Type" unsetLabel="All">
+      <bit-filter-option value="login">Login</bit-filter-option>
+      <bit-filter-option value="card">Card</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class UnsetLabelHostComponent {
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+}
