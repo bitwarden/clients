@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
+import { FillTarget } from "@bitwarden/common/autofill/types/fill-target";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
@@ -358,6 +359,105 @@ describe("AutofillService", () => {
       await tracker.pauseUntilReceived(1);
 
       expect(tracker.emissions[0]).toEqual([]);
+    });
+
+    it("collects frame 0 for a plain FillTarget and returns the browser response", () => {
+      const target: FillTarget = { id: tab.id, url: tab.url };
+      const details = createAutofillPageDetailsMock({ url: tab.url });
+      const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 0 });
+      const response = stampWebExtSender(
+        {
+          tab,
+          details,
+          sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+        },
+        sender,
+      );
+      const next = jest.fn();
+      const subscription = autofillService.collectPageDetailsFromTab$(target, 0).subscribe(next);
+
+      try {
+        expect(BrowserApi.tabSendMessage).toHaveBeenCalledTimes(1);
+        expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
+          target,
+          {
+            tab: target,
+            command: AutofillMessageCommand.collectPageDetails,
+            sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+          },
+          { frameId: 0 },
+          true,
+        );
+
+        messages.next(response);
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith([{ tab, frameId: 0, details }]);
+      } finally {
+        subscription.unsubscribe();
+      }
+    });
+
+    describe("when no page details arrive", () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("emits an empty array after one second when a valid tab stays silent", () => {
+        const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tab));
+
+        try {
+          expect(chrome.tabs.sendMessage).toHaveBeenCalledTimes(1);
+
+          jest.advanceTimersByTime(999);
+          expect(tracker.emissions).toEqual([]);
+
+          jest.advanceTimersByTime(1);
+          expect(tracker.emissions).toEqual([[]]);
+        } finally {
+          tracker.unsubscribe();
+        }
+      });
+
+      it("skips Chrome messaging when the tab has no ID and emits the timeout fallback", () => {
+        const tabWithoutId: FillTarget = { url: tab.url };
+        const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tabWithoutId));
+
+        try {
+          expect(chrome.tabs.sendMessage).not.toHaveBeenCalled();
+          expect(tracker.emissions).toEqual([]);
+
+          jest.advanceTimersByTime(1000);
+          expect(tracker.emissions).toEqual([[]]);
+        } finally {
+          tracker.unsubscribe();
+        }
+      });
+    });
+
+    it("replays the empty fallback when browser messaging fails before subscription", async () => {
+      const sendError = new Error("Could not establish connection");
+      const rejectedSend = Promise.reject(sendError);
+      jest.spyOn(BrowserApi, "tabSendMessage").mockReturnValueOnce(rejectedSend);
+
+      const pageDetails$ = autofillService.collectPageDetailsFromTab$(tab);
+      await rejectedSend.catch((): undefined => undefined);
+
+      const next = jest.fn();
+      const error = jest.fn();
+      const subscription = pageDetails$.subscribe({ next, error });
+
+      try {
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith([]);
+        expect(error).not.toHaveBeenCalled();
+      } finally {
+        subscription.unsubscribe();
+      }
     });
 
     ["moz-extension://", "chrome-extension://", "safari-web-extension://"].forEach(
@@ -860,7 +960,10 @@ describe("AutofillService", () => {
       });
     });
 
-    it("will autofill login data for a page", async () => {
+    it("fills login fields in the collected frame for a plain FillTarget", async () => {
+      const { id, url } = autofillOptions.pageDetails[0].tab;
+      autofillOptions.tab = { id, url };
+
       jest.spyOn(autofillService as any, "generateFillScript");
       jest.spyOn(autofillService as any, "generateLoginFillScript");
       jest.spyOn(logService, "info");

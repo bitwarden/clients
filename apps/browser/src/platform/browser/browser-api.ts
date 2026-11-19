@@ -416,7 +416,7 @@ export class BrowserApi {
   }
 
   static async tabSendMessage<T, TResponse = unknown>(
-    tab: chrome.tabs.Tab,
+    tab: Pick<chrome.tabs.Tab, "id">,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
     rejectOnError = false,

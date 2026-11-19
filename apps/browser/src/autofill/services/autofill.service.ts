@@ -24,6 +24,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
+import { FillTarget } from "@bitwarden/common/autofill/types/fill-target";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -133,7 +134,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param tab The tab to collect page details from
    * @param frameId When set, collect only this frame; otherwise collect every frame
    */
-  collectPageDetailsFromTab$(tab: chrome.tabs.Tab, frameId?: number): Observable<PageDetail[]> {
+  collectPageDetailsFromTab$(tab: FillTarget, frameId?: number): Observable<PageDetail[]> {
     /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
     const pageDetailsFallback$ = new ReplaySubject<PageDetail[]>(1);
 

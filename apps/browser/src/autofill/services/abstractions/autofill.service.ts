@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 
+import { FillTarget } from "@bitwarden/common/autofill/types/fill-target";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -21,7 +22,7 @@ export interface AutoFillOptions {
   cipher: CipherView;
   pageDetails: PageDetail[];
   doc?: typeof self.document;
-  tab: chrome.tabs.Tab;
+  tab: FillTarget;
   skipUsernameOnlyFill?: boolean;
   onlyEmptyFields?: boolean;
   fillNewPassword?: boolean;
@@ -83,7 +84,7 @@ export abstract class AutofillService {
   enableInlineMenuAnimation$!: Observable<boolean>;
   enableNotificationAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
-  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab, frameId?: number) => Observable<PageDetail[]>;
+  collectPageDetailsFromTab$!: (tab: FillTarget, frameId?: number) => Observable<PageDetail[]>;
   /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
   /** Non-null asserted. */

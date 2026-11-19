@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { FillTarget } from "@bitwarden/common/autofill/types/fill-target";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { withLatestReady } from "@bitwarden/common/tools/rx";
@@ -595,7 +596,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * foreground check fails, returns `undefined`. Otherwise returns the tab's description.
    */
   private async liveTargetTab(
-    target: chrome.tabs.Tab,
+    target: FillTarget,
     requireForeground: boolean,
   ): Promise<chrome.tabs.Tab | undefined> {
     let result: chrome.tabs.Tab | null | undefined;
