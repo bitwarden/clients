@@ -162,10 +162,9 @@ describe("WebLoginComponentService", () => {
       const mockMismatchedEmail = "mismatched@example.com";
       it("should clear the login redirect URL and organization invite", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         await service.getOrgPoliciesFromOrgInvite(mockEmail);
@@ -177,10 +176,9 @@ describe("WebLoginComponentService", () => {
 
       it("should log an error and return undefined", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
