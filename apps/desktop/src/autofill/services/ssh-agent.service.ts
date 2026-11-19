@@ -83,6 +83,23 @@ export class SshAgentService implements OnDestroy {
     @Optional() private leasedSshKeyService?: LeasedSshKeyService,
   ) {}
 
+  /**
+   * Live cipher views paired with the leased keys, after removing leased keys when not unlocked.
+   */
+  private keySources$(userId: UserId, status: AuthenticationStatus) {
+    return concat(
+      status === AuthenticationStatus.Unlocked ? EMPTY : this.leasedKeysRemoved$(),
+      combineLatest([
+        // Subscribe to live cipher data for the account.
+        this.cipherService
+          .cipherViews$(userId)
+          // Skip emissions before cipher data is available (e.g. during initial decrypt).
+          .pipe(filter((views) => views != null)),
+        this.leasedKeys$(userId, status),
+      ]),
+    );
+  }
+
   async init() {
     await this.initListeners();
   }
@@ -341,19 +358,7 @@ export class SshAgentService implements OnDestroy {
               // except leased keys, which are removed first.
               return from(this.ensureAgentRunning()).pipe(
                 // Not unlocked: ordinary keys stay for ssh-add -L, but a leased key leaves now.
-                switchMap(() =>
-                  concat(
-                    status === AuthenticationStatus.Unlocked ? EMPTY : this.leasedKeysRemoved$(),
-                    combineLatest([
-                      // Subscribe to live cipher data for the active account.
-                      this.cipherService
-                        .cipherViews$(account.id)
-                        // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                        .pipe(filter((views) => views != null)),
-                      this.leasedKeys$(account.id, status),
-                    ]),
-                  ),
-                ),
+                switchMap(() => this.keySources$(account.id, status)),
                 // Project to the SSH key fields needed by the agent.
                 map(([views, leased]) => this.withLeasedKeys(this.toAgentKeys(views), leased)),
                 // Skip re-push when the SSH key set hasn't actually changed.
