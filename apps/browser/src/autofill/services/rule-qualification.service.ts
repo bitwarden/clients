@@ -1,9 +1,6 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
-import {
-  FillAssistEventName,
-  FillAssistMissReason,
-} from "../background/fill-assist-event-receiver";
+import { FillAssistMissReason } from "../background/fill-assist-event";
 import { FormFieldElement } from "../types";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
@@ -31,7 +28,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     const domain = new URL(url).hostname;
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
-      this.emitQualificationFailed(domain, FillAssistMissReason.Structural);
+      this.fillAssistEventEmitter.qualificationFailed(domain, FillAssistMissReason.Structural);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
@@ -45,7 +42,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     const extras = await this.checkInScopeExtras(matchedRule, structural.inScopeForms);
     if (!extras.ok) {
-      this.emitQualificationFailed(domain, FillAssistMissReason.InScopeExtras);
+      this.fillAssistEventEmitter.qualificationFailed(domain, FillAssistMissReason.InScopeExtras);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass(
           structural.inScopeForms,
@@ -167,23 +164,6 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     }
 
     return groups;
-  }
-
-  /**
-   * Fires the `fill_assist_rule_qualification_failed` event once per miss.
-   * The event is emitted before the heuristic bypass runs, so telemetry
-   * captures the failure independent of whether recovery later succeeded.
-   */
-  private emitQualificationFailed(domain: string, missReason: FillAssistMissReason): void {
-    this.fillAssistEventEmitter.emit({
-      name: FillAssistEventName.QualificationFailed,
-      payload: {
-        domain,
-        missReason,
-        // FIXME (PM-34713): finalize the shape of the ruleId value during fill assist M6
-        ruleId: "0",
-      },
-    });
   }
 
   /**

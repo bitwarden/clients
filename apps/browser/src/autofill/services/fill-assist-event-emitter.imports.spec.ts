@@ -14,13 +14,16 @@ import * as ts from "typescript";
 describe("content-script bundle-size guard", () => {
   const forbiddenPrefixes = ["@angular", "@bitwarden/sdk-internal"];
 
-  // Covers both the concrete emitter and its abstraction so a future edit to
-  // either side of the interface split cannot silently pull a forbidden
-  // runtime dependency into the content-script bundle.
+  // Covers the files the content script pulls in: the concrete emitter, its
+  // abstraction, the rule qualification service, and the shared data file
+  // both the emitter and the service import for the event constants. A
+  // future edit to any of them must not silently pull a forbidden runtime
+  // dependency into the content-script bundle.
   describe.each([
     ["fill-assist-event-emitter.ts", "fill-assist-event-emitter.ts"],
     ["abstractions/fill-assist-event-emitter.ts", "abstractions/fill-assist-event-emitter.ts"],
     ["rule-qualification.service.ts", "rule-qualification.service.ts"],
+    ["../background/fill-assist-event.ts", "../background/fill-assist-event.ts"],
   ])("%s", (_label, fileName) => {
     const filePath = path.resolve(__dirname, fileName);
     const source = fs.readFileSync(filePath, "utf8");

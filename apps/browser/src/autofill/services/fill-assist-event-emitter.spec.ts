@@ -1,8 +1,4 @@
-import {
-  FillAssistEvent,
-  FillAssistEventName,
-  FillAssistMissReason,
-} from "../background/fill-assist-event-receiver";
+import { FillAssistEventName, FillAssistMissReason } from "../background/fill-assist-event";
 import * as autofillUtils from "../utils";
 
 import { DefaultFillAssistEventEmitter } from "./fill-assist-event-emitter";
@@ -18,32 +14,43 @@ jest.mock("../utils", () => {
 describe("DefaultFillAssistEventEmitter", () => {
   let emitter: DefaultFillAssistEventEmitter;
 
-  const sampleEvent: FillAssistEvent = {
-    name: FillAssistEventName.QualificationFailed,
-    payload: {
-      domain: "example.com",
-      missReason: FillAssistMissReason.Structural,
-      ruleId: "0",
-    },
-  };
-
   beforeEach(() => {
     jest.mocked(autofillUtils.sendExtensionMessage).mockClear();
     jest.mocked(autofillUtils.sendExtensionMessage).mockResolvedValue(undefined);
     emitter = new DefaultFillAssistEventEmitter();
   });
 
-  it("dispatches via sendExtensionMessage with the fillAssistEmit command and the full event", () => {
-    emitter.emit(sampleEvent);
+  it("dispatches qualificationFailed as a fillAssistEmit message with the structural event shape", () => {
+    emitter.qualificationFailed("example.com", FillAssistMissReason.Structural);
 
     expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledTimes(1);
-    expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith("fillAssistEmit", sampleEvent);
+    expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith("fillAssistEmit", {
+      name: FillAssistEventName.QualificationFailed,
+      payload: {
+        domain: "example.com",
+        missReason: FillAssistMissReason.Structural,
+        ruleId: "0",
+      },
+    });
+  });
+
+  it("carries the given missReason through on an in-scope-extras miss", () => {
+    emitter.qualificationFailed("example.org", FillAssistMissReason.InScopeExtras);
+
+    expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledWith("fillAssistEmit", {
+      name: FillAssistEventName.QualificationFailed,
+      payload: {
+        domain: "example.org",
+        missReason: FillAssistMissReason.InScopeExtras,
+        ruleId: "0",
+      },
+    });
   });
 
   it("returns synchronously without awaiting the dispatch", () => {
-    // Emit returns `void` (not a Promise). Confirm the dispatch runs in the
-    // background and the caller is not blocked.
-    const result = emitter.emit(sampleEvent);
+    // qualificationFailed returns `void` (not a Promise). Confirm the dispatch
+    // runs in the background and the caller is not blocked.
+    const result = emitter.qualificationFailed("example.com", FillAssistMissReason.Structural);
     expect(result).toBeUndefined();
   });
 
@@ -52,34 +59,17 @@ describe("DefaultFillAssistEventEmitter", () => {
       .mocked(autofillUtils.sendExtensionMessage)
       .mockRejectedValueOnce(new Error("relay unavailable"));
 
-    expect(() => emitter.emit(sampleEvent)).not.toThrow();
+    expect(() =>
+      emitter.qualificationFailed("example.com", FillAssistMissReason.Structural),
+    ).not.toThrow();
     // Flush the rejection's microtask to confirm nothing propagates.
     await Promise.resolve();
   });
 
-  it("dispatches each emit call independently", () => {
-    const secondEvent: FillAssistEvent = {
-      name: FillAssistEventName.QualificationFailed,
-      payload: {
-        domain: "example.org",
-        missReason: FillAssistMissReason.InScopeExtras,
-        ruleId: "0",
-      },
-    };
-
-    emitter.emit(sampleEvent);
-    emitter.emit(secondEvent);
+  it("dispatches each call independently", () => {
+    emitter.qualificationFailed("example.com", FillAssistMissReason.Structural);
+    emitter.qualificationFailed("example.org", FillAssistMissReason.InScopeExtras);
 
     expect(autofillUtils.sendExtensionMessage).toHaveBeenCalledTimes(2);
-    expect(autofillUtils.sendExtensionMessage).toHaveBeenNthCalledWith(
-      1,
-      "fillAssistEmit",
-      sampleEvent,
-    );
-    expect(autofillUtils.sendExtensionMessage).toHaveBeenNthCalledWith(
-      2,
-      "fillAssistEmit",
-      secondEvent,
-    );
   });
 });

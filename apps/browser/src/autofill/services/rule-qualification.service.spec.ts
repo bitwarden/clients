@@ -2,10 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { FormContent, FormPurposeCategory } from "@bitwarden/common/autofill/types";
 
-import {
-  FillAssistEventName,
-  FillAssistMissReason,
-} from "../background/fill-assist-event-receiver";
+import { FillAssistMissReason } from "../background/fill-assist-event";
 import AutofillPageDetails from "../models/autofill-page-details";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
@@ -686,7 +683,7 @@ describe("DefaultRuleQualificationService", () => {
 
       await service.qualifyRule("https://example.com", buildLoginRule());
 
-      expect(fillAssistEventEmitter.emit).not.toHaveBeenCalled();
+      expect(fillAssistEventEmitter.qualificationFailed).not.toHaveBeenCalled();
     });
 
     it("emits exactly once with missReason 'structural' on a structural miss", async () => {
@@ -694,15 +691,11 @@ describe("DefaultRuleQualificationService", () => {
 
       await service.qualifyRule("https://example.com/login?token=secret", buildLoginRule());
 
-      expect(fillAssistEventEmitter.emit).toHaveBeenCalledTimes(1);
-      expect(fillAssistEventEmitter.emit).toHaveBeenCalledWith({
-        name: FillAssistEventName.QualificationFailed,
-        payload: {
-          domain: "example.com",
-          missReason: FillAssistMissReason.Structural,
-          ruleId: "0",
-        },
-      });
+      expect(fillAssistEventEmitter.qualificationFailed).toHaveBeenCalledTimes(1);
+      expect(fillAssistEventEmitter.qualificationFailed).toHaveBeenCalledWith(
+        "example.com",
+        FillAssistMissReason.Structural,
+      );
     });
 
     it("emits exactly once with missReason 'in_scope_extras' on an extras miss", async () => {
@@ -719,15 +712,11 @@ describe("DefaultRuleQualificationService", () => {
 
       await service.qualifyRule("https://example.com", buildLoginRule());
 
-      expect(fillAssistEventEmitter.emit).toHaveBeenCalledTimes(1);
-      expect(fillAssistEventEmitter.emit).toHaveBeenCalledWith({
-        name: FillAssistEventName.QualificationFailed,
-        payload: {
-          domain: "example.com",
-          missReason: FillAssistMissReason.InScopeExtras,
-          ruleId: "0",
-        },
-      });
+      expect(fillAssistEventEmitter.qualificationFailed).toHaveBeenCalledTimes(1);
+      expect(fillAssistEventEmitter.qualificationFailed).toHaveBeenCalledWith(
+        "example.com",
+        FillAssistMissReason.InScopeExtras,
+      );
     });
 
     it("emits the domain stripped of path and query", async () => {
@@ -738,8 +727,8 @@ describe("DefaultRuleQualificationService", () => {
         buildLoginRule(),
       );
 
-      const emitArg = fillAssistEventEmitter.emit.mock.calls[0][0];
-      expect(emitArg.payload.domain).toBe("example.com");
+      const [domainArg] = fillAssistEventEmitter.qualificationFailed.mock.calls[0];
+      expect(domainArg).toBe("example.com");
     });
 
     it("emits before the heuristic bypass runs", async () => {
@@ -747,7 +736,7 @@ describe("DefaultRuleQualificationService", () => {
       // recovery. Emit must fire before the bypass so telemetry captures the
       // failure independent of whether recovery later succeeded.
       const callOrder: string[] = [];
-      fillAssistEventEmitter.emit.mockImplementation(() => {
+      fillAssistEventEmitter.qualificationFailed.mockImplementation(() => {
         callOrder.push("emit");
       });
       collectService.collectHeuristicPageDetailsBypass.mockImplementation(() => {

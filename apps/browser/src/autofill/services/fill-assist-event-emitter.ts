@@ -1,4 +1,4 @@
-import type { FillAssistEvent } from "../background/fill-assist-event-receiver";
+import { FillAssistEventName, type FillAssistMissReason } from "../background/fill-assist-event";
 import { sendExtensionMessage } from "../utils";
 
 import { FillAssistEventEmitter } from "./abstractions/fill-assist-event-emitter";
@@ -11,8 +11,16 @@ import { FillAssistEventEmitter } from "./abstractions/fill-assist-event-emitter
  * telemetry step cannot break the qualification path.
  */
 export class DefaultFillAssistEventEmitter implements FillAssistEventEmitter {
-  emit(event: FillAssistEvent): void {
-    void sendExtensionMessage("fillAssistEmit", event).catch(() => {
+  qualificationFailed(domain: string, missReason: FillAssistMissReason): void {
+    void sendExtensionMessage("fillAssistEmit", {
+      name: FillAssistEventName.QualificationFailed,
+      payload: {
+        domain,
+        missReason,
+        // FIXME (PM-34713): finalize the shape of the ruleId value during fill assist M6
+        ruleId: "0",
+      },
+    }).catch(() => {
       // Dropped telemetry is acceptable. The qualification path continues.
     });
   }

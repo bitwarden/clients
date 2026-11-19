@@ -32,10 +32,8 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
-import {
-  FillAssistEvent,
-  FillAssistEventReceiver,
-} from "../autofill/background/fill-assist-event-receiver";
+import { FillAssistEvent } from "../autofill/background/fill-assist-event";
+import { FillAssistEventReceiver } from "../autofill/background/fill-assist-event-receiver";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
@@ -994,8 +992,8 @@ describe("RuntimeBackground fillAssistEmit", () => {
   });
 
   // Trusted-sender boundary: the handler rejects any message not tagged by the
-  // chrome.runtime ingest boundary. Matches the convention in sibling handlers
-  // in this file and the pattern PR #23249 established.
+  // chrome.runtime ingest boundary. Matches the convention used by sibling
+  // handlers in this file.
   it("security: rejects a message that was not tagged as external", async () => {
     await runtimeBackground.processMessageWithSender(message, sender);
 

@@ -1,15 +1,12 @@
-import type { FillAssistEvent } from "../../background/fill-assist-event-receiver";
+import type { FillAssistMissReason } from "../../background/fill-assist-event";
 
 /**
  * Typed wrapper over `sendExtensionMessage("fillAssistEmit", event)` for the
- * content script. Lets `RuleQualificationService` dispatch a
- * `fill_assist_rule_qualification_failed` event without pulling the raw
- * message plumbing into the qualification path.
- *
- * The message shape and the `FillAssistEvent` contract are defined by the
- * receiver in `background/fill-assist-event-receiver.ts`. The receiver
- * implementation may change; this interface and its dispatch call stay stable.
+ * content script. Lets `RuleQualificationService` dispatch fill assist events
+ * without calling `sendExtensionMessage` directly or knowing the event payload
+ * shape. Named methods encapsulate the event shape so callers name what
+ * happened, not how the payload is built.
  */
 export interface FillAssistEventEmitter {
-  emit(event: FillAssistEvent): void;
+  qualificationFailed(domain: string, missReason: FillAssistMissReason): void;
 }

@@ -36,8 +36,8 @@ import {
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
 import {
-  FillAssistEvent,
   FillAssistEventReceiver,
+  isFillAssistEvent,
 } from "../autofill/background/fill-assist-event-receiver";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
@@ -311,16 +311,13 @@ export default class RuntimeBackground {
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
       case "fillAssistEmit": {
-        // Reject messages that did not arrive through the chrome.runtime ingest
-        // boundary. `isExternalMessage` reads the browser-authoritative tag
-        // applied in `from-chrome-runtime-messaging`. Matches the trusted-sender
-        // pattern already used by the sibling handlers in this file.
-        if (!isExternalMessage(msg)) {
+        // Combined tag and shape check. The guard rejects anything not tagged
+        // by the chrome.runtime ingest boundary, and narrows the type so the
+        // message passes through to the receiver without a cast.
+        if (!isFillAssistEvent(msg)) {
           return;
         }
-        // Pass the message through so the external tag and stamped sender
-        // survive for downstream consumers to inspect.
-        this.fillAssistEventReceiver.receive(msg as unknown as FillAssistEvent);
+        this.fillAssistEventReceiver.receive(msg);
         return;
       }
       case "runFillAssistHeuristicFallback": {
