@@ -1,9 +1,11 @@
 # This workflow will run in the context of the source of the PR.
-# On a PR, each commit only checks whether UI-related files changed:
+# On a PR, each commit checks whether UI-related files changed:
 #   - No UI changes: Chromatic is told to skip, which marks its required checks as passing.
-#   - UI changes: nothing is published in Chromatic automatically, so Chromatic's required checks 
-#     stay pending until someone adds the "ci:chromatic" label. The label runs the full build and is
-#     removed once the run starts, so every new commit needs to be labeled again.
+#   - UI changes on a PR that is ready for review: the full build runs on every commit.
+#   - UI changes on a draft PR: nothing is published in Chromatic automatically, so Chromatic's
+#     checks stay pending until someone adds the "ci:chromatic" label or marks the PR ready for
+#     review. The label runs the full build and is removed once the run starts, so every new
+#     commit on a draft needs to be labeled again.
 # Pushes to main, rc and hotfix-rc run the full build without a label to keep baselines current.
 # On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
 # secrets. To run Chromatic for a fork PR, review it and add the "ci:signed-build" label to run
@@ -18,7 +20,7 @@ on:
       - "rc"
       - "hotfix-rc"
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
   workflow_call:
     inputs: {}
 
@@ -84,11 +86,12 @@ jobs:
 
       # build: full Storybook build and Chromatic publish
       # skip: Chromatic is told to skip, which marks its checks as passing
-      # wait: nothing is published, so Chromatic's checks stay pending until the label is added
+      # wait: nothing is published, so Chromatic's checks stay pending until the label is added or
+      #       the PR is marked ready for review. Only draft PRs wait.
       - name: Determine run mode
         id: mode
         env:
-          _EVENT_NAME: ${{ github.event_name }}
+          _IS_DRAFT_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
           _IS_LABEL_RUN: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' }}
           _STORY_FILES: ${{ steps.get-changed-files.outputs.storyFiles }}
         run: |
@@ -96,44 +99,18 @@ jobs:
             MODE="build"
           elif [[ "$_STORY_FILES" != "true" ]]; then
             MODE="skip"
-          elif [[ "$_EVENT_NAME" == "pull_request" ]]; then
+          elif [[ "$_IS_DRAFT_PR" == "true" ]]; then
             MODE="wait"
           else
             MODE="build"
           fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
 
-      # One PR comment, updated in place, so that new commits do not send new notifications
-      - name: Comment Chromatic status on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        env:
-          _MODE: ${{ steps.mode.outputs.mode }}
-        with:
-          script: |
-            const COMMENT_TAG = '<!-- comment_tag: chromatic-status -->';
-            const LABEL = 'ci:chromatic';
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const commit = context.payload.pull_request.head.sha.slice(0, 7);
-            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
-
-            const messages = {
-              wait: `This PR changes UI-related files. When you are ready to run Chromatic snapshot tests, add the \`${LABEL}\` label to this PR. (You do not need to run this on every commit, but you do need to run it prior to merging.)`,
-              build: `Chromatic snapshot tests are [running](${runUrl}) for commit \`${commit}\`. If you push more commits, add the \`${LABEL}\` label again prior to merging.`,
-              skip: 'This PR does not change UI-related files, so Chromatic snapshot tests do not need to be run.',
-            };
-            const body = [COMMENT_TAG, messages[process.env._MODE]].join('\n');
-
-            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
-            const existing = comments.find((comment) => comment.body?.startsWith(COMMENT_TAG));
-
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else if (process.env._MODE !== 'skip') {
-              // PRs that never needed Chromatic do not get a comment
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            }
+          if [[ "$MODE" == "wait" ]]; then
+            MESSAGE="This draft PR changes UI-related files. Add the \"ci:chromatic\" label when you are ready to run Chromatic, or mark the PR ready for review to run it on every commit."
+            echo "::notice::$MESSAGE"
+            echo "$MESSAGE" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   chromatic:
     name: Chromatic
