@@ -839,6 +839,17 @@ describe("AccessRulesComponent: table", () => {
     expect(fixture.componentInstance["selectedCount"]()).toBe(1);
   });
 
+  it("toggles the checkbox, not the rule, on a click in the select cell's padding", async () => {
+    const fixture = await render();
+    const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    rowCheckboxes(fixture)[0].closest<HTMLElement>("[role=cell]")!.click();
+    fixture.detectChanges();
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(fixture.componentInstance["selectedCount"]()).toBe(1);
+  });
+
   it("offers the row actions with edit first", async () => {
     const fixture = await render();
 
