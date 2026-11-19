@@ -2755,11 +2755,11 @@
   "accountRestricted": {
     "message": "Account restricted"
   },
-  "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+  "restrictedItemTypesImport": {
+    "message": "Cannot import some item types"
   },
-  "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  "restrictedItemTypesImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing some item types to your vaults."
   },
   "filePasswordConfirmationMismatch": {
     "message": "“File password” and “Confirm file password” do not match."

@@ -375,6 +375,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { DefaultFillCipherPolicy } from "../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { RestrictedFillCipherPolicy } from "../autofill/services/restricted-fill-cipher-policy";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
 import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
@@ -1242,11 +1243,13 @@ export default class MainBackground {
         messageSender: this.messagingService,
         logService: this.logService,
       }) ?? new NoopRevealedCipherService();
-    this.fillCipherPolicy =
+    this.fillCipherPolicy = new RestrictedFillCipherPolicy(
       overrides?.fillCipherPolicy?.({
         cipherService: this.cipherService,
         revealedCipherService: this.revealedCipherService,
-      }) ?? new DefaultFillCipherPolicy(this.cipherService);
+      }) ?? new DefaultFillCipherPolicy(this.cipherService),
+      this.restrictedItemTypesService,
+    );
     this.folderService = new FolderService(
       this.keyService,
       this.encryptService,

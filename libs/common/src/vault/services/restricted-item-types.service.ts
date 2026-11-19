@@ -17,6 +17,9 @@ export type RestrictedCipherType = {
   allowViewOrgIds: string[];
 };
 
+const sameTypes = (a: ReadonlySet<CipherType>, b: ReadonlySet<CipherType>) =>
+  a.size === b.size && [...a].every((type) => b.has(type));
+
 export class RestrictedItemTypesService {
   /**
    * Emits an array of RestrictedCipherType objects:
@@ -66,6 +69,17 @@ export class RestrictedItemTypesService {
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+  /**
+   * The restricted cipher types, presented as a Set.
+   *
+   * Consider {@link restricted$} if per-organization `allowViewOrgIds` matters.
+   */
+  readonly restrictedSet$: Observable<ReadonlySet<CipherType>> = this.restricted$.pipe(
+    map((restricted) => new Set(restricted.map((r) => r.cipherType))),
+    distinctUntilChanged(sameTypes),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   constructor(
     private accountService: AccountService,

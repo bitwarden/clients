@@ -22,6 +22,7 @@ import {
   CIPHER_VIEW_BANNER_LAYOUT,
 } from "@bitwarden/bit-pam-components";
 import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
+import { RestrictedFillCipherPolicy } from "@bitwarden/browser/autofill/services/restricted-fill-cipher-policy";
 import { VAULT_ROW_ICON } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-icon.token";
 import { VAULT_ROW_SUBTITLE } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-subtitle.token";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -33,6 +34,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -61,8 +63,16 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: FillCipherPolicy,
-      useClass: PamFillCipherPolicy,
-      deps: [CipherService, RevealedCipherService],
+      useFactory: (
+        cipherService: CipherService,
+        revealedCipherService: RevealedCipherService,
+        restrictedItemTypesService: RestrictedItemTypesService,
+      ) =>
+        new RestrictedFillCipherPolicy(
+          new PamFillCipherPolicy(cipherService, revealedCipherService),
+          restrictedItemTypesService,
+        ),
+      deps: [CipherService, RevealedCipherService, RestrictedItemTypesService],
     }),
     safeProvider({
       // The popup receives no pushes, so it asks the background to re-read on open.

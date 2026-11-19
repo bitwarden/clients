@@ -310,33 +310,22 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     );
 
     this.showInlineMenuIdentitiesState = this.stateProvider.getActive(SHOW_INLINE_MENU_IDENTITIES);
-    this.showInlineMenuIdentities$ = this.showInlineMenuIdentitiesState.state$.pipe(
-      map((x) => x ?? true),
-    );
+    this.showInlineMenuIdentities$ = combineLatest([
+      this.showInlineMenuIdentitiesState.state$.pipe(map((x) => x ?? true)),
+      this.restrictedItemTypesService.restrictedSet$,
+    ]).pipe(map(([enabled, restricted]) => enabled && !restricted.has(CipherType.Identity)));
 
     this.showInlineMenuCardsState = this.stateProvider.getActive(SHOW_INLINE_MENU_CARDS);
     this.showInlineMenuCards$ = combineLatest([
       this.showInlineMenuCardsState.state$.pipe(map((x) => x ?? true)),
-      this.restrictedItemTypesService.restricted$,
-    ]).pipe(
-      map(
-        ([enabled, restrictions]) =>
-          // If enabled, show cards inline menu unless card type is restricted
-          enabled && !restrictions.some((r) => r.cipherType === CipherType.Card),
-      ),
-    );
+      this.restrictedItemTypesService.restrictedSet$,
+    ]).pipe(map(([enabled, restricted]) => enabled && !restricted.has(CipherType.Card)));
 
     this.showInlineMenuSshKeysState = this.stateProvider.getActive(SHOW_INLINE_MENU_SSH_KEYS);
     this.showInlineMenuSshKeys$ = combineLatest([
       this.showInlineMenuSshKeysState.state$.pipe(map((x) => x ?? true)),
-      this.restrictedItemTypesService.restricted$,
-    ]).pipe(
-      map(
-        ([enabled, restrictions]) =>
-          // If enabled, show SSH keys inline menu unless the SSH key type is restricted
-          enabled && !restrictions.some((r) => r.cipherType === CipherType.SshKey),
-      ),
-    );
+      this.restrictedItemTypesService.restrictedSet$,
+    ]).pipe(map(([enabled, restricted]) => enabled && !restricted.has(CipherType.SshKey)));
 
     this.honorBitwardenIgnoreAttributeState = this.stateProvider.getGlobal(
       HONOR_BITWARDEN_IGNORE_ATTRIBUTE,

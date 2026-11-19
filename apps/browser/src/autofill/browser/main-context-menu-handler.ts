@@ -35,6 +35,12 @@ import { webmapperContextMenuItems } from "../webmapper/menu";
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
+/** Context menu item ids that autofill a cipher type, and so are hidden when that type is restricted. */
+const RESTRICTABLE_MENU_ITEMS: ReadonlyArray<readonly [CipherType, string]> = [
+  [CipherType.Card, AUTOFILL_CARD_ID],
+  [CipherType.Identity, AUTOFILL_IDENTITY_ID],
+];
+
 function separatorIds() {
   let n = 0;
   return () => `${SEPARATOR_ID}${++n}`;
@@ -211,9 +217,10 @@ export class MainContextMenuHandler {
           this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
         ));
 
-      const isCardRestricted = (
-        await firstValueFrom(this.restrictedItemTypesService.restricted$)
-      ).some((rt) => rt.cipherType === CipherType.Card);
+      const restricted = await firstValueFrom(this.restrictedItemTypesService.restrictedSet$);
+      const restrictedMenuItemIds = RESTRICTABLE_MENU_ITEMS.filter(([type]) =>
+        restricted.has(type),
+      ).map(([, id]) => id);
 
       const uniqueFlags = [
         ...new Set(
@@ -231,8 +238,8 @@ export class MainContextMenuHandler {
       if (!hasPremium) {
         items = items.filter((i) => !i.requiresPremiumAccess);
       }
-      if (isCardRestricted) {
-        items = items.filter((i) => !i.id?.startsWith(AUTOFILL_CARD_ID));
+      if (restrictedMenuItemIds.length > 0) {
+        items = items.filter((i) => !restrictedMenuItemIds.some((id) => i.id?.startsWith(id)));
       }
       if (uniqueFlags.length) {
         items = items.filter(

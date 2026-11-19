@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, map, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -109,6 +109,7 @@ describe("context-menu", () => {
     restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
     restrictedItemTypesService = {
       restricted$,
+      restrictedSet$: restricted$.pipe(map((types) => new Set(types.map((t) => t.cipherType)))),
     } as Partial<RestrictedItemTypesService> as RestrictedItemTypesService;
 
     removeAllSpy = jest
@@ -189,6 +190,19 @@ describe("context-menu", () => {
       expect(createdMenu).toBeTruthy();
       expect(createSpy).toHaveBeenCalledTimes(10);
     });
+    it("has menu enabled and has premium, but identity type is restricted", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      restricted$.next([{ cipherType: CipherType.Identity, allowViewOrgIds: [] }]);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(10);
+      expect(createSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ id: AUTOFILL_IDENTITY_ID }),
+        expect.any(Function),
+      );
+    });
+
     it("has menu enabled, does not have premium, and card type is restricted", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
       restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);

@@ -31,14 +31,8 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   readonly showCardsCurrentTab$: Observable<boolean> = combineLatest([
     this.showCardsCurrentTabState.state$.pipe(map((x) => x ?? true)),
-    this.restrictedItemTypesService.restricted$,
-  ]).pipe(
-    map(
-      ([enabled, restrictions]) =>
-        // If enabled, show cards tab unless card type is restricted
-        enabled && !restrictions.some((r) => r.cipherType === CipherType.Card),
-    ),
-  );
+    this.restrictedItemTypesService.restrictedSet$,
+  ]).pipe(map(([enabled, restricted]) => enabled && !restricted.has(CipherType.Card)));
 
   private showIdentitiesCurrentTabState: ActiveUserState<boolean> = this.stateProvider.getActive(
     SHOW_IDENTITIES_CURRENT_TAB,
@@ -46,8 +40,10 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
   /**
    * {@link VaultSettingsServiceAbstraction.showIdentitiesCurrentTab$}
    */
-  readonly showIdentitiesCurrentTab$: Observable<boolean> =
-    this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
+  readonly showIdentitiesCurrentTab$: Observable<boolean> = combineLatest([
+    this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true)),
+    this.restrictedItemTypesService.restrictedSet$,
+  ]).pipe(map(([enabled, restricted]) => enabled && !restricted.has(CipherType.Identity)));
 
   private showAtRiskPasswordNotificationsState: ActiveUserState<boolean> =
     this.stateProvider.getActive(SHOW_AT_RISK_PASSWORD_NOTIFICATIONS);

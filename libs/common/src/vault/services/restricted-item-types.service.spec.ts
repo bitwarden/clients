@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -172,6 +172,62 @@ describe("RestrictedItemTypesService", () => {
       { cipherType: CipherType.Login, allowViewOrgIds: ["org2"] },
       { cipherType: CipherType.Identity, allowViewOrgIds: ["org1"] },
     ]);
+  });
+
+  describe("restrictedSet$", () => {
+    it("emits an empty set when nothing is restricted", async () => {
+      const result = await firstValueFrom(service.restrictedSet$);
+
+      expect(result.size).toBe(0);
+    });
+
+    it("contains every type restricted by any organization", async () => {
+      policyService.policiesByType$.mockReturnValue(
+        of([
+          {
+            ...policyOrg1,
+            data: { restrictedTypes: [CipherType.Card, CipherType.Identity] },
+          } as Policy,
+          { ...policyOrg2, data: { restrictedTypes: [CipherType.SshKey] } } as Policy,
+        ]),
+      );
+
+      const result = await firstValueFrom(service.restrictedSet$);
+
+      expect(result).toEqual(new Set([CipherType.Card, CipherType.Identity, CipherType.SshKey]));
+    });
+
+    it("still contains a type that some organization allows viewing", async () => {
+      policyService.policiesByType$.mockReturnValue(of([policyOrg1]));
+
+      const result = await firstValueFrom(service.restrictedSet$);
+
+      expect(result.has(CipherType.Card)).toBe(true);
+    });
+
+    it("defaults legacy policy data to the Card type", async () => {
+      policyService.policiesByType$.mockReturnValue(of([{ ...policyOrg1, data: null } as Policy]));
+
+      const result = await firstValueFrom(service.restrictedSet$);
+
+      expect(result).toEqual(new Set([CipherType.Card]));
+    });
+
+    it("does not re-emit when the restricted types are unchanged", async () => {
+      const policies$ = new BehaviorSubject<Policy[]>([policyOrg1]);
+      policyService.policiesByType$.mockReturnValue(policies$);
+      const emissions: ReadonlySet<CipherType>[] = [];
+      const subscription = service.restrictedSet$.subscribe((set) => emissions.push(set));
+
+      policies$.next([{ ...policyOrg1 } as Policy]);
+      policies$.next([policyOrg1, policyOrg2]);
+      policies$.next([
+        { ...policyOrg1, data: { restrictedTypes: [CipherType.Identity] } } as Policy,
+      ]);
+      subscription.unsubscribe();
+
+      expect(emissions).toEqual([new Set([CipherType.Card]), new Set([CipherType.Identity])]);
+    });
   });
 
   describe("isCipherRestricted", () => {

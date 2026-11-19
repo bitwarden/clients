@@ -1,12 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, of, Subject } from "rxjs";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { SingleUserState } from "../../platform/state";
+import { ActiveUserState, SingleUserState } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { CipherType } from "../../vault/enums";
 import { RestrictedItemTypesService } from "../../vault/services/restricted-item-types.service";
 
 import { AutofillSettingsService } from "./autofill-settings.service";
@@ -19,6 +20,7 @@ describe("AutofillSettingsService", () => {
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
   let featureFlag$: BehaviorSubject<boolean>;
+  let restrictedSet$: BehaviorSubject<ReadonlySet<CipherType>>;
   let enableBasicAuthResponseByUser: Map<UserId, Observable<boolean | null>>;
   let autofillSettingsService: AutofillSettingsService;
 
@@ -33,6 +35,7 @@ describe("AutofillSettingsService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     featureFlag$ = new BehaviorSubject<boolean>(true);
+    restrictedSet$ = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
     configService = mock<ConfigService>();
     configService.getFeatureFlag$
       .calledWith(FeatureFlag.EnableBasicAuthResponse)
@@ -55,13 +58,49 @@ describe("AutofillSettingsService", () => {
       stateProvider,
       mock<PolicyService>(),
       accountService,
-      mock<RestrictedItemTypesService>(),
+      { restrictedSet$ } as unknown as RestrictedItemTypesService,
       configService,
     );
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe.each([
+    ["showInlineMenuCards$", CipherType.Card],
+    ["showInlineMenuIdentities$", CipherType.Identity],
+    ["showInlineMenuSshKeys$", CipherType.SshKey],
+  ] as const)("%s", (setting, cipherType) => {
+    beforeEach(() => {
+      jest
+        .spyOn(stateProvider, "getActive")
+        .mockReturnValue({ state$: of(null) } as unknown as ActiveUserState<any>);
+
+      autofillSettingsService = new AutofillSettingsService(
+        stateProvider,
+        mock<PolicyService>(),
+        accountService,
+        { restrictedSet$ } as unknown as RestrictedItemTypesService,
+        configService,
+      );
+    });
+
+    it("is on by default", async () => {
+      await expect(firstValueFrom(autofillSettingsService[setting])).resolves.toBe(true);
+    });
+
+    it("is off when the type is restricted", async () => {
+      restrictedSet$.next(new Set([cipherType]));
+
+      await expect(firstValueFrom(autofillSettingsService[setting])).resolves.toBe(false);
+    });
+
+    it("stays on when a different type is restricted", async () => {
+      restrictedSet$.next(new Set([CipherType.BankAccount]));
+
+      await expect(firstValueFrom(autofillSettingsService[setting])).resolves.toBe(true);
+    });
   });
 
   describe("resolvedEnableBasicAuthResponse$", () => {

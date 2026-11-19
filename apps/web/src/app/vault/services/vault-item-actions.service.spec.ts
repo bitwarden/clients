@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, Subject } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,6 +13,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherActionService,
@@ -38,6 +39,7 @@ describe("WebVaultItemActionsService", () => {
   let cipherActionService: MockProxy<CipherActionService>;
   let cipherService: MockProxy<CipherService>;
   let cipherFormConfigService: MockProxy<DefaultCipherFormConfigService>;
+  let restrictedSet$: BehaviorSubject<ReadonlySet<CipherType>>;
   let dialogService: MockProxy<DialogService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let router: MockProxy<Router>;
@@ -82,6 +84,7 @@ describe("WebVaultItemActionsService", () => {
     cipherActionService = mock<CipherActionService>();
     cipherService = mock<CipherService>();
     cipherFormConfigService = mock<DefaultCipherFormConfigService>();
+    restrictedSet$ = new BehaviorSubject<ReadonlySet<CipherType>>(new Set());
     dialogService = mock<DialogService>();
     passwordRepromptService = mock<PasswordRepromptService>();
     router = mock<Router>();
@@ -122,6 +125,7 @@ describe("WebVaultItemActionsService", () => {
       providers: [
         WebVaultItemActionsService,
         { provide: AccountService, useValue: accountService },
+        { provide: RestrictedItemTypesService, useValue: { restrictedSet$ } },
         { provide: CipherActionService, useValue: cipherActionService },
         { provide: CipherService, useValue: cipherService },
         { provide: DefaultCipherFormConfigService, useValue: cipherFormConfigService },
@@ -539,6 +543,22 @@ describe("WebVaultItemActionsService", () => {
   });
 
   describe("add", () => {
+    it("does not open the form for a restricted type", async () => {
+      restrictedSet$.next(new Set([CipherType.Identity]));
+
+      await service.add(CipherType.Identity);
+
+      expect(cipherFormConfigService.buildConfig).not.toHaveBeenCalled();
+    });
+
+    it("still opens the form for a type that is not restricted", async () => {
+      restrictedSet$.next(new Set([CipherType.Identity]));
+
+      await service.add(CipherType.Card);
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalled();
+    });
+
     it("builds an add config with no seeded values when no scope is given", async () => {
       await service.add(CipherType.Card);
 
