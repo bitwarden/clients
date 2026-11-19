@@ -101,9 +101,11 @@ export class DecideDialogComponent {
   protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
 
   /** `Validators.required` accepts spaces, so the button also gates on the trimmed value. */
-  protected readonly confirmDisabled = computed(
-    () => this.offline() || (!this.approve() && this.comment().trim().length === 0),
-  );
+  protected readonly confirmDisabled = computed(() => {
+    const commentRequired = !this.approve();
+    const commentEmpty = this.comment().trim().length === 0;
+    return this.offline() || (commentRequired && commentEmpty);
+  });
 
   constructor() {
     this.applyVerdictValidators();

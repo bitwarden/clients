@@ -162,20 +162,8 @@ function endedKeys(previous: HeldLeasedViews, next: HeldLeasedViews): Set<string
 function leasedValues(view: CipherView): Set<string> {
   const values = new Set<string>();
   const seen = new WeakSet<object>();
-  const collect = (node: unknown): void => {
-    if (typeof node === "string") {
-      if (node !== "") {
-        values.add(node);
-      }
-      return;
-    }
-    if (node == null || typeof node !== "object" || seen.has(node)) {
-      return;
-    }
-    seen.add(node);
-    Object.values(node).forEach(collect);
-  };
-  [
+  // An explicit stack rather than recursion, so a deeply nested view can't exhaust the call stack.
+  const pending: unknown[] = [
     view.notes,
     view.login,
     view.card,
@@ -187,6 +175,17 @@ function leasedValues(view: CipherView): Set<string> {
     view.passport,
     view.fields,
     view.passwordHistory,
-  ].forEach(collect);
+  ];
+  while (pending.length > 0) {
+    const node = pending.pop();
+    if (typeof node === "string") {
+      if (node !== "") {
+        values.add(node);
+      }
+    } else if (node != null && typeof node === "object" && !seen.has(node)) {
+      seen.add(node);
+      pending.push(...Object.values(node));
+    }
+  }
   return values;
 }

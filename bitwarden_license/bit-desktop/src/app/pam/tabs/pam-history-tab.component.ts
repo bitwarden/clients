@@ -182,10 +182,10 @@ export class PamHistoryTabComponent {
     this.approvalPrivileges.canApprove$,
     this.syncService.activeUserLastSync$(),
   ]).pipe(
-    filter(
-      ([myLoading, inboxLoading, canApprove, lastSync]) =>
-        !myLoading && !((canApprove || lastSync == null) && inboxLoading),
-    ),
+    filter(([myLoading, inboxLoading, canApprove, lastSync]) => {
+      const inboxLoadRequired = (canApprove || lastSync == null) && inboxLoading;
+      return !myLoading && !inboxLoadRequired;
+    }),
     take(1),
     map(() => true),
     startWith(false),
