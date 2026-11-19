@@ -94,6 +94,15 @@ export class DialogComponent implements AfterViewInit {
   private readonly dialogHeader =
     viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
   private readonly scrollableBody = viewChild.required(CdkScrollable);
+
+  /**
+   * The element the dialog's content scrolls in, for content that has to follow that scrolling
+   * itself, such as a virtualized list. `undefined` until the dialog has rendered.
+   *
+   * @internal
+   */
+  readonly scrollElement = computed(() => this.scrollBodyEl()?.nativeElement);
+  private readonly scrollBodyEl = viewChild(CdkScrollable, { read: ElementRef<HTMLElement> });
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
   protected readonly dialogRef = inject(DialogRef, { optional: true });
