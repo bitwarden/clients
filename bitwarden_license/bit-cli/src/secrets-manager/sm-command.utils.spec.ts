@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
   isInSmOrganization,
   parseSmId,
@@ -119,6 +120,40 @@ describe("sm-command.utils", () => {
     it("rejects JSON that is not an object", async () => {
       const result = await parseSmRequest(encodeSmRequest(["a"]));
       expect(result.error?.message).toBe("The request data must be a JSON object.");
+    });
+  });
+
+  describe("checkSmReadOnlyProperties", () => {
+    it("allows a request without read-only properties", () => {
+      expect(checkSmReadOnlyProperties({ name: "Backend" }, "project")).toBeUndefined();
+    });
+
+    it("allows server-computed dates so get output can be piped into edit", () => {
+      expect(
+        checkSmReadOnlyProperties(
+          { name: "Backend", creationDate: "2024-01-01", revisionDate: "2024-01-02" },
+          "project",
+        ),
+      ).toBeUndefined();
+    });
+
+    it("names a single property in the singular", () => {
+      expect(checkSmReadOnlyProperties({ write: "true" }, "project")?.message).toBe(
+        "`write` cannot be edited on a project. Remove this property from the request.",
+      );
+    });
+
+    it("names multiple properties in the plural", () => {
+      expect(
+        checkSmReadOnlyProperties({ read: true, write: true }, "machine account")?.message,
+      ).toBe(
+        "`read`, `write` cannot be edited on a machine account. Remove these properties from the request.",
+      );
+    });
+
+    it("treats a false value as present and a whitespace-only value as missing", () => {
+      expect(checkSmReadOnlyProperties({ read: false }, "project")?.success).toBe(false);
+      expect(checkSmReadOnlyProperties({ read: "  " }, "project")).toBeUndefined();
     });
   });
 

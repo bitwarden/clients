@@ -84,4 +84,18 @@ describe("ProjectEditCommand", () => {
     expect(response.success).toBe(false);
     expect(response.message).toBe("The project was not found, or you do not have access to it.");
   });
+
+  it("rejects a request that sets a read-only property", async () => {
+    const response = await command.run(smOrg, projectId, {
+      name: "Renamed",
+      write: "true",
+      read: true,
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "`read`, `write` cannot be edited on a project. Remove these properties from the request.",
+    );
+    expect(projectService.getByProjectId).not.toHaveBeenCalled();
+  });
 });

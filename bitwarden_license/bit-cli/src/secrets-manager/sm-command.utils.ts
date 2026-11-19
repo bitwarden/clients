@@ -127,6 +127,31 @@ export function checkSmRequestOrganization(
   return undefined;
 }
 
+const SM_READ_ONLY_PROPERTIES = ["read", "write"] as const;
+
+/**
+ * Rejects a request body that sets the `read` or `write` permission flags, which are computed by
+ * the server and cannot be edited. `creationDate` and `revisionDate` are deliberately not
+ * rejected, so the output of a `get` command can still be piped into `edit`.
+ */
+export function checkSmReadOnlyProperties(
+  request: Record<string, unknown>,
+  entity: string,
+): Response | undefined {
+  const present = SM_READ_ONLY_PROPERTIES.filter((property) => !isMissing(request[property]));
+  if (present.length === 0) {
+    return undefined;
+  }
+  return Response.badRequest(
+    present.map((property) => "`" + property + "`").join(", ") +
+      " cannot be edited on a " +
+      entity +
+      ". Remove " +
+      (present.length > 1 ? "these properties" : "this property") +
+      " from the request.",
+  );
+}
+
 export function readSmString(
   request: Record<string, unknown>,
   property: string,

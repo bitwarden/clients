@@ -4,6 +4,7 @@ import { Response } from "@bitwarden/cli/models/response";
 import { ServiceContainer } from "../../service-container";
 import { SmProjectResponse } from "../models/sm-project.response";
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
   parseSmId,
   parseSmRequest,
@@ -31,6 +32,10 @@ export class ProjectEditCommand {
     );
     if (orgMismatch) {
       return orgMismatch;
+    }
+    const readOnly = checkSmReadOnlyProperties(parsed.request, "project");
+    if (readOnly) {
+      return readOnly;
     }
     const name = readSmName(parsed.request);
     if (name.error) {
