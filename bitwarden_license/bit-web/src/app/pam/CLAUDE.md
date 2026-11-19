@@ -180,25 +180,13 @@ either lib) can reuse them. Import them from the package barrels, not from this 
   leases, as ids and statuses), `PamNotificationSink`, event grouping and the click-through routes.
   Only the desktop app uses it today. The decision builders
   (`testing/decision-builders.ts`) are spec-only and come from `@bitwarden/bit-pam/testing`.
-- `@bitwarden/bit-pam-components`:
-  - `access-requests/`: `AccessNameResolverService`, `MyAccessService`, and the row models
-    (`my-access-row`, `my-request-row`, `history-row`, `request-status-look`).
-  - `approvals/`: `ApproverInboxService`, `ApproverActionsService`, `ApprovalPrivilegeService`, the
-    `canViewApprovalsGuard`, the row models (`approval-row`, `approver-row`, `managed-lease-row`), and
-    the decide and
-    withdraw-approval dialogs. Their stories stay in this folder because they use web-vault test
-    helpers.
-  - `request-summary/`: `RequestSummaryComponent` and `SummaryFieldComponent`.
-  - `access-requests/access-request-detail/`: `AccessRequestDetailService` and
-    `AccessRequestDialogComponent`, the `/pam/requests/:id` view. The route host that opens it stays
-    per client (it names that client's tabs and routes). Its stories stay here.
-  - `services/`: `PamPendingCountService`, the badge count (own actionable requests unioned with the
-    approver inbox); `GovernedCollectionsService` and `gatedCollection()`; `GatedRequestActionsService`
-    (is a request withdrawable, withdraw it); `LeaseExtensionService` (read a lease's extension cap,
-    run the extend dialog and report); `AccessRequestCancelService` and `MyLeasesService`.
-  - `gated-collection-banner/`, `vault-row-lease-badge/`, `vault-item-column/` (the Controlled access
-    column and its cell): the vault surfaces both clients bind. `helpers/`: `access-rule-summary`,
-    `announcementHoldMs` (how long a tab's "loaded" announcement stays in its live region).
+- `@bitwarden/bit-pam-components`: the request and approval view-models, data services, row
+  models, the decide and withdraw-approval dialogs, the `/pam/requests/:id` dialog and its
+  detail service, the shared vault surfaces (`gated-collection-banner/`,
+  `vault-row-lease-badge/`, `vault-item-column/`) and `helpers/`. See
+  `bit-pam-components/src/index.ts` for the current export list. Their stories stay in this
+  folder because they use web-vault test helpers; the route host that opens the dialog stays
+  per client, since it names that client's tabs and routes.
 
 Still web-only here: the page shell and the three tab components (`access-requests/`), the route
 host (`access-request-route/`), `provide-pam.ts` and the routing modules. Desktop has its own copies

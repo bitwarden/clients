@@ -11,7 +11,7 @@ Inert hooks a commercial build fills; this folder and the rest of `apps/desktop`
   (above My folders, Archive and Trash, as on web). Shows only when `PAM_DESKTOP_ROUTES` is
   provided, `FeatureFlag.Pam` is on and an organization has `usePam`.
 - `pam-nav-badge.service.ts`: optional abstract badge count for the nav item; falls back to `0`.
-- Vault seams that live elsewhere: `vault-v3/vault-gated-collection-banner.token.ts` (banner above
+- Vault seams that live elsewhere: `vault/app/vault-v3/vault-gated-collection-banner.token.ts` (banner above
   a shared folder's items, unprovided renders nothing) and the shared `@bitwarden/vault` tokens
   `VAULT_ROW_ACTIONS`, `VAULT_ITEM_COLUMN`, `VAULT_ITEM_FILTER`, `CIPHER_VIEW_BANNER`,
   `ITEM_DETAILS_BADGE`, which the desktop vault table and cipher view already honour, and
