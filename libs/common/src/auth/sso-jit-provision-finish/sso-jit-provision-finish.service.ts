@@ -12,8 +12,8 @@ import { SsoJitProvisionFinishResult } from "./sso-jit-provision-finish-result.t
 import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-finish-trusted-device.params";
 
 /**
- * Finishes SSO JIT provisioning for a new organization member through the SDK (V2 account
- * encryption). Each finish method covers one member decryption type.
+ * Finishes SSO JIT provisioning for a new organization member through the SDK. Each finish
+ * method covers one member decryption type.
  *
  * The service decides whether the server accepts the organization invite. See
  * {@link shouldAcceptOrganizationInvite}. The SDK makes the keys and chooses the server endpoint
