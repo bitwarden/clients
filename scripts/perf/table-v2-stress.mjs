@@ -10,16 +10,18 @@
 // count and total duration of long tasks (>50ms) observed in that window. With --profile, a V8
 // CPU profile of the whole run is written and its heaviest self-time functions are printed.
 //
-// Reference (M-series laptop, --runs 3 --cpu-throttle 4, medians in ms, 23k rows / 3k folders):
+// Reference (M-series laptop, --runs 3 --cpu-throttle 4, medians, 23k rows / 3k folders).
+// Improvement is the stack against current main.
 //
-//   scenario                      main before PM-47044   main @ ce8c2993   CL-1430 stack @ bb761340
-//   open Shared folders                    10,567              4,316               287
-//   search inside (~100 matches)            5,107              5,712                38
-//   tick a leaf (1st / 2nd)           6,187 / 5,346          513 / 135         271 / 121
-//   clear menu search                       3,465              3,415                41
-//   expand a parent                         2,849              2,469                48
-//   tick a parent (11 selected)             6,769                485               369
-//   close menu                              1,149              1,095                61
+//   scenario                      main before PM-47044   main @ ce8c2993   CL-1430 @ bb761340   improvement
+//   open Shared folders                 10,567 ms           4,316 ms            287 ms            93%
+//   search inside (~100 matches)         5,107 ms           5,712 ms             38 ms            99%
+//   tick a leaf (1st)                    6,187 ms             513 ms            271 ms            47%
+//   tick a leaf (2nd)                    5,346 ms             135 ms            121 ms            10%
+//   clear menu search                    3,465 ms           3,415 ms             41 ms            99%
+//   expand a parent                      2,849 ms           2,469 ms             48 ms            98%
+//   tick a parent (11 selected)          6,769 ms             485 ms            369 ms            24%
+//   close menu                           1,149 ms           1,095 ms             61 ms            94%
 //
 // Unthrottled, divide by roughly four. Initial render is dominated by the Storybook dev build
 // and is not comparable across runs.
