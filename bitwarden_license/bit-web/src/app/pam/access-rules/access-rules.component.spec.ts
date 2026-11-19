@@ -6,7 +6,10 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
-import { accessRuleDeactivateConfirmOptions } from "@bitwarden/bit-pam-components";
+import {
+  accessRuleDeactivateConfirmOptions,
+  GovernedCollectionsService,
+} from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -18,8 +21,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
-
-import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { AccessRulesComponent } from "./access-rules.component";
 

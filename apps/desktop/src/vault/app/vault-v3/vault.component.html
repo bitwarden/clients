@@ -60,6 +60,19 @@
       absorbs the space it takes instead, down to its own floor (MIN_TABLE_HEIGHT), past which the
       page scrolls.
     -->
+    @if (gatedCollectionBanner && gatedBannerTarget(); as target) {
+      <div class="tw-shrink-0 tw-px-8">
+        <ng-container
+          *ngComponentOutlet="
+            gatedCollectionBanner;
+            inputs: {
+              organizationId: target.organizationId,
+              collectionId: target.collectionId,
+            }
+          "
+        />
+      </div>
+    }
     <vault-card-grid
       class="tw-block tw-shrink-0 tw-px-8"
       [collections]="scopedCollections"

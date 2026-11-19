@@ -24,7 +24,20 @@ import {
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
 import { ElapsedLabel, elapsedLabel, selectedFilterStrings } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService, TimestampPipe } from "@bitwarden/bit-pam-components";
+import {
+  AccessBadgeTickerService,
+  TimestampPipe,
+  ApprovalPrivilegeService,
+  ApproverInboxService,
+  HISTORY_STATUS_LABEL_KEYS,
+  HistoryResolver,
+  HistoryRow,
+  HistoryStatus,
+  toHistoryRow,
+  MyAccessRequestRow,
+  MyAccessService,
+  announcementHoldMs,
+} from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -51,20 +64,6 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
-import { announcementHoldMs } from "./announcement-hold";
-import {
-  HISTORY_STATUS_LABEL_KEYS,
-  HistoryResolver,
-  HistoryRow,
-  HistoryStatus,
-  toHistoryRow,
-} from "./history-row";
-import { MyAccessRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 
 /** A History row with its Resolved label, which moves with the clock. */
 type HistoryTableRow = HistoryRow & { elapsed: ElapsedLabel };

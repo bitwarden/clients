@@ -68,6 +68,7 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { isAllowedNotificationRoute } from "../platform/notification-routes";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
@@ -98,6 +99,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private idleTimer: number = null;
   private isIdle = false;
   private activeUserId: UserId = null;
+  /** A notification's route, held while locked so it opens after the next unlock. */
+  private pendingNotificationRoute: string | null = null;
   private activeSimpleDialog: DialogRef<boolean> = null;
   private processingPendingAuthRequests = false;
   private shouldRerunAuthRequestProcessing = false;
@@ -195,6 +198,7 @@ export class AppComponent implements OnInit, OnDestroy {
         switch (message.command) {
           case "loggedIn":
           case "unlocked":
+            await this.openPendingNotificationRoute();
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.recordActivity();
@@ -203,6 +207,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.updateAppMenu();
             break;
           case "loggedOut":
+            this.pendingNotificationRoute = null;
             this.modalService.closeAll();
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -531,11 +536,48 @@ export class AppComponent implements OnInit, OnDestroy {
           case "launchUri":
             this.platformUtilsService.launchUri(message.url);
             break;
+          case "navigateToRoute":
+            await this.openNotificationRoute(message.route);
+            break;
         }
       });
     });
 
     void this.resolveActiveAccount();
+  }
+
+  /**
+   * Opens the page a clicked system notification asked for. The main process has already checked
+   * the route; it is checked again here, since this is what navigates. A locked or logged-out app
+   * keeps it until the user is in.
+   */
+  private async openNotificationRoute(route: unknown) {
+    if (!isAllowedNotificationRoute(route)) {
+      this.logService.error("'navigateToRoute' message received with a disallowed route.");
+      return;
+    }
+    if (!(await this.isActiveUserUnlocked())) {
+      this.pendingNotificationRoute = route;
+      return;
+    }
+    this.pendingNotificationRoute = null;
+    await this.router.navigateByUrl(route);
+  }
+
+  private async openPendingNotificationRoute() {
+    const route = this.pendingNotificationRoute;
+    if (route != null && (await this.isActiveUserUnlocked())) {
+      this.pendingNotificationRoute = null;
+      await this.router.navigateByUrl(route);
+    }
+  }
+
+  private async isActiveUserUnlocked(): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    return (
+      userId != null &&
+      (await this.authService.getAuthStatus(userId)) === AuthenticationStatus.Unlocked
+    );
   }
 
   /**

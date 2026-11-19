@@ -6,6 +6,12 @@ import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
+import {
+  ApprovalPrivilegeService,
+  ApproverInboxService,
+  MyAccessRequestRow,
+  MyAccessService,
+} from "@bitwarden/bit-pam-components";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,12 +24,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-
 import { HistoryTabComponent } from "./history-tab.component";
-import { MyAccessRequestRow } from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 

@@ -10,13 +10,13 @@ import {
   AccessRuleSdkService,
   AccessRuleView,
 } from "@bitwarden/bit-pam";
+import { GovernedCollectionsService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
-import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";

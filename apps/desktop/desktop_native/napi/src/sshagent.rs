@@ -30,6 +30,23 @@ pub mod sshagent {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
+        /// Unix time in milliseconds after which the agent neither lists nor signs with the key.
+        /// Absent for a key that does not expire.
+        pub expires_at: Option<f64>,
+    }
+
+    /// An expiry from JavaScript as Unix milliseconds. A value that is not a positive finite
+    /// number reads as already expired, so a malformed expiry never makes a key last forever.
+    fn expiry_ms(expires_at: f64) -> u64 {
+        if expires_at.is_finite() && expires_at > 0.0 {
+            // Truncation is intended: sub-millisecond precision is meaningless here, and the
+            // float-to-int cast saturates at u64::MAX.
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+            let ms = expires_at as u64;
+            ms
+        } else {
+            0
+        }
     }
 
     /// SSH public key data
@@ -217,11 +234,20 @@ pub mod sshagent {
                     private_key_pem: k.private_key,
                     name: k.name,
                     cipher_id: k.cipher_id,
+                    expires_at_ms: k.expires_at.map(expiry_ms),
                 })
                 .collect();
 
             self.agent
                 .replace(ssh_agent::SSHKeyData::from_private_key_pems(keys))
+                .map_err(|e| napi::Error::from_reason(e.to_string()))
+        }
+
+        /// Removes the keys that carry an expiry and keeps the others.
+        #[napi]
+        pub fn remove_expiring(&self) -> napi::Result<()> {
+            self.agent
+                .remove_expiring()
                 .map_err(|e| napi::Error::from_reason(e.to_string()))
         }
     }

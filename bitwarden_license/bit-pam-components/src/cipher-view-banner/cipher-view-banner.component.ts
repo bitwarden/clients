@@ -32,6 +32,7 @@ import {
 
 import {
   type AccessLeaseView,
+  type CipherAccessStateView,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -42,6 +43,8 @@ import {
   rereadOnLapse,
   isUnlicensedError,
   callerOrganizations$,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  pamFailureMessageKey,
   unlicensedForPam,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -67,6 +70,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
+import { injectPamConnectivityProvided, injectPamOffline } from "../connectivity/pam-offline";
+import { PamOfflineBannerComponent } from "../connectivity/pam-offline-banner.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -105,6 +110,7 @@ import { type RequestTerms, requestTerms } from "./request-terms";
     RequestAccessFormComponent,
     UnavailableCardComponent,
     UnlicensedCardComponent,
+    PamOfflineBannerComponent,
   ],
 })
 export class CipherViewBannerComponent implements OnInit {
@@ -131,6 +137,24 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
   protected readonly popupLayout = injectPopupLayout();
+
+  /**
+   * Every action here needs the server, so each is disabled, with this reason, while offline. Never
+   * set on a client that reports no connectivity.
+   */
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
+
+  /**
+   * Where connectivity is reported, a failed state read keeps the cipher's last answer, so a held
+   * lease keeps its countdown offline. It can hold what was read, never add to it: the lease still
+   * ends at its own `notAfter`, and every action stays disabled until the server answers again.
+   */
+  private readonly holdsLastStateOnFailure = injectPamConnectivityProvided();
+  private readonly lastRead: { state: { cipherId: string; state: CipherAccessStateView } | null } =
+    {
+      state: null,
+    };
 
   /** Advanced every second while {@link clockAdvances}. */
   protected readonly nowMs = signal(Date.now());
@@ -176,6 +200,12 @@ export class CipherViewBannerComponent implements OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  /** Whether PAM governs the open cipher, so the offline notice shows only where it applies. */
+  protected readonly governed = toSignal(
+    this.governedCipher$.pipe(map((cipher) => cipher != null)),
+    { initialValue: false },
+  );
+
   /**
    * The caller's access state, re-read on every {@link AccessRefreshService} change. The reveal
    * provider shares that trigger, so starting access here also reveals the credential.
@@ -189,11 +219,19 @@ export class CipherViewBannerComponent implements OnInit {
         const cipherId = String(cipher.id);
         const read$ = () =>
           from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+            map((state) => {
+              this.lastRead.state = { cipherId, state };
+              return state;
+            }),
             catchError((e: unknown) => {
               // An unreadable state renders no banner rather than an error, like the vault-row
-              // badge.
+              // badge, unless this client holds the last answer (see `holdsLastStateOnFailure`).
               this.logService.error(e);
-              return of(null);
+              const held =
+                this.holdsLastStateOnFailure && this.lastRead.state?.cipherId === cipherId
+                  ? this.lastRead.state.state
+                  : null;
+              return of(held);
             }),
           );
         return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
@@ -358,6 +396,9 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   protected openRequest(): void {
+    if (this.offline()) {
+      return;
+    }
     if (this.popupLayout) {
       void this.openRequestSheet();
       return;
@@ -402,7 +443,7 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly activateRequest = async (): Promise<void> => {
     const approved = this.approvedRequest();
-    if (approved == null) {
+    if (approved == null || this.offline()) {
       return;
     }
     try {
@@ -416,7 +457,7 @@ export class CipherViewBannerComponent implements OnInit {
       // A taken single-active-lease slot surfaces here; the approved request stays activatable.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
+        message: this.i18nService.t(pamFailureMessageKey(e, activateAccessErrorMessageKey(e))),
       });
     } finally {
       this.notifyAccessChanged();
@@ -429,7 +470,11 @@ export class CipherViewBannerComponent implements OnInit {
    */
   protected readonly cancelRequest = async (): Promise<void> => {
     const cipherId = this.cipher().id;
-    if (cipherId == null || (this.pendingRequest() ?? this.approvedRequest()) == null) {
+    if (
+      cipherId == null ||
+      (this.pendingRequest() ?? this.approvedRequest()) == null ||
+      this.offline()
+    ) {
       return;
     }
     await this.accessRequestCancelService.cancelOutstandingRequest(String(cipherId));
@@ -443,7 +488,7 @@ export class CipherViewBannerComponent implements OnInit {
     const lease = this.activeLease();
     // The server sends a cap whenever extensions are allowed.
     const maxDurationSeconds = this.state()?.maxExtensionDurationSeconds;
-    if (lease == null || maxDurationSeconds == null) {
+    if (lease == null || maxDurationSeconds == null || this.offline()) {
       return;
     }
     const request = await firstValueFrom(
@@ -466,7 +511,10 @@ export class CipherViewBannerComponent implements OnInit {
         // Reachable only if the seat is withdrawn between render and click; the unlicensed state
         // otherwise replaces this card.
         message: this.i18nService.t(
-          isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
+          pamFailureMessageKey(
+            e,
+            isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
+          ),
         ),
       });
     } finally {
@@ -476,7 +524,7 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly endLease = async (): Promise<void> => {
     const lease = this.activeLease();
-    if (lease == null) {
+    if (lease == null || this.offline()) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -500,7 +548,7 @@ export class CipherViewBannerComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t(pamFailureMessageKey(e, "errorOccurred")),
       });
     } finally {
       this.notifyAccessChanged();

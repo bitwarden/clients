@@ -6,6 +6,7 @@ import type {
   AccessRequestDecisionView,
   AccessRequestView,
 } from "@bitwarden/bit-pam";
+import { type ResolvedNames } from "@bitwarden/bit-pam-components";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -15,8 +16,6 @@ import { Measurement } from "@bitwarden/logging";
 import { HOUR, MINUTE, fromNow } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
 import { ProductSwitcherService } from "@bitwarden/web-vault/app/layouts/product-switcher/shared/product-switcher.service";
-
-import type { ResolvedNames } from "../access-requests/access-name-resolver.service";
 
 /** A pending request. Overrides widen through `unknown`, since the SDK brands most of these ids. */
 export function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestView {

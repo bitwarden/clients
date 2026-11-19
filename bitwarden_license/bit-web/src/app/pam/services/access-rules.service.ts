@@ -9,13 +9,12 @@ import {
   accessRuleToRequest,
   filterRulesToToggle,
 } from "@bitwarden/bit-pam";
+import { GovernedCollectionsService } from "@bitwarden/bit-pam-components";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-
-import { GovernedCollectionsService } from "./governed-collections.service";
 
 /** Data service for the access rules table, provided per `AccessRulesComponent`. */
 @Injectable()

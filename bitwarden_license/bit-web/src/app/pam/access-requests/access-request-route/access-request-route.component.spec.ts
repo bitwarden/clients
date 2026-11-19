@@ -12,14 +12,17 @@ import {
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
+import {
+  AccessRequestDetailService,
+  AccessRequestViewer,
+  AccessRequestDialogComponent,
+} from "@bitwarden/bit-pam-components";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { ApprovalsTabComponent } from "../approvals-tab.component";
 import { HistoryTabComponent } from "../history-tab.component";
 import { MyRequestsTabComponent } from "../my-requests-tab.component";
 
-import { AccessRequestDetailService, AccessRequestViewer } from "./access-request-detail.service";
-import { AccessRequestDialogComponent } from "./access-request-dialog.component";
 import { AccessRequestRouteComponent } from "./access-request-route.component";
 
 describe("AccessRequestRouteComponent", () => {

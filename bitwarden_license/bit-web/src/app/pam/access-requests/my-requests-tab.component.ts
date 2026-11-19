@@ -29,6 +29,19 @@ import {
   DurationShortPipe,
   RequestedWindowPipe,
   TimestampPipe,
+  MyAccessLeaseRow,
+  MyAccessRequestRow,
+  isRedeemableGrant,
+  lapsedGrantBadge,
+  MyAccessService,
+  MY_REQUEST_LOOK,
+  MY_REQUEST_STATUSES,
+  MyRequestRow,
+  MyRequestStatus,
+  buildMyRequestRows,
+  myRequestStatus,
+  myRequestStatusRank,
+  announcementHoldMs,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -61,24 +74,6 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { announcementHoldMs } from "./announcement-hold";
-import {
-  MyAccessLeaseRow,
-  MyAccessRequestRow,
-  isRedeemableGrant,
-  lapsedGrantBadge,
-} from "./my-access-row";
-import { MyAccessService } from "./my-access.service";
-import {
-  MY_REQUEST_LOOK,
-  MY_REQUEST_STATUSES,
-  MyRequestRow,
-  MyRequestStatus,
-  buildMyRequestRows,
-  myRequestStatus,
-  myRequestStatusRank,
-} from "./my-request-row";
 
 type FilterOption = { label: string; value: string; iconTile?: IconTileOptions };
 

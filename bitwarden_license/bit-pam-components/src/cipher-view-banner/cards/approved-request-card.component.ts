@@ -12,6 +12,7 @@ import {
   ACCESS_BADGE_LOOK,
   formatCalendarDate,
   formatTimeOfDay,
+  PAM_OFFLINE_TOOLTIP_KEY,
   toDateInputValue,
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -20,9 +21,11 @@ import {
   ButtonModule,
   CardComponent,
   FunctionReturningAwaitable,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPamOffline } from "../../connectivity/pam-offline";
 import { injectPopupLayout } from "../cipher-view-banner-layout";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
@@ -32,7 +35,14 @@ import { BannerCardHeaderComponent } from "./banner-card-header.component";
   selector: "app-pam-approved-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [AsyncActionsModule, ButtonModule, CardComponent, BannerCardHeaderComponent, I18nPipe],
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CardComponent,
+    BannerCardHeaderComponent,
+    TooltipDirective,
+    I18nPipe,
+  ],
   templateUrl: "./approved-request-card.component.html",
 })
 export class ApprovedRequestCardComponent {
@@ -46,6 +56,8 @@ export class ApprovedRequestCardComponent {
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
   protected readonly popupLayout = injectPopupLayout();
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
 
   /** "…until 4:45 PM today." while the approved window ends on the current day, else its date too. */
   protected readonly accessUntilLabel = computed(() => {

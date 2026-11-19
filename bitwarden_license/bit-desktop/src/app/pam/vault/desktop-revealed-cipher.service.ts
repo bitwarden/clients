@@ -1,0 +1,407 @@
+import { NgZone } from "@angular/core";
+import {
+  BehaviorSubject,
+  catchError,
+  concatMap,
+  defer,
+  distinctUntilChanged,
+  EMPTY,
+  firstValueFrom,
+  from,
+  ignoreElements,
+  map,
+  merge,
+  MonoTypeOperatorFunction,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
+
+import {
+  AccessRefreshService,
+  AccessRequestSdkService,
+  liveActiveLease,
+  rereadOnLapse,
+  AccessLeaseSdkService,
+  PamConnectivityService,
+} from "@bitwarden/bit-pam";
+import type { CipherAccessStateView } from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+
+import { DesktopAccessBadgeTickerService } from "../desktop-access-badge-ticker.service";
+
+import { DesktopLeasedClipboardService } from "./desktop-leased-clipboard.service";
+
+/** A revealed view and the end of the lease it was revealed under, in ms. */
+export type RevealedEntry = { view: CipherView; endsAt: number };
+type Entry = RevealedEntry;
+
+/**
+ * Holds the full view of a restricted cipher while the caller holds a live lease on it, for the
+ * desktop vault's item drawer and row menu. The view comes from the SDK's `leased_cipher`, which
+ * never writes it to the cipher repository; it lives in the renderer's memory only (never state,
+ * never IPC to the main process), and goes when its lease lapses or the user locks or logs out.
+ * A value copied from it goes from the clipboard at the same moment (see
+ * {@link DesktopLeasedClipboardService}).
+ *
+ * The same logic as bit-web's `PamRevealedCipherService`: the desktop renderer has the same
+ * dependencies, so keep the two behaving alike.
+ */
+export class DesktopRevealedCipherService implements RevealedCipherService {
+  private readonly entries$ = new BehaviorSubject<
+    ReadonlyMap<UserId, ReadonlyMap<CipherId, Entry>>
+  >(new Map());
+
+  /** Bumped on every clear, so a reveal that resolves after a lock is not stored. */
+  private readonly generations = new Map<UserId, number>();
+
+  /** The latest auth statuses. A reveal is stored only for an unlocked user. */
+  private statuses: Record<UserId, AuthenticationStatus> = {};
+
+  constructor(
+    private readonly accessRequestSdkService: AccessRequestSdkService,
+    private readonly accessRefreshService: AccessRefreshService,
+    private readonly ticker: DesktopAccessBadgeTickerService,
+    private readonly accessLeaseSdkService: AccessLeaseSdkService,
+    private readonly accountService: AccountService,
+    authService: AuthService,
+    private readonly ngZone: NgZone,
+    private readonly logService: LogService,
+    leasedClipboard: DesktopLeasedClipboardService,
+    connectivity: PamConnectivityService,
+  ) {
+    // A root singleton, so neither subscription ends. Users missing from the record are logged out.
+    authService.authStatuses$.subscribe((statuses) => {
+      this.statuses = statuses;
+      // Includes users with no views yet, so a reveal still in flight across a lock is not stored.
+      const userIds = new Set([
+        ...this.entries$.value.keys(),
+        ...this.generations.keys(),
+        ...(Object.keys(statuses) as UserId[]),
+      ]);
+      for (const userId of userIds) {
+        if (statuses[userId] !== AuthenticationStatus.Unlocked) {
+          this.clear(userId);
+        }
+      }
+    });
+
+    // Nothing announces a lease running out, so the shared clock drops lapsed views, but only
+    // while there are any.
+    this.entries$
+      .pipe(
+        map((all) => [...all.values()].some((entries) => entries.size > 0)),
+        distinctUntilChanged(),
+        switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)),
+      )
+      .subscribe((nowMs) => this.dropLapsed(nowMs));
+
+    // Every way a view goes (end, lapse, lock, logout, account switch) passes through entries$.
+    leasedClipboard.watch(
+      this.entries$.pipe(
+        map(
+          (all) =>
+            new Map(
+              [...all].map(([userId, entries]) => [
+                userId,
+                new Map([...entries].map(([cipherId, entry]) => [cipherId, entry.view])),
+              ]),
+            ),
+        ),
+      ),
+    );
+
+    // A jump in the wall clock, or a sleep, leaves the lease clock unsure how much time passed, so
+    // every held view must be confirmed by the server again or go.
+    this.ticker.clockJumps$.subscribe(() =>
+      this.ngZone.run(() => {
+        void this.revalidateAll();
+      }),
+    );
+
+    // A reveal held while offline was never re-confirmed, so once the server answers again each
+    // is checked, and dropped if its lease is gone (ended, revoked). One pass at a time.
+    connectivity.reconnected$.pipe(concatMap(() => from(this.confirmHeld()))).subscribe();
+  }
+
+  revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {
+    return this.entries$.pipe(
+      map((all) => {
+        const nowMs = this.ticker.now();
+        const views = new Map<CipherId, CipherView>();
+        all.get(userId)?.forEach((entry, cipherId) => {
+          if (entry.endsAt > nowMs) {
+            views.set(cipherId, entry.view);
+          }
+        });
+        return views;
+      }),
+      distinctUntilChanged(
+        (a, b) => a.size === b.size && [...a].every(([id, view]) => b.get(id) === view),
+      ),
+    );
+  }
+
+  /**
+   * The live revealed views of the user with the end of the lease each was revealed under, for the
+   * SSH agent's leased keys (`DesktopLeasedSshKeyService`), which hands that end to the agent.
+   */
+  revealedEntries$(userId: UserId): Observable<ReadonlyMap<CipherId, RevealedEntry>> {
+    return this.entries$.pipe(
+      map((all) => {
+        const nowMs = Date.now();
+        return new Map([...(all.get(userId) ?? [])].filter(([, entry]) => entry.endsAt > nowMs));
+      }),
+      distinctUntilChanged(
+        (a, b) => a.size === b.size && [...a].every(([id, entry]) => b.get(id) === entry),
+      ),
+    );
+  }
+
+  /** The live revealed view and its lease end, checked against the clock now. */
+  liveEntry(userId: UserId, cipherId: CipherId): RevealedEntry | undefined {
+    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    return entry != null && entry.endsAt > Date.now() ? entry : undefined;
+  }
+
+  isRevealed(userId: UserId, cipherId: CipherId): boolean {
+    return this.get(userId, cipherId) != null;
+  }
+
+  get(userId: UserId, cipherId: CipherId): CipherView | undefined {
+    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    return entry != null && entry.endsAt > this.ticker.now() ? entry.view : undefined;
+  }
+
+  async getOrReveal(userId: UserId, cipherId: CipherId): Promise<CipherView | null> {
+    const live = this.get(userId, cipherId);
+    if (live != null) {
+      return live;
+    }
+    const notAfter = await firstValueFrom(this.liveLeaseEnd$(userId, cipherId));
+    return notAfter == null ? null : await this.reveal(userId, cipherId, notAfter);
+  }
+
+  async refresh(userId: UserId, cipherId: CipherId): Promise<void> {
+    const notAfter = await firstValueFrom(this.liveLeaseEnd$(userId, cipherId));
+    if (notAfter == null) {
+      this.drop(userId, cipherId);
+      return;
+    }
+    await this.reveal(userId, cipherId, notAfter);
+  }
+
+  displayView$(userId: UserId, storedView: CipherView): Observable<CipherView> {
+    if (!RestrictedCipherPolicy.isRestricted(storedView)) {
+      return of(storedView);
+    }
+    const cipherId = storedView.id as CipherId;
+
+    // concatMap, not switchMap, or an in-flight reveal could land after a re-lock and leave
+    // secrets on screen.
+    const sync$ = this.liveLeaseEnd$(userId, cipherId).pipe(
+      concatMap(async (notAfter) => {
+        if (notAfter == null) {
+          this.drop(userId, cipherId);
+          return;
+        }
+        const held = this.entries$.value.get(userId)?.get(cipherId);
+        if (held == null || held.endsAt < Date.parse(notAfter)) {
+          await this.reveal(userId, cipherId, notAfter);
+        }
+      }),
+      ignoreElements(),
+    );
+    const view$ = this.revealed$(userId).pipe(map((views) => views.get(cipherId) ?? storedView));
+
+    return merge(sync$, view$).pipe(distinctUntilChanged());
+  }
+
+  /**
+   * The `notAfter` of the caller's live lease on `cipherId`, or null. Read again on every access
+   * change and once the lease lapses. The reads run as the active user, so another user gets null.
+   */
+  private liveLeaseEnd$(userId: UserId, cipherId: CipherId): Observable<string | null> {
+    return this.accountService.activeAccount$.pipe(
+      map((account) => account?.id === userId),
+      distinctUntilChanged(),
+      switchMap((active) => (active ? this.activeUserLeaseEnd$(cipherId) : of(null))),
+    );
+  }
+
+  private activeUserLeaseEnd$(cipherId: CipherId): Observable<string | null> {
+    return defer(() => {
+      let held: CipherAccessStateView | null = null;
+      const read$ = () =>
+        from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+          catchError((error: unknown) => {
+            // A failed read keeps the last answer, so it can hold a reveal but never grant one.
+            this.logService.error(error);
+            return of(held);
+          }),
+          tap((state) => (held = state)),
+        );
+
+      return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
+        switchMap(() => rereadOnLapse(read$, this.ticker.ticks$, () => this.ticker.now())),
+        map((state) => liveActiveLease(state, this.ticker.now())?.notAfter ?? null),
+        distinctUntilChanged(),
+        this.inAngularZone(),
+      );
+    });
+  }
+
+  /**
+   * Reads and stores the full view. A still-restricted response means the lease lapsed after the
+   * state read, so it reports no access and drops the entry.
+   */
+  private async reveal(
+    userId: UserId,
+    cipherId: CipherId,
+    notAfter: string,
+  ): Promise<CipherView | null> {
+    const generation = this.generations.get(userId) ?? 0;
+    const view = await this.readLeasedView(cipherId);
+    if (
+      generation !== (this.generations.get(userId) ?? 0) ||
+      this.statuses[userId] !== AuthenticationStatus.Unlocked
+    ) {
+      return null;
+    }
+    if (view == null || view.id !== cipherId || view.partial !== false) {
+      this.drop(userId, cipherId);
+      return null;
+    }
+    const userEntries = new Map(this.entries$.value.get(userId));
+    userEntries.set(cipherId, { view, endsAt: Date.parse(notAfter) });
+    this.entries$.next(new Map(this.entries$.value).set(userId, userEntries));
+    return view;
+  }
+
+  private async readLeasedView(cipherId: CipherId): Promise<CipherView | null> {
+    try {
+      const view = await this.accessLeaseSdkService.leasedCipher(cipherId);
+      return view == null ? null : (CipherView.fromSdkCipherView(view) ?? null);
+    } catch (error: unknown) {
+      this.logService.error(error);
+      return null;
+    }
+  }
+
+  /**
+   * Confirms every held view with the server, as `refresh` does: a fresh state read (a failed one
+   * holds nothing, unlike the read behind `displayView$`) and a fresh `leasedCipher` read. A view
+   * that cannot be confirmed, offline included, is dropped; so is any held for an inactive user.
+   */
+  private async revalidateAll(): Promise<void> {
+    const held = [...this.entries$.value].flatMap(([userId, entries]) =>
+      [...entries.keys()].map((cipherId) => ({ userId, cipherId })),
+    );
+    await Promise.all(
+      held.map(({ userId, cipherId }) =>
+        this.refresh(userId, cipherId).catch((error: unknown) => {
+          this.logService.error(error);
+          this.drop(userId, cipherId);
+        }),
+      ),
+    );
+  }
+
+  /**
+   * Re-reads the access state of every view the active user holds. A view whose lease the server
+   * no longer reports live is dropped, and one whose lease now ends sooner is cut to that end; a
+   * later end is left to the item's own re-read, which re-reveals. A read that fails again keeps
+   * the view, as any failed read does, until its own `notAfter`.
+   */
+  private async confirmHeld(): Promise<void> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id ?? null)),
+    );
+    const held = userId == null ? undefined : this.entries$.value.get(userId);
+    if (userId == null || held == null || held.size === 0) {
+      return;
+    }
+    for (const cipherId of [...held.keys()]) {
+      let state: CipherAccessStateView;
+      try {
+        state = await this.accessRequestSdkService.getCipherAccessState(cipherId);
+      } catch (error: unknown) {
+        this.logService.error(error);
+        continue;
+      }
+      const lease = liveActiveLease(state, this.ticker.now());
+      if (lease == null) {
+        this.drop(userId, cipherId);
+      } else {
+        this.shortenTo(userId, cipherId, Date.parse(lease.notAfter));
+      }
+    }
+  }
+
+  /** Brings a held view's end forward to `endsAt`; never pushes it later. */
+  private shortenTo(userId: UserId, cipherId: CipherId, endsAt: number): void {
+    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    if (entry == null || !(endsAt < entry.endsAt)) {
+      return;
+    }
+    const userEntries = new Map(this.entries$.value.get(userId));
+    userEntries.set(cipherId, { ...entry, endsAt });
+    this.entries$.next(new Map(this.entries$.value).set(userId, userEntries));
+  }
+
+  /** Runs on the shared clock, outside the zone. Re-enters it only to drop a view. */
+  private dropLapsed(nowMs: number): void {
+    let changed = false;
+    const next = new Map<UserId, ReadonlyMap<CipherId, Entry>>();
+    this.entries$.value.forEach((entries, userId) => {
+      const live = new Map([...entries].filter(([, entry]) => entry.endsAt > nowMs));
+      changed ||= live.size !== entries.size;
+      next.set(userId, live);
+    });
+    if (changed) {
+      this.ngZone.run(() => this.entries$.next(next));
+    }
+  }
+
+  private clear(userId: UserId): void {
+    this.generations.set(userId, (this.generations.get(userId) ?? 0) + 1);
+    if (!this.entries$.value.has(userId)) {
+      return;
+    }
+    const next = new Map(this.entries$.value);
+    next.delete(userId);
+    this.entries$.next(next);
+  }
+
+  private drop(userId: UserId, cipherId: CipherId): void {
+    if (!this.entries$.value.get(userId)?.has(cipherId)) {
+      return;
+    }
+    const userEntries = new Map(this.entries$.value.get(userId));
+    userEntries.delete(cipherId);
+    this.entries$.next(new Map(this.entries$.value).set(userId, userEntries));
+  }
+
+  /**
+   * The clock ticks outside the zone, but the re-lock rewrites plain component fields on the open
+   * dialog, so emissions re-enter it. Applied after `distinctUntilChanged`, so only a change pays.
+   */
+  private inAngularZone<T>(): MonoTypeOperatorFunction<T> {
+    return (source) =>
+      new Observable<T>((subscriber) =>
+        source.subscribe({
+          next: (value) => this.ngZone.run(() => subscriber.next(value)),
+          error: (error: unknown) => subscriber.error(error),
+          complete: () => subscriber.complete(),
+        }),
+      );
+  }
+}

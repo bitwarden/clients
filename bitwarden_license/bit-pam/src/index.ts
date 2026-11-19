@@ -41,6 +41,17 @@ export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
 export { AccessRefreshService } from "./abstractions/access-refresh.service";
 export { AccessEventService } from "./abstractions/access-event.service";
 export { LeasingErrorService } from "./abstractions/leasing-error.service";
+export { PamConnectivityService } from "./abstractions/pam-connectivity.service";
+export {
+  isPamUnreachableError,
+  PAM_OFFLINE_ACCESS_ENDED_KEY,
+  PAM_OFFLINE_BANNER_KEY,
+  PAM_OFFLINE_TOOLTIP_KEY,
+  PAM_UNREACHABLE_MESSAGE_KEY,
+  pamFailureMessageKey,
+  PamUnreachableError,
+} from "./helpers/pam-unreachable-error";
+export type { PamUnreachableReason } from "./helpers/pam-unreachable-error";
 export {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_NAME_MAX_LENGTH,
@@ -68,10 +79,18 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export {
+  LEASE_CLOCK_JUMP_TOLERANCE_MS,
+  LeaseClock,
+  systemLeaseClockSource,
+} from "./helpers/lease-clock";
+export type { LeaseClockSource } from "./helpers/lease-clock";
 export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
+export { hasApprovalPrivileges } from "./approvals/approval-privileges";
+export { isActionableInboxRequest } from "./approvals/inbox-request-filter";
 export { unactivatedApprovedRequest } from "./helpers/unactivated-approved-request";
 export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
@@ -140,3 +159,22 @@ export { DefaultAccessEventService } from "./services/default-access-event.servi
 export { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 export { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 export { callerOrganizations$, unlicensedForPam } from "./services/pam-membership";
+export {
+  diffPamState,
+  emptyPamSnapshot,
+  nextLeaseBoundaryMs,
+} from "./notifications/pam-notification-diff";
+export type {
+  PamLeasePhase,
+  PamNotificationDiff,
+  PamNotificationEvent,
+  PamNotificationEventKind,
+  PamNotificationInput,
+  PamNotificationSnapshot,
+} from "./notifications/pam-notification-diff";
+export {
+  groupPamNotificationEvents,
+  pamNotificationRoute,
+} from "./notifications/pam-notification-routes";
+export type { PamNotificationGroup } from "./notifications/pam-notification-routes";
+export { PamNotificationSink } from "./notifications/pam-notification-sink";

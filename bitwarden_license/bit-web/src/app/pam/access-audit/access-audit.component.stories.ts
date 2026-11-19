@@ -5,6 +5,7 @@ import { NEVER, of } from "rxjs";
 import { fireEvent, userEvent, within } from "storybook/test";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { AccessNameResolverService } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -20,7 +21,6 @@ import {
 } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
 import {
   provideStoryChangeDetection,
   provideStoryLogService,

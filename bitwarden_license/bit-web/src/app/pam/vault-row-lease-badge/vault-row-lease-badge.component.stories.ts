@@ -3,15 +3,16 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { NEVER, of } from "rxjs";
 
 import type { AccessBadgeState } from "@bitwarden/bit-pam";
-import { MyAccessRequestsService } from "@bitwarden/bit-pam-components";
+import {
+  MyAccessRequestsService,
+  VaultRowLeaseBadgeComponent,
+} from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
-import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
 const PAM_ORGANIZATION_ID = "org-1";
 

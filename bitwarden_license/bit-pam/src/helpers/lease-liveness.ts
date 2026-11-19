@@ -23,18 +23,20 @@ export function liveActiveLease(
 
 /**
  * `read$`'s state, read again once its lease lapses on `ticks$`, since the lease may have been
- * extended without this surface hearing of it.
+ * extended without this surface hearing of it. `nowMs` should read the same clock `ticks$` emits.
  */
 export function rereadOnLapse<T extends CipherAccessStateView | null | undefined>(
   read$: () => Observable<T>,
   ticks$: Observable<number>,
+  nowMs: () => number = Date.now,
 ): Observable<T> {
   return rereadAt(
     read$,
-    (state, nowMs) => {
-      const lease = liveActiveLease(state, nowMs);
+    (state, atMs) => {
+      const lease = liveActiveLease(state, atMs);
       return lease == null ? undefined : Date.parse(lease.notAfter);
     },
     ticks$,
+    nowMs,
   );
 }

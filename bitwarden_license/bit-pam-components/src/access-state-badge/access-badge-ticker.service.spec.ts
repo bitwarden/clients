@@ -42,6 +42,17 @@ describe("AccessBadgeTickerService", () => {
     subscription.unsubscribe();
   });
 
+  it("ticks with the time from now()", () => {
+    jest.spyOn(service, "now").mockReturnValue(42);
+    const next = jest.fn();
+    const subscription = service.ticks$.subscribe(next);
+
+    jest.advanceTimersByTime(1_000);
+
+    expect(next).toHaveBeenCalledWith(42);
+    subscription.unsubscribe();
+  });
+
   it("shares a single interval across multiple observers", () => {
     const first = jest.fn();
     const second = jest.fn();

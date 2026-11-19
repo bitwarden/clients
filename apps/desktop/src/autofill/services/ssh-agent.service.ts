@@ -1,18 +1,24 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, Optional } from "@angular/core";
 import {
   catchError,
   combineLatest,
+  concat,
   concatMap,
+  defer,
   distinctUntilChanged,
   EMPTY,
   filter,
   firstValueFrom,
   from,
+  ignoreElements,
   map,
+  Observable,
   of,
+  race,
   skip,
+  startWith,
   Subject,
   switchMap,
   take,
@@ -20,6 +26,7 @@ import {
   tap,
   timeout,
   TimeoutError,
+  timer,
   withLatestFrom,
 } from "rxjs";
 
@@ -29,15 +36,17 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { LeasedSshKey, LeasedSshKeyService } from "../abstractions/leased-ssh-key.service";
 import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+import { SshAgentKey } from "../models/ssh-agent-key";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 /**
@@ -70,7 +79,26 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
+    // Filled only by a licensed build; unprovided, the agent serves ordinary keys only.
+    @Optional() private leasedSshKeyService?: LeasedSshKeyService,
   ) {}
+
+  /**
+   * Live cipher views paired with the leased keys, after removing leased keys when not unlocked.
+   */
+  private keySources$(userId: UserId, status: AuthenticationStatus) {
+    return concat(
+      status === AuthenticationStatus.Unlocked ? EMPTY : this.leasedKeysRemoved$(),
+      combineLatest([
+        // Subscribe to live cipher data for the account.
+        this.cipherService
+          .cipherViews$(userId)
+          // Skip emissions before cipher data is available (e.g. during initial decrypt).
+          .pipe(filter((views) => views != null)),
+        this.leasedKeys$(userId, status),
+      ]),
+    );
+  }
 
   async init() {
     await this.initListeners();
@@ -154,7 +182,7 @@ export class SshAgentService implements OnDestroy {
         }),
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
-            map((ciphers) => [message, ciphers] as const),
+            map((ciphers) => [message, ciphers, userId] as const),
             catchError((error: unknown) =>
               from(
                 this.refuseSignRequest(
@@ -167,9 +195,9 @@ export class SshAgentService implements OnDestroy {
           ),
         ),
         // This concatMap handles showing the dialog to approve the request.
-        concatMap(async ([message, ciphers]) => {
+        concatMap(async ([message, ciphers, userId]) => {
           try {
-            return await this.processSignRequest(message, ciphers);
+            return await this.processSignRequest(message, ciphers, userId);
           } catch (error: unknown) {
             await this.refuseSignRequest(
               message.requestId as number,
@@ -199,6 +227,9 @@ export class SshAgentService implements OnDestroy {
         tap(() => {
           this.logService.debug("Active account changed, resetting SSH sign approval state");
           this.authorizedHosts = new Map();
+          // A leased key belongs to the account that held the lease; it must not wait for the
+          // next account's keys to replace it. Ordinary keys are untouched.
+          void this.removeLeasedKeysIfProvided();
         }),
         takeUntil(this.destroy$),
       )
@@ -260,13 +291,20 @@ export class SshAgentService implements OnDestroy {
         }),
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
-            map((ciphers) => [message, ciphers] as const),
+            map((ciphers) => [message, ciphers, userId] as const),
           ),
         ),
-        concatMap(async ([message, ciphers]) => {
+        concatMap(async ([message, ciphers, userId]) => {
           const requestId = message.requestId as number;
           try {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            // Pushes the same set the reactive pipeline does, so a list request cannot drop a key
+            // under a live lease, nor revive one whose lease has ended.
+            await ipc.autofill.sshAgent.replace(
+              this.withLeasedKeys(
+                this.toAgentKeys(ciphers ?? []),
+                this.leasedSshKeyService?.liveKeys(userId) ?? [],
+              ),
+            );
           } catch (e) {
             // Refuse the request rather than leaving the agent's list callback unresolved, which
             // would hang the SSH client that is waiting on it.
@@ -287,6 +325,8 @@ export class SshAgentService implements OnDestroy {
     // Push SSH keys to the agent reactively whenever cipher data changes while unlocked.
     // Keys are kept in the agent's keystore on vault lock so ssh-add -L still works locked.
     // Keys are cleared only when the feature is disabled or the active account changes.
+    // Leased keys are the exception: they carry their lease's end, are re-pushed whenever their
+    // lease set changes, and leave the keystore on lock, logout and account switch.
     this.accountService.activeAccount$
       .pipe(
         // Re-evaluate the entire pipeline whenever the active account changes or is cleared.
@@ -308,20 +348,19 @@ export class SshAgentService implements OnDestroy {
               }
               // Logged out: no vault present, nothing to serve.
               if (status === AuthenticationStatus.LoggedOut) {
-                return EMPTY;
+                return this.leasedKeysRemoved$();
               }
               // Start the agent socket server if not already running.
               // Covers the locked-at-startup case: socket must be up so SSH clients
               // can connect and the app can prompt for vault unlock when needed.
               // When locked, cipherViews$ emits null (caught by the filter below),
-              // so replace() is not called and existing keys are left in the native store.
+              // so replace() is not called and existing keys are left in the native store,
+              // except leased keys, which are removed first.
               return from(this.ensureAgentRunning()).pipe(
-                // Subscribe to live cipher data for the active account.
-                switchMap(() => this.cipherService.cipherViews$(account.id)),
-                // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                filter((views) => views != null),
+                // Not unlocked: ordinary keys stay for ssh-add -L, but a leased key leaves now.
+                switchMap(() => this.keySources$(account.id, status)),
                 // Project to the SSH key fields needed by the agent.
-                map((views) => this.toAgentKeys(views)),
+                map(([views, leased]) => this.withLeasedKeys(this.toAgentKeys(views), leased)),
                 // Skip re-push when the SSH key set hasn't actually changed.
                 distinctUntilChanged((prev, curr) => {
                   // if the length is different, replace keys
@@ -329,12 +368,19 @@ export class SshAgentService implements OnDestroy {
                     return false;
                   }
                   const prevMap = new Map(
-                    prev.map((k) => [k.cipherId, { privateKey: k.privateKey, name: k.name }]),
+                    prev.map((k) => [
+                      k.cipherId,
+                      { privateKey: k.privateKey, name: k.name, expiresAt: k.expiresAt },
+                    ]),
                   );
-                  // if any has either private key changed or the name changed, replace keys
+                  // if any has its private key, name or lease end changed, replace keys
                   return curr.every((k) => {
                     const p = prevMap.get(k.cipherId);
-                    return p?.privateKey === k.privateKey && p?.name === k.name;
+                    return (
+                      p?.privateKey === k.privateKey &&
+                      p?.name === k.name &&
+                      p?.expiresAt === k.expiresAt
+                    );
                   });
                 }),
                 concatMap(async (keys) => {
@@ -392,16 +438,74 @@ export class SshAgentService implements OnDestroy {
     }
   }
 
-  private toAgentKeys(
-    ciphers: CipherView[],
-  ): { name: string; privateKey: string; cipherId: string }[] {
+  private toAgentKeys(ciphers: CipherView[]): SshAgentKey[] {
     return ciphers
       .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
+  // The user's leased keys while the vault is unlocked; none otherwise or without a provider.
+  // Starts empty so ordinary keys never wait on a lease read.
+  private leasedKeys$(userId: UserId, status: AuthenticationStatus): Observable<LeasedSshKey[]> {
+    if (this.leasedSshKeyService == null || status !== AuthenticationStatus.Unlocked) {
+      return of([]);
+    }
+    return this.leasedSshKeyService.leasedKeys$(userId).pipe(startWith([]));
+  }
+
+  // Appends the live leased keys, each carrying its lease's end so the native agent refuses it
+  // afterwards even if this renderer never pushes again. An ordinary key of the same cipher wins.
+  private withLeasedKeys(ordinary: SshAgentKey[], leased: LeasedSshKey[]): SshAgentKey[] {
+    if (leased.length === 0) {
+      return ordinary;
+    }
+    const ordinaryIds = new Set(ordinary.map((k) => k.cipherId));
+    const nowMs = Date.now();
+    return [
+      ...ordinary,
+      ...leased
+        .filter((k) => k.leaseEndsAt > nowMs && !ordinaryIds.has(k.cipherId))
+        .map((k) => ({
+          name: k.name,
+          privateKey: k.privateKey,
+          cipherId: k.cipherId,
+          expiresAt: k.leaseEndsAt,
+        })),
+    ];
+  }
+
+  // Completes once the agent has dropped every leased key (the keys carrying an expiry), keeping
+  // ordinary keys. Completes at once without a provider, so the OSS flow is unchanged.
+  private leasedKeysRemoved$(): Observable<never> {
+    if (this.leasedSshKeyService == null) {
+      return EMPTY;
+    }
+    return defer(() => this.removeLeasedKeys()).pipe(ignoreElements());
+  }
+
+  private async removeLeasedKeysIfProvided(): Promise<void> {
+    if (this.leasedSshKeyService != null) {
+      await this.removeLeasedKeys();
+    }
+  }
+
+  private async removeLeasedKeys(): Promise<void> {
+    try {
+      await ipc.autofill.sshAgent.removeExpiring();
+    } catch (e) {
+      // Fail closed: a leased key must not outlive a lock, so stop the agent (clearing every key)
+      // rather than leave it in place.
+      this.logService.error("Failed to remove leased SSH keys from the agent; stopping it", e);
+      await this.stopAgent();
+    }
+  }
+
   // Shows the approval dialog if the prompt setting calls for it, then answers the agent.
-  private async processSignRequest(message: Record<string, unknown>, ciphers: CipherView[]) {
+  private async processSignRequest(
+    message: Record<string, unknown>,
+    ciphers: CipherView[],
+    userId: UserId,
+  ) {
     const cipherId = message.cipherId as string;
     const requestId = message.requestId as number;
     let application = message.processName as string;
@@ -418,6 +522,18 @@ export class SshAgentService implements OnDestroy {
     // request might not be present in the active vault.
     const cipher = ciphers?.find((cipher) => cipher.id == cipherId);
     if (cipher == null) {
+      // A gated item's key is never in the decrypted vault; it is served only under a live lease.
+      const leased = this.leasedSshKeyService?.liveKey(userId, cipherId as CipherId);
+      if (leased != null) {
+        return this.processLeasedSignRequest(
+          leased,
+          userId,
+          requestId,
+          application,
+          isAgentForwarding,
+          namespace,
+        );
+      }
       this.logService.error(
         "SSH sign request received for key not in the active vault; rejecting.",
       );
@@ -443,6 +559,53 @@ export class SshAgentService implements OnDestroy {
     } else {
       return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
     }
+  }
+
+  // A leased key asks every time, whatever the prompt setting, and its approval is never
+  // remembered, so a remembered host can never carry it past its lease or a lock. The lease is
+  // checked again once the user answers, and the dialog closes as denied when the lease ends.
+  private async processLeasedSignRequest(
+    leased: LeasedSshKey,
+    userId: UserId,
+    requestId: number,
+    application: string,
+    isAgentForwarding: boolean,
+    namespace: string,
+  ) {
+    this.authorizedHosts.delete(leased.cipherId);
+    this.logService.debug("SSH sign authorization (leased key): prompting.");
+
+    ipc.platform.focusWindow();
+    const dialogRef = ApproveSshRequestComponent.open(
+      this.dialogService,
+      leased.name,
+      application,
+      isAgentForwarding,
+      namespace,
+    );
+    const leaseEnded = Symbol("leaseEnded");
+    const answer = await firstValueFrom(
+      race(dialogRef.closed, timer(new Date(leased.leaseEndsAt)).pipe(map(() => leaseEnded))),
+    );
+    if (answer === leaseEnded) {
+      void dialogRef.close(false);
+      this.logService.debug("SSH sign authorization (leased key): lease ended while prompting.");
+      return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+    }
+
+    const approved =
+      answer === true &&
+      this.leasedSshKeyService?.liveKey(userId, leased.cipherId) != null &&
+      (await this.isActiveAndUnlocked(userId));
+    return ipc.autofill.sshAgent.signRequestResponse(requestId, approved);
+  }
+
+  private async isActiveAndUnlocked(userId: UserId): Promise<boolean> {
+    const [account, status] = await Promise.all([
+      firstValueFrom(this.accountService.activeAccount$),
+      firstValueFrom(this.authService.authStatusFor$(userId)),
+    ]);
+    return account?.id === userId && status === AuthenticationStatus.Unlocked;
   }
 
   private async refuseSignRequest(requestId: number, context: string, error: unknown) {

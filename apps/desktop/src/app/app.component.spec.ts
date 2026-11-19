@@ -233,6 +233,63 @@ describe("AppComponent (desktop)", () => {
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
   });
 
+  describe("navigateToRoute message", () => {
+    const route = "/pam/approvals";
+
+    beforeEach(() => {
+      router.navigateByUrl.mockResolvedValue(true);
+    });
+
+    it("navigates to an allowed route when the active user is unlocked", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+
+      await dispatchMessage({ command: "navigateToRoute", route });
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith(route);
+    });
+
+    it.each(["/vault", "/pam/approvals?x=1", "https://evil.example", undefined, 7])(
+      "refuses the route %p even though the main process should have",
+      async (bad) => {
+        authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+
+        await dispatchMessage({ command: "navigateToRoute", route: bad });
+        await dispatchMessage({ command: "unlocked" });
+
+        expect(router.navigateByUrl).not.toHaveBeenCalled();
+        expect(logService.error).toHaveBeenCalled();
+      },
+    );
+
+    it("holds the route while locked and opens it once unlocked", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+
+      await dispatchMessage({ command: "navigateToRoute", route });
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+
+      await dispatchMessage({ command: "unlocked" });
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+      await dispatchMessage({ command: "unlocked" });
+      expect(router.navigateByUrl).toHaveBeenCalledWith(route);
+
+      await dispatchMessage({ command: "unlocked" });
+      expect(router.navigateByUrl).toHaveBeenCalledTimes(1);
+    });
+
+    it("drops a held route on logout", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+      await dispatchMessage({ command: "navigateToRoute", route });
+
+      await dispatchMessage({ command: "loggedOut" });
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+      await dispatchMessage({ command: "unlocked" });
+
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+  });
+
   describe("importVault message", () => {
     it("opens the legacy import dialog when the import upgrade flag is off", async () => {
       configService.getFeatureFlag.mockResolvedValue(false);

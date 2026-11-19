@@ -1,10 +1,12 @@
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, EMPTY, Subject, of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { LeasedSshKey, LeasedSshKeyService } from "../abstractions/leased-ssh-key.service";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
@@ -1309,5 +1311,375 @@ describe("SshAgentService – concurrent list keys requests", () => {
 
     expect(mockListRequestResponse).toHaveBeenCalledWith(1, true);
     expect(mockListRequestResponse).toHaveBeenCalledWith(2, true);
+  });
+});
+
+// A licensed build fills LeasedSshKeyService so a gated item's key reaches the agent while its
+// lease is live. These pin how such keys are pushed, removed and approved.
+describe("SshAgentService – leased keys", () => {
+  const USER_ID = "user-1" as UserId;
+  const LEASED_ID = "leased-1" as CipherId;
+  const REQUEST_ID = 7;
+  const LIST_REQUEST_ID = 8;
+
+  let service: SshAgentService;
+  let accountSubject: BehaviorSubject<{ id: UserId } | null>;
+  let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
+  let cipherViewsSubject: BehaviorSubject<CipherView[] | null>;
+  let leasedKeysSubject: BehaviorSubject<LeasedSshKey[]>;
+  let signRequestSubject: Subject<Record<string, unknown>>;
+  let listKeysRequestSubject: Subject<Record<string, unknown>>;
+  let promptBehaviorSubject: BehaviorSubject<SshAgentPromptType>;
+  let leasedSshKeyService: MockProxy<LeasedSshKeyService>;
+  let liveLeasedKey: LeasedSshKey | undefined;
+  let mockReplace: jest.Mock;
+  let mockRemoveExpiring: jest.Mock;
+  let mockStop: jest.Mock;
+  let mockSignRequestResponse: jest.Mock;
+  let mockListRequestResponse: jest.Mock;
+  let mockDialogOpen: jest.Mock;
+  let mockLogError: jest.Mock;
+
+  const leasedKey = (leaseEndsAt = Date.now() + 60_000): LeasedSshKey => ({
+    cipherId: LEASED_ID,
+    name: "Leased Key",
+    privateKey: "leased-pem",
+    leaseEndsAt,
+  });
+
+  const createService = async (provider: LeasedSshKeyService | undefined) => {
+    service = new SshAgentService(
+      {
+        cipherViews$: jest.fn().mockReturnValue(cipherViewsSubject.asObservable()),
+        // A gated item is never in the decrypted vault, leased or not.
+        getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "Own Key", "pem")]),
+      } as any,
+      { info: jest.fn(), error: mockLogError, debug: jest.fn() } as any,
+      { open: mockDialogOpen } as any,
+      {
+        messages$: jest.fn().mockImplementation((def: { command: string }) => {
+          if (def.command === SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST) {
+            return signRequestSubject.asObservable();
+          }
+          if (def.command === SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST) {
+            return listKeysRequestSubject.asObservable();
+          }
+          return EMPTY;
+        }),
+      } as any,
+      {
+        activeAccountStatus$: authStatusSubject.asObservable(),
+        authStatusFor$: jest.fn().mockReturnValue(authStatusSubject.asObservable()),
+      } as any,
+      { showToast: jest.fn() } as any,
+      { t: jest.fn().mockReturnValue("") } as any,
+      {
+        sshAgentEnabled$: of(true),
+        sshAgentPromptBehavior$: promptBehaviorSubject.asObservable(),
+      } as any,
+      { activeAccount$: accountSubject.asObservable() } as any,
+      provider,
+    );
+    await service.init();
+    await flush();
+  };
+
+  beforeEach(async () => {
+    accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: USER_ID });
+    authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
+    cipherViewsSubject = new BehaviorSubject<CipherView[] | null>([
+      makeSshCipher("c1", "Own Key", "pem"),
+    ]);
+    leasedKeysSubject = new BehaviorSubject<LeasedSshKey[]>([]);
+    signRequestSubject = new Subject();
+    listKeysRequestSubject = new Subject();
+    promptBehaviorSubject = new BehaviorSubject<SshAgentPromptType>(SshAgentPromptType.Never);
+    liveLeasedKey = undefined;
+    leasedSshKeyService = mock<LeasedSshKeyService>();
+    leasedSshKeyService.leasedKeys$.mockReturnValue(leasedKeysSubject.asObservable());
+    leasedSshKeyService.liveKey.mockImplementation((_, cipherId) =>
+      cipherId === LEASED_ID ? liveLeasedKey : undefined,
+    );
+    leasedSshKeyService.liveKeys.mockImplementation(() =>
+      liveLeasedKey == null ? [] : [liveLeasedKey],
+    );
+
+    mockReplace = jest.fn().mockResolvedValue(undefined);
+    mockRemoveExpiring = jest.fn().mockResolvedValue(undefined);
+    mockStop = jest.fn().mockResolvedValue(undefined);
+    mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
+    mockListRequestResponse = jest.fn().mockResolvedValue(undefined);
+    mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true), close: jest.fn() });
+    mockLogError = jest.fn();
+
+    (global as any).ipc = {
+      autofill: {
+        sshAgent: {
+          isLoaded: jest.fn().mockResolvedValue(true),
+          init: jest.fn().mockResolvedValue(undefined),
+          replace: mockReplace,
+          removeExpiring: mockRemoveExpiring,
+          stop: mockStop,
+          signRequestResponse: mockSignRequestResponse,
+          listRequestResponse: mockListRequestResponse,
+        },
+      },
+      platform: { focusWindow: jest.fn() },
+    };
+  });
+
+  afterEach(() => {
+    service.ngOnDestroy();
+    jest.clearAllMocks();
+  });
+
+  const lastReplace = () => mockReplace.mock.calls[mockReplace.mock.calls.length - 1][0];
+
+  describe("key list", () => {
+    beforeEach(async () => {
+      await createService(leasedSshKeyService);
+    });
+
+    it("lists a leased key with its lease end while the lease is live", async () => {
+      const key = leasedKey();
+      leasedKeysSubject.next([key]);
+      await flush();
+
+      expect(leasedSshKeyService.leasedKeys$).toHaveBeenCalledWith(USER_ID);
+      expect(lastReplace()).toEqual([
+        { name: "Own Key", privateKey: "pem", cipherId: "c1" },
+        {
+          name: "Leased Key",
+          privateKey: "leased-pem",
+          cipherId: LEASED_ID,
+          expiresAt: key.leaseEndsAt,
+        },
+      ]);
+    });
+
+    it("removes the leased key when its lease ends, keeping ordinary keys", async () => {
+      leasedKeysSubject.next([leasedKey()]);
+      await flush();
+
+      leasedKeysSubject.next([]);
+      await flush();
+
+      expect(lastReplace()).toEqual([{ name: "Own Key", privateKey: "pem", cipherId: "c1" }]);
+    });
+
+    it("never pushes a leased key whose lease end has already passed", async () => {
+      leasedKeysSubject.next([leasedKey(Date.now() - 1)]);
+      await flush();
+
+      expect(lastReplace()).toEqual([{ name: "Own Key", privateKey: "pem", cipherId: "c1" }]);
+    });
+
+    it("re-pushes when a lease is extended", async () => {
+      leasedKeysSubject.next([leasedKey(Date.now() + 60_000)]);
+      await flush();
+      const extended = leasedKey(Date.now() + 3_600_000);
+
+      leasedKeysSubject.next([extended]);
+      await flush();
+
+      expect(lastReplace()[1].expiresAt).toBe(extended.leaseEndsAt);
+    });
+
+    it("on lock, removes leased keys but leaves ordinary keys in the agent", async () => {
+      leasedKeysSubject.next([leasedKey()]);
+      await flush();
+      mockReplace.mockClear();
+
+      cipherViewsSubject.next(null);
+      authStatusSubject.next(AuthenticationStatus.Locked);
+      await flush();
+
+      expect(mockRemoveExpiring).toHaveBeenCalledTimes(1);
+      expect(mockStop).not.toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it("on logout of the active account, removes leased keys", async () => {
+      authStatusSubject.next(AuthenticationStatus.LoggedOut);
+      await flush();
+
+      expect(mockRemoveExpiring).toHaveBeenCalledTimes(1);
+    });
+
+    it("on account switch, removes leased keys before the next account's keys arrive", async () => {
+      cipherViewsSubject.next(null);
+      accountSubject.next({ id: "user-2" as UserId });
+      await flush();
+
+      expect(mockRemoveExpiring).toHaveBeenCalled();
+      expect(mockReplace).not.toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ cipherId: LEASED_ID })]),
+      );
+    });
+
+    it("when removing leased keys fails, stops the agent rather than keep them", async () => {
+      mockRemoveExpiring.mockRejectedValue(new Error("keystore error"));
+
+      authStatusSubject.next(AuthenticationStatus.Locked);
+      await flush();
+
+      expect(mockStop).toHaveBeenCalled();
+    });
+
+    it("a list request pushes the live leased keys along with ordinary keys", async () => {
+      liveLeasedKey = leasedKey();
+      mockReplace.mockClear();
+
+      listKeysRequestSubject.next({ requestId: LIST_REQUEST_ID });
+      await flush();
+
+      expect(leasedSshKeyService.liveKeys).toHaveBeenCalledWith(USER_ID);
+      expect(lastReplace()).toEqual([
+        { name: "Own Key", privateKey: "pem", cipherId: "c1" },
+        expect.objectContaining({ cipherId: LEASED_ID, expiresAt: liveLeasedKey.leaseEndsAt }),
+      ]);
+      expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, true);
+    });
+  });
+
+  describe("without a provider", () => {
+    beforeEach(async () => {
+      await createService(undefined);
+    });
+
+    it("leaves ordinary keys alone on lock and never asks to remove leased keys", async () => {
+      cipherViewsSubject.next(null);
+      authStatusSubject.next(AuthenticationStatus.Locked);
+      accountSubject.next({ id: "user-2" as UserId });
+      await flush();
+
+      expect(mockRemoveExpiring).not.toHaveBeenCalled();
+      expect(mockStop).not.toHaveBeenCalled();
+      expect(mockReplace.mock.calls.every(([keys]) => keys.every((k: any) => !k.expiresAt))).toBe(
+        true,
+      );
+    });
+
+    it("refuses a sign request for a key outside the vault", async () => {
+      signRequestSubject.next({ cipherId: LEASED_ID, requestId: REQUEST_ID, processName: "ssh" });
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+  });
+
+  describe("sign requests", () => {
+    beforeEach(async () => {
+      await createService(leasedSshKeyService);
+    });
+
+    const sendSignRequest = (hostFingerprint?: string) =>
+      signRequestSubject.next({
+        cipherId: LEASED_ID,
+        requestId: REQUEST_ID,
+        processName: "ssh",
+        namespace: "",
+        isAgentForwarding: false,
+        hostFingerprint,
+      });
+
+    it("prompts for a leased key even when the setting is never to prompt, and signs on approval", async () => {
+      liveLeasedKey = leasedKey();
+
+      sendSignRequest();
+      await flush();
+
+      expect(leasedSshKeyService.liveKey).toHaveBeenCalledWith(USER_ID, LEASED_ID);
+      expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+    });
+
+    it("refuses when the user denies", async () => {
+      liveLeasedKey = leasedKey();
+      mockDialogOpen.mockReturnValue({ closed: of(false), close: jest.fn() });
+
+      sendSignRequest();
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("refuses without a prompt once the lease has expired", async () => {
+      liveLeasedKey = undefined;
+
+      sendSignRequest();
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("refuses and closes the dialog when the lease ends while it is open", async () => {
+      liveLeasedKey = leasedKey(Date.now() + 20);
+      const close = jest.fn();
+      mockDialogOpen.mockReturnValue({ closed: new Subject<boolean>(), close });
+
+      sendSignRequest();
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      await flush();
+
+      expect(close).toHaveBeenCalledWith(false);
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it("refuses an approval given after the lease ended", async () => {
+      liveLeasedKey = leasedKey();
+      const closed = new Subject<boolean>();
+      mockDialogOpen.mockReturnValue({ closed, close: jest.fn() });
+
+      sendSignRequest();
+      await flush();
+      // The lease is revoked (or lapses) while the dialog is open; the user then approves.
+      liveLeasedKey = undefined;
+      closed.next(true);
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("refuses an approval given after the vault locked", async () => {
+      liveLeasedKey = leasedKey();
+      const closed = new Subject<boolean>();
+      mockDialogOpen.mockReturnValue({ closed, close: jest.fn() });
+
+      sendSignRequest();
+      await flush();
+      authStatusSubject.next(AuthenticationStatus.Locked);
+      closed.next(true);
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("never auto-approves a leased key from a remembered host", async () => {
+      promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+      liveLeasedKey = leasedKey();
+      // An approval remembered for this cipher (e.g. from before it was gated) must not apply.
+      (service as any).authorizedHosts = new Map([[LEASED_ID, new Set(["local:host-fp"])]]);
+
+      sendSignRequest("host-fp");
+      await flush();
+      sendSignRequest("host-fp");
+      await flush();
+
+      expect(mockDialogOpen).toHaveBeenCalledTimes(2);
+      expect((service as any).authorizedHosts.has(LEASED_ID)).toBe(false);
+    });
+
+    it("leaves ordinary keys' prompt behaviour unchanged", async () => {
+      signRequestSubject.next({ cipherId: "c1", requestId: REQUEST_ID, processName: "ssh" });
+      await flush();
+
+      expect(leasedSshKeyService.liveKey).not.toHaveBeenCalled();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+    });
   });
 });

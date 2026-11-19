@@ -14,6 +14,7 @@ import {
   formatCalendarDate,
   formatRemainingLong,
   formatTimeOfDay,
+  PAM_OFFLINE_TOOLTIP_KEY,
   toDateInputValue,
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -22,9 +23,11 @@ import {
   ButtonModule,
   CardComponent,
   FunctionReturningAwaitable,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { injectPamOffline } from "../../connectivity/pam-offline";
 import { injectPopupLayout } from "../cipher-view-banner-layout";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
@@ -34,7 +37,14 @@ import { BannerCardHeaderComponent } from "./banner-card-header.component";
   selector: "app-pam-active-lease-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [AsyncActionsModule, ButtonModule, CardComponent, BannerCardHeaderComponent, I18nPipe],
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CardComponent,
+    BannerCardHeaderComponent,
+    TooltipDirective,
+    I18nPipe,
+  ],
   templateUrl: "./active-lease-card.component.html",
 })
 export class ActiveLeaseCardComponent {
@@ -50,6 +60,8 @@ export class ActiveLeaseCardComponent {
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
   protected readonly popupLayout = injectPopupLayout();
+  protected readonly offline = injectPamOffline();
+  protected readonly offlineTooltipKey = PAM_OFFLINE_TOOLTIP_KEY;
 
   // Parsed once per lease change, not per tick.
   private readonly expiryMs = computed(() => Date.parse(this.lease().notAfter));

@@ -5,20 +5,23 @@ import { EMPTY, expand, first, Observable, switchMap } from "rxjs";
  * since nothing announces a window or a lease ending. `undefined` schedules nothing. Each re-read
  * replaces the last, so the subscription stays one level deep however often it repeats.
  *
+ * `nowMs` should read the same clock `ticks$` emits.
+ *
  * `read$` handles its own errors: one that errors ends the stream.
  */
 export function rereadAt<T>(
   read$: () => Observable<T>,
   nextChangeMs: (value: T, nowMs: number) => number | undefined,
   ticks$: Observable<number>,
+  nowMs: () => number = Date.now,
 ): Observable<T> {
   return read$().pipe(
     expand((value) => {
-      const next = nextChangeMs(value, Date.now());
+      const next = nextChangeMs(value, nowMs());
       return next === undefined
         ? EMPTY
         : ticks$.pipe(
-            first((nowMs) => nowMs >= next),
+            first((tickMs) => tickMs >= next),
             switchMap(() => read$()),
           );
     }),

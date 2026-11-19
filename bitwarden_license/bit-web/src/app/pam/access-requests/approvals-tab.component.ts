@@ -18,6 +18,16 @@ import {
   AccessBadgeTickerService,
   AccessStateBadgeComponent,
   RequestedWindowPipe,
+  ApproverActionsService,
+  rowBusy,
+  ApproverInboxService,
+  ApproverRow,
+  ApproverRowStatus,
+  approverBadgeState,
+  approverRowStatus,
+  compareApproverStatus,
+  APPROVER_READY_LABEL_KEY,
+  REQUEST_STATUS_LOOK,
 } from "@bitwarden/bit-pam-components";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -48,18 +58,6 @@ import {
   isAtOrLargerThanBreakpointSignal,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import {
-  ApproverRow,
-  ApproverRowStatus,
-  approverBadgeState,
-  approverRowStatus,
-  compareApproverStatus,
-} from "../approvals/approver-row";
-
-import { APPROVER_READY_LABEL_KEY, REQUEST_STATUS_LOOK } from "./request-status-look";
 
 type ApprovalsColumn = ColumnName<ApproverRow, "status" | "window" | "actions">;
 

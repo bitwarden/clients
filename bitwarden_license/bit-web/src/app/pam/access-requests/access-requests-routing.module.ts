@@ -1,15 +1,17 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { canViewApprovalsGuard } from "../approvals/can-view-approvals.guard";
+import {
+  ApproverInboxService,
+  AccessNameResolverService,
+  MyAccessService,
+  canViewApprovalsGuard,
+} from "@bitwarden/bit-pam-components";
 
-import { AccessNameResolverService } from "./access-name-resolver.service";
 import { AccessRequestRouteComponent } from "./access-request-route/access-request-route.component";
 import { AccessRequestsComponent } from "./access-requests.component";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
 import { HistoryTabComponent } from "./history-tab.component";
-import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const routes: Routes = [
