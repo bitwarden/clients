@@ -62,13 +62,19 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
-import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import {
+  Algorithm,
+  CredentialGeneratorService,
+  GenerateRequest,
+  Type,
+} from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { sitePasswordSettings } from "../../tools/password-rules/site-password-settings";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -142,6 +148,9 @@ const nonLoginInlineCipherType: CipherType[] = [
   CipherType.SshKey,
 ];
 
+/** A password request, and the tab whose website's password rules it follows. */
+type PasswordRequest = { request: GenerateRequest; tab: chrome.tabs.Tab | undefined };
+
 export class OverlayBackground implements OverlayBackgroundInterface {
   // Assigned as members so jest.spyOn can intercept them in tests
   private readonly openUnlockPopout = openUnlockPopout;
@@ -158,7 +167,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly repositionInlineMenu$ = new Subject<chrome.runtime.MessageSender>();
   private readonly rebuildSubFrameOffsets$ = new Subject<chrome.runtime.MessageSender>();
   private readonly addNewVaultItem$ = new Subject<CurrentAddNewItemData>();
-  private readonly requestGeneratedPassword$ = new Subject<GenerateRequest>();
+  private readonly requestGeneratedPassword$ = new Subject<PasswordRequest>();
   private readonly clearGeneratedPassword$ = new Subject<void>();
   private credential$ = new BehaviorSubject<string>("");
   private credentialPipelineSubscription: Subscription | undefined;
@@ -258,7 +267,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
-    refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
+    refreshGeneratedPassword: ({ port }) => this.updateGeneratedPassword(port.sender.tab, true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
   };
@@ -303,7 +312,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionListeners();
     const yieldedPassword$ = merge(
       this.generatorService.generate$({
-        on$: this.requestGeneratedPassword$,
+        on$: this.requestGeneratedPassword$.pipe(
+          concatMap((passwordRequest) => this.withWebsiteRules(passwordRequest)),
+        ),
         account$: this.accountService.activeAccount$.pipe(filter((a): a is Account => a !== null)),
       }),
       this.clearGeneratedPassword$.pipe(map((): null => null)),
@@ -2179,7 +2190,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    await this.updateGeneratedPassword();
+    await this.updateGeneratedPassword(tab);
   }
 
   /**
@@ -2209,7 +2220,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.focusedFieldMatchesFillType(CipherType.Login) &&
       this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password)
     ) {
-      await this.updateGeneratedPassword();
+      await this.updateGeneratedPassword(sender.tab);
       return;
     }
 
@@ -2251,15 +2262,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Adds the password rules of the tab's website to a password request. The generator
+   * applies them only when the request resolves to a password, so a user who prefers
+   * passphrases keeps them.
+   *
+   * @param passwordRequest - The request, and the tab whose website's rules it follows
+   */
+  private async withWebsiteRules({ request, tab }: PasswordRequest): Promise<GenerateRequest> {
+    const site = await sitePasswordSettings(tab?.url, this.generatorService);
+    return site
+      ? { ...request, settings: { algorithm: Algorithm.password, values: site.settings } }
+      : request;
+  }
+
+  /**
    * Updates the generated password in the inline menu list.
    *
+   * @param tab - The tab that the field is focused within
    * @param refreshPassword - Identifies whether the generated password should be refreshed
    */
-  private async updateGeneratedPassword(refreshPassword: boolean = false) {
+  private async updateGeneratedPassword(
+    tab: chrome.tabs.Tab | undefined,
+    refreshPassword: boolean = false,
+  ) {
     if (!this.credential$.value || refreshPassword) {
       this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenu,
-        type: Type.password,
+        request: { source: PasswordGenerateRequestSource.InlineMenu, type: Type.password },
+        tab,
       });
       const generatedPassword = await this.waitForNextCredential();
       this.postMessageToPort(this.inlineMenuListPort, {
@@ -3551,6 +3580,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       authStatus,
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
+      port.sender.tab,
     );
 
     const showSaveLoginMenu =
@@ -3669,11 +3699,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param authStatus - The current authentication status
    * @param isInlineMenuListPort - Identifies if the port is for the inline menu list
    * @param showInlineMenuAccountCreation - Identifies if the inline menu account creation should be shown
+   * @param tab - The tab that the inline menu is opened within
    */
   private async shouldInitInlineMenuPasswordGenerator(
     authStatus: AuthenticationStatus,
     isInlineMenuListPort: boolean,
     showInlineMenuAccountCreation: boolean,
+    tab: chrome.tabs.Tab,
   ) {
     if (!isInlineMenuListPort || authStatus !== AuthenticationStatus.Unlocked) {
       return false;
@@ -3695,8 +3727,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (!this.credential$.value && capabilities.autogenerate) {
       this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenuInit,
-        type: Type.password,
+        request: { source: PasswordGenerateRequestSource.InlineMenuInit, type: Type.password },
+        tab,
       });
       try {
         await this.waitForNextCredential();
