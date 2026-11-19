@@ -29,6 +29,10 @@ import {
   KitchenSinkDialogWithAutofocusComponent,
   KitchenSinkMainComponent,
 } from "./components/kitchen-sink-main.component";
+import {
+  KITCHEN_SINK_TABLE_V2_STRESS,
+  KitchenSinkTableV2Stress,
+} from "./components/kitchen-sink-table-v2.component";
 import { KitchenSinkTableComponent } from "./components/kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./components/kitchen-sink-toggle-list.component";
 import { KitchenSinkVaultComponent } from "./components/kitchen-sink-vault.component";
@@ -168,6 +172,44 @@ export const Default: Story = {
 export const DefaultVfo1: Story = {
   ...Default,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/**
+ * Perf stress: the table v2 at the scale that locks up Desktop for the largest organizations
+ * (PM-47136): 23,000 items across a 3,000-folder Shared folders chip. The scale is set by args,
+ * so it can be changed from the controls panel or the story URL (`&args=rows:10000;sharedFolders:1000`).
+ * Not snapshotted; it exists to be driven by `scripts/perf/table-v2-stress.mjs`.
+ */
+export const TableV2Stress: StoryObj<KitchenSinkTableV2Stress> = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  args: {
+    rows: 23_000,
+    sharedFolders: 3_000,
+    users: 20,
+    features: 50,
+    pageSize: 25,
+  },
+  decorators: [
+    // Args arrive as strings from the URL, so coerce before handing them to the generator.
+    (storyFn, context) =>
+      applicationConfig({
+        providers: [
+          {
+            provide: KITCHEN_SINK_TABLE_V2_STRESS,
+            useValue: {
+              rows: Number(context.args.rows),
+              sharedFolders: Number(context.args.sharedFolders),
+              users: Number(context.args.users),
+              features: Number(context.args.features),
+              pageSize: Number(context.args.pageSize),
+            } satisfies KitchenSinkTableV2Stress,
+          },
+        ],
+      })(storyFn, context),
+  ],
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
 };
 
 export const DefaultNoBanner: Story = {
