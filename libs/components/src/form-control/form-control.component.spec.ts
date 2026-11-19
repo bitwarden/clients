@@ -71,4 +71,26 @@ describe("FormControlComponent", () => {
 
     expect(label().classList).toContain("tw-cursor-auto");
   });
+
+  it("reflects disable and enable that emit no events", async () => {
+    control.disable({ emitEvent: false });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label().classList).toContain("tw-cursor-auto");
+
+    control.enable({ emitEvent: false });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label().classList).toContain("tw-cursor-pointer");
+  });
+
+  it("reflects the parent group being disabled without events", async () => {
+    fixture.componentInstance.formObj.disable({ emitEvent: false });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(label().classList).toContain("tw-cursor-auto");
+  });
 });

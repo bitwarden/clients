@@ -8,14 +8,34 @@ import {
   signal,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { NgControl, StatusChangeEvent, TouchedChangeEvent } from "@angular/forms";
-import { EMPTY, filter, switchMap } from "rxjs";
+import {
+  AbstractControl,
+  FormControl,
+  NgControl,
+  StatusChangeEvent,
+  TouchedChangeEvent,
+} from "@angular/forms";
+import { EMPTY, filter, merge, Observable, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BitFormControlAbstraction } from "./form-control.abstraction";
 
 let nextId = 0;
+
+/**
+ * Emits on every enable/disable of a `FormControl`, including `{ emitEvent: false }` ones, which
+ * fire no `StatusChangeEvent`.
+ */
+function disabledChanges(control: AbstractControl): Observable<boolean> {
+  if (!(control instanceof FormControl)) {
+    return EMPTY;
+  }
+  // Forms has no public unregister; the listener is inert once the subscriber closes.
+  return new Observable((subscriber) => {
+    control.registerOnDisabledChange((disabled) => subscriber.next(disabled));
+  });
+}
 
 @Directive({
   selector: "[bitFormControlBase]",
@@ -49,15 +69,21 @@ export class FormControlBaseDirective {
   private i18nService = inject(I18nService);
 
   // Bridges NgControl's RxJS events into the signal graph so the control state below
-  // re-evaluates on StatusChangeEvent / TouchedChangeEvent.
+  // re-evaluates on StatusChangeEvent / TouchedChangeEvent and on every enable/disable.
   private readonly controlEvent = toSignal(
     toObservable(this.ngControl).pipe(
-      switchMap(
-        (ngControl) =>
-          ngControl?.control?.events.pipe(
+      switchMap((ngControl) => {
+        const control = ngControl?.control;
+        if (control == null) {
+          return EMPTY;
+        }
+        return merge(
+          control.events.pipe(
             filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-          ) ?? EMPTY,
-      ),
+          ),
+          disabledChanges(control),
+        );
+      }),
     ),
   );
 
