@@ -354,7 +354,6 @@ export const routes: Routes = [
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
-          showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
         children: [
           {

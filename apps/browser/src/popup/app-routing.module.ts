@@ -661,7 +661,6 @@ const routes: Routes = [
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
-          showReadonlyHostname: true,
           showAcctSwitcher: true,
           contentVerticalPadding: "compact",
           footerVerticalPadding: "compact",

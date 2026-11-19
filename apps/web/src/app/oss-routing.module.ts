@@ -459,7 +459,6 @@ const routes: Routes = [
             key: "yourVaultIsLockedV2",
           },
           pageIcon: LockIcon,
-          showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
       },
       {

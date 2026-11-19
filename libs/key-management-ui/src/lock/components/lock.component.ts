@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import {
@@ -15,6 +15,7 @@ import {
   tap,
 } from "rxjs";
 
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -43,6 +44,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import {
@@ -53,6 +55,7 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
+import { safeProvider } from "@bitwarden/ui-common";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -106,12 +109,15 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    LinkModule,
     UnlockViaPrfComponent,
     MasterPasswordLockComponent,
     TooltipDirective,
   ],
+  providers: [safeProvider(ServerSelectionService)],
 })
 export class LockComponent implements OnInit, OnDestroy {
+  protected readonly serverSelection = inject(ServerSelectionService);
   private destroy$ = new Subject<void>();
   private activeAccountChange$ = new Subject<void>();
   protected loading = true;

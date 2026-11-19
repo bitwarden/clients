@@ -82,6 +82,19 @@
           bitPasswordInputToggle
           [(toggled)]="showPassword"
         ></button>
+        <!-- The server can't be changed while the vault is locked, so it's shown as a disabled link. -->
+        <bit-hint>
+          {{ "loggingInOn" | i18n }}:
+          <button
+            id="lock-pin_button_server"
+            type="button"
+            bitLink
+            disabled
+            class="tw-font-semibold"
+          >
+            {{ serverSelection.activeAccountServerName$ | async }}
+          </button>
+        </bit-hint>
       </bit-form-field>
 
       <div class="tw-flex tw-flex-col tw-space-y-3">

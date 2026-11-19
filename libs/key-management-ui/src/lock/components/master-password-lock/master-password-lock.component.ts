@@ -1,7 +1,9 @@
 import { Component, computed, inject, input, OnDestroy, OnInit, output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,11 +17,13 @@ import {
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
+import { safeProvider } from "@bitwarden/ui-common";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
@@ -38,8 +42,10 @@ import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    LinkModule,
     UnlockViaPrfComponent,
   ],
+  providers: [safeProvider(ServerSelectionService)],
 })
 export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly accountService = inject(AccountService);
@@ -50,6 +56,10 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
   private readonly messageListener = inject(MessageListener);
   private readonly unlockService = inject(UnlockService);
   private readonly keyService = inject(KeyService);
+  private readonly serverSelection = inject(ServerSelectionService);
+
+  /** The locked account's server. It can't be changed while locked, so it's shown read-only. */
+  protected readonly serverName = toSignal(this.serverSelection.activeAccountServerName$);
 
   readonly unlockOptions = input.required<UnlockOptions>();
   readonly biometricUnlockBtnText = input.required<string>();

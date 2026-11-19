@@ -3,6 +3,7 @@
  * component documentation: it recreates the page to show the larger UX change, at the web width and
  * at the browser extension's three popup widths. See PM-45941.
  */
+import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,7 +25,7 @@ import {
 import { BehaviorSubject, map, of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { SideNavLogo, VaultIcon } from "@bitwarden/assets/svg";
+import { LockIcon, SideNavLogo, VaultIcon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
@@ -43,6 +44,7 @@ import {
   DialogModule,
   FormFieldModule,
   I18nMockService,
+  IconButtonModule,
   IconModule,
   LinkModule,
   MenuModule,
@@ -249,6 +251,118 @@ class LoginPagePrototypeComponent {
   });
 }
 
+/**
+ * The prototype lock page. Story-only: it mirrors the master password unlock in
+ * `libs/key-management-ui/src/lock`, which needs too many services to render in Storybook.
+ *
+ * The server can't be changed while the vault is locked, so the hint shows it as a disabled link.
+ */
+@Component({
+  selector: "auth-lock-page-prototype",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [safeProvider(ServerSelectionService)],
+  imports: [
+    AnonLayoutComponent,
+    AsyncPipe,
+    ButtonModule,
+    FormFieldModule,
+    I18nPipe,
+    IconButtonModule,
+    LinkModule,
+    ReactiveFormsModule,
+    SvgComponent,
+  ],
+  template: /*html*/ `
+    <div [class]="extension() ? 'tw-flex tw-h-full tw-flex-col' : ''">
+      @if (extension()) {
+        <!-- Prototype of the redesigned extension header; the real popup-header isn't updated yet. -->
+        <div class="tw-flex tw-h-12 tw-shrink-0 tw-items-center tw-bg-bg-nav tw-px-4">
+          <bit-svg class="tw-w-28" [content]="logo" ariaLabel="Bitwarden logo"></bit-svg>
+        </div>
+      }
+      <div [class]="extension() ? 'tw-flex-1 tw-overflow-y-auto tw-bg-bg-primary' : ''">
+        <auth-anon-layout
+          [class]="
+            extension()
+              ? '[&_bit-landing-header>header]:tw-bg-transparent [&_bit-landing-content>div]:tw-bg-transparent [&_bit-landing-content>div]:tw-px-6 [&_bit-landing-footer>footer]:tw-bg-transparent'
+              : ''
+          "
+          [title]="'yourVaultIsLockedV2' | i18n"
+          subtitle="name@company.com"
+          [icon]="icon"
+          [maxWidth]="extension() ? 'xl' : 'md'"
+          [hideLogo]="extension()"
+          [hideCardWrapper]="extension()"
+          [hideBackgroundIllustration]="true"
+          [contentVerticalPadding]="extension() ? 'compact' : 'default'"
+          [footerVerticalPadding]="extension() ? 'compact' : 'default'"
+        >
+          <form [formGroup]="formGroup">
+            <bit-form-field>
+              <bit-label>{{ "masterPass" | i18n }}</bit-label>
+              <input
+                id="lock-prototype_input_master-password"
+                bitInput
+                type="password"
+                formControlName="masterPassword"
+                class="tw-font-mono"
+              />
+              <button
+                type="button"
+                bitIconButton
+                bitSuffix
+                bitPasswordInputToggle
+                [(toggled)]="showPassword"
+              ></button>
+              <bit-hint>
+                {{ "loggingInOn" | i18n }}:
+                <button
+                  id="lock-prototype_button_server"
+                  type="button"
+                  bitLink
+                  disabled
+                  class="tw-font-semibold"
+                >
+                  {{ serverSelection.activeAccountServerName$ | async }}
+                </button>
+              </bit-hint>
+            </bit-form-field>
+
+            <div class="tw-flex tw-flex-col tw-space-y-3">
+              <button
+                id="lock-prototype_button_unlock"
+                type="button"
+                bitButton
+                block
+                buttonType="primary"
+              >
+                {{ "unlock" | i18n }}
+              </button>
+              <p class="tw-text-center">{{ "or" | i18n }}</p>
+              <button id="lock-prototype_button_log-out" type="button" bitButton block>
+                {{ "logOut" | i18n }}
+              </button>
+            </div>
+          </form>
+        </auth-anon-layout>
+      </div>
+    </div>
+  `,
+})
+class LockPagePrototypeComponent {
+  /** Renders the browser extension design: navy header, white card-less page. */
+  readonly extension = input(false);
+
+  protected readonly serverSelection = inject(ServerSelectionService);
+  protected readonly icon = LockIcon;
+  protected readonly logo = SideNavLogo;
+  protected showPassword = false;
+
+  protected readonly formGroup = new FormGroup({
+    masterPassword: new FormControl("", [Validators.required]),
+  });
+}
+
 /** In-memory environment so choosing a menu item updates the hint, as it would in the app. */
 function createEnvironmentService(initialRegion: Region): Partial<EnvironmentService> {
   const region$ = new BehaviorSubject<Region>(initialRegion);
@@ -327,7 +441,7 @@ export default {
   component: LoginPagePrototypeComponent,
   decorators: [
     moduleMetadata({
-      imports: [DialogModule, LoginPagePrototypeComponent],
+      imports: [DialogModule, LoginPagePrototypeComponent, LockPagePrototypeComponent],
     }),
     // Application-level so the self-hosted dialog (created from the root injector) can resolve them.
     applicationConfig({
@@ -372,6 +486,12 @@ export default {
               close: "Close",
               loading: "Loading",
               inputEmail: "Input is not an email address.",
+              // Lock page
+              yourVaultIsLockedV2: "Your vault is locked",
+              masterPass: "Master password",
+              unlock: "Unlock",
+              logOut: "Log out",
+              toggleVisibility: "Toggle visibility",
             }),
         },
         {
@@ -426,3 +546,40 @@ export const ExtensionSmall: Story = extensionStory(ExtensionWidth.narrow, "804-
 export const ExtensionBase: Story = extensionStory(ExtensionWidth.default, "804-5681");
 
 export const ExtensionWide: Story = extensionStory(ExtensionWidth.wide, "804-5744");
+
+/** Renders the lock page prototype in place of the login page. */
+const renderLockPage: Story["render"] = (args) => ({
+  props: args,
+  template: /*html*/ `<auth-lock-page-prototype [extension]="extension"></auth-lock-page-prototype>`,
+});
+
+const LOCKED_FIGMA_NODE = "767-1963";
+
+/** Vault locked: the server is shown read-only, as a disabled link, because it can't be changed. */
+export const Locked: Story = {
+  render: renderLockPage,
+  decorators: [withEnvironment(Region.US)],
+  parameters: { design: { type: "figma", url: `${FIGMA_FILE}${LOCKED_FIGMA_NODE}` } },
+};
+
+/** A locked self-hosted account shows the server's hostname. */
+export const LockedSelfHosted: Story = {
+  render: renderLockPage,
+  decorators: [withEnvironment(Region.SelfHosted, ClientType.Browser)],
+  parameters: { design: { type: "figma", url: `${FIGMA_FILE}${LOCKED_FIGMA_NODE}` } },
+};
+
+export const LockedExtensionSmall: Story = {
+  ...extensionStory(ExtensionWidth.narrow, LOCKED_FIGMA_NODE),
+  render: renderLockPage,
+};
+
+export const LockedExtensionBase: Story = {
+  ...extensionStory(ExtensionWidth.default, LOCKED_FIGMA_NODE),
+  render: renderLockPage,
+};
+
+export const LockedExtensionWide: Story = {
+  ...extensionStory(ExtensionWidth.wide, LOCKED_FIGMA_NODE),
+  render: renderLockPage,
+};

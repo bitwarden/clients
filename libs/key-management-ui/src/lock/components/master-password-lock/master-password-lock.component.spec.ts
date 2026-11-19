@@ -5,6 +5,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -90,7 +91,9 @@ describe("MasterPasswordLockComponent", () => {
     masterPasswordInput: form.query(By.css('input[formControlName="masterPassword"]')),
     toggleButton: form.query(By.css("button[bitPasswordInputToggle]")),
     submitButton: form.query(By.css('button[type="submit"]')),
-    logoutButton: form.query(By.css('button[type="button"]:not([bitPasswordInputToggle])')),
+    logoutButton: form.query(
+      By.css('button[type="button"]:not([bitPasswordInputToggle]):not([bitLink])'),
+    ),
     secondaryButton: form.query(By.css('button[buttonType="secondary"]')),
   });
 
@@ -122,7 +125,11 @@ describe("MasterPasswordLockComponent", () => {
         { provide: UnlockService, useValue: unlockService },
         { provide: KeyService, useValue: keyService },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(ServerSelectionService, {
+        useValue: { activeAccountServerName$: of("bitwarden.com") },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MasterPasswordLockComponent);
     component = fixture.componentInstance;
@@ -138,6 +145,15 @@ describe("MasterPasswordLockComponent", () => {
     it("creates form with proper structure", () => {
       expect(component.formGroup).toBeDefined();
       expect(component.formGroup.controls.masterPassword).toBeDefined();
+    });
+
+    it("shows the server as a disabled link, since it can't be changed while locked", () => {
+      const server: HTMLButtonElement = fixture.nativeElement.querySelector(
+        "#lock-master-password_button_server",
+      );
+
+      expect(server.textContent?.trim()).toBe("bitwarden.com");
+      expect(server.getAttribute("aria-disabled")).toBe("true");
     });
 
     const formElementTests = [

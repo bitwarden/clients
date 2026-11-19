@@ -47,6 +47,20 @@ export class ServerSelectionService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
+  /**
+   * The active account's server as display text, for places where the server is shown but can't be
+   * changed, such as the lock screen. A cloud region shows its domain; a self-hosted server shows
+   * its hostname. Unlike `selectedServer$`, this follows the active account's environment.
+   */
+  readonly activeAccountServerName$: Observable<string> = this.environmentService.environment$.pipe(
+    map(
+      (env) =>
+        this.environmentService.availableRegions().find((region) => region.key === env.getRegion())
+          ?.domain ?? env.getHostname(),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   /** The cloud regions that can be chosen. */
   readonly availableRegions$: Observable<RegionConfig[]> =
     this.availableRegionsService.availableRegions$;

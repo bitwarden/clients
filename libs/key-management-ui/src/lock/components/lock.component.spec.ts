@@ -5,6 +5,7 @@ import { mock } from "jest-mock-extended";
 import { EMPTY, Subject, firstValueFrom, of } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
 
+import { ServerSelectionService } from "@bitwarden/angular/auth/server-selection";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -159,6 +160,9 @@ describe("LockComponent", () => {
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
+      .overrideProvider(ServerSelectionService, {
+        useValue: { activeAccountServerName$: of("bitwarden.com") },
+      })
       .compileComponents();
 
     fixture = TestBed.createComponent(LockComponent);

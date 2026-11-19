@@ -60,6 +60,7 @@ describe("ServerSelectionService", () => {
         return env;
       }),
     );
+    environmentService.environment$ = environmentService.globalEnvironment$;
     environmentService.availableRegions.mockReturnValue(regions);
     environmentService.setEnvironment.mockResolvedValue({});
     availableRegionsService = mock<AvailableRegionsService>();
@@ -85,6 +86,30 @@ describe("ServerSelectionService", () => {
       sub.unsubscribe();
 
       expect(emitted).toEqual([regions[0], regions[1], Region.SelfHosted]);
+    });
+  });
+
+  describe("activeAccountServerName$", () => {
+    function setActiveAccountEnvironment(region: Region, hostname: string) {
+      const env = mock<Environment>();
+      env.getRegion.mockReturnValue(region);
+      env.getHostname.mockReturnValue(hostname);
+      // Not `of(env)`: a deep mock looks like a scheduler to `of`, which then emits nothing.
+      environmentService.environment$ = new BehaviorSubject<Environment>(env);
+    }
+
+    it("shows the cloud region's domain", async () => {
+      setActiveAccountEnvironment(Region.EU, "vault.bitwarden.eu");
+      const service = createService();
+
+      expect(await firstValueFrom(service.activeAccountServerName$)).toBe("bitwarden.eu");
+    });
+
+    it("shows the hostname of a self-hosted server", async () => {
+      setActiveAccountEnvironment(Region.SelfHosted, "vault.example.com");
+      const service = createService();
+
+      expect(await firstValueFrom(service.activeAccountServerName$)).toBe("vault.example.com");
     });
   });
 
