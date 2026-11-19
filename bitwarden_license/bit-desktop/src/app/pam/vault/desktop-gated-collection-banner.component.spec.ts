@@ -20,13 +20,13 @@ const GATED = "collection-gated" as CollectionId;
 const OPEN = "collection-open" as CollectionId;
 
 function organization(overrides: Partial<Organization>): Organization {
-  return Object.assign(new Organization(), {
+  return {
     id: ORG,
     enabled: true,
     isProviderUser: false,
     usePam: true,
     ...overrides,
-  });
+  } as Organization;
 }
 
 function collection(id: CollectionId, hasEnabledAccessRule: boolean): Collection {

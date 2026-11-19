@@ -4,6 +4,7 @@ import { provideRouter } from "@angular/router";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
@@ -146,6 +147,13 @@ describe("CardGridComponent", () => {
     return Array.from(fixture.nativeElement.querySelectorAll("a[bit-item-content]"));
   }
 
+  /** A card's folder name, without the item count in its trailing slot. */
+  function cardName(card: Element | null): string | undefined {
+    const clone = card?.cloneNode(true) as HTMLElement | undefined;
+    clone?.querySelectorAll('[slot="end"]').forEach((end) => end.remove());
+    return clone?.textContent?.trim();
+  }
+
   function trigger(): HTMLButtonElement | null {
     return fixture.nativeElement.querySelector(TRIGGER_SELECTOR);
   }
@@ -207,7 +215,7 @@ describe("CardGridComponent", () => {
       createComponent(children(2));
 
       expect(cards()).toHaveLength(2);
-      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
+      expect(cards().map(cardName)).toEqual(["Folder 0", "Folder 1"]);
 
       cards().forEach((card) => {
         expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain(
@@ -261,13 +269,38 @@ describe("CardGridComponent", () => {
       ).toEqual(["nestedSharedFolderCount:2", "nestedSharedFolderSingular", undefined]);
     });
 
+    it("counts the items in and beneath each card in its trailing slot", () => {
+      const inFolder = (id: string, collectionId: string) =>
+        Object.assign(new CipherView(), {
+          id,
+          organizationId,
+          collectionIds: [collectionId as CollectionId],
+        });
+      fixture = TestBed.createComponent(CardGridComponent);
+      fixture.componentRef.setInput("collections", [
+        ...children(3),
+        collection("backend", `${PARENT.name}/Folder 0/Backend`),
+      ]);
+      fixture.componentRef.setInput("ciphers", [
+        inFolder("1", `${PARENT.id}-folder-0`),
+        inFolder("2", "backend"),
+        inFolder("3", `${PARENT.id}-folder-1`),
+      ]);
+      fixture.componentRef.setInput("scope", scopeTo(PARENT.id));
+      fixture.detectChanges();
+
+      expect(
+        cards().map((card) => card.querySelector('span[slot="end"]')?.textContent?.trim()),
+      ).toEqual(["itemCount:2", "itemSingular", "itemCount:0"]);
+    });
+
     it("names a child whose intermediate parent is missing by its own name, not its path", () => {
       createComponent([
         collection(PARENT.id, PARENT.name),
         collection("deepest", `${PARENT.name}/Next/Deeper/Deepest`),
       ]);
 
-      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Deepest"]);
+      expect(cards().map(cardName)).toEqual(["Deepest"]);
     });
 
     it("caps the grid at three columns, each at least 240px wide, with 12px spacing", () => {
@@ -292,7 +325,7 @@ describe("CardGridComponent", () => {
       createComponent(nested);
 
       expect(accordionTitle()).toBe("sharedFoldersInParent:Engineering");
-      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Platform"]);
+      expect(cards().map(cardName)).toEqual(["Platform"]);
     });
 
     it("renders nothing until the scope drills into a folder", () => {
@@ -414,7 +447,7 @@ describe("CardGridComponent", () => {
       // The seventh card, first past the six the two-column grid shows, rather than the tenth a
       // three-column grid would have cut off at.
       expect(document.activeElement).toBe(cards()[6]);
-      expect(document.activeElement?.textContent?.trim()).toBe("Folder 6");
+      expect(cardName(document.activeElement)).toBe("Folder 6");
     });
   });
 
@@ -635,7 +668,7 @@ describe("CardGridComponent", () => {
         folder("other", "Other"),
       ]);
 
-      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Checking", "Savings"]);
+      expect(cards().map(cardName)).toEqual(["Checking", "Savings"]);
       cards().forEach((card) => {
         expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain("bwi-folder");
         expect(card.querySelector("bit-icon-tile bit-icon")?.classList).not.toContain(

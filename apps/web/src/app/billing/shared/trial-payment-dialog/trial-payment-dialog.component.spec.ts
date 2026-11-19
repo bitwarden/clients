@@ -7,13 +7,13 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
@@ -78,7 +78,10 @@ describe("TrialPaymentDialogComponent", () => {
       isAnnual,
     } as PlanResponse;
     const subscription = { plan: currentPlan } as OrganizationSubscriptionResponse;
-    const organization = Object.assign(new Organization(), { id: ORG_ID, productTierType: tier });
+    const organization = buildTestOrganization({
+      id: ORG_ID,
+      productTierType: tier,
+    });
 
     const apiService = mock<ApiService>();
     apiService.getPlans.mockResolvedValue({

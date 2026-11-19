@@ -538,6 +538,14 @@ export class SsoManageComponent implements OnInit, OnDestroy {
     if (currentOrganization) {
       const updatedOrganization: OrganizationData = {
         ...currentOrganization,
+        seats: currentOrganization.seats ?? null,
+        maxCollections: currentOrganization.maxCollections ?? null,
+        identifier: currentOrganization.identifier ?? null,
+        organizationUserId: currentOrganization.organizationUserId ?? null,
+        providerId: currentOrganization.providerId ?? null,
+        providerName: currentOrganization.providerName ?? null,
+        familySponsorshipFriendlyName: currentOrganization.familySponsorshipFriendlyName ?? null,
+        keyConnectorUrl: currentOrganization.keyConnectorUrl ?? null,
         ssoEnabled: organizationSsoRequest.enabled,
         ssoMemberDecryptionType: organizationSsoRequest.data.memberDecryptionType,
       };

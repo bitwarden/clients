@@ -31,6 +31,7 @@ import {
   GovernedSharedFolderIconComponent,
   ItemDetailsStateBadgeComponent,
   LeaseExtensionService,
+  MyAccessRequestsService,
   MyLeasesService,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -194,11 +195,23 @@ export function provideDesktopPam(): SafeProvider[] {
       useClass: ApprovalPrivilegeService,
       deps: [],
     }),
+    // One read of the caller's requests behind the nav count, the vault list's badges and the filter.
+    safeProvider({
+      provide: MyAccessRequestsService,
+      useClass: MyAccessRequestsService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccountService,
+        AccessBadgeTickerService,
+        LogService,
+      ],
+    }),
     safeProvider({
       provide: PamNavBadgeService,
       useClass: DesktopPamNavBadgeService,
       deps: [
-        AccessRequestSdkService,
+        MyAccessRequestsService,
         ApprovalSdkService,
         ApprovalPrivilegeService,
         AccessEventService,

@@ -7,6 +7,8 @@ import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 
@@ -27,6 +29,7 @@ describe("DefaultPasswordPreloginService", () => {
   let apiService: MockProxy<PasswordPreloginApiService>;
   let sdkService: MockSdkService;
   let configService: MockProxy<ConfigService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let sut: DefaultPasswordPreloginService;
 
   const email = "user@example.com";
@@ -34,10 +37,10 @@ describe("DefaultPasswordPreloginService", () => {
   const emailB = "b@example.com";
 
   // The API and SDK paths return different salts so tests can prove which source was used.
-  const apiSalt = "api-salt";
-  const sdkSalt = "sdk-salt";
+  const apiSalt = "api-salt" as MasterPasswordSalt;
+  const sdkSalt = "sdk-salt" as MasterPasswordSalt;
 
-  // PBKDF2 is used as a stand-in throughout; KDF type coverage is in password-prelogin.model.spec.ts.
+  // PBKDF2 backs the shared fixtures; KDF type coverage lives in the "kdf config" describe.
   const response = new PasswordPreloginResponse({
     KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
     Salt: apiSalt,
@@ -46,10 +49,15 @@ describe("DefaultPasswordPreloginService", () => {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
     salt: sdkSalt,
   };
-  const expectedData = new PasswordPreloginData(
-    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-    apiSalt,
-  );
+  // Distinct from the email so assertions prove the salt is emailToSalt's output.
+  const emailSaltFor = (forEmail: string) => `email-salt:${forEmail}` as MasterPasswordSalt;
+  // With the flag off, the API path ignores the server's salt and derives from the email.
+  const expectedDataFor = (forEmail: string) =>
+    new PasswordPreloginData(
+      new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+      emailSaltFor(forEmail),
+    );
+  const expectedData = expectedDataFor(email);
   const expectedSdkData = new PasswordPreloginData(
     new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
     sdkSalt,
@@ -68,7 +76,15 @@ describe("DefaultPasswordPreloginService", () => {
     configService = mock<ConfigService>();
     configService.getFeatureFlag.mockResolvedValue(false);
 
-    sut = new DefaultPasswordPreloginService(apiService, sdkService, configService);
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
+    masterPasswordService.emailToSalt.mockImplementation(emailSaltFor);
+
+    sut = new DefaultPasswordPreloginService(
+      apiService,
+      sdkService,
+      configService,
+      masterPasswordService,
+    );
   });
 
   afterEach(() => {
@@ -99,6 +115,145 @@ describe("DefaultPasswordPreloginService", () => {
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM27060_PasswordPreloginFromSdk,
       );
+    });
+
+    // The flag is read once, here, and its outcome travels with the returned data. A second read
+    // downstream could observe a different value and disagree with the fetch that produced it.
+    it("reads the feature flag exactly once per fetch", async () => {
+      await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+    });
+
+    // Server config can finish loading between a prefetch and the submit that consumes it, so
+    // the flag can read off for the fetch and on afterward. The cached data must keep the
+    // outcome of the read that produced it.
+    it("keeps the cached data's transport and salt when the flag changes before a cache hit", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      void sut.getPreloginData$(email);
+      await flushPromises();
+
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result).toEqual(expectedData);
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
+      expect(sdkService.client.auth().login().get_password_prelogin).not.toHaveBeenCalled();
+    });
+
+    it("reads the feature flag again for a fetch after the cache is cleared", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      await firstValueFrom(sut.getPreloginData$(email));
+      sut.clearCache();
+
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const result = await firstValueFrom(sut.getPreloginData$(email));
+
+      expect(result).toEqual(expectedSdkData);
+      expect(configService.getFeatureFlag).toHaveBeenCalledTimes(2);
+    });
+
+    // The SDK substitutes this email as the salt when the server has none, so it must arrive
+    // normalized.
+    it("sends the normalized email to the SDK", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
+
+      expect(sdkService.client.auth().login().get_password_prelogin).toHaveBeenCalledWith(email);
+    });
+
+    describe("salt resolution", () => {
+      it("ignores the server-supplied salt and derives the salt from the email when the flag is off", async () => {
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).toBe(emailSaltFor(email));
+        expect(result.salt).not.toBe(apiSalt);
+      });
+
+      // The strategy hands the salt straight to makeMasterKey, which calls .trim() on it, so a
+      // null salt crashes login. Servers return none for accounts that predate the salt column.
+      it.each([
+        { description: "omits Salt", body: {} },
+        { description: "sends an explicit null Salt", body: { Salt: null } },
+      ])(
+        "derives the salt from the email when the flag is off and the API response $description",
+        async ({ body }) => {
+          apiService.getPreloginData.mockResolvedValue(
+            new PasswordPreloginResponse({
+              KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+              ...body,
+            }),
+          );
+
+          const result = await firstValueFrom(sut.getPreloginData$(email));
+
+          expect(result.salt).toBe(emailSaltFor(email));
+        },
+      );
+
+      it("passes the normalized email to emailToSalt when the flag is off", async () => {
+        await firstValueFrom(sut.getPreloginData$("  USER@EXAMPLE.COM  "));
+
+        expect(masterPasswordService.emailToSalt).toHaveBeenCalledWith(email);
+      });
+
+      it("uses the salt the SDK resolved when the flag is on", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+
+        const result = await firstValueFrom(sut.getPreloginData$(email));
+
+        expect(result.salt).toBe(sdkSalt);
+        expect(masterPasswordService.emailToSalt).not.toHaveBeenCalled();
+      });
+    });
+
+    // KDF mapping and each pre-login minimum are covered by PasswordPreloginData.fromResponse.
+    // These pin that both transports enforce the guard and that a rejection is not cached.
+    describe("kdf config", () => {
+      it("rejects sub-minimum kdf settings from the API", async () => {
+        apiService.getPreloginData.mockResolvedValue(
+          new PasswordPreloginResponse({
+            KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+          }),
+        );
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(
+          /PBKDF2 iterations must be at least/,
+        );
+      });
+
+      it("rejects sub-minimum kdf settings from the SDK", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        sdkService.client.auth
+          .mockDeep()
+          .login.mockDeep()
+          .get_password_prelogin.mockResolvedValue({
+            kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 } },
+            salt: sdkSalt,
+          });
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(
+          /PBKDF2 iterations must be at least/,
+        );
+      });
+
+      it("does not cache a rejected fetch, so a retry refetches", async () => {
+        apiService.getPreloginData.mockResolvedValueOnce(
+          new PasswordPreloginResponse({
+            KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1 },
+            Salt: apiSalt,
+          }),
+        );
+        apiService.getPreloginData.mockResolvedValueOnce(response);
+
+        await expect(firstValueFrom(sut.getPreloginData$(email))).rejects.toThrow(
+          /pre-login downgrade attack/,
+        );
+
+        expect(await firstValueFrom(sut.getPreloginData$(email))).toEqual(expectedData);
+        expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
+      });
     });
 
     it("returns the same in-flight observable when called again with the same email", async () => {
@@ -143,11 +298,11 @@ describe("DefaultPasswordPreloginService", () => {
 
       expect(second$).not.toBe(first$);
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
-      expect(await firstValueFrom(second$)).toEqual(expectedData);
+      expect(await firstValueFrom(second$)).toEqual(expectedDataFor(emailB));
 
       // The original in-flight observable still resolves correctly
       resolveA(response);
-      expect(await firstValueFrom(first$)).toEqual(expectedData);
+      expect(await firstValueFrom(first$)).toEqual(expectedDataFor(emailA));
     });
 
     it("starts a new request when called with a different email after the first has resolved", async () => {
@@ -158,8 +313,8 @@ describe("DefaultPasswordPreloginService", () => {
       const secondResult = await firstValueFrom(second$);
 
       expect(second$).not.toBe(first$);
-      expect(firstResult).toEqual(expectedData);
-      expect(secondResult).toEqual(expectedData);
+      expect(firstResult).toEqual(expectedDataFor(emailA));
+      expect(secondResult).toEqual(expectedDataFor(emailB));
       expect(apiService.getPreloginData).toHaveBeenCalledTimes(2);
     });
 

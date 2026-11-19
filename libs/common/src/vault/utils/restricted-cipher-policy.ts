@@ -21,22 +21,28 @@ export const RestrictedCipherAction = Object.freeze({
 export type RestrictedCipherAction =
   (typeof RestrictedCipherAction)[keyof typeof RestrictedCipherAction];
 
-/** What a revealed cipher allows. Delete and restore stay blocked while a reveal is live. */
+/**
+ * What a revealed cipher allows. Delete and restore match the server, which lets a lease holder
+ * delete and restore (`CipherLeaseGate`).
+ */
 const REVEALED_ALLOWED_ACTIONS: ReadonlySet<RestrictedCipherAction> = new Set([
   RestrictedCipherAction.UserFields,
   RestrictedCipherAction.Edit,
   RestrictedCipherAction.Attachments,
+  RestrictedCipherAction.Delete,
+  RestrictedCipherAction.Restore,
 ]);
 
 /**
  * The single rule for what a user may do with a restricted cipher: it is read-only, except for
- * the user fields (folder, favorite, archive). While its full view is revealed, edit and
- * attachments are allowed too.
+ * the user fields (folder, favorite, archive). While its full view is revealed, edit,
+ * attachments, delete and restore are allowed too.
  *
  * Server asks:
  * - Send `edit: false`, `permissions.delete/restore: false`, and new `permissions.clone/share`
- *   flags on restricted and leased ciphers. The checks then read permissions, and this policy
- *   stays only as a fallback for servers that do not send the new flags.
+ *   flags on restricted ciphers, and only the `clone/share` flags on leased ones, which keep edit,
+ *   delete and restore. The checks then read permissions, and this policy stays only as a
+ *   fallback for servers that do not send the new flags.
  * - The write gate (`CipherLeaseGate`) allows the partial-update endpoint (folder, favorite) and
  *   the archive endpoints for restricted ciphers.
  */

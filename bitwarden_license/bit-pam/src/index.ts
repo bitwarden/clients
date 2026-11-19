@@ -67,6 +67,11 @@ export { conflictingCollectionIds } from "./helpers/collection-conflicts";
 export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
+  badgesFromMyRequests,
+  listedBadgeFor,
+  nextRequestListChangeMs,
+} from "./helpers/request-list-badges";
+export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
   accessRuleMatchesFilter,
@@ -80,6 +85,7 @@ export {
   systemLeaseClockSource,
 } from "./helpers/lease-clock";
 export type { LeaseClockSource } from "./helpers/lease-clock";
+export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";

@@ -2,9 +2,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -18,7 +16,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
@@ -32,7 +30,6 @@ export class WebSetInitialPasswordService
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
-    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -50,7 +47,6 @@ export class WebSetInitialPasswordService
       i18nService,
       kdfConfigService,
       keyService,
-      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -62,15 +58,11 @@ export class WebSetInitialPasswordService
     );
   }
 
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   */
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
+  override async initializePasswordJitPasswordUserV2Encryption(
+    credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
+  ): Promise<void> {
+    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     /**
      * TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
@@ -97,20 +89,6 @@ export class WebSetInitialPasswordService
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
      */
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
-      await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvite();
-    }
-  }
-
-  override async initializePasswordJitPasswordUserV2Encryption(
-    credentials: InitializeJitPasswordCredentials,
-    userId: UserId,
-  ): Promise<void> {
-    await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
-
-    // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
-    // Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard` to replay.
     if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();

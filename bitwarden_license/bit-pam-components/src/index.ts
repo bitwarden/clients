@@ -114,6 +114,7 @@ export { SummaryFieldComponent } from "./request-summary/summary-field.component
 export { AccessRequestCancelService } from "./services/access-request-cancel.service";
 export { MyLeasesService } from "./services/my-leases.service";
 export { PamPendingCountService } from "./services/pam-pending-count.service";
+export { MyAccessRequestsService } from "./services/my-access-requests.service";
 export { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
 export {
   ControlledAccessVaultFilterService,

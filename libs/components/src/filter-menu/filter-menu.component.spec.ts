@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -21,7 +22,7 @@ import { TooltipDirective } from "../tooltip";
 import { FilterMenuComponent } from "./filter-menu.component";
 import { FilterOptionComponent } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
-import { FilterOptionRow } from "./filter-tokens";
+import { FILTER_HOST, FilterHost, FilterOptionRow } from "./filter-tokens";
 
 const mockI18nService = { t: (key: string) => key };
 
@@ -631,5 +632,64 @@ describe("FilterMenuComponent disabledTooltip", () => {
 
     expect(tooltip().tooltipContent()).toBe("");
     expect(triggerEl().hasAttribute("aria-describedby")).toBe(false);
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #single key="type" placeholderText="Type">
+      <bit-filter-option value="login">Login</bit-filter-option>
+      <bit-filter-option value="card">Card</bit-filter-option>
+    </bit-filter-menu>
+    <bit-filter-menu #multi key="vault" placeholderText="Vault" multiple>
+      <bit-filter-option value="org-1">Org 1</bit-filter-option>
+      <bit-filter-option value="org-2">Org 2</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class CountedHostComponent {
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+  readonly multi = viewChild.required<FilterMenuComponent>("multi");
+}
+
+describe("FilterMenuComponent host counts", () => {
+  const filterHost = mock<FilterHost>();
+  let fixture: ComponentFixture<CountedHostComponent>;
+
+  beforeEach(async () => {
+    filterHost.optionCounts.mockImplementation((_key, values) =>
+      values.map((_, index) => 10 + index),
+    );
+    await TestBed.configureTestingModule({
+      imports: [CountedHostComponent],
+      providers: [
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: FILTER_HOST, useValue: filterHost },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CountedHostComponent);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => jest.clearAllMocks());
+
+  it("asks for the All row's count ahead of the options on a single-select chip", () => {
+    const menu = fixture.componentInstance.single();
+
+    expect(menu["unsetCount"]()).toBe(10);
+    expect([...menu["optionCounts"]().values()]).toEqual([11, 12]);
+    expect(filterHost.optionCounts).toHaveBeenCalledWith("type", [null, "login", "card"]);
+  });
+
+  it("does not ask for an All row count on a multi-select chip, which has no All row", () => {
+    const menu = fixture.componentInstance.multi();
+
+    expect(menu["unsetCount"]()).toBeUndefined();
+    expect([...menu["optionCounts"]().values()]).toEqual([10, 11]);
+    expect(filterHost.optionCounts).toHaveBeenCalledWith("vault", [["org-1"], ["org-2"]]);
   });
 });

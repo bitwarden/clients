@@ -174,7 +174,7 @@ describe("AppComponent (desktop)", () => {
   };
 
   it("syncs once on window focus when a premium checkout was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
 
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
@@ -183,7 +183,7 @@ describe("AppComponent (desktop)", () => {
   });
 
   it("does not sync on window focus when nothing was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
 
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
@@ -191,7 +191,7 @@ describe("AppComponent (desktop)", () => {
   });
 
   it("does not consume or sync when the window lost focus (windowIsFocused: false)", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
 
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: false });
 
@@ -224,8 +224,8 @@ describe("AppComponent (desktop)", () => {
   });
 
   it("syncs only once across repeated window focus events", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValueOnce(true);
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValueOnce({});
+    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
 
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });

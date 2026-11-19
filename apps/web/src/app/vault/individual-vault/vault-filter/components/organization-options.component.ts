@@ -157,6 +157,9 @@ export class OrganizationOptionsComponent {
    * @param organization The organization to link SSO to.
    */
   protected async handleLinkSso(organization: Organization) {
+    if (organization.identifier == null) {
+      return;
+    }
     try {
       await this.linkSsoService.linkSso(organization.identifier);
     } catch (e) {

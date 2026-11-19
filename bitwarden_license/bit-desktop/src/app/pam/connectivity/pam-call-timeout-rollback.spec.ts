@@ -7,6 +7,7 @@ import {
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
+  DefaultAccessRefreshService,
   PamUnreachableError,
 } from "@bitwarden/bit-pam";
 import type {
@@ -71,6 +72,11 @@ describe("a PAM call that times out under My requests", () => {
     // Never answers, as with a server that went away mid-call.
     requestsApi.cancelAccessRequest.mockReturnValue(new Promise(() => undefined));
     leasesApi.endLease.mockReturnValue(new Promise(() => undefined));
+    // The real one, which the service now listens on for pushes and local announcements alike.
+    const accessRefresh = new DefaultAccessRefreshService({
+      accessChanged$: () => NEVER,
+      approverInboxChanged$: () => NEVER,
+    } as unknown as AccessEventService);
     const nameResolver = mock<AccessNameResolverService>();
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames() as ResolvedNames);
     reporter = { reportReachable: jest.fn(), reportUnreachable: jest.fn(), browserOffline: false };
@@ -78,11 +84,10 @@ describe("a PAM call that times out under My requests", () => {
     TestBed.configureTestingModule({
       providers: [
         MyAccessService,
-        { provide: AccessEventService, useValue: { accessChanged$: () => NEVER } },
         { provide: AccessRequestSdkService, useValue: guardPamCalls(requestsApi, reporter) },
         { provide: AccessLeaseSdkService, useValue: guardPamCalls(leasesApi, reporter) },
         { provide: AccessNameResolverService, useValue: nameResolver },
-        { provide: AccessRefreshService, useValue: mock<AccessRefreshService>() },
+        { provide: AccessRefreshService, useValue: accessRefresh },
         {
           provide: AccountService,
           useValue: { activeAccount$: new BehaviorSubject({ id: "user-1" } as Account) },

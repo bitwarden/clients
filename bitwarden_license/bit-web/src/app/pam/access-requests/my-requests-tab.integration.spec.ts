@@ -11,6 +11,7 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   AccessRequestView,
+  DefaultAccessRefreshService,
 } from "@bitwarden/bit-pam";
 import {
   AccessNameResolverService,
@@ -82,7 +83,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
   let fixture: ComponentFixture<MyRequestsTabComponent>;
   let requestsApi: ReturnType<typeof mock<AccessRequestSdkService>>;
   let leasesApi: ReturnType<typeof mock<AccessLeaseSdkService>>;
-  let accessRefresh: ReturnType<typeof mock<AccessRefreshService>>;
+  let accessRefresh: DefaultAccessRefreshService;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let push$: Subject<void>;
 
@@ -90,7 +91,12 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     push$ = new Subject<void>();
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
-    accessRefresh = mock<AccessRefreshService>();
+    // The real one, so a push reaches MyAccessService through it as in the app.
+    accessRefresh = new DefaultAccessRefreshService({
+      accessChanged$: () => push$.asObservable(),
+      approverInboxChanged$: () => new Subject<void>(),
+    } as AccessEventService);
+    jest.spyOn(accessRefresh, "notifyAccessChanged");
     dialogService = mock<DialogService>();
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
