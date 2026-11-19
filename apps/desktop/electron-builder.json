@@ -180,7 +180,7 @@
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
     "hardenedRuntime": true,
     "extendInfo": {
-      "LSMinimumSystemVersion": "12",
+      "LSMinimumSystemVersion": "15",
       "ElectronTeamID": "LTZ2PFU5D6"
     },
     "provisioningProfile": "bitwarden_stable_desktop_appstore.provisionprofile"
