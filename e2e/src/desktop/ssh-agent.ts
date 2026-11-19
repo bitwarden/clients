@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { expect, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 import { SshKey } from "../ssh/keys";
 
@@ -13,6 +13,14 @@ const APPROVAL_DIALOG = "ssh-approval-dialog";
 const FORWARDING_WARNING = "ssh-approval-forwarding-warning";
 const AUTHORIZE_BUTTON = "ssh-approval-authorize-button";
 const DENY_BUTTON = "ssh-approval-deny-button";
+
+// The activity log (apps/desktop/src/autofill/components/ssh-agent-activity.component.html).
+const ACTIVITY_DIALOG = "ssh-agent-activity-dialog";
+const ACTIVITY_ROW = "ssh-agent-activity-row";
+const ACTIVITY_APP = "ssh-agent-activity-app";
+const ACTIVITY_COMMAND = "ssh-agent-activity-command";
+const ACTIVITY_REQUEST = "ssh-agent-activity-request";
+const ACTIVITY_RESULT = "ssh-agent-activity-result";
 
 // Unix socket paths are capped at 104 bytes on macOS; the repo's .debug dir can be deeper.
 const SOCKET_DIR_PREFIX = join(tmpdir(), "bw-ssh-");
@@ -61,6 +69,39 @@ export class SshApproval {
     await dialog.getByTestId(button).click();
     await expect(dialog).toBeHidden();
   }
+}
+
+/** One row of the SSH agent's activity log, as the user reads it. */
+export type SshActivityEntry = {
+  app: string;
+  command: string;
+  request: string;
+  result: string;
+};
+
+/** Reads the SSH agent's activity log dialog, newest entry first. */
+export class SshActivityLog {
+  constructor(private window: Page) {}
+
+  async entries(): Promise<SshActivityEntry[]> {
+    const dialog = this.window.getByTestId(ACTIVITY_DIALOG);
+    await expect(dialog).toBeVisible();
+
+    const rows = await dialog.getByTestId(ACTIVITY_ROW).all();
+    return Promise.all(
+      rows.map(async (row) => ({
+        app: await text(row.getByTestId(ACTIVITY_APP)),
+        command: await text(row.getByTestId(ACTIVITY_COMMAND)),
+        request: await text(row.getByTestId(ACTIVITY_REQUEST)),
+        result: await text(row.getByTestId(ACTIVITY_RESULT)),
+      })),
+    );
+  }
+}
+
+// Collapses the whitespace the template's line breaks add.
+async function text(locator: Locator): Promise<string> {
+  return (await locator.innerText()).replace(/\s+/g, " ").trim();
 }
 
 /**

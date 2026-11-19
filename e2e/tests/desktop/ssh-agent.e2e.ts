@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { DesktopSettings } from "../../src/desktop/settings";
-import { expect, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
+import { expect, SshActivityLog, SshRequestOrigin, test } from "../../src/desktop/ssh-agent";
 import { disableFlags, FeatureFlag } from "../../src/feature-flags";
 import { LoginPage } from "../../src/login";
 import { prepareKeys, SshKey, SshKeyType } from "../../src/ssh/keys";
@@ -19,6 +19,8 @@ const VAULT_URL = /#\/vault/;
 const SSH_LOGIN_FAILED = 255;
 const SIGNED_CONTENTS = "signed by the Bitwarden SSH agent\n";
 const KEY_TYPES = Object.values(SshKeyType);
+// How the activity log shows a key listing.
+const LIST_KEYS = "list keys";
 
 let dir: string;
 // One server per host key type, started on first use.
@@ -156,4 +158,49 @@ test("refuses to authenticate when the user denies the request", async ({ approv
   // Then the server never sees a signature
   const result = await login;
   expect(result.code).toBe(SSH_LOGIN_FAILED);
+});
+
+test("logs which app used the agent with which command", async ({ app, window, approval }) => {
+  const allowedKey = keyOf(SshKeyType.Ed25519);
+  const deniedKey = keyOf(SshKeyType.Rsa);
+
+  // Given a login the user authorizes, and one they deny
+  const allowed = ssh.login(allowedKey);
+  await approval.authorize(allowedKey, SshRequestOrigin.Local);
+  expect((await allowed).code).toBe(0);
+
+  const denied = ssh.login(deniedKey);
+  await approval.deny(deniedKey, SshRequestOrigin.Local);
+  expect((await denied).code).toBe(SSH_LOGIN_FAILED);
+
+  // When the user opens the activity log
+  const settings = new DesktopSettings(app, window);
+  await settings.open();
+  await settings.openSshAgentActivity();
+  const entries = await new SshActivityLog(window).entries();
+
+  // Then it names the test runner as the app, and shows each command and answer, newest first.
+  // Each ssh also lists the agent's keys before signing; keep its sign requests.
+  const logins = entries.filter(
+    (entry) => entry.command.startsWith("ssh -F /dev/null") && entry.request !== LIST_KEYS,
+  );
+  expect(logins.slice(0, 2)).toEqual([
+    expect.objectContaining({
+      app: expect.stringMatching(/^node\b/),
+      command: expect.stringContaining(`IdentityFile=${deniedKey.publicKeyPath}`),
+      request: expect.stringContaining(deniedKey.name),
+      result: "Denied",
+    }),
+    expect.objectContaining({
+      app: expect.stringMatching(/^node\b/),
+      command: expect.stringContaining(`IdentityFile=${allowedKey.publicKeyPath}`),
+      request: expect.stringContaining(allowedKey.name),
+      result: "Allowed",
+    }),
+  ]);
+
+  // And the key listing from `ssh-add -L` that loaded the keys
+  expect(entries).toContainEqual(
+    expect.objectContaining({ command: "ssh-add -L", request: LIST_KEYS, result: "Allowed" }),
+  );
 });
