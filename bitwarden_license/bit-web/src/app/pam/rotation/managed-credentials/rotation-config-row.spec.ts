@@ -187,11 +187,6 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
-  /**
-   * The list holds no job history, so Failed rides in on the server's `lastJobFailed`. Its
-   * precedence has to match `resolveDetailStatus`, or the same credential reads one way in the
-   * list and another on its own page.
-   */
   describe("failed status", () => {
     it("reads failed when the server reports the newest job failed", () => {
       expect(row({ config: { lastJobFailed: true } }).status).toBe(RotationRowStatus.Failed);
@@ -216,8 +211,6 @@ describe("buildRotationConfigRow", () => {
       );
     });
 
-    // Defensive: the server only offers jobs to automatic targets (`CanOffer`), so a manual
-    // credential never reports a failure today. Pinned so the ordering survives if that changes.
     it("outranks the manual statuses, so a failure is never hidden behind Rotation due", () => {
       expect(
         row({

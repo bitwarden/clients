@@ -105,10 +105,10 @@ export const ROTATION_STATUS_BADGES = Object.freeze(
  * Failed, Rotation due, Manual rotation, Active. `hasConnectedConnector` is `null` when
  * connectivity is unknown, which never reads as Not connected.
  *
- * Failed sits exactly where `resolveDetailStatus` puts it, so a credential can never read
- * one way in the list and another on its own page. The two reach it from different places: the
- * list has no job history, so it trusts the server's `lastJobFailed`, while the detail page
- * derives the same verdict from the history it already holds.
+ * Failed takes the same precedence as in `resolveDetailStatus`, but the two read it from different
+ * places. The list has no job history, so it trusts the server's `lastJobFailed`, which reflects the
+ * newest job ever run. The detail page reads the newest job in its 90-day history window, so when a
+ * credential's newest job failed more than 90 days ago, the list reads Failed and its page doesn't.
  */
 export function resolveRotationStatus(
   config: Pick<

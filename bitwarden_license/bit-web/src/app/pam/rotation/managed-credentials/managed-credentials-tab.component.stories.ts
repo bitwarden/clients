@@ -126,7 +126,6 @@ const ROWS: RotationConfigRow[] = [
       actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
     }),
   ),
-  // The most attention-worthy status, so the Status filter lists it first (PAM-544).
   buildRotationConfigRow(
     rotationConfig({
       id: configId("7"),
