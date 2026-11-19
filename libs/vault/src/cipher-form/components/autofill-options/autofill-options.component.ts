@@ -53,6 +53,12 @@ interface UriField {
   matchDetection: UriMatchStrategySetting;
 }
 
+/**
+ * The match strategy desktop app URIs are saved with. A website's URL is never a desktop app URI,
+ * so Exact never matches a website, and it counts as an explicit strategy for HTTP authentication.
+ */
+const DESKTOP_APP_URI_MATCH_STRATEGY: UriMatchStrategySetting = UriMatchStrategy.Exact;
+
 // A desktop app URI with no desktop app selected yet is not saved on the cipher
 function isSavedUri(uri: UriField): boolean {
   return uri?.uri !== DESKTOP_APP_URI_PREFIX;
@@ -216,7 +222,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autotypeGaEnabled$
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.saveDesktopAppUrisWithExactMatch());
+      .subscribe(() => this.saveDesktopAppUriMatchDetection());
 
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
@@ -247,15 +253,13 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   /**
-   * Adds a new desktop app URI requested by the user. Desktop app URIs use the Exact match
-   * strategy: a website's URL is never a desktop app URI, so they never match a website, and Exact
-   * counts as an explicit strategy for HTTP authentication.
+   * Adds a new desktop app URI requested by the user, with {@link DESKTOP_APP_URI_MATCH_STRATEGY}.
    */
   addDesktopAppUriFromUser() {
     this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: UriMatchStrategy.Exact,
+        matchDetection: DESKTOP_APP_URI_MATCH_STRATEGY,
       },
       true,
       true,
@@ -380,20 +384,20 @@ export class AutofillOptionsComponent implements OnInit {
 
   /**
    * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
-   * URIs are saved with the Exact match strategy, including ones typed into a website row, because
-   * they load as desktop apps.
+   * URIs are saved with {@link DESKTOP_APP_URI_MATCH_STRATEGY}, including ones typed into a
+   * website row, because they load as desktop apps.
    */
   private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
     return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
-      ? UriMatchStrategy.Exact
+      ? DESKTOP_APP_URI_MATCH_STRATEGY
       : uri?.matchDetection;
   }
 
   /**
-   * Saves the desktop app URIs already on the cipher with the Exact match strategy, even when the
-   * user doesn't change the URIs.
+   * Saves the desktop app URIs already on the cipher with the match strategy from
+   * {@link savedMatchDetection}, even when the user doesn't change the URIs.
    */
-  private saveDesktopAppUrisWithExactMatch() {
+  private saveDesktopAppUriMatchDetection() {
     const matchChanged = this.uriControls.some(
       (control) =>
         (this.savedMatchDetection(control.value) ?? null) !==
