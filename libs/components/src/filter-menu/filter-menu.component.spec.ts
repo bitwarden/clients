@@ -161,6 +161,89 @@ describe("FilterMenuComponent selections", () => {
     expect(berryValue(host.multi())).toBe(1);
   });
 
+  /*
+   * PAM-570: the chip is the user's record of what the filter currently is, so it has to hold
+   * still while they are mid-decision in the menu. Only closing the menu commits the new look.
+   */
+  describe("while the menu is open", () => {
+    const multiTrigger = () =>
+      fixture.debugElement.queryAll(By.directive(MenuTriggerForDirective))[0];
+
+    const openMenu = () => {
+      (multiTrigger().nativeElement as HTMLElement).click();
+      fixture.detectChanges();
+    };
+
+    /** The trigger toggles, so a second click closes it — the same way a user does. */
+    const closeMenu = () => {
+      (multiTrigger().nativeElement as HTMLElement).click();
+      fixture.detectChanges();
+    };
+
+    const chipIsActive = () => host.multi().active();
+    const chipReadsActive = () =>
+      (multiTrigger().nativeElement as HTMLElement)
+        .closest("bit-chip-content, [bitChip]")
+        ?.querySelector("[bit-chip-dismiss-button]") != null;
+
+    it("holds the berry while selections change, then commits on close", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+      expect(berryValue(host.multi())).toBe(2);
+
+      openMenu();
+      host.multi().toggle("login");
+      fixture.detectChanges();
+
+      // The live state moved; the chip has not.
+      expect(host.multi().selections()).toHaveLength(1);
+      expect(berryValue(host.multi())).toBe(2);
+
+      closeMenu();
+      expect(berryValue(host.multi())).toBe(1);
+    });
+
+    it("keeps the berry rather than zeroing it when the menu's Clear empties the chip", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+
+      openMenu();
+      host.multi().clear();
+      fixture.detectChanges();
+
+      // The reported bug: the count dropped to 0 the moment the last selection went.
+      expect(chipIsActive()).toBe(false);
+      expect(berryValue(host.multi())).toBe(2);
+
+      closeMenu();
+      expect(berryValue(host.multi())).toBe(0);
+    });
+
+    it("does not take its active styling until the menu closes", () => {
+      openMenu();
+      host.multi().toggle("login");
+      fixture.detectChanges();
+
+      // The reported bug: the chip styled itself active on the first selection.
+      expect(chipIsActive()).toBe(true);
+      expect(chipReadsActive()).toBe(false);
+
+      closeMenu();
+      expect(chipReadsActive()).toBe(true);
+    });
+
+    it("still updates immediately when the chip changes with the menu closed", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+
+      host.multi().clear();
+      fixture.detectChanges();
+
+      expect(berryValue(host.multi())).toBe(0);
+      expect(chipReadsActive()).toBe(false);
+    });
+  });
+
   it("ignores a value that isn't selected", () => {
     host.multi().setValue(["login"]);
     fixture.detectChanges();

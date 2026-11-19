@@ -335,7 +335,7 @@ export class FilterMenuComponent
     if (!this.multiple() && this.selected().length > 0) {
       return `${prefix}: ${this.summary()}`;
     }
-    if (this.active()) {
+    if (this.committedActive()) {
       return prefix;
     }
     const unsetLabel = this.unsetLabel();
@@ -361,10 +361,20 @@ export class FilterMenuComponent
     return this.multiple() && Array.isArray(value) ? value.length : 0;
   });
 
+  /** Whether the chip's own menu is open, so the chip can hold still while it is. */
+  protected readonly menuOpen = computed(() => this.menuTrigger()?.isOpen() ?? false);
+
   /**
-   * Snapshotted from {@link selectedCount} on menu close, so the chip's width doesn't
-   * shift while the user toggles options.
+   * What the chip itself renders, snapshotted while the menu is open so the chip does not change
+   * under the user mid-selection: the label, the chevron, the dismiss button and the berry all
+   * hold their last committed look until the menu closes.
+   *
+   * The live state stays in {@link active} and {@link selectedCount}, which the menu body and the
+   * applied-filters row read — only the chip's own chrome is deferred.
    */
+  protected readonly committedActive = signal(false);
+
+  /** @see committedActive — the berry's value, snapshotted with it. */
   protected readonly committedCount = signal(0);
 
   // `bitRadio` itself can't be used here: it drives `checked` and `name` from a form
@@ -386,6 +396,8 @@ export class FilterMenuComponent
 
   /** @see FilterPresenter.selections */
   readonly selections = this.selected.asReadonly();
+
+  private readonly menuTrigger = viewChild<MenuTriggerForDirective>("menuTrigger");
 
   /**
    * The menu body as a template, so the popover and the dialog's drill-in stamp the
@@ -512,14 +524,20 @@ export class FilterMenuComponent
       }
       this.selected.set(selected);
     });
-    effect(() => this.baseChip.selectedState.set(this.active()));
+    effect(() => this.baseChip.selectedState.set(this.committedActive()));
     // Tighter trailing padding while the dismiss button shows.
-    effect(() => this.baseChip.hasTrailingIcon.set(this.active()));
-    // Otherwise only committed on menu close, leaving a stale berry on the chip.
+    effect(() => this.baseChip.hasTrailingIcon.set(this.committedActive()));
+    /*
+     * The one place the chip's look is committed. While the menu is open it holds still; the
+     * moment it closes, and for any change made with it already closed (the applied-filters
+     * row, the chip's own dismiss button, a host-level clear, seeding), it catches up.
+     */
     effect(() => {
-      if (!this.active()) {
-        this.committedCount.set(0);
+      if (this.menuOpen()) {
+        return;
       }
+      this.committedActive.set(this.active());
+      this.committedCount.set(this.selectedCount());
     });
   }
 
@@ -805,10 +823,9 @@ export class FilterMenuComponent
     );
   }
 
-  /** Resets the search and commits the selected count to the berry when the menu closes. */
+  /** Resets the search when the menu closes; the chip's look is committed by the effect. */
   protected onMenuClosed(): void {
     this.setSearchTerm("");
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Sets the chip's value — used to seed initial filters. */
@@ -817,7 +834,6 @@ export class FilterMenuComponent
     // wrap it so active() and isSelected() can treat it uniformly as an array.
     const normalized = this.multiple() && !Array.isArray(value) && value != null ? [value] : value;
     this._value.set(normalized);
-    this.committedCount.set(this.selectedCount());
   }
 
   /**
@@ -857,15 +873,12 @@ export class FilterMenuComponent
     }
     const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
     this._value.set(current.filter((v) => v !== value));
-    // The menu never closed, so commit the berry count here instead of in `onMenuClosed`.
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
     this._value.set(this.clearedValue());
     this.selected.set([]);
-    this.committedCount.set(0);
   }
 
   /** @see FilterPresenter.flip — a chip drills into its options, so there's nothing to flip. */
