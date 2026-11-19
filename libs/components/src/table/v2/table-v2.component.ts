@@ -36,6 +36,7 @@ import { IconComponent } from "../../icon/icon.component";
 import { ItemComponent } from "../../item/item.component";
 import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
+import { VariableHeightVirtualScrollStrategy } from "../../shared/variable-height-virtual-scroll.strategy";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
@@ -62,7 +63,6 @@ import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableStateKey } from "./table-state-keys";
-import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
@@ -999,7 +999,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order.
+   * Per-item pixel heights for {@link VariableHeightVirtualScrollStrategy}, in render order.
    * Empty until {@link virtualRowHeight} is set.
    */
   protected readonly itemHeights = computed<number[]>(() => {
@@ -1050,7 +1050,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Virtual-scroll strategy, provided to the viewport via `VIRTUAL_SCROLL_STRATEGY`.
    * Reads {@link itemHeights} lazily; the constructor effect re-renders on change.
    */
-  readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
+  readonly scrollStrategy = new VariableHeightVirtualScrollStrategy(this.itemHeights);
 
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);
