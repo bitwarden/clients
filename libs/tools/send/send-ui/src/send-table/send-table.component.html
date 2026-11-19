@@ -101,7 +101,9 @@
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copySendLink" | i18n }}
             </button>
-            @if (s.authType !== authType.None && !disableSend()) {
+            @if (
+              s.authType !== authType.None && !s.disabled && !disableSend() && !sendAuthRequired()
+            ) {
               <button type="button" bitMenuItem (click)="onRemoveAuth(s)">
                 <bit-icon name="bwi-close" fixedWidth />
                 {{ removeSendAuthI18nKeys(s.authType).label | i18n }}
