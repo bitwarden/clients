@@ -4,7 +4,10 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { catchError, map, of } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
-import { PremiumUpgradeNudgeOptions } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
+import {
+  PremiumUpgradeNudgeImage,
+  PremiumUpgradeNudgeOptions,
+} from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -20,6 +23,19 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { DarkImageSourceDirective } from "../../../directives/dark-image-source.directive";
+
+type NudgeImage = { light: string; dark: string; width: number; height: number };
+
+const NUDGE_IMAGES: Record<PremiumUpgradeNudgeImage, NudgeImage> = {
+  totp: {
+    light: "images/premium/premium-nudge-totp-light.png",
+    dark: "images/premium/premium-nudge-totp-dark.png",
+    width: 339,
+    height: 138,
+  },
+};
 
 export type PremiumUpgradeNudgeDialogData = {
   options: PremiumUpgradeNudgeOptions;
@@ -40,6 +56,7 @@ export type PremiumUpgradeNudgeDialogData = {
     IconModule,
     TypographyModule,
     I18nPipe,
+    DarkImageSourceDirective,
   ],
 })
 export class PremiumUpgradeNudgeComponent {
@@ -49,6 +66,7 @@ export class PremiumUpgradeNudgeComponent {
   private readonly platformUtilsService = inject(PlatformUtilsService);
 
   protected readonly options = this.data.options;
+  protected readonly image = this.options.image ? NUDGE_IMAGES[this.options.image] : undefined;
   private readonly clientType = this.platformUtilsService.getClientType();
   protected readonly sheet = this.clientType === ClientType.Browser;
   protected readonly externalCheckout =
