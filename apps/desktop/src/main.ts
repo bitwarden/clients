@@ -213,8 +213,6 @@ export class Main {
     );
 
     const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
       globalStateProvider,
       singleUserStateProvider,
     );
