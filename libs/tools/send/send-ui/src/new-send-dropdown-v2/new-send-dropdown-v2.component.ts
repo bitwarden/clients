@@ -7,18 +7,18 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
+import { ButtonModule, ButtonType, IconModule, MenuModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendPolicyService } from "../services/send-policy.service";
 
-// Desktop-specific version of NewSendDropdownComponent.
-// Unlike the shared library version, this component emits events instead of using Angular Router,
-// which aligns with Desktop's modal-based architecture.
+// Non-browser version of NewSendDropdownComponent.
+// Unlike the other version, this component emits events instead of using Angular Router,
+// which aligns with desktop and web's modal/drawer-based architectures.
 @Component({
   selector: "tools-new-send-dropdown-v2",
   templateUrl: "new-send-dropdown-v2.component.html",
-  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent],
+  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent, IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewSendDropdownV2Component {

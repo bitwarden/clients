@@ -7,7 +7,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { buildTestOrganization, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ImportOwner } from "@bitwarden/importer-ui";
 
@@ -22,7 +22,7 @@ const organizationOwner: ImportOwner = { kind: "organization", organizationId: o
 const orgBase = ["/organizations", orgId, "settings", "tools", "import"];
 
 function organization(type: OrganizationUserType): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: orgId,
     type,
     permissions: {
