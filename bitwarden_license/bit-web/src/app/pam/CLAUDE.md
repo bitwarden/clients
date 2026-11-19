@@ -285,9 +285,10 @@ lapsed lease whatever the response said and fails closed on an unparseable `notA
 
 Something has to move that clock. **Use one of the two that already tick; do not add a third.**
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
-active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
-`PamRevealedCipherService` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
-clock the badges run on, and only while the state they hold has something left to lapse.
+active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent`,
+`PamRevealedCipherService` and `VaultRowAccessActionsService` take a single tick off
+`AccessBadgeTickerService.ticks$`, the shared clock the badges run on, and only while the state
+they hold has something left to lapse.
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
 device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
