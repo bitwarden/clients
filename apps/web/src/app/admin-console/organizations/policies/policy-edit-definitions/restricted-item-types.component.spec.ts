@@ -66,13 +66,13 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
 
   let countsApi: MockProxy<OrganizationCipherTypeCountsApiService>;
 
-  async function setup(response: Partial<PolicyStatusResponse>) {
+  async function setup(response: Partial<PolicyStatusResponse>, policies: any[] = []) {
     countsApi = mock<OrganizationCipherTypeCountsApiService>();
     countsApi.getCounts.mockResolvedValue({});
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(of(true) as any);
     const policyService = mock<PolicyService>();
-    policyService.policies$.mockReturnValue(of([]));
+    policyService.policies$.mockReturnValue(of(policies));
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = new BehaviorSubject({ id: "user" } as any);
 
@@ -99,6 +99,26 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
     fixture.detectChanges();
     return fixture.componentInstance as any;
   }
+
+  it("keeps an enabled legacy policy switchable off when single organization is off", async () => {
+    const component = await setup({ enabled: true, data: null });
+
+    expect(component.enabled.enabled).toBe(true);
+  });
+
+  it("blocks turning the policy on when single organization is off", async () => {
+    const component = await setup({ enabled: false, data: null });
+
+    expect(component.enabled.disabled).toBe(true);
+  });
+
+  it("allows turning the policy on when single organization is on", async () => {
+    const component = await setup({ enabled: false, data: null }, [
+      { type: PolicyType.SingleOrg, enabled: true },
+    ]);
+
+    expect(component.enabled.enabled).toBe(true);
+  });
 
   it("saves unchecked types as restrictedTypes", async () => {
     const component = await setup({ enabled: true, data: { restrictedTypes: [] } });

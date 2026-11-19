@@ -214,14 +214,7 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
       )
       .subscribe((singleOrgEnabled) => {
         this.singleOrgEnabled.set(singleOrgEnabled);
-
-        // The prerequisite only blocks turning the policy on. Policies that are already on (legacy
-        // policies may predate the requirement) must remain switchable off.
-        if (singleOrgEnabled || this.policyResponse()?.enabled === true) {
-          this.enabled.enable();
-        } else {
-          this.enabled.disable();
-        }
+        this.applyEnabledLock();
       });
 
     // Selections stay editable only while the policy is on, but are retained when it is turned off.
@@ -253,12 +246,27 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
   override ngOnInit(): void {
     super.ngOnInit();
 
+    // The first policy state emission usually arrives in the constructor, before inputs are set.
+    this.applyEnabledLock();
+
     // The base class only loads data when the response includes it, but legacy policies have none.
     if (this.hasNoStoredData()) {
       this.loadData();
     }
 
     void this.loadExistingItemCounts();
+  }
+
+  /**
+   * The single organization prerequisite only blocks turning the policy on. Policies that are
+   * already on (legacy policies may predate the requirement) must remain switchable off.
+   */
+  private applyEnabledLock(): void {
+    if (this.singleOrgEnabled() || this.policyResponse()?.enabled === true) {
+      this.enabled.enable();
+    } else {
+      this.enabled.disable();
+    }
   }
 
   private async loadExistingItemCounts(): Promise<void> {
