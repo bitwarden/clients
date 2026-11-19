@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router, convertToParamMap, provideRouter } from
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -1166,7 +1167,9 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
   });
 
   it("marks the Target systems crumb with the target system icon", () => {
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
+    const crumbs = (fixture.nativeElement as HTMLElement).querySelector(
+      'bit-breadcrumbs[slot="breadcrumbs"]',
+    )!;
     expect(crumbs.querySelector("bit-icon.bwi-target-system")).not.toBeNull();
   });
 
@@ -3150,7 +3153,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     await renderLoading();
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).not.toBeNull();
-    expect(el().querySelector("pam-detail-breadcrumb")).not.toBeNull();
+    expect(el().querySelector('bit-breadcrumbs[slot="breadcrumbs"]')).not.toBeNull();
   });
 });
 
@@ -3468,7 +3471,9 @@ describe("TargetSystemEditComponent: returning to a managed credential", () => {
   it("keeps the target systems breadcrumb, so the header fits beside its actions", async () => {
     await setup(true);
 
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
+    const crumbs = (fixture.nativeElement as HTMLElement).querySelector(
+      'bit-breadcrumbs[slot="breadcrumbs"]',
+    )!;
     expect(crumbs.textContent).toContain("pamRotationTabTargetSystems");
     expect(crumbs.textContent).not.toContain("pamRotationTabManagedCredentials");
     expect(rotationSdk.getConfig).not.toHaveBeenCalled();
@@ -3508,5 +3513,81 @@ describe("TargetSystemEditComponent: returning to a managed credential", () => {
     await component().cancel();
 
     expect(navigate).toHaveBeenCalledWith(CREDENTIAL_ROUTE);
+  });
+});
+
+describe("TargetSystemEditComponent: breadcrumbs", () => {
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+
+  async function render(queryParams: Params = {}, { vfo1 = false } = {}): Promise<HTMLElement> {
+    const rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listConnectors.mockResolvedValue([]);
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: RotationSdkService, useValue: rotationSdk },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(vfo1) } },
+        {
+          provide: ActivatedRoute,
+          useValue: withParamMap({
+            snapshot: { params: { organizationId: ORG_ID }, queryParams },
+          }),
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  /** The text of each crumb as rendered, in order. */
+  const crumbTexts = (el: HTMLElement) =>
+    Array.from(el.querySelectorAll("bit-breadcrumbs [bitOverflowItem]")).map((crumb) =>
+      crumb.textContent?.trim(),
+    );
+
+  it("slots a bit-breadcrumbs straight into the header, with no wrapper or extra content", async () => {
+    const el = await render();
+
+    const slotted = el.querySelectorAll('bit-header [slot="breadcrumbs"]');
+    expect(slotted).toHaveLength(1);
+    expect(slotted[0].tagName).toBe("BIT-BREADCRUMBS");
+  });
+
+  it("leads back to the target systems list from the page title", async () => {
+    const el = await render();
+
+    expect(crumbTexts(el)).toEqual(["pamRotationTabTargetSystems", "pamTargetSystemCreateTitle"]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-target-system")).not.toBeNull();
+    expect(el.querySelector("bit-breadcrumbs bit-icon-tile")).toBeNull();
+  });
+
+  it("routes through the add-credential page when opened from it", async () => {
+    const el = await render({ then: "managed-credential" });
+
+    expect(crumbTexts(el)).toEqual([
+      "pamRotationTabManagedCredentials",
+      "pamRotationConfigCreateTitle",
+      "pamTargetSystemCreateTitle",
+    ]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-managed-credential")).not.toBeNull();
+    expect(el.querySelector("bit-breadcrumbs bit-icon-tile")).not.toBeNull();
+  });
+
+  it("promotes the current crumb to the page's only heading under VFO1", async () => {
+    const el = await render({}, { vfo1: true });
+
+    const headings = el.querySelectorAll("h1");
+    expect(headings).toHaveLength(1);
+    expect(headings[0].closest("bit-breadcrumbs")).not.toBeNull();
+    expect(headings[0].getAttribute("aria-current")).toBe("page");
+    expect(headings[0].textContent?.trim()).toBe("pamTargetSystemCreateTitle");
   });
 });

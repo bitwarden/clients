@@ -31,6 +31,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -64,7 +65,6 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import {
   ManagedCredentialDraft,
@@ -125,7 +125,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
-    DetailBreadcrumbComponent,
+    BreadcrumbsModule,
     FormFieldModule,
     ButtonModule,
     CalloutModule,
