@@ -229,9 +229,8 @@ export class AutofillOptionsComponent implements OnInit {
    * Adds a new URI input requested by the user. When the new URI uses the default match strategy,
    * the user is asked to confirm when that would turn HTTP authentication off.
    * @param uriFieldValue The initial value for the new URI input.
-   * @param desktopAppRow How the new URI input was created, when it's a desktop app row.
    */
-  async addUriFromUser(uriFieldValue: UriField, desktopAppRow: DesktopAppRow | null = null) {
+  async addUriFromUser(uriFieldValue: UriField) {
     if (
       uriFieldValue.matchDetection == null &&
       !(await this.httpAuthenticationService.confirmDefaultMatchStrategy())
@@ -239,7 +238,7 @@ export class AutofillOptionsComponent implements OnInit {
       return;
     }
 
-    this.addUri(uriFieldValue, true, true, desktopAppRow);
+    this.addUri(uriFieldValue, true);
   }
 
   /**
@@ -247,12 +246,14 @@ export class AutofillOptionsComponent implements OnInit {
    * websites, so they use the Never match strategy. That keeps them out of website autofill and
    * HTTP authentication matching, and counts as an explicit strategy for HTTP authentication.
    */
-  async addDesktopAppUriFromUser() {
-    await this.addUriFromUser(
+  addDesktopAppUriFromUser() {
+    this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
         matchDetection: UriMatchStrategy.Never,
       },
+      true,
+      true,
       DesktopAppRow.New,
     );
   }

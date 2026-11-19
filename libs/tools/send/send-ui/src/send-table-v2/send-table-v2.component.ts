@@ -135,6 +135,10 @@ export class SendTableV2Component {
   readonly filteredRowCount = computed(() => this.tableEl()?.filteredCount() ?? 0);
   private readonly sendTypeFilter = viewChild<FilterMenuComponent>("sendTypeFilter");
   protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$);
+  /** `true` when a Send Controls policy requires Sends to keep their password or email verification */
+  private readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
   protected readonly hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (!account) {
@@ -252,8 +256,22 @@ export class SendTableV2Component {
     });
   }
 
+  /**
+   * Whether the user may remove a Send's password or email verification. Mirrors the rules
+   * enforced by the V1 send table.
+   */
+  protected canRemoveAuth(send: SendView): boolean {
+    return (
+      send.authType !== AuthType.None &&
+      send.type !== SendType.Item &&
+      !send.disabled &&
+      !this.disableSend() &&
+      !this.sendAuthRequired()
+    );
+  }
+
   protected async onRemoveAuth(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+    if (!this.canRemoveAuth(send)) {
       return;
     }
 
