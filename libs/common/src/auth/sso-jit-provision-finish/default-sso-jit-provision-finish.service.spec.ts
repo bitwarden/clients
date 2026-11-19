@@ -17,7 +17,7 @@ import { MasterPasswordSalt } from "../../key-management/master-password/types/m
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk.service";
 import { Rc } from "../../platform/misc/reference-counting/rc";
-import { UserId } from "../../types/guid";
+import { OrganizationId, UserId } from "../../types/guid";
 import { OpenOrganizationInvite } from "../organization-invite/models/open-organization-invite";
 import { OrganizationInviteService } from "../organization-invite/services/organization-invite.service";
 
@@ -41,7 +41,7 @@ describe("DefaultSsoJitProvisionFinishService", () => {
   };
 
   const userId = "d4e2e3a1-1b5e-4c3b-8d7a-9f8e7d6c5b4a" as UserId;
-  const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d";
+  const orgId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" as OrganizationId;
   const orgPublicKey = "org-public-key-base64";
 
   const openOrgInvite = new OpenOrganizationInvite({

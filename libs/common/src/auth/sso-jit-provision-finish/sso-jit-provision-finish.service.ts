@@ -4,6 +4,8 @@ import {
   TdeRegistrationResponse,
 } from "@bitwarden/sdk-internal";
 
+import { OrganizationId } from "../../types/guid";
+
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
 import { SsoJitProvisionFinishPasswordParams } from "./sso-jit-provision-finish-password.params";
 import { SsoJitProvisionFinishResult } from "./sso-jit-provision-finish-result.type";
@@ -35,7 +37,7 @@ export abstract class SsoJitProvisionFinishService {
    *
    * @param orgId The organization that provisions the user.
    */
-  abstract shouldAcceptOrganizationInvite(orgId: string): Promise<boolean>;
+  abstract shouldAcceptOrganizationInvite(orgId: OrganizationId): Promise<boolean>;
 
   /**
    * Makes the account keys for a master password user, and sends them with the new master

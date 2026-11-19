@@ -13,7 +13,7 @@ import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
-import { UserId } from "../../types/guid";
+import { OrganizationId, UserId } from "../../types/guid";
 import { OrganizationInviteService } from "../organization-invite/services/organization-invite.service";
 
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
@@ -29,7 +29,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
     private organizationInviteService: OrganizationInviteService,
   ) {}
 
-  async shouldAcceptOrganizationInvite(orgId: string): Promise<boolean> {
+  async shouldAcceptOrganizationInvite(orgId: OrganizationId): Promise<boolean> {
     const inviteLinkAutoConfirm = await this.configService.getFeatureFlag(
       FeatureFlag.InviteLinkAutoConfirm,
     );
@@ -106,7 +106,7 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
    */
   private async finish<T>(
     userId: UserId,
-    orgId: string,
+    orgId: OrganizationId,
     register: (
       registrationClient: RegistrationClient,
       acceptOrganizationInvite: boolean,

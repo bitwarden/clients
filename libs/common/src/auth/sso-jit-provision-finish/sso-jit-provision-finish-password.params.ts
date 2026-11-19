@@ -1,9 +1,9 @@
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
-import { UserId } from "../../types/guid";
+import { OrganizationId, UserId } from "../../types/guid";
 
 export interface SsoJitProvisionFinishPasswordParams {
   userId: UserId;
-  orgId: string;
+  orgId: OrganizationId;
   /** The organization public key (B64). The SDK uses it to make the account recovery key. */
   orgPublicKey: string;
   orgSsoIdentifier: string;
