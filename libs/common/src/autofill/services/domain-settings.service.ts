@@ -380,7 +380,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       switchMap((account) => {
         if (account == null) {
           // Logged-out or transient no-account state: no policy applies.
-          return [];
+          return of([]);
         }
         return this.policyService.policiesByType$(PolicyType.UriMatchDefaults, account.id);
       }),
