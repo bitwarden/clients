@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Desktop-App",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop-App $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website hinzugefügt"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Website oder App hinzufügen"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website löschen"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Ich"
   },
-  "myItems": {
-    "message": "Meine Einträge"
-  },
   "myItemsV2": {
     "message": "Meine Einträge"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 Eintrag",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Alles löschen"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "Daten erfolgreich exportiert"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Vielen Dank, dass du dich bei Bitwarden für $PLAN$ angemeldet hast!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Danke für die Anmeldung beim Bitwarden Secrets Manager für $PLAN$!",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Deine $TRIAL_LENGTH$-tägige kostenlose $PLAN$ Testversion wird nach $TRIAL_LENGTH$ Tagen in ein kostenpflichtiges Abonnement umgewandelt.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Wir haben eine Bestätigungs-E-Mail an die Rechnungs-E-Mail-Adresse deines Teams gesendet an "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Deine Testversion beinhaltet Privileged Controls."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Deine neue Organisation ist einsatzbereit!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Organisation geupgraded"
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Sammlung $ID$ erstellt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Geteilter Ordner $ID$ hinzugefügt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Bist du sicher, dass du dieses Send dauerhaft löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Are you sure you want to delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Löschdatum"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Aktiviere das automatische Ausfüllen in der Desktop-App standardmäßig für alle Mitglieder. Du kannst ein Tastaturkürzel festlegen und wählen, ob Mitglieder das Ausfüllen vorher bestätigen müssen. Diese Funktion befindet sich in der Beta-Phase."
+  },
+  "keyboardShortcut": {
+    "message": "Tastaturkürzel"
+  },
+  "appAutofillShortcut": {
+    "message": "App-Tastaturkürzel für automatisches Ausfüllen"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Mitglieder können dieses Tastaturkürzel jederzeit ändern."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Verwende das Bitwarden-Standardtastaturkürzel: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Gib dein eigenes Tastaturkürzel ein."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Verwende Strg, Alt oder Win und mindestens 1 Buchstaben."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Always ask before filling"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+  },
+  "invalidShortcut": {
+    "message": "Ungültiges Tastaturkürzel"
   },
   "disableSend": {
     "message": "Send entfernen"
@@ -13030,7 +13095,7 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "Schütze deine privilegierten und geschäftskritischen Konten schnell und einfach mit diesem Add-on für den Bitwarden Passwort-Manager.",
+    "message": "Schütze deine berechtigten und geschäftskritischen Konten schnell und einfach mit diesem Add-on für den Bitwarden Passwort-Manager.",
     "description": "'Bitwarden Password Manager' is a product name and should not be translated."
   },
   "privilegedControlsFeatureCredentialLeasing": {
@@ -13655,6 +13720,28 @@
   },
   "recoverAccount": {
     "message": "Konto wiederherstellen"
+  },
+  "recover": {
+    "message": "Wiederherstellen",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Konto für $NAME$ wiederherstellen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Keine Aktionen für $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
   },
   "recoverAccountWarning": {
     "message": "Wenn du das Passwort oder die Zwei-Faktor-Authentifizierung für dieses Mitglied zurücksetzt, wird es über die Änderung benachrichtigt und abgemeldet."
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Details zur Bestätigung"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Vielen Dank, dass du dich für den Bitwarden Secrets Manager angemeldet hast!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Wir haben eine Bestätigungs-E-Mail an deine E-Mail-Adresse gesendet an "
@@ -16570,9 +16654,16 @@
     "message": "Sensible Informationen sicher versenden",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "generatorNudgeTitle": {
     "message": "Passwörter schnell erstellen"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Wie kann ich meinen Tresor verwalten?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Einträge zu $ORGANIZATION$ übertragen",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
   },
   "openTransferItemsHelpArticle": {
     "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Es ist ein Fehler aufgetreten. Überprüfe deine Zugangsdaten und versuche es erneut."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Nur die Anmeldung mit Passwort wird unterstützt."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Gib eine gültige Anmeldeadresse ein."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Ein geheimer Schlüssel ist erforderlich."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Geheimer Schlüssel"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -18425,8 +18543,8 @@
   "separateDomainsWithComma": {
     "message": "Trenne Domains mit einem Komma"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die zu mehreren Sammlungen gehören"
   },
   "searchDriversLicense": {
     "message": "Führerscheine suchen"
@@ -19060,7 +19178,7 @@
     }
   },
   "pamPrivilegedCredentialsHeading": {
-    "message": "Privilegierte Zugangsdaten"
+    "message": "Berechtigte Zugangsdaten"
   },
   "pamLicenseNeededTooltip": {
     "message": "Privileged Controls-Lizenz erforderlich",

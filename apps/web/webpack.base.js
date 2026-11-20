@@ -177,6 +177,10 @@ module.exports.buildConfig = function buildConfig(params) {
         },
         { from: path.resolve(__dirname, "src/images"), to: "images" },
         { from: path.resolve(__dirname, "src/images/icons"), to: "images" },
+        {
+          from: path.resolve(__dirname, "../../libs/angular/src/billing/images/premium"),
+          to: "images/premium",
+        },
         { from: path.resolve(__dirname, "src/videos"), to: "videos" },
         { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         {

@@ -9016,6 +9016,9 @@
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   },
+  "vaultItem": {
+    "message": "Vault item"
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
   },
@@ -9278,8 +9281,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9439,5 +9442,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Not now",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "month"
   }
 }

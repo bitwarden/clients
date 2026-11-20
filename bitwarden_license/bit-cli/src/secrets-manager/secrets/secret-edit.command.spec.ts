@@ -95,6 +95,93 @@ describe("SecretEditCommand", () => {
     );
   });
 
+  it("moves the secret to the project given as a `projects` array of { id, name } objects", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    await command.run(smOrg, secretId, { projects: [{ id: otherProjectId, name: null }] });
+    expect(secretService.update).toHaveBeenLastCalledWith(
+      smOrgId,
+      expect.objectContaining({ projects: [expect.objectContaining({ id: otherProjectId })] }),
+      undefined,
+      false,
+    );
+
+    await command.run(smOrg, secretId, { projects: [] });
+    expect(secretService.update).toHaveBeenLastCalledWith(
+      smOrgId,
+      expect.objectContaining({ projects: [] }),
+      undefined,
+      false,
+    );
+  });
+
+  it("rejects `projectIds` and `projects` together", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    const response = await command.run(smOrg, secretId, {
+      projectIds: [otherProjectId],
+      projects: [{ id: otherProjectId }],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("Provide either `projectIds` or `projects`, not both.");
+    expect(secretService.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed `projects` entries", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    for (const projects of ["x", [{}], [{ id: 5 }], [null], [otherProjectId]]) {
+      const response = await command.run(smOrg, secretId, { projects });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe("`projects` must be an array of objects with a project `id`.");
+    }
+    expect(secretService.update).not.toHaveBeenCalled();
+  });
+
+  it("names `projects[].id` when a project id is empty", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    const response = await command.run(smOrg, secretId, { projects: [{ id: "" }] });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("`projects[].id` is required.");
+    expect(secretService.update).not.toHaveBeenCalled();
+  });
+
+  it("accepts a full secret response body", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    const response = await command.run(smOrg, secretId, {
+      object: "sm-secret",
+      id: secretId,
+      organizationId: smOrgId,
+      key: "RENAMED",
+      value: "new value",
+      note: "new note",
+      projects: [{ id: otherProjectId, name: "Frontend" }],
+      creationDate: "2026-01-01T00:00:00.000Z",
+      revisionDate: "2026-01-02T00:00:00.000Z",
+      read: true,
+      write: true,
+    });
+
+    expect(response.success).toBe(true);
+    expect(secretService.update).toHaveBeenCalledWith(
+      smOrgId,
+      expect.objectContaining({
+        id: secretId,
+        name: "RENAMED",
+        value: "new value",
+        note: "new note",
+        projects: [expect.objectContaining({ id: otherProjectId })],
+      }),
+      undefined,
+      true,
+    );
+  });
+
   it("moves the secret to another project, or out of all projects", async () => {
     secretService.getBySecretId.mockResolvedValue(makeSecret());
 

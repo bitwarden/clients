@@ -1,3 +1,6 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
@@ -61,7 +64,11 @@ export class SmExportCommand {
     }
 
     try {
-      const filePath = await CliUtils.saveFile(exportJson, options.output, exportFileName());
+      const filePath = await CliUtils.saveFile(
+        exportJson,
+        outputPath(options.output),
+        exportFileName(),
+      );
       const res = new MessageResponse("Saved " + filePath, null);
       res.raw = filePath;
       return Response.success(res);
@@ -152,4 +159,19 @@ function exportFileName(): string {
     pad(now.getMinutes()) +
     pad(now.getSeconds());
   return "bitwarden_export_" + timestamp + ".json";
+}
+
+/**
+ * `CliUtils.saveFile` only treats the output as a directory when it ends with a path separator.
+ * Append one when the output is an existing directory so `--output ~/Downloads` works.
+ */
+function outputPath(output: string): string {
+  try {
+    if (fs.statSync(path.resolve(output)).isDirectory() && !output.endsWith(path.sep)) {
+      return output + path.sep;
+    }
+  } catch {
+    // Not an existing path: treat it as a file name.
+  }
+  return output;
 }

@@ -302,8 +302,8 @@ export class DesktopAutofillService implements OnDestroy {
     let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
-      // Desktop app URIs pair a login with an app, not a website, so they're never synced
-      const isSyncedUri = (uri: LoginUriView) =>
+      // Desktop app URIs pair a login with an app for Autotype, so OS AutoFill never gets them
+      const isAutofillableUri = (uri: LoginUriView) =>
         uri.match !== UriMatchStrategy.Never &&
         !Utils.isNullOrWhitespace(uri.uri) &&
         !isDesktopAppUri(uri.uri);
@@ -314,14 +314,14 @@ export class DesktopAutofillService implements OnDestroy {
             !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some(isSyncedUri) &&
+            cipher.login.uris.some(isAutofillableUri) &&
             !Utils.isNullOrWhitespace(cipher.login.username) &&
             !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
           cipherId: cipher.id,
-          uri: cipher.login.uris.find(isSyncedUri)!.uri as string,
+          uri: cipher.login.uris.find(isAutofillableUri)!.uri as string,
           username: cipher.login.username as string,
         }));
     }
