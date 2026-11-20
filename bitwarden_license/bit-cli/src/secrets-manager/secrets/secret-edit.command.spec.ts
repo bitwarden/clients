@@ -95,6 +95,26 @@ describe("SecretEditCommand", () => {
     );
   });
 
+  it("moves the secret to the project given as a `projects` array of { id, name } objects", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    await command.run(smOrg, secretId, { projects: [{ id: otherProjectId, name: null }] });
+    expect(secretService.update).toHaveBeenLastCalledWith(
+      smOrgId,
+      expect.objectContaining({ projects: [expect.objectContaining({ id: otherProjectId })] }),
+      undefined,
+      false,
+    );
+
+    await command.run(smOrg, secretId, { projects: [] });
+    expect(secretService.update).toHaveBeenLastCalledWith(
+      smOrgId,
+      expect.objectContaining({ projects: [] }),
+      undefined,
+      false,
+    );
+  });
+
   it("moves the secret to another project, or out of all projects", async () => {
     secretService.getBySecretId.mockResolvedValue(makeSecret());
 

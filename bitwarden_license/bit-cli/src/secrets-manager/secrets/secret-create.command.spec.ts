@@ -94,6 +94,55 @@ describe("SecretCreateCommand", () => {
     expect(response.data).toMatchObject({ projects: [{ id: projectId, name: null }] });
   });
 
+  it("assigns the project given as a `projects` array of { id, name } objects", async () => {
+    const response = await command.run(smOrg, {
+      key: "SecretName",
+      value: "SecretValue",
+      note: "This is a note",
+      projects: [{ id: projectId.toUpperCase(), name: null }],
+    });
+
+    expect(response.success).toBe(true);
+    expect(secretService.create).toHaveBeenCalledWith(
+      smOrgId,
+      expect.objectContaining({ projects: [expect.objectContaining({ id: projectId })] }),
+      undefined,
+    );
+    expect(response.data).toMatchObject({ projects: [{ id: projectId, name: "Backend" }] });
+  });
+
+  it("rejects malformed `projects` entries", async () => {
+    for (const projects of ["x", [{}], [{ id: 5 }], [null], [projectId]]) {
+      const response = await command.run(smOrg, { key: "A", projects });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe("`projects` must be an array of objects with a project `id`.");
+    }
+    expect(secretService.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects more than one project in `projects`", async () => {
+    const response = await command.run(smOrg, {
+      key: "A",
+      projects: [{ id: projectId }, { id: "44444444-4444-4444-4444-444444444444" }],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("A secret can only be assigned to one project.");
+  });
+
+  it("rejects `projectIds` and `projects` together", async () => {
+    const response = await command.run(smOrg, {
+      key: "A",
+      projectIds: [projectId],
+      projects: [{ id: projectId }],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("Provide either `projectIds` or `projects`, not both.");
+    expect(secretService.create).not.toHaveBeenCalled();
+  });
+
   it("defaults the value and note to empty strings", async () => {
     await command.run(smOrg, { key: "EMPTY" });
 
