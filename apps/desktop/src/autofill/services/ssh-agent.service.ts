@@ -384,9 +384,7 @@ export class SshAgentService implements OnDestroy {
   // Stops the agent server if it is running.
   private async stopAgent(): Promise<void> {
     try {
-      if (await ipc.autofill.sshAgent.isLoaded()) {
-        await ipc.autofill.sshAgent.stop();
-      }
+      await ipc.autofill.sshAgent.stop();
     } catch (e) {
       this.logService.error("Failed to stop the SSH agent server", e);
     }

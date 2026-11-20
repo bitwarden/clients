@@ -20,6 +20,7 @@ import {
   AutotypeShortcutComponent,
   formatAutotypeShortcut,
 } from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
+import { DuckDuckGoIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -64,6 +65,7 @@ import {
   PageComponent,
   SegmentedCardComponent,
   SelectModule,
+  SvgComponent,
   SwitchComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -91,6 +93,22 @@ import { DesktopBiometricsService } from "../../key-management/biometrics/deskto
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { DesktopHeaderComponent } from "../layout/header/desktop-header.component";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
+
+import {
+  clearSettingsRowHighlight,
+  revealSettingsRow,
+} from "./settings-search/reveal-settings-row";
+import {
+  SettingsSearchComponent,
+  SettingsSearchSelection,
+} from "./settings-search/settings-search.component";
+import {
+  SETTINGS_SEARCH_ENTRIES,
+  SettingsSearchEntry,
+  SettingsSearchEntryId,
+  withSettingsSearchOverrides,
+} from "./settings-search/settings-search.registry";
+import { SshAgentSetupStatusComponent } from "./ssh-agent-setup/ssh-agent-setup-status.component";
 
 type SettingsPage = "security" | "vault" | "general" | "integrations" | "advanced";
 
@@ -122,6 +140,9 @@ type SettingsPage = "security" | "vault" | "general" | "integrations" | "advance
     RouterModule,
     SegmentedCardComponent,
     SelectModule,
+    SettingsSearchComponent,
+    SshAgentSetupStatusComponent,
+    SvgComponent,
     SwitchComponent,
     TypographyModule,
     SessionTimeoutSettingsComponent,
@@ -142,7 +163,60 @@ export class SettingsComponent implements OnInit {
   ] as const;
   protected readonly page = signal<SettingsPage>("security");
 
+  protected readonly searchEntries: readonly SettingsSearchEntry[];
+
+  protected readonly isSearchVisible = (id: SettingsSearchEntryId): boolean => {
+    const value = this.form.value;
+    switch (id) {
+      case "unlockWithPin":
+        return !!(this.pinEnabled() || value.pin);
+      case "unlockWithBiometrics":
+        return this.supportsBiometric();
+      case "requireMasterPasswordOnAppRestart":
+        return (
+          this.supportsBiometric() &&
+          !!value.biometric &&
+          (this.isWindows || this.isLinux) &&
+          !!(this.userHasMasterPassword() || (value.pin && this.userHasPinSet()))
+        );
+      case "autoPromptBiometrics":
+        return this.supportsBiometric() && !!value.biometric && this.isMac;
+      case "openAtLogin":
+        return this.showOpenAtLoginOption;
+      case "sshAgentPromptBehavior":
+        return !!value.enableSshAgent;
+      case "duckDuckGoBrowserIntegration":
+        return this.showDuckDuckGoIntegrationOption;
+      case "passkeyProvider":
+        return this.showPasskeyProviderSetting();
+      case "autotype":
+        return this.showEnableAutotype();
+      case "autotypeGa":
+        return this.showEnableAutotypeGa();
+      case "allowScreenshots":
+        return !this.isLinux;
+      default:
+        return true;
+    }
+  };
+
+  protected onSearchSelected({ entry, viaKeyboard }: SettingsSearchSelection) {
+    this.page.set(entry.page);
+    // Hidden pages cannot take focus, so wait for the page to render first.
+    afterNextRender(
+      () => {
+        if (!revealSettingsRow(entry.rowId, { focusVisible: viaKeyboard })) {
+          document.getElementById(`settings-heading-${entry.page}`)?.focus();
+        }
+      },
+      { injector: this.injector },
+    );
+  }
+
   private readonly injector = inject(Injector);
+  // Cancels a pending search-result highlight timer when the settings view closes.
+  private readonly clearRowHighlightOnDestroy =
+    inject(DestroyRef).onDestroy(clearSettingsRowHighlight);
 
   protected selectPage(id: SettingsPage) {
     this.page.set(id);
@@ -195,6 +269,7 @@ export class SettingsComponent implements OnInit {
   protected readonly isMac: boolean;
   protected readonly showOpenAtLoginOption: boolean;
   protected readonly showDuckDuckGoIntegrationOption: boolean;
+  protected readonly duckDuckGoIcon = DuckDuckGoIcon;
   protected readonly runInBackgroundText: string;
   protected readonly runInBackgroundDescText: string;
 
@@ -314,6 +389,14 @@ export class SettingsComponent implements OnInit {
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
+
+    this.searchEntries = withSettingsSearchOverrides(SETTINGS_SEARCH_ENTRIES, {
+      unlockWithBiometrics:
+        this.isMac || this.isWindows || this.isLinux ? { labelKey: this.biometricText } : {},
+      runInBackground: {
+        descriptionKey: this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+      },
+    });
 
     const localeOptions: (Option<string> & { label: string })[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {

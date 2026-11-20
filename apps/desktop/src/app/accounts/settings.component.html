@@ -36,6 +36,14 @@
 
 <bit-page>
   <app-header>
+    <!-- Outside the settings <form> on purpose: the results panel overlays the page content. -->
+    <app-settings-search
+      class="tw-w-80"
+      [entries]="searchEntries"
+      [isVisible]="isSearchVisible"
+      (selected)="onSearchSelected($event)"
+    />
+    <span aria-hidden="true" class="tw-mx-2 tw-h-6 tw-w-px tw-bg-border-base"></span>
     <button
       type="button"
       id="settings_button_close"
@@ -106,7 +114,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-sessionTimeout" class="tw-p-4">
                 <bit-session-timeout-settings
                   [refreshTimeoutActionSettings]="refreshTimeoutSettings$"
                 />
@@ -126,7 +134,7 @@
               />
               <bit-card-segmented>
                 @if (pinEnabled() || form.value.pin) {
-                  <div class="tw-p-4">
+                  <div id="settings-row-unlockWithPin" class="tw-p-4">
                     <bit-form-control disableMargin>
                       <span class="tw-flex tw-items-center tw-gap-2">
                         <bit-switch formControlName="pin" data-testid="settings-pin-checkbox" />
@@ -140,7 +148,7 @@
                 }
 
                 @if (supportsBiometric()) {
-                  <div class="tw-p-4">
+                  <div id="settings-row-unlockWithBiometrics" class="tw-p-4">
                     <bit-form-control disableMargin>
                       <span class="tw-flex tw-items-center tw-gap-2">
                         <bit-switch
@@ -160,7 +168,11 @@
                     (isWindows || isLinux) &&
                     (userHasMasterPassword() || (form.value.pin && userHasPinSet()))
                   ) {
-                    <div class="tw-p-4" data-testid="settings-biometric-child-row">
+                    <div
+                      id="settings-row-requireMasterPasswordOnAppRestart"
+                      class="tw-p-4"
+                      data-testid="settings-biometric-child-row"
+                    >
                       <div class="tw-ps-4">
                         <bit-form-control disableMargin>
                           <span class="tw-flex tw-items-center tw-gap-2">
@@ -194,7 +206,11 @@
                   }
 
                   @if (form.value.biometric && isMac) {
-                    <div class="tw-p-4" data-testid="settings-biometric-child-row">
+                    <div
+                      id="settings-row-autoPromptBiometrics"
+                      class="tw-p-4"
+                      data-testid="settings-biometric-child-row"
+                    >
                       <div class="tw-ps-4">
                         <bit-form-control disableMargin>
                           <span class="tw-flex tw-items-center tw-gap-2">
@@ -234,7 +250,10 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-4">
+              <div
+                id="settings-row-syncVault"
+                class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-4"
+              >
                 <div>
                   <div bitTypography="body2" class="tw-font-medium tw-text-fg-heading">
                     {{ "syncVaultHeading" | i18n }}
@@ -268,7 +287,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-clearClipboard" class="tw-p-4">
                 <div
                   class="tw-flex tw-items-start tw-justify-between tw-gap-4"
                   data-testid="settings-select-row"
@@ -291,7 +310,7 @@
                   </bit-form-field>
                 </div>
               </div>
-              <div class="tw-p-4">
+              <div id="settings-row-minimizeOnCopyToClipboard" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
                     <bit-switch
@@ -330,7 +349,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-theme" class="tw-p-4">
                 <div
                   class="tw-flex tw-items-start tw-justify-between tw-gap-4"
                   data-testid="settings-select-row"
@@ -351,7 +370,7 @@
                   </bit-form-field>
                 </div>
               </div>
-              <div class="tw-p-4">
+              <div id="settings-row-language" class="tw-p-4">
                 <div
                   class="tw-flex tw-items-start tw-justify-between tw-gap-4"
                   data-testid="settings-select-row"
@@ -387,7 +406,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-showFavicons" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
                     <bit-switch formControlName="enableFavicons" (change)="saveFavicons()" />
@@ -401,7 +420,7 @@
                   </bit-label>
                 </bit-form-control>
               </div>
-              <div class="tw-p-4">
+              <div id="settings-row-showQuickCopyActions" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
                     <bit-switch
@@ -431,7 +450,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-runInBackground" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
                     <bit-switch
@@ -447,7 +466,7 @@
                 </bit-form-control>
               </div>
               @if (showOpenAtLoginOption) {
-                <div class="tw-p-4">
+                <div id="settings-row-openAtLogin" class="tw-p-4">
                   <bit-form-control disableMargin>
                     <span class="tw-flex tw-items-center tw-gap-2">
                       <bit-switch formControlName="openAtLogin" (change)="saveOpenAtLogin()" />
@@ -481,10 +500,18 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-enableSshAgent" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
-                    <bit-switch formControlName="enableSshAgent" (change)="saveSshAgent()" />
+                    <bit-switch
+                      formControlName="enableSshAgent"
+                      (change)="
+                        saveSshAgent();
+                        sshAgentSetupStatus.offerSetupAfterEnable(
+                          form.controls.enableSshAgent.value
+                        )
+                      "
+                    />
                     <ng-container
                       *ngTemplateOutlet="switchState; context: { on: form.value.enableSshAgent }"
                     />
@@ -494,8 +521,15 @@
                 </bit-form-control>
               </div>
 
+              <!-- Always present so the switch can offer setup; hides itself while the agent is off. -->
+              <app-ssh-agent-setup-status
+                #sshAgentSetupStatus
+                id="settings-row-sshAgentSetup"
+                [agentEnabled]="!!form.value.enableSshAgent"
+              />
+
               @if (form.value.enableSshAgent) {
-                <div class="tw-p-4">
+                <div id="settings-row-sshAgentPromptBehavior" class="tw-p-4">
                   <div
                     class="tw-flex tw-items-start tw-justify-between tw-gap-4"
                     data-testid="settings-select-row"
@@ -543,8 +577,16 @@
                 "
               />
               <bit-card-segmented>
-                <div class="tw-p-4">
-                  <bit-form-control disableMargin>
+                <div
+                  id="settings-row-duckDuckGoBrowserIntegration"
+                  class="tw-flex tw-items-center tw-gap-3 tw-p-4"
+                >
+                  <bit-svg
+                    [content]="duckDuckGoIcon"
+                    class="tw-size-10 tw-shrink-0"
+                    data-testid="settings-ddg-logo"
+                  />
+                  <bit-form-control disableMargin class="tw-min-w-0 tw-flex-1">
                     <span class="tw-flex tw-items-center tw-gap-2">
                       <bit-switch
                         formControlName="enableDuckDuckGoBrowserIntegration"
@@ -576,7 +618,7 @@
                 "
               />
               <bit-card-segmented>
-                <div class="tw-p-4">
+                <div id="settings-row-passkeyProvider" class="tw-p-4">
                   <div
                     role="group"
                     aria-labelledby="passkey-provider-label"
@@ -637,7 +679,7 @@
               />
               <bit-card-segmented>
                 @if (showEnableAutotype()) {
-                  <div class="tw-p-4">
+                  <div id="settings-row-autotype" class="tw-p-4">
                     <bit-form-control disableMargin>
                       <span class="tw-flex tw-items-center tw-gap-2">
                         <bit-switch
@@ -678,7 +720,7 @@
                 }
 
                 @if (showEnableAutotypeGa()) {
-                  <div class="tw-p-4">
+                  <div id="settings-row-autotypeGa" class="tw-p-4">
                     <bit-form-control disableMargin>
                       <span class="tw-flex tw-items-center tw-gap-2">
                         <bit-switch
@@ -740,7 +782,7 @@
                 "
               />
               <bit-card-segmented>
-                <div class="tw-p-4">
+                <div id="settings-row-allowScreenshots" class="tw-p-4">
                   <bit-form-control disableMargin>
                     <span class="tw-flex tw-items-center tw-gap-2">
                       <bit-switch
@@ -772,7 +814,7 @@
               "
             />
             <bit-card-segmented>
-              <div class="tw-p-4">
+              <div id="settings-row-hardwareAcceleration" class="tw-p-4">
                 <bit-form-control disableMargin>
                   <span class="tw-flex tw-items-center tw-gap-2">
                     <bit-switch

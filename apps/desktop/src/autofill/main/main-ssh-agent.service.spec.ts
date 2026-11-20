@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
+import { mkdtempSync, rmSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+
 import { ipcMain } from "electron";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -85,6 +89,46 @@ describe("MainSshAgentService", () => {
       "sshagent.listkeysresponse",
     ])("should register the %s IPC handler", (channel) => {
       expect(ipcHandlers.has(channel)).toBe(true);
+    });
+  });
+
+  describe("SSH agent setup wiring", () => {
+    let fakeHome: string;
+
+    beforeEach(() => {
+      // Keep the setup service away from the real home directory.
+      fakeHome = mkdtempSync(join(tmpdir(), "bw-main-ssh-agent-spec-"));
+      process.env.BITWARDEN_SSH_SETUP_HOME = fakeHome;
+    });
+
+    afterEach(() => {
+      delete process.env.BITWARDEN_SSH_SETUP_HOME;
+      rmSync(fakeHome, { recursive: true, force: true });
+    });
+
+    it("registers the setup IPC handlers", () => {
+      for (const channel of [
+        "sshagent.setup.getEnvironment",
+        "sshagent.setup.getStatus",
+        "sshagent.setup.getPlan",
+        "sshagent.setup.apply",
+        "sshagent.setup.undo",
+        "sshagent.setup.verify",
+      ]) {
+        expect(ipcHandlers.has(channel)).toBe(true);
+      }
+    });
+
+    it("reports the running state and the start error class to the setup environment", async () => {
+      new MainSshAgentService(mockLogService, mockMessagingService);
+      (sshagent.SshAgentState.serve as jest.Mock).mockRejectedValueOnce(
+        new Error("Address already in use (os error 48)"),
+      );
+      await ipcHandlers.get("sshagent.init")!({});
+
+      const env = await ipcHandlers.get("sshagent.setup.getEnvironment")!({});
+
+      expect(env).toMatchObject({ agentRunning: false, startErrorCode: "address-in-use" });
     });
   });
 

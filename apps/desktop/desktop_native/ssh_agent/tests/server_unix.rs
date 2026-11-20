@@ -1,6 +1,13 @@
 #![cfg(unix)]
 
-use std::{os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{
+    os::unix::fs::PermissionsExt,
+    path::PathBuf,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+};
 
 use serial_test::serial;
 use tokio::{io::AsyncWriteExt, net::UnixStream};
@@ -15,7 +22,7 @@ use common::{
     test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
     test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
-use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
+use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore, StartErrorKind};
 
 fn test_socket_path() -> PathBuf {
     std::env::temp_dir().join("bw-ssh-agent-test.sock")
@@ -106,6 +113,159 @@ async fn test_server_can_restart() {
     assert!(agent.is_running());
     assert!(std::fs::exists(test_socket_path()).unwrap());
     agent.stop();
+}
+
+/// Removes whatever a previous test left at the test socket path (normally our own stale
+/// socket) so a test can place its own fixture there.
+fn clear_test_socket_path() {
+    let _ = std::fs::remove_file(test_socket_path());
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_start_while_running_returns_error_and_keeps_socket() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    let error = agent.start().unwrap_err();
+
+    assert_eq!(error.kind(), StartErrorKind::Unknown);
+    assert!(agent.is_running());
+    assert!(UnixStream::connect(test_socket_path()).await.is_ok());
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_start_fails_address_in_use_when_other_agent_listening() {
+    setup();
+    clear_test_socket_path();
+    let _other_agent = std::os::unix::net::UnixListener::bind(test_socket_path()).unwrap();
+    let mut agent = always_approving_agent();
+
+    let error = agent.start().unwrap_err();
+
+    assert_eq!(error.kind(), StartErrorKind::AddressInUse);
+    assert_eq!(error.code(), "address-in-use");
+    assert!(!agent.is_running());
+    // The other agent's socket must still be in place and reachable.
+    assert!(UnixStream::connect(test_socket_path()).await.is_ok());
+    clear_test_socket_path();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_start_error_text_never_contains_path() {
+    setup();
+    clear_test_socket_path();
+    let _other_agent = std::os::unix::net::UnixListener::bind(test_socket_path()).unwrap();
+    let mut agent = always_approving_agent();
+
+    let error = agent.start().unwrap_err();
+
+    let path = test_socket_path();
+    let path = path.to_str().unwrap();
+    assert!(!error.to_string().contains(path));
+    assert!(!format!("{error:?}").contains(path));
+    clear_test_socket_path();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_start_refuses_to_remove_regular_file() {
+    setup();
+    clear_test_socket_path();
+    std::fs::write(test_socket_path(), "user data").unwrap();
+    let mut agent = always_approving_agent();
+
+    let error = agent.start().unwrap_err();
+
+    assert_eq!(error.kind(), StartErrorKind::AddressInUse);
+    assert_eq!(
+        std::fs::read_to_string(test_socket_path()).unwrap(),
+        "user data"
+    );
+    clear_test_socket_path();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_start_replaces_stale_socket() {
+    setup();
+    clear_test_socket_path();
+    // A socket file nobody listens on, e.g. left behind by a crashed agent.
+    drop(std::os::unix::net::UnixListener::bind(test_socket_path()).unwrap());
+    let mut agent = always_approving_agent();
+
+    agent.start().unwrap();
+
+    assert!(UnixStream::connect(test_socket_path()).await.is_ok());
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_socket_address_matches_bound_socket() {
+    setup();
+
+    let address = ssh_agent::socket_address().unwrap();
+
+    assert_eq!(PathBuf::from(&address), test_socket_path());
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_probe_address_reports_running_agent() {
+    setup();
+    let address = ssh_agent::socket_address().unwrap();
+    let mut agent = always_approving_agent();
+    agent.start().unwrap();
+
+    assert!(ssh_agent::probe_address(&address).await);
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_probe_address_does_not_send_agent_requests() {
+    setup();
+    // An uninitialized keystore asks for list approval on any list request, which in the app
+    // shows a prompt. Count every approval request the agent makes during a probe.
+    let approvals = Arc::new(AtomicUsize::new(0));
+    let mut requester = MockApprovalRequester::new();
+    let list_count = approvals.clone();
+    requester.expect_request_list_approval().returning(move || {
+        list_count.fetch_add(1, Ordering::SeqCst);
+        Ok(true)
+    });
+    let sign_count = approvals.clone();
+    requester
+        .expect_request_sign_approval()
+        .returning(move |_| {
+            sign_count.fetch_add(1, Ordering::SeqCst);
+            Ok(true)
+        });
+    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    agent.start().unwrap();
+
+    assert!(ssh_agent::probe_address(&ssh_agent::socket_address().unwrap()).await);
+    // Give the connection handler time to observe EOF.
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    assert_eq!(approvals.load(Ordering::SeqCst), 0);
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_probe_address_false_when_nothing_listens() {
+    setup();
+    let missing = std::env::temp_dir().join("bw-ssh-agent-test-missing.sock");
+    let _ = std::fs::remove_file(&missing);
+
+    assert!(!ssh_agent::probe_address(missing.to_str().unwrap()).await);
 }
 
 #[serial]

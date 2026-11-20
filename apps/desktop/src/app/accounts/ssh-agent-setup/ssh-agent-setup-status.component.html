@@ -1,0 +1,130 @@
+@if (agentEnabled()) {
+  <div
+    class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-4"
+    data-testid="ssh-agent-setup-status"
+    [attr.data-state]="state()"
+  >
+    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-1 tw-ps-4">
+      <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <span
+          bitTypography="body2"
+          class="tw-leading-5 tw-font-medium tw-text-fg-heading"
+          id="ssh-agent-setup-status_text_label"
+          >{{ "sshAgentSetupStatusLabelVfo1" | i18n }}</span
+        >
+        <span bitBadge [variant]="view().badgeVariant" data-testid="ssh-agent-setup-status-badge">{{
+          view().badgeKey | i18n
+        }}</span>
+      </span>
+      <span class="tw-text-xs tw-text-fg-body-subtle" role="status">
+        @if (view().descKey; as descKey) {
+          {{ descKey | i18n }}
+        }
+      </span>
+    </div>
+
+    <div class="tw-flex tw-flex-none tw-flex-wrap tw-items-center tw-gap-2">
+      @switch (state()) {
+        @case (Status.NotConfigured) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            size="small"
+            data-primary-action
+            id="ssh-agent-setup-status_button_set-up"
+            (click)="openSetup(StartAt.Connect)"
+          >
+            {{ "sshAgentSetupSetUpButtonVfo1" | i18n }}
+          </button>
+        }
+        @case (Status.Partial) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            size="small"
+            data-primary-action
+            id="ssh-agent-setup-status_button_finish"
+            (click)="openSetup(StartAt.Connect)"
+          >
+            {{ "sshAgentSetupFinishButtonVfo1" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            id="ssh-agent-setup-status_button_remove"
+            [loading]="removing()"
+            (click)="removeSetup()"
+          >
+            {{ "sshAgentSetupRemoveButtonVfo1" | i18n }}
+          </button>
+        }
+        @case (Status.Conflict) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            data-primary-action
+            id="ssh-agent-setup-status_button_review"
+            (click)="openSetup(StartAt.Connect)"
+          >
+            {{ "sshAgentSetupReviewButtonVfo1" | i18n }}
+          </button>
+        }
+        @case (Status.Configured) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            data-primary-action
+            id="ssh-agent-setup-status_button_check-again"
+            (click)="openSetup(StartAt.Verify)"
+          >
+            {{ "sshAgentSetupCheckAgainButtonVfo1" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            id="ssh-agent-setup-status_button_remove"
+            [loading]="removing()"
+            (click)="removeSetup()"
+          >
+            {{ "sshAgentSetupRemoveButtonVfo1" | i18n }}
+          </button>
+        }
+        @case (Status.Unsupported) {
+          <button
+            type="button"
+            bitLink
+            endIcon="bwi-external-link"
+            data-primary-action
+            id="ssh-agent-setup-status_button_learn-more"
+            (click)="openHelp()"
+          >
+            {{ "sshAgentSetupLearnMoreVfo1" | i18n }}
+          </button>
+        }
+        @case ("error") {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            data-primary-action
+            id="ssh-agent-setup-status_button_retry"
+            (click)="refresh()"
+          >
+            {{ "tryAgain" | i18n }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+}

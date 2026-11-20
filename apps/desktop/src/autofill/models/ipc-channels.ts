@@ -17,3 +17,13 @@ export const SSH_AGENT_IPC_CHANNELS = {
   LIST_KEYS_REQUEST: "sshagent.listkeysrequest",
   LIST_KEYS_RESPONSE: "sshagent.listkeysresponse",
 } as const;
+
+/** Channels for `ipc.autofill.sshAgent.setup`. Arguments are limited to a planId and step ids. */
+export const SSH_AGENT_SETUP_IPC_CHANNELS = Object.freeze({
+  GET_ENVIRONMENT: "sshagent.setup.getEnvironment",
+  GET_STATUS: "sshagent.setup.getStatus",
+  GET_PLAN: "sshagent.setup.getPlan",
+  APPLY: "sshagent.setup.apply",
+  UNDO: "sshagent.setup.undo",
+  VERIFY: "sshagent.setup.verify",
+} as const);

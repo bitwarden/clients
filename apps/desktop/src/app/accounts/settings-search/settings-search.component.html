@@ -1,0 +1,86 @@
+<!-- Same markup and classes as the component library's bit-search, so the field looks identical. -->
+<div bitFieldContainer class="tw-relative tw-items-center tw-ps-3 tw-pe-1">
+  <!-- Covers the field so clicks anywhere focus the input -->
+  <label class="tw-absolute tw-inset-0 tw-cursor-text" for="settings-search_input_query">
+    <span class="tw-sr-only">{{ "searchSettingsVfo1" | i18n }}</span>
+  </label>
+  <bit-icon name="bwi-search" />
+  <input
+    #searchInput
+    type="text"
+    class="tw-relative tw-block tw-size-full tw-border-none tw-bg-transparent tw-ps-2 tw-pe-1 tw-text-fg-heading tw-placeholder-fg-body-subtle focus:tw-outline-none"
+    id="settings-search_input_query"
+    role="combobox"
+    autocomplete="off"
+    spellcheck="false"
+    aria-autocomplete="list"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-activedescendant]="activeOptionId()"
+    [placeholder]="'searchSettingsVfo1' | i18n"
+    [value]="query()"
+    (input)="onInput($event)"
+    (focus)="onFocus()"
+    (keydown)="onKeydown($event)"
+    data-testid="settings-search-input"
+  />
+  @if (query()) {
+    <button
+      type="button"
+      id="settings-search_button_clear"
+      bitIconButton="bwi-clear"
+      size="small"
+      [label]="'resetSearch' | i18n"
+      (click)="clear()"
+      data-testid="settings-search-clear"
+    ></button>
+  }
+</div>
+
+<div
+  [hidden]="!panelOpen()"
+  class="tw-absolute tw-inset-x-0 tw-top-full tw-z-10 tw-mt-1 tw-max-h-80 tw-overflow-y-auto tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-1 tw-shadow-lg"
+  data-testid="settings-search-panel"
+>
+  <ul
+    role="listbox"
+    [id]="listboxId"
+    [attr.aria-label]="'settingsSearchResultsVfo1' | i18n"
+    [hidden]="!expanded()"
+    class="tw-m-0 tw-list-none tw-p-0"
+  >
+    @for (result of results(); track result.entry.id; let i = $index) {
+      <!-- Options are reached via aria-activedescendant on the input; mousedown is prevented so focus stays there. -->
+      <li
+        role="option"
+        [id]="optionId(result.entry.id)"
+        [attr.aria-selected]="i === activeIndex()"
+        class="tw-flex tw-cursor-pointer tw-flex-col tw-rounded-md tw-px-3 tw-py-2 hover:tw-bg-bg-secondary"
+        [class.tw-bg-bg-brand-softer]="i === activeIndex()"
+        (mousedown)="$event.preventDefault()"
+        (click)="select(result.entry)"
+        data-testid="settings-search-option"
+      >
+        <span class="tw-text-sm tw-font-medium tw-text-fg-heading">{{ result.label }}</span>
+        <span
+          class="tw-flex tw-items-center tw-gap-1 tw-text-xs tw-text-fg-body-subtle"
+          data-testid="settings-search-breadcrumb"
+        >
+          {{ pages[result.page].scopeLabelKey | i18n }}
+          <bit-icon name="bwi-angle-right" />
+          {{ pages[result.page].labelKey | i18n }}
+        </span>
+      </li>
+    }
+  </ul>
+  @if (empty()) {
+    <p
+      class="tw-m-0 tw-px-3 tw-py-2 tw-text-sm tw-text-fg-body-subtle"
+      data-testid="settings-search-empty"
+    >
+      {{ "settingsSearchNoResultsVfo1" | i18n }}
+    </p>
+  }
+</div>
+
+<div role="status" class="tw-sr-only" data-testid="settings-search-status">{{ statusText() }}</div>

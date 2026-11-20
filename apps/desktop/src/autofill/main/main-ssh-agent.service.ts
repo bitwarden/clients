@@ -8,6 +8,17 @@ import { sshagent } from "@bitwarden/desktop-napi";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 
+import {
+  classifySshAgentStartError,
+  createSshAgentNativeBridge,
+  SshAgentStartErrorCode,
+} from "./ssh-agent-native";
+import {
+  createDefaultSshAgentSetupDeps,
+  registerSshAgentSetupIpcHandlers,
+  SshAgentSetupService,
+} from "./ssh-agent-setup.main";
+
 export class MainSshAgentService {
   // The napi callback requestSign() is awaited directly by the Rust agent,
   // so it must return a Promise that resolves with the user's decision.
@@ -21,12 +32,27 @@ export class MainSshAgentService {
   private pendingRequests = new Map<number, (accepted: boolean) => void>();
   private requestId = 0;
   private agentState: sshagent.SshAgentState;
+  private startErrorCode: SshAgentStartErrorCode | undefined;
+  private enabled = false;
 
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
   ) {
     this.registerIpcHandlers();
+    registerSshAgentSetupIpcHandlers(
+      new SshAgentSetupService(
+        createDefaultSshAgentSetupDeps(
+          createSshAgentNativeBridge(),
+          {
+            isRunning: () => this.agentState?.isRunning() ?? false,
+            isEnabled: () => this.enabled,
+            startErrorCode: () => this.startErrorCode,
+          },
+          this.logService,
+        ),
+      ),
+    );
   }
 
   private registerIpcHandlers() {
@@ -56,6 +82,8 @@ export class MainSshAgentService {
     );
 
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.STOP, async () => {
+      this.enabled = false;
+      this.startErrorCode = undefined;
       if (this.agentState != null) {
         this.agentState.stop();
         this.agentState = null;
@@ -76,10 +104,13 @@ export class MainSshAgentService {
   private async init() {
     const signCb = (_err: Error | null, data: sshagent.SignRequestData) => this.requestSign(data);
     const listCb = (_err: Error | null) => this.requestListKeys();
+    this.enabled = true;
     try {
       this.agentState = await sshagent.SshAgentState.serve(signCb, listCb);
+      this.startErrorCode = undefined;
       this.logService.info("SSH agent started");
     } catch (e: unknown) {
+      this.startErrorCode = classifySshAgentStartError(e);
       this.logService.error("SSH agent encountered an error: ", e);
     }
   }

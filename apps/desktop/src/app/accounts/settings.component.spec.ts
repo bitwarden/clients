@@ -1709,6 +1709,65 @@ describe("SettingsComponent", () => {
     });
   });
 
+  describe("DuckDuckGo integration logo", () => {
+    afterEach(() => fixture.destroy());
+
+    function render(deviceType: DeviceType) {
+      // `showDuckDuckGoIntegrationOption` is captured in the constructor, so the device must be set
+      // before the component is created.
+      platformUtilsService.getDevice.mockReturnValue(deviceType);
+      fixture = TestBed.createComponent(SettingsComponent);
+      fixture.detectChanges();
+    }
+
+    const logo = () => fixture.debugElement.query(By.css("[data-testid='settings-ddg-logo']"));
+    const row = (): HTMLElement =>
+      fixture.nativeElement.querySelector("#settings-row-duckDuckGoBrowserIntegration");
+
+    it("shows a decorative logo next to the DuckDuckGo setting on macOS", () => {
+      render(DeviceType.MacOsDesktop);
+
+      expect(logo()).not.toBeNull();
+      expect(logo().nativeElement.getAttribute("aria-hidden")).toBe("true");
+      expect(logo().nativeElement.querySelector("svg")).not.toBeNull();
+    });
+
+    it("places the logo first in the row, outside the label and before the label text", () => {
+      render(DeviceType.MacOsDesktop);
+
+      const logoEl: HTMLElement = logo().nativeElement;
+      const label: HTMLLabelElement = row().querySelector("bit-form-control label");
+
+      expect(row().firstElementChild).toBe(logoEl);
+      expect(label.contains(logoEl)).toBe(false);
+      expect(logoEl.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("still toggles the DuckDuckGo form control from the switch", () => {
+      render(DeviceType.MacOsDesktop);
+      const ddgComponent = fixture.componentInstance as any;
+      const saveSpy = jest
+        .spyOn(ddgComponent, "saveDdgBrowserIntegration")
+        .mockResolvedValue(undefined);
+
+      const input: HTMLInputElement = row().querySelector(
+        "bit-switch[formControlName='enableDuckDuckGoBrowserIntegration'] input[role='switch']",
+      );
+      const before = ddgComponent.form.value.enableDuckDuckGoBrowserIntegration;
+      input.click();
+      fixture.detectChanges();
+
+      expect(ddgComponent.form.value.enableDuckDuckGoBrowserIntegration).toBe(!before);
+      expect(saveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not show the logo when the DuckDuckGo setting is hidden", () => {
+      render(DeviceType.WindowsDesktop);
+
+      expect(logo()).toBeNull();
+    });
+  });
+
   describe("switch state text", () => {
     const stateTexts = () =>
       fixture.debugElement

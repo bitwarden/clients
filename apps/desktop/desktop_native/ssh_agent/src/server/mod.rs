@@ -9,6 +9,7 @@ mod listener;
 mod peer_info;
 mod protocol;
 mod session_bind;
+mod start_error;
 
 use std::sync::Arc;
 
@@ -18,7 +19,9 @@ pub(crate) use auth_policy::AuthPolicy;
 pub use auth_policy::{AuthRequest, ConnectionContext, SessionBindContext, SignRequest};
 use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
+pub use listener::{probe_address, socket_address};
 pub use protocol::{SIGNamespace, SignFlags};
+pub use start_error::{StartError, StartErrorKind};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info, warn};
@@ -61,9 +64,23 @@ where
         }
     }
 
-    pub(crate) fn start_with_default_listeners(&mut self) -> Result<()> {
+    /// Binds the platform listeners and starts the server.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`StartError`] if the server is already running or the listeners cannot be
+    /// bound. The running check happens before binding so a second call never touches the
+    /// socket owned by the running server.
+    pub(crate) fn start_with_default_listeners(&mut self) -> Result<(), StartError> {
+        if self.is_running() {
+            return Err(StartError::new(
+                StartErrorKind::Unknown,
+                "server is already running",
+            ));
+        }
         let listeners = listener::create_listeners()?;
         self.start(listeners)
+            .map_err(|_| StartError::new(StartErrorKind::Unknown, "server is already running"))
     }
 
     /// Starts the server, listening on the provided listeners.
