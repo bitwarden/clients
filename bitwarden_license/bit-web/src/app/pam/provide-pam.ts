@@ -248,6 +248,7 @@ export function providePam(): SafeProvider[] {
         AccessLeaseSdkService,
         AccountService,
         AuthService,
+        ServerNotificationsService,
         NgZone,
         LogService,
       ],
