@@ -72,6 +72,7 @@ import {
 } from "../testing/rotation-builders";
 
 import { RotationConfigEditComponent } from "./rotation-config-edit.component";
+import { RotationWarningDialogComponent } from "./rotation-warning-dialog.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -216,7 +217,11 @@ function setup(options: SetupOptions = {}) {
     isLikelyQuartzCron: jest.fn().mockResolvedValue(true),
   };
 
-  const dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+  const dialogService = {
+    openSimpleDialog: jest.fn().mockResolvedValue(true),
+    // Rotate now, Pause rotation and Remove from rotation open RotationWarningDialogComponent.
+    open: jest.fn().mockReturnValue({ closed: of(true) }),
+  };
 
   const targetSystemsLoadError = new BehaviorSubject<unknown | null>(null);
   const targetSystemsService = {
@@ -1206,10 +1211,18 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
       configId: configId("cfg-1"),
     });
     await fixture.whenStable();
-    dialogService.openSimpleDialog.mockResolvedValue(true);
+    dialogService.open.mockReturnValue({ closed: of(true) });
 
     await component.removeRotation();
 
+    expect(dialogService.open).toHaveBeenCalledWith(RotationWarningDialogComponent, {
+      data: {
+        titleKey: "pamRotationConfigRemoveConfirmTitle",
+        contentKey: "pamRotationConfigRemoveConfirmContent",
+        acceptButtonKey: "pamRotationConfigRemoveFromRotation",
+      },
+      positionStrategy: expect.anything(),
+    });
     expect(rotationSdk.deleteConfig).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
   });
 
@@ -1218,7 +1231,7 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
       configId: configId("cfg-1"),
     });
     await fixture.whenStable();
-    dialogService.openSimpleDialog.mockResolvedValue(false);
+    dialogService.open.mockReturnValue({ closed: of(undefined) });
 
     await component.removeRotation();
 
@@ -1235,7 +1248,7 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
 
     await component.removeRotation();
 
-    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    expect(dialogService.open).not.toHaveBeenCalled();
     expect(rotationSdk.deleteConfig).not.toHaveBeenCalled();
   });
 
@@ -1263,7 +1276,7 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
         configId: configId("cfg-1"),
       });
       await fixture.whenStable();
-      dialogService.openSimpleDialog.mockResolvedValue(true);
+      dialogService.open.mockReturnValue({ closed: of(true) });
       rotationSdk.deleteConfig.mockRejectedValue(new Error("in flight"));
       const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
@@ -1450,7 +1463,8 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     await component.removeRotation();
 
     await expect(leaveThroughGuard(component)).resolves.toBe(true);
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+    expect(dialogService.open).toHaveBeenCalledTimes(1);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 });
 
@@ -1899,10 +1913,13 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
         configId: configId("cfg-1"),
       });
       await fixture.whenStable();
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      dialogService.open.mockReturnValueOnce({ closed: of(false) });
       await component.pause();
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ content: { key: "pamRotationConfigPauseContent" } }),
+      expect(dialogService.open).toHaveBeenCalledWith(
+        RotationWarningDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ contentKey: "pamRotationConfigPauseContent" }),
+        }),
       );
       expect(rotationSdk.pauseConfig).not.toHaveBeenCalled();
     });
@@ -1939,10 +1956,13 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
         }),
       });
       await fixture.whenStable();
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      dialogService.open.mockReturnValueOnce({ closed: of(false) });
       await component.rotateNow();
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      expect(dialogService.open).toHaveBeenCalledWith(
+        RotationWarningDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ contentKey: "pamRotationConfigRotateNowConfirmContent" }),
+        }),
       );
       expect(rotationSdk.rotateNow).not.toHaveBeenCalled();
     });
@@ -1959,10 +1979,13 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       });
       await fixture.whenStable();
       component.accountForm.controls.terminateSessions.setValue(false);
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      dialogService.open.mockReturnValueOnce({ closed: of(false) });
       await component.rotateNow();
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      expect(dialogService.open).toHaveBeenCalledWith(
+        RotationWarningDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ contentKey: "pamRotationConfigRotateNowConfirmContent" }),
+        }),
       );
       expect(rotationSdk.rotateNow).not.toHaveBeenCalled();
     });
@@ -1974,7 +1997,7 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       await fixture.whenStable();
       component.accountForm.controls.terminateSessions.setValue(true);
       await component.rotateNow();
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
       expect(rotationSdk.rotateNow).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
     });
 

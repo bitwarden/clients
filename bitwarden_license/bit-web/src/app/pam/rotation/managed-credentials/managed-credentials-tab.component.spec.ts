@@ -34,6 +34,7 @@ import {
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
+import { RotationWarningDialogComponent } from "./rotation-warning-dialog.component";
 
 /** Joins the key with whatever the message's placeholders resolved to, so both are assertable. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -151,13 +152,20 @@ function rowNames(el: HTMLElement): string[] {
   return bodyRows(el).map((row) => text(row.querySelector("button[bitLink]")!));
 }
 
+/** Answers the rotation warning dialogs with `result`, and every other dialog with nothing. */
+function openDialogMock(result: () => boolean) {
+  return jest.fn((component: unknown) => ({
+    closed: of(component === RotationWarningDialogComponent ? result() : undefined),
+  }));
+}
+
 describe("ManagedCredentialsTabComponent", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let component: any;
   let configsService: ReturnType<typeof makeConfigsServiceStub>;
   let targetSystemsService: ReturnType<typeof makeTargetSystemsServiceStub>;
   let toastService: { showToast: jest.Mock };
-  let dialogService: { openSimpleDialog: jest.Mock };
+  let dialogService: { openSimpleDialog: jest.Mock; open: jest.Mock };
   function chip(key: string): FilterMenuComponent {
     return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
   }
@@ -170,7 +178,10 @@ describe("ManagedCredentialsTabComponent", () => {
     targetSystemsService = makeTargetSystemsServiceStub(targetSystems);
     configsService = makeConfigsServiceStub(targetSystemsService);
     toastService = { showToast: jest.fn() };
-    dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(dialogResult) };
+    dialogService = {
+      openSimpleDialog: jest.fn().mockResolvedValue(dialogResult),
+      open: openDialogMock(() => dialogResult),
+    };
 
     if (!renderTemplate) {
       TestBed.overrideComponent(ManagedCredentialsTabComponent, {
@@ -327,20 +338,23 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("asks first when End active sessions is on, and rotates only once accepted", async () => {
       const row = makeRow({ sealed: rotationConfigSealedFields({ terminateSessions: true }) });
-      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      dialogService.open.mockReturnValueOnce({ closed: of(false) });
       await component.rotateNow(row);
       expect(configsService.rotateNow).not.toHaveBeenCalled();
 
       await component.rotateNow(row);
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      expect(dialogService.open).toHaveBeenCalledWith(
+        RotationWarningDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ contentKey: "pamRotationConfigRotateNowConfirmContent" }),
+        }),
       );
       expect(configsService.rotateNow).toHaveBeenCalledWith(row.config);
     });
 
     it("rotates without asking when End active sessions is off", async () => {
       await component.rotateNow(makeRow());
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
 
     it("shows an error toast when rotateNow throws", async () => {
@@ -399,7 +413,10 @@ describe("ManagedCredentialsTabComponent", () => {
     it("opens a confirm dialog then deletes when confirmed", async () => {
       const row = makeRow();
       await component.confirmDelete(row);
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+      expect(dialogService.open).toHaveBeenCalledWith(
+        RotationWarningDialogComponent,
+        expect.anything(),
+      );
       expect(configsService.delete).toHaveBeenCalledWith(row.config);
     });
 
@@ -580,7 +597,10 @@ describe("ManagedCredentialsTabComponent", () => {
       configsService = makeConfigsServiceStub(targetSystemsService, rows);
       configsService.loading$.next(loading);
       toastService = { showToast: jest.fn() };
-      dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+      dialogService = {
+        openSimpleDialog: jest.fn().mockResolvedValue(true),
+        open: openDialogMock(() => true),
+      };
 
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
@@ -728,7 +748,10 @@ describe("ManagedCredentialsTabComponent", () => {
       targetSystemsService = makeTargetSystemsServiceStub();
       configsService = makeConfigsServiceStub(targetSystemsService, [rowA]);
       toastService = { showToast: jest.fn() };
-      dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+      dialogService = {
+        openSimpleDialog: jest.fn().mockResolvedValue(true),
+        open: openDialogMock(() => true),
+      };
 
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
@@ -1005,7 +1028,7 @@ describe("ManagedCredentialsTabComponent table", () => {
     configsService = makeConfigsServiceStub(targetSystemsService, rows);
     dialogService = {
       openSimpleDialog: jest.fn().mockResolvedValue(dialogResult),
-      open: jest.fn().mockReturnValue({ closed: of(undefined) }),
+      open: openDialogMock(() => dialogResult),
     };
     toastService = { showToast: jest.fn() };
 
@@ -1524,13 +1547,14 @@ describe("ManagedCredentialsTabComponent table", () => {
       menuItem(el, "Prod DB service account", "managed-credentials-tab_button_pause_").click();
       await fixture.whenStable();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "pamRotationConfigPauseRotation" },
-          content: { key: "pamRotationConfigPauseContent" },
-          acceptButtonText: { key: "pamRotationConfigPauseRotation" },
-        }),
-      );
+      expect(dialogService.open).toHaveBeenCalledWith(RotationWarningDialogComponent, {
+        data: {
+          titleKey: "pamRotationConfigPauseRotation",
+          contentKey: "pamRotationConfigPauseContent",
+          acceptButtonKey: "pamRotationConfigPauseRotation",
+        },
+        positionStrategy: expect.anything(),
+      });
       expect(configsService.pause).toHaveBeenCalledWith(active.config);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -1604,12 +1628,14 @@ describe("ManagedCredentialsTabComponent table", () => {
       menuItem(el, "Prod DB service account", "managed-credentials-tab_button_delete_").click();
       await fixture.whenStable();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: { key: "pamRotationConfigRemoveConfirmTitle" },
-          acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
-        }),
-      );
+      expect(dialogService.open).toHaveBeenCalledWith(RotationWarningDialogComponent, {
+        data: {
+          titleKey: "pamRotationConfigRemoveConfirmTitle",
+          contentKey: "pamRotationConfigRemoveConfirmContent",
+          acceptButtonKey: "pamRotationConfigRemoveFromRotation",
+        },
+        positionStrategy: expect.anything(),
+      });
       expect(configsService.delete).toHaveBeenCalledWith(active.config);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",

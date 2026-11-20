@@ -101,7 +101,11 @@ import { formatRotationAge } from "../rotation-timestamp";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { ActiveJobPoller } from "./active-job-poller";
-import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
+import {
+  confirmPauseRotation,
+  confirmRemoveFromRotation,
+  confirmRotateNow,
+} from "./rotation-action-dialogs";
 import { RotationRowStatus } from "./rotation-config-row";
 import { RotationHistorySkeletonComponent } from "./rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "./rotation-history.component";
@@ -976,13 +980,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     if (config == null || config.hasActiveJob) {
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamRotationConfigRemoveConfirmTitle" },
-      content: { key: "pamRotationConfigRemoveConfirmContent" },
-      acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
+    const confirmed = await confirmRemoveFromRotation(this.dialogService);
     if (!confirmed) {
       return;
     }
