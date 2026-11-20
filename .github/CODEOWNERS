@@ -260,7 +260,7 @@ bitwarden_license/bit-pam                                @bitwarden/team-pam-dev
 bitwarden_license/bit-pam-components                     @bitwarden/team-pam-dev
 bitwarden_license/bit-web/src/app/pam                    @bitwarden/team-pam-dev
 e2e/src/seeder/scenes/organization-access-rule.scene.ts  @bitwarden/team-pam-dev
-e2e/src/web/access-rules.ts                              @bitwarden/team-pam-dev
+e2e/src/web/pam                                          @bitwarden/team-pam-dev
 e2e/tests/web/pam                                        @bitwarden/team-pam-dev
 libs/pam                                                 @bitwarden/team-pam-dev
 

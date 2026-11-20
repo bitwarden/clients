@@ -12,7 +12,7 @@ import {
   SingleOrganizationScene,
 } from "../../../src/seeder/scenes/single-organization.scene";
 import { seededAccount, SingleUserScene } from "../../../src/seeder/scenes/single-user.scene";
-import { AccessRulesPage } from "../../../src/web/access-rules";
+import { AccessRulesPage } from "../../../src/web/pam/access-rules";
 
 const SHARED_FOLDER = "Production servers";
 const RULE = "Production break-glass";
