@@ -1052,7 +1052,10 @@ export class SmProgram extends BaseProgram {
     return new Command("export")
       .description("Export an organization's Secrets Manager projects and secrets.")
       .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
-      .option("--output <output>", "Output directory or filename. Writes to stdout when omitted.")
+      .option(
+        "--output <output>",
+        "Output directory or .json filename. Writes to stdout when omitted.",
+      )
       .option("--passwordenv <passwordenv>", "Environment variable storing your master password")
       .option(
         "--passwordfile <passwordfile>",
