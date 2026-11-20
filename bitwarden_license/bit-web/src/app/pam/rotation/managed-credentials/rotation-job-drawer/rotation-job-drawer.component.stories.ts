@@ -99,17 +99,17 @@ const FAILED: JobView = {
 
 const CONNECTOR_PANIC = "connector_panic: unexpected EOF reading sealed payload";
 
-/** Every attempt failed alike, with a reason no cause is recognised for. */
+/** Every attempt failed alike, with a reason no cause is recognised for, so the generic cause shows. */
 const FAILED_UNIFORM: JobView = {
   ...FAILED,
   id: jobId("j3"),
   attempts: FAILED.attempts.map((attempt): AttemptView => ({
     ...attempt,
-    causeLabelKey: null,
+    causeLabelKey: "pamRotationFailureCauseUnknown",
     failureReason: CONNECTOR_PANIC,
   })),
   attemptsUniform: true,
-  causeLabelKey: null,
+  causeLabelKey: "pamRotationFailureCauseUnknown",
   reportedReason: CONNECTOR_PANIC,
   syncStateLabelKey: null,
 };
