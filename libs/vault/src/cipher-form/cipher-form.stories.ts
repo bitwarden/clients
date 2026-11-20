@@ -410,15 +410,9 @@ const withHTTPAuthenticationAvailable = moduleMetadata({
   ],
 });
 
-/** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
+/** Editing a login with the HTTP authentication setting available */
 export const HTTPAuthentication: Story = {
   ...Edit,
-  decorators: [withHTTPAuthenticationAvailable],
-};
-
-/** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
-export const HTTPAuthenticationRequiresMatchDetection: Story = {
-  ...Add,
   decorators: [withHTTPAuthenticationAvailable],
 };
 

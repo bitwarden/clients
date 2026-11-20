@@ -12,4 +12,5 @@ export {
   tabReplaced$,
   windowFocusChanged$,
   windowRemoved$,
+  runtimeMessageReceived$,
 } from "./browser-events";
