@@ -952,3 +952,189 @@ describe("FilterMenuComponent tree keyboard navigation", () => {
     expect(focused()).toBe("Beta");
   });
 });
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, FilterSectionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="fruit" placeholderText="Fruit" multiple>
+      <bit-filter-option [value]="'apple'">Apple</bit-filter-option>
+      <bit-filter-section label="Stone fruit">
+        <bit-filter-option [value]="'peach'"
+          >Peach
+          <bit-filter-option [value]="'white-peach'">White peach</bit-filter-option>
+          <bit-filter-option [value]="'nectarine'">Nectarine</bit-filter-option>
+        </bit-filter-option>
+        <bit-filter-option [value]="'plum'">Plum</bit-filter-option>
+      </bit-filter-section>
+      <bit-filter-section label="Citrus">
+        <bit-filter-option [value]="'lime'">Lime</bit-filter-option>
+      </bit-filter-section>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class SearchHostComponent {
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent search", () => {
+  let fixture: ComponentFixture<SearchHostComponent>;
+  let chip: FilterMenuComponent;
+
+  const labels = () =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"] [data-filter-row-label]'))
+      .map((label) => (label.nativeElement as HTMLElement).textContent?.trim());
+
+  const search = (term: string) => {
+    chip.setSearchTerm(term);
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SearchHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SearchHostComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    chip = fixture.debugElement.query(By.directive(FilterMenuComponent)).componentInstance;
+  });
+
+  it("shows every row, with nested options closed, while nothing is searched", () => {
+    expect(labels()).toEqual(["Apple", "Stone fruit", "Peach", "Plum", "Citrus", "Lime"]);
+    expect(chip["resultCount"]()).toBeUndefined();
+    expect(chip["noResults"]()).toBe(false);
+  });
+
+  it("keeps a match's parent and section, opened, and hides everything else", () => {
+    search("nect");
+
+    expect(labels()).toEqual(["Stone fruit", "Peach", "Nectarine"]);
+  });
+
+  it("hides a matching parent's children that don't match themselves", () => {
+    search("peach");
+
+    expect(labels()).toEqual(["Stone fruit", "Peach", "White peach"]);
+  });
+
+  it("counts the options left showing, a kept parent included", () => {
+    search("nect");
+    expect(chip["resultCount"]()).toBe(2);
+
+    search("lime");
+    expect(chip["resultCount"]()).toBe(1);
+  });
+
+  it("ignores case and surrounding space", () => {
+    search("  LIME ");
+
+    expect(labels()).toEqual(["Citrus", "Lime"]);
+  });
+
+  it("does not match a section by its own label", () => {
+    search("stone");
+
+    expect(labels()).toEqual([]);
+    expect(chip["noResults"]()).toBe(true);
+    expect(chip["resultCount"]()).toBeUndefined();
+  });
+
+  it("restores the list as it was once the term is cleared", () => {
+    search("nect");
+    search("");
+
+    expect(labels()).toEqual(["Apple", "Stone fruit", "Peach", "Plum", "Citrus", "Lime"]);
+  });
+});
+
+describe("FilterMenuComponent checked state", () => {
+  let fixture: ComponentFixture<SearchHostComponent>;
+  let chip: FilterMenuComponent;
+
+  const row = (text: string) =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"]'))
+      .map((el) => el.nativeElement as HTMLElement)
+      .find((el) => el.querySelector("[data-filter-row-label]")?.textContent?.trim() === text)!;
+
+  const checked = (text: string) => row(text).getAttribute("aria-checked");
+
+  const select = (values: string[]) => {
+    chip.setValue(values);
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SearchHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SearchHostComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    chip = fixture.debugElement.query(By.directive(FilterMenuComponent)).componentInstance;
+  });
+
+  it("starts every option unchecked, and gives a section header no checked state", () => {
+    expect(checked("Apple")).toBe("false");
+    expect(checked("Peach")).toBe("false");
+    expect(checked("Stone fruit")).toBeNull();
+  });
+
+  it("checks a parent only when it and everything beneath it are selected", () => {
+    select(["peach", "white-peach", "nectarine"]);
+
+    expect(checked("Peach")).toBe("true");
+  });
+
+  it("marks a parent mixed when only part of its subtree is selected", () => {
+    select(["white-peach"]);
+    expect(checked("Peach")).toBe("mixed");
+
+    // Its children alone aren't the whole subtree: the parent's own value is part of it.
+    select(["white-peach", "nectarine"]);
+    expect(checked("Peach")).toBe("mixed");
+  });
+
+  it("selects a mixed parent's whole subtree on click, leaving other selections alone", () => {
+    select(["apple", "white-peach"]);
+
+    row("Peach").click();
+    fixture.detectChanges();
+
+    expect(chip.value()).toEqual(["apple", "white-peach", "peach", "nectarine"]);
+    expect(checked("Peach")).toBe("true");
+  });
+
+  it("clears a checked parent's whole subtree on click, leaving other selections alone", () => {
+    select(["apple", "peach", "white-peach", "nectarine"]);
+
+    row("Peach").click();
+    fixture.detectChanges();
+
+    expect(chip.value()).toEqual(["apple"]);
+    expect(checked("Peach")).toBe("false");
+  });
+
+  it("counts a section's selected options, nested ones included", () => {
+    const [stoneFruit, citrus] = fixture.debugElement
+      .queryAll(By.directive(FilterSectionComponent))
+      .map((el) => el.componentInstance as FilterSectionComponent);
+
+    select(["white-peach", "plum", "apple"]);
+
+    expect(chip.sectionSelectedCount(stoneFruit)).toBe(2);
+    expect(chip.sectionSelectedCount(citrus)).toBe(0);
+  });
+});

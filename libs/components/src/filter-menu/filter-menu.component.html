@@ -99,9 +99,10 @@
 </ng-template>
 
 <!-- A virtualized list scrolls itself unless it is given `scrollElement`. Anything that renders
-     this inside its own scroll area, as the filter dialog does, has to pass that element: left
-     to itself there, the list grows to its full height and renders every row. `cards` is for a
-     surface that draws each group as a card. -->
+     this inside its own scroll area, as the filter dialog does, has to pass that element.
+     `cards` is for a surface that draws each group as a card.
+     Avoids: a list left to scroll itself inside another scroll area, where it would grow to its
+     full height and render every row. -->
 <ng-template #optionsBody let-scrollElement="scrollElement" let-cards="cards">
   @if (showSearch()) {
     <div data-filter-search-row class="tw-p-1">
