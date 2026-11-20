@@ -81,4 +81,18 @@ describe("MachineAccountEditCommand", () => {
     expect(response.message).toBe("`name` is required.");
     expect(serviceAccountService.getByServiceAccountId).not.toHaveBeenCalled();
   });
+
+  it("rejects a request that sets a read-only property", async () => {
+    const response = await command.run(smOrg, machineAccountId, {
+      name: "Renamed",
+      write: "true",
+      read: true,
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "`read`, `write` cannot be edited on a machine account. Remove these properties from the request.",
+    );
+    expect(serviceAccountService.getByServiceAccountId).not.toHaveBeenCalled();
+  });
 });
