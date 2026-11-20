@@ -3,7 +3,6 @@ import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/
 import {
   applicationConfig,
   componentWrapperDecorator,
-  Decorator,
   Meta,
   moduleMetadata,
   StoryObj,
@@ -27,6 +26,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderService } from "@bitwarden/common/provider";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { atUrl } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -118,14 +118,6 @@ const routes: Routes = [
     providers: [{ provide: POLICY_EDIT_REGISTER, useValue: policyDefinitions }],
   },
 ];
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 function makeMockPolicyResponse(overrides: Partial<PolicyResponse> = {}): PolicyResponse {
   return {

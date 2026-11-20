@@ -19,6 +19,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
+import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
@@ -106,14 +107,6 @@ const governedBy = (rules: AccessRuleView[]): Decorator =>
       },
     ],
   });
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 export default {
   title: "Web/PAM/Access Rule Edit",

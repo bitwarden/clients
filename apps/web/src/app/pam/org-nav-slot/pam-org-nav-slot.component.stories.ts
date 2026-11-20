@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule, Routes, provideRouter, withHashLocation } from "@angular/router";
-import { Decorator, Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -16,6 +16,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories/storybook-decorators";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { atUrl } from "@bitwarden/storybook";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
@@ -35,14 +36,6 @@ const routes: Routes = [
     ],
   },
 ];
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 function organization(
   canManageAccessRules: boolean,

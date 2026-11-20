@@ -7,6 +7,7 @@ import { action } from "storybook/actions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService } from "@bitwarden/components";
+import { atUrl } from "@bitwarden/storybook";
 
 import { ImportDestinationKind } from "../../models";
 import { ImportDestinationServiceAbstraction } from "../../services";
@@ -17,7 +18,7 @@ import { ImportShellProgressComponent } from "./import-shell-progress.component"
  * Mirrors how every real shell embeds this component: declared directly in the shell's own
  * template, alongside the router-outlet for its step children — never behind another outlet. See
  * the class doc comment on ImportShellProgressComponent for why that placement matters; a stubbed
- * `ActivatedRoute` can't exercise it, per `.claude/rules/storybook-routing.md`.
+ * `ActivatedRoute` can't exercise it, per `.claude/rules/storybook.md`.
  */
 @Component({
   selector: "story-shell",
@@ -76,14 +77,6 @@ const withFirstOption =
   (kind: ImportDestinationKind): Decorator =>
   (storyFn, context) => {
     firstOptionKind = kind;
-    return storyFn(context);
-  };
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
     return storyFn(context);
   };
 

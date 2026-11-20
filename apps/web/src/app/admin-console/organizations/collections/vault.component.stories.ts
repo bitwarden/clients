@@ -4,7 +4,7 @@ import "../../../billing/organizations/change-plan-dialog.component";
 
 import { importProvidersFrom, signal } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
-import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
@@ -55,6 +55,7 @@ import {
 import { ConsoleLogService } from "@bitwarden/logging";
 import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { atUrl } from "@bitwarden/storybook";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { LockService } from "@bitwarden/unlock";
 import {
@@ -138,14 +139,6 @@ const ciphers = [
 const groups: GroupView[] = [
   new GroupView({ id: "group-1", name: "Group 1", organizationId: organization.id }),
 ];
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 const mockOrganizationService: Partial<OrganizationService> = {
   organizations$: () => of([organization]),
@@ -322,7 +315,7 @@ const mockCipherArchiveService: Partial<CipherArchiveService> = {
 /**
  * Mirrors `vault-routing.module.ts` (minus its guard) so the page reads `organizationId` from a
  * real route param. A stubbed `ActivatedRoute` can't build the relative links this page and its
- * children render; see .claude/rules/storybook-routing.md.
+ * children render; see .claude/rules/storybook.md.
  *
  * VaultFilterServiceAbstraction can't be mocked from here: VaultComponent imports
  * VaultFilterModule, which re-provides that token with its own concrete class at VaultComponent's

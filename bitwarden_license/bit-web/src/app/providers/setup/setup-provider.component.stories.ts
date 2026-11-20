@@ -1,23 +1,17 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
-import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { SetupProviderComponent } from "./setup-provider.component";
 
 const routes: Routes = [{ path: "setup-provider", component: SetupProviderComponent }];
-
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 const SETUP_PROVIDER_URL =
   "/setup-provider?providerId=provider-1&email=jane%40example.com&token=story-token";

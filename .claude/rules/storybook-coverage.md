@@ -1,21 +1,16 @@
 ---
 paths:
-  - "**/*.component.ts"
-  - "**/*.component.html"
+  - "apps/web/**/*.component.ts"
+  - "apps/browser/**/*.component.ts"
+  - "bitwarden_license/**/*.component.ts"
+  - "libs/**/*.component.ts"
 ---
 
 # Storybook: new UI gets a story
 
-Stories are the expected companion to any component that renders UI. They are how design and
-other teams see the component, how Chromatic catches visual regressions, and how the a11y
-checks run in CI.
+A new component that a consumer would use on its own gets a `*.stories.ts` beside it, written
+with the `storybook-stories` skill. A sub-part of a compound component is shown in its parent's
+stories instead. Chromatic snapshots it on every PR, and it is how design reviews the
+work. If there's a reason to skip (routing shell, no visible UI), say so in the PR description.
 
-- **Creating a component with a template?** Write a `*.stories.ts` next to it, using the
-  `storybook-stories` skill. If there's a reason not to (routing shell, no visible UI, throwaway),
-  say so in the PR description instead of silently skipping.
-- **Substantially editing an existing component that has no story?** Offer to add one. Don't
-  add it unasked, and keep it to the states the edit touches.
-- **A story only counts if Storybook finds it.** `.storybook/main.ts` lists globs per lib/app;
-  check the component's location is covered.
-
-Companion rules that load with story files: `storybook-dates.md`, `storybook-routing.md`.
+When substantially editing a component that has no story, offer to add one. Don't add it unasked.

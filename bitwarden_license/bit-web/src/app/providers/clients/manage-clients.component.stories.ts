@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
-import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
@@ -25,6 +25,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { atUrl } from "@bitwarden/storybook";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -94,13 +95,6 @@ const routes: Routes = [
     ],
   },
 ];
-
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 export default {
   title: "Admin Console/Providers/Clients/Manage Clients",

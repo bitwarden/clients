@@ -10,6 +10,7 @@ import {
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { TargetSystemId } from "../rotation";
@@ -25,7 +26,6 @@ import {
   targetSystem,
   unverifiableTargetSystem,
 } from "../testing/rotation-builders";
-import { atUrl } from "../testing/story-helpers";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
 

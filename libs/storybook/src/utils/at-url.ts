@@ -1,8 +1,8 @@
 import { Decorator } from "@storybook/angular";
 
 /**
- * Renders the story at `url` through the hash, which keeps Storybook's query string intact. Needs
- * `provideRouter(routes, withHashLocation())`, or the story silently renders the default route.
+ * Renders the story at `url`. Pair with `provideRouter(routes, withHashLocation())`: hash routing
+ * leaves Storybook's own `iframe.html?id=…` query string intact.
  */
 export const atUrl =
   (url: string): Decorator =>
