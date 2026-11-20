@@ -119,45 +119,7 @@ export { ComponentNameComponent } from "./component-name.component";
 
 #### Storybook stories (`component-name.stories.ts`)
 
-Every component gets stories. Follow the exact patterns from sibling components:
-
-```typescript
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService } from "../utils/i18n-mock.service";
-
-export default {
-  title: "Component Library/ComponentName",
-  component: ComponentNameComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [/* component + dependencies */],
-      providers: [
-        {
-          provide: I18nService,
-          useFactory: () =>
-            new I18nMockService({
-              // All i18n keys used by the component
-              // Use __$1__ for parameter placeholders
-            }),
-        },
-      ],
-    }),
-  ],
-  parameters: {
-    design: {
-      type: "figma",
-      url: "/* original Figma URL */",
-    },
-  },
-} as Meta<ComponentNameComponent>;
-```
-
-Include stories for:
-
-- Default state
-- Key variant states (if applicable)
-- Edge cases visible in the design (disabled, loading, empty, etc.)
+Write them with the `storybook-stories` skill, and set `parameters.design.url` to the Figma URL.
 
 #### Unit tests (`component-name.component.spec.ts`)
 
