@@ -7870,5 +7870,13 @@
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }
