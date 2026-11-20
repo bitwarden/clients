@@ -25,11 +25,10 @@ export class WebLoginDecryptionOptionsService
       // invite and its accept URL redirect. Without a stashed invite, the redirect is an unrelated
       // deep link which we don't want to clear.
       //
-      // Exception: while `InviteLinkAutoConfirm` is on, we send `acceptOrganizationInvite: false`
-      // when the stashed open invite is for this organization. The organization user stays
-      // Invited, so keep the open invite and its /join redirect.
-      // `deepLinkGuard` then sends the user to AcceptOrgOpenInviteComponent, which runs the Admin
-      // Console accept flow. A stashed open invite for a different organization is cleared.
+      // Exception: when we send `acceptOrganizationInvite: false`, the organization user stays
+      // Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
+      // user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow.
+      // `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this decision.
       if (
         organizationInviteAccepted &&
         (await this.organizationInviteService.getOrganizationInvite()) != null

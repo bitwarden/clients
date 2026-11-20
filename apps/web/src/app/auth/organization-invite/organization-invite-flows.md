@@ -213,7 +213,7 @@ decryption. After SSO they land in a "set initial password" flow.
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
-7. Client-side cleanup, in `WebSetInitialPasswordService`, when an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
+7. Client-side cleanup, in `WebSetInitialPasswordService`, when we sent `acceptOrganizationInvite: true` and an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
    - `routerService.getAndClearLoginRedirectUrl()` — drops the `/accept-organization` redirect
    - `organizationInviteService.clearOrganizationInvite()` — drops both invite stashes
 8. User lands in `/vault`
@@ -284,8 +284,15 @@ All three run the same cleanup — `getAndClearLoginRedirectUrl()` plus
 of an invite also persists that invite's accept URL as the login redirect, so
 a stashed invite marks the redirect as the invite's. Without a stashed invite,
 the redirect is an unrelated deep link (e.g. `/settings/account`) that
-`deepLinkGuard` should replay after account setup. Consolidation of the MP +
-TDE pair is tracked in [PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
+`deepLinkGuard` should replay after account setup.
+
+The MP-SSO and TDE-SSO cleanups have one more condition: we must have sent
+`acceptOrganizationInvite: true`. When we send `false` for an open invite to
+the same org, the membership stays Invited. Both services then keep the stash
+and the `/join` redirect for `AcceptOrgOpenInviteComponent`. Key Connector-SSO
+does not have this exception yet, so it cleans up whenever an invite is stashed.
+Consolidation of the MP + TDE pair is tracked in
+[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
 
 ### Edge / historical cases
 
