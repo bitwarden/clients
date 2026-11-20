@@ -454,45 +454,45 @@
     }
   },
   "deletionDateDescV2": {
-     "message": "The Send will be permanently deleted on this date.",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "fileToShare": {
-     "message": "File to share"
-   },
-   "hideTextByDefault": {
-     "message": "Hide text by default"
-   },
-   "hideYourEmail": {
-     "message": "Hide your email address from viewers."
-   },
-   "limitSendViews": {
-     "message": "Limit views"
-   },
-   "limitSendViewsCount": {
-     "message": "$ACCESSCOUNT$ views left",
-     "description": "Displayed under the limit views field on Send",
-     "placeholders": {
-       "accessCount": {
-         "content": "$1",
-         "example": "2"
-       }
-     }
-   },
-   "limitSendViewsHint": {
-     "message": "No one can view this Send after the limit is reached.",
-     "description": "Displayed under the limit views field on Send"
-   },
-   "privateNote": {
-     "message": "Private note"
-   },
-   "sendDetails": {
-     "message": "Send details",
-     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-   },
-   "sendTypeTextToShare": {
-     "message": "Text to share"
-   },
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "privateNote": {
+    "message": "Private note"
+  },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "newItemHeaderTextSendV2": {
     "message": "New text",
     "description": "Header for new text send"
@@ -585,9 +585,6 @@
   },
   "launch": {
     "message": "Launch"
-  },
-  "launchWebsite": {
-    "message": "Launch website"
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -2764,9 +2761,6 @@
   "filePasswordConfirmationMismatch": {
     "message": "“File password” and “Confirm file password” do not match."
   },
-  "done": {
-    "message": "Done"
-  },
   "warning": {
     "message": "WARNING",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
@@ -2846,6 +2840,84 @@
   },
   "additionalTouchIdSettings": {
     "message": "Additional Touch ID settings"
+  },
+  "unlockMethodsHeader": {
+    "message": "Unlock methods"
+  },
+  "clipboardHeader": {
+    "message": "Clipboard"
+  },
+  "vaultDisplayHeader": {
+    "message": "Vault display"
+  },
+  "appearanceHeader": {
+    "message": "Appearance"
+  },
+  "startupHeader": {
+    "message": "Startup and background"
+  },
+  "integrationsHeader": {
+    "message": "Integrations"
+  },
+  "autotypeHeader": {
+    "message": "Autotype"
+  },
+  "privacyHeader": {
+    "message": "Privacy"
+  },
+  "advancedHeader": {
+    "message": "Advanced"
+  },
+  "sshAgentHeader": {
+    "message": "SSH agent"
+  },
+  "browsersAndPasskeysHeader": {
+    "message": "Browsers and passkeys"
+  },
+  "browsersHeader": {
+    "message": "Browsers"
+  },
+  "passkeysHeader": {
+    "message": "Passkeys"
+  },
+  "syncHeader": {
+    "message": "Sync"
+  },
+  "syncVaultHeading": {
+    "message": "Vault sync"
+  },
+  "lastSyncLabel": {
+    "message": "Last sync:"
+  },
+  "settingsNavAccount": {
+    "message": "Account settings"
+  },
+  "settingsNavDevice": {
+    "message": "Device settings"
+  },
+  "settingsScopeAccountDesc": {
+    "message": "These settings apply to the account you're using now."
+  },
+  "settingsScopeDeviceDesc": {
+    "message": "These settings apply to all accounts on this device."
+  },
+  "performanceHeader": {
+    "message": "Performance"
+  },
+  "requireMasterPasswordOnAppRestartDescVfo1": {
+    "message": "Helps prevent other apps on your computer from unlocking Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarningVfo1": {
+    "message": "When this is off, other apps on your computer may be able to unlock Bitwarden and access your saved passwords."
+  },
+  "enableHardwareAccelerationDescVfo1": {
+    "message": "Turn off only if you have display issues. Requires restart."
+  },
+  "allowScreenshotsDescVfo1": {
+    "message": "Allow Bitwarden to be captured in screenshots and remote desktop sessions. Turning this off may block Bitwarden on some external displays."
+  },
+  "enableAutotypeShortcutPreviewVfo1": {
+    "message": "Enable autotype shortcut (feature preview)"
   },
   "touchIdConsentMessage": {
     "message": "unlock your vault"
@@ -4788,7 +4860,7 @@
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
   },
-    "importTargetHintCollection": {
+  "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
   },
   "importTargetHintFolder": {
@@ -5978,15 +6050,15 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
-     "uriMatchDefaultStrategyHint": {
+  "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
-   "regExAdvancedOptionWarning": {
+  "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
-   "startsWithAdvancedOptionWarning": {
+  "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
@@ -5994,11 +6066,11 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
-   "uriAdvancedOption":{
+  "uriAdvancedOption": {
     "message": "Advanced options",
     "description": "Advanced option placeholder for uri option component"
   },
-   "warningCapitalized": {
+  "warningCapitalized": {
     "message": "Warning",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
@@ -6320,7 +6392,7 @@
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   },
-   "vulnerablePassword": {
+  "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
@@ -6464,7 +6536,7 @@
   "transferAndAdd": {
     "message": "Transfer and add"
   },
-  "itemLower":{
+  "itemLower": {
     "message": "item"
   },
   "itemUpper": {
@@ -6848,7 +6920,7 @@
   "upgradeToPremium": {
     "message": "Upgrade to Premium"
   },
-  "removeMasterPasswordForOrgUserKeyConnector":{
+  "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
@@ -6866,10 +6938,10 @@
   "verifyYourOrganization": {
     "message": "Verify your organization to log in"
   },
-  "organizationVerified":{
+  "organizationVerified": {
     "message": "Organization verified"
   },
-  "domainVerified":{
+  "domainVerified": {
     "message": "Domain verified"
   },
   "leaveOrganizationContent": {
@@ -6994,7 +7066,7 @@
       }
     }
   },
-   "howToManageMyVault": {
+  "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
   "transferYourItemsToOrganizationTitle": {
@@ -7870,5 +7942,764 @@
   },
   "item": {
     "message": "Item"
+  },
+  "searchSettingsVfo1": {
+    "message": "Search settings",
+    "description": "Accessible label and placeholder of the search field at the top of the desktop Settings navigation."
+  },
+  "settingsSearchResultsVfo1": {
+    "message": "Settings search results",
+    "description": "Accessible name of the list of matching settings shown under the Settings search field."
+  },
+  "settingsSearchNoResultsVfo1": {
+    "message": "No settings found",
+    "description": "Empty state shown (and announced to screen readers) when no setting matches the Settings search text."
+  },
+  "settingsSearchOneResultVfo1": {
+    "message": "1 setting found",
+    "description": "Screen reader announcement when exactly one setting matches the Settings search text."
+  },
+  "settingsSearchResultCountVfo1": {
+    "message": "$COUNT$ settings found",
+    "description": "Screen reader announcement of how many settings match the Settings search text. Used for 2 or more results.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "settingsSearchKeywordsTimeoutVfo1": {
+    "message": "Lock, log out, auto-lock, idle",
+    "description": "Comma-separated search synonyms for the session timeout setting. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "settingsSearchKeywordsBiometricsVfo1": {
+    "message": "Biometrics, fingerprint, face recognition",
+    "description": "Comma-separated search synonyms for the biometric unlock settings. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "settingsSearchKeywordsThemeVfo1": {
+    "message": "Dark mode, light mode, colors",
+    "description": "Comma-separated search synonyms for the theme setting. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "settingsSearchKeywordsAutotypeVfo1": {
+    "message": "Keyboard shortcut, hotkey, type password",
+    "description": "Comma-separated search synonyms for the autotype settings. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "settingsSearchKeywordsScreenshotsVfo1": {
+    "message": "Screen capture, screen recording, screen sharing",
+    "description": "Comma-separated search synonyms for the allow screenshots setting. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "settingsSearchKeywordsHardwareAccelerationVfo1": {
+    "message": "GPU, graphics, rendering",
+    "description": "Comma-separated search synonyms for the hardware acceleration setting. Not shown in the UI; translate as words a user might type to find this setting."
+  },
+  "sshAgentSetupStatusLabelVfo1": {
+    "message": "SSH client setup",
+    "description": "Label of the settings row that shows whether SSH tools on this device use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupStatusCheckingVfo1": {
+    "message": "Checking…",
+    "description": "Badge shown while the app checks whether SSH tools are set up to use Bitwarden."
+  },
+  "sshAgentSetupStatusNotSetUpVfo1": {
+    "message": "Not set up",
+    "description": "Badge: SSH tools on this device are not set up to use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupStatusNotSetUpDescVfo1": {
+    "message": "Connect your terminal and git so they use SSH keys from Bitwarden.",
+    "description": "Description under the SSH client setup row when it is not set up."
+  },
+  "sshAgentSetupStatusSetUpVfo1": {
+    "message": "Set up",
+    "description": "Badge (state, not a button): SSH tools on this device use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupStatusSetUpDescVfo1": {
+    "message": "Your terminal and git use SSH keys from Bitwarden.",
+    "description": "Description under the SSH client setup row when setup is complete."
+  },
+  "sshAgentSetupStatusPartialVfo1": {
+    "message": "Partly set up",
+    "description": "Badge: only some SSH tools on this device use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupStatusPartialDescVfo1": {
+    "message": "Some SSH tools on this device don't use Bitwarden yet.",
+    "description": "Description under the SSH client setup row when setup is partly done."
+  },
+  "sshAgentSetupStatusConflictVfo1": {
+    "message": "Another agent in use",
+    "description": "Badge: a different SSH agent is already configured on this device."
+  },
+  "sshAgentSetupStatusConflictDescVfo1": {
+    "message": "Another SSH agent is already set up on this device. Review the changes to use Bitwarden instead.",
+    "description": "Description under the SSH client setup row when another SSH agent is configured."
+  },
+  "sshAgentSetupStatusUnsupportedVfo1": {
+    "message": "Manual setup",
+    "description": "Badge: the app can't set up SSH tools on this device, so the user must do it themselves."
+  },
+  "sshAgentSetupStatusUnsupportedDescVfo1": {
+    "message": "Bitwarden can't set this up on this device. Use the help article to set it up yourself.",
+    "description": "Description under the SSH client setup row when automatic and guided setup are not available."
+  },
+  "sshAgentSetupSetUpButtonVfo1": {
+    "message": "Set up",
+    "description": "Button (verb) that opens the SSH agent setup flow."
+  },
+  "sshAgentSetupFinishButtonVfo1": {
+    "message": "Finish setup",
+    "description": "Button that opens the SSH agent setup flow to finish a partial setup."
+  },
+  "sshAgentSetupReviewButtonVfo1": {
+    "message": "Review changes",
+    "description": "Button that opens the SSH agent setup flow when another SSH agent is configured."
+  },
+  "sshAgentSetupCheckAgainButtonVfo1": {
+    "message": "Check again",
+    "description": "Button that re-runs the checks that confirm SSH tools use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupRemoveButtonVfo1": {
+    "message": "Remove setup",
+    "description": "Button that removes the SSH configuration lines Bitwarden added."
+  },
+  "sshAgentSetupRemoveTitleVfo1": {
+    "message": "Remove SSH setup?",
+    "description": "Title of the dialog that confirms removing the SSH configuration lines Bitwarden added."
+  },
+  "sshAgentSetupRemoveDescVfo1": {
+    "message": "Bitwarden will remove only the lines it added. Your other SSH settings stay the same, and the SSH agent stays on.",
+    "description": "Body of the dialog that confirms removing the SSH configuration lines Bitwarden added."
+  },
+  "sshAgentSetupRemovedToastVfo1": {
+    "message": "SSH setup removed",
+    "description": "Toast shown after the SSH configuration lines Bitwarden added were removed."
+  },
+  "sshAgentSetupLearnMoreVfo1": {
+    "message": "Learn more about the SSH agent",
+    "description": "Link text that opens the Bitwarden SSH agent help article."
+  },
+  "sshAgentSetupTitleVfo1": {
+    "message": "Set up SSH agent",
+    "description": "Title of the SSH agent setup dialog."
+  },
+  "sshAgentSetupLinesToAddVfo1": {
+    "message": "Lines to add to",
+    "description": "Screen reader text before a file path, introducing the lines that will be added to that file."
+  },
+  "sshAgentSetupGuidedDescVfo1": {
+    "message": "Copy each command below and run it yourself.",
+    "description": "Follows the reason why the user must run the setup commands themselves."
+  },
+  "sshAgentSetupGuidedReasonWindowsVfo1": {
+    "message": "On Windows, the built-in OpenSSH agent must be turned off so SSH tools use Bitwarden.",
+    "description": "Reason for manual setup on Windows."
+  },
+  "sshAgentSetupGuidedReasonMacAppStoreVfo1": {
+    "message": "The Mac App Store version of Bitwarden can't change files outside the app.",
+    "description": "Reason for manual setup in the Mac App Store version."
+  },
+  "sshAgentSetupGuidedReasonSnapVfo1": {
+    "message": "The Snap version of Bitwarden can't change files outside the app.",
+    "description": "Reason for manual setup in the Snap version."
+  },
+  "sshAgentSetupGuidedReasonFlatpakVfo1": {
+    "message": "The Flatpak version of Bitwarden can't change files outside the app.",
+    "description": "Reason for manual setup in the Flatpak version."
+  },
+  "sshAgentSetupGuidedReasonWindowsStoreVfo1": {
+    "message": "The Microsoft Store version of Bitwarden can't change files outside the app.",
+    "description": "Reason for manual setup in the Microsoft Store version."
+  },
+  "sshAgentSetupGuidedReasonGenericVfo1": {
+    "message": "Bitwarden can't change these settings for you on this device.",
+    "description": "Fallback reason for manual setup."
+  },
+  "sshAgentSetupWindowsAdminNoteVfo1": {
+    "message": "Bitwarden doesn't change Windows services. Open PowerShell as an administrator and run the command yourself.",
+    "description": "Note on Windows: the app never changes system services; the user runs the command."
+  },
+  "sshAgentSetupGuidedCmdWindowsServiceVfo1": {
+    "message": "Turn off the Windows OpenSSH agent service. Run this in PowerShell as an administrator.",
+    "description": "Describes the command that stops and disables the Windows OpenSSH Authentication Agent service."
+  },
+  "sshAgentSetupGuidedCmdShellProfileVfo1": {
+    "message": "For bash or zsh: add this line to your shell profile, like ~/.zshrc or ~/.bashrc.",
+    "description": "Describes the command that sets SSH_AUTH_SOCK for bash or zsh. File names are not translated."
+  },
+  "sshAgentSetupGuidedCmdGenericVfo1": {
+    "message": "Run this command in a terminal.",
+    "description": "Fallback description of a setup command the user runs themselves."
+  },
+  "sshAgentSetupCommandVfo1": {
+    "message": "Command",
+    "description": "Used in the toast '<value> copied' after copying a setup command."
+  },
+  "sshAgentSetupGuidedCmdFishVfo1": {
+    "message": "For fish: add this line to ~/.config/fish/config.fish.",
+    "description": "Describes the command that sets SSH_AUTH_SOCK for the fish shell. The file path is not translated."
+  },
+  "sshAgentSetupIntroDescVfo1": {
+    "message": "Your SSH keys stay in your vault. When ssh, git, or another app needs a key, Bitwarden asks you to approve it first.",
+    "description": "Intro screen text explaining how the Bitwarden SSH agent works. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupIntroDescGuidedVfo1": {
+    "message": "Your SSH keys stay in your vault. When ssh, git, or another app needs a key, Bitwarden asks you to approve it first. On this device, we'll show you the steps to run yourself.",
+    "description": "Intro screen text for devices where setup is done by the user running steps. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupCurrentSettingVfo1": {
+    "message": "Current setting",
+    "description": "Caption above the existing setting that conflicts with the Bitwarden setup, when its line number is unknown."
+  },
+  "sshAgentSetupCurrentSettingLineVfo1": {
+    "message": "Current setting, line $LINE$",
+    "description": "Caption above the existing setting that conflicts with the Bitwarden setup. Follows a file path.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "sshAgentSetupAgentCantStartTitleVfo7": {
+    "message": "SSH agent couldn't start",
+    "description": "Title of the error shown when the Bitwarden SSH agent failed to start. The SSH agent is a Bitwarden feature name."
+  },
+  "sshAgentSetupAgentAddressInUseVfo7": {
+    "message": "Something on this computer is already using the SSH agent's address. This can happen if Bitwarden closed unexpectedly. Restart Bitwarden, then select Try again.",
+    "description": "Body of the error shown when the SSH agent could not start because its address (a socket or pipe) is already in use. 'Try again' is the name of a button."
+  },
+  "sshAgentSetupAgentPermissionDeniedVfo7": {
+    "message": "Bitwarden doesn't have permission to create the SSH agent's address. Make sure your user account owns the folder in Technical details, then select Try again.",
+    "description": "Body of the error shown when the SSH agent could not start because of missing permissions. 'Technical details' and 'Try again' are names of a disclosure and a button."
+  },
+  "sshAgentSetupAgentStartUnknownVfo7": {
+    "message": "In Settings, turn off the SSH agent and turn it back on. Then select Try again.",
+    "description": "Body of the error shown when the SSH agent could not start for an unknown reason. 'Try again' is the name of a button."
+  },
+  "sshAgentSetupAgentAddressInUseDetailVfo7": {
+    "message": "Address in use: $ADDRESS$",
+    "description": "Technical detail line shown under Technical details when the SSH agent's address is already in use. The address is a file path or pipe name; do not translate it.",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "~/.bitwarden-ssh-agent.sock"
+      }
+    }
+  },
+  "sshAgentSetupAgentPermissionDeniedDetailVfo7": {
+    "message": "Permission denied: $ADDRESS$",
+    "description": "Technical detail line shown under Technical details when Bitwarden can't create the SSH agent's address. The address is a file path or pipe name; do not translate it.",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "~/.bitwarden-ssh-agent.sock"
+      }
+    }
+  },
+  "sshAgentSetupAgentUnknownDetailVfo7": {
+    "message": "Error: unknown",
+    "description": "Technical detail line shown under Technical details when the SSH agent failed to start for an unknown reason."
+  },
+  "sshAgentSetupAgentOffTitleVfo7": {
+    "message": "The SSH agent is off",
+    "description": "Title of the info message shown when the user turned off the Bitwarden SSH agent in Settings."
+  },
+  "sshAgentSetupAgentOffDescVfo7": {
+    "message": "Tools like ssh and git can't use your vault keys until it's on. Turn on the SSH agent in Settings to finish setup.",
+    "description": "Body of the info message shown when the Bitwarden SSH agent is turned off. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupLoadErrorTitleVfo7": {
+    "message": "Couldn't load SSH setup",
+    "description": "Title of the error shown when the SSH agent setup dialog could not load the planned changes."
+  },
+  "sshAgentSetupLoadErrorDescVfo7": {
+    "message": "Your files weren't changed. Select Try again.",
+    "description": "Body of the error shown when the SSH agent setup dialog could not load. 'Try again' is the name of a button."
+  },
+  "sshAgentSetupStatusErrorVfo7": {
+    "message": "Couldn't check",
+    "description": "Badge in the SSH client setup settings row when the app could not check the SSH setup."
+  },
+  "sshAgentSetupStatusErrorDescVfo7": {
+    "message": "Bitwarden couldn't check your SSH setup. Your files weren't changed.",
+    "description": "Description under the SSH client setup settings row when the status check failed."
+  },
+  "sshAgentSetupBlockedTitleVfo7": {
+    "message": "Bitwarden won't change $PATH$",
+    "description": "Title shown when Bitwarden refuses to change a file for safety reasons. A reason follows. The path is a file path such as ~/.ssh/config; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupBlockedGenericVfo7": {
+    "message": "It isn't safe to change.",
+    "description": "Fallback reason a file won't be changed, shown after the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedSymlinkVfo7": {
+    "message": "It's a shortcut to another file.",
+    "description": "Reason a file won't be changed: it is a symbolic link. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedOwnerVfo7": {
+    "message": "Another user account owns it.",
+    "description": "Reason a file won't be changed: it is owned by a different user account. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedPermissionsVfo7": {
+    "message": "Other user accounts can edit it.",
+    "description": "Reason a file won't be changed: other user accounts have permission to edit it. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedNotRegularFileVfo7": {
+    "message": "It isn't a normal text file.",
+    "description": "Reason a file won't be changed: it is a folder, device, or other special file. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedOutsideHomeVfo7": {
+    "message": "It's outside your home folder.",
+    "description": "Reason a file won't be changed: it is not inside the user's home folder. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedTooLargeVfo7": {
+    "message": "It's too large to check safely.",
+    "description": "Reason a file won't be changed: it is unusually large. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedUnreadableVfo7": {
+    "message": "Bitwarden can't open it.",
+    "description": "Reason a file won't be changed: the app can't open it. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedUnsafeAgentAddressVfo7": {
+    "message": "The SSH agent's address has characters that aren't safe to add to this file.",
+    "description": "Reason a file won't be changed: the SSH agent's address contains characters that are unsafe to write. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedNoAgentAddressVfo7": {
+    "message": "The SSH agent isn't running yet.",
+    "description": "Reason a file won't be changed: the SSH agent has no address because it isn't running. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupBlockedEditedVfo7": {
+    "message": "The lines Bitwarden added were changed by hand. Bitwarden won't replace your edits.",
+    "description": "Reason a file won't be changed: someone edited the block of lines Bitwarden added earlier. Follows the title 'Bitwarden won't change <file>'."
+  },
+  "sshAgentSetupManualLinkVfo7": {
+    "message": "Set up SSH files yourself",
+    "description": "Link text that opens the help article on setting up the SSH files manually. Shown with a message that Bitwarden won't change a file."
+  },
+  "sshAgentSetupGuidedReasonUnsupportedPlatformVfo7": {
+    "message": "Bitwarden can't set this up on this operating system.",
+    "description": "Reason for manual setup when automatic setup is not available on the user's operating system."
+  },
+  "sshAgentSetupFileChangedTitleVfo7": {
+    "message": "$PATH$ changed",
+    "description": "Title shown when a file changed after setup started. The path is a file path such as ~/.ssh/config; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupFileChangedDescVfo7": {
+    "message": "It changed after setup started. Review the updated changes, then select Set up.",
+    "description": "Body shown when a file changed after setup started. 'Set up' is the name of a button."
+  },
+  "sshAgentSetupWriteFailedTitleVfo7": {
+    "message": "Couldn't save $PATH$",
+    "description": "Title shown when Bitwarden could not write a file. The path is a file path such as ~/.ssh/config; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupWriteFailedDescVfo7": {
+    "message": "Make sure the file isn't locked or read-only and your disk has space. Then select Try again.",
+    "description": "Body shown when Bitwarden could not write a file. 'Try again' is the name of a button."
+  },
+  "sshAgentSetupWriteFailedDetailVfo7": {
+    "message": "Error: $CODE$",
+    "description": "Technical detail line shown when writing a file failed. The code is a short error class such as read-only or no-space; do not translate it.",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "read-only"
+      }
+    }
+  },
+  "sshAgentSetupIncompleteTitleVfo7": {
+    "message": "Setup didn't finish",
+    "description": "Title shown when applying the SSH setup failed for an unknown reason."
+  },
+  "sshAgentSetupIncompleteDescVfo7": {
+    "message": "Some files may not have changed. Select Try again.",
+    "description": "Body shown when applying the SSH setup did not finish. 'Try again' is the name of a button."
+  },
+  "sshAgentSetupVerifyCheckFailedTitleVfo7": {
+    "message": "Couldn't run the check",
+    "description": "Title shown when the check that confirms the SSH setup could not run."
+  },
+  "sshAgentSetupVerifyCheckFailedDescVfo7": {
+    "message": "Your setup may still work. Select Check again.",
+    "description": "Body shown when the SSH setup check could not run. 'Check again' is the name of a button."
+  },
+  "sshAgentSetupVerifyNoResponseTitleVfo7": {
+    "message": "The SSH agent isn't responding",
+    "description": "Title of the error shown when the Bitwarden SSH agent doesn't answer the setup check."
+  },
+  "sshAgentSetupVerifyNoResponseDescVfo7": {
+    "message": "SSH tools can't use your vault keys right now. In Settings, turn off the SSH agent and turn it back on. Then select Check again.",
+    "description": "Body of the error shown when the Bitwarden SSH agent doesn't answer. 'Check again' is the name of a button."
+  },
+  "sshAgentSetupVerifyNoResponseDetailVfo7": {
+    "message": "Address: $ADDRESS$",
+    "description": "Technical detail line with the SSH agent's address. The address is a file path or pipe name; do not translate it.",
+    "placeholders": {
+      "address": {
+        "content": "$1",
+        "example": "~/.bitwarden-ssh-agent.sock"
+      }
+    }
+  },
+  "sshAgentSetupVerifySshOtherAgentTitleVfo7": {
+    "message": "ssh and git use another SSH agent",
+    "description": "Title shown when the SSH config points ssh and git to a different SSH agent. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupVerifySshOtherAgentDescVfo7": {
+    "message": "Your SSH config points to a different agent. To use Bitwarden instead, select Change setup and choose Bitwarden.",
+    "description": "Body shown when the SSH config points to a different SSH agent. 'Change setup' is the name of a button."
+  },
+  "sshAgentSetupVerifySshOtherAgentDetailVfo7": {
+    "message": "IdentityAgent: $VALUE$ in ~/.ssh/config",
+    "description": "Technical detail line showing which agent the SSH config points to. IdentityAgent is a setting name and ~/.ssh/config is a file path; do not translate them.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "~/.1password/agent.sock"
+      }
+    }
+  },
+  "sshAgentSetupVerifyNotConnectedTitleVfo7": {
+    "message": "New terminals aren't connected yet",
+    "description": "Title shown when new terminal windows are not set up to use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupVerifyNotConnectedDescVfo7": {
+    "message": "Commands like ssh-add and git commit signing won't use Bitwarden. To connect them, select Change setup.",
+    "description": "Body shown when new terminals are not set up to use the Bitwarden SSH agent. 'ssh-add' and 'git' are command names; do not translate. 'Change setup' is the name of a button."
+  },
+  "sshAgentSetupVerifyShellOtherAgentTitleVfo7": {
+    "message": "New terminals use another SSH agent",
+    "description": "Title shown when a setting in the shell profile points new terminals to a different SSH agent."
+  },
+  "sshAgentSetupVerifyShellOtherAgentDescVfo7": {
+    "message": "A setting in your shell profile replaces the one Bitwarden added. Open a new terminal window. If this message stays, remove the other setting.",
+    "description": "Body shown when another setting in the shell profile replaces the one Bitwarden added."
+  },
+  "sshAgentSetupVerifyShellOtherAgentDetailVfo7": {
+    "message": "SSH_AUTH_SOCK is set again in $PATH$ on line $LINE$",
+    "description": "Technical detail line showing where SSH_AUTH_SOCK is set again. SSH_AUTH_SOCK is a variable name; do not translate it. The path is a file path such as ~/.zshrc; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.zshrc"
+      },
+      "line": {
+        "content": "$2",
+        "example": "12"
+      }
+    }
+  },
+  "sshAgentSetupVerifyShellNotCheckedVfo7": {
+    "message": "Bitwarden couldn't check new terminals on this device.",
+    "description": "Note shown with a successful setup result when the new terminal check could not run on this device."
+  },
+  "sshAgentSetupVerifyAllSetTitleVfo7": {
+    "message": "You're all set",
+    "description": "Title shown when the SSH setup check finds nothing to fix."
+  },
+  "sshAgentSetupVerifyAllSetDescVfo7": {
+    "message": "ssh and git can now use your vault keys.",
+    "description": "Message under the title shown when the SSH setup check finds nothing to fix. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupVerifyOpenTerminalVfo7": {
+    "message": "Terminal windows that are already open won't use Bitwarden. Open a new one.",
+    "description": "Hint shown with a successful setup result. Terminal windows that were already open keep the old setting."
+  },
+  "sshAgentSetupNothingToChangeVfo7": {
+    "message": "Your current SSH agent stays as it is. There's nothing to change.",
+    "description": "Helper text shown when the user keeps their current SSH agent and no files need to change."
+  },
+  "sshAgentSetupRemoveFailedToastVfo7": {
+    "message": "Couldn't remove all SSH setup. Select Remove setup to try again.",
+    "description": "Toast shown when removing the SSH configuration lines Bitwarden added failed. 'Remove setup' is the name of a button."
+  },
+  "sshAgentSetupChooseLeadVfo7": {
+    "message": "Bitwarden will let ssh, git, and other tools on this device use the SSH keys in your vault.",
+    "description": "Lead sentence of the view where the user reviews the SSH setup. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupChooseLeadGuidedVfo7": {
+    "message": "Run these steps yourself so ssh and git can use the SSH keys in your vault.",
+    "description": "Lead sentence of the view on devices where the user must run the setup steps themselves. 'ssh' and 'git' are command names; do not translate."
+  },
+  "sshAgentSetupChoiceLabelVfo7": {
+    "message": "Which SSH agent do you want to use?",
+    "description": "Label of the radio group shown when another SSH agent is already set up. The options are Bitwarden or the agent they already use."
+  },
+  "sshAgentSetupChoiceBitwardenVfo7": {
+    "message": "Bitwarden",
+    "description": "Radio option that chooses the Bitwarden SSH agent over another SSH agent that is already set up."
+  },
+  "sshAgentSetupChoiceBitwardenHintVfo7": {
+    "message": "Bitwarden replaces your current agent. You can switch back in Settings.",
+    "description": "Hint under the Bitwarden radio option. Switching back uses Remove setup in Settings."
+  },
+  "sshAgentSetupChoiceCurrentVfo7": {
+    "message": "Your current agent",
+    "description": "Radio option that keeps the SSH agent that is already set up instead of replacing it with Bitwarden."
+  },
+  "sshAgentSetupChoiceCurrentHintVfo7": {
+    "message": "Your current agent stays as it is.",
+    "description": "Hint under the Your current agent radio option."
+  },
+  "sshAgentSetupWhatWillChangeVfo7": {
+    "message": "What will change",
+    "description": "Heading above a short list of the files that setup will change."
+  },
+  "sshAgentSetupChangeAddSshConfigVfo7": {
+    "message": "Add a Bitwarden block to $PATH$ so ssh and git use your vault keys.",
+    "description": "Line in the list of changes. The path is the SSH config file such as ~/.ssh/config; do not translate it. 'ssh' and 'git' are command names; do not translate.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupChangeAddShellVfo7": {
+    "message": "Add a Bitwarden block to $PATH$ so new terminals use your vault keys.",
+    "description": "Line in the list of changes. The path is a shell profile file such as ~/.zshrc; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.zshrc"
+      }
+    }
+  },
+  "sshAgentSetupChangeReplaceSshConfigVfo7": {
+    "message": "Replace the IdentityAgent setting in $PATH$ so ssh and git use your vault keys.",
+    "description": "Line in the list of changes shown when the SSH config already points to another agent. IdentityAgent is a setting name; do not translate it. The path is a file path such as ~/.ssh/config; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupChangeReplaceShellVfo7": {
+    "message": "Replace SSH_AUTH_SOCK in $PATH$ so new terminals use your vault keys.",
+    "description": "Line in the list of changes shown when the shell profile already points to another agent. SSH_AUTH_SOCK is a variable name; do not translate it. The path is a file path such as ~/.zshrc; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.zshrc"
+      }
+    }
+  },
+  "sshAgentSetupChangeAlreadySetUpVfo7": {
+    "message": "$PATH$ is already set up.",
+    "description": "Line in the list of changes for a file that already has the Bitwarden setup. The path is a file path; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupChangeLeaveVfo7": {
+    "message": "Leave $PATH$ as it is.",
+    "description": "Line in the list of changes for a file that Bitwarden will not change. The path is a file path; do not translate it.",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "~/.ssh/config"
+      }
+    }
+  },
+  "sshAgentSetupViewChangesVfo7": {
+    "message": "View exact changes",
+    "description": "Button that expands details listing the exact lines setup would add to each file."
+  },
+  "sshAgentSetupHideChangesVfo7": {
+    "message": "Hide exact changes",
+    "description": "Button that collapses the details listing the exact lines setup would add to each file."
+  },
+  "sshAgentSetupFootnoteVfo7": {
+    "message": "You can remove this anytime in Settings.",
+    "description": "Footnote under the list of changes. Says the user can undo the setup later in Settings."
+  },
+  "sshAgentSetupTechnicalDetailsVfo7": {
+    "message": "Technical details",
+    "description": "Button that expands extra technical information about an error, such as an address or error code."
+  },
+  "sshAgentSetupDialogSetUpButtonVfo7": {
+    "message": "Set up",
+    "description": "Button (verb) that starts the SSH agent setup, or applies the reviewed changes."
+  },
+  "sshAgentSetupChangeSetupButtonVfo7": {
+    "message": "Change setup",
+    "description": "Button that returns to the view where the user picks how SSH tools are set up."
+  },
+  "sshAgentSetupCheckAgainVfo7": {
+    "message": "Check again",
+    "description": "Button that re-runs the checks that confirm SSH tools use the Bitwarden SSH agent."
+  },
+  "sshAgentSetupRanStepsButtonVfo7": {
+    "message": "I've run these",
+    "description": "Button the user selects after running the setup commands themselves."
+  },
+  "sshAgentSetupApplyingVfo7": {
+    "message": "Updating your files…",
+    "description": "Shown with a spinner while Bitwarden changes the SSH configuration files."
+  },
+  "sshAgentSetupCheckingVfo7": {
+    "message": "Checking the connection…",
+    "description": "Shown with a spinner while Bitwarden checks that SSH tools can reach the SSH agent."
+  },
+  "sshAgentPromptForwarded": {
+    "message": "Still ask for forwarded connections"
+  },
+  "sshAgentPromptAiAgents": {
+    "message": "Still ask for AI agents"
+  },
+  "sshAgentPromptAiAgentsDesc": {
+    "message": "Applies to requests from command-line agents such as Claude Code or Codex."
+  },
+  "viewSshAgentActivity": {
+    "message": "View SSH agent activity"
+  },
+  "sshAgentActivity": {
+    "message": "SSH agent activity"
+  },
+  "sshAgentActivityDesc": {
+    "message": "Apps that used the SSH agent since it started, newest first."
+  },
+  "sshAgentActivityTime": {
+    "message": "Time"
+  },
+  "sshAgentActivityApp": {
+    "message": "App"
+  },
+  "sshAgentActivityCommand": {
+    "message": "Command"
+  },
+  "sshAgentActivityRequest": {
+    "message": "Request"
+  },
+  "sshAgentActivityResult": {
+    "message": "Result"
+  },
+  "sshAgentActivityListKeys": {
+    "message": "Key list"
+  },
+  "sshAgentActivityLogin": {
+    "message": "Login"
+  },
+  "sshAgentActivitySign": {
+    "message": "Signature"
+  },
+  "sshAgentActivityGitSign": {
+    "message": "Git signature"
+  },
+  "sshAgentActivityForwarded": {
+    "message": "Forwarded"
+  },
+  "sshAgentActivityAllowed": {
+    "message": "Allowed"
+  },
+  "sshAgentActivityDenied": {
+    "message": "Denied"
+  },
+  "sshAgentActivityFailed": {
+    "message": "Failed"
+  },
+  "sshAgentActivityEmpty": {
+    "message": "No activity yet"
+  },
+  "sshAgentActivityAiAgent": {
+    "message": "AI agent: $AGENT$",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
+  "sshAgentActivityHost": {
+    "message": "→ $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "git@github.com"
+      }
+    }
+  },
+  "sshAgentActivityForwardedFrom": {
+    "message": "Forwarded from $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "sshAgentAiAgentWarningTitle": {
+    "message": "Requested by an AI agent"
+  },
+  "sshAgentAiAgentWarningText": {
+    "message": "$AGENT$ started this request. Only authorize it if you asked the agent to use this key.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
+  "sshAgentActivityHostApp": {
+    "message": "in $APP$",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "iTerm2"
+      }
+    }
+  },
+  "browserChrome": {
+    "message": "Chrome"
+  },
+  "browserFirefox": {
+    "message": "Firefox"
+  },
+  "getExtension": {
+    "message": "Get extension"
+  },
+  "getBrowserExtensionTitle": {
+    "message": "Get the $BROWSER$ extension",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "getBrowserExtensionDesc": {
+    "message": "Install the Bitwarden extension for $BROWSER$ to autofill and unlock with the desktop app. It connects automatically once installed.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "openStorePage": {
+    "message": "Open store page"
+  },
+  "connected": {
+    "message": "Connected"
   }
 }

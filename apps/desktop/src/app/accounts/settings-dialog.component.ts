@@ -69,6 +69,7 @@ import {
 } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { SshAgentActivityComponent } from "../../autofill/components/ssh-agent-activity.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import {
@@ -153,6 +154,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly themeOptions: Option<string>[];
   protected readonly clearClipboardOptions: Option<string>[];
   protected readonly sshAgentPromptBehaviorOptions: Option<string>[];
+  protected readonly SshAgentPromptType = SshAgentPromptType;
 
   protected readonly isWindows: boolean;
   protected readonly isLinux: boolean;
@@ -207,6 +209,8 @@ export class SettingsDialogComponent implements OnInit {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
+    sshAgentPromptForwarded: true,
+    sshAgentPromptAiAgents: true,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     enableAutotype: this.formBuilder.control<boolean>({
@@ -321,6 +325,12 @@ export class SettingsDialogComponent implements OnInit {
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
+      sshAgentPromptForwarded: await firstValueFrom(
+        this.desktopSettingsService.sshAgentPromptForwarded$,
+      ),
+      sshAgentPromptAiAgents: await firstValueFrom(
+        this.desktopSettingsService.sshAgentPromptAiAgents$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(
@@ -725,6 +735,22 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  protected async saveSshAgentPromptForwarded() {
+    await this.desktopSettingsService.setSshAgentPromptForwarded(
+      this.form.value.sshAgentPromptForwarded,
+    );
+  }
+
+  protected async saveSshAgentPromptAiAgents() {
+    await this.desktopSettingsService.setSshAgentPromptAiAgents(
+      this.form.value.sshAgentPromptAiAgents,
+    );
+  }
+
+  protected openSshAgentActivity() {
+    SshAgentActivityComponent.open(this.dialogService);
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

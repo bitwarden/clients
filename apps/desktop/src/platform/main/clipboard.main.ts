@@ -9,14 +9,7 @@ export class ClipboardMain {
 
   init() {
     app.on("before-quit", async () => {
-      if (this.lastSavedValue == null) {
-        return;
-      }
-
-      const clipboardNow = await clipboards.read();
-      if (clipboardNow == this.lastSavedValue) {
-        await clipboards.write("", false);
-      }
+      await this.clearIfUnchanged();
     });
 
     ipcMain.handle("clipboard.read", async (_event: any, _message: any) => {
@@ -27,5 +20,20 @@ export class ClipboardMain {
       this.lastSavedValue = message.text;
       return await clipboards.write(message.text, message.password ?? false);
     });
+  }
+
+  /**
+   * Clears the clipboard if it still holds the last value Bitwarden wrote. The renderer owns the
+   * delayed clear, so this runs whenever the renderer goes away: on quit, and on teardown.
+   */
+  async clearIfUnchanged(): Promise<void> {
+    if (this.lastSavedValue == null) {
+      return;
+    }
+
+    const clipboardNow = await clipboards.read();
+    if (clipboardNow == this.lastSavedValue) {
+      await clipboards.write("", false);
+    }
   }
 }

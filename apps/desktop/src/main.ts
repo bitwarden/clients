@@ -4,7 +4,7 @@ import "core-js/proposals/explicit-resource-management";
 
 import * as path from "path";
 
-import { app } from "electron";
+import { app, BrowserWindow } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -36,7 +36,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
-import { FlightRecorderClient } from "@bitwarden/sdk-internal";
+import { FlightRecorderClient, ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -46,6 +46,7 @@ import {
   DefaultStateProvider,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
+import { UserId } from "@bitwarden/user-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
@@ -53,14 +54,18 @@ import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-auto
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { BiometricsUnlockDriver } from "./key-management/biometrics/biometrics-unlock.driver";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
+import { HeadlessVaultTimeoutMain } from "./key-management/session-timeout/headless-vault-timeout.main";
+import { MainKeyManagementIpcListener } from "./key-management/unlock/main-key-management-ipc.listener";
 import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { RendererTeardownMain } from "./main/renderer-teardown.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { OnePasswordSsoMain } from "./main/tools/import/onepassword-sso.main";
@@ -72,6 +77,7 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { MainSdkService } from "./platform/main/main-sdk.service";
+import { MainSecureStorageService } from "./platform/main/main-secure-storage.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -83,6 +89,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
+import { MainServiceContainer } from "./services/main-service-container";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -122,6 +129,8 @@ export class Main {
   ipcService: IpcService;
   /** Read-only: main must not write policy state, the renderer would not observe it. */
   policyService: PolicyService;
+  serviceContainer: MainServiceContainer;
+  headlessVaultTimeout: HeadlessVaultTimeoutMain;
 
   constructor() {
     // Set paths for portable builds
@@ -161,19 +170,10 @@ export class Main {
       (error) => this.logService.error("Failed to write the storage file, will retry", error),
     );
 
-    // Main has no ConfigService, so it reads the cached server configs straight from the store.
-    let flightRecorderEnabled = false;
-    try {
-      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
-        string,
-        { featureStates?: Record<string, unknown> }
-      >;
-      flightRecorderEnabled = Object.values(configs).some(
-        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
-      );
-    } catch {
-      // Ignore errors
-    }
+    const flightRecorderEnabled = cachedFlagEnabled(
+      storageBackend,
+      FeatureFlag.PM30935_FlightRecorderTsLogging,
+    );
     const flightRecorder = new FlightRecorderLogRecorder(
       SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
@@ -182,6 +182,7 @@ export class Main {
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
 
     this.storageService = new ElectronStorageService(storageBackend);
+    const secureStorageService = new MainSecureStorageService(app.getName());
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -268,7 +269,7 @@ export class Main {
       this.desktopSettingsService,
       this.shell,
       (arg) => this.processDeepLink(arg),
-      (win) => this.trayMain.setupWindowListeners(win),
+      (win) => this.setupWindowListeners(win),
       () => this.trayMain.restoreFromTray(),
     );
 
@@ -294,14 +295,6 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
-    );
-
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -324,14 +317,6 @@ export class Main {
       this.desktopSettingsService,
       this.versionMain,
       this.shell,
-    );
-
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -360,12 +345,67 @@ export class Main {
       this.windowMain,
     );
 
+    this.serviceContainer = new MainServiceContainer(
+      this.logService,
+      this.i18nService,
+      this.storageService,
+      secureStorageService,
+      storageServiceProvider,
+      singleUserStateProvider,
+      globalStateProvider,
+      stateProvider,
+      accountService,
+      this.environmentService,
+      this.messagingService,
+      this.biometricsService,
+      biometricStateService,
+      this.ipcService,
+      this.sharedUnlockSettingsService,
+      this.shell,
+      this.policyService,
+    );
+
+    new MainKeyManagementIpcListener(
+      this.serviceContainer.unlockService,
+      this.serviceContainer.keyService,
+      accountService,
+      this.serviceContainer.stateProvider,
+      this.logService,
+    ).init();
+
+    this.headlessVaultTimeout = new HeadlessVaultTimeoutMain(
+      this.windowMain,
+      this.serviceContainer.vaultTimeoutService,
+      this.serviceContainer.vaultTimeoutSettingsService,
+      accountService,
+      this.serviceContainer.lockService,
+      this.logService,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
-    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
+      this.createRendererTeardown(storageBackend),
+    );
+
+    this.sshAgentService = new MainSshAgentService(
+      this.logService,
+      this.messagingService,
+      this.serviceContainer.cipherService,
+      this.serviceContainer.authService,
+      accountService,
+      this.desktopSettingsService,
+      this.i18nService,
+      this.windowMain,
+    );
 
     new EphemeralValueStorageService();
 
@@ -393,8 +433,10 @@ export class Main {
     );
 
     app.on("will-quit", () => {
+      this.headlessVaultTimeout.dispose();
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
+      this.sshAgentService.dispose();
       this.storageService.dispose();
     });
   }
@@ -421,7 +463,16 @@ export class Main {
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
 
+        // The browser extension and the CLI reach the desktop app over native messaging, and their
+        // messages are answered by main's client. The renderer's own biometrics handlers are not on
+        // that path (the renderer is not even alive when it is headless), so main answers them.
+        await ipcRegisterBiometricsHandlers(
+          this.ipcService.client,
+          new BiometricsUnlockDriver(this.biometricsService, this.serviceContainer.unlockService),
+        );
+
         await this.windowMain.init(showWindow);
+        this.headlessVaultTimeout.init();
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -489,18 +540,67 @@ export class Main {
           this.processDeepLink([url]);
         });
 
-        // Handle window visibility events
-        this.windowMain.win.on("hide", () => {
-          this.messagingService.send("windowHidden");
-        });
-        this.windowMain.win.on("minimize", () => {
-          this.messagingService.send("windowHidden");
-        });
+        // Main owns the SSH agent; it signs with main's vault, with or without a renderer.
+        this.sshAgentService.init();
+
+        // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+        await this.biometricsService.setUnlockService(this.serviceContainer.unlockService);
+        await this.serviceContainer.sharedUnlockPeerService.start();
+
+        // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
+        // A failure leaves that account locked rather than failing startup for the others.
+        const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
+        await Promise.all(
+          (Object.keys(accounts) as UserId[]).map(async (userId) => {
+            try {
+              await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
+            } catch (e) {
+              this.logService.error("[Main] Failed to auto-unlock user on startup", e);
+            }
+          }),
+        );
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
       },
     );
+  }
+
+  /**
+   * Features below answer through the renderer until main owns them, so each keeps it alive.
+   * Services are read lazily: most are constructed after the tray.
+   */
+  private createRendererTeardown(storageBackend: CachedBackend): RendererTeardownMain {
+    let ddgEnabled = false;
+    this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
+      ddgEnabled = enabled;
+    });
+
+    return new RendererTeardownMain(
+      cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
+      [
+        { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
+        { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
+        { name: "duckduckgo", active: () => ddgEnabled },
+        // Logout cleanup runs in the renderer, so main can only lock on timeout.
+        { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
+      ],
+      this.windowMain,
+      this.clipboardMain,
+      this.logService,
+    );
+  }
+
+  /** Runs for every window, so a recreated window gets the same listeners as the first. */
+  private setupWindowListeners(win: BrowserWindow): void {
+    this.trayMain.setupWindowListeners(win);
+
+    win.on("hide", () => {
+      this.messagingService.send("windowHidden");
+    });
+    win.on("minimize", () => {
+      this.messagingService.send("windowHidden");
+    });
   }
 
   private processDeepLink(argv: string[]): void {
@@ -533,5 +633,21 @@ export class Main {
         app.disableHardwareAcceleration();
       }
     }
+  }
+}
+
+/**
+ * Whether any cached server config enables `flag`. Main has no ConfigService, so it reads the
+ * configs the renderer stored.
+ */
+function cachedFlagEnabled(storageBackend: CachedBackend, flag: FeatureFlag): boolean {
+  try {
+    const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+      string,
+      { featureStates?: Record<string, unknown> }
+    >;
+    return Object.values(configs).some((config) => config?.featureStates?.[flag] === true);
+  } catch {
+    return false;
   }
 }

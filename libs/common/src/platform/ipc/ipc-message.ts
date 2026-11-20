@@ -54,6 +54,13 @@ export const DesktopIpcPeerClientType = Object.freeze({
 export type DesktopIpcPeerClientType =
   (typeof DesktopIpcPeerClientType)[keyof typeof DesktopIpcPeerClientType];
 
+/** Browsers whose extension connects to the desktop app and are shown in Settings. */
+export const SupportedBrowser = Object.freeze({
+  Chrome: DesktopIpcPeerClientType.Chrome,
+  Firefox: DesktopIpcPeerClientType.Firefox,
+} as const);
+export type SupportedBrowser = (typeof SupportedBrowser)[keyof typeof SupportedBrowser];
+
 export function isIpcPeerClientType(value: unknown): value is DesktopIpcPeerClientType {
   return Object.values(DesktopIpcPeerClientType).includes(value as DesktopIpcPeerClientType);
 }

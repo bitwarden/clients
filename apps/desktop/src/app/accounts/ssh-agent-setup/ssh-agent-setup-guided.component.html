@@ -1,0 +1,50 @@
+<p bitTypography="body2" class="tw-mb-3" data-testid="ssh-agent-setup-guided-reason">
+  {{ reasonKey() | i18n }} {{ "sshAgentSetupGuidedDescVfo1" | i18n }}
+</p>
+
+@if (windows()) {
+  <bit-callout
+    type="info"
+    [title]="null"
+    class="tw-mb-3 tw-block"
+    data-testid="ssh-agent-setup-windows-note"
+  >
+    {{ "sshAgentSetupWindowsAdminNoteVfo1" | i18n }}
+  </bit-callout>
+}
+
+<ol class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-3 tw-p-0">
+  @for (row of rows(); track row.id; let i = $index) {
+    <li
+      class="tw-rounded-lg tw-border tw-border-solid tw-border-border-base tw-p-4"
+      [attr.data-testid]="'ssh-agent-setup-command-' + row.id"
+    >
+      <p
+        bitTypography="body2"
+        class="tw-mb-2 tw-font-medium tw-text-fg-heading"
+        [id]="'ssh-agent-setup-guided_text_command-' + row.id"
+      >
+        {{ i + 1 }}. {{ row.descriptionKey | i18n }}
+      </p>
+      <div class="tw-flex tw-items-start tw-gap-2">
+        <pre
+          class="tw-m-0 tw-min-w-0 tw-flex-1 tw-overflow-x-auto tw-rounded-md tw-bg-bg-secondary tw-p-3 tw-font-mono tw-text-xs tw-text-fg-body"
+        ><code>{{ row.command }}</code></pre>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          startIcon="bwi-clone"
+          showToast
+          [id]="'ssh-agent-setup-guided_button_copy-' + row.id"
+          [appCopyClick]="row.command"
+          [valueLabel]="'sshAgentSetupCommandVfo1' | i18n"
+          [attr.aria-describedby]="'ssh-agent-setup-guided_text_command-' + row.id"
+        >
+          {{ "copy" | i18n }}
+        </button>
+      </div>
+    </li>
+  }
+</ol>

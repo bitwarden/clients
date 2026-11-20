@@ -78,6 +78,7 @@ import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component
 import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
+import { SettingsComponent } from "./accounts/settings.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
 import { ImportShellDesktopComponent } from "./tools/import/import-shell-desktop.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
@@ -568,6 +569,18 @@ export const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "settings",
+        // TODO: PM-46733 - remove canMatch and the legacy settings dialog once vfo1-foundation is removed
+        canMatch: [
+          () =>
+            inject(ConfigService)
+              .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+              .pipe(map((flagValue) => flagValue === true)),
+        ],
+        component: SettingsComponent,
+        data: { pageTitle: { key: "settings" } } satisfies RouteDataProperties,
       },
       {
         path: "import",

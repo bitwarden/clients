@@ -2,7 +2,7 @@ import { ipcRenderer, IpcRendererEvent } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
-import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
+import { ForwardedIpcMessage, IpcMessage, SupportedBrowser } from "@bitwarden/common/platform/ipc";
 import { Message as PlatformMessage } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
@@ -77,6 +77,14 @@ const nativeMessaging = {
   },
   onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
     ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
+  },
+
+  connectedBrowsers: (): Promise<SupportedBrowser[]> =>
+    ipcRenderer.invoke("nativeMessaging.connectedBrowsers"),
+  onConnectedBrowsersChanged: (callback: (browsers: SupportedBrowser[]) => void) => {
+    ipcRenderer.on("nativeMessaging.connectedBrowsersChanged", (_event, browsers) =>
+      callback(browsers),
+    );
   },
 
   manifests: {

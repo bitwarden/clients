@@ -1,0 +1,426 @@
+<bit-dialog dialogSize="large" data-testid="ssh-agent-setup-dialog" [attr.data-view]="view()">
+  <span bitDialogTitle>{{ "sshAgentSetupTitleVfo1" | i18n }}</span>
+
+  <div bitDialogContent>
+    <div class="tw-min-h-60">
+      @switch (view()) {
+        @case (View.Loading) {
+          <bit-spinner-lockup orientation="vertical" class="tw-block tw-py-12">
+            <span
+              slot="title"
+              tabindex="-1"
+              class="focus:tw-outline-none"
+              id="ssh-agent-setup_text_loading"
+              data-view-heading
+              data-testid="ssh-agent-setup-loading"
+            >
+              {{ "loading" | i18n }}
+            </span>
+          </bit-spinner-lockup>
+        }
+        @case (View.Intro) {
+          <div data-testid="ssh-agent-setup-intro">
+            <img
+              class="tw-w-full tw-rounded-lg"
+              [src]="introLightImgSrc"
+              [appDarkImgSrc]="introDarkImgSrc"
+              alt=""
+              aria-hidden="true"
+            />
+            <p
+              bitTypography="body1"
+              noMargin
+              tabindex="-1"
+              class="tw-mt-4 tw-text-fg-body-subtle focus:tw-outline-none"
+              id="ssh-agent-setup_text_intro"
+              data-view-heading
+              data-testid="ssh-agent-setup-intro-text"
+            >
+              {{
+                (guided() ? "sshAgentSetupIntroDescGuidedVfo1" : "sshAgentSetupIntroDescVfo1")
+                  | i18n
+              }}
+            </p>
+          </div>
+        }
+        @case (View.LoadError) {
+          <bit-callout
+            type="danger"
+            [title]="'sshAgentSetupLoadErrorTitleVfo7' | i18n"
+            tabindex="-1"
+            class="tw-block focus:tw-outline-none [&>aside]:!tw-mb-0"
+            id="ssh-agent-setup_text_load-error"
+            data-view-heading
+            data-testid="ssh-agent-setup-load-error"
+          >
+            {{ "sshAgentSetupLoadErrorDescVfo7" | i18n }}
+          </bit-callout>
+        }
+        @case (View.AgentProblem) {
+          @if (agentProblem(); as problem) {
+            <bit-callout
+              [type]="problem.severity"
+              [title]="problem.titleKey | i18n"
+              tabindex="-1"
+              class="tw-block focus:tw-outline-none [&>aside]:!tw-mb-0"
+              id="ssh-agent-setup_text_agent-problem"
+              data-view-heading
+              data-testid="ssh-agent-setup-agent-problem"
+              [attr.data-severity]="problem.severity"
+            >
+              <p class="tw-m-0">{{ problem.descKey | i18n }}</p>
+              @if (problem.details; as detail) {
+                <app-ssh-agent-setup-details [lines]="[detail]" scope="agent" />
+              }
+            </bit-callout>
+          }
+        }
+        @case (View.Choose) {
+          <div class="tw-flex tw-flex-col tw-gap-4" data-testid="ssh-agent-setup-choose">
+            <p
+              bitTypography="body1"
+              noMargin
+              tabindex="-1"
+              class="tw-text-fg-heading focus:tw-outline-none"
+              id="ssh-agent-setup_text_choose"
+              data-view-heading
+            >
+              {{
+                (guided() ? "sshAgentSetupChooseLeadGuidedVfo7" : "sshAgentSetupChooseLeadVfo7")
+                  | i18n
+              }}
+            </p>
+
+            @if (guided() && environment(); as environment) {
+              <app-ssh-agent-setup-guided
+                [environment]="environment"
+                [commands]="plan()?.guidedCommands ?? []"
+              />
+            } @else {
+              @if (hasConflict()) {
+                <form [formGroup]="choiceForm" data-testid="ssh-agent-setup-choice">
+                  <bit-radio-group formControlName="agent" [block]="true" class="!tw-mb-0">
+                    <bit-label>{{ "sshAgentSetupChoiceLabelVfo7" | i18n }}</bit-label>
+
+                    <bit-form-control disableMargin>
+                      <input
+                        type="radio"
+                        bitRadio
+                        id="ssh-agent-setup_radio_bitwarden"
+                        [value]="Choice.Bitwarden"
+                      />
+                      <bit-label>{{ "sshAgentSetupChoiceBitwardenVfo7" | i18n }}</bit-label>
+                      <bit-hint>{{ "sshAgentSetupChoiceBitwardenHintVfo7" | i18n }}</bit-hint>
+                    </bit-form-control>
+
+                    <bit-form-control disableMargin>
+                      <input
+                        type="radio"
+                        bitRadio
+                        id="ssh-agent-setup_radio_current"
+                        [value]="Choice.Current"
+                      />
+                      <bit-label>{{ "sshAgentSetupChoiceCurrentVfo7" | i18n }}</bit-label>
+                      <bit-hint>{{ "sshAgentSetupChoiceCurrentHintVfo7" | i18n }}</bit-hint>
+                    </bit-form-control>
+                  </bit-radio-group>
+                </form>
+              }
+
+              @if (applyFailed()) {
+                <bit-callout
+                  type="danger"
+                  [title]="'sshAgentSetupIncompleteTitleVfo7' | i18n"
+                  class="tw-block [&>aside]:!tw-mb-0"
+                  data-testid="ssh-agent-setup-apply-failed"
+                >
+                  {{ "sshAgentSetupIncompleteDescVfo7" | i18n }}
+                </bit-callout>
+              }
+
+              <app-ssh-agent-setup-preview
+                [steps]="plan()?.steps ?? []"
+                [selectedStepIds]="selectedStepIds()"
+                [results]="applyResults()"
+              />
+
+              @if (showNothingToChangeHint()) {
+                <p
+                  bitTypography="helper"
+                  noMargin
+                  class="tw-text-fg-body-subtle"
+                  id="ssh-agent-setup_text_nothing-to-set-up"
+                  data-testid="ssh-agent-setup-nothing-to-set-up"
+                >
+                  {{ "sshAgentSetupNothingToChangeVfo7" | i18n }}
+                </p>
+              }
+            }
+          </div>
+        }
+        @case (View.Applying) {
+          <app-ssh-agent-setup-verify [phase]="busyPhase()" />
+        }
+        @case (View.Result) {
+          <app-ssh-agent-setup-verify
+            phase="result"
+            [view]="resultView()"
+            [failed]="verifyThrew()"
+          />
+        }
+      }
+    </div>
+  </div>
+
+  <ng-container bitDialogFooter>
+    @switch (view()) {
+      @case (View.Loading) {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          id="ssh-agent-setup_button_cancel"
+          (click)="close()"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      }
+      @case (View.Intro) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          endIcon="bwi-arrow-right"
+          id="ssh-agent-setup_button_intro-set-up"
+          cdkFocusInitial
+          (click)="startSetup()"
+        >
+          {{ "sshAgentSetupSetUpButtonVfo1" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          endIcon="bwi-external-link"
+          id="ssh-agent-setup_button_intro-learn-more"
+          (click)="openHelp()"
+        >
+          {{ "learnMore" | i18n }}
+        </button>
+      }
+      @case (View.LoadError) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="ssh-agent-setup_button_retry-load"
+          cdkFocusInitial
+          (click)="load()"
+        >
+          {{ "tryAgain" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          id="ssh-agent-setup_button_close"
+          (click)="close()"
+        >
+          {{ "close" | i18n }}
+        </button>
+      }
+      @case (View.AgentProblem) {
+        @if (agentProblem()?.primaryAction === "try-again") {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_retry-agent"
+            cdkFocusInitial
+            [loading]="checkingAgent()"
+            (click)="recheckAgent()"
+          >
+            {{ "tryAgain" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="ssh-agent-setup_button_close"
+            (click)="close()"
+          >
+            {{ "close" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_close"
+            cdkFocusInitial
+            (click)="close()"
+          >
+            {{ "close" | i18n }}
+          </button>
+        }
+      }
+      @case (View.Choose) {
+        @if (guided()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_continue-connect"
+            cdkFocusInitial
+            (click)="confirmGuided()"
+          >
+            {{ "sshAgentSetupRanStepsButtonVfo7" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            [id]="
+              nothingToChange() ? 'ssh-agent-setup_button_done' : 'ssh-agent-setup_button_apply'
+            "
+            cdkFocusInitial
+            [attr.aria-describedby]="
+              showNothingToChangeHint() ? 'ssh-agent-setup_text_nothing-to-set-up' : null
+            "
+            (click)="primary()"
+          >
+            {{
+              (nothingToChange()
+                ? "done"
+                : retryApply()
+                  ? "tryAgain"
+                  : "sshAgentSetupDialogSetUpButtonVfo7"
+              ) | i18n
+            }}
+          </button>
+        }
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          id="ssh-agent-setup_button_cancel"
+          (click)="close()"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      }
+      @case (View.Applying) {
+        @if (busyPhase() === "applying") {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_apply"
+            [loading]="true"
+            [disabled]="true"
+            aria-busy="true"
+          >
+            {{ "sshAgentSetupApplyingVfo7" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="ssh-agent-setup_button_cancel"
+            [disabled]="true"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_check-again"
+            [loading]="true"
+            [disabled]="true"
+            aria-busy="true"
+          >
+            {{ "sshAgentSetupCheckingVfo7" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="ssh-agent-setup_button_close"
+            [disabled]="true"
+          >
+            {{ "close" | i18n }}
+          </button>
+        }
+      }
+      @case (View.Result) {
+        @let rv = resultView();
+        @if (rv.success) {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_done"
+            cdkFocusInitial
+            (click)="close()"
+          >
+            {{ "done" | i18n }}
+          </button>
+        } @else if (rv.action === "check-again") {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_check-again"
+            cdkFocusInitial
+            (click)="runVerify()"
+          >
+            {{ "sshAgentSetupCheckAgainVfo7" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="ssh-agent-setup_button_close"
+            (click)="close()"
+          >
+            {{ "close" | i18n }}
+          </button>
+        } @else if (rv.action === "change-setup") {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_change-setup"
+            cdkFocusInitial
+            (click)="changeSetup()"
+          >
+            {{ "sshAgentSetupChangeSetupButtonVfo7" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="ssh-agent-setup_button_close"
+            (click)="close()"
+          >
+            {{ "close" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="ssh-agent-setup_button_close"
+            cdkFocusInitial
+            (click)="close()"
+          >
+            {{ "close" | i18n }}
+          </button>
+        }
+      }
+    }
+  </ng-container>
+</bit-dialog>

@@ -28,7 +28,7 @@ ssh-key = { version = "=0.6.7", features = [
 ] }
 sysinfo = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync"] }
+tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync", "time"] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
 
@@ -39,7 +39,10 @@ libc = { workspace = true }
 [target.'cfg(windows)'.dependencies]
 windows = { workspace = true, features = [
     "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
     "Win32_System_Pipes",
+    "Win32_System_Threading",
 ] }
 
 [target.'cfg(unix)'.dev-dependencies]

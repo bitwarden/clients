@@ -1,0 +1,1092 @@
+import { Location, NgTemplateOutlet } from "@angular/common";
+import {
+  Component,
+  DestroyRef,
+  Injector,
+  OnInit,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { Router, RouterModule } from "@angular/router";
+import { BehaviorSubject, EMPTY, firstValueFrom, from, fromEvent } from "rxjs";
+import { catchError, concatMap, filter, map, switchMap, timeout } from "rxjs/operators";
+
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import {
+  AutotypeShortcutComponent,
+  formatAutotypeShortcut,
+} from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
+import { DuckDuckGoIcon } from "@bitwarden/assets/svg";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
+import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
+import { DeviceType } from "@bitwarden/common/enums";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { SupportedBrowser } from "@bitwarden/common/platform/ipc";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
+import {
+  BadgeComponent,
+  ButtonModule,
+  CalloutModule,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  IconModule,
+  LinkModule,
+  Option,
+  PageComponent,
+  SegmentedCardComponent,
+  SelectModule,
+  SvgComponent,
+  SwitchComponent,
+  TypographyModule,
+} from "@bitwarden/components";
+import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { AutoUnlockService } from "@bitwarden/unlock";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
+
+import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import {
+  DesktopAutofillService,
+  PasskeyProviderState,
+} from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { DesktopHeaderComponent } from "../layout/header/desktop-header.component";
+import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
+
+import {
+  clearSettingsRowHighlight,
+  revealSettingsRow,
+} from "./settings-search/reveal-settings-row";
+import {
+  SettingsSearchComponent,
+  SettingsSearchSelection,
+} from "./settings-search/settings-search.component";
+import {
+  SETTINGS_SEARCH_ENTRIES,
+  SettingsSearchEntry,
+  SettingsSearchEntryId,
+  withSettingsSearchOverrides,
+} from "./settings-search/settings-search.registry";
+import { SshAgentSetupStatusComponent } from "./ssh-agent-setup/ssh-agent-setup-status.component";
+
+type SettingsPage = "security" | "vault" | "general" | "integrations" | "advanced";
+
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  templateUrl: "settings.component.html",
+  standalone: true,
+  providers: [
+    {
+      provide: PremiumUpgradePromptService,
+      useClass: DesktopPremiumUpgradePromptService,
+    },
+  ],
+  imports: [
+    BadgeComponent,
+    ButtonModule,
+    CalloutModule,
+    DialogModule,
+    FormFieldModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IconButtonModule,
+    IconModule,
+    I18nPipe,
+    LinkModule,
+    NgTemplateOutlet,
+    PageComponent,
+    DesktopHeaderComponent,
+    RouterModule,
+    SegmentedCardComponent,
+    SelectModule,
+    SettingsSearchComponent,
+    SshAgentSetupStatusComponent,
+    SvgComponent,
+    SwitchComponent,
+    TypographyModule,
+    SessionTimeoutSettingsComponent,
+    PermitCipherDetailsPopoverComponent,
+    PremiumBadgeComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
+  ],
+})
+export class SettingsComponent implements OnInit {
+  protected readonly accountPages = [
+    { id: "security", labelKey: "security", icon: "bwi-lock" },
+    { id: "vault", labelKey: "vault", icon: "bwi-vault" },
+  ] as const;
+  protected readonly appPages = [
+    { id: "general", labelKey: "general", icon: "bwi-cog" },
+    { id: "integrations", labelKey: "integrationsHeader", icon: "bwi-puzzle" },
+    { id: "advanced", labelKey: "advancedHeader", icon: "bwi-sliders" },
+  ] as const;
+  protected readonly page = signal<SettingsPage>("security");
+
+  protected readonly searchEntries: readonly SettingsSearchEntry[];
+
+  protected readonly isSearchVisible = (id: SettingsSearchEntryId): boolean => {
+    const value = this.form.value;
+    switch (id) {
+      case "unlockWithPin":
+        return !!(this.pinEnabled() || value.pin);
+      case "pinLockWithMasterPassword":
+        return !!value.pin;
+      case "unlockWithBiometrics":
+        return this.supportsBiometric();
+      case "requireMasterPasswordOnAppRestart":
+        return (
+          this.supportsBiometric() &&
+          !!value.biometric &&
+          (this.isWindows || this.isLinux) &&
+          !!(this.userHasMasterPassword() || (value.pin && this.userHasPinSet()))
+        );
+      case "autoPromptBiometrics":
+        return this.supportsBiometric() && !!value.biometric && this.isMac;
+      case "openAtLogin":
+        return this.showOpenAtLoginOption;
+      case "sshAgentPromptBehavior":
+        return !!value.enableSshAgent;
+      case "duckDuckGoBrowserIntegration":
+        return this.showDuckDuckGoIntegrationOption;
+      case "passkeyProvider":
+        return this.showPasskeyProviderSetting();
+      case "autotype":
+        return this.showEnableAutotype();
+      case "autotypeGa":
+        return this.showEnableAutotypeGa();
+      case "allowScreenshots":
+        return !this.isLinux;
+      default:
+        return true;
+    }
+  };
+
+  protected onSearchSelected({ entry, viaKeyboard }: SettingsSearchSelection) {
+    this.page.set(entry.page);
+    // Hidden pages cannot take focus, so wait for the page to render first.
+    afterNextRender(
+      () => {
+        if (!revealSettingsRow(entry.rowId, { focusVisible: viaKeyboard })) {
+          document.getElementById(`settings-heading-${entry.page}`)?.focus();
+        }
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private readonly injector = inject(Injector);
+  // Cancels a pending search-result highlight timer when the settings view closes.
+  private readonly clearRowHighlightOnDestroy =
+    inject(DestroyRef).onDestroy(clearSettingsRowHighlight);
+
+  protected selectPage(id: SettingsPage) {
+    this.page.set(id);
+    afterNextRender(
+      () => {
+        document.getElementById(`settings-heading-${id}`)?.focus();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private readonly accountService = inject(AccountService);
+  private readonly policyService = inject(PolicyService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
+  private readonly stateService = inject(StateService);
+  private readonly autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
+  private readonly messagingService = inject(MessagingService);
+  private readonly keyService = inject(KeyService);
+  private readonly autoUnlockService = inject(AutoUnlockService);
+  private readonly themeStateService = inject(ThemeStateService);
+  private readonly domainSettingsService = inject(DomainSettingsService);
+  private readonly dialogService = inject(DialogService);
+  private readonly userVerificationService = inject(UserVerificationServiceAbstraction);
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly desktopAutotypeMvpService = inject(DesktopAutotypeMvpService);
+  private readonly desktopAutotypeService = inject(DesktopAutotypeService);
+  private readonly biometricStateService = inject(BiometricStateService);
+  private readonly biometricsService = inject(DesktopBiometricsService);
+  private readonly desktopAutofillSettingsService = inject(DesktopAutofillSettingsService);
+  private readonly desktopAutofillService = inject(DesktopAutofillService);
+  private readonly pinService = inject(PinServiceAbstraction);
+  private readonly logService = inject(LogService);
+  private readonly nativeMessagingManifestService = inject(NativeMessagingManifestService);
+  private readonly configService = inject(ConfigService);
+  private readonly validationService = inject(ValidationService);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
+
+  protected readonly localeOptions: Option<string>[];
+  protected readonly themeOptions: Option<string>[];
+  protected readonly clearClipboardOptions: Option<string>[];
+  protected readonly sshAgentPromptBehaviorOptions: Option<string>[];
+
+  protected readonly isWindows: boolean;
+  protected readonly isLinux: boolean;
+  protected readonly isMac: boolean;
+  protected readonly showOpenAtLoginOption: boolean;
+  protected readonly showDuckDuckGoIntegrationOption: boolean;
+  protected readonly duckDuckGoIcon = DuckDuckGoIcon;
+  protected readonly connectedBrowsers = signal<SupportedBrowser[]>([]);
+  protected readonly browsers: readonly {
+    id: SupportedBrowser;
+    labelKey: string;
+    device: DeviceType;
+  }[] = [
+    { id: SupportedBrowser.Chrome, labelKey: "browserChrome", device: DeviceType.ChromeBrowser },
+    { id: SupportedBrowser.Firefox, labelKey: "browserFirefox", device: DeviceType.FirefoxBrowser },
+  ];
+  protected readonly runInBackgroundText: string;
+  protected readonly runInBackgroundDescText: string;
+
+  protected readonly supportsBiometric = signal(false);
+  protected readonly showEnableAutotype = signal(false);
+  protected readonly showEnableAutotypeGa = signal(false);
+  protected readonly passkeyProviderState = signal<PasskeyProviderState | undefined>(undefined);
+  protected readonly showPasskeyProviderSetting = computed(
+    () => this.passkeyProviderState()?.registered === true,
+  );
+  private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
+    requireSync: true,
+  });
+  protected readonly currentUserEmail = computed(() => this.activeAccount()?.email);
+  protected readonly currentUserId = computed(() => {
+    const account = this.activeAccount();
+    if (account == null) {
+      throw new Error("No active account");
+    }
+    return account.id;
+  });
+
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  /** True when an earlier in-app navigation exists, so history.back() stays inside the app. */
+  private readonly cameFromApp = !!this.router.currentNavigation()?.previousNavigation;
+
+  protected async close() {
+    if (this.cameFromApp) {
+      this.location.back();
+    } else {
+      await this.router.navigate(["/vault"]);
+    }
+  }
+
+  private readonly syncService = inject(SyncService);
+  protected readonly syncing = signal(false);
+  private readonly lastSync = toSignal(
+    toObservable(this.currentUserId).pipe(switchMap((id) => this.syncService.lastSync$(id))),
+    { initialValue: null },
+  );
+  protected readonly lastSyncText = computed(() => {
+    const last = this.lastSync();
+    return last
+      ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(last)
+      : this.i18nService.t("never");
+  });
+
+  protected async syncNow() {
+    this.syncing.set(true);
+    try {
+      await this.syncService.fullSync(true, true);
+      this.platformUtilsService.showToast("success", "", this.i18nService.t("syncingComplete"));
+    } catch {
+      this.platformUtilsService.showToast("error", "", this.i18nService.t("syncingFailed"));
+    } finally {
+      this.syncing.set(false);
+    }
+  }
+  protected readonly userHasMasterPassword = signal(false);
+  protected readonly userHasPinSet = signal(false);
+
+  protected readonly pinEnabled = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
+      map((policy) => policy == null || !policy.enabled),
+    ),
+    { initialValue: true },
+  );
+  protected readonly refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
+
+  protected readonly form = this.formBuilder.nonNullable.group({
+    pin: false,
+    pinLockWithMasterPassword: false,
+    biometric: false,
+    requireMasterPasswordOnAppRestart: true,
+    autoPromptBiometrics: false,
+    clearClipboard: [null as ClearClipboardDelaySetting | null],
+    minimizeOnCopyToClipboard: false,
+    enableFavicons: false,
+    showQuickCopyActions: false,
+    runInBackground: false,
+    openAtLogin: false,
+    enableHardwareAcceleration: true,
+    enableSshAgent: false,
+    sshAgentPromptBehavior: SshAgentPromptType.Always,
+    allowScreenshots: false,
+    enableDuckDuckGoBrowserIntegration: false,
+    enableAutotype: this.formBuilder.nonNullable.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
+    autotypeShortcut: [null as string | null],
+    enableAutotypeGa: this.formBuilder.nonNullable.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
+    autotypeGaShortcut: [null as string | null],
+    theme: [null as Theme | null],
+    locale: [null as string | null],
+  });
+
+  constructor() {
+    this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
+    this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
+
+    this.runInBackgroundText = this.i18nService.t("runInBackground");
+    this.runInBackgroundDescText = this.i18nService.t(
+      this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+    );
+
+    this.showOpenAtLoginOption = this.showAutostartSetting();
+
+    // DuckDuckGo browser is only for macos initially
+    this.showDuckDuckGoIntegrationOption = this.isMac;
+
+    this.searchEntries = withSettingsSearchOverrides(SETTINGS_SEARCH_ENTRIES, {
+      unlockWithBiometrics:
+        this.isMac || this.isWindows || this.isLinux ? { labelKey: this.biometricText } : {},
+      runInBackground: {
+        descriptionKey: this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+      },
+    });
+
+    const localeOptions: (Option<string> & { label: string })[] = [];
+    this.i18nService.supportedTranslationLocales.forEach((locale) => {
+      let name = locale;
+      if (this.i18nService.localeNames.has(locale)) {
+        name += " - " + this.i18nService.localeNames.get(locale);
+      }
+      localeOptions.push({ label: name, value: locale });
+    });
+    localeOptions.sort(Utils.getSortFunction(this.i18nService, "label"));
+    localeOptions.splice(0, 0, { label: this.i18nService.t("default"), value: null });
+    this.localeOptions = localeOptions;
+
+    this.themeOptions = [
+      { label: this.i18nService.t("default"), value: ThemeTypes.System },
+      { label: this.i18nService.t("light"), value: ThemeTypes.Light },
+      { label: this.i18nService.t("dark"), value: ThemeTypes.Dark },
+    ];
+
+    this.clearClipboardOptions = [
+      { label: this.i18nService.t("never"), value: ClearClipboardDelay.Never },
+      { label: this.i18nService.t("tenSeconds"), value: ClearClipboardDelay.TenSeconds },
+      { label: this.i18nService.t("twentySeconds"), value: ClearClipboardDelay.TwentySeconds },
+      { label: this.i18nService.t("thirtySeconds"), value: ClearClipboardDelay.ThirtySeconds },
+      { label: this.i18nService.t("oneMinute"), value: ClearClipboardDelay.OneMinute },
+      { label: this.i18nService.t("twoMinutes"), value: ClearClipboardDelay.TwoMinutes },
+      { label: this.i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
+    ];
+    this.sshAgentPromptBehaviorOptions = [
+      {
+        label: this.i18nService.t("sshAgentPromptBehaviorAlways"),
+        value: SshAgentPromptType.Always,
+      },
+      { label: this.i18nService.t("sshAgentPromptBehaviorNever"), value: SshAgentPromptType.Never },
+      {
+        label: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
+        value: SshAgentPromptType.RememberUntilLock,
+      },
+    ];
+  }
+
+  async ngOnInit() {
+    void this.loadPasskeyProviderSetting();
+
+    // Autotype is for Windows initially
+    if (this.isWindows) {
+      autotypeFeatureFlagState$(this.configService)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((state) => {
+          this.showEnableAutotype.set(state === AutotypeFeatureFlagState.Mvp);
+          this.showEnableAutotypeGa.set(state === AutotypeFeatureFlagState.Ga);
+        });
+    }
+
+    this.connectedBrowsers.set(await ipc.platform.nativeMessaging.connectedBrowsers());
+    ipc.platform.nativeMessaging.onConnectedBrowsersChanged((browsers) =>
+      this.connectedBrowsers.set(browsers),
+    );
+
+    this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
+
+    this.userHasPinSet.set(await this.pinService.isPinSet(this.currentUserId()));
+
+    const initialValues = {
+      pin: this.userHasPinSet(),
+      pinLockWithMasterPassword: await this.isPinLockedAfterRestart(),
+      biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(this.currentUserId()),
+      requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
+        this.currentUserId(),
+      )),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(this.currentUserId()),
+      ),
+      clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
+      minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
+      enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
+      showQuickCopyActions: await firstValueFrom(
+        this.vaultCopyButtonsService.showQuickCopyActions$,
+      ),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
+      openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
+      enableDuckDuckGoBrowserIntegration: await firstValueFrom(
+        this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+      ),
+      enableHardwareAcceleration: await firstValueFrom(
+        this.desktopSettingsService.hardwareAcceleration$,
+      ),
+      enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
+      sshAgentPromptBehavior: await firstValueFrom(
+        this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
+      allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
+      enableAutotype: await firstValueFrom(
+        this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
+      ),
+      autotypeShortcut: this.getFormattedAutotypeShortcutText(
+        (await firstValueFrom(this.desktopAutotypeMvpService.autotypeKeyboardShortcut$)) ?? [],
+      ),
+      enableAutotypeGa: await firstValueFrom(
+        this.desktopAutotypeService.autotypeEnabledUserSetting$,
+      ),
+      autotypeGaShortcut: this.getFormattedAutotypeShortcutText(
+        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+      ),
+      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
+      locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
+    };
+    this.form.setValue(initialValues, { emitEvent: false });
+
+    if (this.isWindows) {
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(this.currentUserId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((hasPremium) => {
+          if (hasPremium) {
+            this.form.controls.enableAutotype.enable(); // MVP, delete with PM-41067
+            this.form.controls.enableAutotypeGa.enable();
+          }
+        });
+    }
+
+    this.form.controls.pin.valueChanges
+      .pipe(
+        concatMap(async (value) => {
+          await this.updatePinHandler(value);
+          this.refreshTimeoutSettings$.next();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.pinLockWithMasterPassword.valueChanges
+      .pipe(
+        concatMap(async (value) => {
+          await this.updatePinLockHandler(value);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.biometric.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateBiometricHandler(enabled);
+          this.refreshTimeoutSettings$.next();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.requireMasterPasswordOnAppRestart.valueChanges
+      .pipe(
+        concatMap(async (value) => {
+          await this.updateRequireMasterPasswordOnAppRestartHandler(value, this.currentUserId());
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.clearClipboard.valueChanges
+      .pipe(
+        filter((value) => value != null),
+        concatMap(async (value) => this.saveClearClipboard(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.sshAgentPromptBehavior.valueChanges
+      .pipe(
+        concatMap(async (value) => this.saveSshAgentPromptBehavior(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.theme.valueChanges
+      .pipe(
+        filter((value) => value != null),
+        concatMap(async (value) => this.saveTheme(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.locale.valueChanges
+      .pipe(
+        concatMap(async (value) => this.saveLocale(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.supportsBiometric.set(await this.biometricsService.canEnableBiometricUnlock());
+    const timerId = setInterval(async () => {
+      this.supportsBiometric.set(await this.biometricsService.canEnableBiometricUnlock());
+    }, 1000);
+    this.destroyRef.onDestroy(() => clearInterval(timerId));
+  }
+
+  // The PIN requires the master password after an app restart when it is locked "AfterFirstUnlock".
+  private async isPinLockedAfterRestart(): Promise<boolean> {
+    return (await this.pinService.getPinLockType(this.currentUserId())) === "AfterFirstUnlock";
+  }
+
+  private async updatePinLockHandler(requireMasterPassword: boolean) {
+    try {
+      const userId = this.currentUserId();
+      const pin = await this.pinService.getPin(userId);
+      if (pin == null) {
+        throw new Error("Cannot change the PIN lock type without a PIN");
+      }
+
+      await this.pinService.setPin(
+        pin,
+        requireMasterPassword ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+        userId,
+      );
+    } catch (error) {
+      this.logService.error("Error updating PIN lock type: ", error);
+      this.form.controls.pinLockWithMasterPassword.setValue(!requireMasterPassword, {
+        emitEvent: false,
+      });
+      this.validationService.showError(error);
+    }
+  }
+
+  protected async getExtension(browser: { labelKey: string; device: DeviceType }) {
+    const browserName = this.i18nService.t(browser.labelKey);
+    const openStore = await this.dialogService.openSimpleDialog({
+      title: { key: "getBrowserExtensionTitle", placeholders: [browserName] },
+      content: { key: "getBrowserExtensionDesc", placeholders: [browserName] },
+      acceptButtonText: { key: "openStorePage" },
+      cancelButtonText: { key: "close" },
+      type: "info",
+    });
+    if (openStore) {
+      this.platformUtilsService.launchUri(getWebStoreUrl(browser.device));
+    }
+  }
+
+  private async updatePinHandler(value: boolean) {
+    try {
+      await this.updatePin(value);
+    } catch (error) {
+      this.logService.error("Error updating unlock with PIN: ", error);
+      this.form.controls.pin.setValue(!value, { emitEvent: false });
+      this.validationService.showError(error);
+    } finally {
+      this.messagingService.send("redrawMenu");
+    }
+  }
+
+  private async updatePin(value: boolean) {
+    if (value) {
+      const dialogRef = SetPinComponent.open(this.dialogService);
+
+      if (dialogRef == null) {
+        this.form.controls.pin.setValue(false, { emitEvent: false });
+        return;
+      }
+
+      const pinSet = await firstValueFrom(dialogRef.closed);
+      this.userHasPinSet.set(pinSet ?? false);
+      this.form.controls.pin.setValue(this.userHasPinSet(), { emitEvent: false });
+      this.form.controls.pinLockWithMasterPassword.setValue(await this.isPinLockedAfterRestart(), {
+        emitEvent: false,
+      });
+    } else {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      // On Windows and Linux if a user turned off PIN without having a MP and has biometrics + require MP/PIN on restart enabled.
+      if (
+        (this.isWindows || this.isLinux) &&
+        this.supportsBiometric() &&
+        this.form.controls.requireMasterPasswordOnAppRestart.value &&
+        this.form.controls.biometric.value &&
+        !this.userHasMasterPassword()
+      ) {
+        // Allow biometric unlock on app restart so the user doesn't get into a bad state.
+        await this.enrollPersistentBiometricIfNeeded(userId);
+      }
+      await this.pinService.unsetPin(userId);
+    }
+  }
+
+  private async updateBiometricHandler(value: boolean) {
+    try {
+      await this.updateBiometric(value);
+    } catch (error) {
+      this.logService.error("Error updating unlock with biometrics: ", error);
+      this.form.controls.biometric.setValue(false, { emitEvent: false });
+      // Keep the stored state in line with the form, e.g. when storing the key failed.
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
+      this.validationService.showError(error);
+    } finally {
+      this.messagingService.send("redrawMenu");
+    }
+  }
+
+  private async updateBiometric(enabled: boolean) {
+    // NOTE: A bug in angular causes [ngModel] to not reflect the backing field value
+    // causing the checkbox to remain checked even if authentication fails.
+    // The bug should resolve itself once the angular issue is resolved.
+    // See: https://github.com/angular/angular/issues/13063
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (!enabled || !this.supportsBiometric()) {
+      this.form.controls.biometric.setValue(false, { emitEvent: false });
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(activeUserId);
+      await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
+      return;
+    }
+
+    const status = await this.biometricsService.getBiometricsStatus();
+
+    if (status === BiometricsStatus.AutoSetupNeeded) {
+      await this.biometricsService.setupBiometrics();
+    } else if (status === BiometricsStatus.ManualSetupNeeded) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "biometricsManualSetupTitle" },
+        content: { key: "biometricsManualSetupDesc" },
+        type: "warning",
+      });
+      if (confirmed) {
+        this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
+      }
+      return;
+    }
+
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
+    // Stored first, so biometric unlock works even if the persistent enrollment below fails.
+    const userKey = await this.getUserKey(activeUserId);
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+
+    if (this.isWindows || this.isLinux) {
+      // Recommended settings for Windows Hello and Linux system authentication
+      this.form.controls.autoPromptBiometrics.setValue(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
+
+      // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
+      if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
+        // Allow biometric unlock on app restart so the user doesn't get into a bad state.
+        // A failed enrollment (e.g. cancelled Windows Hello prompt) is not fatal: the key stored
+        // above still allows biometric unlock.
+        await this.enrollPersistentBiometricIfNeeded(activeUserId);
+      } else {
+        // Awaited instead of emitted: the change handler deletes the biometric key before storing
+        // it again, and running it in parallel races the validation below.
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(true, { emitEvent: false });
+        await this.updateRequireMasterPasswordOnAppRestart(true, activeUserId);
+      }
+    } else if (this.isMac) {
+      // Touch ID always persists the key. Enrolling records the enrolled key id, so the
+      // re-enrollment migration detects a key rotation. A failure is not fatal: the key stored
+      // above still allows biometric unlock.
+      try {
+        await this.biometricsService.enrollPersistent(activeUserId, userKey);
+      } catch (error) {
+        this.logService.error("Error enrolling persistent biometric unlock: ", error);
+        this.validationService.showError(error);
+      }
+    }
+
+    await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
+
+    // Validate the key is stored in case biometrics fail.
+    const biometricSet =
+      (await this.biometricsService.getBiometricsStatusForUser(activeUserId)) ===
+      BiometricsStatus.Available;
+    this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
+    if (!biometricSet) {
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
+    }
+  }
+
+  private async updateRequireMasterPasswordOnAppRestartHandler(enabled: boolean, userId: UserId) {
+    try {
+      await this.updateRequireMasterPasswordOnAppRestart(enabled, userId);
+    } catch (error) {
+      this.logService.error("Error updating require master password on app restart: ", error);
+      this.validationService.showError(error);
+    }
+  }
+
+  private async updateRequireMasterPasswordOnAppRestart(enabled: boolean, userId: UserId) {
+    if (enabled) {
+      // Require master password or PIN on app restart
+      const userKey = await this.getUserKey(userId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
+      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+    } else {
+      // Allow biometric unlock on app restart
+      await this.enrollPersistentBiometricIfNeeded(userId);
+    }
+  }
+
+  private async getUserKey(userId: UserId): Promise<UserKey> {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("User key is not available");
+    }
+    return userKey;
+  }
+
+  private async enrollPersistentBiometricIfNeeded(userId: UserId): Promise<void> {
+    try {
+      if (!(await this.biometricsService.hasPersistentKey(userId))) {
+        const userKey = await this.getUserKey(userId);
+        await this.biometricsService.enrollPersistent(userId, userKey);
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(false, {
+          emitEvent: false,
+        });
+      }
+    } catch (error) {
+      this.logService.error("Error enrolling persistent biometric unlock: ", error);
+      this.validationService.showError(error);
+    }
+  }
+
+  protected async updateAutoPromptBiometrics() {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (this.form.controls.autoPromptBiometrics.value) {
+      await this.biometricStateService.setPromptAutomatically(true, activeUserId);
+    } else {
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
+    }
+  }
+
+  /**
+   * Shows the passkey provider setting if the app is registered with the OS, and keeps its status
+   * up to date when the window regains focus, e.g. after the user changes it in system settings.
+   */
+  private async loadPasskeyProviderSetting() {
+    try {
+      this.passkeyProviderState.set(
+        await this.desktopAutofillService.refreshPasskeyProviderState(),
+      );
+    } catch (e) {
+      this.logService.error("Failed to load passkey provider setting", e);
+      return;
+    }
+    if (!this.showPasskeyProviderSetting()) {
+      return;
+    }
+
+    fromEvent(window, "focus")
+      .pipe(
+        // Catch inside `switchMap` so one failed refresh doesn't stop later ones.
+        switchMap(() =>
+          from(this.desktopAutofillService.getPasskeyProviderState()).pipe(
+            catchError((e: unknown) => {
+              this.logService.error("Failed to refresh passkey provider state", e);
+              return EMPTY;
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((state) => this.passkeyProviderState.set(state));
+  }
+
+  protected async managePasskeyProvider() {
+    try {
+      if (!this.passkeyProviderState()?.enabled) {
+        const enabled = await this.desktopAutofillService.requestEnableCredentialProvider();
+        if (enabled !== undefined) {
+          this.passkeyProviderState.set({ registered: true, enabled });
+          return;
+        }
+      }
+      await this.desktopAutofillService.openCredentialProviderSettings();
+    } catch (e) {
+      this.logService.error("Failed to manage passkey provider", e);
+    }
+  }
+
+  protected async saveFavicons() {
+    await this.domainSettingsService.setShowFavicons(this.form.controls.enableFavicons.value);
+    this.messagingService.send("refreshCiphers");
+  }
+
+  async saveQuickCopyActions() {
+    await this.vaultCopyButtonsService.setShowQuickCopyActions(
+      this.form.controls.showQuickCopyActions.value,
+    );
+  }
+
+  protected async saveRunInBackground() {
+    await this.desktopSettingsService.setRunInBackground(this.form.controls.runInBackground.value);
+  }
+
+  private async saveLocale(newValue: string | null) {
+    await this.i18nService.setLocale(newValue);
+  }
+
+  private async saveTheme(newValue: Theme) {
+    await this.themeStateService.setSelectedTheme(newValue);
+  }
+
+  protected async saveMinOnCopyToClipboard() {
+    await this.desktopSettingsService.setMinimizeOnCopy(
+      this.form.controls.minimizeOnCopyToClipboard.value,
+      this.currentUserId(),
+    );
+  }
+
+  private async saveClearClipboard(newValue: ClearClipboardDelaySetting) {
+    await this.autofillSettingsService.setClearClipboardDelay(newValue);
+  }
+
+  private showAutostartSetting(): boolean {
+    // Windows store does not support autostart
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
+  }
+
+  protected async saveOpenAtLogin() {
+    await this.desktopSettingsService.setOpenAtLogin(this.form.controls.openAtLogin.value);
+    // TODO: Ideally DesktopSettingsService.openAtLogin$ could be subscribed to directly rather than sending a message
+    this.messagingService.send(
+      this.form.controls.openAtLogin.value ? "addOpenAtLogin" : "removeOpenAtLogin",
+    );
+  }
+
+  protected async saveDdgBrowserIntegration() {
+    await this.desktopAutofillSettingsService.setEnableDuckDuckGoBrowserIntegration(
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
+    );
+
+    // Adding to cover users on a previous version of DDG
+    await this.stateService.setEnableDuckDuckGoBrowserIntegration(
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
+    );
+
+    const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
+      this.form.controls.enableDuckDuckGoBrowserIntegration.value,
+    );
+    if (errorResult !== null) {
+      this.logService.error("Error in DDG browser integration: " + errorResult);
+    }
+  }
+
+  protected async saveHardwareAcceleration() {
+    await this.desktopSettingsService.setHardwareAcceleration(
+      this.form.controls.enableHardwareAcceleration.value,
+    );
+  }
+
+  protected async saveSshAgent() {
+    await this.desktopSettingsService.setSshAgentEnabled(this.form.controls.enableSshAgent.value);
+  }
+
+  private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
+    await this.desktopSettingsService.setSshAgentPromptBehavior(newValue);
+  }
+
+  protected async savePreventScreenshots() {
+    await this.desktopSettingsService.setPreventScreenshots(
+      !this.form.controls.allowScreenshots.value,
+    );
+
+    if (!this.form.controls.allowScreenshots.value) {
+      const dialogRef = this.dialogService.openSimpleDialogRef({
+        title: { key: "confirmWindowStillVisibleTitle" },
+        content: { key: "confirmWindowStillVisibleContent" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "info",
+      });
+      let enabled = true;
+      try {
+        enabled = !!(await firstValueFrom(dialogRef.closed.pipe(timeout(10000))));
+      } catch {
+        enabled = false;
+      } finally {
+        await dialogRef.close();
+      }
+
+      if (!enabled) {
+        await this.desktopSettingsService.setPreventScreenshots(false);
+        this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
+      }
+    }
+  }
+
+  protected async saveEnableAutotype() {
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(
+      this.form.controls.enableAutotype.value,
+    );
+    const currentShortcut = await firstValueFrom(
+      this.desktopAutotypeMvpService.autotypeKeyboardShortcut$,
+    );
+    if (currentShortcut) {
+      this.form.controls.autotypeShortcut.setValue(
+        this.getFormattedAutotypeShortcutText(currentShortcut),
+      );
+    }
+  }
+
+  protected async saveAutotypeShortcut() {
+    // disable the shortcut so that the user can't re-enter the existing
+    // shortcut and trigger the feature during the settings menu.
+    // it is not necessary to check if it's already enabled, because
+    // the edit shortcut is only available if the feature is enabled
+    // in the settings.
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(false);
+
+    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
+
+    const newShortcutArray = await firstValueFrom(dialogRef.closed);
+
+    // re-enable
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(true);
+
+    if (!newShortcutArray) {
+      return;
+    }
+
+    this.form.controls.autotypeShortcut.setValue(
+      this.getFormattedAutotypeShortcutText(newShortcutArray),
+    );
+    await this.desktopAutotypeMvpService.setAutotypeKeyboardShortcutState(newShortcutArray);
+  }
+
+  protected async saveEnableAutotypeGa() {
+    await this.desktopAutotypeService.setAutotypeEnabledState(
+      this.form.controls.enableAutotypeGa.value,
+    );
+    const currentShortcut = await firstValueFrom(
+      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+    );
+    if (currentShortcut) {
+      this.form.controls.autotypeGaShortcut.setValue(
+        this.getFormattedAutotypeShortcutText(currentShortcut),
+      );
+    }
+  }
+
+  protected async saveAutotypeGaShortcut() {
+    // disable the shortcut so that the user can't re-enter the existing
+    // shortcut and trigger the feature during the settings menu.
+    // it is not necessary to check if it's already enabled, because
+    // the edit shortcut is only available if the feature is enabled
+    // in the settings.
+    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+
+    const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
+
+    const newShortcutArray = await firstValueFrom(dialogRef.closed);
+
+    // re-enable
+    await this.desktopAutotypeService.setAutotypeEnabledState(true);
+
+    if (!newShortcutArray) {
+      return;
+    }
+
+    this.form.controls.autotypeGaShortcut.setValue(
+      this.getFormattedAutotypeShortcutText(newShortcutArray),
+    );
+    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+  }
+
+  protected get biometricText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "unlockWithTouchId";
+      case DeviceType.WindowsDesktop:
+        return "unlockWithWindowsHello";
+      case DeviceType.LinuxDesktop:
+        return "unlockWithPolkit";
+      default:
+        throw new Error("Unsupported platform");
+    }
+  }
+
+  private getFormattedAutotypeShortcutText(shortcut: string[]) {
+    return shortcut ? formatAutotypeShortcut(shortcut) : null;
+  }
+}

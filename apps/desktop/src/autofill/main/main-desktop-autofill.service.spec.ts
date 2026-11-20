@@ -4,12 +4,21 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 
-import { WindowMain } from "../../main/window.main";
-import { AutofillIpcChannelControl } from "../models/autofill-ipc-channels";
+import { RendererVisibility, WindowMain } from "../../main/window.main";
+import {
+  AutofillIpcChannelControl,
+  AutofillIpcChannelIncoming,
+} from "../models/autofill-ipc-channels";
 
 import { DesktopAutofillMain } from "./main-desktop-autofill.service";
 
 import AutofillIpcServer = autofill.AutofillIpcServer;
+
+// window.main loads electron at import time; only RendererVisibility is used here.
+jest.mock("../../main/window.main", () => ({
+  WindowMain: jest.fn(),
+  RendererVisibility: { Shown: "shown", Hidden: "hidden" },
+}));
 
 jest.mock("electron", () => ({
   ipcMain: {
@@ -42,13 +51,21 @@ describe("DesktopAutofillMain", () => {
   let service: DesktopAutofillMain;
 
   // The callback under test is a private, arrow-bound field. Invoke it via bracket access.
-  const invokeWindowHandleQuery = (error: Error | null, clientId: number, sequenceNumber: number) =>
+  const invokeWindowHandleQuery = async (
+    error: Error | null,
+    clientId: number,
+    sequenceNumber: number,
+  ) => {
     (service as any).doWindowHandleQuery(error, clientId, sequenceNumber, null);
+    // The query completes asynchronously once a window exists.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
     logService = mock<LogService>();
     windowMain = mock<WindowMain>();
+    windowMain.ensureRenderer.mockResolvedValue();
     ipcServer = mock<AutofillIpcServer>();
 
     service = new DesktopAutofillMain(logService, windowMain);
@@ -165,32 +182,52 @@ describe("DesktopAutofillMain", () => {
   });
 
   describe("handleWindowHandleQuery", () => {
-    it("completes with an error when an error is passed", () => {
+    it("completes with an error when an error is passed", async () => {
       const error = new Error("boom");
 
-      invokeWindowHandleQuery(error, 1, 2);
+      await invokeWindowHandleQuery(error, 1, 2);
 
       expect(ipcServer.completeError).toHaveBeenCalledWith(1, 2, String(error));
       expect(ipcServer.completeWindowHandleQuery).not.toHaveBeenCalled();
     });
 
-    it("completes with an error when no window is available", () => {
+    it("completes with an error when no window can be created", async () => {
       windowMain.win = undefined as unknown as BrowserWindow;
 
-      invokeWindowHandleQuery(null, 1, 2);
+      await invokeWindowHandleQuery(null, 1, 2);
 
       expect(ipcServer.completeError).toHaveBeenCalledWith(1, 2, "No window available");
       expect(ipcServer.completeWindowHandleQuery).not.toHaveBeenCalled();
     });
 
-    it("completes with the window handle response when window exists", () => {
+    it("recreates a destroyed window hidden before answering", async () => {
+      const win = mock<BrowserWindow>();
+      win.isVisible.mockReturnValue(false);
+      win.isFocused.mockReturnValue(false);
+      win.getNativeWindowHandle.mockReturnValue(Buffer.from([4]));
+      windowMain.win = undefined as unknown as BrowserWindow;
+      windowMain.ensureRenderer.mockImplementation(async () => {
+        windowMain.win = win;
+      });
+
+      await invokeWindowHandleQuery(null, 1, 2);
+
+      expect(windowMain.ensureRenderer).toHaveBeenCalledWith(RendererVisibility.Hidden);
+      expect(ipcServer.completeWindowHandleQuery).toHaveBeenCalledWith(1, 2, {
+        isVisible: false,
+        isFocused: false,
+        handle: [4],
+      });
+    });
+
+    it("completes with the window handle response when window exists", async () => {
       const win = mock<BrowserWindow>();
       win.isVisible.mockReturnValue(true);
       win.isFocused.mockReturnValue(false);
       win.getNativeWindowHandle.mockReturnValue(Buffer.from([1, 2, 3]));
       windowMain.win = win;
 
-      invokeWindowHandleQuery(null, 1, 2);
+      await invokeWindowHandleQuery(null, 1, 2);
 
       expect(ipcServer.completeWindowHandleQuery).toHaveBeenCalledWith(1, 2, {
         isVisible: true,
@@ -198,6 +235,61 @@ describe("DesktopAutofillMain", () => {
         handle: [1, 2, 3],
       });
       expect(ipcServer.completeError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("requests while the renderer is destroyed", () => {
+    const channel = AutofillIpcChannelIncoming.PasskeyAssertion;
+    const send = (data: unknown) => (service as any).safeSend(channel, data);
+
+    const rendererWith = (id: number) => {
+      const win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(false);
+      Object.assign(win, { webContents: { id, send: jest.fn() } });
+      return win;
+    };
+
+    // ListenerReady is registered when native autofill is enabled.
+    const announceReady = async (id: number) => {
+      (AutofillIpcServer.listen as jest.Mock).mockResolvedValue(ipcServer);
+      (service as any).ipcServer = undefined;
+      await (service as any).enable();
+      const call = (ipcMain.on as jest.Mock).mock.calls.find(
+        ([name]) => name === AutofillIpcChannelControl.ListenerReady,
+      );
+      call[1]({ sender: { id } });
+    };
+
+    it("buffers the request and recreates the renderer hidden", () => {
+      windowMain.win = undefined as unknown as BrowserWindow;
+
+      send({ clientId: 1 });
+
+      expect(windowMain.ensureRenderer).toHaveBeenCalledWith(RendererVisibility.Hidden);
+      expect((service as any).messageBuffer).toHaveLength(1);
+    });
+
+    it("does not send to a renderer that has not announced its listeners", async () => {
+      await announceReady(1);
+      const recreated = rendererWith(2);
+      windowMain.win = recreated;
+
+      send({ clientId: 1 });
+
+      expect(recreated.webContents.send).not.toHaveBeenCalled();
+      expect(windowMain.ensureRenderer).not.toHaveBeenCalled();
+    });
+
+    it("delivers buffered requests once the recreated renderer is ready", async () => {
+      windowMain.win = undefined as unknown as BrowserWindow;
+      send({ clientId: 1 });
+      const recreated = rendererWith(2);
+      windowMain.win = recreated;
+
+      await announceReady(2);
+
+      expect(recreated.webContents.send).toHaveBeenCalledWith(channel, { clientId: 1 });
+      expect((service as any).messageBuffer).toHaveLength(0);
     });
   });
 });

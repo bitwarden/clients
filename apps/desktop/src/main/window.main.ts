@@ -48,6 +48,15 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 const mainWindowSizeKey = "mainWindowSize";
+
+/** Whether {@link WindowMain.ensureRenderer} brings the window to the foreground. */
+export const RendererVisibility = Object.freeze({
+  /** Show and focus the window, e.g. the user asked for the app. */
+  Shown: "shown",
+  /** Only make sure a renderer exists, e.g. to answer a background request. */
+  Hidden: "hidden",
+} as const);
+export type RendererVisibility = (typeof RendererVisibility)[keyof typeof RendererVisibility];
 const WindowEventHandlingDelay = 100;
 
 /**
@@ -107,6 +116,8 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
   private isReloading = false;
+  // Set while the renderer is destroyed for background operation, so closing it does not quit.
+  private tornDown = false;
   // Settles once the first window exists. A reopen during startup must not create a second one.
   private startup: Promise<void> = Promise.resolve();
 
@@ -315,8 +326,9 @@ export class WindowMain {
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
           // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q
-          if (!isMac() || this.isQuitting || isMacAppStore()) {
+          // to stay active until the user quits explicitly with Cmd + Q.
+          // A renderer destroyed for background operation must not quit the app either.
+          if (this.isQuitting || isMacAppStore() || (!isMac() && !this.tornDown)) {
             app.quit();
           }
         });
@@ -347,6 +359,81 @@ export class WindowMain {
     this.withWindow((win) => {
       applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
       win.show();
+    });
+  }
+
+  /**
+   * Brings the main window to the foreground, recreating it if it was destroyed.
+   *
+   * A recreated window is shown on `ready-to-show`: showing it right after `createWindow`
+   * races the asynchronous `loadURL`, and macOS sometimes drops the activation.
+   */
+  async ensureRenderer(visibility: RendererVisibility = RendererVisibility.Shown): Promise<void> {
+    // A window created during startup must not be created twice.
+    await this.startup;
+
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("full-app", false);
+      if (visibility === RendererVisibility.Shown) {
+        this.showWhenReady(this.win);
+      }
+      return;
+    }
+
+    if (visibility === RendererVisibility.Hidden) {
+      return;
+    }
+
+    if (this.win.isMinimized()) {
+      this.win.restore();
+    }
+    this.show();
+    this.win.focus();
+
+    if (isMac()) {
+      // With the dock hidden, show() and focus() do not raise the window above other apps.
+      // Steal focus a tick later, once macOS has processed the show; same-tick steals get dropped.
+      setTimeout(() => app.focus({ steal: true }));
+    }
+  }
+
+  /** Whether the renderer was destroyed by {@link destroyRenderer} and not recreated since. */
+  get rendererDestroyed(): boolean {
+    return this.tornDown;
+  }
+
+  /**
+   * Destroys the renderer, leaving only the main process running. {@link ensureRenderer}
+   * recreates it.
+   */
+  destroyRenderer(): void {
+    if (this.win == null || this.win.isDestroyed()) {
+      return;
+    }
+
+    this.tornDown = true;
+
+    // Close on the next tick: this often runs inside the window's own close handler, which has
+    // already prevented that close.
+    const win = this.win;
+    setTimeout(() => {
+      if (!win.isDestroyed()) {
+        win.close();
+      }
+    });
+  }
+
+  private showWhenReady(win: BrowserWindow) {
+    win.once("ready-to-show", () => {
+      if (win.isDestroyed()) {
+        return;
+      }
+
+      win.show();
+      win.focus();
+      if (isMac()) {
+        app.focus({ steal: true });
+      }
     });
   }
 
@@ -465,6 +552,7 @@ export class WindowMain {
     template: "full-app" | "modal-app" = "full-app",
     show: boolean = true,
   ): Promise<void> {
+    this.tornDown = false;
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,

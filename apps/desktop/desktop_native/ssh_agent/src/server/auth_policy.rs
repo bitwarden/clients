@@ -18,6 +18,16 @@ pub struct SessionBindContext {
 pub struct ConnectionContext {
     /// Name of the process making the request. Often unavailable in sandboxed environments.
     pub process_name: Option<String>,
+    /// Command line of the process making the request, e.g. `ssh -t example.com`.
+    pub command: Option<String>,
+    /// Nearest app above the process, skipping shells and ssh/git tools, e.g. `claude`.
+    pub caller_app: Option<String>,
+    /// Outermost app above the process, e.g. `iTerm2`.
+    pub host_app: Option<String>,
+    /// Nearest AI agent above the process, e.g. `claude`.
+    pub ai_agent: Option<String>,
+    /// Server an `ssh` process logs in to, e.g. `git@github.com`.
+    pub destination: Option<String>,
     /// Session-bind context. `None` when no session-bind extension was received.
     pub session_bind: Option<SessionBindContext>,
 }
@@ -38,7 +48,7 @@ pub struct SignRequest {
 #[derive(Debug, Clone)]
 pub enum AuthRequest {
     /// Request to list available SSH keys
-    List,
+    List(ConnectionContext),
     /// Request to sign data with a specific key
     Sign(SignRequest),
 }

@@ -11,7 +11,7 @@ use common::{
     parse_sign_response_algorithm, read_framed_response, test_ecdsa_p256_key,
     test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key,
     test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
-    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
+    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester, RecordingObserver,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -491,7 +491,11 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
         })
         .returning(|_| Ok(true));
 
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    let mut agent = BitwardenSSHAgent::new(
+        InMemoryEncryptedKeyStore::new(),
+        requester,
+        RecordingObserver::default(),
+    );
     agent.replace(vec![test_ed25519_key()]).unwrap();
     agent.start().unwrap();
 
