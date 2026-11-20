@@ -6,7 +6,7 @@
     <version>0.0.0</version>
     <packageSourceUrl>https://github.com/bitwarden/clients/tree/master/apps/desktop/stores/chocolatey</packageSourceUrl>
     <owners>kspearrin</owners>
-    <title>Bitwarden</title>
+    <title>Bitwarden Password Manager</title>
     <authors>Bitwarden Inc.</authors>
     <projectUrl>https://bitwarden.com/</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/bitwarden/brand/master/icons/256x256.png</iconUrl>
@@ -18,33 +18,43 @@
     <licenseUrl>https://github.com/bitwarden/clients/blob/master/LICENSE.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>bitwarden password manager</tags>
-    <summary>A secure and free password manager for all of your devices.</summary>
+    <summary>Securely store, share, and autofill passwords and passkeys anywhere.</summary>
     <description>
       Bitwarden, Inc. is the parent company of 8bit Solutions LLC.
       
-      NAMED BEST PASSWORD MANAGER BY THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET, AND MORE.
+      Bitwarden is the trusted open source password manager used by millions to secure their accounts from hackers and data breaches. Generate, save, and autofill strong passwords for every account on every device.
       
-      Manage, store, secure, and share unlimited passwords across unlimited devices from anywhere. Bitwarden delivers open source password management solutions to everyone, whether at  home, at work, or on the go.
+      Recognized by PCMag, WIRED, The Verge, CNET, G2, and more!
       
-      Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+      AUTOFILL EVERYTHING INSTANTLY
+      Never forget a password again. Autofill logins from anywhere, on any device.
       
-      Bitwarden Send quickly transmits encrypted information --- files and plaintext -- directly to anyone.
+      EASILY GENERATE STRONG PASSWORDS
+      Protect all accounts with long, complex, and unique passwords. Generate usernames and email aliases for added security.
       
-      Bitwarden offers Teams and Enterprise plans for companies so you can securely share passwords with colleagues.
+      A SECURE VAULT FOR SENSITIVE INFORMATION
+      Keep passkeys, payment cards, secure notes, identities, and more in the end-to-end encrypted vault that syncs everywhere.
       
-      Why Choose Bitwarden:
+      SYNC PASSKEYS SECURELY
+      Create and store passkeys for your logins that you can use across your devices, regardless of browser, mobile device, or computer OS.
       
-      World-Class Encryption
-      Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+      SHARE PASSWORDS SAFELY
+      Share logins with family or friends in a shared vault or use a secure link to directly share encrypted text, or vault items and files with Premium, with strong security controls.
       
-      Built-in Password Generator
-      Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+      ACCESS FROM ANY DEVICE
+      Use Bitwarden on your phone, tablet, and computer, in every major browser. Store unlimited passwords and sync across unlimited devices.
       
-      Global Translations 
-      Bitwarden translations exist in 40 languages and are growing, thanks to our global community.
+      SECURITY YOU CAN VERIFY
+      Bitwarden codebase is open source, meaning it can be viewed by anyone to ensure it functions securely. Third-party security audits are published annually. There’s nothing to hide.
       
-      Cross-Platform Applications
-      Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+      INDIVIDUALS AND FAMILIES
+      Bitwarden offers plans for everyone, even a basic free plan. Premium plans have even more features to make security easier, and a Families plan gives six users premium features and a shared vault.
+      
+      TEAMS AND ENTERPRISE
+      Bitwarden secures businesses around the world. Features like Login with SSO, role-based access controls, SCIM provisioning, enterprise policies, reporting, and centralized ownership secure organizations of any size.
+      
+      MORE FROM BITWARDEN
+      For developers and DevOps, Bitwarden Secrets Manager secures dev secrets, AI agents, and machine accounts and integrates with Bitwarden Password Manager.
     </description>
   </metadata>
   <files>
