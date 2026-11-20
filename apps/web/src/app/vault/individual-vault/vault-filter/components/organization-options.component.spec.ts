@@ -24,6 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -39,7 +40,7 @@ const userId = "user-id" as UserId;
 const orgId = "org-id" as OrganizationId;
 
 const buildOrg = (overrides: Partial<Organization> = {}) =>
-  Object.assign(new Organization(), {
+  buildTestOrganization({
     id: orgId,
     name: "Acme",
     userId,

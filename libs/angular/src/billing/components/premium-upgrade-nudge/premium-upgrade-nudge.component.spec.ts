@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable, of, Subject, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
 import { PremiumUpgradeNudgeOptions } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
@@ -15,7 +15,11 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ButtonComponent, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
+
+import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
 
 import {
   PremiumUpgradeNudgeComponent,
@@ -60,6 +64,8 @@ describe("PremiumUpgradeNudgeComponent", () => {
   let subscriptionPricingService: MockProxy<SubscriptionPricingServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let validationService: MockProxy<ValidationService>;
+  let selectedTheme$: BehaviorSubject<Theme>;
+  let systemTheme$: BehaviorSubject<Theme>;
   let pending: Deferred;
   let upgrade: jest.Mock<Promise<void>, []>;
 
@@ -87,6 +93,8 @@ describe("PremiumUpgradeNudgeComponent", () => {
     validationService = mock<ValidationService>();
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
+    const themeStateService = mock<ThemeStateService>();
+    Object.defineProperty(themeStateService, "selectedTheme$", { value: selectedTheme$ });
 
     pending = deferred();
     upgrade = jest.fn(() => pending.promise);
@@ -101,6 +109,8 @@ describe("PremiumUpgradeNudgeComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ValidationService, useValue: validationService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ThemeStateService, useValue: themeStateService },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: systemTheme$ },
       ],
     }).compileComponents();
 
@@ -119,6 +129,11 @@ describe("PremiumUpgradeNudgeComponent", () => {
       .queryAll(By.directive(ButtonComponent))
       .find((el) => el.nativeElement.id === "premium-upgrade-nudge_button_upgrade")!
       .injector.get(ButtonComponent);
+
+  beforeEach(() => {
+    selectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
+    systemTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
+  });
 
   afterEach(() => {
     TestBed.resetTestingModule();
@@ -158,7 +173,10 @@ describe("PremiumUpgradeNudgeComponent", () => {
   });
 
   describe("image", () => {
-    const image = () => query(".premium-nudge-image");
+    const totpOptions: PremiumUpgradeNudgeOptions = { ...baseOptions, image: "totp" };
+    const lightSrc = "images/premium/premium-nudge-totp-light.png";
+    const darkSrc = "images/premium/premium-nudge-totp-dark.png";
+    const image = () => query("img") as HTMLImageElement | null;
 
     it("renders no image when the image option is unset", async () => {
       await setup();
@@ -166,10 +184,32 @@ describe("PremiumUpgradeNudgeComponent", () => {
       expect(image()).toBeNull();
     });
 
-    it("renders the image named by the option", async () => {
-      await setup({ options: { ...baseOptions, image: "totp" } });
+    it("renders the light image at its display size in the light theme", async () => {
+      await setup({ options: totpOptions });
 
-      expect(image()?.classList).toContain("premium-nudge-totp");
+      expect(image()?.getAttribute("src")).toBe(lightSrc);
+      expect(image()?.getAttribute("width")).toBe("339");
+      expect(image()?.getAttribute("height")).toBe("138");
+    });
+
+    it("swaps to the dark image when the theme changes to dark and back", async () => {
+      await setup({ options: totpOptions });
+
+      selectedTheme$.next(ThemeTypes.Dark);
+      fixture.detectChanges();
+      expect(image()?.getAttribute("src")).toBe(darkSrc);
+
+      selectedTheme$.next(ThemeTypes.Light);
+      fixture.detectChanges();
+      expect(image()?.getAttribute("src")).toBe(lightSrc);
+    });
+
+    it("renders the dark image when the system theme is dark", async () => {
+      selectedTheme$.next(ThemeTypes.System);
+      systemTheme$.next(ThemeTypes.Dark);
+      await setup({ options: totpOptions });
+
+      expect(image()?.getAttribute("src")).toBe(darkSrc);
     });
   });
 

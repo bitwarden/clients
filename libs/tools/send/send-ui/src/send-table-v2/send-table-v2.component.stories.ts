@@ -154,6 +154,7 @@ function decorators() {
           useValue: {
             allowedSendTypes$: of([SendType.Text, SendType.File, SendType.Item]),
             disableSend$: of(false),
+            sendAuthRequired$: of(false),
           },
         },
         { provide: SendApiService, useValue: { removeAuth: () => {}, delete: () => {} } },
