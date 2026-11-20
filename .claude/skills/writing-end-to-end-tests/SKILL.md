@@ -11,13 +11,13 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 - Client internals (feature flags, lock state, fake biometrics): `automationDriver(page, "<capability>")` in `e2e/src/automation-driver.ts`, backed by `libs/automation-driver`. Prefer it over poking app state through `page.evaluate`.
 - Setup (credentials, builds, local server): `e2e/README.md`.
 
-## Locators: test ids only
+## Locators
 
-- Locate with `page.getByTestId("...")`, backed by `data-testid` in the template.
-- No test id yet? Add one to the component template in the same change. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
-- For new locators: no CSS classes, DOM structure, `#id`, `formcontrolname` or visible text. Text and roles change with copy, i18n and layout.
-- Existing helpers predate this rule and still use CSS and role locators. Leave them alone unless you are adding the test id anyway.
-- Keep each test id in a named constant at the top of the helper or test.
+- Use the element's `id` (`page.locator("#...")`) or a role locator (`getByRole`, `getByLabel`) when it picks out the element on its own.
+- Use a test id only when neither does: add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
+- Component library elements (dialogs, menus, selects from `libs/components`): locate by role rather than adding test ids to the library.
+- No CSS classes, DOM structure or `formcontrolname`.
+- Keep each selector in a named constant at the top of the helper or test.
 
 ## Writing tests
 
