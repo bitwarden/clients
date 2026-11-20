@@ -84,6 +84,7 @@ import {
   VaultItemDialogResult,
   VaultItemEvent,
   VaultItemsTransferService,
+  NewItemTypesAnnouncementService,
 } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
@@ -175,6 +176,10 @@ describe("VaultComponent", () => {
       imports: [VaultComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: NewItemTypesAnnouncementService,
+          useValue: { coachmarkCopy$: of(null), badgedTypes$: of([]) },
+        },
         // The coachmark tour opens the side nav for its nav-anchored steps, so CoachmarkService
         // resolves SideNavService, which reads its width from global state.
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },

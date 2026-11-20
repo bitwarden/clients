@@ -25,6 +25,7 @@ import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
+import { NewItemTypesCoachmarkComponent } from "../new-item-types-coachmark/new-item-types-coachmark.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -43,6 +44,7 @@ import { CoachmarkService } from "../coachmark/coachmark.service";
     Vfo1IconPipe,
     IconModule,
     CoachmarkComponent,
+    NewItemTypesCoachmarkComponent,
   ],
 })
 export class NewCipherMenuComponent {
@@ -78,6 +80,16 @@ export class NewCipherMenuComponent {
   protected readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
     { initialValue: false },
+  );
+
+  /** The new item types coachmark anchors only to the dialog button, and never over the tour */
+  protected readonly newItemTypesCoachmarkEnabled = computed(
+    () =>
+      this.coachmarkEnabled() &&
+      this.useNewItemDialog() &&
+      this.canCreateCipher() &&
+      !this.disabled() &&
+      !this.coachmarkActive(),
   );
 
   constructor(

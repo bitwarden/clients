@@ -12,10 +12,17 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { BitwardenIcon, DialogService, IconModule, MenuModule } from "@bitwarden/components";
+import {
+  BitwardenIcon,
+  DialogService,
+  IconModule,
+  MenuModule,
+  PopoverModule,
+} from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   MY_VAULT,
+  NewItemTypesCoachmarkComponent,
   NO_FOLDER,
   VaultFabComponent,
 } from "@bitwarden/vault";
@@ -34,7 +41,16 @@ export interface FabNewItemInitialValues {
   selector: "app-vault-fab",
   templateUrl: "vault-fab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JslibModule, CommonModule, VaultFabComponent, MenuModule, RouterLink, IconModule],
+  imports: [
+    JslibModule,
+    CommonModule,
+    VaultFabComponent,
+    MenuModule,
+    RouterLink,
+    IconModule,
+    NewItemTypesCoachmarkComponent,
+    PopoverModule,
+  ],
 })
 export class AppVaultFabComponent {
   readonly initialValues = input<FabNewItemInitialValues>();

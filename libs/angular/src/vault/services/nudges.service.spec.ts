@@ -205,6 +205,20 @@ describe("Vault Nudges Service", () => {
 
       expect(result).toBe(false);
     });
+
+    it("updateNudgeStatus keeps the parts of the status it isn't given", async () => {
+      const service = testBed.inject(NudgesService);
+      const userId = "user-id" as UserId;
+      const nudge = NudgeType.NewItemTypesAnnouncement;
+
+      await service.updateNudgeStatus(nudge, userId, { hasSpotlightDismissed: true });
+      await service.updateNudgeStatus(nudge, userId, { hasBadgeDismissed: true });
+
+      expect(await firstValueFrom(service.showNudgeStatus$(nudge, userId))).toEqual({
+        hasSpotlightDismissed: true,
+        hasBadgeDismissed: true,
+      });
+    });
   });
 
   describe("HasActiveBadges", () => {

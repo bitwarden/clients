@@ -1,0 +1,8 @@
+@let current = copy();
+<bit-popover [title]="current ? (current.titleKey | i18n) : ''">
+  @if (current) {
+    <p bitTypography="body2" class="tw-mb-0 tw-text-fg-body">
+      {{ current.descriptionKey | i18n }}
+    </p>
+  }
+</bit-popover>

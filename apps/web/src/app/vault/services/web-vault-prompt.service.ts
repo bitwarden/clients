@@ -10,12 +10,15 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, SideNavService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import {
   CoachmarkService,
   NewExperienceDialogService,
+  NewItemTypesAnnouncementService,
   VaultItemsTransferService,
+  Vfo1TourCalloutService,
 } from "@bitwarden/vault";
 
 import {
@@ -51,6 +54,8 @@ export class WebVaultPromptService {
   private sideNavService = inject(SideNavService);
   private coachmarkService = inject(CoachmarkService);
   private injector = inject(Injector);
+  private newItemTypesAnnouncementService = inject(NewItemTypesAnnouncementService);
+  private tourCalloutService = inject(Vfo1TourCalloutService);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -66,23 +71,29 @@ export class WebVaultPromptService {
   async conditionallyPromptUser() {
     const userId = await firstValueFrom(this.userId$);
 
+    const prompted = await this.promptUser(userId);
+    const calloutShown = await firstValueFrom(this.tourCalloutService.show$(userId));
+    await this.newItemTypesAnnouncementService.release(prompted || calloutShown);
+  }
+
+  /** Shows at most one prompt, returning whether one showed */
+  private async promptUser(userId: UserId): Promise<boolean> {
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
-      await this.conditionallyOpenAutoConfirmDialog();
-      return;
+      return await this.conditionallyOpenAutoConfirmDialog();
     }
 
     // Tour steps navigate between pages, which re-runs this on every return to the vault. Opening
     // a prompt then would stack it behind the tour.
     if (this.coachmarkService.isRunning()) {
-      return;
+      return true;
     }
 
     // A user who was just welcomed to Bitwarden is not also told what changed about it.
     if (await this.welcomeDialogService.conditionallyShowWelcomeDialog()) {
-      return;
+      return true;
     }
 
     const newExperienceResult = await this.newExperienceDialogService.conditionallyOpen(userId, {
@@ -94,18 +105,18 @@ export class WebVaultPromptService {
       if (await this.waitForTourToEnd()) {
         await this.conditionallyOpenAutoConfirmDialog();
       }
-      return;
+      return true;
     }
 
     if (await this.conditionallyOpenAutoConfirmDialog()) {
-      return;
+      return true;
     }
 
     if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
-      return;
+      return true;
     }
 
-    await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
+    return await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
   }
 
   private waitForTourToEnd(): Promise<boolean> {

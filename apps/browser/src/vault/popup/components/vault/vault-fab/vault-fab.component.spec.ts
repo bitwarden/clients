@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -19,12 +19,21 @@ import {
   MY_VAULT,
   NO_FOLDER,
   VaultFabComponent,
+  NewItemTypesAnnouncementService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { AppVaultFabComponent, FabNewItemInitialValues } from "./vault-fab.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badgedTypes$: of([]),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 const mockOrganizations = [{ id: "org-1" } as Organization, { id: "org-2" } as Organization];
 
@@ -74,6 +83,7 @@ describe("AppVaultFabComponent", () => {
         RouterTestingModule,
       ],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },

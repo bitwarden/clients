@@ -49,6 +49,7 @@ import {
   VaultOrganizationUserNotificationsComponent,
   VaultScopeType,
   Vfo1TourCalloutService,
+  NewItemTypesAnnouncementService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -75,6 +76,14 @@ import { VaultListItemsContainerComponent } from "./vault-list-items-container/v
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 import { VaultComponent } from "./vault.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badgedTypes$: of([]),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 @Component({
   selector: "popup-header",
@@ -356,6 +365,7 @@ describe("VaultComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         provideNoopAnimations(),
         { provide: VaultPopupItemsService, useValue: itemsSvc },
         { provide: VaultPopupListFiltersService, useValue: filtersSvc },
