@@ -43,13 +43,14 @@ export class ProjectEditCommand {
       if (existing.organizationId !== org.organizationId) {
         return smNotFoundResponse("project");
       }
+      if (!existing.write) {
+        return Response.noEditPermission();
+      }
+
       // `get` always emits read/write, so only a value that differs from the project's is an edit.
       const readOnly = checkSmReadOnlyProperties(parsed.request, "project", existing);
       if (readOnly) {
         return readOnly;
-      }
-      if (!existing.write) {
-        return Response.noEditPermission();
       }
 
       const view = new ProjectView();

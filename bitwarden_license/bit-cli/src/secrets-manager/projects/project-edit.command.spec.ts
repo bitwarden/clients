@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
+import { Response } from "@bitwarden/cli/models/response";
 
 import {
   encodeSmRequest,
@@ -145,6 +146,22 @@ describe("ProjectEditCommand", () => {
       expect(response.message).toBe(
         "`write` cannot be edited on a project. Remove this property from the request.",
       );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("reports missing edit permission before read-only properties", async () => {
+      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: false }));
+
+      for (const write of [false, true]) {
+        const response = await command.run(smOrg, projectId, {
+          ...getBody(),
+          read: true,
+          write,
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(Response.noEditPermission().message);
+      }
       expect(projectService.update).not.toHaveBeenCalled();
     });
 
