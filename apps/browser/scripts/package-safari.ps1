@@ -79,12 +79,10 @@ $buildBlock = {
     $projectFile = Join-Path -Path $safariBuildPath -ChildPath "desktop.xcodeproj/project.pbxproj"
     (Get-Content $projectFile).Replace('../../../build', "../safari/app") | Set-Content $projectFile
 
-    # Build using xcode. DerivedData is scoped per-variant to avoid collisions when both run in parallel.
     # Direct invocation (not Start-Process) so that stdout/stderr are captured by the background job
     # and surfaced via Receive-Job in CI logs.
     $xcodeBuildArgs = @(
         "-project", (Join-Path $safariBuildPath "desktop.xcodeproj"),
-        "-derivedDataPath", (Join-Path $safariBuildPath "DerivedData"),
         "-alltargets",
         "-configuration", "Release"
     )
