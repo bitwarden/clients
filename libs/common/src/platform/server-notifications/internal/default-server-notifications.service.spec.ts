@@ -465,6 +465,36 @@ describe("NotificationsService", () => {
       });
     });
 
+    describe("NotificationType.SyncCipherUserFields", () => {
+      it("applies the per-user fields without a full sync", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.SyncCipherUserFields,
+          payload: { Id: "cipher-id", UserId: mockUser1, Favorite: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.syncCipherUserFields).toHaveBeenCalledWith(
+          notification.payload,
+          mockUser1,
+        );
+        expect(syncService.fullSync).not.toHaveBeenCalled();
+      });
+
+      it("ignores a push for another user", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.SyncCipherUserFields,
+          payload: { Id: "cipher-id", UserId: mockUser2, Favorite: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.syncCipherUserFields).not.toHaveBeenCalled();
+      });
+    });
+
     describe("NotificationType.SyncPolicy", () => {
       it("forces a full sync so the API path can deserialize the policy", async () => {
         const notification = new NotificationResponse({

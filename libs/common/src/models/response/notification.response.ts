@@ -30,6 +30,9 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncLoginDelete:
         this.payload = new SyncCipherNotification(payload);
         break;
+      case NotificationType.SyncCipherUserFields:
+        this.payload = new SyncCipherUserFieldsNotification(payload);
+        break;
       case NotificationType.SyncFolderCreate:
       case NotificationType.SyncFolderDelete:
       case NotificationType.SyncFolderUpdate:
@@ -96,6 +99,24 @@ export class SyncCipherNotification extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.collectionIds = this.getResponseProperty("CollectionIds");
     this.revisionDate = new Date(this.getResponseProperty("RevisionDate"));
+  }
+}
+
+/** The acting user's per-user fields of a cipher after they changed them. Plaintext metadata only. */
+export class SyncCipherUserFieldsNotification extends BaseResponse {
+  id: string;
+  userId: string;
+  folderId: string | null;
+  favorite: boolean;
+  archivedDate: string | null;
+
+  constructor(response: any) {
+    super(response);
+    this.id = this.getResponseProperty("Id");
+    this.userId = this.getResponseProperty("UserId");
+    this.folderId = this.getResponseProperty("FolderId") ?? null;
+    this.favorite = this.getResponseProperty("Favorite") ?? false;
+    this.archivedDate = this.getResponseProperty("ArchivedDate") ?? null;
   }
 }
 

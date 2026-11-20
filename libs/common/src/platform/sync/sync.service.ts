@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 
 import {
   SyncCipherNotification,
+  SyncCipherUserFieldsNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
@@ -88,6 +89,14 @@ export abstract class SyncService {
     userId: UserId,
   ): Promise<boolean>;
   abstract syncDeleteCipher(notification: SyncFolderNotification, userId: UserId): Promise<boolean>;
+  /**
+   * Applies a per-user field change (folder, favorite, archive) from the push payload, with no
+   * network call. Ignored when the cipher is not stored locally.
+   */
+  abstract syncCipherUserFields(
+    notification: SyncCipherUserFieldsNotification,
+    userId: UserId,
+  ): Promise<boolean>;
   abstract syncUpsertSend(notification: SyncSendNotification, isEdit: boolean): Promise<boolean>;
   abstract syncDeleteSend(notification: SyncSendNotification): Promise<boolean>;
 }

@@ -868,7 +868,9 @@ export class CipherService implements CipherServiceAbstraction {
 
   /**
    * The save route for a change to an existing cipher (first match wins). A restricted request
-   * view can only change user fields; anything else is refused with no network call.
+   * view can only change user fields; anything else is refused with no network call. A change to
+   * user fields only takes the user fields route for editors too, so it does not bump the shared
+   * revision date or push an item update to every member.
    */
   private async resolveUpdateRoute(
     cipherView: CipherView,
@@ -881,7 +883,18 @@ export class CipherService implements CipherServiceAbstraction {
       }
       return CipherUpdateRoute.UserFields;
     }
-    return cipherView.edit ? CipherUpdateRoute.Item : CipherUpdateRoute.UserFields;
+    if (!cipherView.edit) {
+      return CipherUpdateRoute.UserFields;
+    }
+    // A restricted stored copy never matches a full request, so skip the decrypt.
+    if (
+      stored != null &&
+      !stored.isPartial &&
+      (await this.onlyUserFieldsChanged(cipherView, stored, userId))
+    ) {
+      return CipherUpdateRoute.UserFields;
+    }
+    return CipherUpdateRoute.Item;
   }
 
   /**
@@ -1177,6 +1190,26 @@ export class CipherService implements CipherServiceAbstraction {
     // Otherwise, subscribers to cipherViews$ can get stale data
     await new Promise((resolve) => setTimeout(resolve, 0));
     return res;
+  }
+
+  async updateUserFields(
+    id: CipherId,
+    fields: Pick<CipherData, "folderId" | "favorite" | "archivedDate">,
+    userId: UserId,
+  ): Promise<boolean> {
+    // Checked before the write so a cipher that is not stored does not clear the cache.
+    const stored = await firstValueFrom(this.encryptedCiphersState(userId).state$);
+    if (stored?.[id] == null) {
+      return false;
+    }
+
+    await this.updateEncryptedCipherState((current) => {
+      if (current[id] != null) {
+        current[id] = { ...current[id], ...fields };
+      }
+      return current;
+    }, userId);
+    return true;
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
