@@ -11,6 +11,7 @@ import {
   BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  SelectionConfig,
   defineTable,
 } from "../../../table/v2";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -36,6 +37,7 @@ type ProductFilters = {
  * `rows` products are spread across `users` distinct users and `features` distinct badges, and
  * each holds one to three of `sharedFolders` folders. The Shared folders chip mirrors the vault's:
  * a data-driven, multi-select tree counted in one pass through the table's `optionValues`.
+ * `virtualized` swaps the paginator for a virtualized body, as the vault renders.
  */
 export type KitchenSinkTableV2Stress = {
   rows: number;
@@ -43,6 +45,7 @@ export type KitchenSinkTableV2Stress = {
   users: number;
   features: number;
   pageSize: number;
+  virtualized: boolean;
 };
 
 export const KITCHEN_SINK_TABLE_V2_STRESS = new InjectionToken<KitchenSinkTableV2Stress>(
@@ -78,8 +81,11 @@ function generateSharedFolders(count: number): FilterOptionNode<string>[] {
   return nodes;
 }
 
-function generateRows({ rows, users, features, sharedFolders }: KitchenSinkTableV2Stress) {
-  const next = lcg(42);
+function generateRows(
+  { rows, users, features, sharedFolders }: KitchenSinkTableV2Stress,
+  seed: number,
+) {
+  const next = lcg(seed);
   return Array.from({ length: rows }, (_, i): ProductRow => {
     const badgeCount = 1 + next(3);
     const folderCount = 1 + next(3);
@@ -143,7 +149,28 @@ const DEMO_SHARED_FOLDERS: FilterOptionNode<string>[] = [
     BadgeGroupComponent,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" [filter]="filter" [optionValues]="optionValues">
+    <!-- Outside the toolbar so it doesn't change the chip row's width (and overflow behavior). -->
+    @if (stress) {
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        class="tw-mb-2"
+        startIcon="bwi-refresh"
+        (click)="refreshData()"
+      >
+        Refresh data
+      </button>
+    }
+    <bit-table-v2
+      [tableDef]="table"
+      [filter]="filter"
+      [optionValues]="optionValues"
+      [selection]="selection"
+      [queryParam]="queryParam"
+      [virtualRowHeight]="stress?.virtualized ? 56 : undefined"
+      [height]="stress?.virtualized ? 12 : undefined"
+    >
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
         <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
@@ -214,38 +241,55 @@ const DEMO_SHARED_FOLDERS: FilterOptionNode<string>[] = [
         </bit-cell>
       </bit-column>
 
-      <bit-table-paginator
-        [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions"
-      ></bit-table-paginator>
+      @if (!stress?.virtualized) {
+        <bit-table-paginator
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+        ></bit-table-paginator>
+      }
     </bit-table-v2>
   `,
 })
 export class KitchenSinkTableV2Component {
-  private readonly stress = inject(KITCHEN_SINK_TABLE_V2_STRESS, { optional: true });
+  protected readonly stress = inject(KITCHEN_SINK_TABLE_V2_STRESS, { optional: true });
 
-  private readonly rows = this.stress ? generateRows(this.stress) : PRODUCT_ROWS;
+  private readonly data = signal(this.stress ? generateRows(this.stress, 42) : PRODUCT_ROWS);
 
-  protected readonly table = defineTable<ProductRow, "actions">(signal(this.rows));
+  protected readonly table = defineTable<ProductRow, "actions">(this.data);
 
   protected readonly pageSize = this.stress?.pageSize ?? 5;
 
   protected readonly pageSizeOptions = [5, 10, 25, 50, 100];
 
+  protected readonly selection: SelectionConfig<ProductRow> = { multiple: true };
+
+  /** URL sync, as the vault table has it, so each filter change also writes the query string. */
+  protected readonly queryParam = this.stress ? "stress" : undefined;
+
   protected readonly sharedFolders = this.stress
     ? generateSharedFolders(this.stress.sharedFolders)
     : DEMO_SHARED_FOLDERS;
 
-  protected readonly users = [...new Set(this.rows.map((row) => row.user))].sort();
+  protected readonly users = [...new Set(this.data().map((row) => row.user))].sort();
 
   protected readonly features = [
-    ...new Set(this.rows.flatMap((row) => row.badges.map((badge) => badge.label))),
+    ...new Set(this.data().flatMap((row) => row.badges.map((badge) => badge.label))),
   ].sort();
 
   /** One-pass option counts for the Shared folders chip, as the vault table binds them. */
   protected readonly optionValues = {
     sharedFolder: (row: ProductRow) => row.folderIds,
   };
+
+  private readonly refreshes = signal(0);
+
+  /** Replaces every row, as a sync does; a new seed so the rows really change. */
+  protected refreshData(): void {
+    if (this.stress) {
+      this.refreshes.update((n) => n + 1);
+      this.data.set(generateRows(this.stress, 42 + this.refreshes()));
+    }
+  }
 
   /** Mirrors the vault's `matchesSharedFolder`: a row matches any selected folder it holds. */
   private static matchesSharedFolder(row: ProductRow, selected: string[] | undefined) {

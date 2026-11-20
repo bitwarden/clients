@@ -2,8 +2,11 @@
 //
 // Usage (Storybook must already be running, default http://localhost:6006):
 //   node scripts/perf/table-v2-stress.mjs [--url http://localhost:6006] [--runs 3]
-//     [--cpu-throttle 4] [--rows 23000] [--folders 3000] [--page-size 25]
+//     [--cpu-throttle 4] [--rows 23000] [--folders 3000] [--page-size 25] [--virtualized]
 //     [--profile out.cpuprofile] [--headed] [--channel chrome|chromium]
+//
+// --virtualized swaps the paginator for a virtualized body (as the vault renders) and enables
+// the scroll scenario; paging is skipped in that mode.
 //
 // Each scenario reports wall-clock time from dispatching the interaction until the next two
 // animation frames (so Angular change detection, layout and paint are all included), plus the
@@ -45,6 +48,8 @@ const { values: args } = parseArgs({
     rows: { type: "string" },
     folders: { type: "string" },
     "page-size": { type: "string" },
+    // Virtualized body instead of a paginator, as the vault renders.
+    virtualized: { type: "boolean", default: false },
   },
 });
 
@@ -54,6 +59,7 @@ const storyArgs = Object.entries({
   rows: args.rows,
   sharedFolders: args.folders,
   pageSize: args["page-size"],
+  virtualized: args.virtualized ? "true" : undefined,
 })
   .filter(([, value]) => value !== undefined)
   .map(([key, value]) => `${key}:${value}`)
@@ -138,10 +144,32 @@ const PAGE_HELPERS = () => {
     await settle();
   };
 
+  // What the user sees of the table: the first row and, when paginated, the page count.
+  const tableSnapshot = () =>
+    `${$("bit-table-v2 bit-row")?.textContent.trim()}|${$("bit-table-v2 bit-row")?.parentElement?.childElementCount}|${$("bit-table-paginator")?.textContent.trim()}`;
+
+  // Call before acting; the table search applies asynchronously, so await it after.
+  const waitForTableChange = () => {
+    const before = tableSnapshot();
+    return waitFor(() => tableSnapshot() !== before);
+  };
+
+  // The table search applies asynchronously, and a prefix like "Pro" still matches every row,
+  // so a visible change can't be waited on. Angular's dev-mode `ng` exposes the table instance,
+  // whose `filterValues()` reflects the term once the filter has run.
+  const waitForSearchApplied = (term) =>
+    waitFor(() => window.ng.getComponent($("bit-table-v2")).filterValues().search === term);
+
+  // A scenario that doesn't apply to this story configuration (e.g. paging when virtualized).
+  const skip = () => ({ skipped: true });
+
   window.__perf = {
     settle,
     measure,
     waitFor,
+    waitForTableChange,
+    waitForSearchApplied,
+    skip,
     $,
     $$,
     rows,
@@ -174,8 +202,9 @@ const openMenu = (name, chipText) => ({
   arg: chipText,
   run: async (chipText) => {
     const { measure, byText, click, waitFor, $, rows } = window.__perf;
+    const chip = await waitFor(() => byText("bit-filter-menu button", chipText));
     return measure(async () => {
-      click(byText("bit-filter-menu button", chipText));
+      click(chip);
       await waitFor(
         () =>
           $("bit-filter-menu button[aria-expanded=true]") &&
@@ -261,17 +290,48 @@ const SCENARIOS = [
   selectOption("toggle a Features option"),
   closeMenu("close Features menu (click outside)"),
   {
-    name: "table search: type 'Product 0001'",
+    name: "table search: type 'Product 0001' (one paste)",
     run: async () => {
-      const { measure, $, typeInto } = window.__perf;
-      return measure(async () => typeInto($("bit-table-toolbar bit-search input"), "Product 0001"));
+      const { measure, $, typeInto, waitForSearchApplied } = window.__perf;
+      return measure(async () => {
+        typeInto($("bit-table-toolbar bit-search input"), "Product 0001");
+        await waitForSearchApplied("Product 0001");
+      });
     },
   },
   {
     name: "table search: clear",
     run: async () => {
-      const { measure, $, typeInto } = window.__perf;
-      return measure(async () => typeInto($("bit-table-toolbar bit-search input"), ""));
+      const { measure, $, typeInto, waitForSearchApplied } = window.__perf;
+      return measure(async () => {
+        typeInto($("bit-table-toolbar bit-search input"), "");
+        await waitForSearchApplied("");
+      });
+    },
+  },
+  {
+    // What a user feels: the filter runs on every keystroke, each over all rows.
+    name: "table search: type 'Product 0001' (12 keystrokes, total)",
+    run: async () => {
+      const { measure, $, typeInto, waitForSearchApplied } = window.__perf;
+      const input = $("bit-table-toolbar bit-search input");
+      const term = "Product 0001";
+      return measure(async () => {
+        for (let i = 1; i <= term.length; i++) {
+          typeInto(input, term.slice(0, i));
+          await waitForSearchApplied(term.slice(0, i));
+        }
+      });
+    },
+  },
+  {
+    name: "table search: clear (after keystrokes)",
+    run: async () => {
+      const { measure, $, typeInto, waitForSearchApplied } = window.__perf;
+      return measure(async () => {
+        typeInto($("bit-table-toolbar bit-search input"), "");
+        await waitForSearchApplied("");
+      });
     },
   },
   {
@@ -282,10 +342,56 @@ const SCENARIOS = [
     },
   },
   {
-    name: "next page",
+    name: "select all rows",
     run: async () => {
       const { measure, $, click } = window.__perf;
-      return measure(async () => click($("bit-table-paginator button[aria-label='Next page']")));
+      return measure(async () => click($("bit-header-row input[type=checkbox]")));
+    },
+  },
+  {
+    name: "deselect all rows",
+    run: async () => {
+      const { measure, $, click } = window.__perf;
+      return measure(async () => click($("bit-header-row input[type=checkbox]")));
+    },
+  },
+  {
+    // Not virtualized: the paginator slices rows. Virtualized: there is no paginator.
+    name: "next page (paginated only)",
+    run: async () => {
+      const { measure, $, click, skip } = window.__perf;
+      const button = $("bit-table-paginator button[aria-label='Next page']");
+      return button ? measure(async () => click(button)) : skip();
+    },
+  },
+  {
+    // Twenty viewport-sized steps through the body; the cost is row creation per step.
+    name: "scroll table body 20 steps (virtualized only)",
+    run: async () => {
+      const { measure, $, settle, skip } = window.__perf;
+      const viewport = $("bit-table-v2 cdk-virtual-scroll-viewport");
+      if (!viewport) {
+        return skip();
+      }
+      return measure(async () => {
+        for (let i = 1; i <= 20; i++) {
+          viewport.scrollTop = i * viewport.clientHeight;
+          viewport.dispatchEvent(new Event("scroll"));
+          await settle();
+        }
+      });
+    },
+  },
+  {
+    // A sync replaces the whole row array, so everything derived recomputes.
+    name: "refresh data (replace all rows)",
+    run: async () => {
+      const { measure, byText, click, waitForTableChange } = window.__perf;
+      return measure(async () => {
+        const changed = waitForTableChange();
+        click(byText("bit-kitchen-sink-table-v2 button", "Refresh data"));
+        await changed;
+      });
     },
   },
   {
@@ -352,7 +458,9 @@ for (let run = 0; run < runs; run++) {
   for (const scenario of SCENARIOS) {
     try {
       const sample = await page.evaluate(scenario.run, scenario.arg);
-      record(scenario.name, sample);
+      if (!sample.skipped) {
+        record(scenario.name, sample);
+      }
     } catch (e) {
       record(scenario.name, { wall: NaN, longTaskCount: NaN, longTaskTotal: NaN });
       console.error(`[run ${run + 1}] ${scenario.name}: ${e.message}`);

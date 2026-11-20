@@ -120,6 +120,8 @@ export default {
               done: "Done",
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
+              selectAllRows: "Select all rows",
+              selectRow: "Select row",
               previousPage: "Previous page",
               nextPage: "Next page",
               goToPage: "Go to page",
@@ -188,6 +190,7 @@ export const TableV2Stress: StoryObj<KitchenSinkTableV2Stress> = {
     users: 20,
     features: 50,
     pageSize: 25,
+    virtualized: false,
   },
   decorators: [
     // Args arrive as strings from the URL, so coerce before handing them to the generator.
@@ -202,6 +205,7 @@ export const TableV2Stress: StoryObj<KitchenSinkTableV2Stress> = {
               users: Number(context.args.users),
               features: Number(context.args.features),
               pageSize: Number(context.args.pageSize),
+              virtualized: String(context.args.virtualized) === "true",
             } satisfies KitchenSinkTableV2Stress,
           },
         ],
