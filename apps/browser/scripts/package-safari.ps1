@@ -80,16 +80,17 @@ $buildBlock = {
     (Get-Content $projectFile).Replace('../../../build', "../safari/app") | Set-Content $projectFile
 
     # Build using xcode. DerivedData is scoped per-variant to avoid collisions when both run in parallel.
+    # Direct invocation (not Start-Process) so that stdout/stderr are captured by the background job
+    # and surfaced via Receive-Job in CI logs.
     $xcodeBuildArgs = @(
         "-project", (Join-Path $safariBuildPath "desktop.xcodeproj"),
         "-derivedDataPath", (Join-Path $safariBuildPath "DerivedData"),
         "-alltargets",
         "-configuration", "Release"
     )
-    $proc = Start-Process "xcodebuild" -ArgumentList $xcodeBuildArgs -NoNewWindow -PassThru
-    $proc.WaitForExit()
-    if ($proc.ExitCode -ne 0) {
-        throw "xcodebuild failed for '$subBuildPath' with exit code $($proc.ExitCode)"
+    & xcodebuild @xcodeBuildArgs 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "xcodebuild failed for '$subBuildPath' with exit code $LASTEXITCODE"
     }
 
     # Verify the appex actually contains its executable. A compile/link failure can leave a bundle
@@ -100,20 +101,18 @@ $buildBlock = {
         throw "Built appex for '$subBuildPath' is missing its executable at $appexExecutablePath"
     }
 
-    # Codesign
+    # Codesign — direct invocation so output is captured by the background job.
     $libs = Get-ChildItem -Path $builtAppexFrameworkPath -Filter "*.dylib"
     foreach ($lib in $libs) {
-        $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $lib.FullName) -NoNewWindow -PassThru
-        $proc.WaitForExit()
-        if ($proc.ExitCode -ne 0) {
-            throw "codesign failed for '$($lib.FullName)' with exit code $($proc.ExitCode)"
+        & codesign @codesignArgs $lib.FullName 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "codesign failed for '$($lib.FullName)' with exit code $LASTEXITCODE"
         }
     }
 
-    $proc = Start-Process "codesign" -ArgumentList ($codesignArgs + $builtAppexPath) -NoNewWindow -PassThru
-    $proc.WaitForExit()
-    if ($proc.ExitCode -ne 0) {
-        throw "codesign failed for '$builtAppexPath' with exit code $($proc.ExitCode)"
+    & codesign @codesignArgs $builtAppexPath 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "codesign failed for '$builtAppexPath' with exit code $LASTEXITCODE"
     }
 
     Write-Output "[$subBuildPath] Build and sign completed successfully"
@@ -128,11 +127,19 @@ $jobs = $variants | ForEach-Object {
 $jobs | Wait-Job | Out-Null
 
 # Surface all output (stdout + errors) from both jobs so CI logs capture everything.
-$jobs | Receive-Job
+# 2>&1 merges the error stream into stdout so nothing is swallowed.
+$jobs | Receive-Job 2>&1 | Write-Output
 
 # Fail if either variant did not complete successfully.
 $failed = @($jobs | Where-Object { $_.State -ne "Completed" })
 if ($failed.Count -gt 0) {
+    # Explicitly surface exception details from each failed job. Receive-Job doesn't always
+    # flush these before the script exits, so dump them directly from the child job error list.
+    foreach ($job in $failed) {
+        foreach ($childJob in $job.ChildJobs) {
+            $childJob.Error | ForEach-Object { Write-Error $_ -ErrorAction Continue }
+        }
+    }
     $names = ($failed | ForEach-Object { $_.Name }) -join ", "
     throw "Safari build failed for variant(s): $names"
 }
