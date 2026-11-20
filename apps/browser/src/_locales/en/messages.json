@@ -9037,6 +9037,34 @@
   "pamStartLeaseErrorSingleActiveAccess": {
     "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
   },
+  "pamStartItemInUseTitle": {
+    "message": "Item in use"
+  },
+  "pamStartItemInUseAtToday": {
+    "message": "Someone else has access to this item right now. You can start access at $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8:45 AM"
+      }
+    }
+  },
+  "pamStartItemInUseAt": {
+    "message": "Someone else has access to this item right now. You can start access at $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8:45 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 21, 2026"
+      }
+    }
+  },
+  "pamStartItemInUse": {
+    "message": "Someone else has access to this item right now. You can start access once they're done."
+  },
   "pamStartLeaseErrorNetworkNotPermitted": {
     "message": "Access to this item is not permitted from your current network."
   },

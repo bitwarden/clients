@@ -59,7 +59,7 @@
       [request]="request"
       [nowMs]="nowMs()"
       [startAction]="activateRequest"
-      [startBlocked]="startBlockedUntil() != null"
+      [startBlockedUntil]="startBlockedUntil()"
     />
   } @else if (pendingRequest(); as request) {
     <app-pam-pending-request-card

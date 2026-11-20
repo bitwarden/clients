@@ -621,6 +621,10 @@ describe("CipherViewBannerComponent", () => {
     const FREES_AT = "2026-08-31T10:52:00Z";
     let ticks$: Subject<number>;
 
+    function itemInUse(): HTMLElement | null {
+      return query('[data-testid="cipher-view-banner-approved-item-in-use"]');
+    }
+
     function startDisabled(): boolean {
       return fixture.debugElement
         .query(By.css("#pam-cipher-view-banner_button_start"))
@@ -636,7 +640,11 @@ describe("CipherViewBannerComponent", () => {
       );
     });
 
-    it("disables Start access", async () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("disables Start access and explains why above it, describing the button", async () => {
       requestsApi.preCheck.mockResolvedValue(
         preCheck({ canStartLease: false, slotFreesAt: FREES_AT }),
       );
@@ -644,6 +652,30 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(startDisabled()).toBe(true);
+      expect(itemInUse()?.textContent).toContain("pamStartItemInUseTitle");
+      expect(itemInUse()?.textContent).toContain("pamStartItemInUseAt");
+      // The time is the one bold run, so the requester sees when to come back at a glance.
+      expect(itemInUse()?.querySelector("strong")?.textContent?.trim()).not.toBe("");
+      const start = query("#pam-cipher-view-banner_button_start");
+      expect(start?.getAttribute("aria-describedby")).toBe(itemInUse()?.id);
+      // Above Start access, per the design.
+      expect(
+        itemInUse()!.compareDocumentPosition(start!) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it("says today rather than the date while the slot frees later today", async () => {
+      // Local noon, so an hour on is "today" in any zone. Pinned rather than faked: a fake timer
+      // would stall `fixture.whenStable()`.
+      const noon = new Date(2026, 0, 1, 12, 0).getTime();
+      jest.spyOn(Date, "now").mockReturnValue(noon);
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ canStartLease: false, slotFreesAt: new Date(noon + 3_600_000).toISOString() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(itemInUse()?.textContent).toContain("pamStartItemInUseAtToday");
     });
 
     it("leaves Start access enabled while the slot is free", async () => {
@@ -652,6 +684,10 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(startDisabled()).toBe(false);
+      expect(itemInUse()).toBeNull();
+      expect(
+        query("#pam-cipher-view-banner_button_start")?.getAttribute("aria-describedby"),
+      ).toBeNull();
     });
 
     it("fails open when the pre-check cannot be read, since the server still gates the start", async () => {
@@ -675,6 +711,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(startDisabled()).toBe(false);
+      expect(itemInUse()).toBeNull();
     });
   });
 

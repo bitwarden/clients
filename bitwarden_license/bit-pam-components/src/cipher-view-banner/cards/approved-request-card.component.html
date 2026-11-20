@@ -7,6 +7,22 @@
       </span>
     </app-pam-banner-card-header>
 
+    @if (itemInUseMessage(); as message) {
+      <bit-callout
+        type="warning"
+        [title]="'pamStartItemInUseTitle' | i18n"
+        [id]="itemInUseCalloutId"
+        data-testid="cipher-view-banner-approved-item-in-use"
+      >
+        <!-- One element per run, so template whitespace never lands before the punctuation. -->
+        <span>{{ message.before }}</span>
+        @if (message.time) {
+          <strong>{{ message.time }}</strong>
+        }
+        <span>{{ message.after }}</span>
+      </bit-callout>
+    }
+
     <button
       type="button"
       bitButton
@@ -16,6 +32,7 @@
       [class.tw-self-start]="!popupLayout"
       [bitAction]="startAction()"
       [disabled]="startBlocked()"
+      [attr.aria-describedby]="startBlocked() ? itemInUseCalloutId : null"
       id="pam-cipher-view-banner_button_start"
     >
       {{ "pamStartLeaseButton" | i18n }}
