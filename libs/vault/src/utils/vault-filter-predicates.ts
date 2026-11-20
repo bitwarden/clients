@@ -65,8 +65,29 @@ export function matchesSharedFolder(
   if (!sharedFolder || sharedFolder.length === 0) {
     return true;
   }
-  const collectionIds = (cipher.collectionIds ?? []).map((id) => idString(id));
-  return sharedFolder.some((value) => collectionIds.includes(value));
+  // A loop, not `map`: the table calls this for every row on each filter change.
+  for (const id of cipher.collectionIds ?? []) {
+    const collectionId = idString(id);
+    if (collectionId != null && sharedFolder.includes(collectionId)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The Shared folders chip values the cipher holds: its collection ids. Must agree with
+ * {@link matchesSharedFolder} — `bit-table-v2` counts the chip's options from these.
+ */
+export function sharedFolderValues(cipher: CipherViewLike): string[] {
+  const values: string[] = [];
+  for (const id of cipher.collectionIds ?? []) {
+    const collectionId = idString(id);
+    if (collectionId != null) {
+      values.push(collectionId);
+    }
+  }
+  return values;
 }
 
 /**
@@ -81,6 +102,14 @@ export function matchesFolder(cipher: CipherViewLike, folder: string[] | undefin
   return folder.some((value) =>
     value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
   );
+}
+
+/**
+ * The My folders chip value the cipher holds: its folder id, or {@link NO_FOLDER}. Must agree
+ * with {@link matchesFolder} — `bit-table-v2` counts the chip's options from it.
+ */
+export function folderValues(cipher: CipherViewLike): string[] {
+  return cipher.folderId ? [String(cipher.folderId)] : [NO_FOLDER];
 }
 
 /**

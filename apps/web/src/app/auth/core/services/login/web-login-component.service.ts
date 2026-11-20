@@ -173,18 +173,19 @@ export class WebLoginComponentService
   }
 
   /**
-   * Whether the stashed org invite matches the SSO redirect params:
-   *  - Direct invite: org id + email (case-insensitive).
+   * Whether the stashed org invite matches the SSO redirect params. Both org id and
+   * email comparisons are case-insensitive.
+   *  - Direct invite: org id + email.
    *  - Open invite: org id only (open invites carry no user identity).
    */
   private async hasMatchingStashedOrgInvite(params: Params): Promise<boolean> {
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     const directMatch =
       orgInvite?.kind === OrgInviteKind.Direct &&
-      orgInvite.organizationId === params.organizationId &&
+      orgInvite.isForOrganization(params.organizationId) &&
       orgInvite.email?.toLowerCase() === params.email.toLowerCase();
     const openMatch =
-      orgInvite?.kind === OrgInviteKind.Open && orgInvite.organizationId === params.organizationId;
+      orgInvite?.kind === OrgInviteKind.Open && orgInvite.isForOrganization(params.organizationId);
     return directMatch || openMatch;
   }
 

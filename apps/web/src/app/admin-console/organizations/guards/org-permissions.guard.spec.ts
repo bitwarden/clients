@@ -14,7 +14,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  buildTestOrganization,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
@@ -23,14 +27,11 @@ import { organizationPermissionsGuard } from "./org-permissions.guard";
 
 // Returns a test organization with the specified props.
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  buildTestOrganization({
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 const targetOrgId = "myOrgId";
 

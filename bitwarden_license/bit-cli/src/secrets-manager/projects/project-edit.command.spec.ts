@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
+import { Response } from "@bitwarden/cli/models/response";
 
 import {
   encodeSmRequest,
@@ -83,5 +84,91 @@ describe("ProjectEditCommand", () => {
 
     expect(response.success).toBe(false);
     expect(response.message).toBe("The project was not found, or you do not have access to it.");
+  });
+
+  describe("read-only properties", () => {
+    const getBody = () => ({
+      object: "sm-project",
+      id: projectId,
+      organizationId: smOrgId,
+      name: "Backend",
+      creationDate: "2024-01-01T00:00:00Z",
+      revisionDate: "2024-01-02T00:00:00Z",
+      read: true,
+      write: true,
+      decryptionError: false,
+    });
+
+    beforeEach(() => {
+      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: true }));
+      projectService.update.mockResolvedValue(makeProject({ name: "Frontend" }));
+    });
+
+    it("renames from a full get-shaped body", async () => {
+      const response = await command.run(
+        smOrg,
+        projectId,
+        encodeSmRequest({ ...getBody(), name: "Frontend" }),
+      );
+
+      expect(response.success).toBe(true);
+      expect(projectService.update).toHaveBeenCalledWith(
+        smOrgId,
+        expect.objectContaining({ id: projectId, name: "Frontend" }),
+      );
+    });
+
+    it.each([
+      ["read", { read: false }],
+      ["write", { write: false }],
+    ])("rejects a changed %s and saves nothing", async (property, change) => {
+      const response = await command.run(smOrg, projectId, {
+        ...getBody(),
+        name: "Renamed",
+        ...change,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`" + property + "` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects a read-only value of a different type", async () => {
+      const response = await command.run(smOrg, projectId, {
+        name: "Renamed",
+        write: "true",
+        read: true,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`write` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("reports missing edit permission before read-only properties", async () => {
+      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: false }));
+
+      for (const write of [false, true]) {
+        const response = await command.run(smOrg, projectId, {
+          ...getBody(),
+          read: true,
+          write,
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(Response.noEditPermission().message);
+      }
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("accepts a body without read or write", async () => {
+      const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+      expect(response.success).toBe(true);
+    });
   });
 });

@@ -65,7 +65,7 @@ on first SSO login), the **server** accepts the user into the org as a side
 effect of finishing account setup. The client never re-fires acceptance for
 these users — the cleanup services drop the stashed invite and the deep-link
 redirect URL so the guard doesn't replay the accept route. Applies to both
-invite kinds equally.
+invite kinds equally, with one master password exception below.
 
 Which acceptance path runs depends on the org's configured **member
 decryption option** — the mechanism users employ to decrypt their vaults
@@ -74,6 +74,13 @@ after SSO authentication (configured under the org's SSO settings):
 - **Master password member decryption option**: server's
   `FinishSsoJitProvisionMasterPasswordCommand` accepts the user when they
   submit their initial master password.
+  Exception: when the stashed invite is an open invite for the same org, we
+  tell the server not to accept the invite
+  (`SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this
+  decision). The membership stays Invited, and `WebSetInitialPasswordService`
+  keeps the stash and the `/join` redirect. `deepLinkGuard` then replays `/join`
+  into `AcceptOrgOpenInviteComponent`, which runs the Admin Console accept flow.
+  TDE and Key Connector do not have this exception yet.
 - **Trusted Device Encryption (TDE) member decryption option**: server
   accepts the user during admin-recovery enrollment (the org feature that
   lets admins recover user accounts via a shared key — TDE users are
@@ -194,7 +201,7 @@ decryption. After SSO they land in a "set initial password" flow.
 2. IdP auth + callback
 3. Server JIT-provisions the user
 4. Client navigates the user through "set initial password"
-5. User submits their new MP → `WebSetInitialPasswordService.setInitialPassword` (or `.initializePasswordJitPasswordUserV2Encryption` for the V2 path — V2 is the current SDK-based encryption path; V1 is the deprecated direct path)
+5. User submits their new MP → `WebSetInitialPasswordService.initializePasswordJitPasswordUserV2Encryption`
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
@@ -485,13 +492,18 @@ downstream outcomes:
    setup — see [The two acceptance mechanisms > 2. Server-side acceptance
    as a side effect of account setup](#2-server-side-acceptance-as-a-side-effect-of-account-setup)
    for the MP / TDE / KC breakdown. Same server commands, same client-side
-   cleanup services, invite-kind-agnostic.
+   cleanup services. Exception: for MP, we tell the server not to accept the
+   open invite when it is for this org, so the membership stays Invited.
 4. Client-side cleanup (MP: `WebSetInitialPasswordService`; TDE:
    `WebLoginDecryptionOptionsService`; KC: `ConfirmKeyConnectorDomainComponent`
    override) sees the stashed open invite and drops both the persisted
    `/join` deep-link URL and the stash via `clearOrganizationInvite`, which
    clears both state keys. `deepLinkGuard` therefore does not replay `/join`
    and `authedHandler` does not re-fire `acceptOpenOrgInvite`.
+   MP exception: when the server did not accept the invite (step 3),
+   `WebSetInitialPasswordService` keeps the stash and the `/join` URL.
+   `deepLinkGuard` replays `/join`, and `authedHandler` runs
+   `acceptOpenOrgInvite`, which applies the Admin Console checks.
 
 #### SSO-required org, existing user (MP detour to /login)
 

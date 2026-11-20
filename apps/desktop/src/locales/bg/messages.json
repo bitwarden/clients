@@ -973,7 +973,7 @@
   },
   "desktopApp": {
     "message": "Настолно приложение",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Настолно приложение $COUNT$",
@@ -985,6 +985,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Неправилно сдвояване на приложението",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Уеб сайтът е добавен"
   },
@@ -993,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Добавяне на уеб сайт или приложение"
-  },
-  "app": {
-    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Изтриване на уеб сайт"
@@ -3380,6 +3381,10 @@
   "custom": {
     "message": "По избор"
   },
+  "deleteSend": {
+    "message": "Изтриване на Изпращането",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете това изпращане?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4621,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Внасянето е успешно"
+  },
+  "importConfirmationBody": {
+    "message": "Внесохте успешно $AMOUNT$ елемента в Битуорден.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Внесохте успешно 1 елемент в Битуорден."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Съвет:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забравяйте да изтриете $FILENAME$. Файлът съдържа чувствителни данни и може да не е шифрован.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забравяйте да изтриете файла за внасяне. Той съдържа чувствителни данни и може да не е шифрован."
+  },
+  "importingTitle": {
+    "message": "Внасяне"
+  },
+  "importingDescription": {
+    "message": "Този процес може да отнеме няколко минути."
+  },
   "total": {
     "message": "Общо"
   },
@@ -5654,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Възникна грешка. Проверете въведените данни и опитайте отново."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Поддържа се само вписване с парола."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Поддържа се само вписване с парола. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Този акаунт от 1Password използва метод на вписване, който не се поддържа. Опитайте отново или използвайте друг начин за внасяне."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Въведете правилен адрес на е-поща или използвайте друг начин за внасяне."
@@ -5677,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Въведете правилен адрес за вписване."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Може да намерите това в своя Комплект за спешни случаи в 1Password."
   },
   "secretKeyIsRequired": {
     "message": "Секретният ключ е задължителен."
@@ -5699,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Въведете е-пощата, която използвате за вписване в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Въведете е-пощата, която използвате за вписване в 1Password. Поддържа се само вписване с парола."
+  },
   "secretKey": {
     "message": "Таен ключ"
   },
@@ -5707,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Вписване с еднократно удостоверяване"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Превключете към страницата за еднократно удостоверяване, за да завършите внасянето в Битуорден."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Прехвърляне на ключа за шифроване"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Впишете се в 1Password и идете в чакащите вписвания, за да одобрите тази заявка."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Кодът не сработи. Проверете другото си устройство за нов."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Страницата за еднократно удостоверяване беше затворена преди да завършите вписването си. Опитайте отново, за да продължите внасянето."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Това устройство не беше одобрено на другото Ви устройство. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Твърде много неуспешни кодове за потвърждение. Опитайте отново или използвайте друг начин за внасяне."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -6286,12 +6357,19 @@
     "message": "Изпращайте чувствителна информация сигурно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Нямате никакви Изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Няма резултати от търсенето"
   },
   "sendsBodyNoItems": {
     "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Споделяйте текстове или файлове сигурно с всеки. Вашата информация ще бъде шифрована от край до край."
   },
   "sendsBodyNoSearchResults": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
@@ -6382,6 +6460,9 @@
   },
   "itemLower": {
     "message": "елемент"
+  },
+  "itemUpper": {
+    "message": "Елемент"
   },
   "itemsLower": {
     "message": "елементи"
@@ -6910,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Как да управлявам трезора си?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Прехвърлете елементите си към $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6919,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ вече изисква всички елементи на членовете да бъдат притежание на организацията. Личните Ви елементи ще бъдат преместени в папка с име „Моите елементи“, която само Вие ще можете да виждате.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
   },
   "openTransferItemsHelpArticle": {
     "message": "Отваряне на помощната информация относно прехвърлянето на данни"
@@ -7783,5 +7861,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
+  },
+  "item": {
+    "message": "Елемент"
   }
 }
