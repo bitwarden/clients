@@ -229,20 +229,6 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
       });
   }
 
-  override submitToastKey(): string {
-    const wasEnabled = this.policyResponse()?.enabled ?? false;
-    const isEnabled = this.enabled.value ?? false;
-
-    if (!wasEnabled && isEnabled) {
-      return "policyTurnedOn";
-    }
-    if (wasEnabled && !isEnabled) {
-      return "policyTurnedOff";
-    }
-
-    return "policyEdited";
-  }
-
   override ngOnInit(): void {
     super.ngOnInit();
 

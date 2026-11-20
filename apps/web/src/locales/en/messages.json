@@ -6985,15 +6985,6 @@
   "keepEditing": {
     "message": "Keep editing"
   },
-  "policyTurnedOn": {
-    "message": "Policy turned on"
-  },
-  "policyTurnedOff": {
-    "message": "Policy turned off"
-  },
-  "policyEdited": {
-    "message": "Policy edited"
-  },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
     "placeholders": {
