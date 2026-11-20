@@ -336,7 +336,7 @@ describe("RequestAccessFormComponent", () => {
           expect(text()).toContain("pamRequestSlotTakenUntil");
         });
 
-        it("stays quiet while the window is incomplete", () => {
+        it("keeps warning while the window is incomplete, reading it as starting now", () => {
           component["humanForm"].controls.window.setValue({
             startDate: "",
             startTime: "",
@@ -345,7 +345,17 @@ describe("RequestAccessFormComponent", () => {
           });
           fixture.detectChanges();
 
-          expect(text()).not.toContain("pamRequestSlotTaken");
+          expect(text()).toContain("pamRequestSlotTakenUntil");
+        });
+
+        it("keeps warning when the slot's end cannot be read", async () => {
+          requestsApi.preCheck.mockResolvedValue(
+            preCheck({ approvalMode: "human", canStartLease: false, slotFreesAt: "not a date" }),
+          );
+          await create();
+          pickWindow(24 * HOUR_MS);
+
+          expect(text()).toContain("pamRequestSlotTaken");
         });
       });
 

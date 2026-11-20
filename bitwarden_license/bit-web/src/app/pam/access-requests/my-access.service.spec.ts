@@ -585,6 +585,17 @@ describe("MyAccessService", () => {
       expect(await firstValueFrom(service.startBlockedCipherIds$)).toEqual(new Set());
     });
 
+    it("pre-checks nothing for a grant whose window has not opened yet", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { ...openGrant, leaseNotBefore: "2098-12-31T00:00:00.000Z" }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.startBlockedCipherIds$)).toEqual(new Set());
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+
     it("pre-checks nothing for undecided requests", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1")]);
 

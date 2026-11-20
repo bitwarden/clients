@@ -28,7 +28,7 @@ export { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-
 export { AccessRequestCancelService } from "./services/access-request-cancel.service";
 export { MyLeasesService } from "./services/my-leases.service";
 export { MyAccessRequestsService } from "./services/my-access-requests.service";
-export { startBlockedUntil$, type StartSlotDeps } from "./services/start-slot";
+export { StartSlotService, type StartBlock } from "./services/start-slot.service";
 export { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
 export {
   ControlledAccessVaultFilterService,

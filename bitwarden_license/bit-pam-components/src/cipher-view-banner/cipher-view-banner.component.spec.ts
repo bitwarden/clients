@@ -678,6 +678,40 @@ describe("CipherViewBannerComponent", () => {
       expect(itemInUse()?.textContent).toContain("pamStartItemInUseAtToday");
     });
 
+    it("says to wait until they're done when the server gives no free time", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: false }));
+
+      await create(gatedCipher());
+
+      expect(startDisabled()).toBe(true);
+      expect(itemInUse()?.textContent).toContain("pamStartItemInUse");
+      expect(itemInUse()?.textContent).not.toContain("pamStartItemInUseAt");
+      expect(itemInUse()?.querySelector("strong")).toBeNull();
+    });
+
+    it("refuses to activate while the slot is taken, whatever triggers it", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ canStartLease: false, slotFreesAt: FREES_AT }),
+      );
+      await create(gatedCipher());
+
+      await component["activateRequest"]();
+
+      expect(requestsApi.activateAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("gives each card's callout its own id", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ canStartLease: false, slotFreesAt: FREES_AT }),
+      );
+      await create(gatedCipher());
+      const firstId = itemInUse()?.id;
+
+      await create(gatedCipher());
+
+      expect(itemInUse()?.id).not.toBe(firstId);
+    });
+
     it("leaves Start access enabled while the slot is free", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
 
@@ -706,7 +740,8 @@ describe("CipherViewBannerComponent", () => {
       expect(startDisabled()).toBe(true);
 
       requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
-      ticks$.next(Date.parse(FREES_AT));
+      // FREES_AT has passed, so the re-read waits the interval rather than firing every tick.
+      ticks$.next(Date.now() + 60_000);
       await fixture.whenStable();
       fixture.detectChanges();
 

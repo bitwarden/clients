@@ -24,12 +24,16 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { type StartBlock } from "../../services/start-slot.service";
 import { injectPopupLayout } from "../cipher-view-banner-layout";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /** Stands in for the time while the message is split, so only the time renders bold. */
 const TIME_MARK = "\u0000time\u0000";
+
+/** Gives each card its own callout id, so `aria-describedby` never resolves to another card's. */
+let nextCardId = 0;
 
 /** An approved request the requester has not started yet. */
 @Component({
@@ -52,16 +56,16 @@ export class ApprovedRequestCardComponent {
   readonly nowMs = input.required<number>();
   readonly startAction = input.required<FunctionReturningAwaitable>();
   /**
-   * When another member's lease on the single-active-lease slot ends; `null` while the slot is
-   * free. Set disables Start access and shows why above it.
+   * Another member's hold on the single-active-lease slot; `null` while the slot is free. Set
+   * disables Start access and shows why above it.
    */
-  readonly startBlockedUntil = input<string | null>(null);
+  readonly startBlock = input<StartBlock | null>(null);
 
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
-  protected readonly itemInUseCalloutId = "pam-cipher-view-banner_callout_item-in-use";
+  protected readonly itemInUseCalloutId = `pam-cipher-view-banner_callout_item-in-use-${nextCardId++}`;
   protected readonly popupLayout = injectPopupLayout();
 
   /** "…until 4:45 PM today." while the approved window ends on the current day, else its date too. */
@@ -78,18 +82,18 @@ export class ApprovedRequestCardComponent {
     );
   });
 
-  protected readonly startBlocked = computed(() => this.startBlockedUntil() != null);
+  protected readonly startBlocked = computed(() => this.startBlock() != null);
 
   /**
    * "…You can start access at 8:45 AM today." split around the time, which renders bold. Falls back
-   * to the untimed message when the slot's end cannot be read.
+   * to the untimed message when the server gives no end, or one that cannot be read.
    */
   protected readonly itemInUseMessage = computed(() => {
-    const freesAt = this.startBlockedUntil();
-    if (freesAt == null) {
+    const block = this.startBlock();
+    if (block == null) {
       return null;
     }
-    const freesAtMs = Date.parse(freesAt);
+    const freesAtMs = block.freesAt == null ? NaN : Date.parse(block.freesAt);
     if (Number.isNaN(freesAtMs)) {
       return { before: this.i18nService.t("pamStartItemInUse"), time: null, after: "" };
     }

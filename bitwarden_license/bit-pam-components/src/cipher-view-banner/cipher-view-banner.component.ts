@@ -69,7 +69,7 @@ import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dial
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
-import { startBlockedUntil$ } from "../services/start-slot";
+import { type StartBlock, StartSlotService } from "../services/start-slot.service";
 
 import { AccessEndedCardComponent } from "./cards/access-ended-card.component";
 import { ActiveLeaseCardComponent } from "./cards/active-lease-card.component";
@@ -131,6 +131,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
+  private readonly startSlotService = inject(StartSlotService);
   protected readonly popupLayout = injectPopupLayout();
 
   /** Advanced every second while {@link clockAdvances}. */
@@ -284,24 +285,15 @@ export class CipherViewBannerComponent implements OnInit {
     { initialValue: null },
   );
 
-  private readonly startSlotDeps = {
-    accessRequestSdkService: this.accessRequestSdkService,
-    accessRefreshService: this.accessRefreshService,
-    ticker: this.ticker,
-    logService: this.logService,
-  };
-
   /**
-   * When another member holds the single-active-lease slot, the time it frees; `null` while the
-   * caller may start. Read only while an approved request waits, so Start access is disabled
-   * rather than failing. Fails open, since the server still refuses a start while the slot is
-   * taken.
+   * Another member's hold on the single-active-lease slot, or `null` while the caller may start.
+   * Read only while an approved request waits, so Start access is disabled rather than failing.
    */
-  protected readonly startBlockedUntil = toSignal<string | null>(
+  protected readonly startBlock = toSignal<StartBlock | null>(
     toObservable(computed(() => (this.approvedRequest() != null ? this.cipher().id : null))).pipe(
       distinctUntilChanged(),
       switchMap((cipherId) =>
-        cipherId == null ? of(null) : startBlockedUntil$(String(cipherId), this.startSlotDeps),
+        cipherId == null ? of(null) : this.startSlotService.blockedUntil$(String(cipherId)),
       ),
     ),
     { initialValue: null },
@@ -426,7 +418,7 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly activateRequest = async (): Promise<void> => {
     const approved = this.approvedRequest();
-    if (approved == null) {
+    if (approved == null || this.startBlock() != null) {
       return;
     }
     try {

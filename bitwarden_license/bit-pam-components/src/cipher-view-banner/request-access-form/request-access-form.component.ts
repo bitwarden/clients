@@ -165,7 +165,9 @@ export class RequestAccessFormComponent implements OnInit {
   /**
    * {@link slotContention} as the form shows it. The automatic path starts now, so it always
    * applies; a human window only collides when it starts before the slot frees, and the answer
-   * follows the window as the requester edits it.
+   * follows the window as the requester edits it. An incomplete window reads as starting now, and an
+   * end the server does not give or that cannot be read as possibly never freeing, so the warning
+   * only drops once a window clearly starts after the slot frees.
    */
   protected readonly visibleContention = computed(() => {
     const contention = this.slotContention();
@@ -174,14 +176,11 @@ export class RequestAccessFormComponent implements OnInit {
     }
     const requested = this.humanWindow();
     const window = requested == null ? null : composeRequestWindow(requested);
-    if (window == null) {
-      return null;
-    }
-    // Without a free time the slot may stay taken through any window.
-    if (contention.freesAt == null) {
+    const freesAtMs = contention.freesAt == null ? NaN : Date.parse(contention.freesAt);
+    if (window == null || Number.isNaN(freesAtMs)) {
       return contention;
     }
-    return window.start.getTime() < Date.parse(contention.freesAt) ? contention : null;
+    return window.start.getTime() < freesAtMs ? contention : null;
   });
 
   ngOnInit(): void {

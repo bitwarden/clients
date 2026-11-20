@@ -28,10 +28,9 @@ import {
   canApprove,
   isRequestNoLongerPendingError,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService, startBlockedUntil$ } from "@bitwarden/bit-pam-components";
+import { type StartBlock, StartSlotService } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -42,6 +41,7 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-name-resolver.service";
+import { isRedeemableGrant } from "../my-access-row";
 
 /** Who is looking at the request, since the requester and approvers open the same link. */
 export type AccessRequestViewer = "requester" | "approver";
@@ -62,8 +62,7 @@ export class AccessRequestDetailService {
   private readonly accountService = inject(AccountService);
   private readonly inbox = inject(ApproverInboxService);
   private readonly route = inject(ActivatedRoute);
-  private readonly ticker = inject(AccessBadgeTickerService);
-  private readonly logService = inject(LogService);
+  private readonly startSlotService = inject(StartSlotService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _request$ = new BehaviorSubject<AccessRequestView | null>(null);
@@ -120,31 +119,21 @@ export class AccessRequestDetailService {
   );
 
   /**
-   * While the requester looks at their unstarted approval, when another member's lease on its
-   * cipher frees; `null` otherwise. Start session stays disabled while this is set.
+   * While the requester looks at their still-startable approval, another member's hold on its
+   * cipher's single-active-lease slot; `null` otherwise. Start session stays disabled while set.
    */
-  readonly startBlockedUntil$: Observable<string | null> = combineLatest([
+  readonly startBlock$: Observable<StartBlock | null> = combineLatest([
     this.request$,
     this.viewer$,
   ]).pipe(
     map(([request, viewer]) =>
-      request != null &&
-      viewer === "requester" &&
-      request.status === "approved" &&
-      request.producedLeaseId == null
+      request != null && viewer === "requester" && isRedeemableGrant(request, Date.now())
         ? uuidAsString(request.cipherId)
         : null,
     ),
     distinctUntilChanged(),
     switchMap((cipherId) =>
-      cipherId == null
-        ? of(null)
-        : startBlockedUntil$(cipherId, {
-            accessRequestSdkService: this.requestsApi,
-            accessRefreshService: this.accessRefresh,
-            ticker: this.ticker,
-            logService: this.logService,
-          }),
+      cipherId == null ? of(null) : this.startSlotService.blockedUntil$(cipherId),
     ),
   );
 

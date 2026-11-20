@@ -411,13 +411,17 @@ describe("AccessRequestDetailService", () => {
     });
   });
   describe("Start session while another member holds the single-active-lease slot", () => {
-    const approved: Record<string, unknown> = { status: "approved", producedLeaseId: null };
+    const approved: Record<string, unknown> = {
+      status: "approved",
+      producedLeaseId: null,
+      leaseNotAfter: "2099-01-01T00:00:00.000Z",
+    };
 
     beforeEach(() => {
       accessRefresh.accessChanged$.mockReturnValue(NEVER);
     });
 
-    it("reports when the slot frees for the requester's unstarted approval", async () => {
+    it("reports the hold for the requester's still-startable approval", async () => {
       requestsApi.getAccessRequest.mockResolvedValue(request(approved));
       requestsApi.preCheck.mockResolvedValue({
         canStartLease: false,
@@ -425,7 +429,9 @@ describe("AccessRequestDetailService", () => {
       } as never);
       await setup();
 
-      expect(await firstValueFrom(service.startBlockedUntil$)).toBe("2026-08-17T12:30:00.000Z");
+      expect(await firstValueFrom(service.startBlock$)).toEqual({
+        freesAt: "2026-08-17T12:30:00.000Z",
+      });
       expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
     });
 
@@ -434,7 +440,7 @@ describe("AccessRequestDetailService", () => {
       requestsApi.preCheck.mockResolvedValue({ canStartLease: true } as never);
       await setup();
 
-      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+      expect(await firstValueFrom(service.startBlock$)).toBeNull();
     });
 
     it("does not pre-check for an approver, who cannot start the requester's access", async () => {
@@ -442,14 +448,24 @@ describe("AccessRequestDetailService", () => {
       requestsApi.getAccessRequest.mockResolvedValue(request(approved));
       await setup();
 
-      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+      expect(await firstValueFrom(service.startBlock$)).toBeNull();
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+
+    it("does not pre-check an approval whose window has closed", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(
+        request({ ...approved, leaseNotAfter: "2020-01-01T00:00:00.000Z" }),
+      );
+      await setup();
+
+      expect(await firstValueFrom(service.startBlock$)).toBeNull();
       expect(requestsApi.preCheck).not.toHaveBeenCalled();
     });
 
     it("does not pre-check a request that is not an unstarted approval", async () => {
       await setup();
 
-      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+      expect(await firstValueFrom(service.startBlock$)).toBeNull();
       expect(requestsApi.preCheck).not.toHaveBeenCalled();
     });
   });

@@ -149,7 +149,7 @@ export class AccessRequestDialogComponent implements OnInit {
   private readonly managed = toSignal(this.detail.managed$, { initialValue: false });
   /** Another member holds the cipher's single-active-lease slot, so Start session is refused. */
   protected readonly startBlocked = toSignal(
-    this.detail.startBlockedUntil$.pipe(map((freesAt) => freesAt != null)),
+    this.detail.startBlock$.pipe(map((block) => block != null)),
     { initialValue: false },
   );
   private readonly isRequester = computed(() => this.viewer() === "requester");
@@ -472,7 +472,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async startAccess(): Promise<void> {
-    if (!this.canStart() || this.starting()) {
+    if (!this.canStart() || this.starting() || this.startBlocked()) {
       return;
     }
     this.starting.set(true);
