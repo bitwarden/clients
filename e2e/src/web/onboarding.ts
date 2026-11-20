@@ -1,4 +1,4 @@
-import { expect, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 /** Post-login route offering the browser extension, shown until it is dismissed once. */
 export const SETUP_EXTENSION_URL = /#\/setup-extension/;
@@ -12,6 +12,7 @@ const ONBOARDING_DIALOGS = [
 ];
 const ADD_IT_LATER_BUTTON = "Add it later";
 const SKIP_TO_WEB_APP_LINK = "Skip to web app";
+const DISMISS_TIMEOUT_MS = 15_000;
 
 /** Dismisses the extension pitch, which otherwise stands between login and the vault. */
 export async function skipExtensionSetup(page: Page) {
@@ -45,11 +46,41 @@ export async function skipOnboardingDialogs(page: Page) {
     // the click to the button itself.
     const close = dialog.getByRole("button", { name: dismiss });
     // first(): the handler's visibility check is strict, and fails on stacked copies.
-    await page.addLocatorHandler(dialog.first(), async () => {
-      for (let open = await close.count(); open > 0; open = await close.count()) {
-        await close.first().dispatchEvent("click");
-        await expect(close).toHaveCount(open - 1);
-      }
-    });
+    // noWaitAfter: a racing opener can show a fresh copy right after one closes (the extension
+    // vault does). Waiting for the dialog to hide would stall on it; skipping the wait lets the
+    // handler run again for the new copy.
+    await page.addLocatorHandler(
+      dialog.first(),
+      async () => {
+        while ((await close.count()) > 0) {
+          await clickUntilDetached(close);
+        }
+      },
+      { noWaitAfter: true },
+    );
   }
+}
+
+/**
+ * Clicks the first of the buttons, if any, and waits for that button to leave the DOM.
+ *
+ * Tracks the clicked element rather than a count: a copy reopening in its place keeps the count
+ * unchanged. The dialog can also vanish on its own, e.g. torn down by locking; evaluateAll does
+ * not wait for a button that is gone, unlike dispatchEvent.
+ */
+async function clickUntilDetached(buttons: Locator) {
+  const detached = await buttons.evaluateAll(async ([button], timeoutMs) => {
+    if (button == null) {
+      return true;
+    }
+
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const deadline = Date.now() + timeoutMs;
+    while (button.isConnected && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return !button.isConnected;
+  }, DISMISS_TIMEOUT_MS);
+
+  expect(detached, "Dismissing an onboarding dialog did not close it").toBe(true);
 }
