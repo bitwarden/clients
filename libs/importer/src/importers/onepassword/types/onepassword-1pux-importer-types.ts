@@ -120,6 +120,7 @@ export interface FieldsEntity {
   clipboardFilter?: string | null;
 }
 export interface Value {
+  [key: string]: unknown;
   totp?: string | null;
   date?: number | null;
   string?: string | null;
@@ -139,7 +140,7 @@ export interface Value {
 
 export interface Email {
   email_address: string;
-  provider: string | null;
+  provider: string | Record<string, unknown> | null;
 }
 
 export interface Address {
