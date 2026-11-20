@@ -9,6 +9,7 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
 
 import { pamLandingRoute } from "./pam-landing-route";
@@ -47,6 +48,7 @@ const routes: Routes = [
             children: [],
           },
           { path: "access-rules", component: BlankComponent },
+          { path: "audit", component: BlankComponent },
           { path: "rotation", component: BlankComponent },
         ],
       },
@@ -56,7 +58,7 @@ const routes: Routes = [
 ];
 
 function member(permissions: Partial<PermissionsApi>): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: "org-id",
     enabled: true,
     isMember: true,

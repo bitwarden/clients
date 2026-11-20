@@ -51,7 +51,7 @@ export class SendRequest {
         this.file = new SendFileApi();
         this.file.fileName = send.file.fileName != null ? send.file.fileName.encryptedString : null;
         break;
-      case SendType.Item:
+      case SendType.Item: {
         if (send.data?.data == null) {
           throw new Error("Item Send is missing its item data");
         }
@@ -62,9 +62,22 @@ export class SendRequest {
         this.data.encryptionVersion = send.data.encryptionVersion;
         // The sealed blob is opaque to the client; send it exactly as the SDK produced it.
         this.data.data = send.data.data;
-        this.data.metadata = new SendItemMetadataApi();
-        this.data.metadata.itemId = send.data.metadata.itemId;
+        const metadata = new SendItemMetadataApi();
+        metadata.itemId = send.data.metadata.itemId;
+        metadata.folderName =
+          send.data.metadata.folderName != null
+            ? send.data.metadata.folderName.encryptedString
+            : null;
+        metadata.collectionNames =
+          send.data.metadata.collectionNames != null
+            ? send.data.metadata.collectionNames.map((cn) => cn.encryptedString)
+            : null;
+        metadata.organizationName = send.data.metadata.organizationName;
+        metadata.creationDate = send.data.metadata.creationDate;
+        metadata.revisionDate = send.data.metadata.revisionDate;
+        this.data.metadata = metadata;
         break;
+      }
       default:
         break;
     }

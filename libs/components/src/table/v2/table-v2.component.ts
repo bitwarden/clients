@@ -48,12 +48,13 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
-import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+import { BitTablePaginatorComponent, TableRowRange } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
 import {
   CustomizeColumnsDialogComponent,
   CustomizeColumnsDialogParams,
 } from "./customize-columns-dialog.component";
+import { countOptions } from "./option-counts";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableColumnPreferencesService } from "./table-column-preferences.service";
@@ -180,10 +181,6 @@ type RenderItem<T> =
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
   | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
-/**
- * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
- * without approval from the UI Foundation team.
- */
 @Component({
   selector: "bit-table-v2",
   exportAs: "bitTableV2",
@@ -282,6 +279,16 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** Initial filter values, keyed by chip `key`; seeds the matching chips once on init. */
   readonly filters = input<Partial<F>>();
 
+  /**
+   * The values a row holds for a chip, keyed by chip `key`. A chip listed here gets its option
+   * counts in one pass over the rows, instead of one pass for each option.
+   *
+   * List a chip only if {@link filter} matches a row for that chip when the row holds *any* of
+   * the selected values, and passes every row when the chip is cleared. Otherwise the counts
+   * differ from the rows the chip selects.
+   */
+  readonly optionValues = input<{ readonly [K in keyof F]?: (row: T) => Iterable<unknown> }>();
+
   /** Row selection config. Omit for a non-selectable table (no checkbox column). */
   readonly selection = input<SelectionConfig<T>>();
 
@@ -379,6 +386,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** The filtered row count — read by a projected `bit-table-paginator` for its total. */
   readonly filteredCount = computed(() => this.filtered().length);
 
+  /**
+   * The rows on screen — a projected paginator's page, else every filtered row. Read by a
+   * projected `bit-table-toolbar` for its range label.
+   */
+  readonly rowRange = computed<TableRowRange>(() => {
+    const paginator = this.paginator();
+    if (paginator) {
+      return paginator.range();
+    }
+    const total = this.filteredCount();
+    return { start: total === 0 ? 0 : 1, end: total, total };
+  });
+
   private readonly _selectionModel = signal<TableSelectionModel<T> | undefined>(undefined);
 
   /** Selection state, present only when {@link selection} is configured. */
@@ -395,19 +415,32 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Count for a chip option: rows matching {@link filter} with `key` pinned to `value` and every
-   * other active filter applied. `undefined` with no `[filter]` (server-side) — the chip then
-   * shows an explicit `count` instead.
+   * Counts for chip options: for each entry of `values`, rows matching {@link filter} with `key`
+   * pinned to that value and every other active filter applied. One pass over the rows when the
+   * chip is listed in {@link optionValues}, else one pass for each value. `undefined` with no
+   * `[filter]` (server-side) — the chip then shows an explicit `count` instead.
    */
-  optionCount(key: string, value: unknown): number | undefined {
+  optionCounts(key: string, values: readonly unknown[]): readonly number[] | undefined {
     const filter = this.filter();
     if (!filter) {
       return undefined;
     }
-    const values = { ...this.filterValues(), [key]: value } as F;
-    return this.tableDef()
-      .data()
-      .filter((row) => filter(row, values)).length;
+    const rows = this.tableDef().data();
+    const current = this.filterValues();
+    const rowValues = this.optionValues()?.[key as keyof F];
+    if (!rowValues) {
+      return values.map((value) => {
+        const pinned = { ...current, [key]: value } as F;
+        return rows.filter((row) => filter(row, pinned)).length;
+      });
+    }
+    const cleared = { ...current, [key]: null } as F;
+    return countOptions(rows, (row) => filter(row, cleared), rowValues, values);
+  }
+
+  /** The count for one chip option. See {@link optionCounts}. */
+  optionCount(key: string, value: unknown): number | undefined {
+    return this.optionCounts(key, [value])?.[0];
   }
 
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */

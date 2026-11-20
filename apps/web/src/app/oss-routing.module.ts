@@ -1,6 +1,6 @@
 import { inject, NgModule } from "@angular/core";
-import { Route, Router, RouterModule, Routes } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { LoadChildrenCallback, Route, Router, RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -16,6 +16,13 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import {
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+  RegistrationLinkExpiredComponent,
+} from "@bitwarden/angular/auth/registration";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
@@ -36,11 +43,6 @@ import {
 } from "@bitwarden/assets/svg";
 import {
   PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
-  RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
@@ -55,7 +57,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import {
   FOLDER_ID_PARAM,
@@ -99,6 +101,7 @@ import { DataRecoveryComponent } from "./key-management/data-recovery/data-recov
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
+import { PAM_ROUTES } from "./pam/pam-routes.token";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
 import { AppearanceComponent } from "./settings/appearance.component";
@@ -633,6 +636,18 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
+        path: "privileged-controls-trial-initiation",
+        canActivate: [unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
         path: "browser-extension-prompt",
         data: {
           pageIcon: BrowserExtensionIcon,
@@ -694,26 +709,23 @@ const routes: Routes = [
         loadChildren: () => VaultModule,
       },
       {
+        // A child of the shared user shell, since a second layout instance would re-base the side
+        // nav's relative routerLinks.
+        path: "pam",
+        canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
+        canActivate: [canAccessFeature(FeatureFlag.Pam)],
+        // inject() infers `unknown` from a SafeInjectionToken, hence the explicit type argument.
+        loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
+      },
+      {
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, policyService, configService) =>
-            configService
-              .getFeatureFlag$(FeatureFlag.SendControls)
-              .pipe(
-                switchMap((sendControlsEnabled) =>
-                  sendControlsEnabled
-                    ? policyService
-                        .policiesByType$(PolicyType.SendControls, userId)
-                        .pipe(
-                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
-                        )
-                    : policyService
-                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
-                        .pipe(map((policyApplies) => !policyApplies)),
-                ),
-              ),
+          organizationPolicyGuard((userId, policyService, _configService) =>
+            policyService
+              .policiesByType$(PolicyType.SendControls, userId)
+              .pipe(map((policies) => !policies?.some((p) => p.data?.disableSend === true))),
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
@@ -866,6 +878,17 @@ const routes: Routes = [
                 loadComponent: () =>
                   import("./tools/import/import-controls-web.component").then(
                     (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: IMPORT_DESTINATION_ROUTE_PATH,
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-destination-web.component").then(
+                    (mod) => mod.ImportDestinationWebComponent,
                   ),
                 data: {
                   titleId: "importNoun",

@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Fiók létrehozása"
   },
+  "welcomeToBitwarden": {
+    "message": "Welcome to Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Create your account or log in"
+  },
   "newToBitwarden": {
     "message": "Új vagyunk a Bitwardenben?"
   },
@@ -559,6 +565,20 @@
   },
   "noItemsInMyVault": {
     "message": "Nincsenek elemek a saját széfben."
+  },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Elemek hozzáadása ehhez a mappához. Gyorsan elérhetjük őket a széf szűrők segítségével.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "Nincsenek elemek a Saját elemekben."
@@ -1237,6 +1257,12 @@
   "deletedItem": {
     "message": "Az elem a lomtárba került."
   },
+  "deleteItemError": {
+    "message": "Nem sikerült törölni az elemet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Ez az elem korlátozott. A változás nem lett mentve."
+  },
   "overwritePassword": {
     "message": "Jelszó felülírása"
   },
@@ -1588,6 +1614,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Select vault",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Select location",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Select a vault"
+  },
+  "selectALocationTitle": {
+    "message": "Select a location"
+  },
+  "importDestinationDescription": {
+    "message": "Choose where to import these items."
+  },
+  "importMyItemsOption": {
+    "message": "My items",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Visible only to you"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Owned by $ORGANIZATION$, but visible only to you",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organization vault"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Move all items into a $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Move all items into an $ORGANIZATION$ shared folder",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
+  },
+  "importSharedFolderRequired": {
+    "message": "A shared folder is required."
+  },
+  "importIntoOrganization": {
+    "message": "Items will be imported into $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Move all items into a shared folder"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Items can't be imported into $ORGANIZATION$ without a shared folder, and you don't manage any in it. Choose another location.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Import $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Import 1 item"
+  },
+  "importToOrganization": {
+    "message": "Import to $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Your data may be shared with members of this organization."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "logins",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "secure notes",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "cards",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identities",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH keys",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bank accounts",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "licenses",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "passports",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
   },
   "importItems": {
     "message": "Elemek importálása"
@@ -3656,14 +3843,14 @@
     "message": "Send hivatkozás másolása",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Jelszó eltávolítása"
+  "removeAuth": {
+    "message": "Remove Password or Email Verification"
   },
   "delete": {
     "message": "Törlés"
   },
-  "removedPassword": {
-    "message": "A jelszó eltávolításra került."
+  "removedAuth": {
+    "message": "Password or email verification removed"
   },
   "deletedSend": {
     "message": "A Send törlésre került.",
@@ -3676,8 +3863,28 @@
   "disabled": {
     "message": "Letiltva"
   },
-  "removePasswordConfirmation": {
-    "message": "Biztosan eltávolításra kerüljön ez a jelszó?"
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
+  "removePassword": {
+    "message": "Jelszó eltávolítása"
+  },
+  "removeEmailVerification": {
+    "message": "Remove Email Verification"
+  },
+  "removedPassword": {
+    "message": "A jelszó eltávolításra került."
+  },
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Send törlése",
@@ -5396,16 +5603,16 @@
     "message": "Megőrzött mappa struktúrájú bejelentkezések, kártyák, személyazonosságok, biztonságos jegyzetek és TOTP elemek."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Gyors és biztonságos"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Ez a folyamat végponttól végpontig titkosított. Nincs szükség exportálás fájlra."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Csak a bejelentkezés kell"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "A következő lépésben adjuk meg $VENDOR$ bejelentkezési adatait.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5621,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Mi kerül átvitelre"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "A bejelentkezések, egyéb elemek és mappák átkerülnek. A belépőkulcsok és a mellékletek kizárhatók."
   },
   "importAcceptedFormats": {
     "message": "Elfogadva: $FORMATS$",
@@ -5700,6 +5907,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
     "placeholders": {
@@ -5803,91 +6022,91 @@
     "message": "LastPass email cím"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Email cím megadása kötelező."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Adjunk meg egy érvényes email címet."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Jelszó megadása szükséges."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": ""
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Érvényes ellenőrző kódot adjunk meg."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Adjuk meg a Lastpass mesterjelszót."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Adjuk meg az ellenőző kódot lentebb."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Várakozás SSO hitelesítésre"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "A bejelentkezés után az importálás automatikusan folytatódik."
   },
   "importingYourAccount": {
     "message": "A iók importálása folyamatban van..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Szerver"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Email cím megadása kötelező."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Adjunk meg egy érvényes email címet."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Nem támogatott kéttényezős metódus. Metódus váltás vagy manuális importálás."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Eszköz jóváhagyás szükséges."
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Érvényes ellenőrző kódot adjunk meg."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Az ellenőrző kód ismét elküldésre került."
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "A Keeper Push értesítés elküldésre került a jóváhagyott eszközre."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Hagyjuk jóvá ezt az eszközt a metódus kiválasztásával lentebb."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Ellenőrizzük az email címet és írjuk be az alábbi ellenőrző kódot."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Adjuk meg a hitelesítő alkalmazás által generált kódot."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Adjuk meg a szöveges üzenetben küldött kódot."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Adjuk meg a Keeper mesterjelszót."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "A Keeper DNA elküldésre került."
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "A Keeper DNA értesítés jóváhagyása az eszközön."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "A jóváhagyási kérelem törlésre kerül. Biztos, hogy folytatni akarjuk?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Elküldésre került egy adminisztrátori jóváhagyási kérelem az adminisztrátornak."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Jelszó megadása szükséges."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Adjunk meg egy érvényes jelszót."
   },
   "lastPassMFARequired": {
     "message": "LastPass többtényezős hitelesítés szükséges"
@@ -6515,6 +6734,9 @@
   "myItems": {
     "message": "Saját elemek"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Adminisztrátori konzol"
   },
@@ -6856,12 +7078,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Alkalmazás (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Alkalmazás(URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -8049,17 +8272,11 @@
   "sharedUnlock": {
     "message": "Megosztott feloldás"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Szinkronizálás feloldása asztali alkalmazással"
+  "syncUnlockWithDesktop1": {
+    "message": "Synchronize unlock with desktop"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "A Bitwarden böngésző bővítmény és az asztali alkalmazás együtt zárolja és feloldja."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Szinkronizálás feloldása webes alkalmazással"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "A Bitwarden böngésző bővítmény és a webes alkalmazás együtt zárolja és feloldja."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together. Biometrics will be used if available."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "A megosztott feloldás nem érhető el, mert azt választottuk, hogy nem emlékszünk erre az eszközre. A beállítás engedélyezéséhez próbáljunk meg újra bejelentkezni."
@@ -8438,6 +8655,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Ez a jelszó további kockázatokkal jár:"
   },
+  "excludeFromList": {
+    "message": "Kizárás a listából"
+  },
+  "excludeFromListDesc": {
+    "message": "A kizárás nem javítja a jelszó kockázatát. A fiók védelme érdekében először módosítsuk a jelszót."
+  },
+  "excludeAnyway": {
+    "message": "Kizárás bárhogyan"
+  },
   "reused": {
     "message": "Újrafelhasznált",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8784,15 @@
   "unknownCipher": {
     "message": "Ismeretlen elem, lehet hogy egy másik fiókkal kell bejelentkezni az elem eléréséhez."
   },
+  "viewSharedItem": {
+    "message": "Megosztott elem megtekintése"
+  },
+  "copyShareLink": {
+    "message": "Megosztási hivatkozás másolása"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nem határozható meg az elem azonosítója."
+  },
   "newExperienceDialogTitle": {
     "message": "A Bitwarden új külsővel rendelkezik.",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8825,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Váltás a széfek között"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "Az új széfváltóval gyorsan megtekinthető a személyes széf vagy a másokkal megosztott széf."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "Az új széf váltóval gyorsan láthatjuk a másokkal megosztott széfben lévő elemeket vagy a személyes elemeket."
   },
   "coachmarkFiltersTitle": {
     "message": "Szűrők keverése és összeillesztése"
@@ -8616,5 +8851,470 @@
   },
   "resetToDefault": {
     "message": "Visszaállítás alaphelyzetbe"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Válaszoljunk az alapvető HTTP hitelesítési kérdésekre azokról a webhelyekről, amelyek megfelelnek ennek a bejelentkezési elemnek."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Súgó cikk megnyitása a böngészőbeli bejelentkezési adatok automatikus kitöltéséről"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "A webhelyek a tudtunk nélkül aktiválhatják ezeket az utasításokat, ami felfedheti a hitelesítéseket.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "A beállítás használatához válasszunk egy \"Alapértelmezett\" beállítástól eltérő egyezés érzékelési lehetőséget a bejelentkezési elem minden webhelyéhez."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Kapcsoljuk be az automatikus kitöltést a böngésző bejelentkezési utasításaihoz?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "A mesterjelszó új bekérés kikapcsolásra kerül ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "A mesterjelszó újbóli bekérése?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Alapértelmezett találat érzékelés?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Az automatikus kitöltés a böngésző bejelentkezési utasításaihoz kikapcsolásra került."
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Ez az elemhez be van kapcsolva a mesterjelszó újra bekérése, így a böngésző bejelentkezési utasításainak automatikus kitöltése ki volt kapcsolva. Mentsük el az elemet a módosítás megtartásához."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamLeaseExpires": {
+    "message": "Expires $DATE$ at $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Expires today at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Access active • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Submitted just now"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Request to use"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Extend access",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1m left",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In use"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Ending soon"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Your access has ended"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Ready to use"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Send request"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "How long do you need it?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Request details"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Start date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEndDate": {
+    "message": "End date"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "End must be after the start."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (now)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Custom time…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Custom end date and time…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Show suggested start times"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Back to suggested durations"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, until $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Why do you need it?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access. Try again."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Access approved. Select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Access requested"
   }
 }

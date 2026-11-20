@@ -1,11 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { ProviderType } from "../../../provider/enums";
 import { OrganizationId } from "../../../types/guid";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
@@ -47,18 +46,18 @@ export class Organization {
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number;
-  maxCollections: number;
+  seats: number | undefined;
+  maxCollections: number | undefined;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string;
+  identifier: string | undefined;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string;
+  organizationUserId: string | undefined;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
-  providerName: string;
+  providerId: string | undefined;
+  providerName: string | undefined;
   providerType?: ProviderType;
   /**
    * Indicates that a user is a ProviderUser for the organization
@@ -68,11 +67,11 @@ export class Organization {
    * Indicates that a user is a member for the organization (may be `false` if they have access via a Provider only)
    */
   isMember: boolean;
-  familySponsorshipFriendlyName: string;
+  familySponsorshipFriendlyName: string | undefined;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string;
+  keyConnectorUrl: string | undefined;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -109,11 +108,7 @@ export class Organization {
   useMyItems: boolean;
   useInviteLinks: boolean;
 
-  constructor(obj?: OrganizationData) {
-    if (obj == null) {
-      return;
-    }
-
+  constructor(obj: OrganizationData) {
     this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
@@ -140,26 +135,26 @@ export class Organization {
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
-    this.seats = obj.seats;
-    this.maxCollections = obj.maxCollections;
+    this.seats = obj.seats ?? undefined;
+    this.maxCollections = obj.maxCollections ?? undefined;
     this.maxStorageGb = obj.maxStorageGb;
     this.ssoBound = obj.ssoBound;
-    this.identifier = obj.identifier;
+    this.identifier = obj.identifier ?? undefined;
     this.permissions = obj.permissions;
     this.resetPasswordEnrolled = obj.resetPasswordEnrolled;
     this.userId = obj.userId;
-    this.organizationUserId = obj.organizationUserId;
+    this.organizationUserId = obj.organizationUserId ?? undefined;
     this.hasPublicAndPrivateKeys = obj.hasPublicAndPrivateKeys;
-    this.providerId = obj.providerId;
-    this.providerName = obj.providerName;
+    this.providerId = obj.providerId ?? undefined;
+    this.providerName = obj.providerName ?? undefined;
     this.providerType = obj.providerType;
     this.isProviderUser = obj.isProviderUser;
     this.isMember = obj.isMember;
-    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName;
+    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName ?? undefined;
     this.familySponsorshipAvailable = obj.familySponsorshipAvailable;
     this.productTierType = obj.productTierType;
     this.keyConnectorEnabled = obj.keyConnectorEnabled;
-    this.keyConnectorUrl = obj.keyConnectorUrl;
+    this.keyConnectorUrl = obj.keyConnectorUrl ?? undefined;
     this.familySponsorshipLastSyncDate = obj.familySponsorshipLastSyncDate;
     this.familySponsorshipValidUntil = obj.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = obj.familySponsorshipToDelete;
@@ -432,7 +427,7 @@ export class Organization {
   }
 
   get canManageSponsorships() {
-    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
+    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== undefined;
   }
 
   /**
@@ -447,10 +442,19 @@ export class Organization {
       return null;
     }
 
-    return Object.assign(new Organization(), json, {
-      familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
-      familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
-    });
+    const data: OrganizationData = {
+      ...json,
+      familySponsorshipLastSyncDate:
+        json.familySponsorshipLastSyncDate == null
+          ? undefined
+          : new Date(json.familySponsorshipLastSyncDate),
+      familySponsorshipValidUntil:
+        json.familySponsorshipValidUntil == null
+          ? undefined
+          : new Date(json.familySponsorshipValidUntil),
+      permissions: json.permissions as PermissionsApi,
+    };
+    return new Organization(data);
   }
 
   get canAccessIntegrations() {

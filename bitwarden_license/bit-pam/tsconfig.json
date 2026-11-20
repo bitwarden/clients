@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.base",
+  "files": ["../bit-common/src/platform/sdk/sdk-alias.d.ts"],
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -70,11 +70,11 @@
               ></i>
             }
             <span aria-hidden="true" class="tw-pl-1.5">
-              {{ item.name }}
+              {{ getItemName(item) }}
             </span>
           </span>
         }
-        @if (allItems().length === 0) {
+        @if (allItems().length === 0 && showEmptyDetails()) {
           <span
             class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
             bitTypography="body2"

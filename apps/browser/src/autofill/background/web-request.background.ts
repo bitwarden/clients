@@ -1,7 +1,9 @@
 import {
   catchError,
+  combineLatest,
   distinctUntilChanged,
   firstValueFrom,
+  map,
   Observable,
   of,
   Subscription,
@@ -13,13 +15,19 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  hasOptedInToHTTPAuthentication,
+  isEligibleForHTTPAuthentication,
+} from "@bitwarden/common/autofill/utils/http-authentication-eligibility";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
@@ -205,16 +213,41 @@ export function shouldAnswerAuthChallenge(
   return isTopLevelNavigationOrSameOriginSubresource(details, requestUrl);
 }
 
+/** The settings that let a login answer an HTTP auth challenge for the active user. */
+interface HTTPAuthenticationResponseSettings {
+  /** The user's global setting is on, so every eligible login may answer. */
+  globalSettingEnabled: boolean;
+  /** Eligible logins with HTTP authentication turned on in their own settings may answer. */
+  loginSettingEnabled: boolean;
+}
+
+const NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS: HTTPAuthenticationResponseSettings = Object.freeze({
+  globalSettingEnabled: false,
+  loginSettingEnabled: false,
+});
+
+function anyHTTPAuthenticationResponseSettingEnabled(
+  settings: HTTPAuthenticationResponseSettings,
+): boolean {
+  return settings.globalSettingEnabled || settings.loginSettingEnabled;
+}
+
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
   private isSafari: boolean;
   private listenersRegistered = false;
-  private basicAuthResponseEnabledSubscription?: Subscription;
+  private responseSettingsSubscription?: Subscription;
+
+  /**
+   * The login-level setting is honored only in builds that show its cipher form controls, so a value
+   * stored by another client has no effect where the user can't see or change it.
+   */
+  private readonly loginSettingHonored = devFlagEnabled("httpAuthenticationCipherControls");
 
   constructor(
     platformUtilsService: PlatformUtilsService,
-    private cipherService: CipherService,
+    private fillCipherPolicy: FillCipherPolicy,
     private authService: AuthService,
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
@@ -228,7 +261,9 @@ export default class WebRequestBackground {
 
   /**
    * Keeps the handler that answers HTTP auth challenges with a matching vault credential
-   * registered only while both the feature flag and the active user's setting allow it.
+   * registered only while the active user's global setting is on, or while logins can turn
+   * HTTP authentication on in their own settings. Which logins may answer is checked when a
+   * challenge arrives.
    *
    * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
    */
@@ -240,60 +275,84 @@ export default class WebRequestBackground {
       return;
     }
 
-    this.basicAuthResponseEnabledSubscription?.unsubscribe();
-    this.basicAuthResponseEnabledSubscription = this.basicAuthResponseEnabled$().subscribe(
-      (basicAuthResponseEnabled) => {
-        if (basicAuthResponseEnabled) {
+    this.responseSettingsSubscription?.unsubscribe();
+    this.responseSettingsSubscription = this.responseSettings$()
+      .pipe(map(anyHTTPAuthenticationResponseSettingEnabled), distinctUntilChanged())
+      .subscribe((anyResponseSettingEnabled) => {
+        if (anyResponseSettingEnabled) {
           this.registerListeners();
         } else {
           this.unregisterListeners();
         }
-      },
-    );
+      });
   }
 
   /**
-   * Emits `true` only when the resolved setting is enabled for the active user.
+   * Emits the settings that let a login answer an HTTP auth challenge for the active user: the
+   * user's global setting, and whether the login-level setting is honored, which needs HTTP
+   * authentication to be available and the login-level controls to be shown in this build.
    *
-   * Fails closed: no active user, or an error resolving the setting, emits `false`.
+   * Fails closed: no active user, or an error resolving either setting, emits both as off.
    */
-  private basicAuthResponseEnabled$(): Observable<boolean> {
-    // The setting is resolved inside a `switchMap` on the active account so that an
-    // error is caught for that account alone and the setting is resolved again on
+  private responseSettings$(): Observable<HTTPAuthenticationResponseSettings> {
+    // The settings are resolved inside a `switchMap` on the active account so that an
+    // error is caught for that account alone and the settings are resolved again on
     // the next account change; catching downstream would end the subscription and
     // leave the listeners unregistered for the life of the background context.
     return this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
         userId == null
-          ? of(false)
-          : this.autofillSettingsService.resolvedEnableBasicAuthResponse$.pipe(
-              catchError(() => of(false)),
+          ? of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)
+          : combineLatest([
+              this.autofillSettingsService.resolvedEnableBasicAuthResponse$,
+              this.loginSettingHonored
+                ? this.autofillSettingsService.httpAuthenticationAvailable$
+                : of(false),
+            ]).pipe(
+              map(
+                ([
+                  globalSettingEnabled,
+                  loginSettingEnabled,
+                ]): HTTPAuthenticationResponseSettings => ({
+                  globalSettingEnabled: globalSettingEnabled === true,
+                  loginSettingEnabled: loginSettingEnabled === true,
+                }),
+              ),
+              catchError(() => of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)),
             ),
       ),
-      catchError(() => of(false)),
-      distinctUntilChanged(),
+      catchError(() => of(NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS)),
+      distinctUntilChanged(
+        (previous, current) =>
+          previous.globalSettingEnabled === current.globalSettingEnabled &&
+          previous.loginSettingEnabled === current.loginSettingEnabled,
+      ),
     );
   }
 
   /**
-   * Whether the resolved setting is enabled for the active user, and that user is
-   * still the given one once the setting has been read. The resolved setting
-   * follows whichever user is active, so a change of active user during the read
-   * would otherwise apply one user's opt-in to another user's vault.
+   * The settings that let a login answer an HTTP auth challenge for the active user, when that
+   * user is still the given one once the settings have been read. The settings follow whichever
+   * user is active, so a change of active user during the read would otherwise apply one user's
+   * settings to another user's vault.
    *
    * Fails closed on error.
    */
-  private async basicAuthResponseEnabledForUser(userId: UserId): Promise<boolean> {
+  private async responseSettingsForUser(
+    userId: UserId,
+  ): Promise<HTTPAuthenticationResponseSettings> {
     try {
-      const enabled = await firstValueFrom(this.basicAuthResponseEnabled$());
+      const settings = await firstValueFrom(this.responseSettings$());
       const activeUserIdAfterCheck = await firstValueFrom(
         this.accountService.activeAccount$.pipe(getOptionalUserId),
       );
 
-      return enabled === true && activeUserIdAfterCheck === userId;
+      return activeUserIdAfterCheck === userId
+        ? settings
+        : NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS;
     } catch {
-      return false;
+      return NO_HTTP_AUTHENTICATION_RESPONSE_SETTINGS;
     }
   }
 
@@ -345,8 +404,9 @@ export default class WebRequestBackground {
   };
 
   /**
-   * Resolves to the credentials of the single vault login matching the request
-   * host, or to an empty response that leaves the challenge to the browser.
+   * Resolves to the credentials of the single vault login that matches the request
+   * URL and is eligible for HTTP authentication, or to an empty response that leaves
+   * the challenge to the browser.
    */
   private async getAuthChallengeResponse(
     details: chrome.webRequest.OnAuthRequiredDetails,
@@ -370,8 +430,10 @@ export default class WebRequestBackground {
     }
 
     // Listener removal trails the state it reacts to, so a challenge can arrive
-    // after the active account changes to one that has not opted in.
-    if (!(await this.basicAuthResponseEnabledForUser(activeUserId))) {
+    // after the active account changes to one with no response setting enabled.
+    const responseSettings = await this.responseSettingsForUser(activeUserId);
+
+    if (!anyHTTPAuthenticationResponseSettingEnabled(responseSettings)) {
       return {};
     }
 
@@ -382,18 +444,30 @@ export default class WebRequestBackground {
     }
 
     try {
-      const ciphers = await this.cipherService.getAllDecryptedForUrl(
+      // The Host strategy is only applied to URIs using "Default", and logins with any such URI are
+      // removed by the eligibility filter below, so each remaining URI matched by its own strategy.
+      // Host is still passed so that a "Default" URI is never matched more loosely. The filter also
+      // removes logins with reprompt on, and, unless the global setting is on, logins without HTTP
+      // authentication turned on in their own settings, before the single-match check.
+      const ciphers = await this.fillCipherPolicy.ciphersForUrl(
         details.url,
         activeUserId,
-        undefined,
-        UriMatchStrategy.Host,
+        CipherUse.AutomaticFill,
+        { defaultMatch: UriMatchStrategy.Host },
       );
 
-      if (ciphers == null || ciphers.length !== 1) {
+      const eligibleCiphers = (ciphers ?? []).filter(
+        (cipher) =>
+          isEligibleForHTTPAuthentication(cipher) &&
+          (responseSettings.globalSettingEnabled ||
+            (responseSettings.loginSettingEnabled && hasOptedInToHTTPAuthentication(cipher))),
+      );
+
+      if (eligibleCiphers.length !== 1) {
         return {};
       }
 
-      const cipher = ciphers[0];
+      const cipher = eligibleCiphers[0];
       const username = cipher.login?.username;
       const password = cipher.login?.password;
 

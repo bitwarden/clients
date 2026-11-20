@@ -5,9 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -19,33 +16,16 @@ import { CollectionBulkDeleteRequest } from "../admin-console/models/request/col
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
-import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
-import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
-import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
-import {
-  ProviderOrganizationOrganizationDetailsResponse,
-  ProviderOrganizationResponse,
-} from "../admin-console/models/response/provider/provider-organization.response";
-import { ProviderUserBulkPublicKeyResponse } from "../admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "../admin-console/models/response/provider/provider-user-bulk.response";
-import {
-  ProviderUserResponse,
-  ProviderUserUserDetailsResponse,
-} from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -77,7 +57,6 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -97,6 +76,24 @@ import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-midd
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
+import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
+import { ProviderOrganizationCreateRequest } from "../provider/models/request/provider-organization-create.request";
+import { ProviderUserAcceptRequest } from "../provider/models/request/provider-user-accept.request";
+import { ProviderUserBulkConfirmRequest } from "../provider/models/request/provider-user-bulk-confirm.request";
+import { ProviderUserBulkRequest } from "../provider/models/request/provider-user-bulk.request";
+import { ProviderUserConfirmRequest } from "../provider/models/request/provider-user-confirm.request";
+import { ProviderUserInviteRequest } from "../provider/models/request/provider-user-invite.request";
+import { ProviderUserUpdateRequest } from "../provider/models/request/provider-user-update.request";
+import {
+  ProviderOrganizationOrganizationDetailsResponse,
+  ProviderOrganizationResponse,
+} from "../provider/models/response/provider-organization.response";
+import { ProviderUserBulkPublicKeyResponse } from "../provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "../provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserResponse,
+  ProviderUserUserDetailsResponse,
+} from "../provider/models/response/provider-user.response";
 import { UserId } from "../types/guid";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
@@ -283,8 +280,8 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/security-stamp", request, true, false);
   }
 
-  async getAccountRevisionDate(): Promise<number> {
-    const r = await this.send("GET", "/accounts/revision-date", null, true, true);
+  async getAccountRevisionDate(userId?: UserId): Promise<number> {
+    const r = await this.send("GET", "/accounts/revision-date", null, userId ?? true, true);
     return r as number;
   }
 
@@ -299,10 +296,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postAccountLicense(data: FormData): Promise<any> {
     return this.send("POST", "/accounts/license", data, true, false);
-  }
-
-  postAccountKeys(request: KeysRequest): Promise<any> {
-    return this.send("POST", "/accounts/keys", request, true, false);
   }
 
   postAccountVerifyEmail(): Promise<any> {
@@ -606,11 +599,11 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Sync APIs
 
-  async getSync(): Promise<SyncResponse> {
+  async getSync(userId?: UserId): Promise<SyncResponse> {
     const path = !this.platformUtilsService.supportsAutofill()
       ? "/sync?excludeDomains=true"
       : "/sync";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new SyncResponse(r);
   }
 

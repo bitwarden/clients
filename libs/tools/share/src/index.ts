@@ -1,4 +1,5 @@
 export { ShareLink, ShareLinkService } from "./services/share-link.service";
+export { CipherShareAccessService } from "./services/cipher-share-access.service";
 export { ShareItemFormComponent } from "./components/share-item-form/share-item-form.component";
 export { ShareItemDrawerComponent } from "./components/share-item-drawer/share-item-drawer.component";
 export { ShareItemDrawerPresenter } from "./services/share-item-drawer.presenter";

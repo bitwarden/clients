@@ -51,7 +51,6 @@ describe("Organization", () => {
         deleteAnyCollection: false,
         editAssignedCollections: false,
         deleteAssignedCollections: false,
-        manageCiphers: false,
         manageGroups: false,
         managePolicies: false,
         manageSso: false,

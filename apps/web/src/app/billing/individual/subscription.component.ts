@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, inject, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { catchError, from, map, Observable, of, switchMap } from "rxjs";
+import { catchError, from, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -10,7 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { AccountBillingClient } from "../clients/account-billing.client";
+import { SubscriptionPreviewService } from "../services/subscription-preview.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -30,7 +30,7 @@ export class SubscriptionComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     accountService: AccountService,
-    accountBillingClient: AccountBillingClient,
+    subscriptionPreviewService: SubscriptionPreviewService,
     logService: LogService,
   ) {
     this.showSubscriptionPageLink$ = accountService.activeAccount$.pipe(
@@ -38,8 +38,7 @@ export class SubscriptionComponent implements OnInit {
         if (!account) {
           return of(false);
         }
-        return from(accountBillingClient.getSubscription()).pipe(
-          map((subscription) => !!subscription),
+        return from(subscriptionPreviewService.hasAccountSubscription()).pipe(
           catchError((error: unknown) => {
             logService.error("Failed to fetch subscription for tab link", error);
             return of(false);

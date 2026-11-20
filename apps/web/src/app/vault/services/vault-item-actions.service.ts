@@ -16,8 +16,13 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  CipherActionService,
   CipherFormConfig,
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
@@ -36,6 +41,7 @@ import { ItemDeepLink, ItemDeepLinkAction } from "../utils/item-deep-link";
 @Injectable()
 export class WebVaultItemActionsService {
   private readonly accountService = inject(AccountService);
+  private readonly cipherActionService = inject(CipherActionService);
   private readonly cipherService = inject(CipherService);
   private readonly cipherFormConfigService = inject(DefaultCipherFormConfigService);
   private readonly dialogService = inject(DialogService);
@@ -148,6 +154,12 @@ export class WebVaultItemActionsService {
       return;
     }
 
+    // The menu never offers clone for a restricted item, so only a deep link reaches this.
+    if (!RestrictedCipherPolicy.allows(stored, RestrictedCipherAction.Clone)) {
+      await this.clearItemQueryParams();
+      return;
+    }
+
     const userId = await firstValueFrom(this.userId$);
     const decrypted = await this.cipherService.decrypt(stored, userId);
 
@@ -235,7 +247,11 @@ export class WebVaultItemActionsService {
         return;
       }
 
-      const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
+      const dialogRef = VaultItemDialogComponent.open(this.dialogService, {
+        mode,
+        formConfig,
+        restore: (cipher) => this.cipherActionService.restore(cipher),
+      });
       const result = await lastValueFrom(dialogRef.closed);
 
       // The user is navigated to subscription settings elsewhere; leave the URL alone.

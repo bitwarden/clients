@@ -269,6 +269,26 @@ export function showsVaultsSection(nav: VaultsNavViewModel): boolean {
 }
 
 /**
+ * Whether the account has vaults to switch between: several, or one organization whose "My items"
+ * sits beside it under data ownership.
+ */
+export function offersVaultChoice(nav: VaultsNavViewModel | undefined): boolean {
+  return (
+    nav != null &&
+    (nav.vaults.length > 1 || nav.vaults.some((vault) => vault.defaultUserCollectionId != null))
+  );
+}
+
+/** The ids of every organization's "My items" collection, as the nav holds them. */
+export function defaultUserCollectionIds(nav: VaultsNavViewModel | undefined): Set<string> {
+  return new Set(
+    (nav?.vaults ?? []).flatMap((vault) =>
+      vault.defaultUserCollectionId == null ? [] : [vault.defaultUserCollectionId],
+    ),
+  );
+}
+
+/**
  * The id of an organization's "My items" collection, as the nav holds it. `undefined` when the
  * account's vaults have yet to load, when the organization is not one of them, or when it has no
  * such collection — only organizations under the data ownership policy do.
@@ -487,6 +507,35 @@ export function sharedFolderNameForScope(
     ? collections.find((candidate) => candidate.id === collectionId)
     : undefined;
   return collection ? sharedFolderName(collection) : undefined;
+}
+
+export type CollectionMenuTarget = {
+  collection: CollectionView;
+  organization: Organization | undefined;
+};
+
+export function collectionMenuTargetForScope(
+  scope: VaultScope,
+  collections: readonly CollectionView[],
+  organizations: readonly Organization[],
+): CollectionMenuTarget | undefined {
+  if (scope.type !== VaultScopeType.Organization) {
+    return undefined;
+  }
+  const collectionId = scopedSharedFolderId(scope);
+  if (collectionId == null || !isGuid(collectionId)) {
+    return undefined;
+  }
+
+  const collection = collections.find((candidate) => candidate.id === collectionId);
+  if (collection == null || collection.isDefaultCollection) {
+    return undefined;
+  }
+
+  return {
+    collection,
+    organization: organizations.find((candidate) => candidate.id === scope.organizationId),
+  };
 }
 
 /**

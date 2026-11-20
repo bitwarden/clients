@@ -10,6 +10,8 @@ export type PinnedFolderNode = {
   /** The folder's own name, without the path of the folders it is nested in. */
   name: string;
 
+  collection: CollectionView;
+
   children: PinnedFolderNode[];
 };
 
@@ -65,6 +67,7 @@ function toPinnedFolderNode(node: TreeNode<CollectionView>): PinnedFolderNode {
   return {
     id: node.node.id,
     name: node.node.name,
+    collection: node.node,
     children: node.children.map(toPinnedFolderNode),
   };
 }

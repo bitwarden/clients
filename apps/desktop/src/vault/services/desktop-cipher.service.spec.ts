@@ -8,7 +8,6 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
@@ -23,7 +22,7 @@ type CtorArgs = ConstructorParameters<typeof DesktopCipherService>;
 
 class TestDesktopCipherService extends DesktopCipherService {
   setFullViews(views$: (userId: UserId) => Observable<CipherView[] | null>) {
-    this.cipherViewsWithPartials$ = views$;
+    this.cipherViewsIncludingRestricted$ = views$;
   }
 }
 
@@ -48,7 +47,6 @@ describe("DesktopCipherService", () => {
       mock<AccountService>(),
       mock<LogService>(),
       cipherEncryptionService,
-      mock<MessageSender>(),
       mock<CipherSdkService>(),
     );
   });
@@ -57,7 +55,7 @@ describe("DesktopCipherService", () => {
     const views = [new CipherView()];
     service.setFullViews(() => of(views));
 
-    expect(await firstValueFrom(service.cipherListViewsWithPartials$(userId))).toBe(views);
+    expect(await firstValueFrom(service.cipherListViewsIncludingRestricted$(userId))).toBe(views);
     expect(await firstValueFrom(service.cipherListViews$(userId))).toEqual(views);
     expect(cipherEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
   });

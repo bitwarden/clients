@@ -33,6 +33,7 @@ import {
   TrialPaymentDialogComponent,
 } from "../../../shared/trial-payment-dialog/trial-payment-dialog.component";
 import { openChangePlanDialog } from "../../change-plan-dialog.component";
+import { openRestartSubscriptionDialog } from "../../restart-subscription-dialog.component";
 import {
   OrganizationFreeTrialWarning,
   OrganizationResellerRenewalWarning,
@@ -46,6 +47,8 @@ const format = (date: Date) =>
     day: "2-digit",
     year: "numeric",
   });
+
+const ENDED_STATUSES: (string | undefined)[] = ["canceled", "incomplete_expired"];
 
 type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
 
@@ -199,7 +202,7 @@ export class OrganizationWarningsService {
               title: this.i18nService.t("suspendedOrganizationTitle", organization.name),
               content: {
                 key: "suspendedManagedOrgMessage",
-                placeholders: [organization.providerName],
+                placeholders: [organization.providerName ?? ""],
               },
               type: "danger",
               acceptButtonText: this.i18nService.t("close"),
@@ -227,6 +230,13 @@ export class OrganizationWarningsService {
           }
           case "resubscribe": {
             const subscription = await this.organizationApiService.getSubscription(organization.id);
+            if (ENDED_STATUSES.includes(subscription.subscription?.status)) {
+              const restartReference = openRestartSubscriptionDialog(this.dialogService, {
+                data: { organizationId: organization.id, subscription },
+              });
+              await lastValueFrom(restartReference.closed);
+              break;
+            }
             const dialogReference = openChangePlanDialog(this.dialogService, {
               data: {
                 organizationId: organization.id,

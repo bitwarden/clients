@@ -4,6 +4,7 @@ import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
 
+import { flushPromises } from "../../autofill/spec/testing-utils";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { BrowserApi } from "./browser-api";
@@ -1262,6 +1263,49 @@ describe("BrowserApi", () => {
         chrome.webNavigation.onCommitted,
         expect.any(Function),
       );
+    });
+
+    describe("when injecting through the `registerContentScriptsPolyfill`", () => {
+      const commitNavigation = async (url: string) => {
+        const navigationListener = jest.mocked(BrowserApi.addListener).mock.calls.at(-1)[1];
+        await navigationListener({ tabId: 1, frameId: 0, url });
+        await flushPromises();
+      };
+
+      beforeEach(() => {
+        globalThis.browser = mock<typeof browser>({
+          contentScripts: { register: undefined },
+        });
+        jest.spyOn(BrowserApi, "addListener");
+      });
+
+      it("checks the origin permission with a match pattern that omits the URL's port", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["https://*/*"] });
+
+        await commitNavigation("https://localhost:9443/passkey");
+
+        expect(chrome.permissions.contains).toHaveBeenCalledWith(
+          { origins: ["https://localhost/*"] },
+          expect.any(Function),
+        );
+        expect(chrome.scripting.executeScript).toHaveBeenCalled();
+      });
+
+      it("injects into a URL on any port of a pattern's host", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["http://localhost/*"] });
+
+        await commitNavigation("http://localhost:3000/");
+
+        expect(chrome.scripting.executeScript).toHaveBeenCalled();
+      });
+
+      it("does not inject into a URL on a different host that begins with a pattern's host", async () => {
+        await BrowserApi.registerContentScriptsMv2({ ...details, matches: ["http://localhost/*"] });
+
+        await commitNavigation("http://localhost.example.com:3000/");
+
+        expect(chrome.scripting.executeScript).not.toHaveBeenCalled();
+      });
     });
   });
 

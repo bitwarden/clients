@@ -9,9 +9,10 @@
   <tools-send-table
     [dataSource]="dataSource"
     [disableSend]="disableSend()"
+    [sendAuthRequired]="sendAuthRequired()"
     (editSend)="onEditSend($event)"
     (copySend)="onCopySend($event)"
-    (removePassword)="onRemovePassword($event)"
+    (removeAuth)="onRemoveAuth($event)"
     (deleteSend)="onDeleteSend($event)"
   />
   @if (noSearchResults()) {

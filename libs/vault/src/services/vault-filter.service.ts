@@ -25,7 +25,9 @@ import {
   CollectionView,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { cloneCollection } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -89,8 +91,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
   /**
-   * Cipher stream backing the folder tree. Excludes PAM-gated ("partial") rows; the web
-   * individual vault overrides this to include them, matching its list.
+   * Ciphers that decide which folders have items under an org filter. Excludes PAM-gated
+   * ("partial") rows so a gated cipher never surfaces a folder; the web individual vault overrides
+   * this to include them.
    */
   protected folderFilterCiphers$(userId: UserId): Observable<CipherView[] | CipherListView[]> {
     return this.cipherService.cipherListViews$(userId);
@@ -297,14 +300,22 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     return headNode;
   }
 
+  private buildEmptyOrganization(): Organization {
+    const data = new OrganizationData(new ProfileOrganizationResponse(null), {
+      isMember: false,
+      isProviderUser: false,
+    });
+    return new Organization(data);
+  }
+
   protected getOrganizationFilterHead(): TreeNode<OrganizationFilter> {
-    const head = new Organization() as OrganizationFilter;
+    const head = this.buildEmptyOrganization() as OrganizationFilter;
     head.enabled = true;
     return new TreeNode<OrganizationFilter>(head, null, "allVaults", "AllVaults");
   }
 
   protected getOrganizationFilterMyVault(): TreeNode<OrganizationFilter> {
-    const myVault = new Organization() as OrganizationFilter;
+    const myVault = this.buildEmptyOrganization() as OrganizationFilter;
     myVault.id = "MyVault" as OrganizationId;
     myVault.icon = "bwi-user";
     myVault.enabled = true;
@@ -351,6 +362,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = cloneCollection(
           new CollectionView({ ...c, name: c.name }),
         ) as CollectionFilter;
+        // `new CollectionView(...)` resets `hasEnabledAccessRule`, so copy it explicitly.
+        collectionCopy.hasEnabledAccessRule = c.hasEnabledAccessRule;
         collectionCopy.icon = this.vfo1TerminologyService.iconClass(
           c.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
         );

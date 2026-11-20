@@ -10,6 +10,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -29,11 +30,11 @@ describe("OrganizationMembersService", () => {
   const mockOrganizationId = "org-123" as OrganizationId;
 
   const createMockOrganization = (overrides: Partial<Organization> = {}): Organization => {
-    const org = new Organization();
-    org.id = mockOrganizationId;
-    org.useGroups = false;
-
-    return Object.assign(org, overrides);
+    return buildTestOrganization({
+      id: mockOrganizationId,
+      useGroups: false,
+      ...overrides,
+    });
   };
 
   const createMockUserResponse = (
@@ -409,6 +410,42 @@ describe("OrganizationMembersService", () => {
 
       // Both calls should have been initiated at roughly the same time (within 50ms)
       expect(Math.abs(getUsersCallTime - getGroupsCallTime)).toBeLessThan(50);
+    });
+  });
+  describe("loadMembers", () => {
+    it("returns every group's name keyed by ID, including groups without members", async () => {
+      const organization = createMockOrganization({ useGroups: true });
+      organizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [createMockUserResponse({ groups: ["group-1"] })],
+      } as any);
+      groupService.getAll.mockResolvedValue([
+        createMockGroup("group-1", "Sales"),
+        createMockGroup("group-2", "Sales"),
+      ] as any);
+
+      const { users, accessNames } = await service.loadMembers(organization);
+
+      expect(users).toHaveLength(1);
+      expect([...accessNames]).toEqual([
+        ["group-1", "Sales"],
+        ["group-2", "Sales"],
+      ]);
+    });
+
+    it("returns every collection's name keyed by ID when the organization doesn't use groups", async () => {
+      const organization = createMockOrganization({ useGroups: false });
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      apiService.getCollections.mockResolvedValue({
+        data: [createMockCollection("col-1", "Collection 1")],
+      } as any);
+      keyService.orgKeys$.mockReturnValue(of({ [mockOrganizationId]: {} as any }));
+      collectionService.decryptMany$.mockReturnValue(
+        of([{ id: "col-1", name: "Collection 1" }] as any),
+      );
+
+      const { accessNames } = await service.loadMembers(organization);
+
+      expect([...accessNames]).toEqual([["col-1", "Collection 1"]]);
     });
   });
 });

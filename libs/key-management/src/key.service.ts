@@ -16,8 +16,6 @@ import {
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
-import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +27,10 @@ import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/ser
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import {
+  ProfileProviderOrganizationResponse,
+  ProfileProviderResponse,
+} from "@bitwarden/common/provider";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   OrgKey,
@@ -568,7 +570,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
-    return this.userPrivateKeyHelper$(userId)?.pipe(
+    return this.sdkService.cryptoReady$(userId).pipe(
+      distinctUntilChanged(),
+      // Keys are held back until the SDK client can decrypt with them, so consumers keep their
+      // previous value through an unlock. `null` passes through regardless, so a lock is seen right away.
+      // Gated here and not on userPrivateKeyHelper$: setOrgKeys awaits the private key before it
+      // marks the client ready.
+      switchMap((ready) =>
+        ready
+          ? this.userPrivateKeyHelper$(userId)
+          : this.userPrivateKeyHelper$(userId).pipe(filter((userKeys) => userKeys == null)),
+      ),
       switchMap((userKeys) => {
         if (userKeys == null) {
           return of(null);

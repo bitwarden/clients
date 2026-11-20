@@ -41,7 +41,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     service = new AtRiskCipherBadgeUpdaterService(
       { setState } as unknown as BadgeService,
       { activeAccount$ } as unknown as AccountService,
-      { cipherViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
+      { cipherListViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
       { pendingTasks$: () => pendingTasks$ } as unknown as TaskService,
     );
 

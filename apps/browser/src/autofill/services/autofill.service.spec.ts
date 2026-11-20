@@ -1204,6 +1204,47 @@ describe("AutofillService", () => {
       });
     });
 
+    it("retains targeted fields when options.focusedFieldForm is set and their form opid does not match", async () => {
+      // Targeted fields (fill assist) carry no form opid. The focused-form filter must pass them
+      // through alongside heuristic fields whose form matches; otherwise every targeted field on
+      // the frame is stripped and the fill silently produces an empty script.
+      const targetedField = createAutofillFieldMock({
+        opid: "targeted-otp",
+        form: undefined,
+        targeted: true,
+      });
+      const heuristicInFocusedForm = createAutofillFieldMock({
+        opid: "heuristic-in-focused-form",
+        form: "focusedFormId",
+        targeted: false,
+      });
+      const heuristicInOtherForm = createAutofillFieldMock({
+        opid: "heuristic-in-other-form",
+        form: "otherFormId",
+        targeted: false,
+      });
+      autofillOptions.pageDetails[0].details.fields = [
+        targetedField,
+        heuristicInFocusedForm,
+        heuristicInOtherForm,
+      ];
+      autofillOptions.focusedFieldForm = "focusedFormId";
+
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      const generateFillScriptSpy = jest
+        .spyOn(autofillService as any, "generateFillScript")
+        .mockResolvedValue(null);
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      const passedDetails = generateFillScriptSpy.mock.calls[0][0] as AutofillPageDetails;
+      expect(passedDetails.fields).toContain(targetedField);
+      expect(passedDetails.fields).toContain(heuristicInFocusedForm);
+      expect(passedDetails.fields).not.toContain(heuristicInOtherForm);
+    });
+
     // A verification code does not depend on the page, so an attempt that placed nothing still
     // releases one. A second-factor step whose only field goes unrecognised reaches this.
     it("reports a code with an absent fill when nothing on the page could be filled", async () => {
@@ -1943,6 +1984,96 @@ describe("AutofillService", () => {
 
         expect(autofillService["inUntrustedIframe"]).toHaveBeenCalled();
         expect(result?.untrustedIframe).toBe(true);
+      });
+    });
+
+    describe("one-time code fields", () => {
+      it("distributes one character per input when the field count matches the code length", async () => {
+        // Multi-input OTP forms accept one digit per box. Filling every box with the
+        // full code would overflow each input's maxLength and leave the form invalid.
+        const otpFields = Array.from({ length: 6 }, (_, i) =>
+          buildTargetedField({
+            opid: `targeted_field_0_oneTimeCode_${i}`,
+            fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        );
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: "totp-seed", uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        totpService.getCode$.mockReturnValue(of({ code: "246810", period: 30 }));
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails(otpFields),
+          options,
+        );
+
+        expect(result).not.toBeNull();
+        otpFields.forEach((field, i) => {
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            expect.anything(),
+            field,
+            "246810".charAt(i),
+          );
+        });
+      });
+
+      it("fills every input with the full code when the field count does not match the code length", async () => {
+        // A single standalone OTP input (or any other count mismatch) receives the
+        // whole code — the distribution semantics only kick in for exact matches.
+        const otpField = buildTargetedField({
+          opid: "targeted_field_0_oneTimeCode_0",
+          fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: "totp-seed", uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        totpService.getCode$.mockReturnValue(of({ code: "246810", period: 30 }));
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([otpField]),
+          options,
+        );
+
+        expect(result).not.toBeNull();
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          expect.anything(),
+          otpField,
+          "246810",
+        );
+      });
+
+      it("does not call the TOTP service when the cipher has no totp seed", async () => {
+        const otpField = buildTargetedField({
+          opid: "targeted_field_0_oneTimeCode_0",
+          fieldQualifier: AutofillTargetingRuleTypes.oneTimeCode,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ totp: undefined, uris: [] });
+        options.inlineMenuFillType = CipherType.Login;
+        options.allowTotpAutofill = true;
+        options.canAccessTotp = true;
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([otpField]),
+          options,
+        );
+
+        expect(totpService.getCode$).not.toHaveBeenCalled();
+        expect(AutofillService.fillByOpid).not.toHaveBeenCalled();
+        expect(result).toBeNull();
       });
     });
   });

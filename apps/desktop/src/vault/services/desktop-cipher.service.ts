@@ -9,6 +9,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
  * reuse that decrypt instead of running a second SDK list-view decrypt. See PM-45766.
  */
 export class DesktopCipherService extends CipherService {
-  override cipherListViewsWithPartials$ = (userId: UserId): Observable<CipherView[] | null> =>
-    this.cipherViewsWithPartials$(userId);
+  override cipherListViewsIncludingRestricted$ = (
+    userId: UserId,
+  ): Observable<CipherView[] | null> => this.cipherViewsIncludingRestricted$(userId);
 }

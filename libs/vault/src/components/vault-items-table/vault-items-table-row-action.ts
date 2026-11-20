@@ -31,6 +31,9 @@ export type VaultItemsTableRowAction<C extends CipherViewLike> = {
   /** Whether the action shows for `item`. Omit for always-shown. */
   show?: (item: C) => boolean;
 
+  /** Whether the shown action is disabled for `item`. Omit for always-enabled. */
+  disabled?: (item: C) => boolean;
+
   /**
    * Whether the action is gated behind a premium upgrade for `item` — Archive, for one, is only
    * available to premium users. When it returns `true` the menu item carries the Upgrade badge and

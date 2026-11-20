@@ -226,6 +226,7 @@ export default {
           provide: AutofillSettingsServiceAbstraction,
           useValue: {
             autofillOnPageLoadDefault$: new BehaviorSubject(true),
+            httpAuthenticationAvailable$: new BehaviorSubject(false),
           },
         },
         {
@@ -239,6 +240,7 @@ export default {
           useValue: {
             getClientType: () => ClientType.Browser,
             getDevice: () => DeviceType.ChromeExtension,
+            isSafari: () => false,
           },
         },
         {
@@ -393,6 +395,31 @@ export const WithSubmitButton: Story = {
       `,
     };
   },
+};
+
+/** Provides an `AutofillSettingsServiceAbstraction` with HTTP authentication available */
+const withHTTPAuthenticationAvailable = moduleMetadata({
+  providers: [
+    {
+      provide: AutofillSettingsServiceAbstraction,
+      useValue: {
+        autofillOnPageLoadDefault$: new BehaviorSubject(true),
+        httpAuthenticationAvailable$: new BehaviorSubject(true),
+      },
+    },
+  ],
+});
+
+/** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
+export const HTTPAuthentication: Story = {
+  ...Edit,
+  decorators: [withHTTPAuthenticationAvailable],
+};
+
+/** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
+export const HTTPAuthenticationRequiresMatchDetection: Story = {
+  ...Add,
+  decorators: [withHTTPAuthenticationAvailable],
 };
 
 export const OrganizationDataOwnershipEnabled: Story = {

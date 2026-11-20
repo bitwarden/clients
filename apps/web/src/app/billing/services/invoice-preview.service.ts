@@ -16,10 +16,9 @@ import {
  * Fetches server-calculated invoice previews and adapts them into render-ready {@link Cart}s
  * that bind directly to `<billing-cart-summary>`.
  *
- * When the preview-driven cart feature flag (PM-36631) is on, checkout screens call this service
- * instead of deriving cart contents locally. Each method serves exactly one checkout flow and
- * supplies that flow's `InvoicePreviewFlowContext` internally, so components never pass a flow
- * context and cannot pick the wrong translation copy for their screen.
+ * Checkout screens call this service instead of deriving cart contents locally. Each method serves
+ * exactly one checkout flow and supplies that flow's `InvoicePreviewFlowContext` internally, so
+ * components never pass a flow context and cannot pick the wrong translation copy for their screen.
  */
 @Injectable({ providedIn: "root" })
 export class InvoicePreviewService {

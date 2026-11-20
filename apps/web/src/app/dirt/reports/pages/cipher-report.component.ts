@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, Optional } from "@angular/core";
+import { Directive, OnDestroy, Optional, Signal } from "@angular/core";
 import {
   BehaviorSubject,
   lastValueFrom,
@@ -34,6 +34,8 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 
 @Directive()
 export abstract class CipherReportComponent implements OnDestroy {
+  protected abstract readonly vfo1Enabled: Signal<boolean>;
+
   isAdminConsoleActive = false;
 
   loading = false;
@@ -89,14 +91,10 @@ export abstract class CipherReportComponent implements OnDestroy {
     if (filterId === 0) {
       orgName = this.i18nService.t("all");
     } else if (filterId === 1) {
-      orgName = this.i18nService.t("me");
+      orgName = this.i18nService.t(this.vfo1Enabled() ? "myVault" : "me");
     } else {
-      this.organizations.filter((org: Organization) => {
-        if (org.id === filterId) {
-          orgName = org.name;
-          return org;
-        }
-      });
+      const name = this.organizations.find((org) => org.id === filterId)?.name;
+      orgName = this.vfo1Enabled() ? this.i18nService.t("orgNameVault", name ?? "") : name;
     }
     return orgName;
   }

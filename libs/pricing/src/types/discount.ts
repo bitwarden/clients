@@ -16,8 +16,8 @@ export type Discount = {
  * The discount shape the cart renderer consumes — the structural union of what its two
  * producers supply.
  *
- * Legacy flag-OFF carts carry plain {@link Discount}s, so the renderer derives `amount` and
- * `label` via {@link getAmount} / {@link getLabel}. Preview-driven carts carry
+ * Locally built fallback carts (no server preview) carry plain {@link Discount}s, so the renderer
+ * derives `amount` and `label` via {@link getAmount} / {@link getLabel}. Preview-driven carts carry
  * `InvoicePreviewDiscount`s, whose required `amount` (the server's authoritative applied amount
  * in dollars) and `label` (the coupon name) take precedence over derivation. Both types are
  * assignable to this one.

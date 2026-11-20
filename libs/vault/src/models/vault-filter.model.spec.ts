@@ -1,5 +1,5 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -10,6 +10,7 @@ import { VaultFilter } from "./vault-filter.model";
 import {
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
 } from "./vault-filter.type";
@@ -288,6 +289,27 @@ describe("VaultFilter", () => {
       });
     });
   });
+
+  describe("controlled access", () => {
+    const privileged = new TreeNode<ControlledAccessFilter>(
+      { id: "privileged", name: "Privileged" },
+      null,
+    );
+
+    it("reads the selected option's id", () => {
+      const filter = new VaultFilter({ selectedControlledAccessNode: privileged });
+
+      expect(filter.controlledAccessId).toBe("privileged");
+    });
+
+    it("clears the option on resetFilter", () => {
+      const filter = new VaultFilter({ selectedControlledAccessNode: privileged });
+
+      filter.resetFilter();
+
+      expect(filter.controlledAccessId).toBeUndefined();
+    });
+  });
 });
 
 function createFilterFunction(options: Partial<VaultFilter> = {}) {
@@ -297,8 +319,7 @@ function createFilterFunction(options: Partial<VaultFilter> = {}) {
 function createOrganizationFilterNode(
   options: Partial<OrganizationFilter>,
 ): TreeNode<OrganizationFilter> {
-  const org = new Organization() as OrganizationFilter;
-  org.id = options.id;
+  const org = buildTestOrganization({ id: options.id }) as OrganizationFilter;
   org.icon = options.icon;
   return new TreeNode<OrganizationFilter>(org, null);
 }

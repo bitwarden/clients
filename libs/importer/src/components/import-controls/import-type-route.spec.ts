@@ -36,6 +36,22 @@ describe("canActivateImportType", () => {
     expect(router.createUrlTree).not.toHaveBeenCalled();
   });
 
+  it("builds the redirect from the rejected route when given a function", () => {
+    const route = {
+      paramMap: convertToParamMap({ importType: "nope", organizationId: "org-1" }),
+    } as ActivatedRouteSnapshot;
+
+    const result = TestBed.runInInjectionContext(() =>
+      canActivateImportType((r) => ["/organizations", r.paramMap.get("organizationId")!])(
+        route,
+        {} as any,
+      ),
+    );
+
+    expect(router.createUrlTree).toHaveBeenCalledWith(["/organizations", "org-1"]);
+    expect(result).toBe(redirectTree);
+  });
+
   it("redirects for a real ImportType with no picker card of its own", () => {
     // keepasskdbx is grouped under keepass's card rather than having one of its own — see
     // PICKER_VENDOR_DATA.
