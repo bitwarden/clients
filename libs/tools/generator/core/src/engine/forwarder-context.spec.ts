@@ -9,7 +9,7 @@ import { ApiSettings } from "@bitwarden/common/tools/integration/rpc";
 
 import { ForwarderConfiguration } from "./forwarder-configuration";
 import { ForwarderContext } from "./forwarder-context";
-import { EmailDomainSettings, EmailPrefixSettings } from "./settings";
+import { EmailDomainSettings, EmailForwardToSettings, EmailPrefixSettings } from "./settings";
 
 describe("ForwarderContext", () => {
   const i18n = mock<I18nService>({
@@ -71,6 +71,43 @@ describe("ForwarderContext", () => {
       const context = new ForwarderContext(config, settings, i18n);
 
       expect(() => context.emailPrefix()).toThrow("forwarderNoPrefix");
+    });
+  });
+
+  describe("emailForwardTo", () => {
+    it("returns the forward-to address", () => {
+      const settings = mock<EmailForwardToSettings & ApiSettings>({
+        forwardTo: "recipient@example.com",
+      });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.emailForwardTo();
+
+      expect(result).toEqual("recipient@example.com");
+    });
+
+    it.each([[null], [undefined], [""]])(
+      "returns an empty string when the forward-to address is %p",
+      (forwardTo) => {
+        const settings = mock<EmailForwardToSettings & ApiSettings>({ forwardTo });
+        const config = mock<ForwarderConfiguration<typeof settings>>();
+        const context = new ForwarderContext(config, settings, i18n);
+
+        const result = context.emailForwardTo();
+
+        expect(result).toEqual("");
+      },
+    );
+
+    it("returns an empty string when the forward-to address is not an enumerable member of settings", () => {
+      const settings = {} as EmailForwardToSettings & ApiSettings;
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.emailForwardTo();
+
+      expect(result).toEqual("");
     });
   });
 

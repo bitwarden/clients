@@ -55,6 +55,7 @@ export function toForwarderMetadata(
             token: "",
             baseUrl: "",
             domain: "",
+            forwardTo: "",
             prefix: "",
             allowUnsafeUrlFor: "",
           },

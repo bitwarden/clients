@@ -3,7 +3,7 @@ import { IntegrationContext } from "@bitwarden/common/tools/integration/integrat
 import { ApiSettings } from "@bitwarden/common/tools/integration/rpc";
 
 import { ForwarderConfiguration } from "./forwarder-configuration";
-import { EmailDomainSettings, EmailPrefixSettings } from "./settings";
+import { EmailDomainSettings, EmailForwardToSettings, EmailPrefixSettings } from "./settings";
 
 /**
  * Surfaces contextual information to forwarder integrations.
@@ -59,6 +59,14 @@ export class ForwarderContext<Settings extends ApiSettings> extends IntegrationC
   prefixEnabled(): boolean {
     const prefix = "prefix" in this.settings ? (this.settings.prefix ?? "") : "";
     return prefix === "website";
+  }
+
+  /** look up the optional address messages sent to generated aliases are forwarded to.
+   *  @returns the address, or an empty string when no address is configured.
+   */
+  emailForwardTo(): Settings extends EmailForwardToSettings ? string : never {
+    const forwardTo = "forwardTo" in this.settings ? (this.settings.forwardTo ?? "") : "";
+    return forwardTo as any;
   }
 
   /** look up a localized error message indicating an account id is required
