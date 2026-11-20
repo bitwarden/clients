@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
 
 use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
+    chromium::{BrowserConfig, CryptoService, LocalState, WrongKeyError},
     util,
 };
 
@@ -149,10 +149,12 @@ impl CryptoService for MacCryptoService {
             .master_key
             .as_ref()
             .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
+        // CBC is not authenticated, so a wrong key can also pass the padding check and yield
+        // garbage that isn't valid UTF-8.
         let plaintext = util::decrypt_aes_128_cbc(key, &IV, no_prefix)
-            .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
-        let plaintext =
-            String::from_utf8(plaintext).map_err(|e| anyhow!("Invalid UTF-8: {}", e))?;
+            .map_err(|e| WrongKeyError(e.to_string()))?;
+        let plaintext = String::from_utf8(plaintext)
+            .map_err(|e| WrongKeyError(format!("Invalid UTF-8: {}", e)))?;
 
         Ok(plaintext)
     }
