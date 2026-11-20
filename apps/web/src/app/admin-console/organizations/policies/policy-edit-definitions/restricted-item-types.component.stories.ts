@@ -21,8 +21,11 @@ function withItemTypeCounts(counts: Partial<Record<CipherType, number>>) {
   });
 }
 
+const meta = policyDrawerMeta(new ManageItemTypesPolicy());
+
 export default {
-  ...policyDrawerMeta(new ManageItemTypesPolicy()),
+  ...meta,
+  decorators: [meta.decorators ?? [], withItemTypeCounts({})].flat(),
   args: { enabled: false, singleOrgEnabled: true },
   // Bank account, license and passport are also manageable with the new item types flag on.
   globals: enabledFlags(FeatureFlag.PM32009NewItemTypes),
