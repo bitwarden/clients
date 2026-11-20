@@ -111,6 +111,28 @@ Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
 `QueryTemplate` in `src/seeder/queries/`, named after the server's class and typed after its
 `Request` and result.
 
+## SSO
+
+SSO tests sign new users in through [Mock SAML](https://mocksaml.com), a public SAML IdP that
+accepts any `@example.com` user, so each run provisions fresh accounts just in time. They need
+an org per decryption option, with SSO set to SAML 2.0 and Mock SAML's metadata:
+
+- Entity ID `https://saml.example.com/entityid`
+- SSO URL `https://mocksaml.com/api/saml/sso`, binding Redirect
+- Certificate from `https://mocksaml.com/api/saml/metadata`
+
+Give the suite their SSO identifiers in an `[sso]` section, or as `E2E_SSO_MP_IDENTIFIER` and
+`E2E_SSO_TDE_IDENTIFIER`. A test whose org is not configured is skipped.
+
+```
+[sso]
+mp=km-e2e-sso-mp
+tde=km-e2e-sso-tde
+```
+
+The identifiers above are usdev Enterprise orgs set up this way, one using master passwords,
+one trusted devices.
+
 ## CI
 
 `.github/workflows/test-e2e-usdev.yml` runs every suite against usdev nightly, and on

@@ -20,6 +20,11 @@ const DEFAULT_SECOND_ACCOUNT = "local-web-2";
  */
 const SEEDER_SECTION = "seeder";
 
+/**
+ * Section holding the SSO identifiers of organizations whose identity provider is Mock SAML.
+ */
+const SSO_SECTION = "sso";
+
 /** Where `dotnet run` serves the SeederApi — see util/SeederApi/Properties/launchSettings.json. */
 const DEFAULT_SEEDER_URL = "http://localhost:5047";
 
@@ -36,6 +41,13 @@ export type SeederAccount = {
   username: string;
   password: string;
 };
+
+/** Organizations signing in through Mock SAML, by how their members decrypt their vault. */
+export const SsoOrganization = Object.freeze({
+  MasterPassword: "mp",
+  TrustedDevices: "tde",
+} as const);
+export type SsoOrganization = (typeof SsoOrganization)[keyof typeof SsoOrganization];
 
 /**
  * Parses the INI-style `.debug/credentials.txt`:
@@ -140,6 +152,19 @@ export function seederAccount(): SeederAccount {
 /** Whether a SeederApi account is configured, which tests that seed data need. */
 export function hasSeederAccount(): boolean {
   return seederLoginFromEnv() != null || (readSections()?.has(SEEDER_SECTION) ?? false);
+}
+
+/**
+ * Reads the organization's SSO identifier from `E2E_SSO_<ORG>_IDENTIFIER` when set, e.g.
+ * `E2E_SSO_TDE_IDENTIFIER`, otherwise from the `[sso]` section's key, e.g. `tde=`.
+ * Undefined when neither is set.
+ */
+export function ssoIdentifier(org: SsoOrganization): string | undefined {
+  return (
+    process.env[`E2E_SSO_${org.toUpperCase()}_IDENTIFIER`] ||
+    readSections()?.get(SSO_SECTION)?.[org] ||
+    undefined
+  );
 }
 
 /** Both variables, or neither: like `fromEnv`, a partial set is a misconfigured job. */
