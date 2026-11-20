@@ -16,6 +16,7 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 - Prefer a role locator or existing `id` (`page.locator("#...")`) when it is trivial: one `getByRole` or `getByLabel` call that picks out the element, e.g. `page.getByRole("button", { name: "Save" })`.
 - Fall back to a test id once the role locator stops being trivial: it needs chaining or nesting (`.filter()`, scoping into a row, `.nth()`), or the same role and name match more than one element. Add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
 - No CSS classes, DOM structure or `formcontrolname`.
+- Reach UI owned by another team (see `.github/CODEOWNERS`) the way a user would: a trivial role locator, or that team's page helper (e.g. `LoginPage`) if one exists. Don't add test ids to their templates or depend on their DOM structure.
 - Keep each selector in a named constant at the top of the helper or test.
 
 ## Writing tests
