@@ -4,6 +4,8 @@ import { expect, Page, test } from "@playwright/test";
 
 import { clientAccounts } from "../../../src/accounts";
 import { SsoOrganization, ssoIdentifier } from "../../../src/credentials";
+import { LockScreen } from "../../../src/lock-screen";
+import { logOut } from "../../../src/web/account-menu";
 import { MockSamlIdp, mockSamlEmail } from "../../../src/web/mock-saml";
 import {
   SETUP_EXTENSION_URL,
@@ -12,6 +14,7 @@ import {
 } from "../../../src/web/onboarding";
 import { startSsoLogin } from "../../../src/web/sso-login";
 
+const LOGIN_URL = /#\/login/;
 const VAULT_URL = /#\/vault/;
 const POST_LOGIN_URL = new RegExp(`${VAULT_URL.source}|${SETUP_EXTENSION_URL.source}`);
 const SET_INITIAL_PASSWORD_URL = /#\/set-initial-password/;
@@ -26,15 +29,21 @@ function identifierOf(org: SsoOrganization): string {
   return identifier!;
 }
 
-/** Signs a new Mock SAML user in to the org's SSO, which provisions their account. */
-async function signInNewUser(page: Page, identifier: string): Promise<string> {
-  const email = mockSamlEmail();
-
+/** Signs a Mock SAML user in to the org's SSO. The first sign-in provisions their account. */
+async function ssoSignIn(page: Page, identifier: string, email: string) {
   await skipOnboardingDialogs(page);
   await startSsoLogin(page, email, identifier);
   await new MockSamlIdp(page).signIn(email);
+}
 
-  return email;
+/**
+ * Logs out of the vault, back to the login page. Also ends the SSO server's session, a cookie
+ * the vault's logout leaves behind, so the next sign-in goes through the IdP again.
+ */
+async function logOutOfVault(page: Page) {
+  await logOut(page);
+  await page.waitForURL(LOGIN_URL);
+  await page.context().clearCookies();
 }
 
 /** Waits for the vault, past the extension pitch, with `email` unlocked in it. */
@@ -48,43 +57,49 @@ async function expectUnlockedVault(page: Page, email: string) {
     .toContainEqual(expect.objectContaining({ email, status: "Unlocked" }));
 }
 
-test("provisions a master password user through SSO", async ({ page }) => {
+test("logs in through SSO as a provisioned master password user", async ({ page }) => {
   const identifier = identifierOf(SsoOrganization.MasterPassword);
 
-  // Given a user who exists only at the identity provider
-  // When they sign in through the org's SSO
-  const email = await signInNewUser(page, identifier);
-
-  // Then they are asked to set the master password of their new account
+  // Given a user provisioned by signing in through the org's SSO and setting a master password
+  const email = mockSamlEmail();
+  await ssoSignIn(page, identifier, email);
   await page.waitForURL(SET_INITIAL_PASSWORD_URL, { timeout: SSO_TIMEOUT_MS });
 
-  // When they set it
   const password = randomUUID();
   await page.locator('input[formcontrolname="newPassword"]').fill(password);
   await page.locator('input[formcontrolname="newPasswordConfirm"]').fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
+  await expectUnlockedVault(page, email);
+  await logOutOfVault(page);
 
-  // Then they land in their unlocked vault
+  // When they sign in through SSO again
+  await ssoSignIn(page, identifier, email);
+
+  // Then their master password unlocks the vault
+  const lockScreen = new LockScreen(page);
+  await lockScreen.waitUntilShown();
+  await lockScreen.unlockWithMasterPassword(password);
   await expectUnlockedVault(page, email);
 });
 
-test("provisions a trusted device user through SSO", async ({ page }) => {
+test("logs in through SSO as a provisioned trusted device user", async ({ page }) => {
   const identifier = identifierOf(SsoOrganization.TrustedDevices);
 
-  // Given a user who exists only at the identity provider
-  // When they sign in through the org's SSO
-  const email = await signInNewUser(page, identifier);
-
-  // Then they are offered to trust this device
+  // Given a user provisioned by signing in through the org's SSO and trusting this device
+  const email = mockSamlEmail();
+  await ssoSignIn(page, identifier, email);
   await page.waitForURL(LOGIN_INITIATED_URL, { timeout: SSO_TIMEOUT_MS });
 
   // Continue renders before the page has loaded the org, and clicked early it fails. The
   // checkbox renders once that load is done.
   await expect(page.getByRole("checkbox", { name: /Remember this device/ })).toBeVisible();
-
-  // When they continue, which creates their keys and trusts the device
   await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expectUnlockedVault(page, email);
+  await logOutOfVault(page);
 
-  // Then they land in their unlocked vault
+  // When they sign in through SSO again
+  await ssoSignIn(page, identifier, email);
+
+  // Then the trusted device unlocks the vault
   await expectUnlockedVault(page, email);
 });
