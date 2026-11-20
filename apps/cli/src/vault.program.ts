@@ -34,8 +34,8 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
-      .addCommand(this.importCommand())
-      .addCommand(this.exportCommand())
+      .addCommand(this.importCommand(useSharedFoldersTerm))
+      .addCommand(this.exportCommand(useSharedFoldersTerm))
       .addCommand(this.shareCommand("share", true))
       .addCommand(this.archiveCommand());
   }
@@ -580,13 +580,21 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private importCommand(): Command {
+  private importCommand(vfo1Enabled: boolean): Command {
     return new Command("import")
       .argument("[format]", "The format of [input]")
       .argument("[input]", "Filepath to data to import")
       .description("Import vault data from a file.")
       .option("--formats", "List formats")
-      .option("--organizationid <organizationid>", "ID of the organization to import to.")
+      .addOption(
+        new Option("--vaultid <vaultid>", "ID of the vault to import to.").hideHelp(!vfo1Enabled),
+      )
+      .option(
+        "--organizationid <organizationid>",
+        vfo1Enabled
+          ? "--DEPRECATED-- ID of the organization to import to. Use --vaultid instead."
+          : "ID of the organization to import to.",
+      )
       .option("--keyfile <keyfile>", "Path to a key file used to unlock a KeePass (kdbx) database.")
       .option(
         "--passwordenv <passwordenv>",
@@ -603,7 +611,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw import bitwardencsv ./from/source.csv");
         writeLn("    bw import keepass2xml keepass_backup.xml");
         writeLn(
-          "    bw import --organizationid cf14adc3-aca5-4573-890a-f6fa231436d9 keepass2xml keepass_backup.xml",
+          `    bw import ${vfo1Enabled ? "--vaultid" : "--organizationid"} cf14adc3-aca5-4573-890a-f6fa231436d9 keepass2xml keepass_backup.xml`,
         );
       })
       .action(async (format, filepath, options) => {
@@ -615,13 +623,14 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.logService,
           this.serviceContainer.i18nService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);
       });
   }
 
-  private exportCommand(): Command {
+  private exportCommand(vfo1Enabled: boolean): Command {
     return new Command("export")
       .description("Export vault data to a CSV, JSON or ZIP file.")
       .option("--output <output>", "Output directory or filename.")
@@ -630,7 +639,15 @@ export class VaultProgram extends BaseProgram {
         "--password [password]",
         "Use password to encrypt instead of your Bitwarden account encryption key. Only applies to the encrypted_json format.",
       )
-      .option("--organizationid <organizationid>", "Organization id for an organization.")
+      .addOption(
+        new Option("--vaultid <vaultid>", "ID of the vault to export.").hideHelp(!vfo1Enabled),
+      )
+      .option(
+        "--organizationid <organizationid>",
+        vfo1Enabled
+          ? "--DEPRECATED-- ID of the organization to export. Use --vaultid instead."
+          : "Organization id for an organization.",
+      )
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -652,7 +669,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw export --output ./exp/bw.csv");
         writeLn("    bw export myPassword321 --output bw.json --format json");
         writeLn(
-          "    bw export myPassword321 --organizationid 7063feab-4b10-472e-b64c-785e2b870b92",
+          `    bw export myPassword321 ${vfo1Enabled ? "--vaultid" : "--organizationid"} 7063feab-4b10-472e-b64c-785e2b870b92`,
         );
         writeLn("", true);
       })
@@ -663,6 +680,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(options);
         this.processResponse(response);

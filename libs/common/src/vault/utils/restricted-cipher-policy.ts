@@ -76,4 +76,12 @@ export class RestrictedCipherPolicy {
     }
     return action === RestrictedCipherAction.UserFields;
   }
+
+  /**
+   * What {@link allows} answers once the cipher is revealed, for a caller that knows the user may
+   * reveal it now (a live lease) but has not revealed it yet. The action reveals when it runs.
+   */
+  static allowsOnReveal(cipher: CipherLike, action: RestrictedCipherAction): boolean {
+    return !RestrictedCipherPolicy.isRestricted(cipher) || REVEALED_ALLOWED_ACTIONS.has(action);
+  }
 }

@@ -820,10 +820,17 @@ export class SmProgram extends BaseProgram {
             writeLn("    Any existing policy not listed in `policies` is removed. Use `grant`");
             writeLn("    and `revoke` to change a single policy.");
             writeLn("");
+            writeLn("    Each policy's `permission` is optional. A policy without one keeps the");
+            writeLn("    permission its grantee already has, or gets read access if the grantee");
+            writeLn("    has no access yet.");
+            writeLn("");
             writeLn("  Examples:");
             writeLn("");
             writeLn(
               "    bw sm template sm-access-policies | jq '.policies[0].id=\"<id>\"' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>",
+            );
+            writeLn(
+              '    bw sm template sm-access-policies | jq \'.policies[0].id="<id>" | .policies[0].permission="read-write"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
             );
             writeLn("", true);
           })

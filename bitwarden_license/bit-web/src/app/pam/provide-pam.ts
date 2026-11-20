@@ -42,6 +42,7 @@ import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import {
   CIPHER_VIEW_BANNER,
   ITEM_DETAILS_BADGE,
+  REVEALABLE_CIPHERS,
   SHARED_FOLDER_DECORATION,
   VAULT_ITEM_COLUMN,
   VAULT_ITEM_FILTER,
@@ -66,6 +67,7 @@ import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.servi
 import { RotationSdkService } from "./rotation/rotation-sdk.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
+import { PamRevealableCiphersService } from "./services/pam-revealable-ciphers.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
@@ -251,6 +253,19 @@ export function providePam(): SafeProvider[] {
       ],
     }),
     safeProvider({
+      provide: REVEALABLE_CIPHERS,
+      useClass: PamRevealableCiphersService,
+      deps: [
+        AccessLeaseSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        AccountService,
+        OrganizationService,
+        ConfigService,
+        LogService,
+      ],
+    }),
+    safeProvider({
       provide: AccessRequestCancelService,
       useClass: AccessRequestCancelService,
       deps: [
@@ -270,6 +285,7 @@ export function providePam(): SafeProvider[] {
         AccessRefreshService,
         AccessRequestCancelService,
         ConfigService,
+        AccessBadgeTickerService,
       ],
     }),
   ];
