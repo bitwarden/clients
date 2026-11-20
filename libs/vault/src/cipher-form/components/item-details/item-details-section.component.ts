@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+import { CommonModule, NgComponentOutlet } from "@angular/common";
 import { Component, computed, DestroyRef, inject, input, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -39,6 +39,12 @@ import {
 import { orgIconTile, personalIconTile } from "../../../models/vault-icon-tile";
 import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
+import {
+  SHARED_FOLDER_FIELD_DECORATION,
+  SharedFolderFieldDecoration,
+  SharedFolderFieldFolder,
+  SharedFolderOptionDecorator,
+} from "../../../tokens/shared-folder-field-decoration.token";
 import { sharedFolderDisplayName } from "../../../utils/shared-folder-name";
 import {
   CipherFormConfig,
@@ -62,6 +68,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
+    NgComponentOutlet,
     Vfo1I18nPipe,
   ],
 })
@@ -70,6 +77,12 @@ export class ItemDetailsSectionComponent implements OnInit {
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
   private avatarService = inject(AvatarService);
+
+  /** Optional presentation added to the shared folders field, e.g. a folder's access controls. */
+  protected readonly sharedFolderFieldDecoration: SharedFolderFieldDecoration | null = inject(
+    SHARED_FOLDER_FIELD_DECORATION,
+    { optional: true },
+  );
 
   itemDetailsForm = this.formBuilder.group({
     name: ["", [Validators.required]],
@@ -97,6 +110,21 @@ export class ItemDetailsSectionComponent implements OnInit {
    * @protected
    */
   protected readOnlyCollections: CollectionView[] = [];
+
+  /**
+   * The item's current shared folders: the selected options plus any read-only ones the user cannot
+   * remove, each with the display name its option and chip show. Handed to the shared folders
+   * field's decoration hint.
+   * @protected
+   */
+  protected selectedFolders: SharedFolderFieldFolder[] = [];
+
+  /**
+   * Whether the decoration's hint renders: only while its decorator is active for the selected
+   * organization, so the provider gates the locks and the hint in one place.
+   * @protected
+   */
+  protected sharedFolderHintShown = false;
 
   protected showCollectionsControl: boolean;
 
@@ -185,6 +213,7 @@ export class ItemDetailsSectionComponent implements OnInit {
           } as CipherView);
           return cipher;
         });
+        this.updateSelectedFolders(value.collectionIds);
       });
   }
 
@@ -402,8 +431,36 @@ export class ItemDetailsSectionComponent implements OnInit {
             c.readOnly &&
             this.originalCipherView().collectionIds.includes(c.id as CollectionId),
         );
+        this.updateSelectedFolders(this.itemDetailsForm.getRawValue().collectionIds);
       }
     }
+  }
+
+  private updateSelectedFolders(selected: SelectItemView[] | null | undefined) {
+    if (this.sharedFolderFieldDecoration == null) {
+      return;
+    }
+    const selectedIds = new Set([
+      ...(selected ?? []).map((item) => item.id),
+      ...this.readOnlyCollections.map((c) => c.id),
+    ]);
+    this.selectedFolders = (this.collections ?? [])
+      .filter((c) => selectedIds.has(c.id))
+      .map((c) => ({ collection: c, name: sharedFolderDisplayName(c, this.i18nService) }));
+  }
+
+  /**
+   * The provider's decorator for the selected organization's shared folders, or `null` when none
+   * is provided or it leaves the field plain.
+   */
+  private async sharedFolderOptionDecorator(
+    orgId: OrganizationId,
+  ): Promise<SharedFolderOptionDecorator | null> {
+    const organization = this.organizations.find((o) => o.id === orgId);
+    if (this.sharedFolderFieldDecoration == null || organization == null) {
+      return null;
+    }
+    return await firstValueFrom(this.sharedFolderFieldDecoration.decorator$(organization));
   }
 
   private setCollectionControlState() {
@@ -447,6 +504,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     // No organization selected, disable/hide the collections control.
     if (orgId == null) {
       this.collectionOptions = [];
+      this.sharedFolderHintShown = false;
       collectionsControl.reset();
       collectionsControl.disable();
       this.showCollectionsControl = false;
@@ -455,6 +513,13 @@ export class ItemDetailsSectionComponent implements OnInit {
       collectionsControl.enable();
       this.showCollectionsControl = true;
     }
+
+    // Only awaited when a decoration is provided, so the undecorated field builds as before.
+    const decorate =
+      this.sharedFolderFieldDecoration == null
+        ? null
+        : await this.sharedFolderOptionDecorator(orgId);
+    this.sharedFolderHintShown = decorate != null;
 
     /**
      * Determine if the the cipher is only assigned to shared collections.
@@ -501,7 +566,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       })
       .map((c) => {
         const name = sharedFolderDisplayName(c, this.i18nService);
-        return { id: c.id, name, listName: name, labelName: name };
+        return { id: c.id, name, listName: name, labelName: name, ...decorate?.(c) };
       });
 
     collectionsControl.reset();

@@ -145,6 +145,14 @@ export {
   type SharedFolderDecoration,
 } from "./tokens/shared-folder-decoration.token";
 export {
+  SHARED_FOLDER_FIELD_DECORATION,
+  type SharedFolderFieldDecoration,
+  type SharedFolderFieldFolder,
+  type SharedFolderFieldHint,
+  type SharedFolderOptionDecoration,
+  type SharedFolderOptionDecorator,
+} from "./tokens/shared-folder-field-decoration.token";
+export {
   VAULT_ITEM_COLUMN,
   type VaultItemColumn,
   type VaultItemColumnScope,
