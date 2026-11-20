@@ -55,7 +55,7 @@ interface UriField {
 
 /**
  * The match strategy desktop app URIs are saved with. A website's URL is never a desktop app URI,
- * so Exact never matches a website, and it counts as an explicit strategy for HTTP authentication.
+ * so Exact has no applied meaning.
  */
 const DESKTOP_APP_URI_MATCH_STRATEGY: UriMatchStrategySetting = UriMatchStrategy.Exact;
 

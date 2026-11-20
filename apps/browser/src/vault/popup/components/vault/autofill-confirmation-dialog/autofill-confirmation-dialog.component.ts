@@ -95,7 +95,7 @@ export class AutofillConfirmationDialogComponent {
   );
 
   // Desktop app URIs pair the login with an app, so they aren't saved websites
-  readonly savedUrls = signal<LoginUriView[]>(
+  readonly savedUrls = computed<LoginUriView[]>(() =>
     (this.params.savedUris ?? []).filter((uri) => !isDesktopAppUri(uri.uri)),
   );
 

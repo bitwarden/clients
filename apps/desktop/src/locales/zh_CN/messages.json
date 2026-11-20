@@ -973,7 +973,7 @@
   },
   "desktopApp": {
     "message": "桌面 App",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "桌面 App $COUNT$",
@@ -985,6 +985,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "App 配对无效",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "网址已添加"
   },
@@ -993,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "添加网站或 App"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "删除网站"
@@ -3380,6 +3381,10 @@
   "custom": {
     "message": "自定义"
   },
+  "deleteSend": {
+    "message": "删除 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "确定要删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4621,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "导入成功"
+  },
+  "importConfirmationBody": {
+    "message": "您已成功将 $AMOUNT$ 个项目导入 Bitwarden。",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "您已成功将 1 个项目导入 Bitwarden。"
+  },
+  "importConfirmationTipLabel": {
+    "message": "提示："
+  },
+  "importDeleteFileTip": {
+    "message": "不要忘记删除 $FILENAME$。该文件包含敏感数据，且可能未经加密。",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "不要忘记删除导入文件。该文件包含敏感数据，且可能未经加密。"
+  },
+  "importingTitle": {
+    "message": "正在导入"
+  },
+  "importingDescription": {
+    "message": "此过程可能需要几分钟时间。"
+  },
   "total": {
     "message": "总计"
   },
@@ -5654,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "发生错误。请检查您的凭据，然后重试。"
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "仅支持带密码的登录。"
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "仅支持带密码的登录。请重试或使用其他导入方式。"
+    "message": "仅支持密码方式登录。请重试或使用其他导入方式。"
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
@@ -5677,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "请输入有效的登录地址。"
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "必须填写安全密钥。"
@@ -5699,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "输入您用于登录 1Password 的电子邮箱"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "安全密钥"
   },
@@ -5707,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -6286,12 +6357,19 @@
     "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "您没有 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "未返回搜索结果"
   },
   "sendsBodyNoItems": {
     "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制暴露的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "与任何人安全地分享文本和文件。您的信息将经过端到端加密。"
   },
   "sendsBodyNoSearchResults": {
     "message": "清除筛选或尝试其他搜索词"
@@ -6382,6 +6460,9 @@
   },
   "itemLower": {
     "message": "项目"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "项目"
@@ -6910,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "我该如何管理我的密码库？"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "转移项目到 $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "将您的项目转移到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6919,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "为确保安全性和合规性，$ORGANIZATION$ 要求所有项目由组织拥有。",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ 现在要求所有成员项目归组织拥有。您的个人项目将移动到名为「我的项目」的文件夹中，此文件夹仅您本人可见。",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "点击「接受」以转移您的项目的所有权。"
   },
   "openTransferItemsHelpArticle": {
     "message": "打开有关转移项目的帮助文章"
@@ -7782,6 +7860,9 @@
     "message": "浏览器登录自动填充提示已关闭"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存项目以保留此更改。"
+  },
+  "item": {
+    "message": "项目"
   }
 }

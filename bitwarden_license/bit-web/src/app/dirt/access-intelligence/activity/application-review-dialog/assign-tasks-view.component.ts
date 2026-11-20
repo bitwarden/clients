@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
+import { DarkImageSourceDirective } from "@bitwarden/angular/directives/dark-image-source.directive";
 import {
   ButtonModule,
   CalloutComponent,
@@ -7,7 +8,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 /**
  * Embedded component for displaying task assignment UI.

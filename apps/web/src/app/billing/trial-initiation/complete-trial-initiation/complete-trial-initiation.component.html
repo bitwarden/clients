@@ -67,49 +67,18 @@
           [loading]="loading"
           (click)="orgNameEntrySubmit()"
         >
-          {{ paymentOptional && trialLength > 0 ? ("startTrial" | i18n) : ("next" | i18n) }}
+          {{ orgInfoButtonLabel | i18n }}
         </button>
       </app-vertical-step>
       <app-vertical-step label="Billing" [subLabel]="billingSubLabel" *ngIf="showBillingStep">
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"
           [trial]="trial"
-          (steppedBack)="previousStep()"
           (organizationCreated)="createdOrganization($event)"
+          [existingOrganization]="organization"
+          (steppedBack)="previousStep()"
         >
         </app-trial-billing-step>
-      </app-vertical-step>
-      <app-vertical-step label="Confirmation Details" [applyBorder]="false">
-        <app-trial-confirmation-details
-          [email]="email"
-          [orgLabel]="orgLabel"
-          [product]="this.product"
-          [trialLength]="trialLength"
-          [includesPrivilegedControls]="includesPrivilegedControls"
-        ></app-trial-confirmation-details>
-        <div class="tw-mb-3 tw-flex">
-          <a
-            type="button"
-            bitButton
-            buttonType="primary"
-            [routerLink]="
-              product === ProductType.SecretsManager
-                ? ['/sm', orgId]
-                : ['/organizations', orgId, 'vault']
-            "
-          >
-            {{ "getStarted" | i18n | titlecase }}
-          </a>
-          <a
-            type="button"
-            bitButton
-            buttonType="secondary"
-            [routerLink]="['/organizations', orgId, 'members']"
-            class="tw-ml-3 tw-inline-flex tw-items-center tw-px-3"
-          >
-            {{ "inviteUsers" | i18n }}
-          </a>
-        </div>
       </app-vertical-step>
     </app-vertical-stepper>
   </div>
