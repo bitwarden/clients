@@ -76,7 +76,11 @@ import { lastRotatedText, nextRotationText, RelativeTimeText } from "../rotation
 import { RowBusyTracker } from "../row-busy-tracker";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
-import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
+import {
+  confirmPauseRotation,
+  confirmRemoveFromRotation,
+  confirmRotateNow,
+} from "./rotation-action-dialogs";
 import {
   ROTATION_STATUS_BADGES,
   RotationConfigRow,
@@ -661,13 +665,7 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly confirmDelete = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamRotationConfigRemoveConfirmTitle" },
-        content: { key: "pamRotationConfigRemoveConfirmContent" },
-        acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
+      const confirmed = await confirmRemoveFromRotation(this.dialogService);
       if (!confirmed) {
         return;
       }
