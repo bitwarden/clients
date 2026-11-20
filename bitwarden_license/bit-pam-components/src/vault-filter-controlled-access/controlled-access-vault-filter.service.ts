@@ -291,15 +291,13 @@ export class ControlledAccessVaultFilterService {
           return of(new Map<string, AccessBadgeState>());
         }
         return this.myAccessRequestsService.badges$.pipe(
-          map(
-            (badges) =>
-              new Map(
-                candidates.map((cipher) => {
-                  const id = String(cipher.id);
-                  return [id, listedBadgeFor(badges, id)];
-                }),
-              ),
-          ),
+          map((badges) => {
+            const entries = candidates.map((cipher) => {
+              const id = String(cipher.id);
+              return [id, listedBadgeFor(badges, id)] as const;
+            });
+            return new Map(entries);
+          }),
         );
       }),
     );
