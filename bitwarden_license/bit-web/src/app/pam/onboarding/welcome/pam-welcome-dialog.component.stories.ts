@@ -30,16 +30,16 @@ type Story = StoryObj<PamWelcomeDialogComponent>;
 export const Default: Story = {};
 
 /**
- * Stress test for translated copy: every string is replaced with a much longer one to check that
- * the rows wrap instead of clipping.
+ * Stress test for translated copy: the description is replaced with a much longer one to check
+ * that it wraps instead of clipping.
  */
 export const LongText: Story = {
   play: async ({ canvasElement }) => {
     const longText =
       "Ein sehr langer übersetzter Text, der in mehreren Zeilen umbrochen werden muss, ohne abgeschnitten zu werden.";
-    const nodes = canvasElement.querySelectorAll<HTMLElement>(
-      "li p, #pam-welcome-dialog_description",
-    );
-    nodes.forEach((node) => (node.textContent = `${node.textContent} ${longText}`));
+    const node = canvasElement.querySelector<HTMLElement>("#pam-welcome-dialog_description");
+    if (node) {
+      node.textContent = `${node.textContent} ${longText}`;
+    }
   },
 };

@@ -404,7 +404,7 @@ the tour would still be marked complete; the access requests tour waits one rend
 "/pam/my-requests"`, since its anchor mounts only on that routed tab.
 Specs use `testing/coachmark-service-stub.ts` to keep the service inert.
 
-The welcome modal (`onboarding/welcome/`, `PamWelcomePromptService`) is offered once per user: when
+The welcome modal (`onboarding/welcome/`, `PamWelcomePromptService`) is a standard `bit-dialog` intro (title in the header, illustration, one short paragraph, primary "Start the tour" first, then "Not now"); keep it free of custom layout and checklists. It is offered once per user: when
 the Pam flag is on, the member holds PAM access in a non-provider organization (`usePam` and
 `accessPam`), and neither the acknowledged key (`PAM_WELCOME_ACKNOWLEDGED_KEY`, set however the
 modal is closed) nor any PAM tour's completion key is set, so nobody is welcomed retroactively.

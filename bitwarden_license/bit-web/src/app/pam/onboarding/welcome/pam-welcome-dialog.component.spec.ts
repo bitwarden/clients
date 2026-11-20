@@ -28,19 +28,12 @@ describe("PamWelcomeDialogComponent", () => {
     fixture.detectChanges();
   });
 
-  it("renders the title, description and the three rows in order", () => {
+  it("renders the title, a short description and the illustration, with no checklist", () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("pamWelcomeTitle");
-    expect(text).toContain("pamWelcomeDescription");
-
-    const rows = Array.from(fixture.nativeElement.querySelectorAll("li")) as HTMLElement[];
-    expect(rows).toHaveLength(3);
-    expect(rows[0].textContent).toContain("pamWelcomeFindTitle");
-    expect(rows[0].textContent).toContain("pamWelcomeFindDescription");
-    expect(rows[1].textContent).toContain("pamWelcomeRequestTitle");
-    expect(rows[1].textContent).toContain("pamWelcomeRequestDescription");
-    expect(rows[2].textContent).toContain("pamWelcomeLeaseTitle");
-    expect(rows[2].textContent).toContain("pamWelcomeLeaseDescription");
+    expect(q("#pam-welcome-dialog_description").textContent).toContain("pamWelcomeDescription");
+    expect(q("bit-svg")).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll("li")).toHaveLength(0);
   });
 
   it("closes with StartTour from the primary button", () => {
@@ -59,8 +52,12 @@ describe("PamWelcomeDialogComponent", () => {
     expect(q("#pam-welcome-dialog_button_dismiss").textContent).toContain("pamWelcomeDismiss");
   });
 
-  it("marks the primary button for autofocus", () => {
-    expect(q("#pam-welcome-dialog_button_start-tour").hasAttribute("bitautofocus")).toBe(true);
+  it("puts the primary button before the secondary one", () => {
+    const buttons = Array.from(fixture.nativeElement.querySelectorAll("[bitDialogFooter] button"));
+    expect(buttons.map((b) => (b as HTMLElement).id)).toEqual([
+      "pam-welcome-dialog_button_start-tour",
+      "pam-welcome-dialog_button_dismiss",
+    ]);
   });
 
   describe("open", () => {

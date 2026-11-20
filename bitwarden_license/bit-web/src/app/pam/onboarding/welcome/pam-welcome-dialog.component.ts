@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { Security } from "@bitwarden/assets/svg";
 import {
-  AutofocusDirective,
-  BitwardenIcon,
   ButtonModule,
   CenterPositionStrategy,
   DialogModule,
   DialogRef,
   DialogService,
-  IconTileComponent,
+  SvgComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -25,12 +24,6 @@ export const PamWelcomeDialogResult = Object.freeze({
 export type PamWelcomeDialogResult =
   (typeof PamWelcomeDialogResult)[keyof typeof PamWelcomeDialogResult];
 
-type WelcomeStep = {
-  icon: BitwardenIcon;
-  titleKey: string;
-  descriptionKey: string;
-};
-
 /**
  * One-time introduction for PAM-licensed members. It only reports the member's choice; the caller
  * starts the tour and records that the welcome was seen.
@@ -39,35 +32,12 @@ type WelcomeStep = {
   selector: "pam-welcome-dialog",
   templateUrl: "./pam-welcome-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DialogModule,
-    ButtonModule,
-    TypographyModule,
-    IconTileComponent,
-    AutofocusDirective,
-    JslibModule,
-  ],
+  imports: [DialogModule, ButtonModule, TypographyModule, SvgComponent, JslibModule],
 })
 export class PamWelcomeDialogComponent {
   private readonly dialogRef = inject<DialogRef<PamWelcomeDialogResult>>(DialogRef);
 
-  protected readonly steps: readonly WelcomeStep[] = [
-    {
-      icon: "bwi-search",
-      titleKey: "pamWelcomeFindTitle",
-      descriptionKey: "pamWelcomeFindDescription",
-    },
-    {
-      icon: "bwi-key",
-      titleKey: "pamWelcomeRequestTitle",
-      descriptionKey: "pamWelcomeRequestDescription",
-    },
-    {
-      icon: "bwi-clock",
-      titleKey: "pamWelcomeLeaseTitle",
-      descriptionKey: "pamWelcomeLeaseDescription",
-    },
-  ];
+  protected readonly heroIllustration = Security;
 
   protected startTour(): void {
     void this.dialogRef.close(PamWelcomeDialogResult.StartTour);

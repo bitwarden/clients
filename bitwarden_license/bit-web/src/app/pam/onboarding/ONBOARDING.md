@@ -32,6 +32,7 @@ Placeholder copy for review. Source of truth for the strings is `apps/web/src/lo
 - **Starts when:** User chooses "Start the tour" in the PAM welcome modal (stays on the vault page; no route)
 - **Conditions:** Feature flag pm-37044-pam-v-0 is on; Tour not already completed. The modal's own acknowledgement is stored under `pamWelcomeAcknowledged`.
 - **Completion key:** `pamWelcomeTourCompleted`
+- **Modal copy** (keys `pamWelcome*`): title "You now have access to privileged items"; body "Some items in your vault need approval before you can use them. We'll show you where to find them and how to ask for access."; buttons `Start the tour` (primary, first) and `Not now`. Layout follows the standard intro dialog: title and close button in the header, an illustration, a short body, primary button first.
 
 | #   | Anchor                                                                    | Position     | Title            | Description                                                                                    |
 | --- | ------------------------------------------------------------------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |

@@ -22018,25 +22018,8 @@
     "message": "You now have access to privileged items"
   },
   "pamWelcomeDescription": {
-    "message": "Some items in your vault are protected. To use one, you request access (some requests are approved instantly, others are reviewed by an approver) and get a time-limited lease. We'll show you where everything is."
-  },
-  "pamWelcomeFindTitle": {
-    "message": "Find privileged items"
-  },
-  "pamWelcomeFindDescription": {
-    "message": "Look for the Privileged badge in the Controlled access column."
-  },
-  "pamWelcomeRequestTitle": {
-    "message": "Request access"
-  },
-  "pamWelcomeRequestDescription": {
-    "message": "Open a protected item and choose Request access."
-  },
-  "pamWelcomeLeaseTitle": {
-    "message": "Start your lease"
-  },
-  "pamWelcomeLeaseDescription": {
-    "message": "Once approved, start your access and use the item until the lease ends."
+    "message": "Some items in your vault need approval before you can use them. We'll show you where to find them and how to ask for access.",
+    "description": "Body text of the PAM welcome dialog shown once to members who can now request access to privileged items"
   },
   "pamWelcomeStartTour": {
     "message": "Start the tour",
