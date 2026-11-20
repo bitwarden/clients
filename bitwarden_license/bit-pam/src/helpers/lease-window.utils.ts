@@ -107,6 +107,23 @@ export function snapToNearestDuration(
   ).seconds;
 }
 
+/**
+ * The presets plus any stored value outside them, in order, so a duration set elsewhere (the API)
+ * stays selectable and an untouched field saves unchanged instead of being snapped to a preset.
+ */
+export function withStoredDurations(
+  presets: ReadonlyArray<{ seconds: number }>,
+  ...stored: ReadonlyArray<number | null | undefined>
+): RequestDurationOption[] {
+  const options = new Map<number, RequestDurationOption>(presets.map((p) => [p.seconds, p]));
+  for (const seconds of stored) {
+    if (seconds != null && seconds > 0 && !options.has(seconds)) {
+      options.set(seconds, { seconds });
+    }
+  }
+  return [...options.values()].sort((a, b) => a.seconds - b.seconds);
+}
+
 export function snapToNearestAccessRuleDuration(seconds: number | null | undefined): number {
   if (seconds == null) {
     return DEFAULT_ACCESS_RULE_DURATION_SECONDS;

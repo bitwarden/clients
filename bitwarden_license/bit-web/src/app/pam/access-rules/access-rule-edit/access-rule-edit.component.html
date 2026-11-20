@@ -121,7 +121,7 @@
               id="access-rule-edit_select_default-duration"
               formControlName="defaultLeaseDurationSeconds"
             >
-              @for (opt of durationOptions; track opt.seconds) {
+              @for (opt of durationOptions(); track opt.seconds) {
                 <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
               }
             </bit-select>
@@ -138,7 +138,7 @@
                 [value]="noDurationCap"
                 [label]="'pamAccessRuleMaxDurationNoCap' | i18n"
               />
-              @for (opt of durationOptions; track opt.seconds) {
+              @for (opt of durationOptions(); track opt.seconds) {
                 <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
               }
             </bit-select>
@@ -165,7 +165,7 @@
                 id="access-rule-edit_select_max-extension"
                 formControlName="maxExtensionDurationSeconds"
               >
-                @for (opt of extensionDurationOptions; track opt.seconds) {
+                @for (opt of extensionDurationOptions(); track opt.seconds) {
                   <bit-option [value]="opt.seconds" [label]="opt.seconds | durationLong" />
                 }
               </bit-select>
