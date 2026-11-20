@@ -54,6 +54,11 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   DefaultTwoFactorService,
@@ -340,6 +345,8 @@ export class ServiceContainer {
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationService;
   pinService: PinServiceAbstraction;
   stateService: StateService;
@@ -818,6 +825,15 @@ export class ServiceContainer {
       this.sendPasswordService,
     );
 
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+      this.registerSdkService,
+      this.configService,
+      this.globalStateProvider,
+    );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -829,7 +845,8 @@ export class ServiceContainer {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      this.registerSdkService,
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,

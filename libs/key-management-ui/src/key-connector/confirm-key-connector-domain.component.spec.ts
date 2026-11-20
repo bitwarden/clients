@@ -2,6 +2,8 @@ import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationAutoEnrollStatusResponse } from "@bitwarden/common/admin-console/models/response/organization-auto-enroll-status.response";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { KeyConnectorApiService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector-api.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -12,7 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import { ConfirmKeyConnectorDomainComponent } from "./confirm-key-connector-domain.component";
@@ -21,6 +23,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
   let component: ConfirmKeyConnectorDomainComponent;
 
   const userId = "test-user-id" as UserId;
+  const orgId = "test-org-id" as OrganizationId;
   const expectedHostName = "key-connector-url.com";
   const confirmation: KeyConnectorDomainConfirmation = {
     keyConnectorUrl: "https://key-connector-url.com",
@@ -37,6 +40,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
   const mockI18nService = mock<I18nService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockLogoutService = mock<LogoutService>();
+  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
   let mockAccountService = mockAccountServiceWith(userId);
   const onBeforeNavigation = jest.fn();
 
@@ -59,12 +63,17 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
       mockI18nService,
       mockAnonLayoutWrapperDataService,
       mockLogoutService,
+      mockOrganizationApiService,
     );
 
     jest.spyOn(component, "onBeforeNavigation").mockImplementation(onBeforeNavigation);
 
     // Mock key connector service to return data from state
     mockKeyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(confirmation));
+    mockOrganizationApiService.getAutoEnrollStatus.mockResolvedValue(
+      new OrganizationAutoEnrollStatusResponse({ Id: orgId, ResetPasswordEnabled: false }),
+    );
+    mockKeyConnectorService.convertNewSsoUserToKeyConnector.mockResolvedValue(true);
   });
 
   describe("ngOnInit", () => {
@@ -127,11 +136,17 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
 
       await component.confirm();
 
-      expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(userId);
+      expect(mockOrganizationApiService.getAutoEnrollStatus).toHaveBeenCalledWith(
+        confirmation.organizationSsoIdentifier,
+      );
+      expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
+        userId,
+        orgId,
+      );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
       expect(mockMessagingService.send).toHaveBeenCalledWith("loggedIn");
-      expect(onBeforeNavigation).toHaveBeenCalled();
+      expect(onBeforeNavigation).toHaveBeenCalledWith(true);
 
       expect(
         mockKeyConnectorService.convertNewSsoUserToKeyConnector.mock.invocationCallOrder[0],
@@ -160,11 +175,17 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
 
       await component.confirm();
 
-      expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(userId);
+      expect(mockOrganizationApiService.getAutoEnrollStatus).toHaveBeenCalledWith(
+        confirmation.organizationSsoIdentifier,
+      );
+      expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
+        userId,
+        orgId,
+      );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
       expect(mockMessagingService.send).toHaveBeenCalledWith("loggedIn");
-      expect(onBeforeNavigation).toHaveBeenCalled();
+      expect(onBeforeNavigation).toHaveBeenCalledWith(true);
 
       expect(
         mockKeyConnectorService.convertNewSsoUserToKeyConnector.mock.invocationCallOrder[0],
@@ -182,6 +203,62 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
       expect(onBeforeNavigation.mock.invocationCallOrder[0]).toBeLessThan(
         mockRouter.navigate.mock.invocationCallOrder[0],
       );
+    });
+
+    describe("invite accepted toast", () => {
+      const inviteAcceptedToast = {
+        variant: "success",
+        message: "inviteAccepted-used-i18n",
+      };
+
+      beforeEach(async () => {
+        mockKeyConnectorApiService.getConfirmationDetails.mockResolvedValue({
+          organizationName: "Test Org Name",
+        } as KeyConnectorConfirmationDetailsResponse);
+        await component.ngOnInit();
+      });
+
+      it("shows the invite accepted toast when we send acceptOrganizationInvite: true", async () => {
+        // Arrange
+        mockKeyConnectorService.convertNewSsoUserToKeyConnector.mockResolvedValue(true);
+
+        // Act
+        await component.confirm();
+
+        // Assert
+        expect(mockToastService.showToast).toHaveBeenCalledWith(inviteAcceptedToast);
+        expect(onBeforeNavigation).toHaveBeenCalledWith(true);
+      });
+
+      it("shows the organization verified toast but not the invite accepted toast when we send acceptOrganizationInvite: false", async () => {
+        // Arrange
+        mockKeyConnectorService.convertNewSsoUserToKeyConnector.mockResolvedValue(false);
+
+        // Act
+        await component.confirm();
+
+        // Assert
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          message: "organizationVerified-used-i18n",
+        });
+        expect(mockToastService.showToast).not.toHaveBeenCalledWith(inviteAcceptedToast);
+        expect(onBeforeNavigation).toHaveBeenCalledWith(false);
+      });
+    });
+
+    it("does not convert the user when the organization id lookup fails", async () => {
+      // Arrange
+      await component.ngOnInit();
+      mockOrganizationApiService.getAutoEnrollStatus.mockRejectedValue(new Error("API error"));
+
+      // Act
+      const promise = component.confirm();
+
+      // Assert
+      await expect(promise).rejects.toThrow("API error");
+      expect(mockKeyConnectorService.convertNewSsoUserToKeyConnector).not.toHaveBeenCalled();
+      expect(onBeforeNavigation).not.toHaveBeenCalled();
     });
   });
 
