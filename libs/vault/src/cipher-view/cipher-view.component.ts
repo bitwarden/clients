@@ -9,6 +9,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
@@ -27,6 +28,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { CalloutModule, SearchModule, TypographyModule } from "@bitwarden/components";
 
@@ -96,8 +98,23 @@ export class CipherViewComponent {
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
    */
   readonly collections = input<CollectionView[] | undefined>(undefined);
+
+  /**
+   * Optional organization the cipher is assigned to. If none is provided, it will be fetched using the
+   * `OrganizationService` and the `organizationId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
+   */
+  readonly organization = input<Organization | undefined>(undefined);
+
+  /**
+   * Optional folder the cipher is assigned to. If none is provided, it will be fetched using the
+   * `FolderService` and the `folderId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
+   */
+  readonly folder = input<FolderView | undefined>(undefined);
 
   /**
    * Should be set to true when the component is used within the Admin Console
@@ -163,9 +180,13 @@ export class CipherViewComponent {
     ),
   );
 
-  readonly organization = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
+  readonly resolvedOrganization = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.organization)]).pipe(
+      switchMap(([userId, cipher, providedOrganization]) => {
+        // Use the provided organization if available
+        if (providedOrganization) {
+          return of(providedOrganization);
+        }
         if (!userId || !cipher?.organizationId) {
           return of(undefined);
         }
@@ -177,9 +198,13 @@ export class CipherViewComponent {
       }),
     ),
   );
-  readonly folder = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
+  readonly resolvedFolder = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.folder)]).pipe(
+      switchMap(([userId, cipher, providedFolder]) => {
+        // Use the provided folder if available
+        if (providedFolder) {
+          return of(providedFolder);
+        }
         if (!userId || !cipher?.folderId) {
           return of(undefined);
         }
