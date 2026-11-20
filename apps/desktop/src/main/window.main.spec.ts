@@ -40,7 +40,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 }));
 
 import { isSnapStore } from "./platform-utils.main";
-import { isConfinedSnap, WindowMain } from "./window.main";
+import { isConfinedSnap, RendererVisibility, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
   describe("isLocalBundleUrl", () => {
@@ -168,6 +168,48 @@ describe("WindowMain", () => {
         .mocked(ipcMain.on)
         .mock.calls.findLast(([channel]) => channel === "reload-process")[1] as () => Promise<void>;
     };
+
+    describe("window-all-closed", () => {
+      const originalPlatform = process.platform;
+
+      const allClosed = () =>
+        jest
+          .mocked(app.on)
+          .mock.calls.findLast(([event]) => event === "window-all-closed")[1] as () => void;
+
+      beforeEach(async () => {
+        Object.defineProperty(process, "platform", { value: "win32", configurable: true });
+        Object.assign(app, { quit: jest.fn() });
+        await sut.init(true);
+      });
+
+      afterEach(() => {
+        Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+      });
+
+      it("quits when the last window closes", () => {
+        allClosed()();
+
+        expect(app.quit).toHaveBeenCalled();
+      });
+
+      it("keeps running when the renderer was destroyed for the background", () => {
+        jest.useFakeTimers();
+        const win = mock<BrowserWindow>();
+        win.isDestroyed.mockReturnValue(false);
+        sut.win = win;
+
+        sut.destroyRenderer();
+        jest.runOnlyPendingTimers();
+        jest.useRealTimers();
+
+        expect(sut.rendererDestroyed).toBe(true);
+        expect(win.close).toHaveBeenCalled();
+
+        allClosed()();
+        expect(app.quit).not.toHaveBeenCalled();
+      });
+    });
 
     it("creates the window when the ready event has already fired", async () => {
       await sut.init(true);
@@ -425,6 +467,105 @@ describe("WindowMain", () => {
       await sut.toggleAlwaysOnTop();
 
       expect(desktopSettingsService.setAlwaysOnTop).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("ensureRenderer", () => {
+    let sut: WindowMain;
+    let win: MockProxy<BrowserWindow>;
+    const originalPlatform = process.platform;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      // Force the macOS branch so the focus steal is exercised.
+      Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
+      Object.assign(app, { focus: jest.fn() });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        mock<DesktopSettingsService>(),
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+      win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(false);
+      win.isMinimized.mockReturnValue(false);
+      sut.win = win;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+    });
+
+    it("shows and focuses an existing window", async () => {
+      await sut.ensureRenderer();
+
+      expect(win.show).toHaveBeenCalled();
+      expect(win.focus).toHaveBeenCalled();
+    });
+
+    it("defers the macOS focus steal to the next tick", async () => {
+      await sut.ensureRenderer();
+      expect(app.focus).not.toHaveBeenCalled();
+
+      jest.runOnlyPendingTimers();
+      expect(app.focus).toHaveBeenCalledWith({ steal: true });
+    });
+
+    it("leaves an existing window alone when asked for a hidden renderer", async () => {
+      await sut.ensureRenderer(RendererVisibility.Hidden);
+
+      expect(win.show).not.toHaveBeenCalled();
+      expect(win.focus).not.toHaveBeenCalled();
+    });
+
+    it("recreates a destroyed window without showing it when hidden", async () => {
+      win.isDestroyed.mockReturnValue(true);
+      const recreated = mock<BrowserWindow>();
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = recreated;
+      });
+
+      await sut.ensureRenderer(RendererVisibility.Hidden);
+
+      expect(sut.createWindow).toHaveBeenCalledWith("full-app", false);
+      expect(recreated.once).not.toHaveBeenCalled();
+    });
+
+    it("restores a minimized window before showing it", async () => {
+      win.isMinimized.mockReturnValue(true);
+
+      await sut.ensureRenderer();
+
+      expect(win.restore).toHaveBeenCalled();
+      expect(win.show).toHaveBeenCalled();
+    });
+
+    it("recreates a destroyed window and shows it once ready", async () => {
+      win.isDestroyed.mockReturnValue(true);
+      const recreated = mock<BrowserWindow>();
+      recreated.isDestroyed.mockReturnValue(false);
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = recreated;
+      });
+
+      await sut.ensureRenderer();
+
+      expect(sut.createWindow).toHaveBeenCalledWith("full-app", false);
+      expect(recreated.show).not.toHaveBeenCalled();
+
+      const [event, onReady] = recreated.once.mock.calls[0];
+      expect(event).toBe("ready-to-show");
+      (onReady as () => void)();
+
+      expect(recreated.show).toHaveBeenCalled();
+      expect(recreated.focus).toHaveBeenCalled();
+      expect(app.focus).toHaveBeenCalledWith({ steal: true });
     });
   });
 });

@@ -11,6 +11,7 @@ import { BiometricsService } from "@bitwarden/key-management";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { isDev } from "../utils";
 
+import { RendererTeardownMain } from "./renderer-teardown.main";
 import { WindowMain } from "./window.main";
 
 export class TrayMain {
@@ -29,6 +30,7 @@ export class TrayMain {
     private desktopSettingsService: DesktopSettingsService,
     private messagingService: MessagingService,
     private biometricService: BiometricsService,
+    private rendererTeardown: RendererTeardownMain,
   ) {
     if (process.platform === "win32") {
       this.icon = path.join(__dirname, "/images/icon.ico");
@@ -93,7 +95,7 @@ export class TrayMain {
     });
 
     win.on("close", (e: Event) => {
-      if (this.windowMain.isQuitting) {
+      if (this.windowMain.isQuitting || this.windowMain.rendererDestroyed) {
         return;
       }
 
@@ -125,7 +127,7 @@ export class TrayMain {
   hideToTray(win: BrowserWindow | null = this.windowMain.win) {
     this.showTray();
     if (win != null) {
-      win.hide();
+      this.hideWindow(win);
     }
     if (this.isDarwin()) {
       this.hideDock();
@@ -138,21 +140,12 @@ export class TrayMain {
    * the window - foregrounding is not a toggle.
    */
   async restoreFromTray() {
-    if (this.windowMain.win == null) {
-      // On macOS, closing the window via the red button destroys the BrowserWindow instance.
-      await this.windowMain.createWindow();
-      this.windowMain.win.show();
-    } else {
-      if (this.windowMain.win.isMinimized()) {
-        this.windowMain.win.restore();
-      }
-      this.windowMain.show();
-      this.windowMain.win.focus();
+    if (this.isDarwin()) {
+      // Show the dock first: while hidden, the app cannot take focus.
+      await this.showDock();
     }
 
-    if (this.isDarwin()) {
-      this.showDock();
-    }
+    await this.windowMain.ensureRenderer();
   }
 
   showTray() {
@@ -173,6 +166,13 @@ export class TrayMain {
     }
   }
 
+  private hideWindow(win: BrowserWindow) {
+    // Only the main window carries the renderer worth destroying.
+    if (win !== this.windowMain.win || !this.rendererTeardown.tryTearDown()) {
+      win.hide();
+    }
+  }
+
   updateContextMenu() {
     if (this.tray != null && this.contextMenu != null && this.isLinux()) {
       this.tray.setContextMenu(this.contextMenu);
@@ -183,10 +183,8 @@ export class TrayMain {
     app.dock.hide();
   }
 
-  private showDock() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    app.dock.show();
+  private showDock(): Promise<void> {
+    return app.dock.show();
   }
 
   private isDarwin() {
@@ -201,7 +199,11 @@ export class TrayMain {
     this.windowMain.isQuitting = true;
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
+      return;
     }
+
+    // No window whose close would trigger quit, e.g. after the renderer was destroyed.
+    app.quit();
   }
 
   /**
