@@ -442,6 +442,10 @@ export declare namespace sshagent {
     /**
      * Creates a new [`BitwardenSSHAgent`] and starts the server.
      *
+     * Rejects with an `Error` whose `message` is exactly one of `"address-in-use"`,
+     * `"permission-denied"` or `"unknown"` when the server cannot start. The message never
+     * contains a path, pipe name or key material.
+     *
      * # Arguments
      *
      * * `sign_callback` - Allows agent to get approval for sign requests
@@ -485,6 +489,23 @@ export declare namespace sshagent {
     Denied = 'denied',
     Failed = 'failed'
   }
+  /**
+   * Returns the address the agent binds: the Unix socket path (honouring
+   * `BITWARDEN_SSH_AUTH_SOCK` and the Flatpak data directory) or the Windows pipe name.
+   *
+   * Uses the same resolution as the server itself, so it is valid even when the agent is not
+   * running. Throws if the address cannot be resolved (for example no home directory); the
+   * error text never contains a path.
+   */
+  export function getSocketAddress(): string
+  /**
+   * Resolves to `true` if a client can connect to `address` (Unix socket path or Windows pipe
+   * name) within a short timeout.
+   *
+   * Connects only; no SSH agent protocol message is sent, so no approval prompt is
+   * triggered on the listening agent.
+   */
+  export function probeAddress(address: string): Promise<boolean>
   /** SSH public key data */
   export interface PublicKey {
     alg: string

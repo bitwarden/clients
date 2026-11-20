@@ -1,0 +1,143 @@
+@let v = view();
+<div class="tw-flex tw-flex-col tw-gap-4" data-testid="ssh-agent-setup-consent">
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <h3
+      bitTypography="body2"
+      noMargin
+      class="tw-font-medium tw-text-fg-heading"
+      id="ssh-agent-setup_text_what-will-change"
+    >
+      {{ "sshAgentSetupWhatWillChangeVfo7" | i18n }}
+    </h3>
+
+    <ul
+      class="tw-m-0 tw-flex tw-list-disc tw-flex-col tw-gap-1.5 tw-ps-5 tw-text-sm tw-text-fg-body"
+      aria-labelledby="ssh-agent-setup_text_what-will-change"
+      data-testid="ssh-agent-setup-change-list"
+    >
+      @for (row of v.rows; track row.step.id) {
+        @if (row.changeKey; as key) {
+          <li [attr.data-testid]="'ssh-agent-setup-change-' + row.step.id">
+            {{ key | i18n: row.step.displayPath }}
+          </li>
+        }
+      }
+    </ul>
+  </div>
+
+  @for (row of v.rows; track row.step.id) {
+    @if (row.problem; as problem) {
+      <bit-callout
+        class="tw-block [&>aside]:!tw-mb-0"
+        [type]="problem.severity"
+        [title]="problem.titleKey | i18n: problem.placeholders[0]"
+        [attr.data-testid]="
+          problem.titleKey === 'sshAgentSetupFileChangedTitleVfo7'
+            ? 'ssh-agent-setup-plan-changed'
+            : row.isBlocked
+              ? 'ssh-agent-setup-blocked'
+              : 'ssh-agent-setup-step-error-' + row.step.id
+        "
+      >
+        <p class="tw-m-0">{{ problem.descKey | i18n: problem.placeholders[0] }}</p>
+        @if (problem.details; as detail) {
+          <app-ssh-agent-setup-details [lines]="[detail]" [scope]="'step-' + row.step.id" />
+        }
+        @if (row.isBlocked && row.step.addedLines.length > 0) {
+          <div class="tw-mt-2" [attr.data-testid]="'ssh-agent-setup-manual-' + row.step.id">
+            <button
+              type="button"
+              bitLink
+              bitTypography="helper"
+              [id]="'ssh-agent-setup_button_manual-' + row.step.id"
+              [bitDisclosureTriggerFor]="manual"
+            >
+              {{ "sshAgentSetupManualLinkVfo7" | i18n }}
+            </button>
+            <bit-disclosure #manual>
+              <p bitTypography="helper" class="tw-m-0 tw-mt-2 tw-text-fg-body-subtle">
+                {{ "sshAgentSetupLinesToAddVfo1" | i18n }}
+                <span class="tw-break-words tw-font-mono"
+                  ><app-ssh-agent-setup-path [text]="row.step.displayPath"
+                /></span>
+              </p>
+              <pre
+                class="tw-m-0 tw-mt-1 tw-whitespace-pre-wrap tw-break-words tw-font-mono tw-text-xs tw-text-fg-body"
+              ><code><app-ssh-agent-setup-path [text]="row.step.addedLines.join('\n')" /></code></pre>
+            </bit-disclosure>
+          </div>
+        }
+      </bit-callout>
+    }
+  }
+
+  @if (v.hasDetails) {
+    <div class="tw-flex tw-flex-col tw-gap-3">
+      <div>
+        <button
+          type="button"
+          bitLink
+          bitTypography="helper"
+          [startIcon]="details.open() ? 'bwi-angle-down' : 'bwi-angle-right'"
+          id="ssh-agent-setup-preview_button_details"
+          [bitDisclosureTriggerFor]="details"
+          data-testid="ssh-agent-setup-details-toggle"
+        >
+          {{
+            (details.open() ? "sshAgentSetupHideChangesVfo7" : "sshAgentSetupViewChangesVfo7")
+              | i18n
+          }}
+        </button>
+      </div>
+      <bit-disclosure #details data-testid="ssh-agent-setup-details">
+        <div class="tw-flex tw-flex-col tw-gap-3">
+          @for (row of v.rows; track row.step.id) {
+            @if (row.showConflictLine && row.step.conflict; as conflict) {
+              <figure
+                class="tw-m-0 tw-overflow-hidden tw-rounded-md tw-border tw-border-solid tw-border-border-base"
+                [attr.data-testid]="'ssh-agent-setup-existing-' + row.step.id"
+              >
+                <figcaption
+                  class="tw-break-words tw-bg-bg-secondary tw-px-3 tw-py-1 tw-font-mono tw-text-xs tw-text-fg-body-subtle"
+                >
+                  <app-ssh-agent-setup-path [text]="row.step.displayPath" /> ·
+                  @if (row.existingLineKey; as captionKey) {
+                    {{ captionKey | i18n: conflict.lineNumber }}
+                  }
+                </figcaption>
+                <pre
+                  class="tw-m-0 tw-whitespace-pre-wrap tw-break-words tw-p-3 tw-font-mono tw-text-xs tw-text-fg-body"
+                ><code><app-ssh-agent-setup-path [text]="conflict.existingLine" /></code></pre>
+              </figure>
+            }
+            @if (row.showDiff) {
+              <figure
+                class="tw-m-0 tw-overflow-hidden tw-rounded-md tw-border tw-border-solid tw-border-border-base"
+                [attr.data-testid]="'ssh-agent-setup-diff-' + row.step.id"
+              >
+                <figcaption
+                  class="tw-break-words tw-bg-bg-secondary tw-px-3 tw-py-1 tw-font-mono tw-text-xs tw-text-fg-body-subtle"
+                >
+                  <span class="tw-sr-only">{{ "sshAgentSetupLinesToAddVfo1" | i18n }}</span>
+                  <app-ssh-agent-setup-path [text]="row.step.displayPath" />
+                </figcaption>
+                <pre
+                  class="tw-m-0 tw-whitespace-pre-wrap tw-break-words tw-bg-bg-success-soft tw-py-2 tw-font-mono tw-text-xs tw-text-fg-body"
+                ><code>@for (line of row.step.addedLines; track $index) {<span class="tw-block tw-px-3"><span class="tw-select-none tw-text-fg-success-strong" aria-hidden="true">+ </span><app-ssh-agent-setup-path [text]="line" /></span>}</code></pre>
+              </figure>
+            }
+          }
+        </div>
+      </bit-disclosure>
+    </div>
+  }
+
+  <p
+    bitTypography="helper"
+    noMargin
+    class="tw-text-fg-body-subtle"
+    data-testid="ssh-agent-setup-footnote"
+  >
+    {{ "sshAgentSetupFootnoteVfo7" | i18n }}
+  </p>
+</div>

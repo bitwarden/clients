@@ -1,0 +1,67 @@
+<div
+  role="status"
+  aria-live="polite"
+  data-testid="ssh-agent-setup-verify-result"
+  [attr.data-state]="state()"
+>
+  @let v = view();
+  @if (phase() !== "result" || v == null) {
+    <bit-spinner-lockup orientation="vertical" class="tw-block tw-py-12">
+      <span
+        slot="title"
+        tabindex="-1"
+        class="focus:tw-outline-none"
+        id="ssh-agent-setup_text_progress"
+        data-view-heading
+      >
+        {{
+          (phase() === "applying" ? "sshAgentSetupApplyingVfo7" : "sshAgentSetupCheckingVfo7")
+            | i18n
+        }}
+      </span>
+    </bit-spinner-lockup>
+  } @else if (v.success) {
+    <bit-status-lockup size="small">
+      <bit-icon
+        slot="graphic"
+        name="bwi-check-circle"
+        class="tw-text-5xl tw-text-fg-success-strong"
+      />
+      <span
+        slot="title"
+        tabindex="-1"
+        class="tw-text-xl tw-font-medium focus:tw-outline-none"
+        id="ssh-agent-setup_text_result"
+        data-view-heading
+      >
+        {{ v.titleKey | i18n }}
+      </span>
+      <div slot="description" class="tw-flex tw-flex-col tw-gap-2">
+        <p class="tw-m-0">{{ v.descKey | i18n }}</p>
+        @if (v.openTerminalHint) {
+          <p class="tw-m-0 tw-text-fg-body-subtle" data-testid="ssh-agent-setup-verify-hint">
+            {{ "sshAgentSetupVerifyOpenTerminalVfo7" | i18n }}
+          </p>
+        }
+        @if (v.shellNotChecked) {
+          <p class="tw-m-0 tw-text-fg-body-subtle" data-testid="ssh-agent-setup-verify-not-checked">
+            {{ "sshAgentSetupVerifyShellNotCheckedVfo7" | i18n }}
+          </p>
+        }
+      </div>
+    </bit-status-lockup>
+  } @else {
+    <bit-callout
+      [type]="v.severity"
+      [title]="v.titleKey | i18n"
+      tabindex="-1"
+      class="tw-block focus:tw-outline-none [&>aside]:!tw-mb-0"
+      id="ssh-agent-setup_text_result"
+      data-view-heading
+      data-testid="ssh-agent-setup-verify-failure"
+    >
+      <p class="tw-m-0">{{ v.descKey | i18n }}</p>
+      <app-ssh-agent-setup-details [lines]="v.detailsLines" scope="verify" />
+    </bit-callout>
+  }
+</div>

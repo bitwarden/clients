@@ -7,8 +7,11 @@ use anyhow::Result;
 use tracing::{debug, info};
 
 use crate::{
-    activity::ActivityObserver, approval::ApprovalRequester, authorization::BitwardenAuthPolicy,
-    server::SSHAgentServer, storage::keystore::KeyStore,
+    activity::ActivityObserver,
+    approval::ApprovalRequester,
+    authorization::BitwardenAuthPolicy,
+    server::{SSHAgentServer, StartError},
+    storage::keystore::KeyStore,
 };
 
 /// - contains the [`KeyStore`] of ssh keys
@@ -46,7 +49,12 @@ where
     }
 
     /// Starts the ssh agent server
-    pub fn start(&mut self) -> Result<()> {
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`StartError`] classifying the failure. Its text never contains the socket
+    /// path or pipe name.
+    pub fn start(&mut self) -> Result<(), StartError> {
         debug!("Starting the server.");
         self.server.start_with_default_listeners()
     }

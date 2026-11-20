@@ -16,7 +16,7 @@ pub mod sshagent {
         Activity as SSHActivity, ActivityObserver, ActivityOperation as SSHActivityOperation,
         ActivityOutcome as SSHActivityOutcome, ApprovalError, ApprovalRequester, BitwardenSSHAgent,
         InMemoryEncryptedKeyStore, SIGNamespace as SSHSIGNamespace,
-        SignApprovalRequest as SSHSignApprovalRequest, UnparsedSSHKeyData,
+        SignApprovalRequest as SSHSignApprovalRequest, StartError, UnparsedSSHKeyData,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -191,6 +191,32 @@ pub mod sshagent {
         }
     }
 
+    /// Returns the address the agent binds: the Unix socket path (honouring
+    /// `BITWARDEN_SSH_AUTH_SOCK` and the Flatpak data directory) or the Windows pipe name.
+    ///
+    /// Uses the same resolution as the server itself, so it is valid even when the agent is not
+    /// running. Throws if the address cannot be resolved (for example no home directory); the
+    /// error text never contains a path.
+    #[napi]
+    pub fn get_socket_address() -> napi::Result<String> {
+        ssh_agent::socket_address().map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    /// Resolves to `true` if a client can connect to `address` (Unix socket path or Windows pipe
+    /// name) within a short timeout.
+    ///
+    /// Connects only; no SSH agent protocol message is sent, so no approval prompt is
+    /// triggered on the listening agent.
+    #[napi]
+    pub async fn probe_address(address: String) -> bool {
+        ssh_agent::probe_address(&address).await
+    }
+
+    /// Maps a [`StartError`] to a JS `Error` whose message is the stable error code.
+    fn start_error_to_napi(error: &StartError) -> napi::Error {
+        napi::Error::new(napi::Status::GenericFailure, error.code())
+    }
+
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
     pub struct SSHAgentState {
@@ -273,6 +299,10 @@ pub mod sshagent {
     impl SSHAgentState {
         /// Creates a new [`BitwardenSSHAgent`] and starts the server.
         ///
+        /// Rejects with an `Error` whose `message` is exactly one of `"address-in-use"`,
+        /// `"permission-denied"` or `"unknown"` when the server cannot start. The message never
+        /// contains a path, pipe name or key material.
+        ///
         /// # Arguments
         ///
         /// * `sign_callback` - Allows agent to get approval for sign requests
@@ -301,10 +331,10 @@ pub mod sshagent {
             let mut agent =
                 ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler, activity_observer);
 
-            // TODO after PM-31827 is merged, can use simplified error conversion
             agent.start().map_err(|error| {
-                error!(%error, "Failed to start the server.");
-                napi::Error::from_reason(error.to_string())
+                // `StartError` never contains the socket path or pipe name.
+                error!(%error, source = ?std::error::Error::source(&error), "Failed to start the server.");
+                start_error_to_napi(&error)
             })?;
 
             debug!("Server started, returning agent state object.");

@@ -1,0 +1,26 @@
+@if (lines().length > 0) {
+  <div class="tw-mt-2" data-testid="ssh-agent-setup-technical-details">
+    <button
+      type="button"
+      bitLink
+      bitTypography="helper"
+      [startIcon]="disclosure.open() ? 'bwi-angle-down' : 'bwi-angle-right'"
+      [id]="'ssh-agent-setup_button_technical-details-' + scope()"
+      [bitDisclosureTriggerFor]="disclosure"
+    >
+      {{ "sshAgentSetupTechnicalDetailsVfo7" | i18n }}
+    </button>
+    <bit-disclosure #disclosure class="tw-block">
+      @for (line of lines(); track $index) {
+        <p
+          bitTypography="helper"
+          class="tw-m-0 tw-mt-1 tw-break-words tw-font-mono tw-text-fg-body-subtle"
+        >
+          <app-ssh-agent-setup-path
+            [text]="line.key | i18n: line.placeholders[0] : line.placeholders[1]"
+          />
+        </p>
+      }
+    </bit-disclosure>
+  </div>
+}

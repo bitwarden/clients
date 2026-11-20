@@ -39,6 +39,17 @@ import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentActivity } from "../models/ssh-agent-activity";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
+import {
+  classifySshAgentStartError,
+  createSshAgentNativeBridge,
+  SshAgentStartErrorCode,
+} from "./ssh-agent-native";
+import {
+  createDefaultSshAgentSetupDeps,
+  registerSshAgentSetupIpcHandlers,
+  SshAgentSetupService,
+} from "./ssh-agent-setup.main";
+
 // Caps the activity log's memory; the oldest entries are dropped first.
 const MAX_ACTIVITY_ENTRIES = 500;
 
@@ -73,6 +84,8 @@ export class MainSshAgentService {
   private destroy$ = new Subject<void>();
   // Newest first. Kept in memory only and cleared when the agent stops, e.g. on logout.
   private activityLog: SshAgentActivity[] = [];
+  private startErrorCode: SshAgentStartErrorCode | undefined;
+  private enabled = false;
 
   constructor(
     private logService: LogService,
@@ -85,6 +98,19 @@ export class MainSshAgentService {
     private windowMain: WindowMain,
   ) {
     this.registerIpcHandlers();
+    registerSshAgentSetupIpcHandlers(
+      new SshAgentSetupService(
+        createDefaultSshAgentSetupDeps(
+          createSshAgentNativeBridge(),
+          {
+            isRunning: () => this.agentState?.isRunning() ?? false,
+            isEnabled: () => this.enabled,
+            startErrorCode: () => this.startErrorCode,
+          },
+          this.logService,
+        ),
+      ),
+    );
   }
 
   /** Starts the reactive key-provisioning and authorization-reset pipelines. */
@@ -205,10 +231,13 @@ export class MainSshAgentService {
     const listCb = (_err: Error | null) => this.requestListKeys();
     const activityCb = (_err: Error | null, data: sshagent.ActivityData) =>
       this.recordActivity(data);
+    this.enabled = true;
     try {
       this.agentState = await sshagent.SshAgentState.serve(signCb, listCb, activityCb);
+      this.startErrorCode = undefined;
       this.logService.info("SSH agent started");
     } catch (e: unknown) {
+      this.startErrorCode = classifySshAgentStartError(e);
       this.logService.error("SSH agent encountered an error: ", e);
     }
   }
@@ -245,6 +274,8 @@ export class MainSshAgentService {
       this.agentState.stop();
       this.agentState = null;
     }
+    this.enabled = false;
+    this.startErrorCode = undefined;
     this.activityLog = [];
   }
 
