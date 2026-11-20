@@ -55,6 +55,7 @@ function detail(
         request != null && options.approvalRow ? options.approvalRow(request) : null,
       ),
       managed$: of(options.managed ?? false),
+      startBlock$: of(null),
       cancel: () => Promise.resolve(),
       activate: () => Promise.resolve(),
       endLease: () => Promise.resolve(),

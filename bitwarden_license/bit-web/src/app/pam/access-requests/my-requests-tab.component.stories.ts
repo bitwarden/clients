@@ -111,6 +111,7 @@ function myAccess(
             leases$: of(leases),
             historyRows$: of([]),
             cipherById$: of(names.cipherById),
+            startBlockedCipherIds$: of(new Set<string>()),
             load: () => Promise.resolve(),
             cancel: () => Promise.resolve(),
             activate: () => Promise.resolve(),

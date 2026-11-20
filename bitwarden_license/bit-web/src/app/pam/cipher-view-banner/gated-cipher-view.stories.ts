@@ -16,6 +16,7 @@ import {
   ItemDetailsStateBadgeComponent,
   AccessRequestCancelService,
   MyLeasesService,
+  StartSlotService,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -174,6 +175,8 @@ function gated(state: () => Record<string, unknown>) {
         },
       },
       MyLeasesService,
+      // Built here, beside the PAM fakes it reads, rather than at the root where they are missing.
+      StartSlotService,
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },

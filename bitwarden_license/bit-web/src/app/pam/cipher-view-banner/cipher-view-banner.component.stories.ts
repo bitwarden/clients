@@ -12,6 +12,7 @@ import {
   CipherViewBannerComponent,
   AccessRequestCancelService,
   MyLeasesService,
+  StartSlotService,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
@@ -91,6 +92,8 @@ function pam(
     enabled?: boolean;
     maxDurationSeconds?: number;
     licensed?: boolean;
+    /** When another member's lease on the single-active-lease slot ends; omit for a free slot. */
+    slotFreesAt?: () => string;
   } = {},
 ) {
   const {
@@ -99,6 +102,7 @@ function pam(
     enabled = true,
     maxDurationSeconds = 4 * 60 * 60,
     licensed = true,
+    slotFreesAt,
   } = options;
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
@@ -125,6 +129,8 @@ function pam(
               hasActiveLease: false,
               maxDurationSeconds,
               defaultDurationSeconds: 60 * 60,
+              canStartLease: slotFreesAt == null,
+              slotFreesAt: slotFreesAt?.(),
             }),
           submitAccessRequest: () => Promise.resolve({}),
           activateAccessRequest: () => Promise.resolve({}),
@@ -139,6 +145,8 @@ function pam(
         },
       },
       MyLeasesService,
+      // Built here, beside the PAM fakes it reads, rather than at the root where they are missing.
+      StartSlotService,
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
@@ -232,6 +240,23 @@ export const ApprovedReadyToStart: Story = {
   ],
 };
 
+/** Another member holds the single-active-lease slot: Start access waits, and the card says until when. */
+export const ApprovedItemInUse: Story = {
+  decorators: [
+    pam({
+      state: () => ({
+        badgeState: "ready",
+        approvedRequest: accessRequest({
+          status: "approved",
+          leaseNotBefore: liveFromNow(0),
+          leaseNotAfter: liveFromNow(2 * HOUR),
+        }),
+      }),
+      slotFreesAt: () => liveFromNow(HOUR),
+    }),
+  ],
+};
+
 /** A human-approved window that opens later; the granted duration is still its length. */
 export const ApprovedByApprover: Story = {
   decorators: [
@@ -319,6 +344,7 @@ export const StateReadFails: Story = {
         },
         { provide: AccessLeaseSdkService, useValue: { listMyLeases: () => Promise.resolve([]) } },
         MyLeasesService,
+        StartSlotService,
         { provide: RevealedCipherService, useValue: { revealed$: () => of(new Map()) } },
         {
           provide: AccessRefreshService,
