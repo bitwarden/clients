@@ -7,6 +7,7 @@ import {
   SecretService,
   SecretView,
 } from "@bitwarden/bit-sm";
+import { Response } from "@bitwarden/cli/models/response";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 
@@ -36,6 +37,8 @@ describe("SecretEditCommand", () => {
       value: "hunter2",
       note: "prod",
       projects: [Object.assign(new SecretProjectView(), { id: projectId, name: "Backend" })],
+      creationDate: "2026-01-01T00:00:00.000Z",
+      revisionDate: "2026-01-02T00:00:00.000Z",
       read: true,
       write: true,
       ...overrides,
@@ -269,5 +272,36 @@ describe("SecretEditCommand", () => {
     expect(response.success).toBe(false);
     expect(response.message).toBe("`key` cannot be empty.");
     expect(secretService.getBySecretId).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["object", { object: "sm-project" }],
+    ["id", { id: "55555555-5555-5555-5555-555555555555" }],
+    ["creationDate", { creationDate: "2026-11-17T04:22:34.0716668Z" }],
+    ["revisionDate", { revisionDate: "2026-11-17T04:22:34.0716668Z" }],
+    ["read", { read: false }],
+    ["write", { write: false }],
+    ["decryptionError", { decryptionError: true }],
+    ["accessToSecrets", { accessToSecrets: 1 }],
+  ])("rejects a changed %s and saves nothing", async (property, change) => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+    const response = await command.run(smOrg, secretId, { value: "new value", ...change });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "`" + property + "` cannot be edited on a secret. Remove this property from the request.",
+    );
+    expect(secretService.update).not.toHaveBeenCalled();
+  });
+
+  it("reports missing edit permission before read-only properties", async () => {
+    secretService.getBySecretId.mockResolvedValue(makeSecret({ write: false }));
+
+    const response = await command.run(smOrg, secretId, { value: "new value", write: true });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(Response.noEditPermission().message);
+    expect(secretService.update).not.toHaveBeenCalled();
   });
 });
