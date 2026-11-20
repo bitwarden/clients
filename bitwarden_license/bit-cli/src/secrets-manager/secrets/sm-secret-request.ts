@@ -74,7 +74,7 @@ function readSmSecretProjectIds(
     if (typeof id !== "string") {
       return { error: invalid };
     }
-    const parsed = parseSmId(id, property);
+    const parsed = parseSmId(id, hasIds ? "projectIds" : "projects[].id");
     if (parsed.error) {
       return { error: parsed.error };
     }

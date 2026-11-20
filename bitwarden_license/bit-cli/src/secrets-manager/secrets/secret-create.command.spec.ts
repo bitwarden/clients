@@ -143,6 +143,49 @@ describe("SecretCreateCommand", () => {
     expect(secretService.create).not.toHaveBeenCalled();
   });
 
+  it("names `projects[].id` when a project id is empty", async () => {
+    const response = await command.run(smOrg, { key: "A", projects: [{ id: "" }] });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("`projects[].id` is required.");
+    expect(secretService.create).not.toHaveBeenCalled();
+  });
+
+  it("keeps naming `projectIds` when a project id is empty", async () => {
+    const response = await command.run(smOrg, { key: "A", projectIds: [""] });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("`projectIds` is required.");
+  });
+
+  it("accepts a full secret response body", async () => {
+    const response = await command.run(smOrg, {
+      object: "sm-secret",
+      id: "22222222-2222-2222-2222-222222222222",
+      organizationId: smOrgId,
+      key: "SecretName",
+      value: "SecretValue",
+      note: "This is a note",
+      projects: [{ id: projectId, name: "Backend" }],
+      creationDate: "2026-01-01T00:00:00.000Z",
+      revisionDate: "2026-01-02T00:00:00.000Z",
+      read: true,
+      write: true,
+    });
+
+    expect(response.success).toBe(true);
+    expect(secretService.create).toHaveBeenCalledWith(
+      smOrgId,
+      expect.objectContaining({
+        name: "SecretName",
+        value: "SecretValue",
+        note: "This is a note",
+        projects: [expect.objectContaining({ id: projectId })],
+      }),
+      undefined,
+    );
+  });
+
   it("defaults the value and note to empty strings", async () => {
     await command.run(smOrg, { key: "EMPTY" });
 
