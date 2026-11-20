@@ -165,12 +165,29 @@ const routes: Routes = [
         canActivate: [unauthGuardFn()],
         data: { titleId: "deleteOrganization" },
       },
+      // Note: the OAuth completion/broker page is a static connector served at
+      // /oauth-complete-connector.html (see apps/web/src/connectors/oauth-complete.ts), not an Angular
+      // route, because it is the registered redirect_uri and must run outside the hash router.
     ],
   },
   {
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "oauth/authorize",
+        canActivate: [canAccessFeature(FeatureFlag.LoginWithBitwarden), deepLinkGuard(), authGuard],
+        loadComponent: () =>
+          import("./tools/agent-connection/oauth-authorize.component").then(
+            (m) => m.OAuthAuthorizeComponent,
+          ),
+        data: {
+          pageIcon: UserLockIcon,
+          titleId: "loginWithBitwarden",
+          pageTitle: { key: "loginWithBitwarden" },
+          doNotSaveUrl: true,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
       {
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
@@ -784,6 +801,15 @@ const routes: Routes = [
           {
             path: "security",
             loadChildren: () => SecurityRoutingModule,
+          },
+          {
+            path: "agent-connections",
+            canActivate: [canAccessFeature(FeatureFlag.LoginWithBitwarden)],
+            loadComponent: () =>
+              import("./tools/agent-connection/agent-connections.component").then(
+                (m) => m.AgentConnectionsComponent,
+              ),
+            data: { titleId: "loginWithBitwardenConnections" } satisfies RouteDataProperties,
           },
           {
             path: "data-recovery",

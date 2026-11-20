@@ -1,0 +1,49 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Jsonify } from "type-fest";
+
+import { View } from "../../../../models/view/view";
+import { AgentConnection } from "../domain/agent-connection";
+
+/**
+ * Decrypted view of an {@link AgentConnection}. {@link psk} is the plaintext agent-access PSK and
+ * is Protected Data — never log it or send it to the server.
+ */
+export class AgentConnectionView implements View {
+  id: string = null;
+  partnerClientId: string = null;
+  name: string = null;
+  psk: string = null;
+  creationDate: Date = null;
+  revisionDate: Date = null;
+  revokedDate: Date | null = null;
+
+  constructor(c?: AgentConnection) {
+    if (c == null) {
+      return;
+    }
+
+    this.id = c.id;
+    this.partnerClientId = c.partnerClientId;
+    this.name = c.name;
+    this.creationDate = c.creationDate;
+    this.revisionDate = c.revisionDate;
+    this.revokedDate = c.revokedDate;
+  }
+
+  get revoked(): boolean {
+    return this.revokedDate != null;
+  }
+
+  static fromJSON(obj: Jsonify<AgentConnectionView>): AgentConnectionView {
+    if (obj == null) {
+      return null;
+    }
+
+    return Object.assign(new AgentConnectionView(), obj, {
+      creationDate: obj.creationDate == null ? null : new Date(obj.creationDate),
+      revisionDate: obj.revisionDate == null ? null : new Date(obj.revisionDate),
+      revokedDate: obj.revokedDate == null ? null : new Date(obj.revokedDate),
+    });
+  }
+}

@@ -1,0 +1,40 @@
+<app-header></app-header>
+
+<bit-container>
+  <p bitTypography="body1">{{ "loginWithBitwardenConnectionsDescription" | i18n }}</p>
+
+  @if (connections$ | async; as connections) {
+    @if (connections.length === 0) {
+      <p class="tw-text-muted">{{ "loginWithBitwardenNoConnections" | i18n }}</p>
+    } @else {
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "dateCreated" | i18n }}</th>
+            <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (connection of connections; track connection.id) {
+            <tr bitRow>
+              <td bitCell>{{ connection.name }}</td>
+              <td bitCell>{{ connection.creationDate | date: "medium" }}</td>
+              <td bitCell class="tw-text-right">
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="danger"
+                  size="small"
+                  (click)="revoke(connection)"
+                >
+                  {{ "revoke" | i18n }}
+                </button>
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  }
+</bit-container>

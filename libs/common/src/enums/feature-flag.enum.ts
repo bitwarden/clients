@@ -64,6 +64,7 @@ export enum FeatureFlag {
   /* Tools */
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
+  LoginWithBitwarden = "pm-oidc-provider-agent-access",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -142,6 +143,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
+  [FeatureFlag.LoginWithBitwarden]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,

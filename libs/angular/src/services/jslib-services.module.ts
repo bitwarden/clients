@@ -315,6 +315,17 @@ import { ProviderApiService } from "@bitwarden/common/provider/services/provider
 import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
+import { AgentAccessPskGenerator } from "@bitwarden/common/tools/agent-connection/abstractions/agent-access-psk-generator.abstraction";
+import { AgentConnectionApiService } from "@bitwarden/common/tools/agent-connection/services/agent-connection-api.service";
+import { AgentConnectionApiService as AgentConnectionApiServiceAbstraction } from "@bitwarden/common/tools/agent-connection/services/agent-connection-api.service.abstraction";
+import { AgentConnectionStateProvider } from "@bitwarden/common/tools/agent-connection/services/agent-connection-state.provider";
+import { AgentConnectionStateProvider as AgentConnectionStateProviderAbstraction } from "@bitwarden/common/tools/agent-connection/services/agent-connection-state.provider.abstraction";
+import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service";
+import {
+  AgentConnectionService as AgentConnectionServiceAbstraction,
+  InternalAgentConnectionService,
+} from "@bitwarden/common/tools/agent-connection/services/agent-connection.service.abstraction";
+import { DefaultAgentAccessPskGenerator } from "@bitwarden/common/tools/agent-connection/services/default-agent-access-psk-generator";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -1057,6 +1068,35 @@ const safeProviders: SafeProvider[] = [
     useExisting: SendApiService,
   }),
   safeProvider({
+    provide: InternalAgentConnectionService,
+    useClass: AgentConnectionService,
+    deps: [
+      KeyService,
+      EncryptService,
+      I18nServiceAbstraction,
+      AgentConnectionStateProviderAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: AgentConnectionServiceAbstraction,
+    useExisting: InternalAgentConnectionService,
+  }),
+  safeProvider({
+    provide: AgentConnectionStateProviderAbstraction,
+    useClass: AgentConnectionStateProvider,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: AgentConnectionApiServiceAbstraction,
+    useClass: AgentConnectionApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AgentAccessPskGenerator,
+    useClass: DefaultAgentAccessPskGenerator,
+    deps: [KeyGenerationService],
+  }),
+  safeProvider({
     provide: SyncService,
     useClass: DefaultSyncService,
     deps: [
@@ -1086,6 +1126,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       SdkService,
+      InternalAgentConnectionService,
     ],
   }),
   safeProvider({

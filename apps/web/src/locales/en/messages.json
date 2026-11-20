@@ -21991,5 +21991,71 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "loginWithBitwarden": {
+    "message": "Log in with Bitwarden"
+  },
+  "loginWithBitwardenConnections": {
+    "message": "Connected apps"
+  },
+  "loginWithBitwardenConnectionsDescription": {
+    "message": "Apps you have authorized to connect to your Bitwarden account. Revoke access at any time."
+  },
+  "loginWithBitwardenConsentDescription": {
+    "message": "$APPNAME$ wants to connect to your Bitwarden account.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Acme Bot"
+      }
+    }
+  },
+  "loginWithBitwardenScopesTitle": {
+    "message": "This app will be able to access"
+  },
+  "loginWithBitwardenScopeOpenid": {
+    "message": "Verify your identity"
+  },
+  "loginWithBitwardenScopeProfile": {
+    "message": "Your name"
+  },
+  "loginWithBitwardenScopeEmail": {
+    "message": "Your email address"
+  },
+  "loginWithBitwardenApprove": {
+    "message": "Approve"
+  },
+  "loginWithBitwardenDeny": {
+    "message": "Deny"
+  },
+  "loginWithBitwardenRequestInvalid": {
+    "message": "This authorization request is invalid or has expired."
+  },
+  "loginWithBitwardenConsentFailed": {
+    "message": "Could not complete the authorization. Please try again."
+  },
+  "loginWithBitwardenCompleting": {
+    "message": "Finishing up, please wait..."
+  },
+  "loginWithBitwardenCompleteFailed": {
+    "message": "Could not return to the app. You can close this window and try again."
+  },
+  "loginWithBitwardenNoConnections": {
+    "message": "You have not connected any apps yet."
+  },
+  "loginWithBitwardenRevokeTitle": {
+    "message": "Revoke access"
+  },
+  "loginWithBitwardenRevokeConfirm": {
+    "message": "Are you sure you want to revoke access for $APPNAME$?",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Acme Bot"
+      }
+    }
+  },
+  "loginWithBitwardenRevoked": {
+    "message": "Access revoked"
   }
 }

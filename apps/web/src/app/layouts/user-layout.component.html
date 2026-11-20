@@ -51,6 +51,12 @@
               route="settings/emergency-access"
             ></bit-nav-item>
           }
+          @if (loginWithBitwardenEnabled()) {
+            <bit-nav-item
+              [text]="'loginWithBitwardenConnections' | i18n"
+              route="settings/agent-connections"
+            ></bit-nav-item>
+          }
           <billing-free-families-nav-item></billing-free-families-nav-item>
           <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
         </bit-nav-group>
@@ -109,6 +115,12 @@
           <bit-nav-item
             [text]="'emergencyAccess' | i18n"
             route="settings/emergency-access"
+          ></bit-nav-item>
+        }
+        @if (loginWithBitwardenEnabled()) {
+          <bit-nav-item
+            [text]="'loginWithBitwardenConnections' | i18n"
+            route="settings/agent-connections"
           ></bit-nav-item>
         }
         <billing-free-families-nav-item></billing-free-families-nav-item>

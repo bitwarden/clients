@@ -206,6 +206,8 @@ import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common
 import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
+import { AgentConnectionStateProvider } from "@bitwarden/common/tools/agent-connection/services/agent-connection-state.provider";
+import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
@@ -1310,6 +1312,15 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
+    // Agent connections are only populated on sync when the LoginWithBitwarden flag is on; the
+    // browser does not wire the broker UI (web-only v1) but must still satisfy the sync dependency.
+    const agentConnectionService = new AgentConnectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      new AgentConnectionStateProvider(this.stateProvider),
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -1337,6 +1348,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.sdkService,
+      agentConnectionService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
