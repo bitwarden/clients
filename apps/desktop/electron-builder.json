@@ -315,8 +315,7 @@
         "u2f-devices",
         "hardware-observe"
       ],
-      "stagePackages": ["default"],
-      "allowNativeWayland": true
+      "stagePackages": ["default"]
     }
   },
   "protocols": [
