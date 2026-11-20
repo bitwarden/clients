@@ -7870,5 +7870,113 @@
   },
   "item": {
     "message": "Item"
+  },
+  "sshAgentPromptForwarded": {
+    "message": "Still ask for forwarded connections"
+  },
+  "sshAgentPromptAiAgents": {
+    "message": "Still ask for AI agents"
+  },
+  "sshAgentPromptAiAgentsDesc": {
+    "message": "Applies to requests from command-line agents such as Claude Code or Codex."
+  },
+  "viewSshAgentActivity": {
+    "message": "View SSH agent activity"
+  },
+  "sshAgentActivity": {
+    "message": "SSH agent activity"
+  },
+  "sshAgentActivityDesc": {
+    "message": "Apps that used the SSH agent since it started, newest first."
+  },
+  "sshAgentActivityTime": {
+    "message": "Time"
+  },
+  "sshAgentActivityApp": {
+    "message": "App"
+  },
+  "sshAgentActivityCommand": {
+    "message": "Command"
+  },
+  "sshAgentActivityRequest": {
+    "message": "Request"
+  },
+  "sshAgentActivityResult": {
+    "message": "Result"
+  },
+  "sshAgentActivityListKeys": {
+    "message": "Key list"
+  },
+  "sshAgentActivityLogin": {
+    "message": "Login"
+  },
+  "sshAgentActivitySign": {
+    "message": "Signature"
+  },
+  "sshAgentActivityGitSign": {
+    "message": "Git signature"
+  },
+  "sshAgentActivityForwarded": {
+    "message": "Forwarded"
+  },
+  "sshAgentActivityAllowed": {
+    "message": "Allowed"
+  },
+  "sshAgentActivityDenied": {
+    "message": "Denied"
+  },
+  "sshAgentActivityFailed": {
+    "message": "Failed"
+  },
+  "sshAgentActivityEmpty": {
+    "message": "No activity yet"
+  },
+  "sshAgentActivityAiAgent": {
+    "message": "AI agent: $AGENT$",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
+  "sshAgentActivityHost": {
+    "message": "→ $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "git@github.com"
+      }
+    }
+  },
+  "sshAgentActivityForwardedFrom": {
+    "message": "Forwarded from $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "sshAgentAiAgentWarningTitle": {
+    "message": "Requested by an AI agent"
+  },
+  "sshAgentAiAgentWarningText": {
+    "message": "$AGENT$ started this request. Only authorize it if you asked the agent to use this key.",
+    "placeholders": {
+      "agent": {
+        "content": "$1",
+        "example": "claude"
+      }
+    }
+  },
+  "sshAgentActivityHostApp": {
+    "message": "in $APP$",
+    "placeholders": {
+      "app": {
+        "content": "$1",
+        "example": "iTerm2"
+      }
+    }
   }
 }

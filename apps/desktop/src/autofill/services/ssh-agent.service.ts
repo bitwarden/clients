@@ -36,6 +36,7 @@ export class SshAgentService implements OnDestroy {
             message.application as string,
             message.isAgentForwarding as boolean,
             message.namespace as string,
+            message.aiAgent as string | undefined,
           );
 
           const accepted = await firstValueFrom(dialogRef.closed);

@@ -72,6 +72,7 @@ describe("MainSshAgentService", () => {
   let agentState: { isRunning: jest.Mock; replace: jest.Mock; stop: jest.Mock };
   let capturedSignCb: (err: Error | null, data: sshagent.SignRequestData) => Promise<boolean>;
   let capturedListCb: (err: Error | null) => Promise<boolean>;
+  let capturedActivityCb: (err: Error | null, data: sshagent.ActivityData) => void;
 
   let service: MainSshAgentService;
 
@@ -98,6 +99,8 @@ describe("MainSshAgentService", () => {
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
     desktopSettingsService.sshAgentEnabled$ = sshAgentEnabled$;
     desktopSettingsService.sshAgentPromptBehavior$ = sshAgentPromptBehavior$;
+    desktopSettingsService.sshAgentPromptForwarded$ = of(false);
+    desktopSettingsService.sshAgentPromptAiAgents$ = of(false);
     cipherService.cipherViews$.mockReturnValue(of([]));
     cipherService.getAllDecrypted.mockResolvedValue([]);
     i18nService.t.mockImplementation((key: string) => {
@@ -117,12 +120,13 @@ describe("MainSshAgentService", () => {
       ipcHandlers.set(channel, handler);
     });
     (sshagent.SshAgentState.serve as jest.Mock).mockImplementation(
-      (sign: IpcHandler, list: IpcHandler) => {
+      (sign: IpcHandler, list: IpcHandler, activity: IpcHandler) => {
         capturedSignCb = sign as (
           err: Error | null,
           data: sshagent.SignRequestData,
         ) => Promise<boolean>;
         capturedListCb = list as (err: Error | null) => Promise<boolean>;
+        capturedActivityCb = activity as (err: Error | null, data: sshagent.ActivityData) => void;
         return Promise.resolve(agentState);
       },
     );
@@ -140,9 +144,10 @@ describe("MainSshAgentService", () => {
   });
 
   describe("constructor", () => {
-    it("registers only the sign request response IPC handler", () => {
+    it("registers only the sign request response and activity log IPC handlers", () => {
       expect(ipcHandlers.has(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)).toBe(true);
-      expect(ipcHandlers.size).toBe(1);
+      expect(ipcHandlers.has(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG)).toBe(true);
+      expect(ipcHandlers.size).toBe(2);
     });
   });
 
@@ -380,6 +385,71 @@ describe("MainSshAgentService", () => {
         { requestId: 2, accepted: false },
       );
       await second;
+    });
+  });
+
+  describe("activity log", () => {
+    const activity = (command: string): sshagent.ActivityData =>
+      ({
+        operation: "sign",
+        outcome: "allowed",
+        cipherId: "cipher-1",
+        command,
+        callerApp: "claude",
+        hostApp: "iTerm2",
+        aiAgent: "claude",
+        destination: "git@github.com",
+        isForwarding: false,
+      }) as sshagent.ActivityData;
+
+    const activityLog = () =>
+      ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG)!({}) as Promise<{ command: string }[]>;
+
+    beforeEach(async () => {
+      service.init();
+      await flush();
+    });
+
+    it("returns recorded activity newest first", async () => {
+      capturedActivityCb(null, activity("ssh first"));
+      capturedActivityCb(null, activity("ssh second"));
+
+      const log = await activityLog();
+
+      expect(log.map((entry) => entry.command)).toEqual(["ssh second", "ssh first"]);
+      expect(log[0]).toMatchObject({
+        callerApp: "claude",
+        hostApp: "iTerm2",
+        aiAgent: "claude",
+        destination: "git@github.com",
+        outcome: "allowed",
+      });
+    });
+
+    it("notifies the renderer of new activity", () => {
+      capturedActivityCb(null, activity("ssh -t example.com"));
+
+      expect(messagingService.send).toHaveBeenCalledWith(SSH_AGENT_IPC_CHANNELS.ACTIVITY);
+    });
+
+    it("keeps at most 500 entries", async () => {
+      for (let i = 0; i < 501; i++) {
+        capturedActivityCb(null, activity(`ssh ${i}`));
+      }
+
+      const log = await activityLog();
+
+      expect(log).toHaveLength(500);
+      expect(log[0].command).toBe("ssh 500");
+    });
+
+    it("clears when the agent stops", async () => {
+      capturedActivityCb(null, activity("ssh -t example.com"));
+
+      sshAgentEnabled$.next(false);
+      await flush();
+
+      expect(await activityLog()).toEqual([]);
     });
   });
 });

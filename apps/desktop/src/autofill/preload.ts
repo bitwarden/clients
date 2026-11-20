@@ -5,10 +5,14 @@ import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import { SshAgentActivity } from "./models/ssh-agent-activity";
 
 const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
+  },
+  activityLog(): Promise<SshAgentActivity[]> {
+    return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG);
   },
 };
 

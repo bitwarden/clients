@@ -20,6 +20,8 @@ export interface ApproveSshRequestParams {
   applicationName: string;
   isAgentForwarding: boolean;
   action: string;
+  /** The AI agent that started the requesting process, e.g. `claude`. */
+  aiAgent?: string;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -54,6 +56,7 @@ export class ApproveSshRequestComponent {
     applicationName: string,
     isAgentForwarding: boolean,
     namespace: string,
+    aiAgent?: string,
   ) {
     let actioni18nKey = "sshActionLogin";
     if (namespace === "git") {
@@ -68,6 +71,7 @@ export class ApproveSshRequestComponent {
         applicationName,
         isAgentForwarding,
         action: actioni18nKey,
+        aiAgent,
       },
     });
   }

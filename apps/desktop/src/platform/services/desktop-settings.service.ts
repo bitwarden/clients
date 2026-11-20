@@ -59,6 +59,26 @@ const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   },
 );
 
+// With the "Never" prompt behavior, whether forwarded sign requests still prompt.
+const SSH_AGENT_PROMPT_FORWARDED = new UserKeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentPromptForwarded",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
+// With the "Never" prompt behavior, whether sign requests from AI agents still prompt.
+const SSH_AGENT_PROMPT_AI_AGENTS = new UserKeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentPromptAiAgents",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
@@ -118,6 +138,18 @@ export class DesktopSettingsService {
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
     map((v) => v ?? SshAgentPromptType.Always),
   );
+
+  private readonly sshAgentPromptForwarded = this.stateProvider.getActive(
+    SSH_AGENT_PROMPT_FORWARDED,
+  );
+  /** With "Never", whether forwarded sign requests still prompt. On unless turned off. */
+  sshAgentPromptForwarded$ = this.sshAgentPromptForwarded.state$.pipe(map((v) => v ?? true));
+
+  private readonly sshAgentPromptAiAgents = this.stateProvider.getActive(
+    SSH_AGENT_PROMPT_AI_AGENTS,
+  );
+  /** With "Never", whether sign requests from AI agents still prompt. On unless turned off. */
+  sshAgentPromptAiAgents$ = this.sshAgentPromptAiAgents.state$.pipe(map((v) => v ?? true));
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -208,6 +240,14 @@ export class DesktopSettingsService {
 
   async setSshAgentPromptBehavior(value: SshAgentPromptType) {
     await this.sshAgentPromptBehavior.update(() => value);
+  }
+
+  async setSshAgentPromptForwarded(value: boolean) {
+    await this.sshAgentPromptForwarded.update(() => value);
+  }
+
+  async setSshAgentPromptAiAgents(value: boolean) {
+    await this.sshAgentPromptAiAgents.update(() => value);
   }
 
   /**

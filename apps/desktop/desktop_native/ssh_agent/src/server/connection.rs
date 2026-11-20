@@ -188,7 +188,10 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
     };
 
     match message {
-        AgentMessage::RequestIdentities => handle_list_request(keystore, auth_policy).await,
+        AgentMessage::RequestIdentities => {
+            let connection = connection_context(peer_info, session_bind_state);
+            handle_list_request(connection, keystore, auth_policy).await
+        }
         AgentMessage::SignRequest {
             public_key,
             data,
@@ -213,13 +216,14 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
 }
 
 async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
+    connection: ConnectionContext,
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
 ) -> Vec<u8> {
     debug!("handling list request");
 
     let Ok(authorized) = auth_policy
-        .authorize(&AuthRequest::List)
+        .authorize(&AuthRequest::List(connection))
         .await
         .inspect_err(|error| error!(%error, "Authorization error for list request"))
     else {
@@ -240,6 +244,31 @@ async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
     }
 }
 
+/// Describes the peer process and its session bind for the auth policy.
+fn connection_context(
+    peer_info: Option<&PeerInfo>,
+    session_bind_state: &SessionBindState,
+) -> ConnectionContext {
+    let owned = |value: Option<&str>| value.map(str::to_string);
+
+    ConnectionContext {
+        process_name: peer_info.map(|p| p.process_name().to_string()),
+        command: owned(peer_info.and_then(PeerInfo::command)),
+        caller_app: owned(peer_info.and_then(PeerInfo::caller_app)),
+        host_app: owned(peer_info.and_then(PeerInfo::host_app)),
+        ai_agent: owned(peer_info.and_then(PeerInfo::ai_agent)),
+        destination: owned(peer_info.and_then(PeerInfo::destination)),
+        session_bind: if session_bind_state.host_fingerprint.is_empty() {
+            None
+        } else {
+            Some(SessionBindContext {
+                is_forwarding: session_bind_state.is_forwarding,
+                host_fingerprint: session_bind_state.host_fingerprint.clone(),
+            })
+        },
+    }
+}
+
 async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
     public_key: PublicKey,
     data: Vec<u8>,
@@ -254,17 +283,7 @@ async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
     let sign_request = SignRequest {
         public_key: public_key.clone(),
         namespace: detect_namespace(&data),
-        connection: ConnectionContext {
-            process_name: peer_info.map(|p| p.process_name().to_string()),
-            session_bind: if session_bind_state.host_fingerprint.is_empty() {
-                None
-            } else {
-                Some(SessionBindContext {
-                    is_forwarding: session_bind_state.is_forwarding,
-                    host_fingerprint: session_bind_state.host_fingerprint.clone(),
-                })
-            },
-        },
+        connection: connection_context(peer_info, session_bind_state),
     };
 
     let Ok(authorized) = auth_policy

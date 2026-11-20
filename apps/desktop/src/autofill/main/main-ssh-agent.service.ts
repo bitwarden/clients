@@ -36,7 +36,11 @@ import { sshagent } from "@bitwarden/desktop-napi";
 import { WindowMain } from "../../main/window.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
+import { SshAgentActivity } from "../models/ssh-agent-activity";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
+
+// Caps the activity log's memory; the oldest entries are dropped first.
+const MAX_ACTIVITY_ENTRIES = 500;
 
 /**
  * Namespacing for cached sign authorizations.
@@ -67,6 +71,8 @@ export class MainSshAgentService {
   private agentState: sshagent.SshAgentState;
   private authorizedHosts: Map<string, Set<string>> = new Map();
   private destroy$ = new Subject<void>();
+  // Newest first. Kept in memory only and cleared when the agent stops, e.g. on logout.
+  private activityLog: SshAgentActivity[] = [];
 
   constructor(
     private logService: LogService,
@@ -185,6 +191,8 @@ export class MainSshAgentService {
         this.pendingRequests.delete(requestId);
       },
     );
+
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG, async () => [...this.activityLog]);
   }
 
   /** Whether the agent is serving its socket. */
@@ -195,12 +203,35 @@ export class MainSshAgentService {
   private async initAgent(): Promise<void> {
     const signCb = (_err: Error | null, data: sshagent.SignRequestData) => this.requestSign(data);
     const listCb = (_err: Error | null) => this.requestListKeys();
+    const activityCb = (_err: Error | null, data: sshagent.ActivityData) =>
+      this.recordActivity(data);
     try {
-      this.agentState = await sshagent.SshAgentState.serve(signCb, listCb);
+      this.agentState = await sshagent.SshAgentState.serve(signCb, listCb, activityCb);
       this.logService.info("SSH agent started");
     } catch (e: unknown) {
       this.logService.error("SSH agent encountered an error: ", e);
     }
+  }
+
+  // Prepends `data` to the activity log and tells the renderer, so an open log refreshes.
+  private recordActivity(data: sshagent.ActivityData) {
+    const activity: SshAgentActivity = {
+      timestamp: Date.now(),
+      operation: data.operation,
+      outcome: data.outcome,
+      cipherId: data.cipherId,
+      namespace: data.namespace,
+      processName: data.processName,
+      command: data.command,
+      callerApp: data.callerApp,
+      hostApp: data.hostApp,
+      aiAgent: data.aiAgent,
+      destination: data.destination,
+      isForwarding: data.isForwarding,
+    };
+
+    this.activityLog = [activity, ...this.activityLog].slice(0, MAX_ACTIVITY_ENTRIES);
+    this.messagingService.send(SSH_AGENT_IPC_CHANNELS.ACTIVITY);
   }
 
   private async ensureAgentRunning(): Promise<void> {
@@ -214,6 +245,7 @@ export class MainSshAgentService {
       this.agentState.stop();
       this.agentState = null;
     }
+    this.activityLog = [];
   }
 
   private replace(keys: { name: string; privateKey: string; cipherId: string }[]): void {
@@ -286,7 +318,10 @@ export class MainSshAgentService {
 
     const isAgentForwarding = data.signRequest.isForwarding;
     const hostFingerprint = data.signRequest.hostFingerprint;
-    if (!(await this.needsAuthorization(data.cipherId, isAgentForwarding, hostFingerprint))) {
+    const aiAgent = data.signRequest.aiAgent;
+    if (
+      !(await this.needsAuthorization(data.cipherId, isAgentForwarding, hostFingerprint, aiAgent))
+    ) {
       return true;
     }
 
@@ -305,6 +340,7 @@ export class MainSshAgentService {
         application: application,
         isAgentForwarding: isAgentForwarding,
         namespace: data.signRequest.namespace,
+        aiAgent,
       });
     });
   }
@@ -337,14 +373,34 @@ export class MainSshAgentService {
     cipherId: string,
     isForwarded: boolean,
     hostFingerprint?: string,
+    aiAgent?: string,
   ): Promise<boolean> {
     const scope = MainSshAgentService.authorizationScope(isForwarded);
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
 
     switch (promptType) {
-      case SshAgentPromptType.Never:
+      case SshAgentPromptType.Never: {
+        // The user can still require a prompt for the riskier requests, e.g. a key used from a
+        // server they logged in to, or by an AI agent acting on their behalf.
+        const promptForwarded = await firstValueFrom(
+          this.desktopSettingsService.sshAgentPromptForwarded$,
+        );
+        if (isForwarded && promptForwarded) {
+          this.logAuthorizationDecision(scope, promptType, "prompting- forwarded request.");
+          return true;
+        }
+
+        const promptAiAgents = await firstValueFrom(
+          this.desktopSettingsService.sshAgentPromptAiAgents$,
+        );
+        if (aiAgent != null && promptAiAgents) {
+          this.logAuthorizationDecision(scope, promptType, "prompting- AI agent request.");
+          return true;
+        }
+
         this.logAuthorizationDecision(scope, promptType, "approving.");
         return false;
+      }
 
       case SshAgentPromptType.Always:
         this.logAuthorizationDecision(scope, promptType, "prompting.");

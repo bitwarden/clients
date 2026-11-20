@@ -10,12 +10,13 @@ pub mod sshagent {
     use async_trait::async_trait;
     use napi::{
         bindgen_prelude::{JsValuesTupleIntoVec, Promise},
-        threadsafe_function::ThreadsafeFunction,
+        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
     };
     use ssh_agent::{
-        ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
-        SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
-        UnparsedSSHKeyData,
+        Activity as SSHActivity, ActivityObserver, ActivityOperation as SSHActivityOperation,
+        ActivityOutcome as SSHActivityOutcome, ApprovalError, ApprovalRequester, BitwardenSSHAgent,
+        InMemoryEncryptedKeyStore, SIGNamespace as SSHSIGNamespace,
+        SignApprovalRequest as SSHSignApprovalRequest, UnparsedSSHKeyData,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -65,6 +66,8 @@ pub mod sshagent {
     pub struct SignRequest {
         pub public_key: PublicKey,
         pub process_name: Option<String>,
+        /// The nearest AI agent above the requesting process, e.g. `claude`.
+        pub ai_agent: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SIGNamespace>,
         pub host_fingerprint: Option<String>,
@@ -78,6 +81,7 @@ pub mod sshagent {
                     blob: r.public_key.blob,
                 },
                 process_name: r.connection.process_name,
+                ai_agent: r.connection.ai_agent,
                 is_forwarding: r
                     .connection
                     .session_bind
@@ -106,10 +110,112 @@ pub mod sshagent {
         }
     }
 
+    /// An agent operation a peer requested.
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug)]
+    pub enum ActivityOperation {
+        List,
+        Sign,
+    }
+
+    /// How the agent answered an operation.
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug)]
+    pub enum ActivityOutcome {
+        Allowed,
+        Denied,
+        Failed,
+    }
+
+    impl From<SSHActivityOutcome> for ActivityOutcome {
+        fn from(outcome: SSHActivityOutcome) -> Self {
+            match outcome {
+                SSHActivityOutcome::Allowed => Self::Allowed,
+                SSHActivityOutcome::Denied => Self::Denied,
+                SSHActivityOutcome::Failed => Self::Failed,
+            }
+        }
+    }
+
+    /// One answered agent operation and the process that requested it.
+    #[napi(object)]
+    #[derive(Debug)]
+    pub struct ActivityData {
+        pub operation: ActivityOperation,
+        pub outcome: ActivityOutcome,
+        pub cipher_id: Option<String>,
+        pub namespace: Option<SIGNamespace>,
+        pub process_name: Option<String>,
+        /// The requesting process's command line, e.g. `ssh -t example.com`.
+        pub command: Option<String>,
+        /// The nearest app above the requesting process, e.g. `claude`.
+        pub caller_app: Option<String>,
+        /// The outermost app above the requesting process, e.g. `iTerm2`.
+        pub host_app: Option<String>,
+        /// The nearest AI agent above the requesting process, e.g. `claude`.
+        pub ai_agent: Option<String>,
+        /// The server an `ssh` process logs in to, e.g. `git@github.com`.
+        pub destination: Option<String>,
+        pub is_forwarding: bool,
+        pub host_fingerprint: Option<String>,
+    }
+
+    impl From<SSHActivity> for ActivityData {
+        fn from(activity: SSHActivity) -> Self {
+            let (operation, cipher_id, namespace) = match activity.operation {
+                SSHActivityOperation::List => (ActivityOperation::List, None, None),
+                SSHActivityOperation::Sign {
+                    cipher_id,
+                    namespace,
+                } => (ActivityOperation::Sign, cipher_id, namespace),
+            };
+            let connection = activity.connection;
+
+            Self {
+                operation,
+                outcome: activity.outcome.into(),
+                cipher_id,
+                namespace: namespace.map(Into::into),
+                process_name: connection.process_name,
+                command: connection.command,
+                caller_app: connection.caller_app,
+                host_app: connection.host_app,
+                ai_agent: connection.ai_agent,
+                destination: connection.destination,
+                is_forwarding: connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
+                host_fingerprint: connection.session_bind.map(|s| s.host_fingerprint),
+            }
+        }
+    }
+
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
     pub struct SSHAgentState {
-        agent: BitwardenSSHAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
+        agent: BitwardenSSHAgent<
+            InMemoryEncryptedKeyStore,
+            ElectronApprovalRequester,
+            ElectronActivityObserver,
+        >,
+    }
+
+    /// Forwards the agent's activity to Electron, without waiting for it.
+    struct ElectronActivityObserver {
+        callback: ThreadsafeFunction<ActivityData, ()>,
+    }
+
+    impl ActivityObserver for ElectronActivityObserver {
+        fn observe(&self, activity: SSHActivity) {
+            let status = self.callback.call(
+                Ok(ActivityData::from(activity)),
+                ThreadsafeFunctionCallMode::NonBlocking,
+            );
+            if status != napi::Status::Ok {
+                error!(?status, "Failed to send SSH agent activity to Electron.");
+            }
+        }
     }
 
     /// Interface for the agent to request approval for ssh operations from Electron.
@@ -171,11 +277,13 @@ pub mod sshagent {
         ///
         /// * `sign_callback` - Allows agent to get approval for sign requests
         /// * `list_callback` - Allows agent to get approval for list key requests
+        /// * `activity_callback` - Receives every answered request and the process that sent it
         #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
             sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
             list_callback: ThreadsafeFunction<(), Promise<bool>>,
+            activity_callback: ThreadsafeFunction<ActivityData, ()>,
         ) -> napi::Result<Self> {
             debug!("Creating agent and starting server.");
 
@@ -186,7 +294,12 @@ pub mod sshagent {
 
             let keystore = InMemoryEncryptedKeyStore::default();
 
-            let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
+            let activity_observer = ElectronActivityObserver {
+                callback: activity_callback,
+            };
+
+            let mut agent =
+                ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler, activity_observer);
 
             // TODO after PM-31827 is merged, can use simplified error conversion
             agent.start().map_err(|error| {

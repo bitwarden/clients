@@ -446,13 +446,45 @@ export declare namespace sshagent {
      *
      * * `sign_callback` - Allows agent to get approval for sign requests
      * * `list_callback` - Allows agent to get approval for list key requests
+     * * `activity_callback` - Receives every answered request and the process that sent it
      */
-    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>)): Promise<SshAgentState>
+    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>), listCallback: ((err: Error | null, ) => Promise<boolean>), activityCallback: ((err: Error | null, arg: ActivityData) => void)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
+  /** One answered agent operation and the process that requested it. */
+  export interface ActivityData {
+    operation: ActivityOperation
+    outcome: ActivityOutcome
+    cipherId?: string
+    namespace?: SIGNamespace
+    processName?: string
+    /** The requesting process's command line, e.g. `ssh -t example.com`. */
+    command?: string
+    /** The nearest app above the requesting process, e.g. `claude`. */
+    callerApp?: string
+    /** The outermost app above the requesting process, e.g. `iTerm2`. */
+    hostApp?: string
+    /** The nearest AI agent above the requesting process, e.g. `claude`. */
+    aiAgent?: string
+    /** The server an `ssh` process logs in to, e.g. `git@github.com`. */
+    destination?: string
+    isForwarding: boolean
+    hostFingerprint?: string
+  }
+  /** An agent operation a peer requested. */
+  export const enum ActivityOperation {
+    List = 'list',
+    Sign = 'sign'
+  }
+  /** How the agent answered an operation. */
+  export const enum ActivityOutcome {
+    Allowed = 'allowed',
+    Denied = 'denied',
+    Failed = 'failed'
+  }
   /** SSH public key data */
   export interface PublicKey {
     alg: string
@@ -468,6 +500,8 @@ export declare namespace sshagent {
   export interface SignRequest {
     publicKey: PublicKey
     processName?: string
+    /** The nearest AI agent above the requesting process, e.g. `claude`. */
+    aiAgent?: string
     isForwarding: boolean
     namespace?: SIGNamespace
     hostFingerprint?: string
