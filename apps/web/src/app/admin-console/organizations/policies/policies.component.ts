@@ -213,11 +213,11 @@ export class PoliciesComponent {
     candidates: BasePolicyEditDefinition[],
     organization: Organization,
   ) {
-    if (candidates.length <= 1) {
-      if (candidates.length === 1) {
-        await this.edit(candidates[0], organization);
-      }
+    if (!candidates.length) {
       return;
+    }
+    if (candidates.length === 1) {
+      await this.edit(candidates[0], organization);
     }
 
     for (const candidate of candidates) {
