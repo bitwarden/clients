@@ -100,8 +100,43 @@ describe("ProjectEditCommand", () => {
     });
 
     beforeEach(() => {
-      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: true }));
+      projectService.getByProjectId.mockResolvedValue(
+        makeProject({
+          creationDate: "2024-01-01T00:00:00Z",
+          revisionDate: "2024-01-02T00:00:00Z",
+          read: true,
+          write: true,
+          decryptionError: false,
+        }),
+      );
       projectService.update.mockResolvedValue(makeProject({ name: "Frontend" }));
+    });
+
+    it("renames from a template-shaped body", async () => {
+      const response = await command.run(smOrg, projectId, {
+        organizationId: null,
+        name: "Frontend",
+      });
+
+      expect(response.success).toBe(true);
+    });
+
+    it("rejects a creationDate added to the template and saves nothing", async () => {
+      const response = await command.run(
+        smOrg,
+        projectId,
+        encodeSmRequest({
+          organizationId: null,
+          name: "Project name",
+          creationDate: "2026-11-17T04:22:34.0716668Z",
+        }),
+      );
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`creationDate` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
     });
 
     it("renames from a full get-shaped body", async () => {
@@ -119,8 +154,14 @@ describe("ProjectEditCommand", () => {
     });
 
     it.each([
+      ["object", { object: "sm-secret" }],
+      ["id", { id: "33333333-3333-3333-3333-333333333333" }],
+      ["creationDate", { creationDate: "2026-11-17T04:22:34.0716668Z" }],
+      ["revisionDate", { revisionDate: "2026-11-17T04:22:34.0716668Z" }],
       ["read", { read: false }],
       ["write", { write: false }],
+      ["decryptionError", { decryptionError: true }],
+      ["accessToSecrets", { accessToSecrets: 1 }],
     ])("rejects a changed %s and saves nothing", async (property, change) => {
       const response = await command.run(smOrg, projectId, {
         ...getBody(),
