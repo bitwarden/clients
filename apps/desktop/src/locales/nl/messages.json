@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Ongeldige app-pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Website toegevoegd"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Website of app toevoegen"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website verwijderen"
@@ -2434,6 +2436,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Alles"
   },
@@ -3375,6 +3381,10 @@
   "custom": {
     "message": "Aangepast"
   },
+  "deleteSend": {
+    "message": "Send verwijderen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Weet je zeker dat je deze Send wilt verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3414,34 @@
   "disabled": {
     "message": "Uitgeschakeld"
   },
+  "removeAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderen"
+  },
+  "removedAuth": {
+    "message": "Wachtwoord of e-mailverificatie verwijderd"
+  },
+  "removeAuthConfirmation": {
+    "message": "Weet je zeker dat je het wachtwoord of de e-mailverificatie van deze Send wilt verwijderen?"
+  },
   "removePassword": {
     "message": "Wachtwoord verwijderen"
+  },
+  "removeEmailVerification": {
+    "message": "E-mailverificatie verwijderen"
   },
   "removedPassword": {
     "message": "Wachtwoord verwijderd"
   },
-  "removePasswordConfirmation": {
-    "message": "Weet je zeker dat je het wachtwoord wilt verwijderen?"
+  "removedEmailVerification": {
+    "message": "E-mailverificatie verwijderd"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Weet je zeker dat je de wachtwoordvereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Weet je zeker dat je de e-mailverificatie-vereiste van deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Maximum aantal keren benaderd"
@@ -4596,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Importeren gelukt"
+  },
+  "importConfirmationBody": {
+    "message": "Je hebt $AMOUNT$ items met succes geïmporteerd in Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Je hebt 1item met succes geïmporteerd in Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Vergeet niet $FILENAME$ te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Vergeet je importbestand niet te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld."
+  },
+  "importingTitle": {
+    "message": "Importeren"
+  },
+  "importingDescription": {
+    "message": "Dit proces kan enkele minuten duren."
+  },
   "total": {
     "message": "Totaal"
   },
@@ -5629,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Dit 1Password-account gebruikt een aanmeldmethode die niet wordt ondersteund. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
@@ -5652,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Vul een geldig inlogadres in."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Vind dit in je 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Geheime sleutel is vereist."
@@ -5674,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password. Alleen inloggen met het wachtwoord wordt ondersteund."
+  },
   "secretKey": {
     "message": "Geheime sleutel"
   },
@@ -5682,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Inloggen met SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Ga naar de SSO-inlogpagina om het importeren in Bitwarden te voltooien."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Overdracht encryptiesleutel"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in bij 1Password en navigeer naar inlogverzoeken om dit verzoek te verifiëren."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Deze code werkte niet. Controleer je andere apparaat voor een nieuwe."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "De SSO-login pagina is gesloten voordat je klaar was met inloggen. Probeer het opnieuw om door te gaan met importeren."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Dit apparaat is niet goedgekeurd op je andere apparaat. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Te veel onjuiste verificatiecodes. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "keeperEmail": {
     "message": "E-mailadres Keeper"
@@ -6261,12 +6357,19 @@
     "message": "Gevoelige informatie veilig versturen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Je hebt geen Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Geen resultaten teruggekregen"
   },
   "sendsBodyNoItems": {
     "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Tekst of bestanden veilig delenmet anderen. Je informatie zal end-to-end versleuteld worden."
   },
   "sendsBodyNoSearchResults": {
     "message": "Wis filters of probeer een andere zoekterm"
@@ -6357,6 +6460,9 @@
   },
   "itemLower": {
     "message": "item"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "Items"
@@ -6885,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Hoe beheer ik mijn kluis?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Items overdragen aan $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Je items overdragen aan $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ vereist nu dat alle leden-items eigendom zijn van de organisatie. Je persoonlijke items zullen worden verplaatst naar een map met de naam Mijn items die alleen jij kunt zien.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Help-artikel openen over de overdracht van items"
@@ -7352,7 +7455,7 @@
   "makeACopy": {
     "message": "Een kopie maken"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
   },
   "driversLicenseDetails": {
@@ -7758,5 +7861,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
+  },
+  "item": {
+    "message": "Item"
   }
 }

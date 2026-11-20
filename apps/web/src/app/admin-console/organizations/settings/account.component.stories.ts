@@ -7,6 +7,8 @@ import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -27,6 +29,18 @@ import { SharedModule } from "../../../shared";
 
 import { AccountComponent } from "./account.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 /**
  * The real `app-header` (`WebHeaderComponent`) pulls in `<app-product-switcher>` and
  * `<app-account-menu>`, which depend on many app-wide services that aren't worth stubbing out
@@ -42,7 +56,7 @@ class StubHeaderComponent {}
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = buildTestOrganization({
   id: ORG_ID,
   name: "Acme Corp",
   useApi: false,

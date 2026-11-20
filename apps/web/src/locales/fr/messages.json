@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Application de bureau",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Application de bureau $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Appareillage d'application invalide",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Site web ajouté"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Ajouter un site web ou une application"
-  },
-  "app": {
-    "message": "Application"
   },
   "deleteWebsite": {
     "message": "Supprimer le site web"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Moi"
   },
-  "myItems": {
-    "message": "Mes éléments"
-  },
   "myItemsV2": {
     "message": "Mes éléments"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 élément",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Effacer tout"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Importation réussie"
+  },
+  "importConfirmationBody": {
+    "message": "Vous avez importé avec succès $AMOUNT$ éléments dans Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Vous avez importé avec succès 1 élément dans Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Astuce :"
+  },
+  "importDeleteFileTip": {
+    "message": "N'oubliez pas de supprimer $FILENAME$. Il contient des données sensibles et peut être déchiffré.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "N'oubliez pas de supprimer votre fichier d'importation. Il contient des données sensibles et peut être déchiffré."
+  },
+  "importingTitle": {
+    "message": "Importation en cours"
+  },
+  "importingDescription": {
+    "message": "Ce processus peut prendre quelques minutes."
   },
   "dataExportSuccess": {
     "message": "Données exportées avec succès"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Merci de vous être inscrit à Bitwarden avec le $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Merci de vous être inscrit au $PLAN$ pour Secrets Manager de Bitwarden !",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Votre abonnement $PLAN$ de $TRIAL_LENGTH$ jours gratuits sera converti à un abonnement payant après $TRIAL_LENGTH$ jours.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Nous avons envoyé un courriel de confirmation sur le courriel de facturation de votre équipe à "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Votre période d'essai inclut les Contrôles Privilégiés."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Votre nouvelle organisation est prête !"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Votre organisation a été mise à niveau."
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Collection $ID$ créée.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Le dossier partagé a ajouté $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Êtes-vous sûr de vouloir supprimer définitivement ce Send ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Êtes-vous sûr de vouloir supprimer ce Send ?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Date de suppression"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Activer la saisie automatique des applications de bureau par défaut pour tous les membres. Vous pouvez définir un raccourci clavier et choisir si les membres doivent confirmer avant de remplir. Cette fonctionnalité est en version bêta."
+  },
+  "keyboardShortcut": {
+    "message": "Raccourci de clavier"
+  },
+  "appAutofillShortcut": {
+    "message": "Raccourci de saisie automatique"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Les membres peuvent modifier ce raccourci clavier à tout moment."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Utiliser le raccourci par défaut de Bitwarden : $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Entrez votre propre raccourci personnalisé."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Inclure Ctrl, Alt ou Win et au moins 1 lettre."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Toujours demander avant de remplir"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Toujours afficher aux membres une invite de confirmation lorsque le raccourci du bureau est entré."
+  },
+  "invalidShortcut": {
+    "message": "Raccourci invalide"
   },
   "disableSend": {
     "message": "Supprimer le Send"
@@ -13030,37 +13095,37 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "message": "Protégez rapidement et facilement vos comptes privilégiés et critiques d'affaires avec ce module complémentaire pour le Gestionnaire de Mots de Passe Bitwarden.",
     "description": "'Bitwarden Password Manager' is a product name and should not be translated."
   },
   "privilegedControlsFeatureCredentialLeasing": {
-    "message": "Credential leasing"
+    "message": "Prêt d'identifiant"
   },
   "privilegedControlsFeatureAccessRules": {
-    "message": "Advanced access rules"
+    "message": "Règles d'accès avancées"
   },
   "privilegedControlsFeatureRotation": {
-    "message": "Automated password rotation"
+    "message": "Rotation automatique du mot de passe"
   },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Compliance-ready audit logs"
+    "message": "Journaux d'audit conformes aux politiques"
   },
   "privilegedControlsFeatureGovernanceDashboard": {
-    "message": "Governance dashboard"
+    "message": "Tableau de bord de gouvernance"
   },
   "addPrivilegedControls": {
-    "message": "Add Privileged Controls",
+    "message": "Ajouter Contrôles Privilégiés",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "seatLimit": {
-    "message": "Seat limit",
+    "message": "Limite licences",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "whatsIncluded": {
-    "message": "What's included"
+    "message": "Ce qui est inclu"
   },
   "pricePerMember": {
-    "message": "$COST$ per member",
+    "message": "$COST$ par membre",
     "placeholders": {
       "cost": {
         "content": "$1",
@@ -13069,7 +13134,7 @@
     }
   },
   "privilegedControlsSeatsAbovePasswordManagerSeats": {
-    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "message": "Les licences ne peuvent être plus nombreuses que celles de votre Gestionnaire de Mots de Passe ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13079,7 +13144,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
-    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "message": "La limite de licences ne peut être plus grande que les licences de votre Gestionnaire de Mots de Passe ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13089,7 +13154,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
-    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "message": "La limite de licences ne peut être plus grande que la limite de licences de votre Gestionnaire de Mots de Passe ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13099,14 +13164,14 @@
     }
   },
   "privilegedControlsSeatLimitDesc": {
-    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "message": "Définissez une limite de licences pour votre abonnement aux Contrôles Privilégiés. Une fois cette limite atteinte, vous ne pourrez plus accorder à de nouveaux membres l'accès aux Contrôles Privilégiés.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsSeatLimitNotAboveSeats": {
-    "message": "Seat limit must be greater than the number of seats."
+    "message": "La limite de licences doit être supérieure au nombre de licences."
   },
   "privilegedControlsPurchased": {
-    "message": "Subscription updated. You now have Privileged Controls.",
+    "message": "Abonnement mis à jour. Vous avez maintenant Contrôles Privilégiés.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "Récupérer le compte"
   },
+  "recover": {
+    "message": "Récupérer",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Récupérer le compte pour $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Aucune action pour $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "Lorsque vous réinitialisez le mot de passe ou la connexion en deux étapes pour ce membre, il sera informé de la modification et déconnecté."
   },
@@ -13861,7 +13948,7 @@
     "message": "Inviter des utilisateurs"
   },
   "secretsManagerPurchaseDesc": {
-    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
+    "message": "Permettez à vos équipes d'ingénierie et DevOps de stocker centralement, de gérer et de déployer des secrets tout au long du cycle de vie du développement logiciel."
   },
   "unlimitedSecrets": {
     "message": "Secrets illimités"
@@ -13897,7 +13984,7 @@
     }
   },
   "addSecretsManager": {
-    "message": "Add Secrets Manager",
+    "message": "Ajouter Secrets Manager",
     "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Détails de la confirmation"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Merci de vous être inscrit au Secrets Manager de Bitwarden !"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Nous avons envoyé un courriel de confirmation à votre adresse de messagerie à "
@@ -16570,9 +16654,16 @@
     "message": "Envoyez des informations sensibles, en toute sécurité",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Vous n'avez aucun Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Partagez des fichiers et des données en toute sécurité avec n'importe qui, sur n'importe quelle plateforme. Vos informations resteront chiffrées de bout en bout tout en limitant l'exposition.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Partagez du texte ou des fichiers en toute sécurité avec n'importe qui. Vos informations seront chiffrées de bout en bout."
   },
   "generatorNudgeTitle": {
     "message": "Créer rapidement des mots de passe"
@@ -17387,7 +17478,7 @@
   "howToManageMyVault": {
     "message": "Comment gérer mon coffre ?"
   },
-  "transferItemsToOrganizationTitle": {
+  "transferYourItemsToOrganizationTitle": {
     "message": "Transférer les éléments vers $ORGANIZATION$",
     "placeholders": {
       "organization": {
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ exige que tous les éléments soient la propriété de l'organisation pour la sécurité et la conformité.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ exige maintenant que tous les éléments du membre soient détenus par l'organisation. Vos éléments personnels se déplaceront vers un dossier appelé Mes éléments que vous seul pouvez voir.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Cliquez sur accepter pour transférer la propriété de vos éléments."
   },
   "openTransferItemsHelpArticle": {
     "message": "Ouvrir un article d'aide sur le transfert d'éléments"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Une erreur est survenue. Vérifiez vos identifiants et réessayez."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Seule la connexion avec mot de passe est prise en charge."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Seule la connexion avec mot de passe est prise en charge. Réessayez ou utilisez une méthode d'importation différente."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Ce compte 1Password utilise une méthode de connexion qui n'est pas prise en charge. Réessayez ou utilisez une méthode d'importation différente."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Entrez une adresse courriel valide ou utilisez une méthode d'importation différente."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Entrez une adresse de connexion valide."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Trouvez ceci dans votre trousse d'urgence 1Password ."
   },
   "secretKeyIsRequired": {
     "message": "La clé secrète est requise."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Entrez l'adresse courriel que vous utilisez pour vous connecter à 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Entrez l'adresse courriel que vous utilisez pour vous connecter à 1Password. Seul le mot de passe est pris en charge."
+  },
   "secretKey": {
     "message": "Clé secrète"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Votre compte est sécurisé avec une clé secrète et un mot de passe. Vous devrez entrer les deux pour continuer."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Connectez-vous avec SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Passez à la page de connexion SSO pour finir d'importer dans Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Transfert de la clé de chiffrement"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Connectez-vous à 1Password et accédez à des Connexions En Attente pour vérifier cette demande."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Ce code n'a pas fonctionné. Vérifiez votre autre appareil pour en trouver un nouveau."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "La page de connexion SSO a été fermée avant que vous ayez fini de vous connecter. Réessayez pour continuer l'importation."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Cet appareil n'a pas été approuvé sur votre autre appareil. Réessayez ou utilisez une méthode d'importation différente."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Trop de codes de vérification incorrects. Réessayez ou utilisez une méthode d'importation différente."
   },
   "keeperEmail": {
     "message": "Courriel de Keeper"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Séparez les domaines par une virgule"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Vous ne pouvez pas importer des éléments dans Mes éléments qui font partie de plusieurs collections"
   },
   "searchDriversLicense": {
