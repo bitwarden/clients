@@ -295,6 +295,80 @@ describe("SecretEditCommand", () => {
     expect(secretService.update).not.toHaveBeenCalled();
   });
 
+  it.each([true, false])(
+    "rejects decryptionError %p, which secrets do not have, and saves nothing",
+    async (decryptionError) => {
+      secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+      const response = await command.run(smOrg, secretId, { value: "new value", decryptionError });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`decryptionError` cannot be edited on a secret. Remove this property from the request.",
+      );
+      expect(secretService.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([true, false])(
+    "rejects decryptError %p added to the template and saves nothing",
+    async (decryptError) => {
+      secretService.getBySecretId.mockResolvedValue(makeSecret());
+
+      const response = await command.run(
+        smOrg,
+        secretId,
+        encodeSmRequest({
+          organizationId: null,
+          key: "SECRET_NAME",
+          value: "secret value",
+          note: "",
+          projectIds: [projectId],
+          decryptError,
+        }),
+      );
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`decryptError` is not a secret property. Remove this property from the request. Properties that can be edited on a secret: `key`, `value`, `note`, `projectIds`, `projects`.",
+      );
+      expect(secretService.getBySecretId).not.toHaveBeenCalled();
+      expect(secretService.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects `name` and other properties secrets do not have", async () => {
+    const response = await command.run(smOrg, secretId, { name: "API_KEY", notes: "x" });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "`name`, `notes` are not secret properties. Remove these properties from the request. Properties that can be edited on a secret: `key`, `value`, `note`, `projectIds`, `projects`.",
+    );
+    expect(secretService.update).not.toHaveBeenCalled();
+  });
+
+  it("accepts a full get-shaped body", async () => {
+    const existing = makeSecret();
+    secretService.getBySecretId.mockResolvedValue(existing);
+
+    const response = await command.run(smOrg, secretId, {
+      object: "sm-secret",
+      id: secretId,
+      organizationId: smOrgId,
+      key: "DB_PASSWORD",
+      value: "new value",
+      note: "prod",
+      projects: [{ id: projectId, name: "Backend" }],
+      creationDate: existing.creationDate,
+      revisionDate: existing.revisionDate,
+      read: true,
+      write: true,
+    });
+
+    expect(response.success).toBe(true);
+    expect(secretService.update).toHaveBeenCalled();
+  });
+
   it("reports missing edit permission before read-only properties", async () => {
     secretService.getBySecretId.mockResolvedValue(makeSecret({ write: false }));
 
