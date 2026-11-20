@@ -59,6 +59,108 @@ describe("AccessSetCommand", () => {
     ).toHaveBeenCalledWith(smOrgId, smTargetId, { serviceAccountAccessPolicies: [] });
   });
 
+  it.each([undefined, null])(
+    "keeps a grantee's existing permission when `permission` is %s",
+    async (permission) => {
+      const response = await command.run(smOrg, "project", smTargetId, {
+        policies: [
+          { type: "user", id: bobId.toUpperCase(), permission },
+          { type: "user", id: aliceId, permission: "read" },
+        ],
+      });
+
+      expect(response.success).toBe(true);
+      expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).toHaveBeenCalledWith(
+        smTargetId,
+        {
+          userAccessPolicies: [
+            expect.objectContaining({ organizationUserId: bobId, read: true, write: true }),
+            expect.objectContaining({ organizationUserId: aliceId, read: true, write: false }),
+          ],
+          groupAccessPolicies: [],
+        },
+      );
+    },
+  );
+
+  it("does not rewrite policies when only the permission is left out", async () => {
+    const response = await command.run(smOrg, "project", smTargetId, {
+      policies: [
+        { type: "user", id: bobId },
+        { type: "machineAccount", id: machineAccountId },
+      ],
+    });
+
+    expect(response.success).toBe(true);
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
+    expect(
+      fixture.accessPolicyService.putProjectServiceAccountsAccessPolicies,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("uses an explicit permission over the existing one", async () => {
+    const response = await command.run(smOrg, "project", smTargetId, {
+      policies: [{ type: "user", id: bobId, permission: "read" }],
+    });
+
+    expect(response.success).toBe(true);
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).toHaveBeenCalledWith(
+      smTargetId,
+      {
+        userAccessPolicies: [
+          expect.objectContaining({ organizationUserId: bobId, read: true, write: false }),
+        ],
+        groupAccessPolicies: [],
+      },
+    );
+  });
+
+  it("grants read access to a new grantee when `permission` is left out", async () => {
+    const response = await command.run(smOrg, "project", smTargetId, {
+      policies: [{ type: "group", id: groupId }],
+    });
+
+    expect(response.success).toBe(true);
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).toHaveBeenCalledWith(
+      smTargetId,
+      {
+        userAccessPolicies: [],
+        groupAccessPolicies: [
+          expect.objectContaining({ groupId: groupId, read: true, write: false }),
+        ],
+      },
+    );
+  });
+
+  it("keeps existing people access to a machine account when `permission` is left out", async () => {
+    fixture.accessPolicyService.getServiceAccountPeopleAccessPolicies.mockResolvedValue({
+      userAccessPolicies: [userPolicy(bobId, "Bob", true)],
+      groupAccessPolicies: [],
+    });
+
+    const response = await command.run(smOrg, "machine-account", smTargetId, {
+      policies: [{ type: "user", id: bobId }],
+    });
+
+    expect(response.success).toBe(true);
+    expect(
+      fixture.accessPolicyService.putServiceAccountPeopleAccessPolicies,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("rejects a new person on a machine account when `permission` is left out", async () => {
+    const response = await command.run(smOrg, "machine-account", smTargetId, {
+      policies: [{ type: "user", id: aliceId }],
+    });
+
+    expect(response.message).toBe(
+      "People can only be granted read-write access to a machine account.",
+    );
+    expect(
+      fixture.accessPolicyService.putServiceAccountPeopleAccessPolicies,
+    ).not.toHaveBeenCalled();
+  });
+
   it("accepts an object body from bw serve", async () => {
     const response = await command.run(smOrg, "project", smTargetId, {
       organizationId: smOrgId,
