@@ -18,6 +18,7 @@ import { getFirstPolicy } from "../../admin-console/services/policy/default-poli
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { getUserId } from "../../auth/services/account.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import {
   NeverDomains,
@@ -377,13 +378,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
 
     this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => {
-        if (account == null) {
-          // Logged-out or transient no-account state: no policy applies.
-          return of([]);
-        }
-        return this.policyService.policiesByType$(PolicyType.UriMatchDefaults, account.id);
-      }),
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.UriMatchDefaults, userId),
+      ),
       getFirstPolicy,
       map((policy) => {
         if (!policy?.enabled || policy?.data == null) {
