@@ -218,6 +218,7 @@ export class PoliciesComponent {
     }
     if (candidates.length === 1) {
       await this.edit(candidates[0], organization);
+      return;
     }
 
     for (const candidate of candidates) {
