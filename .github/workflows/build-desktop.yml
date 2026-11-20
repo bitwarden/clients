@@ -56,7 +56,7 @@ permissions:
 jobs:
   electron-verify:
     name: Verify Electron Version
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -79,7 +79,7 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       beta_package_version: ${{ steps.retrieve-version.outputs.beta_package_version }}
@@ -950,7 +950,7 @@ jobs:
 
   windows-beta-store-check:
     name: Windows Beta Store Submittability
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     steps:
       # Every beta off one base version ships the same Store appx Identity/@Version: an MSIX
@@ -2561,7 +2561,7 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -2599,7 +2599,7 @@ jobs:
 
   validate-linux-x64-deb:
     name: Validate Linux x64 .deb
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - linux
@@ -2641,7 +2641,7 @@ jobs:
 
   validate-linux-x64-appimage:
     name: Validate Linux x64 appimage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - linux
@@ -2681,7 +2681,7 @@ jobs:
 
   validate-linux-wayland:
     name: Validate Linux Wayland
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - setup
       - linux
@@ -2731,12 +2731,12 @@ jobs:
 
   validate-linux-flatpak:
     name: Validate Linux ${{ matrix.os }} Flatpak
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     strategy:
       matrix:
         os:
-          - ubuntu-22.04
-          - ubuntu-22.04-arm
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
     needs:
       - setup
       - linux
@@ -2751,7 +2751,7 @@ jobs:
       - name: Download flatpak artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: oss-com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
+          name: oss-com.bitwarden.${{ matrix.os == 'ubuntu-24.04' && 'desktop' || 'desktop-arm64' }}.flatpak
           path: apps/desktop/artifacts/linux/flatpak/
 
       - name: Install deps
