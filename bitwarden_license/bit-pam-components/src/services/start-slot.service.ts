@@ -1,19 +1,7 @@
 import { Injectable, inject } from "@angular/core";
-import {
-  catchError,
-  defer,
-  EMPTY,
-  expand,
-  filter,
-  map,
-  merge,
-  Observable,
-  of,
-  switchMap,
-  take,
-} from "rxjs";
+import { catchError, defer, map, merge, Observable, of, switchMap } from "rxjs";
 
-import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-pam";
+import { AccessRefreshService, AccessRequestSdkService, rereadAt } from "@bitwarden/bit-pam";
 
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
@@ -48,27 +36,20 @@ export class StartSlotService {
     );
   }
 
-  /** Reads, then re-reads while the slot stays taken. `expand` keeps the chain flat. */
+  /** Reads, then re-reads while the slot stays taken, until it frees. */
   private readUntilFree$(cipherId: string): Observable<StartBlock | null> {
-    const read$ = defer(() => this.accessRequestSdkService.preCheck(cipherId)).pipe(
-      map((preCheck): StartBlock | null =>
-        preCheck.canStartLease === false ? { freesAt: preCheck.slotFreesAt ?? null } : null,
-      ),
-      // `preCheck` logs its own failure.
-      catchError(() => of(null)),
-    );
-    return read$.pipe(
-      expand((block) => {
-        if (block == null) {
-          return EMPTY;
-        }
-        const recheckAtMs = nextRecheckMs(block, Date.now());
-        return this.ticker.ticks$.pipe(
-          filter((nowMs) => nowMs >= recheckAtMs),
-          take(1),
-          switchMap(() => read$),
-        );
-      }),
+    const read$ = () =>
+      defer(() => this.accessRequestSdkService.preCheck(cipherId)).pipe(
+        map((preCheck): StartBlock | null =>
+          preCheck.canStartLease === false ? { freesAt: preCheck.slotFreesAt ?? null } : null,
+        ),
+        // `preCheck` logs its own failure, and `rereadAt` needs `read$` to handle its errors.
+        catchError(() => of(null)),
+      );
+    return rereadAt(
+      read$,
+      (block, nowMs) => (block == null ? undefined : nextRecheckMs(block, nowMs)),
+      this.ticker.ticks$,
     );
   }
 }
