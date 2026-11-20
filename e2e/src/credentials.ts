@@ -46,6 +46,7 @@ export type SeederAccount = {
 export const SsoOrganization = Object.freeze({
   MasterPassword: "mp",
   TrustedDevices: "tde",
+  KeyConnector: "kc",
 } as const);
 export type SsoOrganization = (typeof SsoOrganization)[keyof typeof SsoOrganization];
 
