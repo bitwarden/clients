@@ -1,4 +1,5 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SendItemView } from "@bitwarden/common/tools/send/models/view/send-item.view";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -39,7 +40,7 @@ export function toSendItemVaultViews(
 
   let organization: Organization | undefined;
   if (metadata?.organizationName || metadata?.collectionNames?.length) {
-    organization = new Organization();
+    organization = new Organization({} as OrganizationData);
     organization.id = newGuid() as OrganizationId;
     organization.name = metadata.organizationName ?? "";
     cipher.organizationId = organization.id;
