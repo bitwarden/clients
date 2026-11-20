@@ -47,8 +47,11 @@ export class ProjectEditCommand {
         return Response.noEditPermission();
       }
 
-      // `get` always emits read/write, so only a value that differs from the project's is an edit.
-      const readOnly = checkSmReadOnlyProperties(parsed.request, "project", existing);
+      const readOnly = checkSmReadOnlyProperties(
+        parsed.request,
+        "project",
+        new SmProjectResponse(existing),
+      );
       if (readOnly) {
         return readOnly;
       }
