@@ -93,6 +93,26 @@ export class AutoFillConstants {
     "benutzer name",
     "benutzerid",
     "benutzer id",
+    // National / government identity numbers used as login identifiers on
+    // government and banking portals (e.g. Turkish e-Devlet tridField, Spanish
+    // DNI/NIE, Indonesian NIK, South Korean 주민등록번호, etc.). These fields
+    // commonly have type="number" or inputmode="numeric" and do not contain the
+    // word "username", so they would otherwise be missed by the keyword check.
+    "national id",
+    "national-id",
+    "nationalid",
+    "identity number",
+    "identity no",
+    "identitynumber",
+    "id number",
+    "idnumber",
+    // Turkish T.C. Kimlik No (tridField / tckn) used on e-Devlet and banking portals
+    "trid",
+    "tridfield",
+    "tckn",
+    "tc kimlik",
+    "kimlik no",
+    "kimlik numarasi",
     ...AutoFillConstants.EmailFieldNames,
   ];
 
