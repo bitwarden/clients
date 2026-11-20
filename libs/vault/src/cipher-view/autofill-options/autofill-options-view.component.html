@@ -3,8 +3,22 @@
     <h2 bitTypography="h6">{{ "autofillOptions" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
-    @for (login of loginUris; track $index; let last = $last) {
-      <ng-container>
+    @for (item of uris(); track $index; let last = $last) {
+      @if (item.desktopAppName != null) {
+        <bit-form-field [disableMargin]="last" data-testid="autofill-view-list">
+          <bit-label>
+            {{ "desktopApp" | i18n }}
+          </bit-label>
+          <input
+            readonly
+            bitInput
+            type="text"
+            [value]="item.desktopAppName"
+            aria-readonly="true"
+            data-testid="login-desktop-app"
+          />
+        </bit-form-field>
+      } @else {
         <bit-form-field [disableMargin]="last" data-testid="autofill-view-list">
           <bit-label>
             {{ "website" | i18n }}
@@ -13,7 +27,7 @@
             readonly
             bitInput
             type="text"
-            [value]="login.hostOrUri"
+            [value]="item.login.hostOrUri"
             aria-readonly="true"
             data-testid="login-website"
           />
@@ -21,22 +35,22 @@
             bitIconButton="bwi-external-link"
             bitSuffix
             type="button"
-            (click)="openWebsite(login.launchUri)"
+            (click)="openWebsite(item.login.launchUri)"
             data-testid="launch-website"
-            [label]="('launch' | i18n) + ' ' + login.hostOrUri"
+            [label]="('launch' | i18n) + ' ' + item.login.hostOrUri"
           ></button>
           <button
             bitIconButton="bwi-clone"
             bitSuffix
             type="button"
-            [appCopyClick]="login.uri"
+            [appCopyClick]="item.login.uri"
             [valueLabel]="'website' | i18n"
             showToast
             [label]="'copyWebsite' | i18n"
             data-testid="copy-website"
           ></button>
         </bit-form-field>
-      </ng-container>
+      }
     }
   </bit-card>
 </section>
