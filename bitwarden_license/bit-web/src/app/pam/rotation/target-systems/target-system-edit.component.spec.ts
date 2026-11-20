@@ -3578,7 +3578,7 @@ describe("TargetSystemEditComponent: breadcrumbs", () => {
       "pamTargetSystemCreateTitle",
     ]);
     expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-managed-credential")).not.toBeNull();
-    expect(el.querySelector("bit-breadcrumbs bit-icon-tile")).not.toBeNull();
+    expect(el.querySelector("bit-breadcrumbs .bwi-plus")).toBeNull();
   });
 
   it("promotes the current crumb to the page's only heading under VFO1", async () => {
