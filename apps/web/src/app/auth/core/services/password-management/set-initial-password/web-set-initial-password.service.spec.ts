@@ -150,7 +150,7 @@ describe("WebSetInitialPasswordService", () => {
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
     });
 
-    it("should keep the open org invite and its login redirect URL when the server does not accept the invite", async () => {
+    it("should keep the open org invite and its login redirect URL when we tell the server not to accept the invite", async () => {
       // Arrange
       superSpy.mockResolvedValue(false);
       organizationInviteService.getOrganizationInvite.mockResolvedValue(
