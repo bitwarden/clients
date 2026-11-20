@@ -1,52 +1,22 @@
 ---
 name: storybook-stories
-description: Writes a Storybook story for an Angular component in the Bitwarden clients monorepo. Use when the user asks to "add a story", "write stories", "storybook this", "add storybook coverage", or when another skill hands off a component that needs one. Not for Storybook config or addon work.
+description: Writes a Storybook story for an Angular component in the Bitwarden clients monorepo. Use when the user asks to "add a story", "write stories", "storybook this", "add storybook coverage", or when another skill hands off a component that needs one.
 ---
 
 # Writing a Storybook story
 
-Input: a component file path. For a directory, list its components and confirm the set with the
-user first.
-
-## 1. Check coverage
-
-A component gets its own story file if a consumer would use it on its own. A sub-part of a
-compound component (`bit-item-content` inside `bit-item`) belongs in its parent's stories instead.
-`grep` the selector across `*.stories.ts`; if a story already covers it, add missing states there.
-
-## 2. Read the component and two siblings
-
-Note its inputs, outputs, content slots, and everything it and its children inject. Then open two
-sibling `*.stories.ts` in the same area and match their structure, title prefix, and i18n setup.
-`.claude/rules/storybook.md` covers dates and routing.
-
-## 3. Decide the stories
-
-- The main populated state, then one per visibly distinct state (variants, loading, empty,
-  error, disabled, flag on). Don't enumerate input combinations.
-- `play` only for states reachable solely through interaction.
-
-## 4. Write it
-
-`<name>.stories.ts` beside the component.
+`<name>.stories.ts` beside the component, with a title that mirrors where it lives. One story for
+the main state and one for each visibly distinct state.
 
 ```ts
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { action } from "storybook/actions";
-
-import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { ExampleComponent } from "./example.component";
 
 export default {
-  title: "<Area>/<Feature>/<Component>", // match siblings
+  title: "<Area>/<Feature>/<Component>",
   component: ExampleComponent,
   decorators: [moduleMetadata({ imports: [ExampleComponent], providers: [] })],
-  args: { saved: action("saved") },
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `<app-example ${formatArgsForCodeSnippet<ExampleComponent>(args)}></app-example>`,
-  }),
 } as Meta<ExampleComponent>;
 
 type Story = StoryObj<ExampleComponent>;
@@ -55,45 +25,34 @@ type Story = StoryObj<ExampleComponent>;
 export const Default: Story = { args: {} };
 ```
 
-Mock data is invented (`alice@example.com`, `org-1`), never resembling real vault data. Add
-`parameters.design.url` when a Figma link is known.
+Mock injected services as plain objects with only the members the component uses. Anything a
+`providedIn: "root"` service consumes, plus i18n modules, the router, and animations, goes in
+`applicationConfig` rather than `moduleMetadata`.
 
-### Mocking
+Repo specifics:
 
-- Services: plain object literals with only the members the component touches. `of(...)` for
-  observables, `Promise.resolve(...)` for async, `new Promise(() => {})` for a loading state,
-  `action("Service.method")` for calls worth seeing.
-- Mock at the API/SDK edge and let the component's own services run. A mock that re-implements
-  component logic is too deep.
-- `moduleMetadata` providers by default. `applicationConfig` when the consumer is
-  `providedIn: "root"`, and for i18n modules, the router, and animations.
-- i18n: `importProvidersFrom(PreloadedEnglishI18nModule)` (`apps/web/src/app/core/tests`) in
-  web and bit-web. `I18nMockService` from `@bitwarden/components` with only the keys used
-  elsewhere; `__$1__` is the first parameter.
-- Feature flags: `enabledFlags(FeatureFlag.X)` in `globals`, `featureFlagModes(...)` for
-  Chromatic variants. Both from `@bitwarden/storybook`. Don't mock `ConfigService`.
-- Dialogs: render directly, provide `DIALOG_DATA` per story, `DialogRef` only if it calls
-  `close()`, and `provideNoopAnimations()` in `applicationConfig` or `bit-dialog` throws.
-- Heavy children like `app-header`: import an empty stub component with the same selector.
+- i18n: `importProvidersFrom(PreloadedEnglishI18nModule)` from `apps/web/src/app/core/tests` in
+  web and bit-web. `I18nMockService` from `@bitwarden/components` elsewhere.
+- Feature flags: `enabledFlags(FeatureFlag.X)` in the story's `globals`, from
+  `@bitwarden/storybook`. Don't mock `ConfigService`.
+- Dialogs: provide `DIALOG_DATA` and `DialogRef`, and `provideNoopAnimations()` or `bit-dialog`
+  throws.
+- `formatArgsForCodeSnippet(args)` from `@bitwarden/storybook` inside a `render` template keeps
+  the docs snippet in sync with `args`.
+- `.storybook/main.ts` lists story globs per lib and app; add the pair if the location is
+  missing. `apps/desktop` has no Storybook.
 
-## 5. Verify
+Rules:
 
-Use Storybook at `http://localhost:6006` if it responds, otherwise start `npm run storybook` in
-the background. Without browser tooling, `npm run build-storybook` proves the bundle compiles.
+- Story data is invented. Nothing that resembles real vault data.
+- Never read the real clock. Build dates from `STORY_NOW` in `@bitwarden/storybook`; if the
+  component reads the clock itself, add `beforeEach: startClockAtStoryNow` to the `Meta`.
+- A stubbed `ActivatedRoute` or `provideRouter([])` breaks relative `routerLink`s and
+  `bit-breadcrumbs`. Route for real: `provideRouter(routes, withHashLocation())`, a
+  `<router-outlet>` template, and a decorator that sets `window.location.hash` per story (see
+  `grep -rl withHashLocation --include=*.stories.ts`).
 
-Open `http://localhost:6006/iframe.html?id=<kebab-title>--<kebab-story>&viewMode=story` for each
-story. Confirm the component rendered rather than the webpack error overlay (a type error
-anywhere fails every story, so the file it names may not be yours), the console has no
-`NullInjectorError`, and a screenshot matches the description.
-
-Then `npm run lint:fix` and `npm run prettier`. `npm run test:types` covers lib stories; app
-stories only compile in the Storybook bundle. Chromatic snapshots every story on every PR.
-`npm run test-stories` runs axe locally; CI does not.
-
-## Discovery
-
-`.storybook/main.ts` lists story globs per lib and app. Add the glob pair if the lib isn't
-listed and already builds in the browser. `apps/desktop` is not storied; say so and stop.
-
-If rendering means mocking many services, say so. Propose a container/presentation split only if
-the mocks would outweigh the component, and don't refactor unasked.
+Verify in Storybook at `http://localhost:6006/iframe.html?id=<kebab-title>--<kebab-story>`,
+starting `npm run storybook` if it isn't running. A type error anywhere in the bundle fails every
+story, so the file the overlay names may not be yours. Then `npm run lint:fix` and
+`npm run prettier`.

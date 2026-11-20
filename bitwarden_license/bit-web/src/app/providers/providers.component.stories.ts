@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,7 +14,6 @@ import {
   Provider,
 } from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
-import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ProvidersComponent } from "./providers.component";
@@ -39,6 +38,14 @@ function provider(overrides: Partial<Provider> = {}): Provider {
 const routes: Routes = [
   { path: "providers", component: ProvidersComponent, data: { titleId: "providers" } },
 ];
+
+/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 export default {
   title: "Admin Console/Providers/Providers",

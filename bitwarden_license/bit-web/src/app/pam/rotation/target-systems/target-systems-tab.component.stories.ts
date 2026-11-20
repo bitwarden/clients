@@ -11,7 +11,6 @@ import { of } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
@@ -24,6 +23,7 @@ import {
   targetSystemSealedFields,
   unverifiableTargetSystem,
 } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";

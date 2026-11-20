@@ -18,7 +18,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { atUrl } from "@bitwarden/storybook";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -95,6 +94,14 @@ const routes: Routes = [
     component: GroupsV2Component,
   },
 ];
+
+/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 function makeGroupService(groups: GroupDetailsView[]) {
   return {

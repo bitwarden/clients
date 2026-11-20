@@ -16,7 +16,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorStatus } from "../rotation";
@@ -35,6 +34,7 @@ import {
   sysId,
   targetSystem,
 } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { AccessConnectorDetailComponent } from "./access-connector-detail.component";
 

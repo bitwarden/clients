@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -24,7 +24,6 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, StorybookGlobalStateProvider } from "@bitwarden/components";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
-import { atUrl } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -76,6 +75,13 @@ const routes: Routes = [
     ],
   },
 ];
+
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 function provider(overrides: Partial<Provider> = {}): Provider {
   return new Provider({

@@ -210,7 +210,7 @@ const withVault: Decorator = (storyFn, context) => {
  * and filters to the query string, and it does so with `router.navigate([], { relativeTo: route })`
  * — see `queryParamStore`. Against a stub that call can't build a segment group, so it silently
  * falls back to the current URL and rewrites it to `/`, taking Storybook's own `?id=` with it and
- * leaving the frame unreloadable. See `.claude/rules/storybook.md`.
+ * leaving the frame unreloadable. See `.claude/rules/storybook-routing.md`.
  *
  * The router builds the page from the *application* injector, not from the one Storybook gives the
  * story's own template, so everything the page injects has to be an application provider —

@@ -1,32 +1,17 @@
 ---
 paths:
+  - "apps/web/**/*.component.ts"
+  - "apps/browser/**/*.component.ts"
+  - "bitwarden_license/**/*.component.ts"
+  - "libs/**/*.component.ts"
   - "**/*.stories.ts"
 ---
 
-# Storybook stories
+# Storybook
 
-Chromatic snapshots every story on every PR. Anything nondeterministic is a diff on every run.
-To write a new story, use the `storybook-stories` skill.
+A new component that a consumer would use on its own gets a `*.stories.ts` beside it. A sub-part
+of a compound component is shown in its parent's stories instead. If there's a reason to skip
+(routing shell, no visible UI), say so in the PR description. When substantially editing a
+component that has no story, offer to add one; don't add it unasked.
 
-## Dates
-
-- Build dates from `STORY_NOW` and `DAY`/`HOUR`/`MINUTE` (`@bitwarden/storybook`), never
-  `Date.now()` or `new Date()`.
-- If the component reads `Date.now()` itself (countdowns, "x minutes ago"), set
-  `beforeEach: startClockAtStoryNow` on the `Meta`. It moves the clock without freezing it.
-  `args` and decorators still evaluate at module load, so use the constants there too.
-- Offsets for a component that ticks its own clock come from `liveFromNow` inside a provider
-  factory, so they're read after the clock moved.
-
-## Routing
-
-- A stubbed `ActivatedRoute` is fine for a component that only reads params.
-- It breaks any relative `routerLink` or `bit-breadcrumbs`: the router silently falls back to the
-  current URL and the crumb renders as the active page. Route for real instead:
-  `provideRouter(routes, withHashLocation())`, a `<router-outlet>` template, and `atUrl(url)` from
-  `@bitwarden/storybook` per story.
-- `provideRouter([])` with no URL has the same problem. Every story needs routes that match its URL.
-- Check the markup: at most one crumb carries `aria-current="page"`, and none when the trail ends
-  at the page title.
-
-Examples: `grep -rl withHashLocation --include=*.stories.ts`.
+Whenever you write or edit a story, load the `storybook-stories` skill.

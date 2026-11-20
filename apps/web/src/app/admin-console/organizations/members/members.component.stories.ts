@@ -5,6 +5,7 @@ import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/
 import {
   applicationConfig,
   componentWrapperDecorator,
+  Decorator,
   Meta,
   moduleMetadata,
   StoryObj,
@@ -38,7 +39,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { atUrl } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -257,13 +257,21 @@ function makeOrganizationMembersService(members: OrganizationUserView[]) {
 }
 
 // Mirrors `members-routing.module.ts` (minus its guards) so the page reads `organizationId`
-// from a real route param, per .claude/rules/storybook.md.
+// from a real route param, per the storybook-routing rule.
 const routes: Routes = [
   {
     path: "organizations/:organizationId/members",
     component: MembersComponent,
   },
 ];
+
+/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 export default {
   title: "Admin Console/Organizations/Members/Members",

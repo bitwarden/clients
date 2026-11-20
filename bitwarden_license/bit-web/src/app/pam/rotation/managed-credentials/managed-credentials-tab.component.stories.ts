@@ -10,7 +10,6 @@ import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sd
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
-import { atUrl } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { OrgCiphersService } from "../org-ciphers.service";
@@ -24,6 +23,7 @@ import {
   rotationConfigActions,
   rotationConfigDescription,
 } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
 import { buildRotationConfigRow, RotationConfigRow } from "./rotation-config-row";
