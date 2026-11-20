@@ -1481,7 +1481,6 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
         return CreditCardAutoFillConstants.CardAttributes.some((attr) => {
-           
           const val = f[attr as keyof AutofillField] as string;
           return val && AutofillService.isFieldMatch(val, ["name", "nom"], ["name", "nom"]);
         });
