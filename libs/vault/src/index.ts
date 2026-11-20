@@ -217,3 +217,4 @@ export * from "./directives/remount-on.directive";
 export { VAULT_RENDERED_MARK } from "./utils/vault-performance";
 export { VaultTourCalloutComponent } from "./components/vault-tour-callout/vault-tour-callout.component";
 export { Vfo1TourCalloutService } from "./services/vfo1-tour-callout.service";
+export { ARCHIVE_NUDGE_OPTIONS } from "./premium-upgrade-nudge-options";

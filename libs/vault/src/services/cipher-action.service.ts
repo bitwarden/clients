@@ -6,6 +6,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -28,6 +31,7 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "../cipher-view/attachments/attachments-v2.component";
+import { ARCHIVE_NUDGE_OPTIONS } from "../premium-upgrade-nudge-options";
 import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
 import { ArchiveCipherUtilitiesService } from "./archive-cipher-utilities.service";
@@ -47,11 +51,13 @@ export class CipherActionService {
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly cipherService = inject(CipherService);
+  private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly organizationService = inject(OrganizationService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
+  private readonly premiumUpgradeNudgeService = inject(PremiumUpgradeNudgeService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly toastService = inject(ToastService);
 
@@ -143,7 +149,13 @@ export class CipherActionService {
       return;
     }
 
-    if (!this.userCanArchive()) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM42214_FeatureBasedUpgradePaths)) {
+      if (
+        !(await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(ARCHIVE_NUDGE_OPTIONS))
+      ) {
+        return;
+      }
+    } else if (!this.userCanArchive()) {
       await this.premiumUpgradePromptService.promptForPremium();
       return;
     }
