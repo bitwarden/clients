@@ -19,7 +19,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // FIXME: migrate to a non-legacy service
@@ -30,7 +29,6 @@ import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import { PolicyEditDialogData, PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
-import { OrganizationCipherTypeCountsApiService } from "./services/organization-cipher-type-counts-api.service";
 
 const ORG_ID = "test-org-id";
 
@@ -41,8 +39,6 @@ export type PolicyDialogStoryArgs = {
   data?: object;
   /** Mocks the single organization policy as enabled/disabled. Omit to mock no policies at all. */
   singleOrgEnabled?: boolean;
-  /** Mocks the organization's existing item counts by cipher type. Omit for no items. */
-  itemTypeCounts?: Partial<Record<CipherType, number>>;
 };
 
 /** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
@@ -183,10 +179,6 @@ export function policyDrawerMeta(
             },
           },
           {
-            provide: OrganizationCipherTypeCountsApiService,
-            useValue: { getCounts: () => Promise.resolve(args.itemTypeCounts ?? {}) },
-          },
-          {
             // PolicyService is provided here (not in the decorator) so stories can mock the
             // single organization policy via the `singleOrgEnabled` arg.
             provide: PolicyService,
@@ -195,7 +187,13 @@ export function policyDrawerMeta(
                 of(
                   args.singleOrgEnabled === undefined
                     ? []
-                    : [{ type: PolicyType.SingleOrg, enabled: args.singleOrgEnabled }],
+                    : [
+                        {
+                          type: PolicyType.SingleOrg,
+                          organizationId: ORG_ID,
+                          enabled: args.singleOrgEnabled,
+                        },
+                      ],
                 ),
             },
           },

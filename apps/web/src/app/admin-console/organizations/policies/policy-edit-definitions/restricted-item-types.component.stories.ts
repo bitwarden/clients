@@ -1,11 +1,25 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { enabledFlags } from "@bitwarden/storybook";
 
 import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.helper";
+import { OrganizationCipherTypeCountsApiService } from "../services/organization-cipher-type-counts-api.service";
 
 import { ManageItemTypesPolicy } from "./restricted-item-types.component";
+
+/** Mocks the organization's existing item counts by cipher type. */
+function withItemTypeCounts(counts: Partial<Record<CipherType, number>>) {
+  return moduleMetadata({
+    providers: [
+      {
+        provide: OrganizationCipherTypeCountsApiService,
+        useValue: { getCounts: () => Promise.resolve(counts) },
+      },
+    ],
+  });
+}
 
 export default {
   ...policyDrawerMeta(new ManageItemTypesPolicy()),
@@ -28,4 +42,12 @@ export const PolicyOffSingleOrgDisabled: Story = {
 
 export const PolicyOn: Story = {
   args: { enabled: true },
+};
+
+/**
+ * The organization already has items of some types, so the drawer shows how many would be hidden.
+ */
+export const PolicyOnWithExistingItems: Story = {
+  args: { enabled: true },
+  decorators: [withItemTypeCounts({ [CipherType.Card]: 12, [CipherType.Identity]: 3 })],
 };
