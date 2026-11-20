@@ -99,8 +99,7 @@ export enum CipherType {
 
 ## Stories
 
-Every new component with a template gets a `*.stories.ts`. Use the `storybook-stories` skill — it
-covers mocking injected services, routing, and verifying in the running Storybook.
+New components get a story. Use the `storybook-stories` skill.
 
 ## Further Reading
 

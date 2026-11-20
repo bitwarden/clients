@@ -119,10 +119,7 @@ export { ComponentNameComponent } from "./component-name.component";
 
 #### Storybook stories (`component-name.stories.ts`)
 
-Every component gets stories. Invoke the `storybook-stories` skill for this step — it owns the
-story conventions, mocking, and verification. Pass it the component path and the original Figma
-URL so it can set `parameters.design.url`. Include the states visible in the design (default,
-variants, disabled / loading / empty).
+Write them with the `storybook-stories` skill, and set `parameters.design.url` to the Figma URL.
 
 #### Unit tests (`component-name.component.spec.ts`)
 
