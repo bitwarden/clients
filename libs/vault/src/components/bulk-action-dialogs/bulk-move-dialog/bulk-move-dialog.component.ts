@@ -1,16 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Inject, OnInit } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder } from "@angular/forms";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DialogConfig,
@@ -20,8 +17,16 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
+
+/** A selected item and the folder it currently sits in. */
+export interface BulkMoveDialogCipher {
+  id: string;
+  folderId?: string | null;
+}
+
 export interface BulkMoveDialogParams {
-  cipherIds?: string[];
+  ciphers?: BulkMoveDialogCipher[];
 }
 
 export const BulkMoveDialogResult = {
@@ -30,6 +35,11 @@ export const BulkMoveDialogResult = {
 } as const;
 
 type BulkMoveDialogResult = UnionOfValues<typeof BulkMoveDialogResult>;
+
+/** The id of the "No folder" option `FolderService.folderViews$` appends. */
+const NO_FOLDER_ID = "";
+
+const folderIdOf = (cipher: BulkMoveDialogCipher): string => cipher.folderId ?? NO_FOLDER_ID;
 
 /**
  * Strongly typed helper to open a BulkMoveDialog
@@ -46,64 +56,86 @@ export const openBulkMoveDialog = (
   );
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-move-dialog.component.html",
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BulkMoveDialogComponent implements OnInit {
-  cipherIds: string[] = [];
+export class BulkMoveDialogComponent {
+  private readonly params = inject<BulkMoveDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<BulkMoveDialogResult>>(DialogRef);
+  private readonly cipherService = inject(CipherService);
+  private readonly i18nService = inject(I18nService);
+  private readonly folderService = inject(FolderService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
+  private readonly accountService = inject(AccountService);
+  protected readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  formGroup = this.formBuilder.group({
-    folderId: ["", [Validators.nullValidator]],
+  protected readonly ciphers = this.params.ciphers ?? [];
+
+  /** The folder every selected item already sits in, or `undefined` when they differ. */
+  protected readonly sharedFolderId = this.findSharedFolderId();
+
+  protected readonly formGroup = this.formBuilder.group({
+    folderId: this.formBuilder.control<string | null>(this.sharedFolderId ?? null),
   });
-  folders$: Observable<FolderView[]>;
 
-  constructor(
-    @Inject(DIALOG_DATA) params: BulkMoveDialogParams,
-    private dialogRef: DialogRef<BulkMoveDialogResult>,
-    private cipherService: CipherService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private folderService: FolderService,
-    private formBuilder: FormBuilder,
-    private toastService: ToastService,
-    private accountService: AccountService,
-  ) {
-    this.cipherIds = params.cipherIds ?? [];
-  }
+  protected readonly folders = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.folderService.folderViews$(userId)),
+    ),
+    { initialValue: [] },
+  );
 
-  async ngOnInit() {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.folders$ = this.folderService.folderViews$(activeUserId);
-    this.formGroup.patchValue({
-      folderId: (await firstValueFrom(this.folders$))[0].id,
-    });
-  }
+  private readonly folderId = toSignal(this.formGroup.controls.folderId.valueChanges, {
+    initialValue: this.sharedFolderId ?? null,
+  });
+
+  /** Only the items not already in the chosen folder. */
+  private readonly ciphersToMove = computed(() => {
+    const folderId = this.folderId();
+    return folderId == null ? [] : this.ciphers.filter((c) => folderIdOf(c) !== folderId);
+  });
+
+  protected readonly saveDisabled = computed(() => this.ciphersToMove().length === 0);
 
   protected cancel() {
     this.close(BulkMoveDialogResult.Canceled);
   }
 
-  protected submit = async () => {
-    if (this.formGroup.invalid) {
+  protected readonly submit = async () => {
+    const folderId = this.folderId();
+    const ciphersToMove = this.ciphersToMove();
+    if (folderId == null || ciphersToMove.length === 0) {
       return;
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.cipherService.moveManyWithServer(
-      this.cipherIds,
-      this.formGroup.value.folderId,
+      ciphersToMove.map((c) => c.id),
+      folderId,
       activeUserId,
     );
     this.toastService.showToast({
       variant: "success",
-      title: null,
-      message: this.i18nService.t(this.cipherIds.length === 1 ? "movedItem" : "movedItems"),
+      message: this.i18nService.t(this.toastKey(folderId, ciphersToMove.length)),
     });
     this.close(BulkMoveDialogResult.Moved);
   };
+
+  private toastKey(folderId: string, movedCount: number): string {
+    if (folderId === NO_FOLDER_ID) {
+      return movedCount === 1 ? "itemNowHasNoFolder" : "itemsNowHaveNoFolder";
+    }
+    return movedCount === 1 ? "itemAddedToFolder" : "itemsAddedToFolder";
+  }
+
+  private findSharedFolderId(): string | undefined {
+    const folderIds = new Set(this.ciphers.map(folderIdOf));
+    return folderIds.size === 1 ? [...folderIds][0] : undefined;
+  }
 
   private close(result: BulkMoveDialogResult) {
     void this.dialogRef.close(result);

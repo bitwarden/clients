@@ -2145,11 +2145,17 @@
   "deletedItems": {
     "message": "Items sent to trash"
   },
-  "movedItem": {
-    "message": "Item moved"
+  "itemAddedToFolder": {
+    "message": "Item added to folder"
   },
-  "movedItems": {
-    "message": "Items moved"
+  "itemsAddedToFolder": {
+    "message": "Items added to folder"
+  },
+  "itemNowHasNoFolder": {
+    "message": "Item now has no folder"
+  },
+  "itemsNowHaveNoFolder": {
+    "message": "Items now have no folder"
   },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
