@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule, NgComponentOutlet } from "@angular/common";
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   ElementRef,
@@ -399,6 +400,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private displayViewApplied: Promise<void> = Promise.resolve();
 
   private readonly destroyRef = inject(DestroyRef);
+  // Drawers render inside the OnPush `bit-layout`, so async state changes must mark the view.
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * The client's share entry point, if it has one. See {@link SHARE_ITEM_ENTRY_POINT}.
@@ -518,6 +521,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     this.showRestore = await this.canUserRestore();
     this.performingInitialLoad = false;
+    this.changeDetectorRef.markForCheck();
   }
 
   ngOnDestroy() {
@@ -890,6 +894,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.cipherAuthorizationService.canDeleteCipher$(view, this.params.isAdminConsoleAction),
     );
     this.updateTitle();
+    this.changeDetectorRef.markForCheck();
   }
 
   /** Falls back to the stored restricted view, leaving form mode since the form holds the full view. */
@@ -901,6 +906,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.canEdit = false;
     this.canDelete = false;
     this.updateTitle();
+    this.changeDetectorRef.markForCheck();
   }
 
   /**
@@ -971,6 +977,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.canDelete = canDelete;
     this.showRestore = await this.canUserRestore();
     this.updateTitle();
+    this.changeDetectorRef.markForCheck();
   }
 
   /** True while the form is open or loading, which holds edits a refresh would discard. */
@@ -1074,6 +1081,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     this.params.mode = mode;
     this.updateTitle();
+    this.changeDetectorRef.markForCheck();
     // Scroll to the top of the dialog content when switching modes.
     this.dialogContent().nativeElement.parentElement.scrollTop = 0;
 
