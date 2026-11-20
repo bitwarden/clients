@@ -16,7 +16,9 @@ type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleVie
 
 /**
  * One cached `listAccessRules` read per organization, for surfaces that need the rules rather than
- * `hasEnabledAccessRule`. A failed read resolves to no rules, as every consumer is informational.
+ * `hasEnabledAccessRule`. The server only answers users who can manage access rules, so a surface
+ * other users see must read the flag instead. A failed read resolves to no rules, as every consumer
+ * is informational.
  */
 @Injectable()
 export class GovernedCollectionsService {

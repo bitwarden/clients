@@ -108,13 +108,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   individual vault and the Admin Console org sidebar (the same
   `VaultFilterSectionComponent` hosts it in both).
 - `gated-collection-banner/`, the notice above the vault's item list while a governed
-  collection is the active filter, carrying the sidebar lock's sentence verbatim. It
-  cannot read the flag the way the sidebar lock and the collection-row badge do, because
-  it is handed ids alone, never a collection: it decides "governed" through
-  `services/gated-collection.ts`, which wraps the same `GovernedCollectionsService` /
-  `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
-  collection's own PAM-enabled organization before reading at all. A new surface that is
-  likewise handed no collection belongs on that helper, not on a re-derived check.
+  collection is the active filter, carrying the sidebar lock's sentence verbatim. Like the
+  sidebar lock and the collection-row badge, it reads the collection's `hasEnabledAccessRule`;
+  both vault pages hand it the open collection. The access-rule reads answer only users who
+  can manage access rules, so a surface any member sees must take a collection and read the
+  flag, never `listAccessRules`.
 - `bit-pam-components/src/vault-filter-controlled-access/`, the vault tables' "Controlled access"
   filter. The multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
@@ -155,7 +153,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the only countdown there and has to carry the warning itself. A new countdown must read this
   constant, not restate five minutes.
 - `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
-  inside the collection edit dialog.
+  inside the collection edit dialog. Renders only for users who can manage access rules.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
@@ -333,9 +331,8 @@ governed collection in the vault's Filters sidebar, reading that same
 carries it onto the copy `buildCollectionTree` makes through `new CollectionView(...)`,
 whose field initializer would otherwise reset it to `false`),
 `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming that same
-restriction while a governed collection is the active filter, off the shared per-org
-`GovernedCollectionsService` lookup, because it is handed ids alone and so has no flag
-to read), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
+restriction while a governed collection is the active filter, off that same
+`hasEnabledAccessRule`), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), `PAM_ROUTES` (the
 lazy loader for the user-scoped pages), and
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
