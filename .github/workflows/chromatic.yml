@@ -4,8 +4,8 @@
 #   - UI changes on a PR that is ready for review: the full build runs on every commit.
 #   - UI changes on a draft PR: nothing is published in Chromatic automatically, so Chromatic's
 #     checks stay pending until someone adds the "ci:chromatic" label or marks the PR ready for
-#     review. The label runs the full build and is removed once the run starts, so every new
-#     commit on a draft needs to be labeled again.
+#     review. While the label is on the PR, the full build runs on every commit. Remove the label
+#     to stop.
 # Pushes to main, rc and hotfix-rc run the full build without a label to keep baselines current.
 # On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
 # secrets. To run Chromatic for a fork PR, review it and add the "ci:signed-build" label to run
@@ -35,33 +35,26 @@ jobs:
     # the PR comes from an internal contributor
     # This check avoids running the workflow twice for external/forked PRs that are already running
     # the pull_request_target workflow
-    # Labels other than "ci:chromatic" do not run anything
+    # Adding a label only runs anything when it is "ci:chromatic" on a draft PR. A PR that is ready
+    # for review has already run for its latest commit
+    # Marking a labeled draft PR ready for review does not run anything for the same reason
+    # A draft PR opened with the label fires both `opened` and `labeled`; only `labeled` runs
     if: >-
       github.event_name != 'pull_request'
       || (github.event.pull_request.head.repo.full_name == github.repository
-        && (github.event.action != 'labeled' || github.event.label.name == 'ci:chromatic'))
+        && (github.event.action != 'labeled'
+          || (github.event.label.name == 'ci:chromatic' && github.event.pull_request.draft))
+        && (github.event.action != 'ready_for_review'
+          || !contains(github.event.pull_request.labels.*.name, 'ci:chromatic'))
+        && (github.event.action != 'opened'
+          || !github.event.pull_request.draft
+          || !contains(github.event.pull_request.labels.*.name, 'ci:chromatic')))
     permissions:
       contents: read
       pull-requests: write
     outputs:
       mode: ${{ steps.mode.outputs.mode }}
     steps:
-      # Only adding the label fires `labeled`, so it is removed first to let it be added again
-      - name: Remove Chromatic label
-        if: github.event_name == 'pull_request' && github.event.action == 'labeled'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          _PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if ! OUTPUT=$(gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$_PR_NUMBER/labels/ci%3Achromatic" 2>&1); then
-            if [[ "$OUTPUT" == *"HTTP 404"* ]]; then
-              echo "Label already removed."
-            else
-              echo "$OUTPUT"
-              exit 1
-            fi
-          fi
-
       # PR events read the changed files from the API, so only pushes need the repo
       - name: Check out repo
         if: github.event_name == 'push'
@@ -87,19 +80,17 @@ jobs:
       # build: full Storybook build and Chromatic publish
       # skip: Chromatic is told to skip, which marks its checks as passing
       # wait: nothing is published, so Chromatic's checks stay pending until the label is added or
-      #       the PR is marked ready for review. Only draft PRs wait.
+      #       the PR is marked ready for review. Only draft PRs without the label wait.
       - name: Determine run mode
         id: mode
         env:
           _IS_DRAFT_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
-          _IS_LABEL_RUN: ${{ github.event_name == 'pull_request' && github.event.action == 'labeled' }}
+          _HAS_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:chromatic') }}
           _STORY_FILES: ${{ steps.get-changed-files.outputs.storyFiles }}
         run: |
-          if [[ "$_IS_LABEL_RUN" == "true" ]]; then
-            MODE="build"
-          elif [[ "$_STORY_FILES" != "true" ]]; then
+          if [[ "$_STORY_FILES" != "true" ]]; then
             MODE="skip"
-          elif [[ "$_IS_DRAFT_PR" == "true" ]]; then
+          elif [[ "$_IS_DRAFT_PR" == "true" && "$_HAS_LABEL" != "true" ]]; then
             MODE="wait"
           else
             MODE="build"
@@ -125,7 +116,7 @@ jobs:
               COMMENT_TAG,
               '💅 **UIF Bot:**',
               '',
-              'This PR contains UI changes. Chromatic workflows are not run automatically in draft PRs. Add the `ci:chromatic` label or mark the PR as ready for review to run the workflows.',
+              'This PR contains UI changes. Chromatic workflows are not run automatically in draft PRs. Add the `ci:chromatic` label to run the workflows on every commit while the PR is a draft, or mark the PR as ready for review.',
             ].join('\n');
             await github.rest.issues.createComment({ owner, repo, issue_number, body });
 
