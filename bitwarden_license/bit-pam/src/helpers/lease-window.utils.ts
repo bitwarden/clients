@@ -72,7 +72,7 @@ export function requestDurationOptions(
  */
 export function maxRequestDurationSeconds(maxSeconds: number, defaultSeconds: number): number {
   const options = requestDurationOptions(maxSeconds, defaultSeconds);
-  return options.length > 0 ? options[options.length - 1].seconds : maxSeconds;
+  return options.at(-1)?.seconds ?? maxSeconds;
 }
 
 /** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
