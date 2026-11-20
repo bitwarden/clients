@@ -22,4 +22,5 @@ export class BulkActionComponent {
   readonly label = input.required<string>();
   readonly icon = input.required<BitwardenIcon>();
   readonly disabled = input(false, { transform: booleanAttribute });
+  readonly variant = input<"primary" | "danger">("primary");
 }

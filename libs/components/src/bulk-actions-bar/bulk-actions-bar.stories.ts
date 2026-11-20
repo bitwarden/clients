@@ -167,6 +167,7 @@ export default {
               archive: "Archive",
               delete: "Delete",
               additionalActions: "Additional actions",
+              noActionsAvailable: "No actions available",
             }),
         },
       ],
@@ -262,6 +263,31 @@ export const WithOverflow: Story = {
           <bit-bulk-additional-action [action]="noop" label="Move to organization" />
         </bit-bulk-actions-bar>
       </div>
+    `,
+  }),
+};
+
+export const NoActions: Story = {
+  render: (args) => ({
+    props: { ...args },
+    template: /*html*/ `
+      <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+      </bit-bulk-actions-bar>
+    `,
+  }),
+};
+
+export const WithDangerActions: Story = {
+  render: (args) => ({
+    props: { ...args, noop },
+    template: /*html*/ `
+      <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+        <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+        <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+
+        <bit-bulk-additional-action [action]="noop" icon="bwi-upload" label="Export" />
+        <bit-bulk-additional-action [action]="noop" icon="bwi-trash" label="Delete" variant="danger" />
+      </bit-bulk-actions-bar>
     `,
   }),
 };
