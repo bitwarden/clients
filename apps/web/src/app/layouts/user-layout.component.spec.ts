@@ -143,6 +143,16 @@ describe("UserLayoutComponent", () => {
     );
 
   /**
+   * The route of the Export nav item. Linking to a path that redirects elsewhere would leave the
+   * item without its selected state, so this must be the final destination.
+   */
+  const exportNavRoute = () =>
+    fixture.debugElement
+      .queryAll(By.css("bit-nav-item"))
+      .find((el) => el.componentInstance.text() === "exportNoun")
+      ?.componentInstance.route();
+
+  /**
    * The coachmark step each anchored nav entry is wired to, by entry label. Read from the anchor's
    * `position` so the pairing is observable without opening a popover.
    */
@@ -263,6 +273,12 @@ describe("UserLayoutComponent", () => {
       expect(text).toContain("pamAccessRequestsTitle");
       expect(text.indexOf("pamAccessRequestsTitle")).toBeLessThan(text.indexOf("tools"));
     });
+
+    it("links Export to the Tools export page", () => {
+      expandGroup("tools");
+
+      expect(exportNavRoute()).toBe("/tools/export");
+    });
   });
 
   describe("flag on", () => {
@@ -317,6 +333,12 @@ describe("UserLayoutComponent", () => {
       const children = childText(expandGroup("settings"));
 
       expect(children[children.length - 1]).toBe("exportNoun");
+    });
+
+    it("links Export directly to the Settings export page so it shows as selected", () => {
+      expandGroup("settings");
+
+      expect(exportNavRoute()).toBe("/settings/export");
     });
 
     it("anchors the security step on Reports", () => {

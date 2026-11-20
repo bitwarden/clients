@@ -115,7 +115,7 @@
               showToast
             ></button>
           } @else {
-            @if (editing()) {
+            @if (editing() && canRemoveAuth()) {
               <button
                 class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
                 type="button"

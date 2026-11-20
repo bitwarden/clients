@@ -38,6 +38,11 @@ export class ConvertToKeyConnectorCommand {
     }
 
     const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
+    const keyConnectorUrl = organization.keyConnectorUrl;
+    if (keyConnectorUrl == null) {
+      await this.logout();
+      return Response.error(this.i18nService.t("youHaveBeenLoggedOut"));
+    }
 
     const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
       type: "list",
@@ -45,7 +50,7 @@ export class ConvertToKeyConnectorCommand {
       message: this.i18nService.t(
         "removeMasterPasswordForOrganizationUserKeyConnector",
         organization.name,
-        organization.keyConnectorUrl,
+        keyConnectorUrl,
       ),
       choices: [
         {
@@ -65,7 +70,7 @@ export class ConvertToKeyConnectorCommand {
 
     if (answer.convert === "remove") {
       try {
-        await this.keyConnectorService.migrateUser(organization.keyConnectorUrl, this.userId);
+        await this.keyConnectorService.migrateUser(keyConnectorUrl, this.userId);
       } catch (e) {
         await this.logoutService.logout(this.userId, "keyConnectorError");
         throw e;
@@ -74,7 +79,7 @@ export class ConvertToKeyConnectorCommand {
       // Update environment URL - required for api key login
       const env = await firstValueFrom(this.environmentService.environment$);
       const urls = env.getUrls();
-      urls.keyConnector = organization.keyConnectorUrl;
+      urls.keyConnector = keyConnectorUrl;
       await this.environmentService.setEnvironment(Region.SelfHosted, urls);
 
       return Response.success();

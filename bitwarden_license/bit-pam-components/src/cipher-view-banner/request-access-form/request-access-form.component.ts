@@ -117,7 +117,11 @@ export class RequestAccessFormComponent implements OnInit {
     const bounds = this.requestBounds();
     return approvalMode == null || bounds == null
       ? null
-      : requestTerms({ approvalMode, maxDurationSeconds: bounds.maxSeconds });
+      : requestTerms({
+          approvalMode,
+          maxDurationSeconds: bounds.maxSeconds,
+          defaultDurationSeconds: bounds.defaultSeconds,
+        });
   });
 
   /**

@@ -4,6 +4,7 @@ import { Response } from "@bitwarden/cli/models/response";
 import { ServiceContainer } from "../../service-container";
 import { SmProjectResponse } from "../models/sm-project.response";
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
   parseSmId,
   parseSmRequest,
@@ -44,6 +45,15 @@ export class ProjectEditCommand {
       }
       if (!existing.write) {
         return Response.noEditPermission();
+      }
+
+      const readOnly = checkSmReadOnlyProperties(
+        parsed.request,
+        "project",
+        new SmProjectResponse(existing),
+      );
+      if (readOnly) {
+        return readOnly;
       }
 
       const view = new ProjectView();

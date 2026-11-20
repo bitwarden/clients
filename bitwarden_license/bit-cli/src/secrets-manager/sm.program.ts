@@ -285,6 +285,8 @@ export class SmProgram extends BaseProgram {
             writeLn("\n  Notes:");
             writeLn("");
             writeLn("    `key` is required. `projectIds` may contain at most one project id.");
+            writeLn("    `projects` (a list of objects with an `id`, as secret responses return)");
+            writeLn("    is accepted instead of `projectIds`; do not send both.");
             writeLn("    Only organization admins can create a secret without a project.");
             writeLn("");
             writeLn("  Examples:");
@@ -313,8 +315,13 @@ export class SmProgram extends BaseProgram {
           .on("--help", () => {
             writeLn("\n  Notes:");
             writeLn("");
-            writeLn("    Only the `key`, `value`, `note`, and `projectIds` properties in the");
-            writeLn("    request are changed; missing properties keep their current values.");
+            writeLn(
+              "    Only the `key`, `value`, `note`, and project (`projectIds`, or `projects`",
+            );
+            writeLn(
+              "    with an `id` per project; not both) properties in the request are changed;",
+            );
+            writeLn("    missing properties keep their current values.");
             writeLn("    Access to the secret is not changed.");
             writeLn("");
             writeLn("  Examples:");
@@ -820,10 +827,17 @@ export class SmProgram extends BaseProgram {
             writeLn("    Any existing policy not listed in `policies` is removed. Use `grant`");
             writeLn("    and `revoke` to change a single policy.");
             writeLn("");
+            writeLn("    Each policy's `permission` is optional. A policy without one keeps the");
+            writeLn("    permission its grantee already has, or gets read access if the grantee");
+            writeLn("    has no access yet.");
+            writeLn("");
             writeLn("  Examples:");
             writeLn("");
             writeLn(
               "    bw sm template sm-access-policies | jq '.policies[0].id=\"<id>\"' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>",
+            );
+            writeLn(
+              '    bw sm template sm-access-policies | jq \'.policies[0].id="<id>" | .policies[0].permission="read-write"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
             );
             writeLn("", true);
           })
@@ -1030,7 +1044,10 @@ export class SmProgram extends BaseProgram {
     return new Command("export")
       .description("Export an organization's Secrets Manager projects and secrets.")
       .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
-      .option("--output <output>", "Output directory or filename. Writes to stdout when omitted.")
+      .option(
+        "--output <output>",
+        "Output directory or .json filename. Writes to stdout when omitted.",
+      )
       .option("--passwordenv <passwordenv>", "Environment variable storing your master password")
       .option(
         "--passwordfile <passwordfile>",

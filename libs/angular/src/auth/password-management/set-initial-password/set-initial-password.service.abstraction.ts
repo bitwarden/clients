@@ -101,11 +101,13 @@ export abstract class SetInitialPasswordService {
    * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
+   * @returns Whether the server accepted the organization invite.
+   *   {@link SsoJitProvisionFinishService.shouldAcceptOrganizationInvite} makes this decision.
    */
   abstract initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   /**
    * Sets an initial password for a user who logs in after their org offboarded from
