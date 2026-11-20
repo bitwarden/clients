@@ -10,7 +10,7 @@ use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use tokio::sync::OnceCell;
 
 use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
+    chromium::{BrowserConfig, CryptoService, LocalState, WrongKeyError},
     util,
 };
 mod abe;
@@ -159,7 +159,7 @@ impl CryptoService for WindowsCryptoService {
 
         let decrypted_bytes = cipher
             .decrypt(&nonce, no_prefix[IV_SIZE..].as_ref())
-            .map_err(|e| anyhow!("Decryption failed: {}", e))?;
+            .map_err(|e| WrongKeyError(e.to_string()))?;
 
         let plaintext = String::from_utf8(decrypted_bytes)
             .map_err(|e| anyhow!("Failed to convert decrypted data to UTF-8: {}", e))?;
