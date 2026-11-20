@@ -101,9 +101,8 @@ export abstract class SetInitialPasswordService {
    * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
-   * @returns Whether the server moved the organization membership from Invited to Accepted.
-   *   `false` only when `pm-34429-invite-link-auto-confirm` is on and the stored open invite is
-   *   for this organization.
+   * @returns Whether the server accepted the organization invite.
+   *   {@link SsoJitProvisionFinishService.shouldAcceptOrganizationInvite} makes this decision.
    */
   abstract initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,

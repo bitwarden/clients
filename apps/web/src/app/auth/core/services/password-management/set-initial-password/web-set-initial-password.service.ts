@@ -92,11 +92,10 @@ export class WebSetInitialPasswordService
      * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
      * to replay.
      *
-     * Exception: while `InviteLinkAutoConfirm` is on, the server does not promote the
-     * organization user to Accepted when the stashed open invite is for this organization. The
-     * organization user stays Invited, so keep the open invite and its /join redirect.
-     * `deepLinkGuard` then sends the user to AcceptOrgOpenInviteComponent, which runs the Admin
-     * Console accept flow. A stashed open invite for a different organization is cleared.
+     * Exception: when we tell the server not to accept the invite, the organization user stays
+     * Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
+     * user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow.
+     * {@link SsoJitProvisionFinishService.shouldAcceptOrganizationInvite} makes this decision.
      */
     if (
       organizationInviteAccepted &&
