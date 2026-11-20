@@ -536,6 +536,77 @@ describe("DefaultSubscriptionPricingService", () => {
     });
   });
 
+  describe("getPremiumSubscriptionPricingTier$", () => {
+    it("should return the Premium pricing tier", (done) => {
+      service.getPremiumSubscriptionPricingTier$().subscribe((tier) => {
+        expect(tier.id).toEqual(PersonalSubscriptionPricingTierIds.Premium);
+        expect(tier.passwordManager.annualPrice).toEqual(10);
+        expect(tier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(4);
+        expect(tier.passwordManager.providedStorageGB).toEqual(1);
+        done();
+      });
+    });
+
+    it("should not depend on the organization plans request", (done) => {
+      const premiumOnlyBillingApiService = mock<BillingApiServiceAbstraction>();
+      const premiumOnlyConfigService = mock<ConfigService>();
+      const premiumOnlyEnvironmentService = mock<EnvironmentService>();
+
+      premiumOnlyBillingApiService.getPlans.mockRejectedValue(new Error("Plans API error"));
+      premiumOnlyBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      premiumOnlyConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(premiumOnlyEnvironmentService);
+
+      const premiumOnlyService = new DefaultSubscriptionPricingService(
+        premiumOnlyBillingApiService,
+        premiumOnlyConfigService,
+        i18nService,
+        logService,
+        premiumOnlyEnvironmentService,
+      );
+
+      premiumOnlyService.getPremiumSubscriptionPricingTier$().subscribe((tier) => {
+        expect(tier.passwordManager.annualPrice).toEqual(10);
+        expect(premiumOnlyBillingApiService.getPlans).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should handle API errors by logging and throwing error", (done) => {
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
+      const errorLogService = mock<LogService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
+
+      const testError = new Error("Premium plan API error");
+      errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
+
+      const errorService = new DefaultSubscriptionPricingService(
+        errorBillingApiService,
+        errorConfigService,
+        i18nService,
+        errorLogService,
+        errorEnvironmentService,
+      );
+
+      errorService.getPremiumSubscriptionPricingTier$().subscribe({
+        next: () => {
+          fail("Observable should error, not return a value");
+        },
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load premium subscription pricing tier",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
+        },
+      });
+    });
+  });
+
   describe("getBusinessSubscriptionPricingTiers$", () => {
     it("should return Teams, Enterprise, and Custom pricing tiers with correct structure", (done) => {
       service.getBusinessSubscriptionPricingTiers$().subscribe((tiers) => {
