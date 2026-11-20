@@ -973,7 +973,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -985,6 +985,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "ವೆಬ್ಸೈಟ್ ಸೇರಿಸಲಾಗಿದೆ"
   },
@@ -993,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "ವೆಬ್ಸೈಟ್ ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್ ಸೇರಿಸಿ"
-  },
-  "app": {
-    "message": "ಅಪ್ಲಿಕೇಶನ್"
   },
   "deleteWebsite": {
     "message": "ವೆಬ್ಸೈಟ್ ಅಳಿಸಿ"
@@ -3380,6 +3381,10 @@
   "custom": {
     "message": "ಕಸ್ಟಮ್"
   },
+  "deleteSend": {
+    "message": "Delete Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "ಈ ಕಳುಹಿಸುವಿಕೆಯನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4621,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
   "total": {
     "message": "ಒಟ್ಟು"
   },
@@ -5654,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -5677,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Enter a valid sign-in address."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Secret key is required."
@@ -5699,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Secret key"
   },
@@ -5707,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper ಇಮೇಲ್"
@@ -6286,12 +6357,19 @@
     "message": "ಸೂಕ್ಷ್ಮ ಮಾಹಿತಿಯನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಕಳುಹಿಸಿ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "ಯಾವುದೇ ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು ದೊರೆತಿಲ್ಲ"
   },
   "sendsBodyNoItems": {
     "message": "ಯಾರೊಂದಿಗಾದರೂ, ಯಾವುದೇ ವೇದಿಕೆಯಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿ ಕಡತಗಳು ಮತ್ತು ಡೇಟಾವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ. ನಿಮ್ಮ ಮಾಹಿತಿಯು ಅಂತ್ಯದಿಂದ-ಅಂತ್ಯದವರೆಗೆ ಎನ್ಕ್ರಿಪ್ಟ್ ಆಗಿ ಉಳಿಯುತ್ತದೆ ಮತ್ತು ಒಡ್ಡಿಕೆಯನ್ನು ಮಿತಿಗೊಳಿಸುತ್ತದೆ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "sendsBodyNoSearchResults": {
     "message": "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ ಅಥವಾ ಬೇರೆ ಹುಡುಕಾಟ ಪದವನ್ನು ಪ್ರಯತ್ನಿಸಿ"
@@ -6382,6 +6460,9 @@
   },
   "itemLower": {
     "message": "ಐಟಂ"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "ಐಟಂಗಳು"
@@ -6910,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "ನನ್ನ ವಾಲ್ಟ್ ಅನ್ನು ಹೇಗೆ ನಿರ್ವಹಿಸುವುದು?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "$ORGANIZATION$ ಗೆ ಐಟಂಗಳನ್ನು ವರ್ಗಾಯಿಸಿ",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6919,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ ಭದ್ರತೆ ಮತ್ತು ಅನುಸರಣೆಗಾಗಿ ಎಲ್ಲಾ ಐಟಂಗಳನ್ನು ಸಂಸ್ಥೆಯು ಮಾಲೀಕತ್ವದಲ್ಲಿರಬೇಕೆಂದು ಅಗತ್ಯಪಡಿಸುತ್ತಿದೆ.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "ನಿಮ್ಮ ಐಟಂಗಳ ಮಾಲೀಕತ್ವವನ್ನು ವರ್ಗಾಯಿಸಲು ಸ್ವೀಕರಿಸಿ ಕ್ಲಿಕ್ ಮಾಡಿ."
   },
   "openTransferItemsHelpArticle": {
     "message": "ಐಟಂಗಳನ್ನು ವರ್ಗಾಯಿಸುವ ಕುರಿತು ಸಹಾಯ ಲೇಖನವನ್ನು ತೆರೆಯಿರಿ"
@@ -7783,5 +7861,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "item": {
+    "message": "Item"
   }
 }
