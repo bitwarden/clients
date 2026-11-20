@@ -16,6 +16,7 @@ import {
   inject,
   input,
   signal,
+  linkedSignal,
   viewChild,
   viewChildren,
 } from "@angular/core";
@@ -73,6 +74,9 @@ import {
   flattenFilterOptions,
 } from "./filter-tokens";
 import { FilterTreeRowDirective } from "./filter-tree-row.directive";
+
+/** What the chip itself renders, committed as one unit. @see FilterMenuComponent.committedLook */
+type ChipLook = { active: boolean; count: number; label: string };
 
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
@@ -328,8 +332,13 @@ export class FilterMenuComponent
     return this.multiple() ? Array.isArray(value) && value.length > 0 : value != null;
   });
 
-  /** The chip's display label: `prefix`, `prefix: unsetLabel`, or (single-select) `prefix: selected`. */
-  protected readonly displayLabel = computed(() => {
+  /**
+   * The chip's label as it would read right now: `prefix`, `prefix: unsetLabel`, or
+   * (single-select) `prefix: selected`. Committed with the rest of the chip's look rather than
+   * read directly, so it can't be half-deferred — which matters most for a single-select chip,
+   * since picking an option doesn't close the menu.
+   */
+  private readonly liveLabel = computed(() => {
     const prefix = this.placeholderText();
     // Single-select reflects the selected value in the label; multi-select doesn't.
     if (!this.multiple() && this.selected().length > 0) {
@@ -341,6 +350,9 @@ export class FilterMenuComponent
     const unsetLabel = this.unsetLabel();
     return unsetLabel ? `${prefix}: ${unsetLabel}` : prefix;
   });
+
+  /** @see committedLook */
+  protected readonly displayLabel = computed(() => this.committedLook().label);
 
   /** Whether a {@link disabledTooltip} is in play, i.e. the chip is disabled and has a reason. */
   protected readonly showDisabledReason = computed(
@@ -361,11 +373,34 @@ export class FilterMenuComponent
     return this.multiple() && Array.isArray(value) ? value.length : 0;
   });
 
+  /** Whether the chip's own menu is open, so the chip can hold still while it is. */
+  protected readonly menuOpen = computed(() => this.menuTrigger()?.isOpen() ?? false);
+
   /**
-   * Snapshotted from {@link selectedCount} on menu close, so the chip's width doesn't
-   * shift while the user toggles options.
+   * Everything the chip itself renders, committed as one unit so no part of it can move while
+   * another is held: the label, the chevron, the dismiss button and the berry.
+   *
+   * It keeps its previous value while the menu is open, so the chip doesn't change under the
+   * user mid-decision, and catches up the moment the menu closes — or immediately for a change
+   * made with the menu already closed (the applied-filters row, the chip's own dismiss button, a
+   * host-level clear, seeding).
+   *
+   * The live state stays in {@link active} and {@link selectedCount}, which the menu body and the
+   * applied-filters row read — only the chip's own chrome is deferred.
    */
-  protected readonly committedCount = signal(0);
+  private readonly committedLook = linkedSignal<{ open: boolean; look: ChipLook }, ChipLook>({
+    source: () => ({
+      open: this.menuOpen(),
+      look: { active: this.active(), count: this.selectedCount(), label: this.liveLabel() },
+    }),
+    computation: (next, previous) => (next.open && previous ? previous.value : next.look),
+  });
+
+  /** @see committedLook */
+  protected readonly committedActive = computed(() => this.committedLook().active);
+
+  /** @see committedLook — the berry's value. */
+  protected readonly committedCount = computed(() => this.committedLook().count);
 
   // `bitRadio` itself can't be used here: it drives `checked` and `name` from a form
   // control group this row doesn't have. Its classes are the same definition.
@@ -386,6 +421,8 @@ export class FilterMenuComponent
 
   /** @see FilterPresenter.selections */
   readonly selections = this.selected.asReadonly();
+
+  private readonly menuTrigger = viewChild<MenuTriggerForDirective>("menuTrigger");
 
   /**
    * The menu body as a template, so the popover and the dialog's drill-in stamp the
@@ -512,15 +549,9 @@ export class FilterMenuComponent
       }
       this.selected.set(selected);
     });
-    effect(() => this.baseChip.selectedState.set(this.active()));
+    effect(() => this.baseChip.selectedState.set(this.committedActive()));
     // Tighter trailing padding while the dismiss button shows.
-    effect(() => this.baseChip.hasTrailingIcon.set(this.active()));
-    // Otherwise only committed on menu close, leaving a stale berry on the chip.
-    effect(() => {
-      if (!this.active()) {
-        this.committedCount.set(0);
-      }
-    });
+    effect(() => this.baseChip.hasTrailingIcon.set(this.committedActive()));
   }
 
   ngOnInit(): void {
@@ -805,10 +836,9 @@ export class FilterMenuComponent
     );
   }
 
-  /** Resets the search and commits the selected count to the berry when the menu closes. */
+  /** Resets the search when the menu closes; the chip's look is committed by the effect. */
   protected onMenuClosed(): void {
     this.setSearchTerm("");
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Sets the chip's value — used to seed initial filters. */
@@ -817,7 +847,6 @@ export class FilterMenuComponent
     // wrap it so active() and isSelected() can treat it uniformly as an array.
     const normalized = this.multiple() && !Array.isArray(value) && value != null ? [value] : value;
     this._value.set(normalized);
-    this.committedCount.set(this.selectedCount());
   }
 
   /**
@@ -857,15 +886,12 @@ export class FilterMenuComponent
     }
     const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
     this._value.set(current.filter((v) => v !== value));
-    // The menu never closed, so commit the berry count here instead of in `onMenuClosed`.
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
     this._value.set(this.clearedValue());
     this.selected.set([]);
-    this.committedCount.set(0);
   }
 
   /** @see FilterPresenter.flip — a chip drills into its options, so there's nothing to flip. */
