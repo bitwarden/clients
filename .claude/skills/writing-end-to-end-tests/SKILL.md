@@ -13,9 +13,9 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 
 ## Locators
 
-- Use the element's `id` (`page.locator("#...")`) or a role locator (`getByRole`, `getByLabel`) when it picks out the element on its own.
-- Use a test id only when neither does: add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
-- Component library elements (dialogs, menus, selects from `libs/components`): locate by role rather than adding test ids to the library.
+- Prefer a role locator or existing `id` (`page.locator("#...")`) when it is trivial: one `getByRole` or `getByLabel` call that picks out the element, e.g. `page.getByRole("button", { name: "Save" })`.
+- Fall back to a test id once the role locator stops being trivial: it needs chaining or nesting (`.filter()`, scoping into a row, `.nth()`), or the same role and name match more than one element. Add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
+- Component library elements (dialogs, menus, selects from `libs/components`): locate by role, scoped from a test id in your own template if the role alone is ambiguous, rather than adding test ids to the library.
 - No CSS classes, DOM structure or `formcontrolname`.
 - Keep each selector in a named constant at the top of the helper or test.
 
