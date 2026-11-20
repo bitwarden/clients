@@ -41,7 +41,6 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-name-resolver.service";
-import { isRedeemableGrant } from "../my-access-row";
 
 /** Who is looking at the request, since the requester and approvers open the same link. */
 export type AccessRequestViewer = "requester" | "approver";
@@ -127,7 +126,7 @@ export class AccessRequestDetailService {
     this.viewer$,
   ]).pipe(
     map(([request, viewer]) =>
-      request != null && viewer === "requester" && isRedeemableGrant(request, Date.now())
+      request != null && viewer === "requester" && isStartableApproval(request, Date.now())
         ? uuidAsString(request.cipherId)
         : null,
     ),
@@ -282,4 +281,16 @@ export class AccessRequestDetailService {
   private isRequestNotFoundError(e: unknown): boolean {
     return this.leasingErrors.isLeasingError(e) && e.variant === "Api" && /\[404\]/.test(e.message);
   }
+}
+
+/**
+ * An approved, unactivated request whose window is still open, the SDK view's counterpart of the
+ * table's `isRedeemableGrant`, whose row type carries the lease id as a plain string.
+ */
+function isStartableApproval(request: AccessRequestView, nowMs: number): boolean {
+  return (
+    request.status === "approved" &&
+    request.producedLeaseId == null &&
+    Date.parse(request.leaseNotAfter) > nowMs
+  );
 }
