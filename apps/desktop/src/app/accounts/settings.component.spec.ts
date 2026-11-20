@@ -157,6 +157,10 @@ describe("SettingsComponent", () => {
         isDev: false,
         isWindowsStore: false,
         isSnapStore: false,
+        nativeMessaging: {
+          connectedBrowsers: async () => [],
+          onConnectedBrowsersChanged: jest.fn(),
+        },
         powermonitor: {
           isLockMonitorAvailable: async () => false,
         },

@@ -5,13 +5,14 @@ import { homedir, userInfo } from "os";
 import * as path from "path";
 
 import { ipcMain } from "electron";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   DesktopIpcPeerClientType,
   IpcClientTypeMessage,
   isIpcClientTypeMessage,
+  SupportedBrowser,
 } from "@bitwarden/common/platform/ipc";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
@@ -25,6 +26,10 @@ export class NativeMessagingMain {
   /** Connected clients by id, with the type each announced; `Unknown` until it announces. */
   private clients = new Map<number, DesktopIpcPeerClientType>();
 
+  private _connectedBrowsers$ = new BehaviorSubject<SupportedBrowser[]>([]);
+  /** Browsers with at least one connected extension. Emits whenever the set changes. */
+  readonly connectedBrowsers$ = this._connectedBrowsers$.asObservable();
+
   private _messages$ = new Subject<ipc.IpcMessage>();
   readonly messages$ = this._messages$.asObservable();
 
@@ -35,6 +40,8 @@ export class NativeMessagingMain {
     private exePath: string,
     private appPath: string,
   ) {
+    ipcMain.handle("nativeMessaging.connectedBrowsers", () => this._connectedBrowsers$.value);
+
     ipcMain.handle(
       "nativeMessaging.manifests",
       async (_event: any, options: { create: boolean }) => {
@@ -95,6 +102,7 @@ export class NativeMessagingMain {
           const announcement = parseAnnouncement(msg.message);
           const clientType = announcement?.clientType ?? DesktopIpcPeerClientType.Unknown;
           this.clients.set(msg.clientId, clientType);
+          this.publishConnectedBrowsers();
 
           // Only the known detail of an untrusted frame is logged.
           this.logService.info(
@@ -105,6 +113,7 @@ export class NativeMessagingMain {
         }
         case ipc.IpcMessageType.Disconnected: {
           this.clients.delete(msg.clientId);
+          this.publishConnectedBrowsers();
 
           this.logService.info("Native messaging client " + msg.clientId + " has disconnected");
           break;
@@ -157,6 +166,19 @@ export class NativeMessagingMain {
    */
   connectedClientIds(): number[] {
     return [...this.clients.keys()];
+  }
+
+  // Pushes the set of connected browsers to the renderer when it changes, e.g. [chrome] -> [].
+  private publishConnectedBrowsers() {
+    const connected = new Set(this.clients.values());
+    const browsers = Object.values(SupportedBrowser).filter((browser) => connected.has(browser));
+    const current = this._connectedBrowsers$.value;
+    if (browsers.length === current.length && browsers.every((b, i) => b === current[i])) {
+      return;
+    }
+
+    this._connectedBrowsers$.next(browsers);
+    this.windowMain.win?.webContents.send("nativeMessaging.connectedBrowsersChanged", browsers);
   }
 
   send(message: object) {

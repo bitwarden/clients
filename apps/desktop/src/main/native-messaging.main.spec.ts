@@ -5,7 +5,7 @@ import * as path from "path";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DesktopIpcPeerClientType } from "@bitwarden/common/platform/ipc";
+import { DesktopIpcPeerClientType, SupportedBrowser } from "@bitwarden/common/platform/ipc";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { NativeMessagingMain } from "./native-messaging.main";
@@ -35,6 +35,7 @@ describe("NativeMessagingMain", () => {
 
   let sut: NativeMessagingMain;
   let logService: MockProxy<LogService>;
+  let rendererSend: jest.Mock;
   let emit: (error: unknown, message: ipc.IpcMessage) => void;
 
   /** Delivers a native message from `clientId`, as the napi server would. */
@@ -64,7 +65,9 @@ describe("NativeMessagingMain", () => {
     });
 
     logService = mock<LogService>();
-    sut = new NativeMessagingMain(logService, mock<WindowMain>(), "userPath", "exe", "app");
+    rendererSend = jest.fn();
+    const windowMain = { win: { webContents: { send: rendererSend } } } as unknown as WindowMain;
+    sut = new NativeMessagingMain(logService, windowMain, "userPath", "exe", "app");
     await sut.listen();
   });
 
@@ -129,6 +132,42 @@ describe("NativeMessagingMain", () => {
     emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
 
     expect(sut.connectedClientIds()).toEqual([]);
+  });
+
+  describe("connected browsers", () => {
+    const disconnect = (id: number) =>
+      emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId: id } as ipc.IpcMessage);
+
+    it("tracks a connected browser and tells the renderer", () => {
+      connect({ clientType: DesktopIpcPeerClientType.Firefox });
+
+      expect(rendererSend).toHaveBeenCalledWith("nativeMessaging.connectedBrowsersChanged", [
+        SupportedBrowser.Firefox,
+      ]);
+    });
+
+    it("ignores clients that are not browsers", () => {
+      connect({ clientType: DesktopIpcPeerClientType.Cli });
+
+      expect(rendererSend).not.toHaveBeenCalled();
+    });
+
+    it("reports each browser once however many connections it has", () => {
+      connect({ clientType: DesktopIpcPeerClientType.Chrome });
+      emit(null, {
+        kind: ipc.IpcMessageType.Connected,
+        clientId: 8,
+        message: JSON.stringify({ clientType: DesktopIpcPeerClientType.Chrome }),
+      } as ipc.IpcMessage);
+
+      expect(rendererSend).toHaveBeenCalledTimes(1);
+
+      disconnect(clientId);
+      expect(rendererSend).toHaveBeenCalledTimes(1);
+
+      disconnect(8);
+      expect(rendererSend).toHaveBeenLastCalledWith("nativeMessaging.connectedBrowsersChanged", []);
+    });
   });
 
   it("forgets the client type once the client disconnects, so a reused id is not stale", () => {

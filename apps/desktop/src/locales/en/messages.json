@@ -8668,5 +8668,38 @@
         "example": "iTerm2"
       }
     }
+  },
+  "browserChrome": {
+    "message": "Chrome"
+  },
+  "browserFirefox": {
+    "message": "Firefox"
+  },
+  "getExtension": {
+    "message": "Get extension"
+  },
+  "getBrowserExtensionTitle": {
+    "message": "Get the $BROWSER$ extension",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "getBrowserExtensionDesc": {
+    "message": "Install the Bitwarden extension for $BROWSER$ to autofill and unlock with the desktop app. It connects automatically once installed.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "openStorePage": {
+    "message": "Open store page"
+  },
+  "connected": {
+    "message": "Connected"
   }
 }

@@ -45,12 +45,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { SupportedBrowser } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 import {
   BadgeComponent,
   ButtonModule,
@@ -170,6 +172,8 @@ export class SettingsComponent implements OnInit {
     switch (id) {
       case "unlockWithPin":
         return !!(this.pinEnabled() || value.pin);
+      case "pinLockWithMasterPassword":
+        return !!value.pin;
       case "unlockWithBiometrics":
         return this.supportsBiometric();
       case "requireMasterPasswordOnAppRestart":
@@ -270,6 +274,15 @@ export class SettingsComponent implements OnInit {
   protected readonly showOpenAtLoginOption: boolean;
   protected readonly showDuckDuckGoIntegrationOption: boolean;
   protected readonly duckDuckGoIcon = DuckDuckGoIcon;
+  protected readonly connectedBrowsers = signal<SupportedBrowser[]>([]);
+  protected readonly browsers: readonly {
+    id: SupportedBrowser;
+    labelKey: string;
+    device: DeviceType;
+  }[] = [
+    { id: SupportedBrowser.Chrome, labelKey: "browserChrome", device: DeviceType.ChromeBrowser },
+    { id: SupportedBrowser.Firefox, labelKey: "browserFirefox", device: DeviceType.FirefoxBrowser },
+  ];
   protected readonly runInBackgroundText: string;
   protected readonly runInBackgroundDescText: string;
 
@@ -347,6 +360,7 @@ export class SettingsComponent implements OnInit {
 
   protected readonly form = this.formBuilder.nonNullable.group({
     pin: false,
+    pinLockWithMasterPassword: false,
     biometric: false,
     requireMasterPasswordOnAppRestart: true,
     autoPromptBiometrics: false,
@@ -451,12 +465,18 @@ export class SettingsComponent implements OnInit {
         });
     }
 
+    this.connectedBrowsers.set(await ipc.platform.nativeMessaging.connectedBrowsers());
+    ipc.platform.nativeMessaging.onConnectedBrowsersChanged((browsers) =>
+      this.connectedBrowsers.set(browsers),
+    );
+
     this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
 
     this.userHasPinSet.set(await this.pinService.isPinSet(this.currentUserId()));
 
     const initialValues = {
       pin: this.userHasPinSet(),
+      pinLockWithMasterPassword: await this.isPinLockedAfterRestart(),
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(this.currentUserId()),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         this.currentUserId(),
@@ -522,6 +542,15 @@ export class SettingsComponent implements OnInit {
       )
       .subscribe();
 
+    this.form.controls.pinLockWithMasterPassword.valueChanges
+      .pipe(
+        concatMap(async (value) => {
+          await this.updatePinLockHandler(value);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     this.form.controls.biometric.valueChanges
       .pipe(
         concatMap(async (enabled) => {
@@ -578,6 +607,47 @@ export class SettingsComponent implements OnInit {
     this.destroyRef.onDestroy(() => clearInterval(timerId));
   }
 
+  // The PIN requires the master password after an app restart when it is locked "AfterFirstUnlock".
+  private async isPinLockedAfterRestart(): Promise<boolean> {
+    return (await this.pinService.getPinLockType(this.currentUserId())) === "AfterFirstUnlock";
+  }
+
+  private async updatePinLockHandler(requireMasterPassword: boolean) {
+    try {
+      const userId = this.currentUserId();
+      const pin = await this.pinService.getPin(userId);
+      if (pin == null) {
+        throw new Error("Cannot change the PIN lock type without a PIN");
+      }
+
+      await this.pinService.setPin(
+        pin,
+        requireMasterPassword ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+        userId,
+      );
+    } catch (error) {
+      this.logService.error("Error updating PIN lock type: ", error);
+      this.form.controls.pinLockWithMasterPassword.setValue(!requireMasterPassword, {
+        emitEvent: false,
+      });
+      this.validationService.showError(error);
+    }
+  }
+
+  protected async getExtension(browser: { labelKey: string; device: DeviceType }) {
+    const browserName = this.i18nService.t(browser.labelKey);
+    const openStore = await this.dialogService.openSimpleDialog({
+      title: { key: "getBrowserExtensionTitle", placeholders: [browserName] },
+      content: { key: "getBrowserExtensionDesc", placeholders: [browserName] },
+      acceptButtonText: { key: "openStorePage" },
+      cancelButtonText: { key: "close" },
+      type: "info",
+    });
+    if (openStore) {
+      this.platformUtilsService.launchUri(getWebStoreUrl(browser.device));
+    }
+  }
+
   private async updatePinHandler(value: boolean) {
     try {
       await this.updatePin(value);
@@ -602,6 +672,9 @@ export class SettingsComponent implements OnInit {
       const pinSet = await firstValueFrom(dialogRef.closed);
       this.userHasPinSet.set(pinSet ?? false);
       this.form.controls.pin.setValue(this.userHasPinSet(), { emitEvent: false });
+      this.form.controls.pinLockWithMasterPassword.setValue(await this.isPinLockedAfterRestart(), {
+        emitEvent: false,
+      });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 

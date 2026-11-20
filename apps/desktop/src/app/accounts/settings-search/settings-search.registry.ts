@@ -20,6 +20,7 @@ export const SETTINGS_SEARCH_PAGES: Readonly<Record<SettingsSearchPage, Settings
 export const SETTINGS_SEARCH_ENTRY_IDS = Object.freeze([
   "sessionTimeout",
   "unlockWithPin",
+  "pinLockWithMasterPassword",
   "unlockWithBiometrics",
   "requireMasterPasswordOnAppRestart",
   "autoPromptBiometrics",
@@ -34,6 +35,8 @@ export const SETTINGS_SEARCH_ENTRY_IDS = Object.freeze([
   "openAtLogin",
   "enableSshAgent",
   "sshAgentPromptBehavior",
+  "chromeBrowserIntegration",
+  "firefoxBrowserIntegration",
   "duckDuckGoBrowserIntegration",
   "passkeyProvider",
   "autotype",
@@ -84,6 +87,11 @@ const DEFINITIONS: Readonly<Record<SettingsSearchEntryId, EntryDefinition>> = {
     page: "security",
     labelKey: "unlockWithPin",
     keywords: ["unlockMethodsHeader"],
+  },
+  pinLockWithMasterPassword: {
+    page: "security",
+    labelKey: "lockWithMasterPassOnRestart1",
+    keywords: ["unlockMethodsHeader", "unlockWithPin"],
   },
   unlockWithBiometrics: {
     page: "security",
@@ -169,6 +177,16 @@ const DEFINITIONS: Readonly<Record<SettingsSearchEntryId, EntryDefinition>> = {
     labelKey: "sshAgentPromptBehavior",
     descriptionKey: "sshAgentPromptBehaviorDesc",
     keywords: ["sshAgentHeader"],
+  },
+  chromeBrowserIntegration: {
+    page: "integrations",
+    labelKey: "browserChrome",
+    keywords: ["browsersHeader", "getExtension"],
+  },
+  firefoxBrowserIntegration: {
+    page: "integrations",
+    labelKey: "browserFirefox",
+    keywords: ["browsersHeader", "getExtension"],
   },
   duckDuckGoBrowserIntegration: {
     page: "integrations",

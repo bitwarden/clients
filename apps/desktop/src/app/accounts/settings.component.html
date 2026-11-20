@@ -145,6 +145,25 @@
                       <bit-label>{{ "unlockWithPin" | i18n }}</bit-label>
                     </bit-form-control>
                   </div>
+                  @if (form.value.pin) {
+                    <div id="settings-row-pinLockWithMasterPassword" class="tw-p-4">
+                      <bit-form-control disableMargin>
+                        <span class="tw-flex tw-items-center tw-gap-2">
+                          <bit-switch
+                            formControlName="pinLockWithMasterPassword"
+                            data-testid="settings-pin-lock-checkbox"
+                          />
+                          <ng-container
+                            *ngTemplateOutlet="
+                              switchState;
+                              context: { on: form.value.pinLockWithMasterPassword }
+                            "
+                          />
+                        </span>
+                        <bit-label>{{ "lockWithMasterPassOnRestart1" | i18n }}</bit-label>
+                      </bit-form-control>
+                    </div>
+                  }
                 }
 
                 @if (supportsBiometric()) {
@@ -565,18 +584,52 @@
               }
             </bit-card-segmented>
           </div>
-          @if (showDuckDuckGoIntegrationOption) {
-            <div role="group" class="tw-mb-8" aria-labelledby="settings-browsers-header">
-              <ng-container
-                *ngTemplateOutlet="
-                  groupHeader;
-                  context: {
-                    id: 'settings-browsers-header',
-                    title: 'browsersHeader',
+          <div role="group" class="tw-mb-8" aria-labelledby="settings-browsers-header">
+            <ng-container
+              *ngTemplateOutlet="
+                groupHeader;
+                context: {
+                  id: 'settings-browsers-header',
+                  title: 'browsersHeader',
+                }
+              "
+            />
+            <bit-card-segmented>
+              @for (browser of browsers; track browser.id) {
+                <div
+                  [id]="'settings-row-' + browser.id + 'BrowserIntegration'"
+                  class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-p-4"
+                >
+                  <span class="tw-flex tw-items-center tw-gap-2">
+                    <span bitTypography="body2" class="tw-font-medium tw-text-fg-heading">{{
+                      browser.labelKey | i18n
+                    }}</span>
+                    @if (connectedBrowsers().includes(browser.id)) {
+                      <span
+                        bitBadge
+                        size="small"
+                        variant="success"
+                        [attr.data-testid]="'settings-' + browser.id + '-connected'"
+                        >{{ "connected" | i18n }}</span
+                      >
+                    }
+                  </span>
+                  @if (!connectedBrowsers().includes(browser.id)) {
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      class="tw-shrink-0 tw-whitespace-nowrap"
+                      [attr.data-testid]="'settings-' + browser.id + '-get-extension'"
+                      (click)="getExtension(browser)"
+                    >
+                      {{ "getExtension" | i18n }}
+                    </button>
                   }
-                "
-              />
-              <bit-card-segmented>
+                </div>
+              }
+              @if (showDuckDuckGoIntegrationOption) {
                 <div
                   id="settings-row-duckDuckGoBrowserIntegration"
                   class="tw-flex tw-items-center tw-gap-3 tw-p-4"
@@ -603,9 +656,9 @@
                     <bit-hint>{{ "enableDuckDuckGoBrowserIntegrationDesc" | i18n }}</bit-hint>
                   </bit-form-control>
                 </div>
-              </bit-card-segmented>
-            </div>
-          }
+              }
+            </bit-card-segmented>
+          </div>
           @if (showPasskeyProviderSetting()) {
             <div role="group" class="tw-mb-8" aria-labelledby="settings-passkeys-header">
               <ng-container
