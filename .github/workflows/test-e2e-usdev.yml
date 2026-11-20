@@ -124,6 +124,9 @@ jobs:
           E2E_SECOND_EMAIL: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-EMAIL-2 }}
           E2E_SECOND_PASSWORD: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-PASSWORD-2 }}
           E2E_SECOND_SERVER: vault.usdev.bitwarden.pw
+          # usdev orgs whose SSO goes to Mock SAML, see e2e/README.md.
+          E2E_SSO_MP_IDENTIFIER: km-e2e-sso-mp
+          E2E_SSO_TDE_IDENTIFIER: km-e2e-sso-tde
           _COMMAND: ${{ matrix.suite.command }}
         run: $_COMMAND
 
