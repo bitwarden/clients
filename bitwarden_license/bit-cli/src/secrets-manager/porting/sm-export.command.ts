@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import * as path from "path";
 
 import { firstValueFrom } from "rxjs";
@@ -68,7 +69,11 @@ export class SmExportCommand {
     }
 
     try {
-      const filePath = await CliUtils.saveFile(exportJson, options.output, exportFileName());
+      const filePath = await CliUtils.saveFile(
+        exportJson,
+        outputPath(options.output),
+        exportFileName(),
+      );
       const res = new MessageResponse("Saved " + filePath, null);
       res.raw = filePath;
       return Response.success(res);
@@ -87,6 +92,9 @@ export class SmExportCommand {
       return undefined;
     }
     if (options.output.endsWith("/") || options.output.endsWith(path.sep)) {
+      return undefined;
+    }
+    if (isExistingDirectory(options.output)) {
       return undefined;
     }
     const extension = path.extname(options.output);
@@ -180,4 +188,24 @@ function exportFileName(): string {
     pad(now.getMinutes()) +
     pad(now.getSeconds());
   return "bitwarden_export_" + timestamp + ".json";
+}
+
+/**
+ * `CliUtils.saveFile` only treats the output as a directory when it ends with a path separator.
+ * Append one when the output is an existing directory so `--output ~/Downloads` works.
+ */
+function outputPath(output: string): string {
+  if (isExistingDirectory(output) && !output.endsWith(path.sep)) {
+    return output + path.sep;
+  }
+  return output;
+}
+
+function isExistingDirectory(output: string): boolean {
+  try {
+    return fs.statSync(path.resolve(output)).isDirectory();
+  } catch {
+    // Not an existing path: treat it as a file name.
+    return false;
+  }
 }

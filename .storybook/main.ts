@@ -86,6 +86,7 @@ const config: StorybookConfig = {
     // above only serves these files at the root (e.g. `/foo.png`), so this second entry mirrors
     // the same directory under `/images` too.
     { from: "../apps/web/src/images", to: "/images" },
+    { from: "../libs/angular/src/billing/images/premium", to: "/images/premium" },
   ],
   refs: (config, { configType }) => {
     if (configType === "PRODUCTION") {

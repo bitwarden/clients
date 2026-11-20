@@ -115,6 +115,16 @@ describe("SmExportCommand", () => {
     expect(response.success).toBe(true);
   });
 
+  it("uses a default file name when the output is a directory without a trailing separator", async () => {
+    const response = await command.run(adminOrg, { output: tempDir, passwordEnv });
+
+    expect(response.success).toBe(true);
+    const files = fs.readdirSync(tempDir);
+    expect(files).toHaveLength(1);
+    expect(files[0]).toMatch(/^bitwarden_export_\d{14}\.json$/);
+    expect(fs.readFileSync(path.join(tempDir, files[0]), "utf8")).toBe(exportJson);
+  });
+
   it("uses a default file name when the output is a directory", async () => {
     const response = await command.run(adminOrg, { output: tempDir + path.sep, passwordEnv });
 

@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Súbor"
   },
+  "item": {
+    "message": "Položka"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sendov",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Nemáte žiadne Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Bezpečne zdieľajte súbory alebo text s kýmkoľvek. Vaše informácie budú kompletne šifrované."
+  },
+  "pendingDeletion": {
+    "message": "Čakajúce odstránenie"
+  },
   "allSends": {
     "message": "Všetky Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5237,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import prebehol úspešne"
+  },
+  "importConfirmationBody": {
+    "message": "Do Bitwardenu ste úspešne importovali položky: $AMOUNT$.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Do Bitwardenu ste úspešne importovali 1 položku."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Nezabudnite odstrániť súbor $FILENAME$. Obsahuje citlivé údaje a môže byť nezašifrovaný.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Nezabudnite odstrániť importný súbor. Obsahuje citlivé údaje a môže byť nezašifrovaný."
+  },
+  "importingTitle": {
+    "message": "Importuje sa"
+  },
+  "importingDescription": {
+    "message": "Tento proces môže trvať niekoľko minút."
+  },
+  "importingItemsTitle": {
+    "message": "Importuje sa $COUNT$ položiek!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Importuje sa 1 položka!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Otvorenie rozšírenia prehliadača"
+  },
+  "openedExtensionTitle": {
+    "message": "Otvorené rozšírenie prehliadača"
+  },
+  "somethingWentWrong": {
+    "message": "Niečo sa pokazilo…"
+  },
+  "openingExtensionError": {
+    "message": "Mali sme problémy s otvorením rozšírenia Bitwarden pre prehliadač. Kliknite na tlačidlo a otvorte ho teraz."
+  },
+  "openExtension": {
+    "message": "Otvoriť rozšírenie"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "Mali sme problémy s otvorením rozšírenia Bitwarden pre prehliadač. Otvorte ikonu Bitwarden ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " z panela nástrojov.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Skúsiť znova"
   },
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "Vyskytla sa chyba. Skontrolujte svoje prihlasovacie údaje a skúste to znova."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Podporované je iba prihlásenie pomocou hesla."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Tento účet 1Password používa spôsob prihlásenia, ktorý nie je podporovaný. Skúste to znovu alebo použite iný spôsob importu."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Zadajte platnú prihlasovaciu adresu."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Nájdete to vo 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Vyžaduje sa tajný kľúč."
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Zadajte e-mail, ktorý používate na prihlásenie do 1Password. Podporované je iba prihlásenie pomocou hesla."
+  },
   "secretKey": {
     "message": "Tajný kľúč"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Prihlásiť sa cez SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Prepnite sa na prihlasovaciu stránku SSO a dokončite import do Bitwardenu."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Prenos šifrovacieho kľúča"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Prihláste sa do 1Password a prejdite na čakajúce prihlásenia na overenie tejto žiadosti."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Tento kód nefungoval. Skúste nájsť nový kód na inom zariadení."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Prihlasovacia stránka SSO bola zatvorená pred dokončením prihlásenia. Skúste to znova a pokračujte v importe."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Toto zariadenie nebolo schválené na vašom inom zariadení. Skúste to znova alebo použite iný spôsob importu."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Príliš veľa nesprávnych overovacích kódov. Skúste to znova alebo použite iný spôsob importu."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "Skopírovať adresu"
   },
-  "myItems": {
-    "message": "Moje položky"
-  },
   "myItemsV2": {
     "message": "Moje položky"
   },
@@ -7080,7 +7205,7 @@
   },
   "desktopApp": {
     "message": "Desktopová aplikácia",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktopová aplikácia $COUNT$",
@@ -7092,6 +7217,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Neplatné spárovanie aplikácie",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Webová stránka pridaná"
   },
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Pridať webovú stránku alebo aplikáciu"
-  },
-  "app": {
-    "message": "Aplikácia"
   },
   "deleteWebsite": {
     "message": "Odstrániť webovú stránku"
@@ -8190,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "Ako môžem spravovať svoj trezor?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Prenos položiek do $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Presuňte svoje položky do $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "Organizácia $ORGANIZATION$ teraz vyžaduje, aby všetky položky členov boli vo vlastníctve organizácie. Vaše osobné položky sa presunú do priečinka s názvom Moje položky, ktorý uvidíte len vy.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
   },
   "openTransferItemsHelpArticle": {
     "message": "Otvoriť článok pomocníka o prenose položiek"
@@ -8470,7 +8593,7 @@
     "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   },
   "cannotSaveItemNoConfirmedOrgs": {
@@ -8892,6 +9015,9 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
+  },
+  "vaultItem": {
+    "message": "Položka trezora"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Schválené časové obdobie na prístup ešte nezačalo."
