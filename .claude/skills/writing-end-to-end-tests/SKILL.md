@@ -13,12 +13,12 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 
 ## Locators
 
-- Prefer a role locator or existing `id` (`page.locator("#...")`) when it is trivial: one `getByRole` or `getByLabel` call that picks out the element, e.g. `page.getByRole("button", { name: "Save" })`.
-- Fall back to a test id once the role locator stops being trivial: it needs chaining or nesting (`.filter()`, scoping into a row, `.nth()`), or the same role and name match more than one element. Add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
-- No CSS classes, DOM structure or `formcontrolname`.
-- Don't depend on localized copy: no `getByText` on headings, messages or body text. A role locator's `name` may use a control's own label (button, checkbox, menu item), and any locator may match data the test seeded itself, such as a folder name.
-- Reach UI owned by another team (see `.github/CODEOWNERS`) the way a user would: a trivial role locator, or that team's page helper (e.g. `LoginPage`) if one exists. Don't add test ids to their templates or depend on their DOM structure.
-- Keep each selector in a named constant at the top of the helper or test.
+- Prefer a trivial role locator: one `getByRole` call that picks out the element on its own, with no `name` or a `name` taken from data the test seeded, e.g. `page.getByRole("dialog")` or `page.getByRole("link", { name: itemName })`. An `id` written in the template (`page.locator("#...")`) works too, but not a generated one like `bit-form-field-3`, which changes with render order.
+- Fall back to a test id when no trivial role locator works: it needs chaining or nesting (`.filter()`, scoping into a row, `.nth()`), the role matches more than one element, or only localized copy tells the elements apart. Add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
+- For new locators: no CSS classes, DOM structure or `formcontrolname`. Existing helpers predate this rule; leave them alone unless you are already changing that locator.
+- Don't match localized copy: no `getByText` or `getByLabel`, and no role `name` taken from translated text, including button, checkbox and menu labels. Matching data the test seeded itself, such as a folder name, is fine.
+- Reach UI owned by another team (see `.github/CODEOWNERS`) through a trivial role locator, or that team's page helper (e.g. `LoginPage`) if one exists. Don't add test ids to their templates or depend on their DOM structure. If neither works, stop and ask rather than break one of these rules.
+- Keep each test id and `#id` in a named constant at the top of the helper or test.
 
 ## Writing tests
 
