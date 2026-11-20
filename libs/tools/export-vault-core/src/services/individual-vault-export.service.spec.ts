@@ -1,14 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import * as JSZip from "jszip";
+import * as papa from "papaparse";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -17,7 +12,7 @@ import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { AttachmentData } from "@bitwarden/common/vault/models/data/attachment.data";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Attachment } from "@bitwarden/common/vault/models/domain/attachment";
@@ -27,19 +22,24 @@ import { Login } from "@bitwarden/common/vault/models/domain/login";
 import { AttachmentResponse } from "@bitwarden/common/vault/models/response/attachment.response";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfType,
-} from "@bitwarden/key-management";
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -254,6 +254,27 @@ describe("VaultExportService", () => {
     expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
   });
 
+  it("exports the sealed data of blob ciphers in encrypted json", async () => {
+    const sealedData = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
+    const blobCipher = generateCipherDomain(false);
+    blobCipher.name = undefined;
+    blobCipher.login = undefined;
+    blobCipher.data = sealedData;
+    blobCipher.key = new EncString("CIPHER_KEY");
+    cipherService.getAll.mockResolvedValue([blobCipher]);
+
+    const actual = (await exportService.getExport(
+      userId,
+      "encrypted_json",
+    )) as ExportedVaultAsString;
+
+    const [item] = JSON.parse(actual.data).items;
+    expect(item.data).toBe(sealedData);
+    expect(item.name).toBeUndefined();
+    expect(item.login).toBeUndefined();
+    expect(item.key).toBe("CIPHER_KEY");
+  });
+
   it("does not unencrypted export trashed user items", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
 
@@ -310,6 +331,24 @@ describe("VaultExportService", () => {
     const exportedData = actual as ExportedVaultAsString;
 
     expectEqualCiphers([UserCipherDomains[0], UserCipherDomains[1]], exportedData.data);
+  });
+
+  it("exports custom fields without a value as empty in csv exports", async () => {
+    const cipher = generateCipherView(false);
+    cipher.fields = [
+      BuildTestObject({ name: "Text", value: "value", type: FieldType.Text }, FieldView),
+      BuildTestObject({ name: "Empty", value: null, type: FieldType.Text }, FieldView),
+      BuildTestObject(
+        { name: "Linked", value: undefined, type: FieldType.Linked, linkedId: 100 },
+        FieldView,
+      ),
+    ];
+    cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+
+    const actual = (await exportService.getExport(userId, "csv")) as ExportedVaultAsString;
+
+    const [row] = papa.parse<Record<string, string>>(actual.data, { header: true }).data;
+    expect(row.fields).toEqual("Text: value\nEmpty: \nLinked: ");
   });
 
   describe("zip export", () => {

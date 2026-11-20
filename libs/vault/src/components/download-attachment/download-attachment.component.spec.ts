@@ -3,14 +3,8 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -18,10 +12,19 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR, EncArrayBuffer, EncryptService } from "@bitwarden/legacy-crypto";
+import { isCipherGetAttachmentDownloadUrlError } from "@bitwarden/sdk-internal";
 
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 
 import { DownloadAttachmentComponent } from "./download-attachment.component";
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  isCipherAdminGetAttachmentDownloadUrlError: jest.fn().mockReturnValue(false),
+  isCipherGetAttachmentDownloadUrlError: jest.fn().mockReturnValue(false),
+}));
 
 class MockRequest {
   constructor(public url: string) {}
@@ -32,9 +35,6 @@ describe("DownloadAttachmentComponent", () => {
   let fixture: ComponentFixture<DownloadAttachmentComponent>;
   const activeUserId$ = new BehaviorSubject("888-333-222-222");
   const showToast = jest.fn();
-  const getAttachmentData = jest
-    .fn()
-    .mockResolvedValue({ url: "https://www.downloadattachement.com" });
   const download = jest.fn();
 
   const attachment = new AttachmentView();
@@ -66,16 +66,14 @@ describe("DownloadAttachmentComponent", () => {
     },
   });
 
-  const getFeatureFlag = jest.fn().mockResolvedValue(false);
-  const getFeatureFlag$ = jest.fn().mockReturnValue(new BehaviorSubject(false));
+  const sdkUrl = "https://sdk.example/attachment";
   const cipherSdkGetAttachmentDownloadUrl = jest.fn();
 
   beforeEach(async () => {
     showToast.mockClear();
-    getAttachmentData.mockClear();
     download.mockClear();
     cipherSdkGetAttachmentDownloadUrl.mockReset();
-    getFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
+    cipherSdkGetAttachmentDownloadUrl.mockResolvedValue(sdkUrl);
 
     await TestBed.configureTestingModule({
       imports: [DownloadAttachmentComponent],
@@ -84,16 +82,8 @@ describe("DownloadAttachmentComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: StateProvider, useValue: { activeUserId$ } },
         { provide: ToastService, useValue: { showToast } },
-        { provide: ApiService, useValue: { getAttachmentData } },
         { provide: FileDownloadService, useValue: { download } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag,
-            getFeatureFlag$,
-          },
-        },
         {
           provide: CipherService,
           useValue: { ciphers$: () => ciphers$, getDecryptedAttachmentBuffer: jest.fn() },
@@ -146,8 +136,9 @@ describe("DownloadAttachmentComponent", () => {
       expect(fixture.debugElement.query(By.css("button"))).toBeNull();
     });
 
-    it("uses the attachment url when available when getAttachmentData returns a 404", async () => {
-      getAttachmentData.mockRejectedValue(new ErrorResponse({}, 404));
+    it("uses the attachment url when the SDK returns NotFound", async () => {
+      jest.mocked(isCipherGetAttachmentDownloadUrlError).mockReturnValueOnce(true);
+      cipherSdkGetAttachmentDownloadUrl.mockRejectedValue({ variant: "NotFound" });
 
       await component.download();
 
@@ -155,7 +146,6 @@ describe("DownloadAttachmentComponent", () => {
     });
 
     it("calls file download service with the attachment url", async () => {
-      getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
       fetchMock.mockResolvedValue({ status: 200 });
       EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue({});
 
@@ -166,7 +156,6 @@ describe("DownloadAttachmentComponent", () => {
 
     describe("errors", () => {
       it("shows an error toast when fetch fails", async () => {
-        getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
         fetchMock.mockResolvedValue({ status: 500 });
 
         await component.download();
@@ -178,7 +167,6 @@ describe("DownloadAttachmentComponent", () => {
       });
 
       it("shows an error toast when getDecryptedAttachmentBuffer fails", async () => {
-        getAttachmentData.mockResolvedValue({ url: "https://www.downloadattachement.com" });
         fetchMock.mockResolvedValue({ status: 200 });
 
         const cipherService = TestBed.inject(CipherService) as jest.Mocked<CipherService>;
@@ -193,67 +181,52 @@ describe("DownloadAttachmentComponent", () => {
       });
     });
 
-    describe("when SDK attachment feature flag is enabled", () => {
-      const sdkUrl = "https://sdk.example/attachment";
+    it("calls the SDK with no options for a regular user download", async () => {
+      await component.download();
 
-      beforeEach(() => {
-        getFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
-        fetchMock.mockResolvedValue({ status: 200 });
-        EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue({});
-      });
+      expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
+        cipherView.id,
+        attachment.id,
+        activeUserId$.value,
+        undefined,
+      );
+      expect(fetchMock).toHaveBeenCalledWith({ url: sdkUrl });
+    });
 
-      it("calls the SDK with no options for a regular user download", async () => {
-        cipherSdkGetAttachmentDownloadUrl.mockResolvedValue(sdkUrl);
+    it("calls the SDK with asAdmin when admin input is true", async () => {
+      fixture.componentRef.setInput("admin", true);
+      fixture.detectChanges();
 
-        await component.download();
+      await component.download();
 
-        expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
-          cipherView.id,
-          attachment.id,
-          activeUserId$.value,
-          undefined,
-        );
-        expect(getAttachmentData).not.toHaveBeenCalled();
-        expect(fetchMock).toHaveBeenCalledWith({ url: sdkUrl });
-      });
+      expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
+        cipherView.id,
+        attachment.id,
+        activeUserId$.value,
+        { asAdmin: true },
+      );
+    });
 
-      it("calls the SDK with asAdmin when admin input is true", async () => {
-        fixture.componentRef.setInput("admin", true);
-        fixture.detectChanges();
-        cipherSdkGetAttachmentDownloadUrl.mockResolvedValue(sdkUrl);
+    it("calls the SDK with emergencyAccessId when set", async () => {
+      const emergencyAccessId = "ea-id-123";
+      fixture.componentRef.setInput("emergencyAccessId", emergencyAccessId);
+      fixture.detectChanges();
 
-        await component.download();
+      await component.download();
 
-        expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
-          cipherView.id,
-          attachment.id,
-          activeUserId$.value,
-          { asAdmin: true },
-        );
-      });
+      expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
+        cipherView.id,
+        attachment.id,
+        activeUserId$.value,
+        { emergencyAccessId },
+      );
+    });
 
-      it("calls the SDK with emergencyAccessId when set", async () => {
-        const emergencyAccessId = "ea-id-123";
-        fixture.componentRef.setInput("emergencyAccessId", emergencyAccessId);
-        fixture.detectChanges();
-        cipherSdkGetAttachmentDownloadUrl.mockResolvedValue(sdkUrl);
+    it("propagates SDK errors without falling back to attachment.url", async () => {
+      cipherSdkGetAttachmentDownloadUrl.mockRejectedValue(new Error("SDK error"));
 
-        await component.download();
-
-        expect(cipherSdkGetAttachmentDownloadUrl).toHaveBeenCalledWith(
-          cipherView.id,
-          attachment.id,
-          activeUserId$.value,
-          { emergencyAccessId },
-        );
-      });
-
-      it("propagates SDK errors without falling back to attachment.url", async () => {
-        cipherSdkGetAttachmentDownloadUrl.mockRejectedValue(new Error("SDK error"));
-
-        await expect(component.download()).rejects.toThrow("SDK error");
-        expect(fetchMock).not.toHaveBeenCalled();
-      });
+      await expect(component.download()).rejects.toThrow("SDK error");
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 });

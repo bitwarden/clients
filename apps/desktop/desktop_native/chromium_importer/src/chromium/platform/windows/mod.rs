@@ -1,12 +1,16 @@
-use std::path::{Path, PathBuf};
+use std::{
+    future::Future,
+    path::{Path, PathBuf},
+};
 
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
+use tokio::sync::OnceCell;
 
 use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
+    chromium::{BrowserConfig, CryptoService, LocalState, WrongKeyError},
     util,
 };
 mod abe;
@@ -72,15 +76,41 @@ const ADMIN_EXE_FILENAME: &str = "bitwarden_chromium_import_helper.exe";
 // CryptoService
 //
 struct WindowsCryptoService {
-    master_key: Option<Vec<u8>>,
+    master_keys: MasterKeyCache,
     encrypted_key: Option<String>,
     app_bound_encrypted_key: Option<String>,
+}
+
+#[derive(Default)]
+struct MasterKeyCache {
+    v10: OnceCell<Result<Vec<u8>, String>>,
+    v20: OnceCell<Result<Vec<u8>, String>>,
+}
+
+impl MasterKeyCache {
+    async fn get_or_fetch(
+        &self,
+        version: &str,
+        fetch: impl Future<Output = Result<Vec<u8>>>,
+    ) -> Result<&[u8]> {
+        let cached = match version {
+            "v10" => &self.v10,
+            "v20" => &self.v20,
+            _ => return Err(anyhow!("Unsupported version: {}", version)),
+        };
+
+        cached
+            .get_or_init(|| async { fetch.await.map_err(|e| e.to_string()) })
+            .await
+            .as_deref()
+            .map_err(|e| anyhow!(e.clone()))
+    }
 }
 
 impl WindowsCryptoService {
     pub(crate) fn new(local_state: &LocalState) -> Self {
         Self {
-            master_key: None,
+            master_keys: MasterKeyCache::default(),
             encrypted_key: local_state
                 .os_crypt
                 .as_ref()
@@ -123,21 +153,13 @@ impl CryptoService for WindowsCryptoService {
             return Ok(String::new());
         }
 
-        if self.master_key.is_none() {
-            self.master_key = Some(self.get_master_key(version).await?);
-        }
-
-        let key = self
-            .master_key
-            .as_ref()
-            .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
-        let key = Key::<Aes256Gcm>::from_slice(key);
-        let cipher = Aes256Gcm::new(key);
-        let nonce = Nonce::from_slice(&no_prefix[..IV_SIZE]);
+        let key = self.get_master_key(version).await?;
+        let cipher = Aes256Gcm::new_from_slice(key)?;
+        let nonce = Nonce::try_from(&no_prefix[..IV_SIZE])?;
 
         let decrypted_bytes = cipher
-            .decrypt(nonce, no_prefix[IV_SIZE..].as_ref())
-            .map_err(|e| anyhow!("Decryption failed: {}", e))?;
+            .decrypt(&nonce, no_prefix[IV_SIZE..].as_ref())
+            .map_err(|e| WrongKeyError(e.to_string()))?;
 
         let plaintext = String::from_utf8(decrypted_bytes)
             .map_err(|e| anyhow!("Failed to convert decrypted data to UTF-8: {}", e))?;
@@ -147,15 +169,19 @@ impl CryptoService for WindowsCryptoService {
 }
 
 impl WindowsCryptoService {
-    async fn get_master_key(&mut self, version: &str) -> Result<Vec<u8>> {
-        match version {
-            "v10" => self.get_master_key_v10(),
-            "v20" => self.get_master_key_v20().await,
-            _ => Err(anyhow!("Unsupported version: {}", version)),
-        }
+    async fn get_master_key(&self, version: &str) -> Result<&[u8]> {
+        self.master_keys
+            .get_or_fetch(version, async {
+                match version {
+                    "v10" => self.get_master_key_v10(),
+                    "v20" => self.get_master_key_v20().await,
+                    _ => Err(anyhow!("Unsupported version: {}", version)),
+                }
+            })
+            .await
     }
 
-    fn get_master_key_v10(&mut self) -> Result<Vec<u8>> {
+    fn get_master_key_v10(&self) -> Result<Vec<u8>> {
         if self.encrypted_key.is_none() {
             return Err(anyhow!(
                 "Encrypted master key is not found in the local browser state"
@@ -180,7 +206,7 @@ impl WindowsCryptoService {
         Ok(key)
     }
 
-    async fn get_master_key_v20(&mut self) -> Result<Vec<u8>> {
+    async fn get_master_key_v20(&self) -> Result<Vec<u8>> {
         if self.app_bound_encrypted_key.is_none() {
             return Err(anyhow!(
                 "Encrypted master key is not found in the local browser state"
@@ -277,4 +303,99 @@ fn get_target_admin_exe_path(desktop_native_dir: PathBuf) -> PathBuf {
         .join("target")
         .join("debug")
         .join(ADMIN_EXE_FILENAME)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::cell::Cell;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn fetches_each_version_once() -> Result<()> {
+        let cache = MasterKeyCache::default();
+        let fetches = Cell::new(0);
+
+        for (version, expected_key) in [
+            ("v20", [0x20; 32]),
+            ("v10", [0x10; 32]),
+            ("v20", [0x20; 32]),
+            ("v10", [0x10; 32]),
+        ] {
+            let key = cache
+                .get_or_fetch(version, async {
+                    fetches.set(fetches.get() + 1);
+                    Ok(expected_key.to_vec())
+                })
+                .await?;
+            assert_eq!(key, expected_key);
+        }
+
+        assert_eq!(fetches.get(), 2);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn caches_first_error_without_affecting_other_version() -> Result<()> {
+        for (failed_version, working_version) in [("v20", "v10"), ("v10", "v20")] {
+            let cache = MasterKeyCache::default();
+            let fetches = Cell::new(0);
+            let first_error =
+                "Failed to decrypt the master key: Unsupported ABE key blob version: 4";
+
+            for attempt in 0..6 {
+                let error = cache
+                    .get_or_fetch(failed_version, async {
+                        fetches.set(fetches.get() + 1);
+                        if attempt == 0 {
+                            Err(anyhow!(first_error))
+                        } else {
+                            Err(anyhow!("Key fetch should not be retried"))
+                        }
+                    })
+                    .await
+                    .unwrap_err();
+                assert_eq!(error.to_string(), first_error);
+            }
+
+            assert_eq!(fetches.get(), 1);
+            assert_eq!(
+                cache
+                    .get_or_fetch(working_version, async { Ok(vec![0x11; 32]) })
+                    .await?,
+                &[0x11; 32]
+            );
+        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn decrypts_passwords_and_notes_with_different_versions() -> Result<()> {
+        let local_state: LocalState = serde_json::from_str(r#"{"profile":{"info_cache":{}}}"#)?;
+        let mut service = WindowsCryptoService::new(&local_state);
+
+        for (version, key) in [("v10", [0x10; 32]), ("v20", [0x20; 32])] {
+            service
+                .master_keys
+                .get_or_fetch(version, async { Ok(key.to_vec()) })
+                .await?;
+        }
+
+        for (version, key, plaintext) in [
+            ("v20", [0x20; 32], "synthetic password"),
+            ("v10", [0x10; 32], "synthetic note"),
+            ("v20", [0x20; 32], "another synthetic password"),
+        ] {
+            let nonce = Nonce::from([0x33; 12]);
+            let ciphertext = Aes256Gcm::new_from_slice(&key)?
+                .encrypt(&nonce, plaintext.as_bytes())
+                .map_err(|e| anyhow!("Failed to encrypt test fixture: {}", e))?;
+            let mut encrypted = version.as_bytes().to_vec();
+            encrypted.extend_from_slice(&nonce);
+            encrypted.extend_from_slice(&ciphertext);
+
+            assert_eq!(service.decrypt_to_string(&encrypted).await?, plaintext);
+        }
+        Ok(())
+    }
 }

@@ -2,9 +2,6 @@
  * This barrel file should only contain Angular exports
  */
 
-// fingerprint dialog
-export * from "./fingerprint-dialog/fingerprint-dialog.component";
-
 // input password
 export * from "./input-password/input-password.component";
 export * from "./input-password/password-input-result";
@@ -14,6 +11,7 @@ export * from "./login/login.component";
 export * from "./login/login-secondary-content.component";
 export * from "./login/login-component.service";
 export * from "./login/default-login-component.service";
+export * from "./login/handle-query-param-errors-result.type";
 
 // login decryption options
 export * from "./login-decryption-options/login-decryption-options.component";
@@ -28,15 +26,6 @@ export * from "./password-callout/password-callout.component";
 
 // password hint
 export * from "./password-hint/password-hint.component";
-
-// registration
-export * from "./registration/registration-start/registration-start.component";
-export * from "./registration/registration-finish/registration-finish.component";
-export * from "./registration/registration-link-expired/registration-link-expired.component";
-export * from "./registration/registration-start/registration-start-secondary.component";
-export * from "./registration/registration-env-selector/registration-env-selector.component";
-export * from "./registration/registration-finish/registration-finish.service";
-export * from "./registration/registration-finish/default-registration-finish.service";
 
 // user verification
 export * from "./user-verification/user-verification-dialog.component";

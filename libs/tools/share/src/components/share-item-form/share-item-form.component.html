@@ -1,0 +1,139 @@
+<div class="tw-p-4">
+  <bit-section>
+    @if (hasItemDetails()) {
+      <bit-accordion
+        [title]="cipher().name"
+        [subtitle]="cipherSubtitle()"
+        [startIcon]="cipherTypeIcon()"
+        variant="subtle"
+        [open]="false"
+      >
+        <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
+          "itemDetails" | i18n
+        }}</span>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          @for (collection of collections(); track collection.id) {
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon name="bwi-collection" class="tw-text-muted" />
+              <span bitTypography="body2" class="tw-text-muted">{{ collection.name }}</span>
+            </div>
+          }
+          @if (folder(); as currentFolder) {
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <bit-icon name="bwi-folder" class="tw-text-muted" />
+              <span bitTypography="body2" class="tw-text-muted">{{ currentFolder.name }}</span>
+            </div>
+          }
+        </div>
+      </bit-accordion>
+    } @else {
+      <!-- Mirrors the accordion's header so the item looks the same, minus the toggle: with no
+         folder or collections there is nothing for it to reveal. -->
+      <div
+        id="share-item-form_item-summary"
+        class="tw-flex tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-4"
+      >
+        <bit-icon-tile [icon]="cipherTypeIcon()" size="lg" variant="gray"></bit-icon-tile>
+        <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-gap-1 tw-items-start">
+          <span class="tw-font-medium tw-leading-6 tw-text-lg tw-text-fg-heading">{{
+            cipher().name
+          }}</span>
+          @if (cipherSubtitle(); as subtitle) {
+            <span class="tw-text-sm/5 tw-text-fg-body">{{ subtitle }}</span>
+          }
+        </div>
+      </div>
+    }
+  </bit-section>
+
+  <form [formGroup]="form">
+    <bit-section disableMargin>
+      <p bitTypography="h6" class="tw-mb-1">
+        {{ "peopleWhoCanView" | i18n }}
+      </p>
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
+        {{ "shareEmailVerificationDescription" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label class="tw-font-normal">{{ "emails" | i18n }}</bit-label>
+        <textarea
+          bitInput
+          id="share-item-form_textarea_emails"
+          formControlName="emails"
+          rows="3"
+        ></textarea>
+      </bit-form-field>
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+        {{ "enterMultipleEmailsSeparatedByComma" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
+        <bit-select bitInput id="share-item-form_select_expiry" formControlName="expiryHours">
+          @for (option of expiryOptions; track option.value) {
+            <bit-option [value]="option.value" [label]="option.label"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+      @if (policyDeletionHoursOrgName()) {
+        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
+          {{ "sendDeletionDateSetByOrg" | i18n: policyDeletionHoursOrgName() }}
+        </p>
+      }
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+        {{ "shareLinkExpiryHint" | i18n }}
+      </p>
+      <bit-form-control disableMargin>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="share-item-form_checkbox_one-time"
+          formControlName="oneTimeShare"
+        />
+        <bit-label bitTypography="body1" class="tw-font-normal">{{
+          "oneTimeShare" | i18n
+        }}</bit-label>
+      </bit-form-control>
+    </bit-section>
+  </form>
+
+  @if (activeLinks().length > 0) {
+    <bit-section disableMargin class="tw-mt-4 tw-block">
+      <p bitTypography="h6" class="tw-mb-2 tw-block">{{ "activeLinks" | i18n }}</p>
+      <bit-item-group>
+        @for (link of activeLinks(); track link.sendId) {
+          <bit-item>
+            <bit-item-content>
+              <bit-icon slot="start" name="bwi-share-link" class="tw-text-primary-600" />
+              {{ linkEmailDisplay(link.emails) }}
+              <span slot="secondary">
+                {{ "shareLinkExpires" | i18n }} {{ link.expiresAt | date: "mediumDate" }}
+              </span>
+            </bit-item-content>
+            <ng-container slot="end">
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  size="small"
+                  id="share-item-form_button_copy-link-{{ link.sendId }}"
+                  label="{{ 'copyLink' | i18n }}"
+                  (click)="copyLink(link)"
+                ></button>
+              </bit-item-action>
+              <bit-item-action>
+                <button
+                  type="button"
+                  bitIconButton="bwi-trash"
+                  size="small"
+                  id="share-item-form_button_delete-link-{{ link.sendId }}"
+                  label="{{ 'delete' | i18n }}"
+                  (click)="deleteLink(link)"
+                ></button>
+              </bit-item-action>
+            </ng-container>
+          </bit-item>
+        }
+      </bit-item-group>
+    </bit-section>
+  }
+</div>

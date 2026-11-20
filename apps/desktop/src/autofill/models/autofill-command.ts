@@ -1,5 +1,10 @@
+import {
+  AutofillOpenSettingsCommand,
+  AutofillRequestEnableCommand,
+} from "./autofill-settings.command";
 import { AutofillStatusCommand } from "./autofill-status.command";
 import { AutofillSyncCommand } from "./autofill-sync.command";
+import { AutofillUserVerificationCommand } from "./autofill-user-verification.command";
 
 export type AutofillCommandDefinition = {
   namespace: string;
@@ -20,4 +25,9 @@ export type IpcCommandInvoker<C extends AutofillCommandDefinition> = (
 ) => Promise<AutofillCommandOutput<C["output"]>>;
 
 /** A list of all available commands */
-export type AutofillCommand = AutofillSyncCommand | AutofillStatusCommand;
+export type AutofillCommand =
+  | AutofillSyncCommand
+  | AutofillStatusCommand
+  | AutofillUserVerificationCommand
+  | AutofillRequestEnableCommand
+  | AutofillOpenSettingsCommand;

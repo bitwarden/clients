@@ -22,6 +22,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -31,6 +32,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
   sortDefaultCollections: jest.fn((): CollectionView[] => []),
@@ -54,6 +56,7 @@ describe("vault filter service", () => {
   let autoConfirmPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -70,6 +73,8 @@ describe("vault filter service", () => {
     i18nService.collator = new Intl.Collator("en-US");
     collectionService = mock<CollectionService>();
     configService = mock<ConfigService>();
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
+    vfo1TerminologyService.iconClass.mockImplementation((icon) => icon);
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
@@ -104,9 +109,26 @@ describe("vault filter service", () => {
       collectionService,
       accountService,
       configService,
+      vfo1TerminologyService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
+  });
+
+  describe("shared-folder terminology filter heads", () => {
+    it("uses collection/folder head names when the flag is off", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(false);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("collections");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("folders");
+    });
+
+    it("uses shared-folder/my-folder head names when the flag is on", () => {
+      vfo1TerminologyService.enabled.mockReturnValue(true);
+
+      expect(vaultFilterService["getCollectionFilterHead"]().node.name).toBe("sharedFolders");
+      expect(vaultFilterService["getFolderFilterHead"]().node.name).toBe("myFolders");
+    });
   });
 
   describe("collapsed filter nodes", () => {
@@ -272,6 +294,24 @@ describe("vault filter service", () => {
         expect(result.children[0].children.map((c) => c.node.id)).toEqual(["id-2", "id-3"]);
       });
 
+      it("carries hasEnabledAccessRule onto the tree node", async () => {
+        // `buildCollectionTree`'s `new CollectionView(...)` resets the flag to `false`; losing
+        // the carry-over unmarks every governed collection silently.
+        const governed = createCollectionView("id-1", "Collection 1", "org test id");
+        governed.hasEnabledAccessRule = true;
+        const ungoverned = createCollectionView("id-2", "Collection 2", "org test id");
+        const storedCollections = [governed, ungoverned];
+        collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
+
+        const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+        expect(result.children[0].node.hasEnabledAccessRule).toBe(true);
+        expect(result.children[1].node.hasEnabledAccessRule).toBe(false);
+      });
+
       it("returns tree where non-existing collections are excluded from children", async () => {
         const storedCollections = [
           createCollectionView("id-1", "Collection 1", "org test id"),
@@ -382,6 +422,7 @@ describe("vault filter service", () => {
           collectionService,
           accountService,
           configService,
+          vfo1TerminologyService,
         );
       });
 
@@ -451,12 +492,12 @@ describe("vault filter service", () => {
   });
 
   function createOrganization(id: OrganizationId, name: string) {
-    const org = new Organization();
-    org.id = id;
-    org.name = name;
-    org.identifier = name;
-    org.isMember = true;
-    return org;
+    return buildTestOrganization({
+      id,
+      name,
+      identifier: name,
+      isMember: true,
+    });
   }
 
   function createCipherView(id: string, orgId: string, folderId: string) {

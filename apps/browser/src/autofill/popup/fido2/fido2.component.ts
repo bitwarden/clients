@@ -37,10 +37,11 @@ import {
   ButtonModule,
   DialogService,
   ItemModule,
-  NoItemsModule,
+  StatusLockupComponent,
   SearchModule,
   SectionComponent,
   SectionHeaderComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -53,6 +54,7 @@ import {
   BrowserFido2UserInterfaceSession,
   BrowserFido2MessageTypes,
 } from "../../fido2/services/browser-fido2-user-interface.service";
+import { CipherUse, FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
 
 import { Fido2CipherRowComponent } from "./fido2-cipher-row.component";
 import { Fido2UseBrowserLinkComponent } from "./fido2-use-browser-link.component";
@@ -82,12 +84,13 @@ interface ViewData {
     FormsModule,
     ItemModule,
     JslibModule,
-    NoItemsModule,
+    StatusLockupComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     SearchModule,
     SectionComponent,
     SectionHeaderComponent,
+    SvgComponent,
   ],
 })
 export class Fido2Component implements OnInit, OnDestroy {
@@ -124,6 +127,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     private browserMessagingApi: ZonedMessageListenerService,
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   ngOnInit() {
@@ -192,9 +196,9 @@ export class Fido2Component implements OnInit, OnDestroy {
             const activeUserId = await firstValueFrom(
               this.accountService.activeAccount$.pipe(getUserId),
             );
-            this.ciphers = (await this.cipherService.getAllDecrypted(activeUserId)).filter(
-              (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
-            );
+            this.ciphers = (
+              await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.Passkey)
+            ).filter((cipher) => cipher.type === CipherType.Login && !cipher.isDeleted);
 
             this.displayedCiphers = this.ciphers.filter(
               (cipher) =>

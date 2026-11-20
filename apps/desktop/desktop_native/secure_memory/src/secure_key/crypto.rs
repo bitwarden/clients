@@ -1,6 +1,6 @@
 use std::ptr::NonNull;
 
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit, Nonce};
 use rand::{rng, Rng};
 
 pub(super) const KEY_SIZE: usize = 32;
@@ -10,6 +10,10 @@ pub(super) const NONCE_SIZE: usize = 12;
 /// will result in a decryption failure and panic. The key's memory contents are protected from
 /// being swapped to disk via mlock.
 pub(super) struct MemoryEncryptionKey(NonNull<[u8]>);
+
+// SAFETY: The allocation is fully owned by this value, is never exposed or cloned, and is cleaned
+// up on drop. Moving the value to another thread transfers ownership of the allocation.
+unsafe impl Send for MemoryEncryptionKey {}
 
 /// An encrypted memory blob that must be decrypted using the same key that it was encrypted with.
 pub struct EncryptedMemory {
@@ -27,11 +31,11 @@ impl MemoryEncryptionKey {
     /// Encrypts the given plaintext using the key.
     #[allow(unused)]
     pub(super) fn encrypt(&self, plaintext: &[u8]) -> EncryptedMemory {
-        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
         let mut nonce = [0u8; NONCE_SIZE];
         rng().fill(&mut nonce);
         let ciphertext = cipher
-            .encrypt(Nonce::from_slice(&nonce), plaintext)
+            .encrypt(&Nonce::from(nonce), plaintext)
             .expect("encryption should not fail");
         EncryptedMemory { nonce, ciphertext }
     }
@@ -41,12 +45,9 @@ impl MemoryEncryptionKey {
     /// indicates that the process memory was tampered with.
     #[allow(unused)]
     pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Result<Vec<u8>, DecryptionError> {
-        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new_from_slice(self.as_ref()).expect("Could not create aes key");
         cipher
-            .decrypt(
-                Nonce::from_slice(&encrypted.nonce),
-                encrypted.ciphertext.as_ref(),
-            )
+            .decrypt(&Nonce::from(encrypted.nonce), encrypted.ciphertext.as_ref())
             .map_err(|_| DecryptionError::CouldNotDecrypt)
     }
 }

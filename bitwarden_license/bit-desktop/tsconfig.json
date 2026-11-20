@@ -1,0 +1,4 @@
+{
+  "extends": "../../apps/desktop/tsconfig",
+  "files": ["../../bitwarden_license/bit-common/src/platform/sdk/sdk-alias.d.ts", "src/entry.ts"]
+}

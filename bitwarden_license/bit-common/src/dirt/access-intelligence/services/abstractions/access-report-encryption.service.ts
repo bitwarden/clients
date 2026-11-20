@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 
 import {
   MemberRegistryEntryData,

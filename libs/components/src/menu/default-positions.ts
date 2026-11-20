@@ -1,5 +1,7 @@
 import { ConnectedPosition } from "@angular/cdk/overlay";
 
+const TRIGGER_GAP_PX = 4;
+
 export type MenuPositionIdentifier = "below-start" | "below-end" | "above-start" | "above-end";
 
 export interface DefaultMenuPosition extends ConnectedPosition {
@@ -12,8 +14,36 @@ export interface DefaultMenuPosition extends ConnectedPosition {
  * via `[menuPosition]` on `bitMenuTriggerFor`.
  */
 export const defaultPositions: DefaultMenuPosition[] = [
-  { id: "below-start", originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
-  { id: "below-end", originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
-  { id: "above-start", originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
-  { id: "above-end", originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
+  {
+    id: "below-start",
+    offsetY: TRIGGER_GAP_PX,
+    originX: "start",
+    originY: "bottom",
+    overlayX: "start",
+    overlayY: "top",
+  },
+  {
+    id: "below-end",
+    offsetY: TRIGGER_GAP_PX,
+    originX: "end",
+    originY: "bottom",
+    overlayX: "end",
+    overlayY: "top",
+  },
+  {
+    id: "above-start",
+    offsetY: -TRIGGER_GAP_PX,
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+  {
+    id: "above-end",
+    offsetY: -TRIGGER_GAP_PX,
+    originX: "end",
+    originY: "top",
+    overlayX: "end",
+    overlayY: "bottom",
+  },
 ];

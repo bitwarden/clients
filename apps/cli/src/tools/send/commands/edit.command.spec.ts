@@ -8,6 +8,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -27,6 +28,7 @@ describe("SendEditCommand", () => {
   const sendApiService = mock<SendApiService>();
   const accountProfileService = mock<BillingAccountProfileStateService>();
   const accountService = mock<AccountService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -48,7 +50,6 @@ describe("SendEditCommand", () => {
   const mockSend = {
     id: mockSendId,
     type: SendType.Text,
-    decrypt: jest.fn().mockResolvedValue(mockSendView),
   };
 
   const encodeRequest = (data: any) => Buffer.from(JSON.stringify(data)).toString("base64");
@@ -60,6 +61,7 @@ describe("SendEditCommand", () => {
     accountProfileService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     sendService.getFromState.mockResolvedValue(mockSend as any);
     getCommand.run.mockResolvedValue(Response.success(new SendResponse(mockSendView)) as any);
+    sendDecryptionService.decryptSend.mockResolvedValue(mockSendView);
 
     command = new SendEditCommand(
       sendService,
@@ -67,6 +69,7 @@ describe("SendEditCommand", () => {
       sendApiService,
       accountProfileService,
       accountService,
+      sendDecryptionService,
     );
   });
 
@@ -84,18 +87,14 @@ describe("SendEditCommand", () => {
           emails: ["test@example.com"],
         };
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, emails: "test@example.com", authType: AuthType.Email } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.Email);
-        expect(savedCall[0].emails).toBe("test@example.com");
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.Email);
+        expect(savedView.emails).toEqual(["test@example.com"]);
       });
 
       it("should set authType to Password when password is provided via CLI", async () => {
@@ -110,17 +109,13 @@ describe("SendEditCommand", () => {
           password: "testPassword123",
         };
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.Password } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.Password);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.Password);
       });
 
       it("should set authType to None when neither emails nor password provided", async () => {
@@ -133,17 +128,13 @@ describe("SendEditCommand", () => {
 
         const cmdOptions = {};
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.None } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.None);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.None);
       });
 
       it("should return error when both emails and password provided via CLI", async () => {
@@ -176,17 +167,13 @@ describe("SendEditCommand", () => {
         };
         const requestJson = encodeRequest(requestData);
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.Email } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.Email);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.Email);
       });
 
       it("should set authType to Password when password provided in JSON", async () => {
@@ -198,17 +185,13 @@ describe("SendEditCommand", () => {
         };
         const requestJson = encodeRequest(requestData);
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.Password } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.Password);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.Password);
       });
 
       it("should return error when both emails and password provided in JSON", async () => {
@@ -280,18 +263,14 @@ describe("SendEditCommand", () => {
           emails: ["cli@example.com"],
         };
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, emails: "cli@example.com", authType: AuthType.Email } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, cmdOptions);
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.Email);
-        expect(savedCall[0].emails).toBe("cli@example.com");
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.Email);
+        expect(savedView.emails).toEqual(["cli@example.com"]);
       });
     });
 
@@ -305,17 +284,13 @@ describe("SendEditCommand", () => {
         };
         const requestJson = encodeRequest(requestData);
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.None } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.None);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.None);
       });
 
       it("should set authType to None when password is empty string", async () => {
@@ -327,17 +302,13 @@ describe("SendEditCommand", () => {
         };
         const requestJson = encodeRequest(requestData);
 
-        sendService.encrypt.mockResolvedValue([
-          { id: mockSendId, authType: AuthType.None } as any,
-          null as any,
-        ]);
-        sendApiService.save.mockResolvedValue(undefined as any);
+        sendApiService.saveView.mockResolvedValue({ id: mockSendId } as any);
 
         const response = await command.run(requestJson, {});
 
         expect(response.success).toBe(true);
-        const savedCall = sendApiService.save.mock.calls[0][0];
-        expect(savedCall[0].authType).toBe(AuthType.None);
+        const savedView = sendApiService.saveView.mock.calls[0][0];
+        expect(savedView.authType).toBe(AuthType.None);
       });
 
       it("should handle send not found", async () => {

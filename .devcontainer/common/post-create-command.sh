@@ -61,13 +61,20 @@ if [ "$RUN_NPM_CI" = "yes" ]; then
 fi
 
 if [ "$SETUP_DESKTOP_NATIVE" = "yes" ]; then
-    # Install Rust nightly toolchain (required for desktop native module)
+    # Install the pinned Rust nightly toolchain (required for desktop native
+    # module). The pin lives in desktop_native/rust-toolchain.toml; rustfmt.toml
+    # enables unstable options whose output changes between nightlies, so a
+    # rolling nightly would disagree with CI.
     echo "Installing Rust nightly toolchain..."
-    rustup toolchain install nightly
+    RUST_NIGHTLY_TOOLCHAIN="$(node scripts/rust-toolchain.mjs --nightly)"
+    rustup toolchain install "$RUST_NIGHTLY_TOOLCHAIN" -c rustfmt
 
-    # Install cargo tools for pre-commit hooks (optional but recommended)
-    echo "Installing cargo tools for pre-commit hooks..."
-    cargo install cargo-sort cargo-udeps cargo-deny
+    # Bootstrap cargo-run-bin for pre-commit hooks and lint-rust.mjs. The individual
+    # tools (cargo-sort, cargo-udeps, cargo-deny, ...) are pinned in
+    # apps/desktop/desktop_native/Cargo.toml under [workspace.metadata.bin] and
+    # built lazily on first `cargo bin <tool>`.
+    echo "Bootstrapping cargo-run-bin for cargo tools..."
+    cargo install cargo-run-bin --locked --version 1.7.4
 
     # Build the desktop native module
     echo "Building desktop native module..."

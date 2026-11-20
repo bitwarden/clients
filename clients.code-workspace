@@ -25,6 +25,10 @@
       "path": "apps/desktop",
     },
     {
+      "name": "desktop (bit)",
+      "path": "bitwarden_license/bit-desktop",
+    },
+    {
       "name": "browser",
       "path": "apps/browser",
     },
@@ -35,6 +39,14 @@
     {
       "name": "common (bit)",
       "path": "bitwarden_license/bit-common",
+    },
+    {
+      "name": "pam (bit)",
+      "path": "bitwarden_license/bit-pam",
+    },
+    {
+      "name": "pam components (bit)",
+      "path": "bitwarden_license/bit-pam-components",
     },
   ],
   "settings": {

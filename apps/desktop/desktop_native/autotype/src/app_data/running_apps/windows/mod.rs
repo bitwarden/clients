@@ -1,0 +1,280 @@
+//! Windows implementation of getting running apps.
+//!
+//! Order of operations:
+//!    1. collect raw running apps list
+//!    2. filter out the noise
+//!    3. sort alphabetically by display name
+
+use std::{collections::HashMap, path::PathBuf};
+
+use anyhow::{anyhow, Result};
+use tracing::{debug, error, warn};
+use windows::{
+    core::GUID,
+    Win32::{
+        Foundation::{HWND, PROPERTYKEY, RPC_E_CHANGED_MODE},
+        System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED},
+        UI::WindowsAndMessaging::GetForegroundWindow,
+    },
+};
+
+use crate::app_data::{
+    path::{build_normalizer, PathNormalizer},
+    AppData, AppMetadata, VerifiableAppData,
+};
+
+mod appsfolder;
+mod collect;
+mod filter;
+
+// `PKEY_AppUserModel_ID` (propkey.h): fmtid `{9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3}`, pid 5.
+// Not published by the `windows` crate, hence hard-coding.
+// <https://learn.microsoft.com/en-us/windows/win32/properties/props-system-appusermodel-id>
+const PKEY_APP_USER_MODEL_ID: PROPERTYKEY = PROPERTYKEY {
+    fmtid: GUID::from_u128(0x9F4C2855_9F79_4B39_A8D0_E1D42DE1D5F3),
+    pid: 5,
+};
+
+/// The `ApplicationFrameHost` host process. Packaged/UWP apps present their frame window under it;
+/// `collect::window_source` follows the frame to the hosted child, and `filter` drops it as shell
+/// surface when that child-follow fails. Shared so the two decisions can't drift.
+const APPLICATION_FRAME_HOST_EXE: &str = "applicationframehost.exe";
+
+/// One registered application from the AppsFolder, as identity + display name. Produced by
+/// [`appsfolder`] and consumed by [`collect`] to resolve window/process identity. `display_name`
+/// is `None` when the shell reports no (or an empty) name, so consumers fall back rather than
+/// surfacing a blank name.
+struct AppRegistration {
+    display_name: Option<String>,
+}
+
+/// AppsFolder contents keyed on **lowercased** AUMID.
+type AppRegistry = HashMap<String, AppRegistration>;
+
+/// Internal working record for one running application in Windows.
+/// Contains everything the collection and filtering stages need.
+struct RunningApp {
+    /// A representative process id for the app (apps may span many processes).
+    pid: u32,
+    /// Raw executable file name, e.g. `chrome.exe`.
+    filename: String,
+    /// Friendly name resolved from the AppsFolder registry or version info, if any.
+    display_name: Option<String>,
+    /// Full path to the executable, when it could be resolved.
+    exe_path: Option<PathBuf>,
+    /// Came from a true top-level window.
+    has_window: bool,
+    /// The app is registered/user-launchable (its AUMID is in the AppsFolder registry).
+    registered: bool,
+}
+
+impl RunningApp {
+    /// The best human-readable label available for this app.
+    fn name(&self) -> &str {
+        self.display_name.as_deref().unwrap_or(&self.filename)
+    }
+
+    // Attemps to convert to `AppData`
+    fn into_app_data(self, normalizer: &PathNormalizer) -> Option<AppData> {
+        let Some(display_name) = self.display_name else {
+            error!(
+                filename = %self.filename,
+                "display_name is required field of AppData, not able to convert."
+            );
+            return None;
+        };
+        let Some(exe_path) = self.exe_path else {
+            error!(
+                display_name = %display_name,
+                "path is a required field of AppData, not able to convert."
+            );
+            return None;
+        };
+        let path = PathBuf::from(normalizer.normalize(&exe_path.to_string_lossy()));
+
+        Some(AppData { display_name, path })
+    }
+}
+
+/// Windows implementation of [`super::get_running_apps`]
+pub(super) fn get_running_apps() -> Vec<AppData> {
+    with_com(|| {
+        // The authoritative set of registered launchable apps, keyed by AUMID — the input that
+        // lets collection resolve real identities and tag user-launchable apps.
+        let registry = appsfolder::load();
+
+        // 1. Collection: the raw, full list of running apps.
+        // This contains many processes that are not actually apps that can be paired.
+        let raw = collect::collect(&registry);
+        let n_collected = raw.len();
+
+        debug!(n = n_collected, "Collected raw running apps.");
+
+        // 2. Filtering: apply the exclusion policy (dropped candidates are logged, not returned).
+        let mut kept = filter::apply(raw);
+
+        // 3. Sort: alphabetically by name ensure deterministic output
+        kept.sort_by(|a, b| {
+            a.name()
+                .to_ascii_lowercase()
+                .cmp(&b.name().to_ascii_lowercase())
+        });
+
+        debug!(
+            n_filtered = n_collected - kept.len(),
+            n_kept = kept.len(),
+            "Filtered running apps."
+        );
+
+        // 4. Convert: the raw type to the public API
+        let normalizer = build_normalizer();
+        kept.into_iter()
+            .filter_map(|app| app.into_app_data(&normalizer))
+            .collect()
+    })
+}
+
+/// Resolves the current foreground window to an [`VerifiableAppData`] — its [`AppData`] (via the
+/// same identity resolution, exclusion policy, and path normalization as [`get_running_apps`]) plus
+/// live [`AppMetadata`] (window handle + pid) so a later call can confirm the same app is still
+/// active.
+pub(super) fn get_active_app() -> Result<VerifiableAppData> {
+    with_com(|| {
+        let hwnd = foreground_window()?;
+        let registry = appsfolder::load();
+
+        let raw = collect::resolve_window(hwnd, true)
+            .ok_or_else(|| anyhow!("could not resolve the foreground window's process"))?;
+        let (_key, running) = collect::window_to_running_app(&raw, &registry);
+
+        let kept = filter::apply(vec![running])
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow!("active window is not a pairable app"))?;
+        let pid = kept.pid;
+
+        let normalizer = build_normalizer();
+        let app_data = kept
+            .into_app_data(&normalizer)
+            .ok_or_else(|| anyhow!("active app is missing a display name or path"))?;
+
+        // The active window's handle (`HWND`) as a `u32`. On 64-bit Windows an `HWND` is
+        // 32-bit-significant, so the low 32 bits are lossless.
+        let id = hwnd.0 as u32;
+
+        Ok(VerifiableAppData {
+            app_data,
+            app_metadata: AppMetadata { id, pid },
+        })
+    })
+}
+
+/// Run function `f` inside a COM single-threaded apartment (STA). Reading window property stores /
+/// AppsFolder / AppDiagnosticInfo needs COM, so this initializes an STA for the duration of the
+/// call and balances it with a matching `CoUninitialize`.
+///
+/// If the calling thread was already initialized in a different apartment (`RPC_E_CHANGED_MODE`)
+/// COM stays usable in that apartment and no reference is released; any other initialization
+/// failure leaves the shell/WinRT calls to fail their `Result`s, degrading gracefully.
+fn with_com<T>(f: impl FnOnce() -> T) -> T {
+    // S_OK / S_FALSE add an initialization reference on this thread that we own and must
+    // release; RPC_E_CHANGED_MODE does not (the thread keeps its existing apartment).
+    // <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex>
+    let hr_result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
+
+    let owns_com = hr_result.is_ok();
+    if !owns_com && hr_result != RPC_E_CHANGED_MODE {
+        warn!(
+            ?hr_result,
+            "CoInitializeEx failed; COM-dependent enumeration may be empty"
+        );
+    }
+
+    let out = f();
+
+    if owns_com {
+        // SAFETY: only run on successful CoInitializeEx result.
+        unsafe { CoUninitialize() };
+    }
+
+    out
+}
+
+/// Retreive the current foreground window handle, or an error when there is none (or it is
+/// invalid).
+fn foreground_window() -> Result<HWND> {
+    // SAFETY: GetForegroundWindow only reads global UI state and returns a null handle when there
+    // is no foreground window (e.g. during a focus transition).
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow>
+    let hwnd = unsafe { GetForegroundWindow() };
+    debug!("GetForegroundWindow() called.");
+
+    if hwnd.is_invalid() {
+        return Err(anyhow!("no foreground window"));
+    }
+    Ok(hwnd)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn running(name: &str, display: Option<&str>, path: Option<&str>) -> RunningApp {
+        RunningApp {
+            pid: 1,
+            filename: name.to_string(),
+            exe_path: path.map(PathBuf::from),
+            display_name: display.map(str::to_owned),
+            has_window: true,
+            registered: false,
+        }
+    }
+
+    #[test]
+    fn label_prefers_display_name() {
+        assert_eq!(
+            running("chrome.exe", Some("Google Chrome"), None).name(),
+            "Google Chrome"
+        );
+    }
+
+    #[test]
+    fn label_falls_back_to_name() {
+        assert_eq!(running("chrome.exe", None, None).name(), "chrome.exe");
+    }
+
+    #[test]
+    fn into_app_data_uses_label_and_normalizes_path() {
+        // Fixture mapping keeps this deterministic and proves `into_app_data` applies the
+        // normalizer (rather than depending on the machine's real user dirs).
+        let normalizer = PathNormalizer::new(
+            [("C:\\c".to_string(), "%TEST%".to_string())],
+            crate::app_data::path::PlatformPolicy::WINDOWS,
+        );
+        let data = running(
+            "chrome.exe",
+            Some("Google Chrome"),
+            Some("C:\\c\\chrome.exe"),
+        )
+        .into_app_data(&normalizer)
+        .expect("a candidate with a display name and a path yields an AppData");
+        assert_eq!(data.display_name, "Google Chrome");
+        assert_eq!(data.path, PathBuf::from("%TEST%\\chrome.exe"));
+    }
+
+    #[test]
+    fn into_app_data_requires_display_name_and_path() {
+        let normalizer = PathNormalizer::new(
+            std::iter::empty::<(String, String)>(),
+            crate::app_data::path::PlatformPolicy::WINDOWS,
+        );
+        // No display name → not surfaced (we never fall back to the file name).
+        assert!(running("chrome.exe", None, Some("C:\\c\\chrome.exe"))
+            .into_app_data(&normalizer)
+            .is_none());
+        // No resolvable path → not surfaced.
+        assert!(running("chrome.exe", Some("Google Chrome"), None)
+            .into_app_data(&normalizer)
+            .is_none());
+    }
+}

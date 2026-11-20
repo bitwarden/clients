@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -39,6 +39,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { ssoTypeValidator } from "./sso-type.validator";
 
@@ -105,6 +106,8 @@ export class SsoManageComponent implements OnInit, OnDestroy {
     { name: "Redirect GET", value: OpenIdConnectRedirectBehavior.RedirectGet },
     { name: "Form POST", value: OpenIdConnectRedirectBehavior.FormPost },
   ];
+
+  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
 
   private destroy$ = new Subject<void>();
   showTdeOptions = false;
@@ -535,6 +538,14 @@ export class SsoManageComponent implements OnInit, OnDestroy {
     if (currentOrganization) {
       const updatedOrganization: OrganizationData = {
         ...currentOrganization,
+        seats: currentOrganization.seats ?? null,
+        maxCollections: currentOrganization.maxCollections ?? null,
+        identifier: currentOrganization.identifier ?? null,
+        organizationUserId: currentOrganization.organizationUserId ?? null,
+        providerId: currentOrganization.providerId ?? null,
+        providerName: currentOrganization.providerName ?? null,
+        familySponsorshipFriendlyName: currentOrganization.familySponsorshipFriendlyName ?? null,
+        keyConnectorUrl: currentOrganization.keyConnectorUrl ?? null,
         ssoEnabled: organizationSsoRequest.enabled,
         ssoMemberDecryptionType: organizationSsoRequest.data.memberDecryptionType,
       };

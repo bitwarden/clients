@@ -21,6 +21,7 @@ import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
   encryptedFor: UserId;
+  encryptedByKeyId?: string;
   type: CipherType;
   folderId: string;
   organizationId: string;
@@ -46,9 +47,10 @@ export class CipherRequest {
   key: string;
   data?: string;
 
-  constructor({ cipher, encryptedFor }: EncryptionContext) {
+  constructor({ cipher, encryptedFor, encryptedByKeyId }: EncryptionContext) {
     this.type = cipher.type;
     this.encryptedFor = encryptedFor;
+    this.encryptedByKeyId = encryptedByKeyId;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;
     this.name = cipher.name ? cipher.name.encryptedString : null;
@@ -82,6 +84,7 @@ export class CipherRequest {
             : null;
         this.login.totp = cipher.login.totp ? cipher.login.totp.encryptedString : null;
         this.login.autofillOnPageLoad = cipher.login.autofillOnPageLoad;
+        this.login.httpAuthenticationEnabled = cipher.login.httpAuthenticationEnabled;
 
         if (cipher.login.fido2Credentials != null) {
           this.login.fido2Credentials = cipher.login.fido2Credentials.map((key) => {

@@ -6,7 +6,6 @@ const process = require("process");
 
 // Map of the Node arch equivalents for the rust target triplets, used to move the file to the correct location
 const rustTargetsMap = {
-    "i686-pc-windows-msvc":       { nodeArch: 'ia32',  platform: 'win32'  },
     "x86_64-pc-windows-msvc":     { nodeArch: 'x64',   platform: 'win32'  },
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
@@ -18,11 +17,28 @@ const rustTargetsMap = {
 // Ensure the dist directory exists
 fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 
+/**
+ * Read a tool version pinned in [workspace.metadata.bin] so nothing here carries a
+ * second copy of it. Kept as a local regex rather than importing scripts/*.mjs
+ * because this file is CommonJS.
+ * @param {string} tool Name of the tool as it appears in [workspace.metadata.bin].
+ */
+function pinnedBinVersion(tool) {
+    const cargoToml = fs.readFileSync(path.join(__dirname, "Cargo.toml"), "utf8");
+    const match = new RegExp(`^${tool}\\s*=\\s*\\{\\s*version\\s*=\\s*"=?([^"]+)"`, "m").exec(cargoToml);
+    if (!match) {
+        throw new Error(`Could not find '${tool}' in [workspace.metadata.bin] of desktop_native/Cargo.toml`);
+    }
+    return match[1];
+}
+
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
 const isRelease = mode === "release";
 const targetArg = args.find(arg => arg.startsWith("--target="));
 const target = targetArg ? targetArg.split("=")[1] : null;
+// Cargo features for the napi module, e.g. `--features=file_secure_storage`.
+const featuresArg = args.find(arg => arg.startsWith("--features="));
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
@@ -43,7 +59,7 @@ function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const crossCompileArg = effectivePlatform(target) !== process.platform ? "--cross-compile" : "";
-    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi", true);
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg, featuresArg ?? ""].filter(s => s != ''), "./napi", true);
 }
 
 /**
@@ -59,7 +75,15 @@ function cargoBuild(bin, target, release) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const args = ["build", "--bin", bin, releaseArg, targetArg]
-    // Use cross-compilation helper if necessary
+    // Use cross-compilation helper if necessary. Dispatch through cargo rather than
+    // `cargo bin cargo-xwin`: installTarget() has already installed the version
+    // pinned in [workspace.metadata.bin] globally, because buildNapiModule() needs
+    // cargo-xwin on PATH anyway (see the comment there). Reusing it avoids a second
+    // build of the same pinned version, and `cargo install --version --locked` is
+    // source-only, which `cargo bin` is not when cargo-binstall is on PATH.
+    //
+    // NOTE: this relies on installTarget() running first, which every path that can
+    // reach a Windows target does (both the `--target=` and `cross-platform` flows).
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
     }
@@ -117,9 +141,15 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
-    // Install cargo-xwin for cross-platform builds targeting Windows
+    // Cross-building for Windows needs cargo-xwin on PATH: buildNapiModule() hands
+    // off to the napi CLI, which spawns `cargo xwin` itself, and cargoBuild()
+    // dispatches the same way. Install the version pinned in Cargo.toml under
+    // [workspace.metadata.bin] so that stays the single source of truth for it.
+    //
+    // Nothing here goes through cargo-run-bin, so this deliberately does not
+    // bootstrap it; `cargo bin` is only used by the lint runner and CI.
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
+        runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
@@ -132,6 +162,14 @@ function effectivePlatform(target) {
         return rustTargetsMap[target].platform
     }
     return process.platform
+}
+
+// Commands spawned by `runCommand` inherit `process.env`, so variables set here are picked up by
+// every build tool we invoke, as well as the tools those spawn in turn (`napi` -> `cargo-xwin` -> `cargo`).
+if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+    // In order to compile the ring crate, we need to force cargo-xwin to use the clang
+    // compiler rather than clang-cl.
+    process.env["XWIN_CROSS_COMPILER"] = "clang";
 }
 
 if (!crossPlatform && !target) {

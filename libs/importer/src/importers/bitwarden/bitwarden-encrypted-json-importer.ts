@@ -4,18 +4,19 @@ import { filter, firstValueFrom } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 import {
   BitwardenEncryptedIndividualJsonExport,
@@ -40,8 +41,9 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     protected i18nService: I18nService,
     private cipherService: CipherService,
     private accountService: AccountService,
+    logService: LogService,
   ) {
-    super();
+    super(logService);
   }
 
   async parse(data: string): Promise<ImportResult> {

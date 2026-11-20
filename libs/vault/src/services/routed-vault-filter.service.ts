@@ -43,7 +43,10 @@ export class RoutedVaultFilterService implements OnDestroy {
         const type = isRoutedVaultFilterItemType(unsafeType) ? unsafeType : undefined;
 
         return {
-          collectionId: (queryParams.get("collectionId") as CollectionId) ?? undefined,
+          // Accept both param names during the shared-folder terminology transition.
+          collectionId:
+            ((queryParams.get("sharedFolderId") ??
+              queryParams.get("collectionId")) as CollectionId | null) ?? undefined,
           folderId: queryParams.get("folderId") ?? undefined,
           organizationId:
             (params.get("organizationId") as OrganizationId) ??
@@ -53,6 +56,7 @@ export class RoutedVaultFilterService implements OnDestroy {
           organizationIdParamType:
             params.get("organizationId") != undefined ? ("path" as const) : ("query" as const),
           type,
+          controlledAccess: queryParams.get("controlledAccess") ?? undefined,
         };
       }),
       takeUntil(this.onDestroy),
@@ -76,16 +80,18 @@ export class RoutedVaultFilterService implements OnDestroy {
    */
   createRoute(filter: RoutedVaultFilterModel): [commands: any[], extras?: NavigationExtras] {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
     const organizationId =
       filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null);
     const extras: NavigationExtras = {
       queryParams: {
-        collectionId: filter.collectionId ?? null,
+        ...this.vfo1TerminologyService.collectionQueryParams(filter.collectionId),
         folderId: filter.folderId ?? null,
-        ...(this.vfo1TerminologyService.enabled()
+        ...(vfo1Enabled
           ? { vaultId: organizationId, organizationId: null }
           : { organizationId, vaultId: null }),
         type: filter.type ?? null,
+        controlledAccess: filter.controlledAccess ?? null,
       },
       queryParamsHandling: "merge",
       state: {

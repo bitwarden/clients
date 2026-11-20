@@ -1,8 +1,9 @@
 import { ipcMain } from "electron";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
 
@@ -63,6 +64,11 @@ export class MainBiometricsIPCListener {
         }
       } catch (e) {
         this.logService.error("[Main Biometrics IPC Listener] %s failed", message.action, e);
+
+        // Surface enrollment failures, so the renderer does not record an unenrolled key id.
+        if (message.action === BiometricAction.EnrollPersistent) {
+          throw e;
+        }
       }
     });
   }

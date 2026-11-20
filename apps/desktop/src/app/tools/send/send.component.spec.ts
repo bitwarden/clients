@@ -19,7 +19,9 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -62,6 +64,7 @@ describe("SendComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
   let sendFormService: MockProxy<SendFormService>;
+  let sendDecryptionService: MockProxy<SendDecryptionService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -77,9 +80,10 @@ describe("SendComponent", () => {
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
     sendFormService = mock<SendFormService>();
+    sendDecryptionService = mock<SendDecryptionService>();
 
-    // Setup configService mock - feature flag returns true to test the new drawer mode
-    configService.getFeatureFlag$.mockReturnValue(of(true));
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     // Setup environmentService mock
     environmentService.getEnvironment.mockResolvedValue({
@@ -106,6 +110,7 @@ describe("SendComponent", () => {
     // Mock activeAccount$ observable
     accountService.activeAccount$ = of({ id: "test-user-id" } as any);
     policyService.policyAppliesToUser$ = jest.fn().mockReturnValue(of(false));
+    policyService.policiesByType$ = jest.fn().mockReturnValue(of([]));
 
     // Mock SearchService methods needed by base component
     const mockSearchService = mock<SearchService>();
@@ -146,6 +151,10 @@ describe("SendComponent", () => {
         {
           provide: SendFormService,
           useValue: sendFormService,
+        },
+        {
+          provide: SendDecryptionService,
+          useValue: sendDecryptionService,
         },
       ],
     })
@@ -276,6 +285,60 @@ describe("SendComponent", () => {
         title: null,
         message: expect.any(String),
       });
+    });
+  });
+
+  describe("onRemoveAuth", () => {
+    // The component resolves its own DialogService instance (provided by an imported module), so
+    // stub the instance it actually uses rather than the root-level mock.
+    let openSimpleDialog: jest.SpyInstance;
+
+    beforeEach(() => {
+      openSimpleDialog = jest.spyOn(component["dialogService"], "openSimpleDialog");
+    });
+
+    it("uses email verification text for email-verified Sends", async () => {
+      openSimpleDialog.mockResolvedValue(true);
+      const mockSend = { id: "send-id", authType: AuthType.Email } as SendView;
+
+      await component["onRemoveAuth"](mockSend);
+
+      expect(openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "removeEmailVerification" },
+          content: { key: "removeSendEmailVerificationConfirmation" },
+        }),
+      );
+      expect(sendApiService.removeAuth).toHaveBeenCalledWith("send-id");
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "removedEmailVerification" }),
+      );
+    });
+
+    it("uses password text for password-protected Sends", async () => {
+      openSimpleDialog.mockResolvedValue(true);
+      const mockSend = { id: "send-id", authType: AuthType.Password } as SendView;
+
+      await component["onRemoveAuth"](mockSend);
+
+      expect(openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "removePassword" },
+          content: { key: "removeSendPasswordConfirmation" },
+        }),
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "removedPassword" }),
+      );
+    });
+
+    it("does not remove authentication when the user cancels", async () => {
+      openSimpleDialog.mockResolvedValue(false);
+      const mockSend = { id: "send-id", authType: AuthType.Email } as SendView;
+
+      await component["onRemoveAuth"](mockSend);
+
+      expect(sendApiService.removeAuth).not.toHaveBeenCalled();
     });
   });
 });

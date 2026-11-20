@@ -1,8 +1,18 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
-import { outputFromObservable } from "@angular/core/rxjs-interop";
-import { Subject } from "rxjs";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { outputFromObservable, toSignal } from "@angular/core/rxjs-interop";
+import { of, Subject } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
@@ -40,13 +50,42 @@ const bannerColors: Record<BannerVariant, string> = {
   templateUrl: "./banner.component.html",
   imports: [NgTemplateOutlet, IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
-    // Account for bit-layout's padding
-    class:
-      "tw-@container tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
+    "[class]": "class()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  protected readonly class = computed(() =>
+    [
+      "tw-@container",
+      "tw-flex",
+      "tw-flex-col",
+      // Account for bit-layout's padding
+      "[bit-layout_&]:-tw-mt-6",
+      "[bit-layout_&]:tw-pb-6",
+    ].concat(
+      this.vfo1Enabled()
+        ? [
+            "[bit-layout_&]:-tw-mx-10",
+            // bit-layout zeroes <main>'s top padding when the page renders a bit-header, leaving
+            // the -mt-6 above nothing to cancel — it would pull the banner out of the scroll
+            // container, clipping it. Inside a bit-page the -mt-6 still cancels that element's
+            // own py-6, so this only applies to banners projected straight into <main>.
+            "[bit-layout_main:has(bit-header)_&]:tw-mt-0",
+            "[bit-layout:has(bit-header)_&]:tw-pb-0",
+          ]
+        : ["[bit-layout_&]:-tw-mx-8"],
+    ),
+  );
+
   /**
    * The variant of banner, which determines its color scheme.
    */

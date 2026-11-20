@@ -8,7 +8,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { BadgeListComponent } from "./badge-list.component";
 
 export default {
-  title: "Component Library/Badge/List",
+  title: "Component Library/Badge/List (Deprecated)",
   component: BadgeListComponent,
   decorators: [
     moduleMetadata({

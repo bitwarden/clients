@@ -1,0 +1,184 @@
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutService } from "@bitwarden/common/auth/logout";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
+import { mockAccountServiceWith, mockAccountInfoWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { BiometricsService, KeyService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { StateEventRunnerService } from "@bitwarden/state";
+
+import { LockSource } from "./lock-source.enum";
+import { DefaultLockService } from "./lock.service";
+
+describe("DefaultLockService", () => {
+  const mockUser1 = "user1" as UserId;
+  const mockUser2 = "user2" as UserId;
+  const mockUser3 = "user3" as UserId;
+
+  const accountService = mockAccountServiceWith(mockUser1);
+  const biometricsService = mock<BiometricsService>();
+  const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const logoutService = mock<LogoutService>();
+  const messagingService = mock<MessagingService>();
+  const folderService = mock<FolderService>();
+  const stateEventRunnerService = mock<StateEventRunnerService>();
+  const cipherService = mock<CipherService>();
+  const authService = mock<AuthService>();
+  const systemService = mock<SystemService>();
+  const processReloadService = mock<ProcessReloadServiceAbstraction>();
+  const logService = mock<LogService>();
+  const keyService = mock<KeyService>();
+  const sdkService = mock<SdkService>();
+  const sut = new DefaultLockService(
+    accountService,
+    biometricsService,
+    vaultTimeoutSettingsService,
+    logoutService,
+    messagingService,
+    folderService,
+    stateEventRunnerService,
+    cipherService,
+    authService,
+    systemService,
+    processReloadService,
+    logService,
+    keyService,
+    sdkService,
+  );
+
+  describe("lockAll", () => {
+    const sut = new DefaultLockService(
+      accountService,
+      biometricsService,
+      vaultTimeoutSettingsService,
+      logoutService,
+      messagingService,
+      folderService,
+      stateEventRunnerService,
+      cipherService,
+      authService,
+      systemService,
+      processReloadService,
+      logService,
+      keyService,
+      sdkService,
+    );
+
+    it("locks the active account last", async () => {
+      await accountService.addAccount(
+        mockUser2,
+        mockAccountInfoWith({
+          name: "name2",
+          email: "email2@example.com",
+        }),
+      );
+
+      await accountService.addAccount(
+        mockUser3,
+        mockAccountInfoWith({
+          name: "name3",
+          email: "name3@example.com",
+        }),
+      );
+
+      const lockSpy = jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+
+      await sut.lockAll(LockSource.Manual);
+
+      // Non-Active users should be called first
+      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual, true);
+      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual, true);
+
+      // Active user should be called last
+      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual, true);
+    });
+
+    it("reloads the process once, after all users are locked", async () => {
+      processReloadService.reloadProcess.mockClear();
+      jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+
+      await sut.lockAll(LockSource.Manual);
+
+      expect(processReloadService.reloadProcess).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("lock", () => {
+    const userId = mockUser1;
+
+    it("returns early if user is already logged out", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+      await sut.lock(userId, LockSource.Manual);
+      // Should return early, not call logoutService.logout
+      expect(logoutService.logout).not.toHaveBeenCalled();
+      expect(stateEventRunnerService.handleEvent).not.toHaveBeenCalled();
+    });
+
+    it("logs out if user cannot lock", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      vaultTimeoutSettingsService.canLock.mockResolvedValue(false);
+      await sut.lock(userId, LockSource.Manual);
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "vaultTimeout");
+      expect(stateEventRunnerService.handleEvent).not.toHaveBeenCalled();
+    });
+
+    it("locks user", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+      logoutService.logout.mockClear();
+      vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
+      await sut.lock(userId, LockSource.Manual);
+      expect(logoutService.logout).not.toHaveBeenCalled();
+      expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", userId);
+    });
+
+    it("finishes locking the SDK client before clearing the user key", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
+      vaultTimeoutSettingsService.canLock.mockResolvedValue(true);
+      sdkService.lock.mockClear();
+      keyService.clearStoredUserKey.mockClear();
+      stateEventRunnerService.handleEvent.mockClear();
+      let sdkLockFinished = false;
+      let sdkLockFinishedBeforeKeyClear = false;
+      sdkService.lock.mockImplementation(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        sdkLockFinished = true;
+      });
+      stateEventRunnerService.handleEvent.mockImplementation(async () => {
+        sdkLockFinishedBeforeKeyClear = sdkLockFinished;
+      });
+
+      await sut.lock(userId, LockSource.Manual);
+
+      expect(sdkService.lock).toHaveBeenCalledWith(userId);
+      expect(sdkLockFinishedBeforeKeyClear).toBe(true);
+      const sdkLockOrder = sdkService.lock.mock.invocationCallOrder[0];
+      expect(sdkLockOrder).toBeLessThan(keyService.clearStoredUserKey.mock.invocationCallOrder[0]);
+      expect(sdkLockOrder).toBeLessThan(
+        stateEventRunnerService.handleEvent.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("does not lock the SDK client if the user is already logged out", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+      sdkService.lock.mockClear();
+
+      await sut.lock(userId, LockSource.Manual);
+
+      expect(sdkService.lock).not.toHaveBeenCalled();
+    });
+  });
+});

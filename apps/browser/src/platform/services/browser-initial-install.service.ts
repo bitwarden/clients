@@ -1,6 +1,6 @@
 import { Observable, map } from "rxjs";
 
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import {
   GlobalState,
   EXTENSION_INITIAL_INSTALL_DISK,
@@ -53,7 +53,11 @@ export default class BrowserInitialInstallService {
       installType === ExtensionInstallType.Development ||
       installType === ExtensionInstallType.Unknown;
 
-    if (isUserInitiatedInstall && !devFlagEnabled("skipWelcomeOnInstall")) {
+    if (
+      isUserInitiatedInstall &&
+      !devFlagEnabled("skipWelcomeOnInstall") &&
+      !flagEnabled("prereleaseBuild")
+    ) {
       void BrowserApi.createNewTab(WELCOME_PAGE_URL);
     }
   }

@@ -6,7 +6,8 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { SelectionReadOnlyResponse } from "@bitwarden/common/admin-console/models/response/selection-read-only.response";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfType } from "@bitwarden/legacy-crypto";
 
 export class OrganizationUserResponse extends BaseResponse {
   id: string;
@@ -17,6 +18,7 @@ export class OrganizationUserResponse extends BaseResponse {
   permissions: PermissionsApi;
   externalId: string;
   accessSecretsManager: boolean;
+  accessPam: boolean;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
   collections: SelectionReadOnlyResponse[] = [];
@@ -32,6 +34,7 @@ export class OrganizationUserResponse extends BaseResponse {
     this.permissions = new PermissionsApi(this.getResponseProperty("Permissions"));
     this.externalId = this.getResponseProperty("ExternalId");
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager") ?? false;
+    this.accessPam = this.getResponseProperty("AccessPam") ?? false;
     this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled") ?? false;
     this.hasMasterPassword = this.getResponseProperty("HasMasterPassword") ?? false;
 

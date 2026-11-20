@@ -2,12 +2,11 @@
 // @ts-strict-ignore
 import { throwError } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 export class NodeEnvSecureStorageService implements AbstractStorageService {
   constructor(

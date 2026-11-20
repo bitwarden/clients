@@ -24,12 +24,6 @@ export class SyncStep implements RecoveryStep {
     workingData.folders = response.folders.map((f) => new Folder(new FolderData(f)));
     logger.record(`Fetched ${workingData.folders.length} folders from server`);
 
-    workingData.encryptedPrivateKey =
-      response.profile?.accountKeys?.publicKeyEncryptionKeyPair?.wrappedPrivateKey ?? null;
-    logger.record(
-      `Fetched encrypted private key of length ${workingData.encryptedPrivateKey?.length ?? 0} from server`,
-    );
-
     return true;
   }
 

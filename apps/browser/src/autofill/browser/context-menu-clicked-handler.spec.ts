@@ -15,9 +15,9 @@ import {
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -28,7 +28,15 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
+import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
+import { emptyDraft, WebmapperDraft } from "../webmapper/draft";
+import {
+  WEBMAPPER_CONTAINER_ID,
+  WEBMAPPER_IRRELEVANT_ID,
+  WEBMAPPER_ROOT_ID,
+} from "../webmapper/menu";
 
 import {
   CopyToClipboardAction,
@@ -36,6 +44,7 @@ import {
   CopyToClipboardOptions,
   GeneratePasswordToClipboardAction,
   AutofillAction,
+  CollectAutofillTriageAction,
 } from "./context-menu-clicked-handler";
 
 describe("ContextMenuClickedHandler", () => {
@@ -50,6 +59,12 @@ describe("ContextMenuClickedHandler", () => {
       pageUrl: "something",
     };
   };
+
+  /** Serves `ciphers` to lookups by id, as the vault would. */
+  const serveCiphers = (policy: MockProxy<FillCipherPolicy>, ciphers: CipherView[]) =>
+    policy.ciphersForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
 
   const createCipher = (data?: {
     id?: CipherView["id"];
@@ -76,13 +91,16 @@ describe("ContextMenuClickedHandler", () => {
   let copyToClipboard: CopyToClipboardAction;
   let generatePasswordToClipboard: GeneratePasswordToClipboardAction;
   let autofill: AutofillAction;
+  let collectAutofillTriage: jest.Mock<ReturnType<CollectAutofillTriageAction>, [number, number?]>;
   let authService: MockProxy<AuthService>;
-  let cipherService: MockProxy<CipherService>;
+  let fillCipherPolicy: MockProxy<FillCipherPolicy>;
   let accountService: FakeAccountService;
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let triageService: MockProxy<AutofillTriageService>;
+  let webmapperDrafts: MockProxy<WebmapperDraftService>;
+  let intraprocessMessageSender: MockProxy<IntraprocessMessageSender>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -90,25 +108,31 @@ describe("ContextMenuClickedHandler", () => {
     copyToClipboard = jest.fn<void, [CopyToClipboardOptions]>();
     generatePasswordToClipboard = jest.fn<Promise<void>, [tab: chrome.tabs.Tab]>();
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
+    collectAutofillTriage = jest.fn<ReturnType<CollectAutofillTriageAction>, [number, number?]>();
     authService = mock();
-    cipherService = mock();
+    fillCipherPolicy = mock();
     accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
     eventCollectionService = mock();
     userVerificationService = mock();
     triageService = mock();
+    webmapperDrafts = mock();
+    intraprocessMessageSender = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
       generatePasswordToClipboard,
       autofill,
+      collectAutofillTriage,
       authService,
-      cipherService,
       totpService,
       eventCollectionService,
       userVerificationService,
       accountService,
       triageService,
+      webmapperDrafts,
+      intraprocessMessageSender,
+      fillCipherPolicy,
     );
   });
 
@@ -136,7 +160,7 @@ describe("ContextMenuClickedHandler", () => {
           data: createData(`${COPY_USERNAME_ID}_${NOOP_COMMAND_SUFFIX}`, COPY_USERNAME_ID),
           tab: {} as any,
           expectNotCalled: () => {
-            expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+            expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
             expect(copyToClipboard).not.toHaveBeenCalled();
           },
         },
@@ -161,7 +185,7 @@ describe("ContextMenuClickedHandler", () => {
           extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
         },
       ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        serveCiphers(fillCipherPolicy, []);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -191,7 +215,7 @@ describe("ContextMenuClickedHandler", () => {
       ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
         const cipher = createCipher();
         unset(cipher);
-        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+        serveCiphers(fillCipherPolicy, [cipher]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -214,7 +238,7 @@ describe("ContextMenuClickedHandler", () => {
 
     it("attempts to autofill the correct cipher", async () => {
       const cipher = createCipher();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      serveCiphers(fillCipherPolicy, [cipher]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
@@ -223,10 +247,20 @@ describe("ContextMenuClickedHandler", () => {
       expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
     });
 
+    it("looks up the cipher the user picked by id as a user fill", async () => {
+      serveCiphers(fillCipherPolicy, [createCipher()]);
+
+      await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
+
+      expect(fillCipherPolicy.ciphersForIds).toHaveBeenCalledWith(
+        mockUserId,
+        ["1"],
+        CipherUse.UserFill,
+      );
+    });
+
     it("copies username to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ username: "TEST_USERNAME" }),
-      ]);
+      serveCiphers(fillCipherPolicy, [createCipher({ username: "TEST_USERNAME" })]);
 
       await sut.run(createData(`${COPY_USERNAME_ID}_1`, COPY_USERNAME_ID), {
         url: "https://test.com",
@@ -241,9 +275,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies password to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        createCipher({ password: "TEST_PASSWORD" }),
-      ]);
+      serveCiphers(fillCipherPolicy, [createCipher({ password: "TEST_PASSWORD" })]);
 
       await sut.run(createData(`${COPY_PASSWORD_ID}_1`, COPY_PASSWORD_ID), {
         url: "https://test.com",
@@ -258,7 +290,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies totp code to clipboard", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
+      serveCiphers(fillCipherPolicy, [createCipher({ totp: "TEST_TOTP_SEED" })]);
 
       jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {
@@ -287,7 +319,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.None,
@@ -298,12 +330,13 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        [],
+        CipherUse.UserFill,
+        { includeOtherTypes: [] },
       );
 
       expect(copyToClipboard).toHaveBeenCalledTimes(1);
@@ -315,7 +348,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.Password,
@@ -326,12 +359,13 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        [],
+        CipherUse.UserFill,
+        { includeOtherTypes: [] },
       );
     });
 
@@ -346,11 +380,7 @@ describe("ContextMenuClickedHandler", () => {
       };
 
       beforeEach(() => {
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.({ pageDetails: mockPageDetails });
-          });
+        collectAutofillTriage.mockResolvedValue({ pageDetails: mockPageDetails } as any);
         jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
         jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
@@ -366,15 +396,10 @@ describe("ContextMenuClickedHandler", () => {
         };
       });
 
-      it("sends collectAutofillTriage to the tab and stores the result", async () => {
+      it("collects triage through the orchestrator and stores the result", async () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
-        expect(BrowserApi.sendTabsMessage).toHaveBeenCalledWith(
-          mockTab.id,
-          { command: "collectAutofillTriage", targetElementId: undefined },
-          { frameId: undefined },
-          expect.any(Function),
-        );
+        expect(collectAutofillTriage).toHaveBeenCalledWith(mockTab.id, undefined);
         expect(sut.triageResult).not.toBeUndefined();
         expect(sut.triageResult?.tabId).toBe(mockTab.id);
         expect(sut.triageResult?.pageUrl).toBe(mockTab.url);
@@ -426,15 +451,150 @@ describe("ContextMenuClickedHandler", () => {
 
       it("sends triageResultReady when page details collection fails so the component exits the loading state", async () => {
         const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
-        jest
-          .spyOn(BrowserApi, "sendTabsMessage")
-          .mockImplementation((_tabId, _message, _options, callback?: (response: any) => void) => {
-            callback?.(null);
-          });
+        collectAutofillTriage.mockResolvedValue(undefined);
 
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
         expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
+      });
+    });
+
+    describe("webmapper", () => {
+      const mockTab = { id: 42, url: "https://example.com/login", windowId: 1 } as chrome.tabs.Tab;
+      let sendMessageSpy: jest.SpyInstance;
+
+      /** Answers the content script round trip with `response`. */
+      function contentScriptAnswers(response: unknown) {
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (r: any) => void) => {
+            callback?.(response);
+          });
+      }
+
+      /** The draft produced by the last updateDraft call, mutator applied. */
+      function written(): WebmapperDraft {
+        const [host, pathname, mutate] = webmapperDrafts.updateDraft.mock.calls.at(-1)!;
+        const draft = emptyDraft(host, pathname);
+        mutate(draft);
+        return draft;
+      }
+
+      function feedback(): { type: string; message: string } {
+        const call = sendMessageSpy.mock.calls.find((c) => c[0] === "webmapperCaptureFeedback");
+        return call?.[1];
+      }
+
+      beforeEach(() => {
+        // webmapperSend reads chrome.runtime.lastError to tell "no content script
+        // here" apart from "script answered with nothing"; start each test clean.
+        (global as any).chrome = { runtime: {} };
+        sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+        jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+        webmapperDrafts.getDraft.mockResolvedValue(emptyDraft("example.com", "/login"));
+        webmapperDrafts.updateDraft.mockImplementation(async (host, pathname, mutate) => {
+          const draft = emptyDraft(host, pathname);
+          mutate(draft);
+          return draft;
+        });
+        contentScriptAnswers({ selector: "#user", warnings: [], alternates: [] });
+      });
+
+      it("opens the panel on the webmapper view", async () => {
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith(
+          expect.stringContaining("view=webmapper"),
+          expect.anything(),
+        );
+      });
+
+      it("captures a field selector into the draft for the tab's host and path", async () => {
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).toHaveBeenCalledWith(
+          "example.com",
+          "/login",
+          expect.any(Function),
+        );
+        expect(written().forms[0].fields.username).toEqual([
+          { selector: "#user", warnings: [], alternates: [] },
+        ]);
+        expect(feedback().type).toBe("success");
+      });
+
+      it("captures an action selector into the actions slot", async () => {
+        await sut.run(createData("webmapper:action:submit"), mockTab);
+
+        expect(written().forms[0].actions.submit).toHaveLength(1);
+      });
+
+      it("reports an error and writes nothing when no content script answers", async () => {
+        contentScriptAnswers(undefined);
+        (global as any).chrome.runtime.lastError = { message: "no receiving end" };
+
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("reports an error and writes nothing when no selector could be generated", async () => {
+        contentScriptAnswers({ selector: null, warnings: [], alternates: [] });
+
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("toggles the irrelevant flag and reports the resulting state", async () => {
+        await sut.run(createData(WEBMAPPER_IRRELEVANT_ID), mockTab);
+
+        expect(written().irrelevant).toBe(true);
+        expect(feedback()).toEqual(
+          expect.objectContaining({ type: "success", message: "Marked page irrelevant" }),
+        );
+      });
+
+      it("stores container candidates for the panel to choose from", async () => {
+        contentScriptAnswers({
+          candidates: [{ selector: "form#login", label: "nearest <form>", tag: "form" }],
+        });
+
+        await sut.run(createData(WEBMAPPER_CONTAINER_ID), mockTab);
+
+        expect(written().forms[0].pendingContainer).toHaveLength(1);
+        expect(feedback().type).toBe("success");
+      });
+
+      it("reports an error when no container candidates come back", async () => {
+        contentScriptAnswers({ candidates: [] });
+
+        await sut.run(createData(WEBMAPPER_CONTAINER_ID), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("refuses to map a non-http(s) page", async () => {
+        await sut.run(createData("webmapper:field:username"), {
+          ...mockTab,
+          url: "chrome://extensions",
+        } as chrome.tabs.Tab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("ignores a click on a non-actionable parent item", async () => {
+        await sut.run(createData(WEBMAPPER_ROOT_ID), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
       });
     });
   });

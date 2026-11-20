@@ -155,15 +155,6 @@ describe("ApplicationsTabComponent", () => {
       mockDataService.loading$.next(false);
       expect(testAccess(component).loading()).toBe(false);
     });
-
-    it("should convert ciphers$ to signal", () => {
-      const cipher = new CipherView();
-      cipher.id = "cipher-1";
-      mockDataService.ciphers$.next([cipher]);
-
-      expect(testAccess(component).ciphers()).toHaveLength(1);
-      expect(testAccess(component).ciphers()[0].id).toBe("cipher-1");
-    });
   });
 
   // ==================== Computed Signals ====================

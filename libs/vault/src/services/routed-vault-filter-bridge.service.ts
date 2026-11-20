@@ -8,18 +8,19 @@ import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 
+import { VaultFilterService } from "../abstractions/vault-filter.service";
+import { RoutedVaultFilterBridge } from "../models/routed-vault-filter-bridge.model";
+import { All, RoutedVaultFilterModel } from "../models/routed-vault-filter.model";
+import { VaultFilter } from "../models/vault-filter.model";
 import {
-  VaultFilterServiceAbstraction as VaultFilterService,
-  RoutedVaultFilterService,
-  RoutedVaultFilterBridge,
-  RoutedVaultFilterModel,
-  All,
-  VaultFilter,
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
-} from "..";
+} from "../models/vault-filter.type";
+
+import { RoutedVaultFilterService } from "./routed-vault-filter.service";
 
 /**
  * This file is part of a layer that is used to temporary bridge between URL filtering and the old state-in-code method.
@@ -175,7 +176,9 @@ function createLegacyFilterForEndUser(
     );
   }
 
-  if (filter.type === undefined) {
+  // "All items" is the resting selection only when nothing else is, or a controlled-access
+  // filter would leave two sidebar rows highlighted.
+  if (filter.type === undefined && filter.controlledAccess === undefined) {
     legacyFilter.selectedCipherTypeNode = ServiceUtils.getTreeNodeObject(
       cipherTypeTree,
       "AllItems",
@@ -194,6 +197,15 @@ function createLegacyFilterForEndUser(
     legacyFilter.selectedCipherTypeNode = ServiceUtils.getTreeNodeObject(
       cipherTypeTree,
       filter.type,
+    );
+  }
+
+  // The group's children come from a host outside this library; the node is rebuilt from the
+  // id alone.
+  if (filter.controlledAccess !== undefined) {
+    legacyFilter.selectedControlledAccessNode = new TreeNode<ControlledAccessFilter>(
+      { id: filter.controlledAccess, name: "" },
+      null,
     );
   }
 

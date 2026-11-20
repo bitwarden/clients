@@ -24,7 +24,7 @@ import { OrganizationWarningsService } from "../services";
   imports: [CommonModule, CalloutModule, I18nPipe],
   providers: [CurrencyPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: "tw-block tw-mt-6 tw-mb-8" },
+  host: { class: "tw-block" },
 })
 export class OrganizationScheduledPriceIncreaseWarningComponent {
   readonly organization = input.required<Organization>();

@@ -189,6 +189,16 @@ export abstract class BaseEventsComponent implements OnDestroy {
     return new Set<string>();
   }
 
+  /**
+   * Name of the organization an event pertains to, used to personalize event copy
+   * (e.g. "Purged Acme Inc vault."). The default resolves nothing — subclasses that have
+   * organization context (or a per-event org lookup, for pages spanning multiple organizations)
+   * override this.
+   */
+  protected getOrganizationName(_r: EventResponse): string | undefined {
+    return undefined;
+  }
+
   protected async loadAndParseEvents(
     startDate: string,
     endDate: string,
@@ -204,6 +214,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
         const options = new EventOptions();
         options.disableLink = !this.canUseSM;
         options.linkableMemberIds = linkableMemberIds;
+        options.getOrganizationName = (ev) => this.getOrganizationName(ev);
 
         const eventInfo = await this.eventService.getEventInfo(r, options);
         const user = this.getUserName(r, userId);

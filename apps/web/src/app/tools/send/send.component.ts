@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, HostListener, viewChildren } from "@angular/core";
+import { Component, OnDestroy, HostListener, viewChildren, computed, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
+import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom, of } from "rxjs";
 
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -14,6 +14,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -22,6 +24,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
@@ -30,7 +33,6 @@ import {
   CalloutComponent,
   DialogRef,
   DialogService,
-  NoItemsModule,
   SearchModule,
   ToastService,
   ToggleGroupModule,
@@ -47,6 +49,8 @@ import {
   SendListState,
   SendListFiltersService,
   SendPolicyService,
+  SendTableV2Component,
+  removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -66,12 +70,12 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
     AsyncActionsModule,
     FormsModule,
     SearchModule,
-    NoItemsModule,
     HeaderModule,
     NewSendDropdownComponent,
     ToggleGroupModule,
     SendFormModule,
     SendListComponent,
+    SendTableV2Component,
   ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
@@ -114,6 +118,7 @@ export class SendComponent implements OnDestroy {
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
+  protected readonly allSends = toSignal(this.sendService.sendViews$);
 
   protected readonly disableSend = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -124,6 +129,10 @@ export class SendComponent implements OnDestroy {
     ),
     { initialValue: false },
   );
+
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
 
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
@@ -149,15 +158,52 @@ export class SendComponent implements OnDestroy {
     initialValue: "",
   });
 
-  // Legacy variables. TODO: Remove once the SendUI refresh is permanently enabled
   SendFilterType = SendFilterType;
-  SendType = SendType;
 
   private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
 
-  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
-    initialValue: [SendType.Text, SendType.File],
-  });
+  protected readonly hasPremium$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (!account) {
+        return of(false);
+      }
+      return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
+    }),
+  );
+
+  protected readonly allowedSendTypes = toSignal(
+    combineLatest([this.sendPolicyService.allowedSendTypes$, this.hasPremium$]).pipe(
+      takeUntilDestroyed(),
+      map(([allowedSendTypes, hasPremium]) => {
+        if (!hasPremium) {
+          return allowedSendTypes.filter((st) => st !== SendType.File && st !== SendType.Item);
+        }
+        return allowedSendTypes;
+      }),
+    ),
+    { initialValue: [] },
+  );
+
+  protected readonly sendTypeFilters: Signal<{ filter: SendFilterType; translationKey: string }[]> =
+    computed(() =>
+      this.allowedSendTypes().flatMap<{ filter: SendFilterType; translationKey: string }>((st) => {
+        if (st === SendType.Text) {
+          return { filter: SendFilterType.Text, translationKey: "sendTypeText" };
+        }
+        if (st === SendType.File) {
+          return { filter: SendFilterType.File, translationKey: "sendTypeFile" };
+        }
+        if (st === SendType.Item) {
+          return { filter: SendFilterType.Item, translationKey: "item" };
+        }
+        return [];
+      }),
+    );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   constructor(
     private i18nService: I18nService,
@@ -172,13 +218,15 @@ export class SendComponent implements OnDestroy {
     private accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private sendFormService: SendFormService,
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
     private sendPolicyService: SendPolicyService,
     authService: AuthService,
+    private configService: ConfigService,
+    private sendService: SendService,
   ) {
     // Lock/logout always wins over the unsaved-edits guard. We listen for the
     // active account's auth status leaving `Unlocked` — `lockService.lock`
@@ -194,33 +242,39 @@ export class SendComponent implements OnDestroy {
       }
     });
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const typeParam = params.get("type");
-      let toggleValue: SendFilterType = SendFilterType.All;
-      let sendType: SendType | null = null;
-      if (typeParam === SendFilterType.Text) {
-        toggleValue = SendFilterType.Text;
-        sendType = SendType.Text;
-      }
-      if (typeParam === SendFilterType.File) {
-        toggleValue = SendFilterType.File;
-        sendType = SendType.File;
-      }
-      this.selectedToggleValue = toggleValue;
-      this.sendItemsFiltersService.filterForm.patchValue({ sendType });
-    });
+    combineLatest([this.route.queryParamMap, this.hasPremium$])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, hasPremium]) => {
+        const typeParam = params.get("type");
+        let toggleValue: SendFilterType = SendFilterType.All;
+        let sendType: SendType | null = null;
+        if (typeParam === SendFilterType.Text) {
+          toggleValue = SendFilterType.Text;
+          sendType = SendType.Text;
+        }
+        if (typeParam === SendFilterType.File && hasPremium) {
+          toggleValue = SendFilterType.File;
+          sendType = SendType.File;
+        }
+        if (typeParam === SendFilterType.Item && hasPremium) {
+          toggleValue = SendFilterType.Item;
+          sendType = SendType.Item;
+        }
+        this.selectedToggleValue = toggleValue;
+        this.sendItemsFiltersService.filterForm.patchValue({ sendType });
+      });
   }
 
   ngOnDestroy() {
     this.dialogService.closeAll();
   }
 
-  async addSend() {
+  async addSend(sendType: SendType) {
     if (this.disableSend()) {
       return;
     }
 
-    const config = await this.sendFormConfigService.buildConfig("add", null, SendType.Text);
+    const config = await this.sendFormConfigService.buildConfig("add", null, sendType);
 
     await this.openSendItemDialog(config);
   }
@@ -330,14 +384,15 @@ export class SendComponent implements OnDestroy {
     return true;
   }
 
-  protected async onRemovePassword(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+  protected async onRemoveAuth(send: SendView): Promise<void> {
+    if (this.disableSend() || this.sendAuthRequired() || send.disabled) {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(send.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -346,11 +401,11 @@ export class SendComponent implements OnDestroy {
     }
 
     try {
-      await this.sendApiService.removePassword(send.id);
+      await this.sendApiService.removeAuth(send.id);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedPassword"),
+        message: this.i18nService.t(i18nKeys.removed),
       });
     } catch (e) {
       this.validationService.showError(e);
@@ -368,10 +423,5 @@ export class SendComponent implements OnDestroy {
       title: null,
       message: this.i18nService.t("valueCopied", this.i18nService.t("sendLink")),
     });
-  }
-
-  // Legacy method. TODO: Remove once the SendUI refresh is permanently enabled
-  searchTextChanged(newSearchText: string) {
-    this.sendItemsService.applyFilter(newSearchText);
   }
 }

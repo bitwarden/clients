@@ -6,6 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BerryComponent } from "../berry";
 import { ButtonModule } from "../button";
 import { IconModule } from "../icon";
+import { IconTileComponent } from "../icon-tile";
 import { I18nMockService } from "../utils";
 
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
@@ -16,7 +17,14 @@ export default {
   component: MenuTriggerForDirective,
   decorators: [
     moduleMetadata({
-      imports: [MenuModule, OverlayModule, ButtonModule, IconModule, BerryComponent],
+      imports: [
+        MenuModule,
+        OverlayModule,
+        ButtonModule,
+        IconModule,
+        IconTileComponent,
+        BerryComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -84,6 +92,44 @@ export const ClosedMenu: Story = {
   }),
 };
 
+export const IconTileMenu: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-menu #myMenu="menuComponent">
+        <button type="button" bitMenuItem>
+          <bit-icon-tile icon="bwi-globe" variant="brand" size="xs" slot="start" />
+          Login
+        </button>
+        <button type="button" bitMenuItem>
+          <bit-icon-tile icon="bwi-credit-card" variant="teal" size="xs" slot="start" />
+          Card
+        </button>
+        <button type="button" bitMenuItem>
+          <bit-icon-tile icon="bwi-id-card" variant="purple" size="xs" slot="start" />
+          Identity
+        </button>
+        <button type="button" bitMenuItem>
+          <bit-icon-tile icon="bwi-sticky-note" variant="orange" size="xs" slot="start" />
+          Note
+        </button>
+        <button type="button" bitMenuItem>
+          <bit-icon-tile icon="bwi-key" variant="green" size="xs" slot="start" />
+          SSH Key
+        </button>
+        <bit-menu-divider></bit-menu-divider>
+        <button type="button" bitMenuItem disabled>
+          <bit-icon-tile icon="bwi-folder" variant="gray" size="xs" slot="start" />
+          Disabled item
+        </button>
+      </bit-menu>
+
+      <div class="tw-w-[200px]">
+        <ng-container *ngTemplateOutlet="myMenu.templateRef()"></ng-container>
+      </div>
+      `,
+  }),
+};
+
 export const ActionMenu: Story = {
   render: () => ({
     template: /*html*/ `
@@ -114,8 +160,8 @@ export const ActionMenu: Story = {
           Folder
         </button>
         <button type="button" bitMenuItem>
-          <bit-icon name="bwi-collection" slot="start" />
-          Collection
+          <bit-icon name="bwi-shared-folder" slot="start" />
+          Shared folder
         </button>
       </bit-menu>
 
@@ -133,7 +179,7 @@ export const ActionMenu: Story = {
           Clone
         </button>
         <button type="button" bitMenuItem>
-          Assign to collections
+          Add to shared folder
         </button>
         <bit-menu-divider></bit-menu-divider>
         <button type="button" bitMenuItem variant="danger">

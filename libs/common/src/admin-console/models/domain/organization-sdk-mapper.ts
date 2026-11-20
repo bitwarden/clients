@@ -1,0 +1,224 @@
+import {
+  OrganizationId as SdkOrganizationId,
+  OrganizationUserId as SdkOrganizationUserId,
+  ProfileOrganization as SdkProfileOrganization,
+  UserId as SdkUserId,
+} from "@bitwarden/sdk-internal";
+
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import { SdkRecordMapper } from "../../../platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "../../../platform/state";
+import { ORGANIZATIONS } from "../../services/organization/organization.state";
+import { OrganizationData } from "../data/organization.data";
+
+/**
+ * Bridges the client's `ORGANIZATIONS` state to the SDK's organization repository so the SDK can
+ * read/write organizations from the same state legacy sync already populates.
+ */
+export class OrganizationRecordMapper implements SdkRecordMapper<
+  OrganizationData,
+  SdkProfileOrganization
+> {
+  userKeyDefinition(): UserKeyDefinition<Record<string, OrganizationData>> {
+    return ORGANIZATIONS;
+  }
+
+  toSdk(value: OrganizationData): SdkProfileOrganization {
+    return {
+      details: {
+        id: asUuid<SdkOrganizationId>(value.id),
+        name: value.name,
+        enabled: value.enabled,
+        hasPublicAndPrivateKeys: value.hasPublicAndPrivateKeys,
+      },
+      plan: {
+        productTierType: value.productTierType,
+        seats: value.seats ?? undefined,
+        maxCollections: value.maxCollections ?? undefined,
+        maxStorageGb: value.maxStorageGb ?? undefined,
+        selfHost: value.selfHost,
+        usersGetPremium: value.usersGetPremium,
+        usePolicies: value.usePolicies,
+        useGroups: value.useGroups,
+        useDirectory: value.useDirectory,
+        useEvents: value.useEvents,
+        useTotp: value.useTotp,
+        use2fa: value.use2fa,
+        useApi: value.useApi,
+        useSso: value.useSso,
+        useOrganizationDomains: value.useOrganizationDomains,
+        useKeyConnector: value.useKeyConnector,
+        useScim: value.useScim,
+        useCustomPermissions: value.useCustomPermissions,
+        useResetPassword: value.useResetPassword,
+        useSecretsManager: value.useSecretsManager,
+        usePasswordManager: value.usePasswordManager,
+        usePam: value.usePam,
+        useActivateAutofillPolicy: value.useActivateAutofillPolicy,
+        useAutomaticUserConfirmation: value.useAutomaticUserConfirmation,
+        useAccessIntelligence: value.useAccessIntelligence,
+        useAdminSponsoredFamilies: value.useAdminSponsoredFamilies,
+        useDisableSMAdsForUsers: value.useDisableSMAdsForUsers ?? false,
+        usePhishingBlocker: value.usePhishingBlocker,
+        useMyItems: value.useMyItems,
+        useInviteLinks: value.useInviteLinks,
+      },
+      membership: {
+        status: value.status,
+        type: value.type,
+        permissions: {
+          accessEventLogs: value.permissions?.accessEventLogs ?? false,
+          accessImportExport: value.permissions?.accessImportExport ?? false,
+          accessReports: value.permissions?.accessReports ?? false,
+          createNewCollections: value.permissions?.createNewCollections ?? false,
+          editAnyCollection: value.permissions?.editAnyCollection ?? false,
+          deleteAnyCollection: value.permissions?.deleteAnyCollection ?? false,
+          manageGroups: value.permissions?.manageGroups ?? false,
+          manageSso: value.permissions?.manageSso ?? false,
+          managePolicies: value.permissions?.managePolicies ?? false,
+          manageUsers: value.permissions?.manageUsers ?? false,
+          manageResetPassword: value.permissions?.manageResetPassword ?? false,
+          manageScim: value.permissions?.manageScim ?? false,
+          manageAccessRules: value.permissions?.manageAccessRules ?? false,
+          manageRotation: value.permissions?.manageRotation ?? false,
+        },
+        userId: asUuid<SdkUserId>(value.userId),
+        organizationUserId:
+          value.organizationUserId != null
+            ? asUuid<SdkOrganizationUserId>(value.organizationUserId)
+            : undefined,
+        isMember: value.isMember,
+        isProviderUser: value.isProviderUser,
+        resetPasswordEnrolled: value.resetPasswordEnrolled,
+        ssoBound: value.ssoBound,
+        userIsClaimedByOrganization: value.userIsClaimedByOrganization,
+        accessSecretsManager: value.accessSecretsManager,
+        accessPam: value.accessPam,
+      },
+      collectionManagement: {
+        limitCollectionCreation: value.limitCollectionCreation,
+        limitCollectionDeletion: value.limitCollectionDeletion,
+        limitItemDeletion: value.limitItemDeletion,
+        allowAdminAccessToAllCollectionItems: value.allowAdminAccessToAllCollectionItems,
+      },
+      provider:
+        value.providerId != null && value.providerType != null
+          ? {
+              id: asUuid(value.providerId),
+              type: value.providerType,
+              name: value.providerName ?? undefined,
+            }
+          : undefined,
+      sso: {
+        enabled: value.ssoEnabled,
+        identifier: value.identifier ?? undefined,
+        memberDecryptionType: value.ssoMemberDecryptionType ?? undefined,
+        keyConnectorEnabled: value.keyConnectorEnabled,
+        keyConnectorUrl: value.keyConnectorUrl ?? undefined,
+      },
+      familySponsorship: {
+        available: value.familySponsorshipAvailable,
+        friendlyName: value.familySponsorshipFriendlyName ?? undefined,
+        validUntil: value.familySponsorshipValidUntil?.toISOString(),
+        lastSyncDate: value.familySponsorshipLastSyncDate?.toISOString(),
+        toDelete: value.familySponsorshipToDelete ?? undefined,
+        isAdminInitiated: value.isAdminInitiated,
+      },
+    };
+  }
+
+  fromSdk(value: SdkProfileOrganization): OrganizationData {
+    const { details, plan, membership, collectionManagement, provider, sso, familySponsorship } =
+      value;
+
+    return OrganizationData.fromJSON({
+      id: uuidAsString(details.id),
+      name: details.name,
+      enabled: details.enabled,
+      hasPublicAndPrivateKeys: details.hasPublicAndPrivateKeys,
+
+      productTierType: plan.productTierType,
+      seats: plan.seats ?? null,
+      maxCollections: plan.maxCollections ?? null,
+      maxStorageGb: plan.maxStorageGb ?? undefined,
+      selfHost: plan.selfHost,
+      usersGetPremium: plan.usersGetPremium,
+      usePolicies: plan.usePolicies,
+      useGroups: plan.useGroups,
+      useDirectory: plan.useDirectory,
+      useEvents: plan.useEvents,
+      useTotp: plan.useTotp,
+      use2fa: plan.use2fa,
+      useApi: plan.useApi,
+      useSso: plan.useSso,
+      useOrganizationDomains: plan.useOrganizationDomains,
+      useKeyConnector: plan.useKeyConnector,
+      useScim: plan.useScim,
+      useCustomPermissions: plan.useCustomPermissions,
+      useResetPassword: plan.useResetPassword,
+      useSecretsManager: plan.useSecretsManager,
+      usePasswordManager: plan.usePasswordManager,
+      usePam: plan.usePam,
+      useActivateAutofillPolicy: plan.useActivateAutofillPolicy,
+      useAutomaticUserConfirmation: plan.useAutomaticUserConfirmation,
+      useAccessIntelligence: plan.useAccessIntelligence,
+      useAdminSponsoredFamilies: plan.useAdminSponsoredFamilies,
+      useDisableSMAdsForUsers: plan.useDisableSMAdsForUsers,
+      usePhishingBlocker: plan.usePhishingBlocker,
+      useMyItems: plan.useMyItems,
+      useInviteLinks: plan.useInviteLinks,
+
+      status: membership.status,
+      type: membership.type,
+      permissions: {
+        accessEventLogs: membership.permissions.accessEventLogs,
+        accessImportExport: membership.permissions.accessImportExport,
+        accessReports: membership.permissions.accessReports,
+        createNewCollections: membership.permissions.createNewCollections,
+        editAnyCollection: membership.permissions.editAnyCollection,
+        deleteAnyCollection: membership.permissions.deleteAnyCollection,
+        manageGroups: membership.permissions.manageGroups,
+        manageSso: membership.permissions.manageSso,
+        managePolicies: membership.permissions.managePolicies,
+        manageUsers: membership.permissions.manageUsers,
+        manageResetPassword: membership.permissions.manageResetPassword,
+        manageScim: membership.permissions.manageScim,
+        manageAccessRules: membership.permissions.manageAccessRules,
+        manageRotation: membership.permissions.manageRotation,
+      },
+      userId: uuidAsString(membership.userId),
+      organizationUserId:
+        membership.organizationUserId != null ? uuidAsString(membership.organizationUserId) : null,
+      isMember: membership.isMember,
+      isProviderUser: membership.isProviderUser,
+      resetPasswordEnrolled: membership.resetPasswordEnrolled,
+      ssoBound: membership.ssoBound,
+      userIsClaimedByOrganization: membership.userIsClaimedByOrganization,
+      accessSecretsManager: membership.accessSecretsManager,
+      accessPam: membership.accessPam,
+
+      limitCollectionCreation: collectionManagement.limitCollectionCreation,
+      limitCollectionDeletion: collectionManagement.limitCollectionDeletion,
+      limitItemDeletion: collectionManagement.limitItemDeletion,
+      allowAdminAccessToAllCollectionItems:
+        collectionManagement.allowAdminAccessToAllCollectionItems,
+
+      providerId: provider != null ? uuidAsString(provider.id) : null,
+      providerName: provider?.name ?? null,
+      providerType: provider?.type,
+
+      ssoEnabled: sso.enabled,
+      identifier: sso.identifier ?? null,
+      ssoMemberDecryptionType: sso.memberDecryptionType,
+      keyConnectorEnabled: sso.keyConnectorEnabled,
+      keyConnectorUrl: sso.keyConnectorUrl ?? null,
+
+      familySponsorshipAvailable: familySponsorship.available,
+      familySponsorshipFriendlyName: familySponsorship.friendlyName ?? null,
+      familySponsorshipValidUntil: familySponsorship.validUntil,
+      familySponsorshipLastSyncDate: familySponsorship.lastSyncDate,
+      familySponsorshipToDelete: familySponsorship.toDelete,
+      isAdminInitiated: familySponsorship.isAdminInitiated,
+    });
+  }
+}

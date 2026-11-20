@@ -1,0 +1,91 @@
+import { OrganizationSubscriptionResponse } from "./organization-subscription.response";
+import { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
+
+describe("OrganizationSubscriptionResponse", () => {
+  it("parses pendingAnnualUpgrade when present", () => {
+    const response = new OrganizationSubscriptionResponse({
+      PendingAnnualUpgrade: {
+        Plan: { Name: "Teams (Annually)", IsAnnual: true },
+        LineItems: [{ Name: "Teams (Annually) Seat", Amount: 48, Quantity: 5, Interval: "year" }],
+        EffectiveDate: "2026-08-01T00:00:00Z",
+      },
+    });
+
+    expect(response.pendingAnnualUpgrade).not.toBeNull();
+    expect(response.pendingAnnualUpgrade!.plan.name).toBe("Teams (Annually)");
+    expect(response.pendingAnnualUpgrade!.lineItems[0].interval).toBe("year");
+    expect(response.pendingAnnualUpgrade!.effectiveDate).toEqual(new Date("2026-08-01T00:00:00Z"));
+  });
+
+  it("leaves pendingAnnualUpgrade undefined when absent", () => {
+    const response = new OrganizationSubscriptionResponse({});
+    expect(response.pendingAnnualUpgrade).toBeUndefined();
+  });
+
+  it("leaves lineItems undefined when the server omits them for view-only admins", () => {
+    const response = new PendingAnnualUpgradeResponse({
+      Plan: { Name: "Teams (Annual)" },
+      EffectiveDate: "2026-08-06T00:00:00Z",
+    });
+
+    expect(response.lineItems).toBeUndefined();
+    expect(response.plan).toBeDefined();
+    expect(response.effectiveDate).toEqual(new Date("2026-08-06T00:00:00Z"));
+  });
+
+  it("maps lineItems when the server sends them", () => {
+    const response = new PendingAnnualUpgradeResponse({
+      Plan: { Name: "Teams (Annual)" },
+      LineItems: [{ Name: "Seat", Amount: 48, Quantity: 3 }],
+      EffectiveDate: "2026-08-06T00:00:00Z",
+    });
+
+    expect(response.lineItems).toHaveLength(1);
+    expect(response.lineItems[0].name).toBe("Seat");
+  });
+
+  describe("privileged controls fields", () => {
+    it("parses the Privileged Controls seat fields when present", () => {
+      const response = new OrganizationSubscriptionResponse({
+        PamSeats: 15,
+        OccupiedPamSeats: 7,
+        MaxAutoscalePamSeats: 25,
+        IsOnPamSalesInitiatedTrial: true,
+      });
+
+      expect(response.pamSeats).toBe(15);
+      expect(response.occupiedPamSeats).toBe(7);
+      expect(response.maxAutoscalePamSeats).toBe(25);
+      expect(response.isOnPamSalesInitiatedTrial).toBe(true);
+    });
+
+    it("keeps isOnPamSalesInitiatedTrial false when the server sends false", () => {
+      const response = new OrganizationSubscriptionResponse({ IsOnPamSalesInitiatedTrial: false });
+
+      expect(response.isOnPamSalesInitiatedTrial).toBe(false);
+    });
+
+    it("leaves the Privileged Controls seat fields undefined when absent", () => {
+      const response = new OrganizationSubscriptionResponse({});
+
+      expect(response.pamSeats).toBeUndefined();
+      expect(response.occupiedPamSeats).toBeUndefined();
+      expect(response.maxAutoscalePamSeats).toBeUndefined();
+      expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
+    });
+
+    it("leaves the Privileged Controls seat fields undefined when null", () => {
+      const response = new OrganizationSubscriptionResponse({
+        PamSeats: null,
+        OccupiedPamSeats: null,
+        MaxAutoscalePamSeats: null,
+        IsOnPamSalesInitiatedTrial: null,
+      });
+
+      expect(response.pamSeats).toBeUndefined();
+      expect(response.occupiedPamSeats).toBeUndefined();
+      expect(response.maxAutoscalePamSeats).toBeUndefined();
+      expect(response.isOnPamSalesInitiatedTrial).toBeUndefined();
+    });
+  });
+});

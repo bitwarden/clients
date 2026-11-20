@@ -3,6 +3,7 @@
 import { OrganizationResponse } from "../../../admin-console/models/response/organization.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
+import { PendingAnnualUpgradeResponse } from "./pending-annual-upgrade.response";
 import {
   BillingSubscriptionResponse,
   BillingSubscriptionUpcomingInvoiceResponse,
@@ -17,6 +18,11 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   expiration: string;
   expirationWithoutGracePeriod: string;
   exemptFromBillingAutomation: boolean;
+  pendingAnnualUpgrade?: PendingAnnualUpgradeResponse;
+  pamSeats?: number;
+  occupiedPamSeats?: number;
+  maxAutoscalePamSeats?: number;
+  isOnPamSalesInitiatedTrial?: boolean;
 
   constructor(response: any) {
     super(response);
@@ -35,6 +41,15 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
     this.exemptFromBillingAutomation = this.getResponseProperty("ExemptFromBillingAutomation");
+    const pendingAnnualUpgrade = this.getResponseProperty("PendingAnnualUpgrade");
+    if (pendingAnnualUpgrade) {
+      this.pendingAnnualUpgrade = new PendingAnnualUpgradeResponse(pendingAnnualUpgrade);
+    }
+    this.pamSeats = this.getResponseProperty("PamSeats") ?? undefined;
+    this.occupiedPamSeats = this.getResponseProperty("OccupiedPamSeats") ?? undefined;
+    this.maxAutoscalePamSeats = this.getResponseProperty("MaxAutoscalePamSeats") ?? undefined;
+    this.isOnPamSalesInitiatedTrial =
+      this.getResponseProperty("IsOnPamSalesInitiatedTrial") ?? undefined;
   }
 }
 

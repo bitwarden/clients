@@ -4,11 +4,6 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 
 import { MasterPasswordPolicy } from "./master-password.component";
 
-/**
- * Renders the PolicyDrawers-flag-on (drawer) experience for this policy. This policy uses
- * MultiStepPolicyEditDialogComponent for both the drawer and modal experiences, so pair this with
- * master-password-modal.component.stories.ts to catch a v2 leak into the modal.
- */
 export default {
   ...policyDrawerMeta(new MasterPasswordPolicy()),
   title: "Admin Console/Organizations/Policies/Master Password",

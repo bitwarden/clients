@@ -1,0 +1,174 @@
+import { mock } from "jest-mock-extended";
+
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
+import { Response } from "@bitwarden/cli/models/response";
+
+import {
+  encodeSmRequest,
+  smNotFoundError,
+  smOrgId,
+  smOtherOrgId,
+  smOrg,
+} from "../spec/sm-test-utils";
+
+import { ProjectEditCommand } from "./project-edit.command";
+
+describe("ProjectEditCommand", () => {
+  const projectService = mock<ProjectService>();
+  const projectId = "22222222-2222-2222-2222-222222222222";
+  let command: ProjectEditCommand;
+
+  const makeProject = (overrides: Partial<ProjectView> = {}) =>
+    Object.assign(new ProjectView(), {
+      id: projectId,
+      organizationId: smOrgId,
+      name: "Backend",
+      write: true,
+      ...overrides,
+    });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    command = new ProjectEditCommand(projectService);
+  });
+
+  it("renames the project", async () => {
+    projectService.getByProjectId.mockResolvedValue(makeProject());
+    projectService.update.mockResolvedValue(makeProject({ name: "Frontend" }));
+
+    const response = await command.run(
+      smOrg,
+      projectId.toUpperCase(),
+      encodeSmRequest({ name: "Frontend" }),
+    );
+
+    expect(response.success).toBe(true);
+    expect(projectService.getByProjectId).toHaveBeenCalledWith(projectId, true);
+    expect(projectService.update).toHaveBeenCalledWith(
+      smOrgId,
+      expect.objectContaining({ id: projectId, organizationId: smOrgId, name: "Frontend" }),
+    );
+    expect(response.data).toMatchObject({ object: "sm-project", name: "Frontend" });
+  });
+
+  it("rejects an invalid project id", async () => {
+    const response = await command.run(smOrg, "abc", { name: "Frontend" });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("`abc` is not a GUID.");
+  });
+
+  it("treats a project from another organization as not found", async () => {
+    projectService.getByProjectId.mockResolvedValue(makeProject({ organizationId: smOtherOrgId }));
+
+    const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The project was not found, or you do not have access to it.");
+    expect(projectService.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects a project the user cannot write", async () => {
+    projectService.getByProjectId.mockResolvedValue(makeProject({ write: false }));
+
+    const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+    expect(response.success).toBe(false);
+    expect(projectService.update).not.toHaveBeenCalled();
+  });
+
+  it("maps a 404 to a friendly error", async () => {
+    projectService.getByProjectId.mockRejectedValue(smNotFoundError());
+
+    const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe("The project was not found, or you do not have access to it.");
+  });
+
+  describe("read-only properties", () => {
+    const getBody = () => ({
+      object: "sm-project",
+      id: projectId,
+      organizationId: smOrgId,
+      name: "Backend",
+      creationDate: "2024-01-01T00:00:00Z",
+      revisionDate: "2024-01-02T00:00:00Z",
+      read: true,
+      write: true,
+      decryptionError: false,
+    });
+
+    beforeEach(() => {
+      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: true }));
+      projectService.update.mockResolvedValue(makeProject({ name: "Frontend" }));
+    });
+
+    it("renames from a full get-shaped body", async () => {
+      const response = await command.run(
+        smOrg,
+        projectId,
+        encodeSmRequest({ ...getBody(), name: "Frontend" }),
+      );
+
+      expect(response.success).toBe(true);
+      expect(projectService.update).toHaveBeenCalledWith(
+        smOrgId,
+        expect.objectContaining({ id: projectId, name: "Frontend" }),
+      );
+    });
+
+    it.each([
+      ["read", { read: false }],
+      ["write", { write: false }],
+    ])("rejects a changed %s and saves nothing", async (property, change) => {
+      const response = await command.run(smOrg, projectId, {
+        ...getBody(),
+        name: "Renamed",
+        ...change,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`" + property + "` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects a read-only value of a different type", async () => {
+      const response = await command.run(smOrg, projectId, {
+        name: "Renamed",
+        write: "true",
+        read: true,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`write` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("reports missing edit permission before read-only properties", async () => {
+      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: false }));
+
+      for (const write of [false, true]) {
+        const response = await command.run(smOrg, projectId, {
+          ...getBody(),
+          read: true,
+          write,
+        });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(Response.noEditPermission().message);
+      }
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("accepts a body without read or write", async () => {
+      const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+      expect(response.success).toBe(true);
+    });
+  });
+});

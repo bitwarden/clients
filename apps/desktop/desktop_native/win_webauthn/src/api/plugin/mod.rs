@@ -14,9 +14,9 @@ use std::{
 
 pub use types::*;
 use windows::{
-    core::{GUID, PCWSTR},
+    core::{GUID, HRESULT, PCWSTR},
     Win32::{
-        Foundation::{LPARAM, WPARAM},
+        Foundation::{LPARAM, NTE_EXISTS, NTE_NOT_FOUND, WPARAM},
         Security::Cryptography::BCRYPT_KEY_BLOB,
         System::Com::CLSIDFromString,
         UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, PostThreadMessageA, WM_QUIT},
@@ -72,6 +72,8 @@ pub trait PluginAuthenticator {
     /// Process a request to create a new credential.
     ///
     /// Returns a [CTAP authenticatorMakeCredential response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatormakecredential-response-structure).
+    ///
+    /// Return a [PluginError] to report a specific outcome to Windows.
     fn make_credential(
         &self,
         request: PluginMakeCredentialRequest,
@@ -80,6 +82,8 @@ pub trait PluginAuthenticator {
     /// Process a request to assert a credential.
     ///
     /// Returns a [CTAP authenticatorGetAssertion response structure](https://fidoalliance.org/specs/fido-v2.2-ps-20250714/fido-client-to-authenticator-protocol-v2.2-ps-20250714.html#authenticatorgetassertion-response-structure).
+    ///
+    /// Return a [PluginError] to report a specific outcome to Windows.
     fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn Error>>;
 
     /// Cancel an ongoing operation.
@@ -93,6 +97,53 @@ pub trait PluginAuthenticator {
     /// Retrieve lock status.
     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn Error>>;
 }
+
+/// Errors a [PluginAuthenticator] can return to report a specific outcome to
+/// Windows.
+#[derive(Debug)]
+pub enum PluginError {
+    /// The authenticator holds a credential in the request's exclude list.
+    ///
+    /// Reported as `NTE_EXISTS`. Windows currently treats this like any other
+    /// plugin authenticator failure, so the relying party still sees an
+    /// unknown error. We report it anyway in case a future Windows update
+    /// handles it differently, e.g. mapping it to `InvalidStateError` as
+    /// `webauthn.h` does for platform errors.
+    ExcludedCredentialMatched,
+
+    /// The authenticator holds none of the credentials the request asked for.
+    ///
+    /// Reported as `NTE_NOT_FOUND`, which `webauthn.h` maps to
+    /// `NotAllowedError` for platform errors.
+    CredentialNotFound,
+}
+
+impl PluginError {
+    pub(crate) fn hresult(&self) -> HRESULT {
+        match self {
+            Self::ExcludedCredentialMatched => NTE_EXISTS,
+            Self::CredentialNotFound => NTE_NOT_FOUND,
+        }
+    }
+}
+
+impl Display for PluginError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExcludedCredentialMatched => {
+                write!(f, "The authenticator holds an excluded credential")
+            }
+            Self::CredentialNotFound => {
+                write!(
+                    f,
+                    "The authenticator holds none of the requested credentials"
+                )
+            }
+        }
+    }
+}
+
+impl Error for PluginError {}
 
 /// Public key for verifying a signature over an operation request or user verification response
 /// buffer retrieved via [webauthn_plugin_get_operation_signing_public_key] or
@@ -257,6 +308,10 @@ impl WebAuthnPlugin {
         }
     }
 
+    pub fn get_authenticator_state(&self) -> Result<AuthenticatorState, WinWebAuthnError> {
+        get_authenticator_state(&self.clsid)
+    }
+
     /// Registers a COM server with Windows and starts the COM message loop on a dedicated thread.
     ///
     /// The handler should be an instance of your type that implements [PluginAuthenticator].
@@ -402,6 +457,15 @@ impl WebAuthnPlugin {
             ));
         };
 
+        // With nothing to add, removing is the whole operation - signing out syncs an empty
+        // list to clear the store - so a failure here cannot be reported as a successful sync.
+        if credentials.is_empty() {
+            tracing::debug!("No credentials to add to Windows, removing all existing ones...");
+            remove_all_credentials(self.clsid)?;
+            tracing::debug!("Successfully removed existing credentials - sync completed");
+            return Ok(());
+        }
+
         // First try to remove all existing credentials for this plugin
         tracing::debug!("Attempting to remove all existing credentials before sync...");
         match remove_all_credentials(self.clsid) {
@@ -413,12 +477,6 @@ impl WebAuthnPlugin {
                 // Continue anyway, as this might be the first sync or an older Windows version
             }
         };
-
-        // Add the new credentials (only if we have any)
-        if credentials.is_empty() {
-            tracing::debug!("No credentials to add to Windows - sync completed successfully");
-            return Ok(());
-        }
         tracing::debug!("Adding new credentials to Windows...");
 
         // Convert to raw credentials to Windows credential details

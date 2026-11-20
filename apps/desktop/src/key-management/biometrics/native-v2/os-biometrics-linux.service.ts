@@ -1,11 +1,12 @@
 import { spawn } from "child_process";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { isSnapStore, isFlatpak, isLinux } from "../../../utils";
+import { isSnapStore, isFlatpak, isLinux } from "../../../main/platform-utils.main";
 import { OsBiometricService } from "../os-biometrics.service";
 
 const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
@@ -106,9 +107,15 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       : BiometricsStatus.UnlockNeeded;
   }
 
-  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    await biometrics.enrollPersistent(
+      this.biometricsSystem,
+      userId,
+      Buffer.from(key.toEncoded().buffer),
+    );
+  }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
-    return false;
+    return await biometrics.hasPersistent(this.biometricsSystem, userId);
   }
 }

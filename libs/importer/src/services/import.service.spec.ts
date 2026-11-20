@@ -14,10 +14,9 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -30,11 +29,21 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
 import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
+import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { SdkImportCredentials } from "../sdk";
+import {
+  buildSdkImporterRegistry,
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  OnePasswordSsoImportRequest,
+  SdkImportCredentials,
+} from "../sdk";
+import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -51,7 +60,9 @@ describe("ImportService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
+  let logService: MockProxy<LogService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -64,7 +75,9 @@ describe("ImportService", () => {
     keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
+    logService = mock<LogService>();
 
     importService = new ImportService(
       cipherService,
@@ -77,8 +90,37 @@ describe("ImportService", () => {
       keyGenerationService,
       accountService,
       restrictedItemTypesService,
+      configService,
       sdkService,
+      logService,
     );
+
+    // Feature flags are only used by certain specific importers, not the base
+    // import service, so we can disable them all for the purpose of these tests.
+    configService.getFeatureFlag.mockResolvedValue(false);
+  });
+
+  describe("importOptions data integrity", () => {
+    it("agrees with the SDK registry on which formats are SDK-backed", () => {
+      const registry = buildSdkImporterRegistry();
+      for (const option of importService.importOptions) {
+        expect(registry.has(option.id as ImportType)).toBe(option.sdk != null);
+      }
+    });
+
+    it("keeps pasteFormats a subset of acceptedFileTypes for every format", () => {
+      for (const option of importService.importOptions) {
+        for (const pasteFormat of option.pasteFormats) {
+          expect(option.acceptedFileTypes).toContain(pasteFormat);
+        }
+      }
+    });
+
+    it("pairs instructionLink and sourceName — never one without the other", () => {
+      for (const option of importService.importOptions) {
+        expect(!!option.instructionLink).toEqual(!!option.sourceName);
+      }
+    });
   });
 
   describe("getImporterInstance", () => {
@@ -126,6 +168,7 @@ describe("ImportService", () => {
     it("empty importTarget does nothing", async () => {
       await importService["setImportTarget"](importResult, null, null);
       expect(importResult.folders.length).toBe(0);
+      expect(importResult.targetFolderIncluded).toBe(false);
     });
 
     const mockImportTargetFolder = new FolderView();
@@ -136,6 +179,7 @@ describe("ImportService", () => {
       await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(1);
       expect(importResult.folders[0]).toBe(mockImportTargetFolder);
+      expect(importResult.targetFolderIncluded).toBe(true);
     });
 
     const mockFolder1 = new FolderView();
@@ -193,6 +237,7 @@ describe("ImportService", () => {
       );
       expect(importResult.collections.length).toBe(1);
       expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+      expect(importResult.targetCollectionIncluded).toBe(true);
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
@@ -265,6 +310,16 @@ describe("ImportService", () => {
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
     });
 
+    it("passing importTarget assigns it to ciphers whose folderId has no folder relationship", async () => {
+      // Bitwarden JSON exports keep the source vault's folder id on each item
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: "source-folder-id" }));
+
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
+
+      expect(importResult.ciphers[0].folderId).toBe(mockImportTargetFolder.id);
+      expect(importResult.folderRelationships).toEqual([[0, 0]]);
+    });
+
     it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
@@ -284,6 +339,7 @@ describe("ImportService", () => {
       );
       expect(importResult.collections.length).toBe(1);
       expect(importResult.collections[0]).toBe(mockImportTargetCollection);
+      expect(importResult.targetCollectionIncluded).toBe(true);
 
       expect(importResult.collectionRelationships.length).toEqual(3);
       expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
@@ -357,6 +413,8 @@ describe("ImportService", () => {
       expect(importResult.folders.length).toEqual(2);
       expect(importResult.folders[0].name).toEqual(mockCollection1.name);
       expect(importResult.folders[1].name).toEqual(mockCollection2.name);
+      expect(importResult.targetCollectionIncluded).toBe(true);
+      expect(importResult.targetFolderIncluded).toBe(false);
     });
   });
 
@@ -436,12 +494,6 @@ describe("ImportService", () => {
       i18nService.t.mockImplementation((key) => key);
     });
 
-    it("recognizes registered SDK importers", () => {
-      expect(importService.isSdkImporter("keepasskdbx")).toBe(true);
-      expect(importService.credentialKindFor("keepasskdbx")).toBe("passwordWithKeyFile");
-      expect(importService.isSdkImporter("bitwardencsv")).toBe(false);
-    });
-
     it("imports into the personal vault, passing the target folder", async () => {
       const target = new FolderView();
       target.id = Utils.newGuid();
@@ -485,7 +537,11 @@ describe("ImportService", () => {
       expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
         organization_id: organizationId,
         target_folder: undefined,
-        target_collection: { id: target.id, name: "Shared" },
+        target_collection: {
+          id: target.id,
+          name: "Shared",
+          type: toSdkCollectionType(target.type),
+        },
         restricted_types: [],
       });
     });
@@ -562,6 +618,198 @@ describe("ImportService", () => {
       await expect(
         importService.importWithSdk("keepasskdbx", file, credentials, null, null, false),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("importImportResult restricted types", () => {
+    const resultWith = (...types: CipherType[]) => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = types.map((type) => Object.assign(new CipherView(), { type, name: "item" }));
+      return result;
+    };
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      i18nService.t.mockImplementation((key) => key);
+      importService["handleIndividualImport"] = jest.fn();
+      importService["handleOrganizationalImport"] = jest.fn();
+      // Only org-1 allows cards.
+      (restrictedItemTypesService as any).restricted$ = of([
+        { cipherType: CipherType.Card, allowViewOrgIds: ["org-1"] },
+      ]);
+    });
+
+    it("removes every restricted type from a personal import", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+
+    it("removes every restricted type from an organization import, even into an org that allows it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "org-1" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+  });
+
+  describe("1Password", () => {
+    const userId = Utils.newGuid() as UserId;
+    const summary: OnePasswordImportSummary = {
+      imported: { ciphers: [{ type: CipherType.Login, count: 1 }], folders: 0, collections: 0 },
+      skipped_vaults: [],
+      skipped_items: [],
+    };
+    const ssoRequest = {
+      credentials: {
+        username: "user@example.com",
+        sign_in_address: { subdomain: "my", domain: "Global" },
+      },
+      ui: { performSsoLogin: jest.fn(), beginSsoEnrollment: jest.fn() },
+    } as OnePasswordSsoImportRequest;
+    const passwordRequest = {
+      credentials: {
+        username: "user@example.com",
+        password: "pw",
+        account_key: "A3-KEY",
+        sign_in_address: { subdomain: "my", domain: "Global" },
+      },
+      twoFactorUi: { provideTotp: jest.fn() },
+    } as OnePasswordImportRequest;
+
+    let importOnePassword: jest.Mock;
+    let importOnePasswordSso: jest.Mock;
+    let onePasswordSignInMethods: jest.Mock;
+
+    beforeEach(() => {
+      importOnePassword = jest.fn().mockResolvedValue(summary);
+      importOnePasswordSso = jest.fn().mockResolvedValue(summary);
+      onePasswordSignInMethods = jest.fn().mockResolvedValue({ password: false, sso: true });
+      const sdkValue = {
+        importers: jest.fn().mockReturnValue({
+          import_onepassword: importOnePassword,
+          import_onepassword_sso: importOnePasswordSso,
+          onepassword_sign_in_methods: onePasswordSignInMethods,
+        }),
+      };
+      const sdkClient = {
+        take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
+      };
+      sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
+      accountService.activeAccount$ = of({ id: userId } as any);
+      (restrictedItemTypesService as any).restricted$ = of([]);
+      i18nService.t.mockImplementation((key) => key);
+    });
+
+    describe("importOnePasswordSso", () => {
+      it("imports into the personal vault, passing the target folder", async () => {
+        const target = new FolderView();
+        target.id = Utils.newGuid();
+        target.name = "My Folder";
+
+        const result = await importService.importOnePasswordSso(ssoRequest, null, target, false);
+
+        expect(result).toBe(summary);
+        expect(importOnePasswordSso).toHaveBeenCalledWith(ssoRequest.credentials, ssoRequest.ui, {
+          organization_id: undefined,
+          target_folder: { id: target.id, name: "My Folder" },
+          target_collection: undefined,
+          restricted_types: [],
+        });
+      });
+
+      it("imports into an organization, passing the target collection", async () => {
+        const organizationId = Utils.newGuid() as OrganizationId;
+        const target = new CollectionView({
+          id: Utils.newGuid() as CollectionId,
+          name: "Shared",
+          organizationId,
+        });
+
+        await importService.importOnePasswordSso(ssoRequest, organizationId, target, false);
+
+        expect(importOnePasswordSso).toHaveBeenCalledWith(ssoRequest.credentials, ssoRequest.ui, {
+          organization_id: organizationId,
+          target_folder: undefined,
+          target_collection: {
+            id: target.id,
+            name: "Shared",
+            type: toSdkCollectionType(target.type),
+          },
+          restricted_types: [],
+        });
+      });
+
+      it("throws importUnassignedItemsError for an org import with no target and no permission", async () => {
+        const organizationId = Utils.newGuid() as OrganizationId;
+
+        await expect(
+          importService.importOnePasswordSso(ssoRequest, organizationId, null, false),
+        ).rejects.toThrow("importUnassignedItemsError");
+        expect(importOnePasswordSso).not.toHaveBeenCalled();
+      });
+
+      it("forwards restricted cipher types to the SDK options", async () => {
+        (restrictedItemTypesService as any).restricted$ = of([{ cipherType: CipherType.Card }]);
+
+        await importService.importOnePasswordSso(ssoRequest, null, null, false);
+
+        expect(importOnePasswordSso).toHaveBeenCalledWith(
+          ssoRequest.credentials,
+          ssoRequest.ui,
+          expect.objectContaining({ restricted_types: [CipherType.Card] }),
+        );
+      });
+
+      it("throws when the SDK client is unavailable", async () => {
+        sdkService.userClient$.mockReturnValue(of(null) as any);
+
+        await expect(
+          importService.importOnePasswordSso(ssoRequest, null, null, false),
+        ).rejects.toThrow("SDK not available");
+      });
+    });
+
+    describe("onePasswordSignInMethods", () => {
+      it("asks the SDK how the account signs in", async () => {
+        const signInAddress = { subdomain: "my", domain: "Global" } as const;
+
+        const result = await importService.onePasswordSignInMethods(
+          "user@example.com",
+          signInAddress,
+        );
+
+        expect(result).toEqual({ password: false, sso: true });
+        expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+      });
+
+      it("throws when the SDK client is unavailable", async () => {
+        sdkService.userClient$.mockReturnValue(of(null) as any);
+
+        await expect(
+          importService.onePasswordSignInMethods("user@example.com", {
+            subdomain: "my",
+            domain: "Global",
+          }),
+        ).rejects.toThrow("SDK not available");
+      });
+    });
+
+    describe("importOnePassword", () => {
+      it("signs in with the password and the two-factor prompt", async () => {
+        const result = await importService.importOnePassword(passwordRequest, null, null, false);
+
+        expect(result).toBe(summary);
+        expect(importOnePassword).toHaveBeenCalledWith(
+          passwordRequest.credentials,
+          passwordRequest.twoFactorUi,
+          expect.objectContaining({ organization_id: undefined, restricted_types: [] }),
+        );
+      });
     });
   });
 });

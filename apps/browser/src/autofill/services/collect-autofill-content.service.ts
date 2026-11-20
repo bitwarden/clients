@@ -20,8 +20,6 @@ import {
   elementIsSpanElement,
   nodeIsElement,
   elementIsTextAreaElement,
-  nodeIsFormElement,
-  nodeIsInputElement,
   sendExtensionMessage,
   getAttributeBoolean,
   getPropertyOrAttribute,
@@ -39,10 +37,19 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import {
+  InScopeFormsDetection,
+  QualificationResult,
+  RuleQualificationService,
+} from "./abstractions/rule-qualification.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
 type ResolveFieldTarget = {
-  selectorAlternatives: string[];
+  // Each alternative is either a single selector or a multi-input group of
+  // selectors (e.g. a one-time code split across inputs). Matches the canonical
+  // FormFields shape in libs/common/src/autofill/types.
+  selectorAlternatives: (string | string[])[];
   fieldType: AutofillTargetingRuleType;
   formCategory?: FormPurposeCategory;
 };
@@ -68,6 +75,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * [] = blocklisted (suppress autofill), [...] = use targeted fill
    */
   private pageTargetingRules: FormContent[] | null | undefined = undefined;
+  // Populated alongside `pageTargetingRules` from the background envelope. Sibling
+  // caches that short-circuit the per-call qualification cost (Half 1 + Half 2) on
+  // subsequent `getPageDetails()` calls for the same page load.
+  private ruleFailureFallback: boolean | undefined = undefined;
+  private ruleQualificationResult: QualificationResult | undefined = undefined;
+  private ruleQualificationService?: RuleQualificationService;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -78,27 +91,32 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private isMonitoring = false;
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
+  // Attach the "toggle" listener at most once per element; WeakSet lets detached nodes GC.
+  private topLayerListenedElements = new WeakSet<Element>();
   private pendingChildListUpdate = false;
   private lastDetachedPurgeAt = -Infinity;
   private readonly detachedPurgeThrottleMs = 1000;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
-  private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
-  private pendingShadowDomCheck = false;
-  private pendingMutationAddedElements: Set<Element> = new Set();
-  private pendingMutationAddedElementsOverflowed = false;
-  // Caps the batch handed to suppressDescendantsInBatch; overflow → full-document scan fallback.
-  private readonly pendingMutationAddedElementsCap = 256;
-  private ownedExperienceTagNames: string[] = [];
+  // Constructed in the constructor body, not here: it closes over a field declared further down.
+  private readonly shadowTracker: ShadowHostHydrationTracker;
   private readonly updateAfterMutationTimeout = 1000;
-  private readonly shadowDomCheckTimeoutMs = 500;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
   private mutationBurstCount = 0;
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
-  private readonly formFieldQueryString;
+  private formFieldQueryString;
+  /**
+   * Opt-in state for the page-controlled `data-bwignore` and `data-bwautofill`
+   * attributes. Both stay `false` until {@link attributeSettingsFetched} resolves,
+   * so an unanswered or failed fetch leaves the attributes unhonored.
+   */
+  private honorBitwardenIgnoreAttribute = false;
+  private honorBitwardenAutofillAttribute = false;
+  private readonly attributeSettingsFetched: Promise<void>;
+
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -123,11 +141,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     private domQueryService: DomQueryService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
   ) {
-    let inputQuery = "input:not([data-bwignore])";
-    for (const type of this.ignoredInputTypes) {
-      inputQuery += `:not([type="${type}"])`;
-    }
-    this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+    this.formFieldQueryString = this.buildFormFieldQueryString();
+    this.attributeSettingsFetched = this.fetchAndSetBitwardenAttributeSettings();
 
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
@@ -142,6 +157,59 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domQueryService.setOwnedShadowHostPredicate(
       (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
     );
+
+    this.shadowTracker = new ShadowHostHydrationTracker(
+      this.domQueryService,
+      this.mutationObserver,
+      () => this.debouncedRequirePageDetailsUpdate(),
+    );
+  }
+
+  /**
+   * Builds the selector used to find candidate form fields. The page-controlled
+   * `data-bwignore` and `data-bwautofill` attributes are only considered when
+   * the user has opted into honoring them.
+   */
+  private buildFormFieldQueryString(): string {
+    const ignoreAttributeFilter = this.honorBitwardenIgnoreAttribute ? ":not([data-bwignore])" : "";
+
+    let inputQuery = `input${ignoreAttributeFilter}`;
+    for (const type of this.ignoredInputTypes) {
+      inputQuery += `:not([type="${type}"])`;
+    }
+
+    const selectors = [
+      inputQuery,
+      `textarea${ignoreAttributeFilter}`,
+      `select${ignoreAttributeFilter}`,
+    ];
+
+    if (this.honorBitwardenAutofillAttribute) {
+      selectors.push("span[data-bwautofill]");
+    }
+
+    return selectors.join(", ");
+  }
+
+  /**
+   * Reads the Bitwarden-attribute opt-in settings once per content-script lifetime.
+   * A change to either setting takes effect on the next page load.
+   */
+  private async fetchAndSetBitwardenAttributeSettings(): Promise<void> {
+    let settings;
+    try {
+      settings = (await this.sendExtensionMessage("getBitwardenAutofillAttributeSettings"))?.result;
+    } catch {
+      return;
+    }
+
+    if (!settings) {
+      return;
+    }
+
+    this.honorBitwardenIgnoreAttribute = settings.honorBitwardenIgnoreAttribute === true;
+    this.honorBitwardenAutofillAttribute = settings.honorBitwardenAutofillAttribute === true;
+    this.formFieldQueryString = this.buildFormFieldQueryString();
   }
 
   /**
@@ -162,6 +230,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       childList: true,
       subtree: true,
     });
+    document.addEventListener("transitionend", this.handleOpacityTransitionEnd, true);
   }
 
   /**
@@ -174,26 +243,39 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
       this.updateAfterMutationIdleCallback = null;
     }
-    if (this.shadowDomCheckTimeout) {
-      clearTimeout(this.shadowDomCheckTimeout);
-      this.shadowDomCheckTimeout = null;
-    }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
-    this.intersectionObserver.disconnect();
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
-    this.elementInitializingIntersectionObserver.clear();
+    document.removeEventListener("transitionend", this.handleOpacityTransitionEnd, true);
+    this.clearFieldCache();
+    // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
+    this.shadowTracker.reset();
     this.noFieldsFound = false;
     this.domRecentlyMutated = true;
-    this.pendingShadowDomCheck = false;
     this.currentLocationHref = "";
   }
 
   get autofillFormElements(): AutofillFormElements {
     return this._autofillFormElements;
+  }
+
+  // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
+  // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
+  prepareForExplicitCollection = () => {
+    if (this.noFieldsFound || this.shadowTracker.hasHostsAwaitingShadowRoot()) {
+      this.domQueryService.refreshShadowDomStateForUserRequest();
+      this.noFieldsFound = false;
+      this.domRecentlyMutated = true;
+    }
+  };
+
+  /** Clears the field cache. */
+  private clearFieldCache() {
+    this.intersectionObserver.disconnect();
+    this._autofillFormElements.clear();
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    this.elementInitializingIntersectionObserver.clear();
   }
 
   /**
@@ -209,13 +291,44 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupInitialTopLayerListeners();
     }
 
+    await this.attributeSettingsFetched;
+
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
-      this.pageTargetingRules =
-        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
+      const { result } = await this.sendExtensionMessage("getUrlAutofillTargetingRules");
+      const envelope = result ?? { targetingRules: null, ruleFailureFallback: false };
+      this.pageTargetingRules = envelope.targetingRules;
+      this.ruleFailureFallback = envelope.ruleFailureFallback;
     }
 
     const targetingRules = this.pageTargetingRules;
+
+    // Rule qualification branch. When the envelope's `ruleFailureFallback`
+    // is set and a non-empty rule matches, run qualification once per page
+    // load and route on the result. On miss, pin `pageTargetingRules = null`
+    // so later calls on this document skip this branch and run the heuristic
+    // path. The null check on `ruleQualificationService` guards against the
+    // branch firing before the service is wired by content-script DI setup.
+    if (
+      this.ruleFailureFallback &&
+      targetingRules != null &&
+      targetingRules.length > 0 &&
+      this.ruleQualificationService
+    ) {
+      if (this.ruleQualificationResult === undefined) {
+        this.ruleQualificationResult = await this.ruleQualificationService.qualifyRule(
+          location.href,
+          targetingRules,
+        );
+      }
+      const qualification = this.ruleQualificationResult;
+      if (qualification.kind === "proceedTargeted") {
+        return this.getTargetedPageDetails(targetingRules);
+      }
+      this.pageTargetingRules = null;
+      return qualification.pageDetails;
+    }
+
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
         // Blocklisted; return empty page details, skip heuristics
@@ -229,7 +342,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
-      this.updateCachedAutofillFieldVisibility();
+      await this.updateCachedAutofillFieldVisibility();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -237,6 +350,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
     }
 
+    return this.runHeuristicCollection();
+  }
+
+  /**
+   * Walks the DOM for forms and fields, builds the page details, and sets up
+   * overlay listeners. Shared by `getPageDetails` and
+   * `collectHeuristicPageDetailsBypass`.
+   */
+  private async runHeuristicCollection(): Promise<AutofillPageDetails> {
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
@@ -254,6 +376,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Runs the heuristic collection path on the miss path, after clearing any
+   * targeted-rule state so the heuristic pass starts fresh. Called by
+   * `RuleQualificationService` when a matched rule fails qualification.
+   *
+   * The `cachedInScopeForms` parameter is reserved for a later optimization
+   * that reuses Half 2's field detection within the rule's in-scope forms
+   * rather than detecting them again. Not consumed yet; the heuristic walk
+   * runs over the full document.
+   */
+  async collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails> {
+    this.pageTargetingRules = null;
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    return this.runHeuristicCollection();
+  }
+
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
+    this.ruleQualificationService = ruleQualificationService;
   }
 
   /**
@@ -341,7 +486,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
-      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
+      (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, (string | string[])[]]>)
         .filter(([, alternatives]) => alternatives?.length)
         .map(([fieldType, selectorAlternatives]) => ({
           fieldType,
@@ -462,46 +607,53 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      for (const selector of selectorAlternatives) {
-        if (typeof selector !== "string") {
-          continue;
-        }
+      for (const selectorOrGroup of selectorAlternatives) {
+        // An alternative is either a single selector (string) or a multi-input
+        // group (string[]). Example: a 6-digit one-time code split across
+        // inputs. Normalize to a group so the resolution logic is uniform.
+        const groupSelectors = Array.isArray(selectorOrGroup) ? selectorOrGroup : [selectorOrGroup];
+        const isMultiInputGroup = groupSelectors.length > 1;
+        let matchedInThisAlternative = 0;
 
-        // Check whether this selector crosses an iframe boundary before
-        // trying to resolve it locally.
-        const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-        if (iframeCrossing) {
-          const { iframeElement, innerSelector } = iframeCrossing;
-          const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
-          // Empty src (srcdoc, about:blank) is deferred — see routing/scope notes.
-          if (iframeSrc) {
-            if (!iframeTargets.has(iframeSrc)) {
-              iframeTargets.set(iframeSrc, []);
+        for (const selector of groupSelectors) {
+          if (typeof selector !== "string") {
+            continue;
+          }
+
+          // An iframe-piercing selector is always resolved via routing; local
+          // resolution is never attempted on the same selector, even when the
+          // iframe isn't reachable (srcdoc, about:blank). The counter only
+          // increments on a routed selector so a group of unroutable crossings
+          // still falls through to the next alternative.
+          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
+          if (iframeCrossing) {
+            if (
+              this.tryRouteIframeCrossing(iframeCrossing, fieldType, formCategory, iframeTargets)
+            ) {
+              matchedInThisAlternative++;
             }
-            iframeTargets.get(iframeSrc)!.push({
-              selector: innerSelector,
+            continue;
+          }
+
+          // Group members share a target index; a group suffix keeps each
+          // member's opid unique. Single-selector targets keep the original
+          // opid shape.
+          const groupSuffix = isMultiInputGroup ? `_${matchedInThisAlternative}` : "";
+          if (
+            this.tryResolveLocalSelector(
+              selector,
+              targetIndex,
               fieldType,
               formCategory,
-            });
+              groupSuffix,
+              localFields,
+            )
+          ) {
+            matchedInThisAlternative++;
           }
-          break;
         }
 
-        // No iframe boundary — resolve locally (direct element or shadow DOM).
-        const matchedElement = this.domQueryService.queryDeepSelector(selector);
-        if (matchedElement) {
-          const fieldId = `targeted_field_${targetIndex}_${fieldType}`;
-          const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-          formFieldElement.opid = fieldId;
-
-          const autofillField = this.buildTargetedAutofillField(
-            formFieldElement,
-            fieldType,
-            localFields.length,
-            formCategory,
-          );
-          localFields.push(autofillField);
-          this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+        if (matchedInThisAlternative > 0) {
           break;
         }
       }
@@ -511,11 +663,75 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Queues an iframe-crossing selector for routing to the target frame's
+   * content script. Returns true when the iframe reports a routable `src`
+   * (so the caller can count a successful match). An iframe with an empty
+   * src (srcdoc, about:blank) is deferred — returns false without routing.
+   * The caller is responsible for not falling back to local resolution on
+   * an iframe-crossing selector regardless of this return value.
+   */
+  private tryRouteIframeCrossing(
+    iframeCrossing: { iframeElement: HTMLIFrameElement; innerSelector: string },
+    fieldType: AutofillTargetingRuleType,
+    formCategory: FormPurposeCategory | undefined,
+    iframeTargets: Map<string, IframeTargetedField[]>,
+  ): boolean {
+    const { iframeElement, innerSelector } = iframeCrossing;
+    const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+    if (!iframeSrc) {
+      return false;
+    }
+    if (!iframeTargets.has(iframeSrc)) {
+      iframeTargets.set(iframeSrc, []);
+    }
+    iframeTargets.get(iframeSrc)!.push({
+      selector: innerSelector,
+      fieldType,
+      formCategory,
+    });
+    return true;
+  }
+
+  /**
+   * Resolves the selector locally (direct element or shadow DOM). On a match,
+   * stamps the element's opid, builds a targeted AutofillField, and caches it.
+   * Returns true on a match, false otherwise.
+   */
+  private tryResolveLocalSelector(
+    selector: string,
+    targetIndex: number,
+    fieldType: AutofillTargetingRuleType,
+    formCategory: FormPurposeCategory | undefined,
+    groupSuffix: string,
+    localFields: AutofillField[],
+  ): boolean {
+    const matchedElement = this.domQueryService.queryDeepSelector(selector);
+    if (!matchedElement) {
+      return false;
+    }
+    const fieldId = `targeted_field_${targetIndex}_${fieldType}${groupSuffix}`;
+    const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+    formFieldElement.opid = fieldId;
+
+    const autofillField = this.buildTargetedAutofillField(
+      formFieldElement,
+      fieldType,
+      localFields.length,
+      formCategory,
+    );
+    localFields.push(autofillField);
+    this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
+    return true;
+  }
+
+  /**
    * Resets the cached targeting-rules. Invoked when the background signals
    * that the user disabled fill assist mid-session.
    */
   clearCachedTargetingRules(): void {
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
   }
 
   /**
@@ -575,15 +791,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * @private
    */
-  private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(async (autofillField, element) => {
-      const previouslyViewable = autofillField.viewable;
-      autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
+  private async updateCachedAutofillFieldVisibility() {
+    await Promise.all(
+      Array.from(this.autofillFieldElements, async ([element, autofillField]) => {
+        const previouslyViewable = autofillField.viewable;
+        autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
 
-      if (!previouslyViewable && autofillField.viewable) {
-        this.setupOverlayOnField(element, autofillField);
-      }
-    });
+        if (!previouslyViewable && autofillField.viewable) {
+          this.setupOverlayOnField(element, autofillField);
+        }
+      }),
+    );
   }
 
   /**
@@ -738,7 +956,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       formFieldElements = this.domQueryService.query<FormFieldElement>(
         globalThis.document.documentElement,
         this.formFieldQueryString,
-        (node: Node) => this.isNodeFormFieldElement(node),
+        (element: Element) => this.isElementFormFieldElement(element),
         this.mutationObserver,
       );
     }
@@ -797,6 +1015,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (index >= 0 && existingAutofillField) {
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
+      // A cached field may have been shown or hidden since it was first collected.
+      existingAutofillField.viewable =
+        await this.domElementVisibilityService.isElementViewable(element);
       this.autofillFieldElements.set(element, existingAutofillField);
 
       return existingAutofillField;
@@ -1350,24 +1571,27 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const formElements: HTMLFormElement[] = [];
     const formFieldElements: FormFieldElement[] = [];
 
-    const queriedElements = this.domQueryService.query<HTMLElement>(
-      globalThis.document.documentElement,
-      `form, ${this.formFieldQueryString}`,
-      (node: Node) => {
-        if (nodeIsFormElement(node)) {
-          formElements.push(node);
-          return true;
-        }
+    // The collection walk is the only enrollment path for hosts that predate the observer.
+    const { elements: queriedElements, unresolvedHosts } =
+      this.domQueryService.queryWithUnresolvedShadowHosts<HTMLElement>(
+        globalThis.document.documentElement,
+        (element: Element) => {
+          if (elementIsFormElement(element)) {
+            formElements.push(element);
+            return true;
+          }
 
-        if (this.isNodeFormFieldElement(node)) {
-          formFieldElements.push(node as FormFieldElement);
-          return true;
-        }
+          if (this.isElementFormFieldElement(element)) {
+            formFieldElements.push(element as FormFieldElement);
+            return true;
+          }
 
-        return false;
-      },
-      this.mutationObserver,
-    );
+          return false;
+        },
+        this.mutationObserver,
+      );
+
+    this.shadowTracker.reconcileFromScan(unresolvedHosts);
 
     if (formElements.length || formFieldElements.length) {
       return { formElements, formFieldElements };
@@ -1380,7 +1604,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      if (this.isNodeFormFieldElement(element)) {
+      if (this.isElementFormFieldElement(element)) {
         formFieldElements.push(element);
       }
     }
@@ -1389,27 +1613,27 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks if the passed node is a form field element.
-   * @param {Node} node
-   * @returns {boolean}
-   * @private
+   * Checks if the passed node is a form field element. Mirrors the filter used
+   * by the heuristic collection pass: excludes ignored input types and
+   * `data-bwignore` elements.
+   * @param element the element to check.
+   * @returns whether the element is a form field element.
    */
-  private isNodeFormFieldElement(node: Node): boolean {
-    if (!nodeIsElement(node)) {
-      return false;
-    }
-
-    const nodeTagName = node.tagName.toLowerCase();
+  isElementFormFieldElement(element: Element): boolean {
+    const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
-      nodeTagName === "span" && node.hasAttribute("data-bwautofill");
+      this.honorBitwardenAutofillAttribute &&
+      nodeTagName === "span" &&
+      element.hasAttribute("data-bwautofill");
     if (nodeIsSpanElementWithAutofillAttribute) {
       return true;
     }
 
-    const nodeHasBwIgnoreAttribute = node.hasAttribute("data-bwignore");
+    const nodeHasBwIgnoreAttribute =
+      this.honorBitwardenIgnoreAttribute && element.hasAttribute("data-bwignore");
     const nodeIsValidInputElement =
-      nodeTagName === "input" && !this.ignoredInputTypes.has((node as HTMLInputElement).type);
+      nodeTagName === "input" && !this.ignoredInputTypes.has((element as HTMLInputElement).type);
     if (nodeIsValidInputElement && !nodeHasBwIgnoreAttribute) {
       return true;
     }
@@ -1463,22 +1687,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // attribute/character-data mutations can't introduce shadow roots.
     const hasAddedNodes = mutations.some((m) => (m.addedNodes?.length ?? 0) > 0);
     if (hasAddedNodes) {
-      this.collectAddedShadowRootCandidates(mutations);
-
-      if (!this.pendingShadowDomCheck) {
-        this.pendingShadowDomCheck = true;
-
-        if (this.shadowDomCheckTimeout) {
-          clearTimeout(this.shadowDomCheckTimeout);
-        }
-
-        this.shadowDomCheckTimeout = setTimeout(() => {
-          this.handleNewShadowRoots();
-          this.pendingShadowDomCheck = false;
-          this.pendingMutationAddedElements.clear();
-          this.pendingMutationAddedElementsOverflowed = false;
-        }, this.shadowDomCheckTimeoutMs);
-      }
+      this.shadowTracker.noteAddedNodes(mutations);
     }
 
     // Drain only when idle AND this batch added work; no-op drains are pure overhead.
@@ -1515,6 +1724,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           if (this.shouldListenToTopLayerCandidate(node)) {
             this.pendingTopLayerTargets.add(node);
           }
+          // A popover or dialog nested under a non-candidate added node is still promoted to
+          // the top layer, so it can obscure the inline menu. The added node itself is the only
+          // thing checked above, so walk its descendants to register nested candidates too.
+          for (const descendant of node.querySelectorAll("[popover], dialog")) {
+            if (this.shouldListenToTopLayerCandidate(descendant)) {
+              this.pendingTopLayerTargets.add(descendant);
+            }
+          }
         }
       }
     }
@@ -1543,13 +1760,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Targeting rules are URL-scoped and gated by user/feature state at fetch
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
 
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
+    this.clearFieldCache();
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
+    this.shadowTracker.reset();
 
     this.updateAutofillElementsAfterMutation();
   }
@@ -1661,49 +1879,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.updateAutofillElementsAfterMutation();
   }, this.shadowDomCheckDebounceMs);
 
-  /**
-   * Detects new shadow roots and schedules a page details update if any are found.
-   * This is called periodically to catch shadow roots added after initial page load.
-   * The update is debounced to prevent excessive collection triggers.
-   * @private
-   */
-  private handleNewShadowRoots = () => {
-    // Hosts added by mutation may have been removed during the 500ms debounce.
-    const connected: Element[] = [];
-    for (const element of this.pendingMutationAddedElements) {
-      if (element.isConnected) {
-        connected.push(element);
-      }
-    }
-    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
-    if (hasNewShadowRoots) {
-      this.debouncedRequirePageDetailsUpdate();
-    }
-  };
-
-  // Edge case: a plain element added empty and given `attachShadow()` later
-  // with no further child mutations is dropped here. Rare for autofill content;
-  // the next mutation cycle catches it.
-  private collectAddedShadowRootCandidates(mutations: MutationRecord[]) {
-    if (this.pendingMutationAddedElementsOverflowed) {
-      return;
-    }
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes ?? []) {
-        if (!this.isShadowRootCandidate(node)) {
-          continue;
-        }
-        this.pendingMutationAddedElements.add(node);
-        if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
-          this.pendingMutationAddedElementsOverflowed = true;
-          // Release element refs immediately; we won't process them this window.
-          this.pendingMutationAddedElements.clear();
-          return;
-        }
-      }
-    }
-  }
-
   private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
     return (
       this.nodeListContainsFormField(mutation.addedNodes) ||
@@ -1729,38 +1904,23 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return false;
   }
 
-  private isShadowRootCandidate(node: Node): node is Element {
-    if (!nodeIsElement(node)) {
-      return false;
-    }
-    if (node.shadowRoot) {
-      return true;
-    }
-    // Custom element — `attachShadow` may run after observation.
-    if (node.tagName.includes("-")) {
-      return true;
-    }
-    return node.firstElementChild !== null;
-  }
-
   private setupTopLayerCandidateListener = (element: Element) => {
     const overlayService = this.autofillOverlayContentService;
     if (overlayService !== undefined) {
-      const ownedTags = overlayService.getOwnedInlineMenuTagNames() || [];
-      this.ownedExperienceTagNames = ownedTags;
-
-      if (!ownedTags.includes(element.tagName)) {
-        const toggleListener = (event: Event) => {
-          if ((event as ToggleEvent).newState === "open") {
-            // Add a slight delay (but faster than a user's reaction), to ensure the layer
-            // positioning happens after any triggered toggle has completed.
-            setTimeout(() => {
-              overlayService.refreshMenuLayerPosition();
-            }, 100);
-          }
-        };
-        element.addEventListener("toggle", toggleListener);
-
+      if (!overlayService.isElementInlineMenu(element)) {
+        if (!this.topLayerListenedElements.has(element)) {
+          this.topLayerListenedElements.add(element);
+          const toggleListener = (event: Event) => {
+            if ((event as ToggleEvent).newState === "open") {
+              // Add a slight delay (but faster than a user's reaction), to ensure the layer
+              // positioning happens after any triggered toggle has completed.
+              setTimeout(() => {
+                overlayService.refreshMenuLayerPosition();
+              }, 100);
+            }
+          };
+          element.addEventListener("toggle", toggleListener);
+        }
         overlayService.refreshMenuLayerPosition();
       }
     }
@@ -1774,7 +1934,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   private shouldListenToTopLayerCandidate = (element: Element) => {
     return (
-      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      // Excluded by element identity, since Firefox renders the inline menu as plain `div`s
+      !this.autofillOverlayContentService?.isElementInlineMenu(element) &&
       (element.tagName === "DIALOG" ||
         Array.from(element.attributes || []).some((attribute) =>
           this.isPopoverAttribute(attribute.name),
@@ -1991,6 +2152,35 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   };
 
   /**
+   * Handles the end of an opacity transition. Re-evaluates the visibility of non-viewable
+   * fields within the transitioned element, as a field collected while fading in will not
+   * trigger the IntersectionObserver once it becomes visible.
+   *
+   * @param event - The transitionend event
+   */
+  private handleOpacityTransitionEnd = async (event: TransitionEvent) => {
+    const target = event.target;
+    if (event.propertyName !== "opacity" || !(target instanceof Element)) {
+      return;
+    }
+
+    for (const [formFieldElement, autofillField] of this.autofillFieldElements) {
+      if (
+        autofillField.viewable ||
+        !target.contains(formFieldElement) ||
+        !(await this.domElementVisibilityService.isElementViewable(formFieldElement))
+      ) {
+        continue;
+      }
+
+      autofillField.viewable = true;
+      this.setupOverlayOnField(formFieldElement, autofillField);
+
+      this.intersectionObserver.unobserve(formFieldElement);
+    }
+  };
+
+  /**
    * Iterates over all cached field elements and sets up the inline menu listeners on each field.
    *
    * @param pageDetails - The page details to use for the inline menu listeners
@@ -2086,7 +2276,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domQueryService.query<HTMLInputElement>(
         globalThis.document.documentElement,
         `input[type="password"]`,
-        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+        (element: Element) => elementIsInputElement(element) && element.type === "password",
       )?.length > 0
     );
   }

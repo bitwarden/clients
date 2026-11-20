@@ -1,5 +1,6 @@
 import {
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnChanges,
@@ -7,18 +8,32 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  viewChild,
 } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
+import { FormBuilder, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
+import {
+  map,
+  ReplaySubject,
+  skip,
+  Subject,
+  switchAll,
+  switchMap,
+  takeUntil,
+  withLatestFrom,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 import {
   FormFieldModule,
   AriaDisableDirective,
   TooltipDirective,
   BitIconButtonComponent,
+  CheckboxModule,
+  DialogService,
 } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
@@ -27,10 +42,13 @@ import {
 } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { urlSafetyValidator } from "./forwarder-base-url.validator";
+
 const Controls = Object.freeze({
   domain: "domain",
   token: "token",
   baseUrl: "baseUrl",
+  prefix: "prefix",
 });
 
 /** Options group for forwarder integrations */
@@ -45,6 +63,7 @@ const Controls = Object.freeze({
     AriaDisableDirective,
     TooltipDirective,
     BitIconButtonComponent,
+    CheckboxModule,
     JslibModule,
     I18nPipe,
   ],
@@ -53,10 +72,13 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   /** Instantiates the component
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
+   *  @param dialogService prompts the user to confirm an unsafe self-hosted url
    */
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
+    private i18nService: I18nService,
+    private dialogService: DialogService,
   ) {}
 
   /** Binds the component to a specific user's settings.
@@ -85,12 +107,28 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   @Output()
   readonly onUpdated = new EventEmitter<unknown>();
 
+  private trustedUrl: string | null = null;
+
+  private readonly baseUrlValidator: ValidatorFn = urlSafetyValidator(this.i18nService);
+
   /** The template's control bindings */
   protected settings = this.formBuilder.group({
     [Controls.domain]: [""],
     [Controls.token]: [""],
-    [Controls.baseUrl]: [""],
+    [Controls.baseUrl]: ["", [this.baseUrlValidator]],
+    [Controls.prefix]: [false],
   });
+
+  protected readonly baseUrlInput = viewChild<ElementRef<HTMLInputElement>>("baseUrlInput");
+
+  protected get showTrustedHint(): boolean {
+    const value = (this.settings.get(Controls.baseUrl)?.value as string) ?? "";
+    if (!value || this.trustedUrl !== value) {
+      return false;
+    }
+    const reason = unsafeUrlReason(value);
+    return !!reason && reason.code !== "invalid";
+  }
 
   private vendor = new ReplaySubject<VendorId>(1);
 
@@ -105,6 +143,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
         this.displayDomain = forwarder.capabilities.fields.includes("domain");
         this.displayToken = forwarder.capabilities.fields.includes("token");
         this.displayBaseUrl = forwarder.capabilities.fields.includes("baseUrl");
+        this.displayPrefix = forwarder.capabilities.fields.includes("prefix");
 
         forwarder$.next(forwarder);
       });
@@ -114,10 +153,39 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     );
 
     // bind settings to the reactive form
-    settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
-      // skips reactive event emissions to break a subscription cycle
-      this.settings.patchValue(settings as any, { emitEvent: false });
-    });
+    settings$
+      .pipe(
+        switchMap((subject) => subject.pipe(map((value) => ({ subject, value })))),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(({ subject, value }) => {
+        // grandfather: a base url already saved before this check existed is trusted as-is,
+        // for the hint display and for what gets persisted as allowUnsafeUrlFor
+        const baseUrl = ((value as any).baseUrl as string) || null;
+        this.trustedUrl = baseUrl;
+
+        // skips reactive event emissions to break a subscription cycle
+        // convert prefix sentinel string to boolean for the checkbox control
+        const patchValues = {
+          ...(value as any),
+          prefix: (value as any).prefix === "website",
+        };
+        this.settings.patchValue(patchValues, { emitEvent: false });
+
+        // a malformed stored value is the only thing the validator still rejects — mark it
+        // touched so the error is visible immediately rather than only once the user happens
+        // to touch the field
+        const baseUrlControl = this.settings.get(Controls.baseUrl);
+        if (baseUrlControl?.invalid) {
+          baseUrlControl.markAsTouched({ onlySelf: true });
+        }
+
+        const allowUnsafeUrlFor = (value as any).allowUnsafeUrlFor as string;
+        const reason = baseUrl ? unsafeUrlReason(baseUrl) : null;
+        if (baseUrl && reason && reason.code !== "invalid" && allowUnsafeUrlFor !== baseUrl) {
+          subject.next({ ...(value as any), allowUnsafeUrlFor: baseUrl });
+        }
+      });
 
     // enable requested forwarder inputs
     forwarder$.pipe(takeUntil(this.destroyed$)).subscribe((forwarder) => {
@@ -144,7 +212,14 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     this.saveSettings
       .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
       .subscribe(([, value, settings]) => {
-        settings.next(value as ForwarderOptions);
+        // convert prefix boolean back to sentinel string for the settings store, and record
+        // whichever exact url is currently trusted (may be empty)
+        const saveValues = {
+          ...(value as any),
+          prefix: (value as any).prefix ? "website" : "",
+          allowUnsafeUrlFor: this.trustedUrl ?? "",
+        };
+        settings.next(saveValues as ForwarderOptions);
       });
   }
 
@@ -152,6 +227,53 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   save(site: string = "component api call") {
     this.saveSettings.next(site);
   }
+
+  /** Handles commit (blur/change) of the self-host base url field: checks safety, prompts to
+   *  trust an unsafe value when needed, and only then persists the field. */
+  protected onBaseUrlChange = async (): Promise<void> => {
+    const control = this.settings.get(Controls.baseUrl);
+    if (!control) {
+      return;
+    }
+
+    const value = (control.value as string) ?? "";
+
+    if (value === "") {
+      this.trustedUrl = null;
+      this.save("baseUrl");
+      return;
+    }
+
+    const unsafe = unsafeUrlReason(value);
+    if (unsafe?.code === "invalid") {
+      return;
+    }
+
+    if (!unsafe) {
+      // safe: drop any stale trust recorded for a previously-unsafe value in this field
+      this.trustedUrl = null;
+    }
+
+    if (unsafe && this.trustedUrl !== value) {
+      const trusted = await this.dialogService.openSimpleDialog({
+        title: { key: "forwarderUnsafeUrlDialogTitle" },
+        content: { key: "forwarderUnsafeUrlDialogContent" },
+        type: "warning",
+        acceptButtonText: { key: "forwarderTrustUrl" },
+        cancelButtonText: { key: "cancel" },
+      });
+
+      if (trusted) {
+        this.trustedUrl = value;
+      } else {
+        this.trustedUrl = null;
+        control.setValue("");
+        this.baseUrlInput()?.nativeElement.focus();
+      }
+    }
+
+    this.save("baseUrl");
+  };
 
   async ngOnChanges(changes: SimpleChanges) {
     this.refresh$.complete();
@@ -167,6 +289,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   protected displayDomain: boolean = false;
   protected displayToken: boolean = false;
   protected displayBaseUrl: boolean = false;
+  protected displayPrefix: boolean = false;
 
   private readonly refresh$ = new Subject<void>();
 

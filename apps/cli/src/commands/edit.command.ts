@@ -11,18 +11,22 @@ import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { FieldType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
@@ -46,6 +50,7 @@ export class EditCommand {
     private policyService: PolicyService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
   ) {}
 
   async run(
@@ -85,10 +90,13 @@ export class EditCommand {
       case "item":
         return await this.editCipher(id, req);
       case "item-collections":
+      case "item-shared-folders":
         return await this.editCipherCollections(id, req);
       case "folder":
+      case "my-folder":
         return await this.editFolder(id, req);
       case "org-collection":
+      case "org-shared-folder":
         return await this.editOrganizationCollection(id, req, normalizedOptions);
       default:
         return Response.badRequest("Unknown object.");
@@ -117,7 +125,49 @@ export class EditCommand {
     if (cipherView.isDeleted) {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
+
+    // Users without permission to view passwords never receive the real login password/TOTP or
+    // hidden field values from `bw get`/`bw list` (they're redacted to `null`, matching how the
+    // web/browser/desktop clients disable those fields for editing). If those redacted `null`s
+    // are round-tripped back through `bw edit`, preserve the real, already-decrypted values
+    // instead of letting them be overwritten and lost. A non-null value is a deliberate write
+    // and is left alone. See PM-16160/PM-33526.
+    const canViewPassword = cipherView.viewPassword;
+    const originalLoginPassword = cipherView.login?.password;
+    const originalLoginTotp = cipherView.login?.totp;
+    // Values are keyed by field name rather than position so that adding, removing, or
+    // reordering fields in the request can't shift a value onto the wrong field. Fields
+    // sharing a name keep their original relative order.
+    const originalHiddenFieldValues = new Map<string, string[]>();
+    for (const field of cipherView.fields ?? []) {
+      if (field.type === FieldType.Hidden) {
+        const values = originalHiddenFieldValues.get(field.name) ?? [];
+        values.push(field.value);
+        originalHiddenFieldValues.set(field.name, values);
+      }
+    }
+
     cipherView = CipherExport.toView(req, cipherView);
+
+    if (!canViewPassword) {
+      if (cipherView.login != null) {
+        if (cipherView.login.password == null) {
+          cipherView.login.password = originalLoginPassword;
+        }
+        if (cipherView.login.totp == null) {
+          cipherView.login.totp = originalLoginTotp;
+        }
+      }
+      cipherView.fields?.forEach((field) => {
+        if (field.type !== FieldType.Hidden || field.value != null) {
+          return;
+        }
+        const values = originalHiddenFieldValues.get(field.name);
+        if (values?.length > 0) {
+          field.value = values.shift();
+        }
+      });
+    }
 
     // When a user is editing an archived cipher and does not have premium, automatically unarchive it
     if (cipherView.isArchived && !hasPremium) {
@@ -203,7 +253,10 @@ export class EditCommand {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
       const updatedFolder = new Folder(folder);
       const decFolder = await updatedFolder.decrypt(userKey);
-      const res = new FolderResponse(decFolder);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new FolderResponse(decFolder, useSharedFoldersTerm);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -215,18 +268,36 @@ export class EditCommand {
     req: OrganizationCollectionRequest,
     options: Options,
   ) {
-    if (options.organizationId == null || options.organizationId === "") {
-      return Response.badRequest("`organizationid` option is required.");
-    }
     if (!Utils.isGuid(id)) {
       return Response.badRequest("`" + id + "` is not a GUID.");
     }
-    if (!Utils.isGuid(options.organizationId)) {
-      return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
+    // The organization id can come from either the `organizationid` option (e.g. a CLI flag, or a
+    // query string parameter when using `bw serve`) or the request body's `organizationId` property.
+    // If both are provided, they must agree; otherwise whichever one was provided is used.
+    const organizationId = Utils.isNullOrWhitespace(options.organizationId)
+      ? req?.organizationId
+      : options.organizationId;
+    if (Utils.isNullOrWhitespace(organizationId)) {
+      return Response.badRequest(
+        "An organization id is required, either via the `--organizationid` option " +
+          "(or `organizationId` query parameter when using `bw serve`), " +
+          "or the request's `organizationId` property.",
+      );
     }
-    if (options.organizationId !== req.organizationId) {
-      return Response.badRequest("`organizationid` option does not match request object.");
+    if (!Utils.isGuid(organizationId)) {
+      return Response.badRequest("`" + organizationId + "` is not a GUID.");
     }
+    if (
+      !Utils.isNullOrWhitespace(options.organizationId) &&
+      !Utils.isNullOrWhitespace(req.organizationId) &&
+      options.organizationId !== req.organizationId
+    ) {
+      return Response.badRequest(
+        "The `--organizationid` option (or `organizationId` query parameter) does not match " +
+          "the request's `organizationId` property.",
+      );
+    }
+    req.organizationId = organizationId as OrganizationId;
     if (req.name == null || req.name.trim() === "") {
       return Response.badRequest("Collection name is required.");
     }
@@ -235,7 +306,7 @@ export class EditCommand {
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+          map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null),
         ),
       );
       if (orgKey == null) {
@@ -256,7 +327,7 @@ export class EditCommand {
             );
       const request = new UpdateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
-        externalId: req.externalId,
+        externalId: req.externalId ?? undefined,
         users,
         groups,
       });
@@ -269,7 +340,15 @@ export class EditCommand {
       const serverUsers = response.users.map(
         (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
       );
-      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        view,
+        serverGroups,
+        serverUsers,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

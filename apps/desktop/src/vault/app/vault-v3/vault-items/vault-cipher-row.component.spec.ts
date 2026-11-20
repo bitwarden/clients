@@ -17,7 +17,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { LogService } from "@bitwarden/logging";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { CopyCipherFieldService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -39,11 +41,15 @@ console.error = (...args: unknown[]) => {
 describe("VaultCipherRowComponent", () => {
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
   let overlayContainer: OverlayContainer;
+  let showQuickCopyActions$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
+    showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+
     await TestBed.configureTestingModule({
       imports: [VaultCipherRowComponent],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
@@ -56,7 +62,7 @@ describe("VaultCipherRowComponent", () => {
         },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
         },
         {
           provide: EnvironmentService,
@@ -67,6 +73,14 @@ describe("VaultCipherRowComponent", () => {
         {
           provide: DomainSettingsService,
           useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
+        },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: showQuickCopyActions$.asObservable() },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared$: jest.fn().mockReturnValue(of(false)) },
         },
       ],
     }).compileComponents();
@@ -168,6 +182,15 @@ describe("VaultCipherRowComponent", () => {
       const copyBtn = fixture.nativeElement.querySelector('button[biticonbutton="bwi-clone"]');
       expect(copyBtn).toBeTruthy();
     });
+
+    it("renders individual quick-copy icons when quick copy actions are enabled", () => {
+      showQuickCopyActions$.next(true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-user"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-clock"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('button[biticonbutton="bwi-clone"]')).toBeNull();
+    });
   });
 
   describe("batch bar checkbox", () => {
@@ -176,25 +199,7 @@ describe("VaultCipherRowComponent", () => {
       fixture.componentRef.setInput("disabled", false);
     });
 
-    it("does not render when showBatchBar is false", () => {
-      fixture.componentRef.setInput("showBatchBar", false);
-
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).toBeNull();
-    });
-
-    it("renders when showBatchBar is true", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).not.toBeNull();
-    });
-
     it("sets aria-label to the cipher name", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
       fixture.detectChanges();
 
       const checkbox = fixture.nativeElement.querySelector(
@@ -205,7 +210,6 @@ describe("VaultCipherRowComponent", () => {
     });
 
     it("reflects the selected state on the checkbox", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
       fixture.componentRef.setInput("selected", true);
 
       fixture.detectChanges();
@@ -217,8 +221,6 @@ describe("VaultCipherRowComponent", () => {
     });
 
     it("emits checkboxChange when the checkbox changes", () => {
-      fixture.componentRef.setInput("showBatchBar", true);
-
       fixture.detectChanges();
 
       const spy = jest.spyOn((fixture.componentInstance as any).checkboxChange, "emit");

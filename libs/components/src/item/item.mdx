@@ -17,16 +17,6 @@ or to list nav links.
 
 <Canvas of={stories.Default} />
 
-<br />
-
-Items used within a parent `bit-layout` component will not have a border radius, since the
-`bit-layout` background is white.
-
-<Canvas of={stories.WithoutBorderRadius} />
-
-<br />
-<br />
-
 ## Primary Content
 
 The primary content of an item is supplied by `bit-item-content`.
@@ -84,6 +74,29 @@ The content can be a button, anchor, or static container.
 
 <Canvas of={stories.ContentSlots} />
 
+## Sizes
+
+`size` controls the item's internal padding.
+
+| Size             | Vertical padding | Leading padding | Trailing padding |
+| ---------------- | ---------------- | --------------- | ---------------- |
+| `base` (default) | 8px              | 12px            | 12px             |
+| `lg`             | 12px             | 16px            | 16px             |
+
+The two horizontal edges always match, except when the end slot's last child is an icon button — its
+own padding already fills that edge, so the trailing padding tightens to 8px.
+
+Use `lg` for lower-density lists where the item is the main focus of the page. Compact mode
+overrides both sizes with its own tighter padding, so an item's `size` has no effect there.
+
+```html
+<bit-item size="lg">
+  <button type="button" bit-item-content>Large</button>
+</bit-item>
+```
+
+<Canvas of={stories.Sizes} />
+
 ## Secondary Actions
 
 Secondary interactive actions can be placed in the item through the `"end"` slot, outside of
@@ -110,6 +123,29 @@ Actions are commonly icon buttons or badge buttons.
   </ng-container>
 </bit-item>
 ```
+
+### End Slot Spacing
+
+Spacing in the `"end"` slot is applied automatically based on the type of each child, so consumers
+should not add their own margins or wrapper padding to tune it.
+
+| Content               | Margin on each side |
+| --------------------- | ------------------- |
+| Plain text            | 8px                 |
+| Link                  | 8px                 |
+| Button / badge / chip | 4px                 |
+| Icon button           | 0px                 |
+| Anything unrecognized | 8px                 |
+
+Margins never collapse, so the space between two neighbors is the sum of their two values — a badge
+beside plain text gets 12px, two badges get 8px, and a badge beside an icon button gets 4px. Only
+the outer edges are exempt: the item's own gap owns the space before the first child and its
+trailing padding owns the space after the last child, so those two never add their own. Wrapped
+content is measured by what it contains, no matter how many components deep, so an icon button
+inside `<bit-item-action>` or inside an app-level component is still treated as an icon button.
+Spacing a wrapper applies to its own contents is ignored inside the slot.
+
+<Canvas of={stories.EndSlotSpacing} />
 
 ## Text Overflow Behavior
 

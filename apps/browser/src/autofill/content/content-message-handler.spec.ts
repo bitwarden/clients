@@ -19,6 +19,15 @@ describe("ContentMessageHandler", () => {
     }),
   );
 
+  const stubInstallCheckResponse = (result: boolean) => {
+    sendMessageSpy.mockImplementation((...args: unknown[]) => {
+      const callback = args.find(
+        (arg): arg is (response: { result: boolean }) => void => typeof arg === "function",
+      );
+      callback?.({ result });
+    });
+  };
+
   beforeEach(() => {
     jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
     // FIXME: Remove when updating file. Eslint update
@@ -27,20 +36,56 @@ describe("ContentMessageHandler", () => {
   });
 
   afterEach(() => {
+    sendMessageSpy.mockReset();
     jest.resetModules();
     jest.clearAllMocks();
   });
 
   describe("handled web vault extension response", () => {
-    it("sends a message 'hasBWInstalled'", () => {
+    it("forwards the install check to the background with the page referrer", () => {
+      postWindowMessage(
+        { command: VaultMessages.checkBwInstalled },
+        "https://vault.bitwarden.com/",
+        window,
+      );
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        {
+          command: VaultMessages.checkBwInstalled,
+          referrer: "vault.bitwarden.com",
+        },
+        expect.any(Function),
+      );
+    });
+
+    it("posts hasBwInstalled when the background confirms a vault host", () => {
       const mockPostMessage = jest.fn();
       window.postMessage = mockPostMessage;
+      stubInstallCheckResponse(true);
 
-      postWindowMessage({ command: VaultMessages.checkBwInstalled });
+      postWindowMessage(
+        { command: VaultMessages.checkBwInstalled },
+        "https://vault.bitwarden.com/",
+        window,
+      );
 
       expect(mockPostMessage).toHaveBeenCalledWith({
         command: VaultMessages.HasBwInstalled,
       });
+    });
+
+    it("does not post hasBwInstalled when the background rejects the host", () => {
+      const mockPostMessage = jest.fn();
+      window.postMessage = mockPostMessage;
+      stubInstallCheckResponse(false);
+
+      postWindowMessage(
+        { command: VaultMessages.checkBwInstalled },
+        "https://example.com/",
+        window,
+      );
+
+      expect(mockPostMessage).not.toHaveBeenCalled();
     });
   });
 
@@ -110,11 +155,7 @@ describe("ContentMessageHandler", () => {
     });
 
     it("forwards the message to the extension background if it is present in the forwardCommands list", () => {
-      const forwardCommands = [
-        "addToLockedVaultPendingNotifications",
-        "unlockCompleted",
-        "addedCipher",
-      ];
+      const forwardCommands = ["bgUnlockPopoutOpened", "addedCipher"];
 
       forwardCommands.forEach((command) => {
         sendMockExtensionMessage({ command });
@@ -123,6 +164,17 @@ describe("ContentMessageHandler", () => {
       });
 
       expect(sendMessageSpy).toHaveBeenCalledTimes(forwardCommands.length);
+    });
+
+    it("does not relay the locked vault retry commands", () => {
+      // Both carry a `commandToRetry` that names the tab receiving the retried autofill.
+      // Relaying them makes that payload authorable by anything that can reach this script,
+      // so the background publishes and consumes them intraprocess instead.
+      ["addToLockedVaultPendingNotifications", "unlockCompleted"].forEach((command) => {
+        sendMockExtensionMessage({ command });
+      });
+
+      expect(sendMessageSpy).not.toHaveBeenCalled();
     });
   });
 

@@ -1,4 +1,6 @@
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
 

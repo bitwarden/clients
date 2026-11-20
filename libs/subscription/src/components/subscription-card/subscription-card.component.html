@@ -10,9 +10,7 @@
   </div>
 
   <!-- Cart Summary -->
-  <div class="tw-mb-4">
-    <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
-  </div>
+  <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
 
   <!-- Status-Based Callout -->
   @if (callout(); as callout) {
@@ -25,6 +23,7 @@
               <button
                 bitButton
                 [buttonType]="cta.buttonType"
+                [endIcon]="cta.endIcon"
                 (click)="callToActionClicked.emit(cta.action)"
                 type="button"
               >
@@ -36,11 +35,14 @@
       </div>
     </bit-callout>
   }
+
+  <!-- Projected content slot for warnings (e.g., price-increase warning) -->
+  <ng-content></ng-content>
 </bit-card>
 
-<ng-template #cartSummaryHeader let-total="total">
+<ng-template #cartSummaryHeader let-amountDue="amountDue">
   <h2
-    bitTypography="h4"
+    bitTypography="h5"
     class="!tw-m-0"
     id="cart-summary-header-custom"
     data-test-id="cart-summary-header-custom"
@@ -61,7 +63,7 @@
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
-          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          <span class="tw-font-bold">{{ amountDue | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
@@ -72,22 +74,30 @@
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
-          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          <span class="tw-font-bold">{{ amountDue | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
       }
       @case ("past_due") {
-        {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        } @else {
+          {{ "subscriptionPastDueWillPauseSoon" | i18n }}
+        }
       }
       @case ("canceled") {
         {{ "yourSubscriptionWasCanceledOn" | i18n }}
         <span class="tw-font-bold">{{ canceled() | date: dateFormat }}</span>
       }
       @case ("unpaid") {
-        {{ "yourSubscriptionWasSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWasSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        } @else {
+          {{ "subscriptionPastDuePaused" | i18n }}
+        }
       }
     }
   </h2>

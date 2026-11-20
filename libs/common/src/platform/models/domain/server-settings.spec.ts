@@ -34,4 +34,38 @@ describe("ServerSettings", () => {
       expect(settings.suppressOnboardingInterstitials).toBe(false);
     });
   });
+
+  describe("disableEmailVerification", () => {
+    it("defaults disableEmailVerification to false", () => {
+      const settings = new ServerSettings();
+      expect(settings.disableEmailVerification).toBe(false);
+    });
+
+    it("sets disableEmailVerification to true when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: true });
+      expect(settings.disableEmailVerification).toBe(true);
+    });
+
+    it("sets disableEmailVerification to false when provided", () => {
+      const settings = new ServerSettings({ disableEmailVerification: false });
+      expect(settings.disableEmailVerification).toBe(false);
+    });
+  });
+
+  describe("disableOpenInviteLinkEmailVerification", () => {
+    it("defaults disableOpenInviteLinkEmailVerification to false", () => {
+      const settings = new ServerSettings();
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(false);
+    });
+
+    it("sets disableOpenInviteLinkEmailVerification to true when provided", () => {
+      const settings = new ServerSettings({ disableOpenInviteLinkEmailVerification: true });
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(true);
+    });
+
+    it("sets disableOpenInviteLinkEmailVerification to false when provided", () => {
+      const settings = new ServerSettings({ disableOpenInviteLinkEmailVerification: false });
+      expect(settings.disableOpenInviteLinkEmailVerification).toBe(false);
+    });
+  });
 });

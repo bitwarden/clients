@@ -3,11 +3,10 @@
     bit-chip-content
     [startIcon]="icon"
     [endIcon]="
-      !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
+      !selectedOption ? (menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
     "
     type="button"
-    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] tw-ps-2"
-    [class]="'tw-pb-[calc(theme(spacing.1)_-_1px)]'"
+    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] -tw-my-px tw-ps-2 tw-py-1"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled()"
@@ -19,11 +18,9 @@
     <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
   </button>
   @if (selectedOption) {
-    <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
     <button
       bit-chip-dismiss-button
       slot="end"
-      class="tw-relative tw-bottom-[1px]"
       type="button"
       [attr.aria-label]="'removeItem' | i18n: label"
       [disabled]="disabled()"
@@ -72,7 +69,20 @@
           class="tw-text-[length:inherit]"
           [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
         >
-          @if (option.icon) {
+          @if (option.iconTile; as tile) {
+            <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a
+                 line box's worth of descender space below the tile and push it above the row's
+                 center. -->
+            <bit-icon-tile
+              slot="start"
+              class="!tw-flex"
+              [icon]="tile.icon"
+              [variant]="tileVariant(option)"
+              [color]="tileColor(option)"
+              [emphasis]="tile.emphasis ?? 'subtle'"
+              size="xs"
+            />
+          } @else if (option.icon) {
             <bit-icon
               slot="start"
               [name]="option.icon"

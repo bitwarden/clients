@@ -1,0 +1,28 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./nav-section.stories";
+
+```ts
+import { NavigationModule } from "@bitwarden/components";
+```
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+`bit-nav-section` groups related navigation items beneath an uppercased heading. Provide the heading
+via the required `label` input and an optional leading `icon`. When the side nav is collapsed the
+heading is visually hidden (`sr-only`) while the grouped items keep their icons in the rail.
+
+<Primary />
+<Controls />
+
+## Empty State
+
+A section with no items renders a dismissible empty state via `bit-nav-section-empty`. Project the
+message as content; the close button is only shown when the consumer binds the `(dismiss)` output.
+The consumer owns hiding and persistence — the component simply emits `dismiss` when the close
+button is clicked. The empty state is hidden while the side nav is collapsed.
+
+<Canvas of={stories.EmptyState} />

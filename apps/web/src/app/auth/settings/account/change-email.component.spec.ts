@@ -5,13 +5,13 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-provider.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
@@ -26,6 +26,7 @@ describe("ChangeEmailComponent", () => {
   let twoFactorService: MockProxy<TwoFactorService>;
   let accountService: FakeAccountService;
   let configService: MockProxy<ConfigService>;
+  let logoutService: MockProxy<LogoutService>;
 
   beforeEach(async () => {
     changeEmailService = mock<ChangeEmailService>();
@@ -33,6 +34,7 @@ describe("ChangeEmailComponent", () => {
     accountService = mockAccountServiceWith("UserId" as UserId);
     configService = mock<ConfigService>();
     configService.getFeatureFlag.mockResolvedValue(false);
+    logoutService = mock<LogoutService>();
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
@@ -40,7 +42,7 @@ describe("ChangeEmailComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: TwoFactorService, useValue: twoFactorService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: MessagingService, useValue: mock<MessagingService>() },
+        { provide: LogoutService, useValue: logoutService },
         { provide: FormBuilder, useClass: FormBuilder },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ChangeEmailService, useValue: changeEmailService },
@@ -150,6 +152,12 @@ describe("ChangeEmailComponent", () => {
           "token",
           "UserId" as UserId,
         );
+      });
+
+      it("logs the user out with the emailChanged reason after a successful email change", async () => {
+        await component.submit();
+
+        expect(logoutService.logout).toHaveBeenCalledWith("UserId" as UserId, "emailChanged");
       });
     });
   });

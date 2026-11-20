@@ -39,7 +39,7 @@
             >
               {{ title() }}
             </div>
-            <span bitTypography="body2" class="tw-max-w-[800px]">
+            <span bitTypography="body2" class="tw-max-w-[800px]" data-testid="bit-banner-message">
               <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
             </span>
           </div>
@@ -55,6 +55,7 @@
               (click)="onDismiss()"
               [label]="'close' | i18n"
               class="tw-hidden @3xl:tw-block"
+              data-testid="bit-banner-close-btn"
             ></button>
           }
         </div>
@@ -67,6 +68,7 @@
               size="small"
               (click)="onDismiss()"
               [label]="'close' | i18n"
+              data-testid="bit-banner-close-btn"
             ></button>
           </div>
         }
@@ -78,7 +80,11 @@
         @if (icon) {
           <bit-icon-tile [icon]="icon" [variant]="variant()" size="sm" aria-hidden="true" />
         }
-        <span bitTypography="body2" class="tw-mt-0.5 tw-max-w-[800px]">
+        <span
+          bitTypography="body2"
+          class="tw-mt-0.5 tw-max-w-[800px]"
+          data-testid="bit-banner-message"
+        >
           <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
         </span>
       </div>
@@ -91,6 +97,7 @@
             size="small"
             (click)="onDismiss()"
             [label]="'close' | i18n"
+            data-testid="bit-banner-close-btn"
           ></button>
         </div>
       }

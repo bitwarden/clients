@@ -15,8 +15,9 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "../../types/guid";
 import {

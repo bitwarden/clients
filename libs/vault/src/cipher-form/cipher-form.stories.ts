@@ -19,6 +19,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
@@ -167,6 +168,10 @@ export default {
           } as Partial<AccountService>,
         },
         {
+          provide: AvatarService,
+          useValue: { getUserAvatarColor$: () => of("#175ddc") },
+        },
+        {
           provide: CipherFormService,
           useClass: TestAddEditFormService,
         },
@@ -221,6 +226,7 @@ export default {
           provide: AutofillSettingsServiceAbstraction,
           useValue: {
             autofillOnPageLoadDefault$: new BehaviorSubject(true),
+            httpAuthenticationAvailable$: new BehaviorSubject(false),
           },
         },
         {
@@ -234,6 +240,7 @@ export default {
           useValue: {
             getClientType: () => ClientType.Browser,
             getDevice: () => DeviceType.ChromeExtension,
+            isSafari: () => false,
           },
         },
         {
@@ -241,6 +248,10 @@ export default {
           useValue: {
             activeAccount$: new BehaviorSubject({ email: "test@example.com" }),
           },
+        },
+        {
+          provide: AvatarService,
+          useValue: { getUserAvatarColor$: () => of("#175ddc") },
         },
         {
           provide: CipherFormCacheService,
@@ -384,6 +395,31 @@ export const WithSubmitButton: Story = {
       `,
     };
   },
+};
+
+/** Provides an `AutofillSettingsServiceAbstraction` with HTTP authentication available */
+const withHTTPAuthenticationAvailable = moduleMetadata({
+  providers: [
+    {
+      provide: AutofillSettingsServiceAbstraction,
+      useValue: {
+        autofillOnPageLoadDefault$: new BehaviorSubject(true),
+        httpAuthenticationAvailable$: new BehaviorSubject(true),
+      },
+    },
+  ],
+});
+
+/** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
+export const HTTPAuthentication: Story = {
+  ...Edit,
+  decorators: [withHTTPAuthenticationAvailable],
+};
+
+/** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
+export const HTTPAuthenticationRequiresMatchDetection: Story = {
+  ...Add,
+  decorators: [withHTTPAuthenticationAvailable],
 };
 
 export const OrganizationDataOwnershipEnabled: Story = {

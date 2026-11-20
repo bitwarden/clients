@@ -6,7 +6,7 @@ import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { isMacAppStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isWindowsStore } from "../platform-utils.main";
 
 import { AboutMenu } from "./menu.about";
 import { IMenubarMenu } from "./menubar";

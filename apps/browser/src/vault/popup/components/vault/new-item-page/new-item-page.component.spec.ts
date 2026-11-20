@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -22,6 +23,7 @@ import {
   AddEditFolderDialogComponent,
   AddItemGridComponent,
   AddItemGridResult,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -64,6 +66,10 @@ describe("NewItemPageComponent", () => {
         {
           provide: AccountService,
           useValue: mockAccountServiceWith("user-1" as UserId),
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: signal(false) },
         },
       ],
     }).compileComponents();
@@ -180,8 +186,12 @@ describe("NewItemPageComponent", () => {
         expect(navigate).not.toHaveBeenCalled();
       });
 
-      it("passes folderId, organizationId, and collectionId from route params", async () => {
-        queryParams$.next({ folderId: "folder-1", organizationId: "org-1", collectionId: "col-1" });
+      it("passes folderId, organizationId, and collectionIds from route params", async () => {
+        queryParams$.next({
+          folderId: "folder-1",
+          organizationId: "org-1",
+          collectionIds: "col-1",
+        });
         await fixture.whenStable();
 
         newItemGrid().triggerEventHandler("itemSelected", {
@@ -196,7 +206,7 @@ describe("NewItemPageComponent", () => {
               type: CipherType.Identity.toString(),
               folderId: "folder-1",
               organizationId: "org-1",
-              collectionId: "col-1",
+              collectionIds: "col-1",
             }),
           }),
         );

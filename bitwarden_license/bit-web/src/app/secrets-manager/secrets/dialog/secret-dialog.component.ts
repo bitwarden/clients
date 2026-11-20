@@ -1,18 +1,26 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, inject, Inject, OnDestroy, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
+import {
+  AccessPolicyService,
+  ProjectListView,
+  ProjectService,
+  ProjectView,
+  SecretAccessPoliciesView,
+  SecretListView,
+  SecretProjectView,
+  SecretService,
+  SecretView,
+} from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,13 +33,6 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 
-import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
-import { ProjectListView } from "../../models/view/project-list.view";
-import { ProjectView } from "../../models/view/project.view";
-import { SecretListView } from "../../models/view/secret-list.view";
-import { SecretProjectView } from "../../models/view/secret-project.view";
-import { SecretView } from "../../models/view/secret.view";
-import { ProjectService } from "../../projects/project.service";
 import { AccessPolicySelectorService } from "../../shared/access-policies/access-policy-selector/access-policy-selector.service";
 import {
   ApItemValueType,
@@ -43,8 +44,6 @@ import {
   convertSecretAccessPoliciesToApItemViews,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
-import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
 
@@ -107,12 +106,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private currentPeopleAccessPolicies: ApItemViewType[];
-
-  private readonly configService = inject(ConfigService);
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
+  private originalSecretValue: string;
 
   constructor(
     public dialogRef: DialogRef,
@@ -131,11 +125,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   get title() {
-    return this.data.operation === OperationType.Add
-      ? this.btnTextAddCreateFeatureFlag()
-        ? "addSecret"
-        : "newSecret"
-      : "editSecret";
+    return this.data.operation === OperationType.Add ? "addSecret" : "editSecret";
   }
 
   get subtitle(): string | undefined {
@@ -250,6 +240,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private async loadEditDialog() {
     const secret = await this.secretService.getBySecretId(this.data.secretId);
+    this.originalSecretValue = secret.value;
     await this.loadProjects(secret.projects);
 
     const currentAccessPolicies = await this.getCurrentAccessPolicies(
@@ -385,7 +376,13 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
   ) {
-    await this.secretService.update(this.data.organizationId, secretView, secretAccessPoliciesView);
+    const valueChanged = secretView.value !== this.originalSecretValue;
+    await this.secretService.update(
+      this.data.organizationId,
+      secretView,
+      secretAccessPoliciesView,
+      valueChanged,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,

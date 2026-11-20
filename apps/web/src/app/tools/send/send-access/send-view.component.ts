@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,27 +12,35 @@ import { SendAccessToken } from "@bitwarden/common/auth/send-access";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   AnonLayoutWrapperDataService,
   SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { isAccessSendError } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../shared";
 
 import { SendAccessFileComponent } from "./send-access-file.component";
+import { SendAccessItemComponent } from "./send-access-item.component";
 import { SendAccessTextComponent } from "./send-access-text.component";
 
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
+  imports: [
+    SendAccessFileComponent,
+    SendAccessItemComponent,
+    SendAccessTextComponent,
+    SharedModule,
+    SpinnerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
@@ -42,7 +48,7 @@ export class SendViewComponent implements OnInit {
   readonly key = input.required<string>();
   readonly accessToken = input<SendAccessToken | null>(null);
 
-  authRequired = output<void>();
+  readonly authRequired = output<void>();
 
   readonly send = signal<SendAccessView | null>(null);
   readonly expirationDate = computed<Date | null>(() => this.send()?.expirationDate ?? null);
@@ -56,15 +62,15 @@ export class SendViewComponent implements OnInit {
   readonly unavailable = signal<boolean>(false);
   readonly error = signal<boolean>(false);
 
-  sendType = SendType;
-  decKey!: SymmetricCryptoKey;
+  readonly sendType = SendType;
+  readonly decKey = signal<SymmetricCryptoKey | null>(null);
 
   constructor(
-    private keyService: KeyService,
-    private sendApiService: SendApiService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
-    private layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private readonly sendApiService: SendApiService,
+    private readonly toastService: ToastService,
+    private readonly i18nService: I18nService,
+    private readonly layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private readonly sendDecryptionService: SendDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -85,11 +91,13 @@ export class SendViewComponent implements OnInit {
         this.authRequired.emit();
         return;
       }
-      const response = await this.sendApiService.postSendAccessV2(accessToken);
+      const response = await this.sendApiService.postSendAccess(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
-      const sendAccess = new SendAccess(response);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
-      const decSend = await sendAccess.decrypt(this.decKey);
+      const [decSend, decKey] = await this.sendDecryptionService.decryptSendAccess(
+        response,
+        keyArray,
+      );
+      this.decKey.set(decKey);
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
@@ -107,6 +115,10 @@ export class SendViewComponent implements OnInit {
         } else {
           this.error.set(true);
         }
+      } else if (isAccessSendError(e) && e.variant === "NotFound") {
+        // The SDK path (`pm-30110-sdk-sends-api`) reports a Send that is gone or can no longer be
+        // opened this way, rather than as a 404 ErrorResponse
+        this.unavailable.set(true);
       } else {
         this.error.set(true);
       }
@@ -114,11 +126,22 @@ export class SendViewComponent implements OnInit {
       this.loading.set(false);
     }
 
+    const decSendAfterLoad = this.send();
+    if (decSendAfterLoad?.type === SendType.Item) {
+      this.layoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "viewSharedItem" },
+      });
+    }
+
     const creatorIdentifier = this.creatorIdentifier();
     if (creatorIdentifier != null) {
+      const subtitleKey =
+        decSendAfterLoad?.type === SendType.Item
+          ? "sendAccessItemSubtitle"
+          : "sendAccessCreatorIdentifier";
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
-          key: "sendAccessCreatorIdentifier",
+          key: subtitleKey,
           placeholders: [creatorIdentifier],
         },
       });

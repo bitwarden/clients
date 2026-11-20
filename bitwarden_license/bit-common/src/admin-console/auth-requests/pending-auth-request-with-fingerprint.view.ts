@@ -1,5 +1,6 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { PendingAuthRequestView } from "./pending-auth-request.view";
 
@@ -8,7 +9,7 @@ export class PendingAuthRequestWithFingerprintView extends PendingAuthRequestVie
 
   static async fromView(
     view: PendingAuthRequestView,
-    keyService: KeyService,
+    legacyCompatKeyService: LegacyCompatKeyService,
   ): Promise<PendingAuthRequestWithFingerprintView> {
     const requestWithDetailsView = Object.assign(
       new PendingAuthRequestWithFingerprintView(),
@@ -16,7 +17,7 @@ export class PendingAuthRequestWithFingerprintView extends PendingAuthRequestVie
     ) as PendingAuthRequestWithFingerprintView;
 
     requestWithDetailsView.fingerprintPhrase = (
-      await keyService.getFingerprint(
+      await legacyCompatKeyService.getFingerprint(
         requestWithDetailsView.email,
         Utils.fromB64ToArray(requestWithDetailsView.publicKey),
       )

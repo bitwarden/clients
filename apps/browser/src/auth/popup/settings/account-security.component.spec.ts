@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
-import { LockService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -16,6 +15,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -30,12 +30,15 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { NativeMessagingPermissionDialogComponent } from "../../../key-management/shared-unlock/popup/native-messaging-permission-dialog.component";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -63,6 +66,16 @@ class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
 
+const makePolicy = (enabled: boolean) =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled,
+    revisionDate: new Date().toISOString(),
+  });
+
 describe("AccountSecurityComponent", () => {
   let component: AccountSecurityComponent;
   let fixture: ComponentFixture<AccountSecurityComponent>;
@@ -76,6 +89,7 @@ describe("AccountSecurityComponent", () => {
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const lockService = mock<LockService>();
   const policyService = mock<PolicyService>();
   const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
@@ -114,8 +128,10 @@ describe("AccountSecurityComponent", () => {
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
+        { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },
         { provide: NudgesService, useValue: vaultNudgesService },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
@@ -167,9 +183,7 @@ describe("AccountSecurityComponent", () => {
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
     sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
-    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
     sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
-    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
     sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
     policyService.policiesByType$.mockReturnValue(of([null]));
@@ -201,9 +215,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -219,9 +231,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -248,9 +258,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -263,9 +271,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -280,9 +286,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -373,7 +377,6 @@ describe("AccountSecurityComponent", () => {
           false,
           mockUserId,
         );
-        expect(biometricStateService.setFingerprintValidated).toHaveBeenCalledWith(false);
       });
     });
 
@@ -546,7 +549,6 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(true);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(true);
       expect(
         fixture.nativeElement.textContent.includes(
           "sharedUnlockUnavailableUntrustedDevice-used-i18n",
@@ -564,7 +566,26 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
+    });
+  });
+
+  describe("logOut", () => {
+    it("calls LogoutService.logout with the active user and userInitiated reason when confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "userInitiated");
+    });
+
+    it("does not call LogoutService.logout when the dialog is cancelled", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 });

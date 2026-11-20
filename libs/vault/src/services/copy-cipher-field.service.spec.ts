@@ -70,6 +70,15 @@ describe("CopyCipherFieldService", () => {
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
+    it("should return early without a toast when valueToCopy is an empty string", async () => {
+      valueToCopy = "";
+      const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
+      expect(result).toBeFalsy();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(eventCollectionService.collect).not.toHaveBeenCalled();
+    });
+
     it("should copy value to clipboard", async () => {
       const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
       expect(result).toBeTruthy();
@@ -115,6 +124,13 @@ describe("CopyCipherFieldService", () => {
         const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
         expect(result).toBeTruthy();
         expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+      });
+
+      it("should not show password prompt when valueToCopy is empty", async () => {
+        const result = await service.copy("", actionType, cipher, skipReprompt);
+        expect(result).toBeFalsy();
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
       });
 
       it("should return early when password prompt is not confirmed", async () => {

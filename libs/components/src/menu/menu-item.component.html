@@ -1,9 +1,17 @@
 <div class="tw-flex tw-w-full tw-justify-between tw-items-center tw-gap-2">
-  <span class="tw-flex tw-gap-2 tw-items-center tw-overflow-hidden tw-text-sm tw-font-medium">
+  <!--
+    A projected bit-icon-tile has an inline host wrapping an inline-flex box, so it would gain a line
+    box's worth of descender space and sit above the item's center. Force the host to be a flex box.
+  -->
+  <span
+    class="tw-flex tw-gap-2 tw-items-center tw-overflow-hidden tw-text-sm tw-font-medium [&>bit-icon-tile]:tw-flex"
+  >
     <ng-content select="[slot=start]"></ng-content>
     <span class="tw-truncate"><ng-content></ng-content></span>
   </span>
-  <span class="tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle tw-text-xs empty:tw-hidden">
+  <span
+    class="tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle tw-text-xs empty:tw-hidden [&>bit-icon-tile]:tw-flex"
+  >
     <ng-content select="[slot=end]"></ng-content>
   </span>
 </div>

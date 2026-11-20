@@ -3,8 +3,8 @@ import { Component, ViewChildren, QueryList, ElementRef, inject, DOCUMENT } from
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
+import { DarkImageSourceDirective } from "@bitwarden/angular/directives/dark-image-source.directive";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

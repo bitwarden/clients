@@ -47,8 +47,20 @@
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nothing was imported."
+  },
+  "importDirectOnlyError": {
+    "message": "$FORMAT$ signs in to the vendor instead of reading a file, so it cannot be imported with the CLI.",
+    "placeholders": {
+      "format": {
+        "content": "$1",
+        "example": "1Password (direct)"
+      }
+    }
   },
   "verificationCodeRequired": {
     "message": "Verification code is required."
@@ -198,6 +210,10 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -217,6 +233,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "legacyEncryptionUnsupported": {
     "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
@@ -249,8 +273,8 @@
   "youHaveBeenLoggedOut": {
     "message": "You have been logged out."
   },
-  "myItems": {
-    "message": "My Items"
+  "myItemsV2": {
+    "message": "My items"
   },
   "organizationUsingKeyConnectorConfirmLoggedOut": {
     "message": "An organization you are a member of is using Key Connector. In order to access the vault, you must confirm the Key Connector domain now via the web vault. You have been logged out."
@@ -266,5 +290,14 @@
   },
   "confirm": {
     "message": "Confirm"
+  },
+  "password": {
+    "message": "Password"
+  },
+  "security": {
+    "message": "Security"
+  },
+  "unknown": {
+    "message": "Unknown"
   }
 }

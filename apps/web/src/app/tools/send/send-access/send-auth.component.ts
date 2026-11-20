@@ -1,5 +1,3 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input, OnInit, output, signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -16,14 +14,13 @@ import {
   SendOtp,
   SendTokenService,
 } from "@bitwarden/common/auth/send-access";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -40,16 +37,14 @@ export class SendAuthComponent implements OnInit {
   protected readonly id = input.required<string>();
   protected readonly key = input.required<string>();
 
-  protected accessGranted = output<{
-    response?: SendAccessResponse;
-    request?: SendAccessRequest;
-    accessToken?: SendAccessToken;
+  protected readonly accessGranted = output<{
+    accessToken: SendAccessToken;
   }>();
 
-  authType = AuthType;
+  readonly authType = AuthType;
 
-  private expiredAuthAttempts = 0;
-  private otpSubmitted = false;
+  private readonly expiredAuthAttempts = signal(0);
+  private readonly otpSubmitted = signal(false);
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
@@ -57,15 +52,19 @@ export class SendAuthComponent implements OnInit {
   readonly sendAuthType = signal<AuthType>(AuthType.None);
   readonly enterOtp = signal<boolean>(false);
 
-  sendAccessForm = this.formBuilder.group<{ password?: string; email?: string; otp?: string }>({});
+  readonly sendAccessForm = this.formBuilder.group<{
+    password?: string;
+    email?: string;
+    otp?: string;
+  }>({});
 
   constructor(
-    private cryptoFunctionService: CryptoFunctionService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
-    private formBuilder: FormBuilder,
-    private sendTokenService: SendTokenService,
-    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private readonly cryptoFunctionService: CryptoFunctionService,
+    private readonly toastService: ToastService,
+    private readonly i18nService: I18nService,
+    private readonly formBuilder: FormBuilder,
+    private readonly sendTokenService: SendTokenService,
+    private readonly anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
   ) {}
 
   ngOnInit() {
@@ -85,7 +84,7 @@ export class SendAuthComponent implements OnInit {
 
   onBackToEmail() {
     this.enterOtp.set(false);
-    this.otpSubmitted = false;
+    this.otpSubmitted.set(false);
     this.updatePageTitle();
   }
 
@@ -112,16 +111,16 @@ export class SendAuthComponent implements OnInit {
       : await firstValueFrom(this.sendTokenService.getSendAccessToken$(this.id(), sendAccessCreds));
 
     if (response instanceof SendAccessToken) {
-      this.expiredAuthAttempts = 0;
+      this.expiredAuthAttempts.set(0);
       this.accessGranted.emit({ accessToken: response });
     } else if (response.kind === "expired") {
-      if (this.expiredAuthAttempts > 2) {
+      if (this.expiredAuthAttempts() > 2) {
         return;
       }
-      this.expiredAuthAttempts++;
+      this.expiredAuthAttempts.update((attempts) => attempts + 1);
       await this.getTokenWithRetry(sendAccessCreds);
     } else if (response.kind === "expected_server") {
-      this.expiredAuthAttempts = 0;
+      this.expiredAuthAttempts.set(0);
       if (emailRequired(response.error)) {
         this.sendAuthType.set(AuthType.Email);
         this.updatePageTitle();
@@ -133,14 +132,14 @@ export class SendAuthComponent implements OnInit {
             message: this.i18nService.t("codeResent"),
           });
         } else {
-          if (this.otpSubmitted) {
+          if (this.otpSubmitted()) {
             this.toastService.showToast({
               variant: "error",
               title: undefined,
               message: this.i18nService.t("invalidVerificationCode"),
             });
           }
-          this.otpSubmitted = true;
+          this.otpSubmitted.set(true);
         }
         this.enterOtp.set(true);
         this.updatePageTitle();
@@ -163,7 +162,7 @@ export class SendAuthComponent implements OnInit {
         });
       }
     } else {
-      this.expiredAuthAttempts = 0;
+      this.expiredAuthAttempts.set(0);
       this.error.set(true);
       this.toastService.showToast({
         variant: "error",

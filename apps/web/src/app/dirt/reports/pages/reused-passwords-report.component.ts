@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -29,6 +32,16 @@ import { CipherReportComponent } from "./cipher-report.component";
   standalone: false,
 })
 export class ReusedPasswordsReportComponent extends CipherReportComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "reusedPasswordsReport";
+
   ciphersToCheckForReusedPasswords: CipherView[] = [];
   passwordUseMap: Map<string, number>;
   disabled = true;

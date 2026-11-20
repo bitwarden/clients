@@ -1,9 +1,10 @@
 import { Observable, map, throwError } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import {
   DecryptedAccessReportData,

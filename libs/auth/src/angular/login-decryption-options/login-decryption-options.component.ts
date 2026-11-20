@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
+  EMPTY,
   catchError,
   concatMap,
   defer,
@@ -21,34 +22,28 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
+import { DeviceKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -62,15 +57,21 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
+  // A user who has an account created on the server, but does not yet have cryptographic keys
+  // This is the case after JIT provisioning
   NewUser,
+  // A user who has an account created on the server, and has cryptographic keys, but is logging
+  // in from an untrusted device
   ExistingUserUntrustedDevice,
 }
 
@@ -118,17 +119,14 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private apiService: ApiService,
     private destroyRef: DestroyRef,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
-    private keyService: KeyService,
     private loginDecryptionOptionsService: LoginDecryptionOptionsService,
     private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private passwordResetEnrollmentService: PasswordResetEnrollmentServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private ssoLoginService: SsoLoginServiceAbstraction,
@@ -138,10 +136,10 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private logoutService: LogoutService,
     private registerSdkService: RegisterSdkService,
     private appIdService: AppIdService,
-    private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private authService: AuthService,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private unlockService: UnlockService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -173,7 +171,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         !userDecryptionOptions?.hasMasterPassword
       ) {
         /**
-         * We are dealing with a new account if both are true:
+         * We are dealing with a new account (registered but no crypto initialized) if both are true:
          * - User does NOT have admin approval (i.e. has not enrolled in admin reset)
          * - User does NOT have a master password
          */
@@ -198,7 +196,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       message: this.i18nService.t("activeUserEmailNotFoundLoggingYouOut"),
     });
 
-    await this.logoutService.logout(this.activeAccountId);
+    await this.logoutService.logout(this.activeAccountId, "missingEmailError");
     // navigate to root so redirect guard can properly route next active user or null user to correct page
     await this.router.navigate(["/"]);
   }
@@ -208,7 +206,17 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap((value) =>
-          defer(() => this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value)),
+          defer(() =>
+            this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value),
+          ).pipe(
+            // Caught inside the switchMap so a failed write is reported and the stream stays
+            // subscribed for later toggles. Left uncaught it would both kill the subscription
+            // and surface as an unhandled error, since this is a bare subscribe.
+            catchError((err: unknown) => {
+              this.validationService.showError(err);
+              return EMPTY;
+            }),
+          ),
         ),
       )
       .subscribe();
@@ -317,88 +325,79 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       !trustDevice,
     );
 
-    // An untrusted device must not share its unlock state with other clients, so turn both
-    // allow-sharing settings off.
+    // An untrusted device must not share its unlock state with other clients, so turn the
+    // desktop allow-sharing setting off. Web sharing is covered by unlockSharingDisabled.
     if (!trustDevice) {
       await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(
-        false,
-        this.activeAccountId,
-      );
-      await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(
         false,
         this.activeAccountId,
       );
     }
   }
 
-  protected createUser = async () => {
+  /**
+   * Finishes account setup for a user who was just-in-time provisioned. The account itself already exists in state by this point ({@link activeAccountId}.
+   * This generates and posts the accounts cryptographic keys and unlock methods to the server.
+   */
+  protected initializeUserCryptoForJitProvisionedAccount = async () => {
     if (this.state !== State.NewUser) {
       return;
     }
 
     try {
-      const useSdkV2Creation = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27279_V2RegistrationTdeJit,
+      await this.persistUnlockSharingChoice();
+
+      const deviceIdentifier = await this.appIdService.getAppId();
+      const userId = this.activeAccountId;
+      const organizationId = this.newUserOrgId;
+
+      const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
+      const register_result = await firstValueFrom(
+        this.registerSdkService.registerClient$(userId).pipe(
+          concatMap(async (sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
+
+            using ref = sdk.take();
+            return await ref.value
+              .auth()
+              .registration()
+              .post_keys_for_tde_registration({
+                org_id: asUuid<SdkOrganizationId>(organizationId),
+                org_public_key: orgKeyResponse.publicKey,
+                user_id: asUuid<SdkUserId>(userId),
+                device_identifier: deviceIdentifier,
+                trust_device: this.formGroup.value.rememberDevice,
+              });
+          }),
+        ),
       );
-      if (useSdkV2Creation) {
-        const deviceIdentifier = await this.appIdService.getAppId();
-        const userId = this.activeAccountId;
-        const organizationId = this.newUserOrgId;
-
-        const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
-        const register_result = await firstValueFrom(
-          this.registerSdkService.registerClient$(userId).pipe(
-            concatMap(async (sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
-
-              using ref = sdk.take();
-              return await ref.value
-                .auth()
-                .registration()
-                .post_keys_for_tde_registration({
-                  org_id: asUuid<SdkOrganizationId>(organizationId),
-                  org_public_key: orgKeyResponse.publicKey,
-                  user_id: asUuid<SdkUserId>(userId),
-                  device_identifier: deviceIdentifier,
-                  trust_device: this.formGroup.value.rememberDevice,
-                });
-            }),
-          ),
-        );
-        // The keys returned here can only be v2 keys, since the SDK only implements returning V2 keys.
-        if ("V1" in register_result.account_cryptographic_state) {
-          throw new Error("Unexpected V1 account cryptographic state");
-        }
-
-        // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
-        // Set account cryptography state
-        await this.accountCryptographicStateService.setAccountCryptographicState(
-          register_result.account_cryptographic_state,
-          userId,
-        );
-
-        // TDE unlock
-        await this.deviceTrustService.setDeviceKey(
-          userId,
-          SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
-        );
-
-        // Set user key - user is now unlocked
-        await this.keyService.setUserKey(
-          SymmetricCryptoKey.fromString(register_result.user_key) as UserKey,
-          userId,
-        );
-      } else {
-        const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
-        const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
-        await this.apiService.postAccountKeys(keysRequest);
-        await this.passwordResetEnrollmentService.enroll(this.newUserOrgId);
-        if (this.formGroup.value.rememberDevice) {
-          await this.deviceTrustService.trustDevice(this.activeAccountId);
-        }
+      // The keys returned here can only be v2 keys, since the SDK only implements returning V2 keys.
+      if ("V1" in register_result.account_cryptographic_state) {
+        throw new Error("Unexpected V1 account cryptographic state");
       }
+
+      // Note: When SDK state management matures, the state writes and the unlock below should all
+      // be moved into post_keys_for_tde_registration
+      // Set account cryptography state
+      await this.accountCryptographicStateService.setAccountCryptographicState(
+        register_result.account_cryptographic_state,
+        userId,
+      );
+
+      // TDE unlock
+      await this.deviceTrustService.setDeviceKey(
+        userId,
+        SymmetricCryptoKey.fromString(register_result.device_key) as DeviceKey,
+      );
+
+      // User is now unlocked. Unlocking initializes the SDK from state, so it has to run after
+      // the account cryptographic state above has been persisted.
+      await this.unlockService.unlockWithDecryptedUserKey(
+        userId,
+        SymmetricCryptoKey.fromString(register_result.user_key),
+      );
 
       this.toastService.showToast({
         variant: "success",
@@ -406,7 +405,11 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      await this.persistUnlockSharingChoice();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("inviteAccepted"),
+      });
 
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
@@ -457,7 +460,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }

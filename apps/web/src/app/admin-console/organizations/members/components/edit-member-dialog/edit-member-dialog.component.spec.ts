@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -26,11 +27,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
@@ -48,6 +52,13 @@ const ORG_ID = "org-id" as any;
 const USER_ID = "user-id" as any;
 const ACCOUNT_ID = "account-id" as any;
 
+function buildVfo1TerminologyService(enabled = false): Partial<Vfo1TerminologyService> {
+  return {
+    iconClass: (icon: string) => icon as any,
+    enabled: () => enabled,
+  };
+}
+
 function buildOrg(overrides: Partial<Organization> = {}): Organization {
   return {
     id: ORG_ID,
@@ -64,6 +75,10 @@ function buildOrg(overrides: Partial<Organization> = {}): Organization {
 function buildUserDetails(
   overrides: Partial<{
     userId: any;
+    externalId: string;
+    ssoExternalId: string;
+    type: OrganizationUserType;
+    permissions: PermissionsApi;
   }> = {},
 ): OrganizationUserAdminView {
   return new OrganizationUserAdminView({
@@ -72,12 +87,13 @@ function buildUserDetails(
     organizationId: ORG_ID,
     collections: [],
     groups: [],
-    type: OrganizationUserType.User,
+    type: overrides.type ?? OrganizationUserType.User,
     status: OrganizationUserStatusType.Confirmed,
-    externalId: "",
-    ssoExternalId: "",
-    permissions: new PermissionsApi(),
+    externalId: overrides.externalId ?? "",
+    ssoExternalId: overrides.ssoExternalId ?? "",
+    permissions: overrides.permissions ?? new PermissionsApi(),
     accessSecretsManager: false,
+    accessPam: false,
     resetPasswordEnrolled: false,
     hasMasterPassword: true,
     claimedByOrganization: false,
@@ -93,7 +109,7 @@ function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMem
     usesKeyConnector: false,
     claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
-    initialTab: MemberDialogTab.Role,
+    initialTab: MemberDialogTab.Details,
     ...overrides,
   };
 }
@@ -103,7 +119,9 @@ async function createComponent(
   overrides: {
     userDetails?: OrganizationUserAdminView;
     orgOverrides?: Partial<Organization>;
-    detailsTabEnabled?: boolean;
+    vfo1FoundationEnabled?: boolean;
+    pamEnabled?: boolean;
+    rotationEnabled?: boolean;
   } = {},
 ): Promise<{
   fixture: ComponentFixture<EditMemberDialogComponent>;
@@ -125,6 +143,7 @@ async function createComponent(
     configService: MockProxy<ConfigService>;
     validationService: MockProxy<ValidationService>;
     logService: MockProxy<LogService>;
+    platformUtilsService: MockProxy<PlatformUtilsService>;
   };
 }> {
   const accountService = mock<AccountService>();
@@ -143,6 +162,7 @@ async function createComponent(
   const configService = mock<ConfigService>();
   const validationService = mock<ValidationService>();
   const logService = mock<LogService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
   organizationService.organizations$ = jest
@@ -156,16 +176,17 @@ async function createComponent(
     .fn()
     .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
   billingConstraint.seatLimitReached.mockResolvedValue(false);
-  configService.getFeatureFlag.mockImplementation((flag) => {
-    if (flag === FeatureFlag.PM28365_ChangeMemberEmail) {
-      return Promise.resolve(overrides.detailsTabEnabled ?? false);
-    }
-    return Promise.resolve(false);
-  });
+  // Read once at construction, so the values have to be in place before createComponent returns.
+  configService.getFeatureFlag.mockImplementation(async (flag) =>
+    flag === FeatureFlag.PamAccessConnector
+      ? (overrides.rotationEnabled ?? false)
+      : (overrides.pamEnabled ?? false),
+  );
 
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
     providers: [
+      provideNoopAnimations(),
       { provide: DIALOG_DATA, useValue: params },
       { provide: DialogRef, useValue: dialogRef },
       { provide: AccountService, useValue: accountService },
@@ -177,14 +198,25 @@ async function createComponent(
       { provide: I18nService, useValue: i18nService },
       { provide: MemberActionsService, useValue: memberActionsService },
       { provide: DeleteManagedMemberWarningService, useValue: deleteManagedMemberWarningService },
-      { provide: DialogService, useValue: dialogService },
       { provide: BillingConstraintService, useValue: billingConstraint },
       { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
       { provide: ConfigService, useValue: configService },
       { provide: ValidationService, useValue: validationService },
       { provide: LogService, useValue: logService },
+      { provide: PlatformUtilsService, useValue: platformUtilsService },
+      {
+        provide: Vfo1TerminologyService,
+        useValue: buildVfo1TerminologyService(overrides.vfo1FoundationEnabled),
+      },
     ],
   }).compileComponents();
+
+  // EditMemberDialogComponent imports DialogModule directly, which itself provides a real
+  // DialogService (see libs/components/src/dialog/dialog.module.ts). That component-level
+  // provider is "closer" in the injector hierarchy than a TestBed-level `providers` entry, so a
+  // plain provider override above would be shadowed. `overrideProvider` patches the injectable
+  // definition itself so the mock is used everywhere, including inside DialogModule's scope.
+  TestBed.overrideProvider(DialogService, { useValue: dialogService });
 
   const fixture = TestBed.createComponent(EditMemberDialogComponent);
   const component = fixture.componentInstance;
@@ -209,6 +241,7 @@ async function createComponent(
       configService,
       validationService,
       logService,
+      platformUtilsService,
     },
   };
 }
@@ -217,11 +250,11 @@ describe("EditMemberDialogComponent", () => {
   afterEach(() => TestBed.resetTestingModule());
 
   describe("tabIndex initialization", () => {
-    it("defaults to MemberDialogTab.Role when params.initialTab is Role", async () => {
+    it("defaults to MemberDialogTab.Details when params.initialTab is Details", async () => {
       const { component } = await createComponent(
-        defaultParams({ initialTab: MemberDialogTab.Role }),
+        defaultParams({ initialTab: MemberDialogTab.Details }),
       );
-      expect((component as any).tabIndex()).toBe(MemberDialogTab.Role);
+      expect((component as any).tabIndex()).toBe(MemberDialogTab.Details);
     });
 
     it("initializes to MemberDialogTab.Collections when params specify it", async () => {
@@ -310,6 +343,144 @@ describe("EditMemberDialogComponent", () => {
     });
   });
 
+  describe("manage access rules permission", () => {
+    const customMember = (manageAccessRules: boolean) =>
+      buildUserDetails({
+        type: OrganizationUserType.Custom,
+        permissions: Object.assign(new PermissionsApi(), { manageAccessRules }),
+      });
+
+    const checkbox = (fixture: ComponentFixture<EditMemberDialogComponent>) =>
+      fixture.nativeElement.querySelector("#edit-member_checkbox_manage-access-rules");
+
+    it("offers the checkbox when the organization is subscribed to PAM", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).not.toBeNull();
+    });
+
+    it("hides the checkbox when the organization is not subscribed to PAM", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: false } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).toBeNull();
+    });
+
+    // The public API can also grant the permission, so a hidden checkbox must submit the member's
+    // existing grant rather than clear it.
+    it("round-trips an existing grant the checkbox never rendered", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: false } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          permissions: expect.objectContaining({ manageAccessRules: true }),
+        }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("drops the permission when the member is no longer custom", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: true } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as any).formGroup.controls.type.setValue(OrganizationUserType.Admin);
+      await component.submit();
+
+      const [request] = mocks.userAdminService.saveV2.mock.calls[0];
+      expect(request.permissions.manageAccessRules).toBeFalsy();
+    });
+  });
+
+  describe("manage rotation permission", () => {
+    const customMember = (manageRotation: boolean) =>
+      buildUserDetails({
+        type: OrganizationUserType.Custom,
+        permissions: Object.assign(new PermissionsApi(), { manageRotation }),
+      });
+
+    const checkbox = (fixture: ComponentFixture<EditMemberDialogComponent>) =>
+      fixture.nativeElement.querySelector("#edit-member_checkbox_manage-rotation");
+
+    it("offers the checkbox when rotation is turned on", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+        rotationEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).not.toBeNull();
+    });
+
+    // The rotation pages sit behind their own flag, so there is nothing to administer without it.
+    it("hides the checkbox while rotation is turned off", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: customMember(false),
+        orgOverrides: { usePam: true } as any,
+        pamEnabled: true,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(checkbox(fixture)).toBeNull();
+    });
+
+    it("round-trips an existing grant the checkbox never rendered", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        userDetails: customMember(true),
+        orgOverrides: { usePam: true } as any,
+      });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          permissions: expect.objectContaining({ manageRotation: true }),
+        }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+  });
+
   describe("dialog close on success", () => {
     it("calls dialogRef.close with MemberDialogResult.Saved after successful save", async () => {
       const { fixture, component, mocks } = await createComponent(defaultParams());
@@ -372,95 +543,419 @@ describe("EditMemberDialogComponent", () => {
     });
   });
 
-  describe("Details tab feature flag (PM28365_ChangeMemberEmail)", () => {
-    describe("flag ON", () => {
-      it("detailsTabEnabled() returns true", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details }),
-          { detailsTabEnabled: true },
-        );
-
-        // Allow the flag Promise to resolve without triggering full template render
-        await Promise.resolve();
-
-        expect((component as any).detailsTabEnabled()).toBe(true);
+  describe("delete() VFO1 terminology flag", () => {
+    it("uses the legacy warning key when the flag is off", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        vfo1FoundationEnabled: false,
       });
+      mocks.deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      mocks.dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      it("formGroup has name and email controls", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details }),
-          { detailsTabEnabled: true },
-        );
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-        expect((component as any).formGroup.get("name")).not.toBeNull();
-        expect((component as any).formGroup.get("email")).not.toBeNull();
-      });
+      await component.delete();
 
-      it("email control is disabled", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details, email: "test@example.com" }),
-          { detailsTabEnabled: true },
-        );
-
-        expect((component as any).formGroup.controls.email.disabled).toBe(true);
-      });
-
-      it("patches email from params on load", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details, email: "member@example.com" }),
-          { detailsTabEnabled: true },
-        );
-
-        // Wait for userService.get to resolve and form to be patched
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
-      });
-
-      it("patches name from params on load", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Details, name: "Test User" }),
-          { detailsTabEnabled: true },
-        );
-
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
-        expect((component as any).formGroup.controls.name.value).toBe("Test User");
-      });
-
-      it("submit error toast uses 'details' tab label when form invalid and not on Details tab", async () => {
-        const { component, mocks } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Groups }),
-          { detailsTabEnabled: true },
-        );
-
-        await Promise.resolve();
-
-        (component as any).formGroup.controls.type.setErrors({ required: true });
-        await component.submit();
-
-        expect(mocks.toastService.showToast).toHaveBeenCalledWith(
-          expect.objectContaining({ variant: "error" }),
-        );
-      });
+      expect(mocks.dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({ key: "deleteOrganizationUserWarningDesc" }),
+        }),
+      );
     });
 
-    describe("flag OFF", () => {
-      it("detailsTabEnabled() returns false", async () => {
-        const { component } = await createComponent(defaultParams(), {
-          detailsTabEnabled: false,
-        });
-
-        expect((component as any).detailsTabEnabled()).toBe(false);
+    it("uses the shared folder warning key when the flag is on", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams(), {
+        vfo1FoundationEnabled: true,
       });
+      mocks.deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      mocks.dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      it("initialTab defaults to Role (0)", async () => {
-        const { component } = await createComponent(
-          defaultParams({ initialTab: MemberDialogTab.Role }),
-          { detailsTabEnabled: false },
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.delete();
+
+      expect(mocks.dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.objectContaining({
+            key: "deleteOrganizationUserWarningDescSharedFolders",
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("Details tab", () => {
+    it("formGroup has name and email controls", async () => {
+      const { component } = await createComponent(
+        defaultParams({ initialTab: MemberDialogTab.Details }),
+      );
+
+      expect((component as any).formGroup.get("name")).not.toBeNull();
+      expect((component as any).formGroup.get("email")).not.toBeNull();
+    });
+
+    it("email control is disabled", async () => {
+      const { component } = await createComponent(
+        defaultParams({ initialTab: MemberDialogTab.Details, email: "test@example.com" }),
+      );
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+
+    it("patches email from params on load", async () => {
+      const { component } = await createComponent(
+        defaultParams({ initialTab: MemberDialogTab.Details, email: "member@example.com" }),
+      );
+
+      // Wait for userService.get to resolve and form to be patched
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.value).toBe("member@example.com");
+    });
+
+    it("patches name from profileName param on load", async () => {
+      const { component } = await createComponent(
+        defaultParams({ initialTab: MemberDialogTab.Details, profileName: "Test User" }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.value).toBe("Test User");
+    });
+
+    it("submit error toast uses 'details' tab label when form invalid and not on Details tab", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ initialTab: MemberDialogTab.Groups }),
+      );
+
+      await Promise.resolve();
+
+      (component as any).formGroup.controls.type.setErrors({ required: true });
+      await component.submit();
+
+      expect(mocks.toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+    });
+  });
+
+  describe("emailEditable", () => {
+    it("is true when claimed and no master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+      );
+
+      expect((component as any).emailEditable()).toBe(true);
+    });
+
+    it("is false when not claimed (regardless of master password)", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+
+    it("is false when claimed but has a master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+  });
+
+  describe("nameEditable", () => {
+    it("is true when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }));
+
+      expect((component as any).nameEditable()).toBe(true);
+    });
+
+    it("is false when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }));
+
+      expect((component as any).nameEditable()).toBe(false);
+    });
+  });
+
+  describe("name control enabled state after load", () => {
+    it("enables name control when claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: true }));
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(false);
+    });
+
+    it("keeps name control disabled when not claimed by organization", async () => {
+      const { component } = await createComponent(defaultParams({ claimedByOrganization: false }));
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.name.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() name field", () => {
+    it("includes name in request when claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.name.setValue("New Name");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "New Name" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits name from request when not claimed by organization", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ name: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+  });
+
+  describe("email control enabled state after load", () => {
+    it("enables email control when emailEditable is true", async () => {
+      const { component } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "user@org.com",
+        }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(false);
+    });
+
+    it("keeps email control disabled when not claimed", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+
+    it("keeps email control disabled when claimed but has master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() email field", () => {
+    it("includes email in request when editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "original@org.com",
+        }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.email.setValue("new@org.com");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: "new@org.com" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits email from request when not editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: true }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("sets inline email error and stays open on email validation error from server", async () => {
+      const emailError = new ProblemDetailsErrorResponse(
+        { errors: { email: [{ type: "new_email_domain_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(emailError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect(
+        (component as any).formGroup.controls.email.errors?.serverError?.message,
+      ).toBeDefined();
+    });
+
+    it.each([
+      ["member_has_master_password", "email"],
+      ["email_change_failed", "email"],
+    ])(
+      "sets inline error and stays open for %s server error on field %s",
+      async (errorType, field) => {
+        const error = new ProblemDetailsErrorResponse(
+          { errors: { [field]: [{ type: errorType, detail: "..." }] } },
+          400,
         );
-        expect((component as any).tabIndex()).toBe(MemberDialogTab.Role);
+        const { component, mocks } = await createComponent(
+          defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        );
+
+        mocks.userAdminService.saveV2.mockRejectedValue(error);
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        await component.submit();
+
+        expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+        expect(
+          (component as any).formGroup.controls[field].errors?.serverError?.message,
+        ).toBeDefined();
+      },
+    );
+
+    it("sets inline name error and stays open on name validation error from server", async () => {
+      const nameError = new ProblemDetailsErrorResponse(
+        { errors: { name: [{ type: "name_member_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(nameError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect((component as any).formGroup.controls.name.errors?.serverError?.message).toBeDefined();
+    });
+
+    it("re-throws non-email errors so the generic toast path runs", async () => {
+      const genericError = new Error("Unexpected server error");
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(genericError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await expect(component.submit()).rejects.toThrow("Unexpected server error");
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("external ID fields", () => {
+    it("renders the external ID and SSO external ID values when the member has them", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({
+          externalId: "1308a41a-5c5b-46d3-9573-abad9b0608dc",
+          ssoExternalId: "member@example.com",
+        }),
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      const externalIdInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        "#edit-member_input_external-id",
+      );
+      const ssoExternalIdInput: HTMLInputElement = fixture.nativeElement.querySelector(
+        "#edit-member_input_sso-external-id",
+      );
+
+      expect(externalIdInput.value).toBe("1308a41a-5c5b-46d3-9573-abad9b0608dc");
+      expect(externalIdInput.readOnly).toBe(true);
+      expect(ssoExternalIdInput.value).toBe("member@example.com");
+      expect(ssoExternalIdInput.readOnly).toBe(true);
+    });
+
+    it("hides both fields when the member has neither ID", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails(),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("#edit-member_button_copy-external-id"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("#edit-member_button_copy-sso-external-id"),
+      ).toBeNull();
+    });
+
+    it("copies the external ID to the clipboard when the copy button is clicked", async () => {
+      const { fixture, mocks } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({ externalId: "external-id-value" }),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector("#edit-member_button_copy-external-id").click();
+
+      expect(mocks.platformUtilsService.copyToClipboard).toHaveBeenCalledWith("external-id-value");
+    });
+
+    it("copies the SSO external ID to the clipboard when the copy button is clicked", async () => {
+      const { fixture, mocks } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({ ssoExternalId: "sso-external-id-value" }),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector("#edit-member_button_copy-sso-external-id").click();
+
+      expect(mocks.platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "sso-external-id-value",
+      );
     });
   });
 });

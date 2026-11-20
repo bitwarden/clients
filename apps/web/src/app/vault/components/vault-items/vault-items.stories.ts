@@ -18,6 +18,7 @@ import {
   CollectionAdminView,
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -25,6 +26,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
@@ -32,7 +34,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -46,14 +47,30 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 const organizations = [...new Array(3).keys()].map(createOrganization);
 const groups = [...Array(3).keys()].map(createGroupView);
@@ -71,6 +88,7 @@ export default {
     moduleMetadata({
       imports: [VaultItemsModule, RouterModule, LayoutComponent],
       providers: [
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
         {
           provide: EnvironmentService,
           useValue: {
@@ -125,9 +143,9 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag$() {
-              // does not currently affect any display logic, default all to OFF
-              return of(false);
+            getFeatureFlag$(flag: FeatureFlag) {
+              // Show VFO1 shared folder terminology and icons; all other flags OFF
+              return of(flag === FeatureFlag.VFO1Foundation);
             },
           },
         },
@@ -150,17 +168,6 @@ export default {
           useValue: {
             restricted$: of([]), // No restricted item types for this story
             isCipherRestricted: () => false, // No restrictions for this story
-          },
-        },
-        {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: of({
-              organizationId: null,
-              collectionId: null,
-              folderId: null,
-              type: null,
-            }),
           },
         },
         {
@@ -200,6 +207,21 @@ export default {
         {
           provide: CipherService,
           useValue: () => {},
+        },
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
+        {
+          provide: VaultBatchBarService,
+          useValue: {
+            barVisible: () => false,
+            selection: {
+              hasValue: () => false,
+              isSelected: () => false,
+              toggle: () => {},
+              clear: () => {},
+              select: () => {},
+              selected: [],
+            },
+          },
         },
       ],
     }),
@@ -264,9 +286,6 @@ export const Individual: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -279,9 +298,6 @@ export const IndividualDisabled: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -293,37 +309,28 @@ export const IndividualTrash: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: false,
   },
 };
 
-export const IndividualTopLevelCollection: Story = {
+export const IndividualTopLevelSharedFolder: Story = {
   args: {
     ciphers: [],
     collections,
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
 
-export const IndividualSecondLevelCollection: Story = {
+export const IndividualSecondLevelSharedFolder: Story = {
   args: {
     ciphers,
     collections,
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -335,9 +342,6 @@ export const OrganizationVault: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -349,9 +353,6 @@ export const OrganizationTrash: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: true,
   },
 };
@@ -361,30 +362,24 @@ const unassignedCollection = new CollectionAdminView({
   name: "Unassigned",
   organizationId: "org id" as OrganizationId,
 });
-export const OrganizationTopLevelCollection: Story = {
+export const OrganizationTopLevelSharedFolder: Story = {
   args: {
     ciphers: [],
     collections: collections.concat(unassignedCollection),
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
 
-export const OrganizationSecondLevelCollection: Story = {
+export const OrganizationSecondLevelSharedFolder: Story = {
   args: {
     ciphers: organizationOnlyCiphers,
     collections,
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -425,7 +420,7 @@ function createCollectionView(i: number): CollectionAdminView {
   const group = groups[i % (groups.length + 1)];
   const view = new CollectionAdminView({
     id: `collection-${i}` as CollectionId,
-    name: `Collection ${i}`,
+    name: `Shared folder ${i}`,
     organizationId: organization?.id ?? ("orgId" as OrganizationId),
   });
 
@@ -446,18 +441,18 @@ function createCollectionView(i: number): CollectionAdminView {
 
 function createGroupView(i: number): GroupView {
   const organization = organizations[i % organizations.length];
-  const view = new GroupView();
-  view.id = `group-${i}`;
-  view.name = `Group ${i}`;
-  view.organizationId = organization.id;
-  return view;
+  return new GroupView({
+    id: `group-${i}`,
+    name: `Group ${i}`,
+    organizationId: organization.id,
+  });
 }
 
 function createOrganization(i: number): Organization {
-  const organization = new Organization();
-  organization.id = `organization-${i}` as OrganizationId;
-  organization.name = `Organization ${i}`;
-  organization.type = OrganizationUserType.Owner;
-  organization.permissions = new PermissionsApi();
-  return organization;
+  return buildTestOrganization({
+    id: `organization-${i}` as OrganizationId,
+    name: `Organization ${i}`,
+    type: OrganizationUserType.Owner,
+    permissions: new PermissionsApi(),
+  });
 }

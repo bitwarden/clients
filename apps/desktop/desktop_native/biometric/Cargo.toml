@@ -9,6 +9,8 @@ publish = { workspace = true }
 anyhow = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+base64 = { workspace = true }
+desktop_core = { path = "../core" }
 secure_memory = { path = "../secure_memory" }
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true }
@@ -16,7 +18,6 @@ zbus = { workspace = true }
 zbus_polkit = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-aes = { workspace = true }
 bitwarden-crypto = { workspace = true }
 bitwarden-random = { workspace = true }
 bitwarden-sensitive-value = { workspace = true }

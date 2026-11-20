@@ -4,7 +4,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
-import { CredentialKind } from "./credential-kind";
 import { SdkImportCredentials } from "./sdk-import-credentials";
 import { SdkImportSummary } from "./sdk-import-summary";
 
@@ -24,12 +23,6 @@ export interface SdkImportContext {
  * `ImportService` owns the unlocked-client lifecycle and passes the taken client.
  */
 export interface SdkVaultImporter {
-  /** The credentials the entry points must collect before invoking {@link SdkVaultImporter.import}. */
-  readonly credentialKind: CredentialKind;
-
-  /** Optional file-picker `accept` hint (e.g. `".kdbx"`) for the file input. */
-  readonly fileTypeHint?: string;
-
   /** Parse + encrypt + submit via the SDK, returning normalized counts. Throws on failure. */
   import(
     client: PasswordManagerClient,

@@ -1,4 +1,3 @@
-import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
@@ -7,12 +6,15 @@ import {
   ChipActionComponent,
   ChipFilterComponent,
   TooltipDirective,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  Vfo1IconPipe,
+  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -36,7 +38,6 @@ import { ReportsSharedModule } from "./shared";
 @NgModule({
   imports: [
     CommonModule,
-    OverlayModule,
     SharedModule,
     ReportsSharedModule,
     ReportsRoutingModule,
@@ -48,6 +49,9 @@ import { ReportsSharedModule } from "./shared";
     BerryComponent,
     PasskeyReportComponent,
     TooltipDirective,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+    BreadcrumbsModule,
   ],
   declarations: [
     BreachReportComponent,

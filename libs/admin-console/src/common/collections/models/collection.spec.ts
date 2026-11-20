@@ -6,11 +6,11 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 describe("Collection", () => {
   let data: CollectionData;
@@ -65,6 +65,7 @@ describe("Collection", () => {
       hidePasswords: true,
       type: CollectionTypes.DefaultUserCollection,
       defaultUserCollectionEmail: "defaultCollectionEmail",
+      hasEnabledAccessRule: false,
     });
   });
 
@@ -96,6 +97,26 @@ describe("Collection", () => {
       assigned: true,
       type: CollectionTypes.DefaultUserCollection,
       defaultUserCollectionEmail: "defaultCollectionEmail",
+      decryptionFailure: false,
+      hasEnabledAccessRule: false,
     });
+  });
+
+  it("carries hasEnabledAccessRule from the response through to the decrypted view", async () => {
+    const governed = new CollectionData(
+      new CollectionDetailsResponse({
+        id: "id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+        name: "encName",
+        hasEnabledAccessRule: true,
+      }),
+    );
+    expect(governed.hasEnabledAccessRule).toBe(true);
+
+    const collection = Collection.fromCollectionData(governed);
+    expect(collection.hasEnabledAccessRule).toBe(true);
+
+    const view = await collection.decrypt(makeSymmetricCryptoKey<OrgKey>(), encService);
+    expect(view.hasEnabledAccessRule).toBe(true);
   });
 });

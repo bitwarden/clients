@@ -1,7 +1,8 @@
 import * as sdk from "@bitwarden/sdk-internal";
-import * as bitwardenModule from "@bitwarden/sdk-internal/bitwarden_wasm_internal_bg.wasm";
 
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
+
+import { importSdkWasm } from "./wasm-simd";
 
 /**
  * Directly imports the Bitwarden SDK and initializes it.
@@ -10,6 +11,6 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
  */
 export class DefaultSdkLoadService extends SdkLoadService {
   async load(): Promise<void> {
-    (sdk as any).init(bitwardenModule);
+    (sdk as any).init(await importSdkWasm());
   }
 }

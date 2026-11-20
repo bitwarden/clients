@@ -16,6 +16,7 @@ import {
   TableModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
@@ -42,6 +43,7 @@ type BulkDeleteDialogParams = {
     I18nPipe,
     TableModule,
     UserNamePipe,
+    Vfo1I18nPipe,
   ],
 })
 export class BulkDeleteDialogComponent {

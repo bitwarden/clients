@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import {
   catchError,
@@ -22,8 +22,8 @@ import {
   switchMap,
   Observable,
   from,
-  defer,
   map,
+  tap,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -40,6 +40,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
@@ -50,12 +51,12 @@ import {
   EnterPaymentMethodComponent,
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
+import { invoicePreviewErrorMessageKey } from "../../../shared/invoice-preview-error-message-key";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
 
 import {
   PremiumOrgUpgradeService,
   PremiumOrgUpgradePlanDetails,
-  InvoicePreview,
 } from "./services/premium-org-upgrade.service";
 
 export const PremiumOrgUpgradePaymentStatus = {
@@ -82,6 +83,7 @@ export type PremiumOrgUpgradePaymentResult = {
     ButtonModule,
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
+    Vfo1I18nPipe,
   ],
   templateUrl: "./premium-org-upgrade-payment.component.html",
 })
@@ -139,19 +141,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     return this.selectedPlanId() !== PersonalSubscriptionPricingTierIds.Families;
   });
 
-  // Use defer to lazily create the observable when subscribed to
-  protected readonly estimatedInvoice$ = defer(() =>
-    combineLatest([this.formGroup.controls.billingAddress.valueChanges]).pipe(
-      startWith(this.formGroup.controls.billingAddress.value),
-      debounceTime(1000),
-      switchMap(() => this.refreshInvoicePreview$()),
-    ),
-  );
-
-  protected readonly estimatedInvoice = toSignal(this.estimatedInvoice$, {
-    initialValue: this.getEmptyInvoicePreview(),
-  });
-
   private readonly i18nService = inject(I18nService);
   private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private readonly toastService = inject(ToastService);
@@ -161,9 +150,32 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly accountService = inject(AccountService);
 
-  constructor() {}
+  /** Server cart; null when the address is incomplete or the preview failed. */
+  private readonly previewCart = signal<Cart | null>(null);
+
+  /** Preview failed; the summary is replaced by an error callout rather than the local estimate. */
+  protected readonly previewFailed = signal(false);
+  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
+
+  // Refetches the server cart whenever the billing address changes.
+  private readonly previewRefresh$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
+    startWith(this.formGroup.controls.billingAddress.value),
+    debounceTime(1000),
+    switchMap(() => this.refreshPreviewCart$()),
+  );
+
+  constructor() {
+    this.previewRefresh$.pipe(takeUntilDestroyed()).subscribe();
+  }
+
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
+    // A preview has resolved: render the server's cart verbatim.
+    const previewCart = this.previewCart();
+    if (previewCart) {
+      return previewCart;
+    }
+
     if (!this.selectedPlan()) {
       return {
         hidePricingTerm: true,
@@ -184,19 +196,14 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       hidePricingTerm: true,
       passwordManager: {
         seats: {
-          translationKey: this.getMembershipTranslationKey(),
-          translationParams: this.getMembershipTranslationParams(),
-          cost: this.getCartCost(),
+          translationKey: this.planMembershipMessage(),
+          cost: this.selectedPlan()!.cost,
           quantity: this.DEFAULT_SEAT_COUNT,
           hideBreakdown: true,
         },
       },
       cadence: this.DEFAULT_CADENCE,
-      estimatedTax: this.estimatedInvoice().tax,
-      credit: {
-        value: this.estimatedInvoice().credit,
-        translationKey: "premiumSubscriptionCredit",
-      },
+      estimatedTax: this.INITIAL_TAX_VALUE,
     };
   });
 
@@ -270,6 +277,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected readonly submit = async (): Promise<void> => {
     if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
+      return;
+    }
+
+    if (this.previewFailed()) {
       return;
     }
 
@@ -370,45 +381,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
-   * Gets the appropriate translation key for the membership display.
-   * Returns a prorated message if the plan has prorated months, otherwise returns the standard plan message.
-   */
-  private getMembershipTranslationKey(): string {
-    return this.estimatedInvoice()?.newPlanProratedMonths > 0
-      ? "planProratedMembershipInMonths"
-      : this.planMembershipMessage();
-  }
-
-  /**
-   * Gets the translation parameters for the membership display.
-   * For prorated plans, returns an array with the plan name and formatted month duration.
-   * For non-prorated plans, returns an empty array.
-   */
-  private getMembershipTranslationParams(): string[] {
-    if (this.estimatedInvoice()?.newPlanProratedMonths > 0) {
-      const months = this.estimatedInvoice()!.newPlanProratedMonths;
-      const monthLabel = this.formatMonthLabel(months);
-      return [this.selectedPlan()!.details.name, monthLabel];
-    }
-    return [];
-  }
-
-  /**
-   * Formats month count into a readable string (e.g., "1 month", "3 months").
-   */
-  private formatMonthLabel(months: number): string {
-    return `${months} month${months > 1 ? "s" : ""}`;
-  }
-
-  /**
-   * Calculates the cart cost, using prorated amount if available, otherwise the plan cost.
-   */
-  private getCartCost(): number {
-    const proratedAmount = this.estimatedInvoice().newPlanProratedAmount;
-    return proratedAmount && proratedAmount > 0 ? proratedAmount : this.selectedPlan()!.cost;
-  }
-
-  /**
    * Sets the selected plan with tier, details, and cost.
    */
   private setSelectedPlan(
@@ -459,19 +431,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
-   * Returns an empty invoice preview with default values.
-   */
-  private getEmptyInvoicePreview(): InvoicePreview {
-    return {
-      tax: this.INITIAL_TAX_VALUE,
-      total: 0,
-      credit: 0,
-      newPlanProratedMonths: 0,
-      newPlanProratedAmount: 0,
-    };
-  }
-
-  /**
    * Checks if the form is valid.
    */
   protected isFormValid(): boolean {
@@ -489,28 +448,40 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
-   * Refreshes the invoice preview based on the current form state.
+   * Stores the server cart in {@link previewCart}; emits only to signal completion.
    */
-  private refreshInvoicePreview$(): Observable<InvoicePreview> {
-    if (!this.isFormValid()) {
-      return of(this.getEmptyInvoicePreview());
-    }
-
+  private refreshPreviewCart$(): Observable<void> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      return of(this.getEmptyInvoicePreview());
+
+    if (
+      this.formGroup.controls.billingAddress.invalid ||
+      !billingAddress.country ||
+      !billingAddress.postalCode
+    ) {
+      this.previewCart.set(null);
+      this.previewFailed.set(false);
+      return of(undefined);
     }
 
     return from(
-      this.premiumOrgUpgradeService.previewProratedInvoice(this.selectedPlan()!, billingAddress),
+      this.premiumOrgUpgradeService.previewInvoiceCart(this.selectedPlan()!, billingAddress),
     ).pipe(
+      tap((cart) => {
+        this.previewCart.set(cart);
+        this.previewFailed.set(false);
+      }),
+      map((): void => undefined),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        const key = invoicePreviewErrorMessageKey(error);
+        this.previewErrorMessageKey.set(key);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
+          message: this.i18nService.t(key),
         });
-        return of(this.getEmptyInvoicePreview());
+        this.previewCart.set(null);
+        this.previewFailed.set(true);
+        return of(undefined);
       }),
     );
   }

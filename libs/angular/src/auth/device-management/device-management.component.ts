@@ -3,9 +3,6 @@ import { Component, DestroyRef, OnInit, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
@@ -13,11 +10,10 @@ import {
   DeviceResponse,
 } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/login-via-auth-request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -29,11 +25,7 @@ import { LoginApprovalDialogComponent } from "../login-approval";
 import { DeviceManagementComponentServiceAbstraction } from "./device-management-component.service.abstraction";
 import { DeviceManagementItemGroupComponent } from "./device-management-item-group.component";
 import { DeviceManagementTableComponent } from "./device-management-table.component";
-import {
-  clearAuthRequestAndSortDevices,
-  sortDevices,
-  sortDevicesWithActivity,
-} from "./utils/device-sort.utils";
+import { clearAuthRequestAndSortDevices, sortDevices } from "./utils/device-sort.utils";
 import { getDeviceLastActivityDateI18nKey } from "./utils/get-device-last-activity-date-i18n-key.func";
 
 export interface DeviceDisplayData {
@@ -81,13 +73,10 @@ export class DeviceManagementComponent implements OnInit {
   protected devices: DeviceDisplayData[] = [];
   protected initializing = true;
   protected showHeaderInfo = false;
-  // TODO: PM-34091 - Remove this property and the configService injection; always show recently active.
-  protected showRecentlyActive = false;
 
   constructor(
     private readonly accountService: AccountService,
     private readonly authRequestApiService: AuthRequestApiServiceAbstraction,
-    private readonly configService: ConfigService,
     private readonly destroyRef: DestroyRef,
     private readonly deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
     private readonly devicesService: DevicesServiceAbstraction,
@@ -101,10 +90,6 @@ export class DeviceManagementComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // TODO: PM-34091 - Remove this flag check; delete the FeatureFlag and ConfigService imports if unused.
-    this.showRecentlyActive = await this.configService.getFeatureFlag(
-      FeatureFlag.PM4516_DevicesLastActivityDate,
-    );
     await this.loadDevices();
 
     this.messageListener.allMessages$
@@ -141,49 +126,44 @@ export class DeviceManagementComponent implements OnInit {
     devices: DeviceView[],
     currentDevice: DeviceResponse,
   ): DeviceDisplayData[] {
-    return (
-      devices
-        .map((device): DeviceDisplayData | null => {
-          if (!device.id) {
-            this.validationService.showError(new Error(this.i18nService.t("deviceIdMissing")));
-            return null;
-          }
+    return devices
+      .map((device): DeviceDisplayData | null => {
+        if (!device.id) {
+          this.validationService.showError(new Error(this.i18nService.t("deviceIdMissing")));
+          return null;
+        }
 
-          if (device.type == undefined) {
-            this.validationService.showError(new Error(this.i18nService.t("deviceTypeMissing")));
-            return null;
-          }
+        if (device.type == undefined) {
+          this.validationService.showError(new Error(this.i18nService.t("deviceTypeMissing")));
+          return null;
+        }
 
-          if (!device.creationDate) {
-            this.validationService.showError(
-              new Error(this.i18nService.t("deviceCreationDateMissing")),
-            );
-            return null;
-          }
+        if (!device.creationDate) {
+          this.validationService.showError(
+            new Error(this.i18nService.t("deviceCreationDateMissing")),
+          );
+          return null;
+        }
 
-          const lastActivityDate = device.lastActivityDate
-            ? new Date(device.lastActivityDate)
-            : null;
+        const lastActivityDate = device.lastActivityDate ? new Date(device.lastActivityDate) : null;
 
-          return {
-            creationDate: device.creationDate,
-            displayName: this.devicesService.getReadableDeviceTypeName(device.type),
-            firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
-            icon: this.getDeviceIcon(device.type),
-            id: device.id || "",
-            identifier: device.identifier ?? "",
-            isCurrentDevice: this.isCurrentDevice(device, currentDevice),
-            isTrusted: device.isTrusted ?? false,
-            lastActivityDate,
-            loginStatus: this.getLoginStatus(device, currentDevice),
-            pendingAuthRequest: device.devicePendingAuthRequest ?? null,
-            recentlyActiveText: this.getRecentlyActiveText(lastActivityDate),
-          };
-        })
-        .filter((device) => device !== null)
-        // TODO: PM-34091 - Remove the ternary; always use sortDevicesWithActivity. Delete sortDevices import.
-        .sort(this.showRecentlyActive ? sortDevicesWithActivity : sortDevices)
-    );
+        return {
+          creationDate: device.creationDate,
+          displayName: this.devicesService.getReadableDeviceTypeName(device.type),
+          firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
+          icon: this.getDeviceIcon(device.type),
+          id: device.id || "",
+          identifier: device.identifier ?? "",
+          isCurrentDevice: this.isCurrentDevice(device, currentDevice),
+          isTrusted: device.isTrusted ?? false,
+          lastActivityDate,
+          loginStatus: this.getLoginStatus(device, currentDevice),
+          pendingAuthRequest: device.devicePendingAuthRequest ?? null,
+          recentlyActiveText: this.getRecentlyActiveText(lastActivityDate),
+        };
+      })
+      .filter((device) => device !== null)
+      .sort(sortDevices);
   }
 
   // TODO: Clean up this flow: https://bitwarden.atlassian.net/browse/PM-34129
@@ -225,14 +205,11 @@ export class DeviceManagementComponent implements OnInit {
         upsertDevice.id = existingDevice.id;
         upsertDevice.isTrusted = existingDevice?.isTrusted ?? false;
 
-        // TODO: PM-34091 - Remove this flag check; always copy lastActivityDate.
-        if (this.showRecentlyActive) {
-          const lastActivityDate = existingDevice.lastActivityDate
-            ? new Date(existingDevice.lastActivityDate)
-            : null;
-          upsertDevice.lastActivityDate = lastActivityDate;
-          upsertDevice.recentlyActiveText = this.getRecentlyActiveText(lastActivityDate);
-        }
+        const lastActivityDate = existingDevice.lastActivityDate
+          ? new Date(existingDevice.lastActivityDate)
+          : null;
+        upsertDevice.lastActivityDate = lastActivityDate;
+        upsertDevice.recentlyActiveText = this.getRecentlyActiveText(lastActivityDate);
       }
     }
 
@@ -240,28 +217,19 @@ export class DeviceManagementComponent implements OnInit {
       (device) => device.identifier === upsertDevice.identifier,
     );
 
-    // TODO: PM-34091 - Remove this flag check; always call resetSort().
-    if (this.showRecentlyActive) {
-      // Reset any user-applied column sort so the default sort order is reflected
-      // after the pending auth request is inserted. This ensures the device
-      // with the pending auth request goes to the top of the list, instead of
-      // potentially being sorted to the middle or bottom of the list.
-      this.tableComponent()?.resetSort();
-    }
+    // Reset any user-applied column sort so the default sort order is reflected
+    // after the pending auth request is inserted. This ensures the device
+    // with the pending auth request goes to the top of the list, instead of
+    // potentially being sorted to the middle or bottom of the list.
+    this.tableComponent()?.resetSort();
 
     if (existingDeviceIndex >= 0) {
       // Update existing device in device list
       this.devices[existingDeviceIndex] = upsertDevice;
-      // TODO: PM-34091 - Remove the ternary; always use sortDevicesWithActivity.
-      this.devices = [...this.devices].sort(
-        this.showRecentlyActive ? sortDevicesWithActivity : sortDevices,
-      );
+      this.devices = [...this.devices].sort(sortDevices);
     } else {
       // Add new device to device list
-      // TODO: PM-34091 - Remove the ternary; always use sortDevicesWithActivity.
-      this.devices = [upsertDevice, ...this.devices].sort(
-        this.showRecentlyActive ? sortDevicesWithActivity : sortDevices,
-      );
+      this.devices = [upsertDevice, ...this.devices].sort(sortDevices);
     }
   }
 
@@ -315,12 +283,7 @@ export class DeviceManagementComponent implements OnInit {
     if (result !== undefined && typeof result === "boolean") {
       // Auth request was approved or denied, so clear the
       // pending auth request and re-sort the device array
-      this.devices = clearAuthRequestAndSortDevices(
-        this.devices,
-        pendingAuthRequest,
-        // TODO: PM-34091 - Remove the ternary; always use sortDevicesWithActivity.
-        this.showRecentlyActive ? sortDevicesWithActivity : sortDevices,
-      );
+      this.devices = clearAuthRequestAndSortDevices(this.devices, pendingAuthRequest);
 
       // If a user ignores or doesn't see the auth request dialog, but comes to account settings
       // to approve a device login attempt, clear out the state for that user.

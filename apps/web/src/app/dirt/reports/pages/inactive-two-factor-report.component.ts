@@ -1,9 +1,18 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -29,6 +38,16 @@ import { CipherReportComponent } from "./cipher-report.component";
   standalone: false,
 })
 export class InactiveTwoFactorReportComponent extends CipherReportComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+  protected readonly reportTitleKey = "inactive2faReport";
+
   services = new Map<string, string>();
   cipherDocs = new Map<string, string>();
   disabled = true;

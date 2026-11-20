@@ -2,13 +2,12 @@
 // @ts-strict-ignore
 import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogoutService } from "../../../auth/logout";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { TaskSchedulerService, ScheduledTaskNames } from "../../../platform/scheduling";
@@ -129,6 +128,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
     timeoutAction === VaultTimeoutAction.LogOut
       ? await this.logoutService.logout(userId, "vaultTimeout")
-      : await this.lockService.lock(userId);
+      : await this.lockService.lock(userId, LockSource.VaultTimeout);
   }
 }

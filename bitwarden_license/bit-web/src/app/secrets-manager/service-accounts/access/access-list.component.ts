@@ -3,9 +3,9 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { NoResults } from "@bitwarden/assets/svg";
+import { AccessTokenView } from "@bitwarden/bit-sm";
 import { TableDataSource } from "@bitwarden/components";
-
-import { AccessTokenView } from "../models/view/access-token.view";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -39,6 +39,7 @@ export class AccessListComponent {
   protected dataSource = new TableDataSource<AccessTokenView>();
 
   private readonly EXPIRING_SOON_DAYS = 7;
+  readonly noItemsIcon = NoResults;
 
   protected getTokenStatus(token: AccessTokenView): "expired" | "expiringSoon" | "active" {
     if (token.expireAt == null) {

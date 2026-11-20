@@ -8,4 +8,4 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 CODE_SIGN_IDENTITY = Apple Development
-PROVISIONING_PROFILE_SPECIFIER = Bitwarden Desktop Autofill Development 2024
+PROVISIONING_PROFILE_SPECIFIER = PM Stable Desktop-ExtAutofill Testing

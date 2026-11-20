@@ -4,7 +4,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { createChromeTabMock } from "../spec/autofill-mocks";
 
-import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "./abstractions/autofill-lifecycle.service";
 import { NoopAutofillLifecycleService } from "./noop-autofill-lifecycle.service";
 
 describe("NoopAutofillLifecycleService", () => {
@@ -24,7 +27,22 @@ describe("NoopAutofillLifecycleService", () => {
   // doing nothing, and must name the member so the offending path is findable.
   it.each([
     ["init", () => service.init()],
-    ["reportPageTransition", () => service.reportPageTransition(createChromeTabMock(), 0)],
+    [
+      "reportPageTransition",
+      () => service.reportPageTransition(createChromeTabMock(), 0, "https://example.test"),
+    ],
+    [
+      "reportAutomatedLoginStepReady",
+      () =>
+        service.reportAutomatedLoginStepReady(
+          createChromeTabMock(),
+          0,
+          "https://example.test",
+          AutomationWorkflow.autoSubmitLogin,
+        ),
+    ],
+    ["reportAutoSubmitFlowComplete", () => service.reportAutoSubmitFlowComplete(1, "example.test")],
+    ["reportAutoSubmitInvalidated", () => service.reportAutoSubmitInvalidated(1, "example.test")],
     ["startMonitoringFrame", () => service.startMonitoringFrame(createChromeTabMock(), 0)],
     ["retireAllFrames", () => service.retireAllFrames()],
   ])("warns when %s is invoked", async (method, invoke) => {
@@ -34,6 +52,63 @@ describe("NoopAutofillLifecycleService", () => {
     expect(logService.warning).toHaveBeenCalledWith(
       expect.stringContaining(`NoopAutofillLifecycleService.${method}`),
     );
+  });
+
+  // The observable members are inert, not tripwires: they must be valid, empty
+  // streams that emit nothing and never warn, since the popup binds them but is
+  // free to subscribe.
+  it("exposes inert streams that emit nothing and do not warn", () => {
+    const emissions: unknown[] = [];
+    let pageTransitionCompleted = false;
+    let stepReadyCompleted = false;
+    let flowCompleteCompleted = false;
+    let invalidatedCompleted = false;
+    let tabRemovedCompleted = false;
+
+    service.pageTransitionResolved$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (pageTransitionCompleted = true),
+    });
+    service.automatedLoginStepReady$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (stepReadyCompleted = true),
+    });
+    service.autoSubmitFlowComplete$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (flowCompleteCompleted = true),
+    });
+    service.autoSubmitInvalidated$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (invalidatedCompleted = true),
+    });
+    service.tabRemoved$(1).subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (tabRemovedCompleted = true),
+    });
+
+    expect(emissions).toEqual([]);
+    expect(pageTransitionCompleted).toBe(true);
+    expect(stepReadyCompleted).toBe(true);
+    expect(flowCompleteCompleted).toBe(true);
+    expect(invalidatedCompleted).toBe(true);
+    expect(tabRemovedCompleted).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
+  });
+
+  // Unlike the other streams, `liveTabs$` must emit — a `withLatestReady` consumer
+  // would otherwise stall. It emits an (empty) set and completes.
+  it("exposes liveTabs$ as an inert empty-set stream", () => {
+    const emissions: unknown[] = [];
+    let completed = false;
+
+    service.liveTabs$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (completed = true),
+    });
+
+    expect(emissions).toEqual([new Set()]);
+    expect(completed).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
   });
 
   it("withholds the tab and frame entirely so no tab data reaches the log", async () => {

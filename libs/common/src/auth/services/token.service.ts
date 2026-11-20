@@ -3,13 +3,15 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import {
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -21,7 +23,6 @@ import { AbstractStorageService } from "../../platform/abstractions/storage.serv
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
   GlobalState,
   GlobalStateProvider,
@@ -30,6 +31,8 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
+import { decodeJwtTokenToJson } from "../jwt";
+import { LogoutReason } from "../logout";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";

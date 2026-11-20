@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -15,24 +16,28 @@ import {
 } from "rxjs";
 
 import {
+  AccessPolicyService,
+  CountService,
+  ProjectCounts,
+  ProjectService,
+  ProjectView,
+  SecretService,
+} from "@bitwarden/bit-sm";
+import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
-import { ProjectCounts } from "../../models/view/counts.view";
-import { ProjectView } from "../../models/view/project.view";
-import { SecretService } from "../../secrets/secret.service";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
-import { CountService } from "../../shared/counts/count.service";
 import {
   OperationType,
   ProjectDialogComponent,
   ProjectOperation,
 } from "../dialog/project-dialog.component";
-import { ProjectService } from "../project.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -60,6 +65,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private countService: CountService,
   ) {}
+
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   ngOnInit(): void {
     // Update project if it is edited

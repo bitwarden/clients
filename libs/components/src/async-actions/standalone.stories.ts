@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { delay, of } from "rxjs";
 import { action } from "storybook/actions";
@@ -16,71 +16,71 @@ import { BitActionDirective } from "./bit-action.directive";
 
 const template = /*html*/ `
   <button type="button" bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
-    Perform action {{ statusEmoji }}
+    Perform action {{ statusEmoji() }}
   </button>
   <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="dangerGhost" [bitAction]="action"></button>`;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template,
   selector: "app-promise-example",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class PromiseExampleComponent {
-  statusEmoji = "🟡";
-  action = async () => {
+  readonly statusEmoji = signal("🟡");
+  readonly action = async () => {
     await new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         resolve();
-        this.statusEmoji = "🟢";
+        this.statusEmoji.set("🟢");
       }, 5000);
     });
   };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template,
   selector: "app-action-resolves-quickly",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ActionResolvesQuicklyComponent {
-  statusEmoji = "🟡";
+  readonly statusEmoji = signal("🟡");
 
-  action = async () => {
+  readonly action = async () => {
     await new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         resolve();
-        this.statusEmoji = "🟢";
+        this.statusEmoji.set("🟢");
       }, 50);
     });
   };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template,
   selector: "app-observable-example",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
-  action = () => {
+  readonly statusEmoji = signal("");
+
+  readonly action = () => {
     return of("fake observable").pipe(delay(2000));
   };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template,
   selector: "app-rejected-promise-example",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
-  action = async () => {
+  readonly statusEmoji = signal("");
+
+  readonly action = async () => {
     await new Promise<void>((resolve, reject) => {
       setTimeout(() => reject(new Error("Simulated error")), 2000);
     });

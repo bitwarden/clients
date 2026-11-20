@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -7,50 +7,53 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  LogoutReason,
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+import { Measurement } from "@bitwarden/logging";
+import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
+import { Collection } from "../../admin-console/models/collections";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutReason } from "../../auth/logout";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import {
-  MasterKeyWrappedUserKey,
-  MasterPasswordSalt,
-  MasterPasswordUnlockData,
-} from "../../key-management/master-password/types/master-password.types";
-import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
-import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+  SyncCipherNotification,
+  SyncSendNotification,
+} from "../../models/response/notification.response";
+import { ProviderService } from "../../provider/abstractions/provider.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
+import { SendType } from "../../tools/send/types/send-type";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { CipherData } from "../../vault/models/data/cipher.data";
+import { Cipher } from "../../vault/models/domain/cipher";
+import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
-import { StateProvider } from "../state";
+import { Utils } from "../misc/utils";
+import { SingleUserState, StateProvider } from "../state";
 
 import { DefaultSyncService } from "./default-sync.service";
 import { SyncResponse } from "./sync.response";
@@ -66,7 +69,6 @@ describe("DefaultSyncService", () => {
   let collectionService: MockProxy<CollectionService>;
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
-  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -81,11 +83,10 @@ describe("DefaultSyncService", () => {
   let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let stateProvider: MockProxy<StateProvider>;
-  let securityStateService: MockProxy<SecurityStateService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
-  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
   let configService: MockProxy<ConfigService>;
+  let sdkService: MockProxy<SdkService>;
+  let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
+  let sendsClient: { fetch: jest.Mock; retry_pending_deletions: jest.Mock };
 
   let sut: DefaultSyncService;
 
@@ -100,9 +101,8 @@ describe("DefaultSyncService", () => {
     collectionService = mock();
     messageSender = mock();
     policyService = mock();
-    newPolicyService = mock();
     sendService = mock();
-    logService = mock();
+    logService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
     keyConnectorService = mock();
     keyConnectorService.convertAccountRequired$ = of(false);
     providerService = mock();
@@ -116,11 +116,24 @@ describe("DefaultSyncService", () => {
     tokenService = mock();
     authService = mock();
     stateProvider = mock();
-    securityStateService = mock();
-    kdfConfigService = mock();
-    accountCryptographicStateService = mock();
-    v2UpgradeTokenStateService = mock();
     configService = mock();
+    sdkService = mock();
+    cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
+    sendsClient = {
+      fetch: jest.fn(),
+      retry_pending_deletions: jest.fn().mockResolvedValue(undefined),
+    };
+    sdkService.userClient$.mockReturnValue(
+      of({
+        take: () => ({
+          value: {
+            crypto_sync_handler: () => cryptoSyncHandler,
+            sends: () => sendsClient,
+          },
+          [Symbol.dispose]: jest.fn(),
+        }),
+      }) as unknown as ReturnType<typeof sdkService.userClient$>,
+    );
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -133,7 +146,6 @@ describe("DefaultSyncService", () => {
       collectionService,
       messageSender,
       policyService,
-      newPolicyService,
       sendService,
       logService,
       keyConnectorService,
@@ -148,11 +160,8 @@ describe("DefaultSyncService", () => {
       tokenService,
       authService,
       stateProvider,
-      securityStateService,
-      kdfConfigService,
-      accountCryptographicStateService,
-      v2UpgradeTokenStateService,
       configService,
+      sdkService,
     );
   });
 
@@ -161,6 +170,12 @@ describe("DefaultSyncService", () => {
   const emptySyncResponse = new SyncResponse({
     profile: {
       id: user1,
+      accountKeys: {
+        publicKeyEncryptionKeyPair: {
+          wrappedPrivateKey: "wrappedPrivateKey",
+          publicKey: "publicKey",
+        },
+      },
     },
     folders: [],
     collections: [],
@@ -181,44 +196,141 @@ describe("DefaultSyncService", () => {
       stateProvider.getUser.mockReturnValue(mock());
     });
 
-    it("sets the correct keys for a V1 user with old response model", async () => {
-      const v1Profile = {
-        id: user1,
-        key: "encryptedUserKey",
-        privateKey: "privateKey",
-        providers: [] as any[],
-        organizations: [] as any[],
-        providerOrganizations: [] as any[],
-        avatarColor: "#fff",
-        securityStamp: "stamp",
-        emailVerified: true,
-        verifyDevices: false,
-        premiumPersonally: false,
-        premiumFromOrganization: false,
-        usesKeyConnector: false,
-      };
-      apiService.getSync.mockResolvedValue(
+    describe("key management sync handler", () => {
+      const syncResponseWithUserDecryption = (userDecryption: Record<string, unknown>) =>
         new SyncResponse({
-          profile: v1Profile,
+          profile: {
+            id: user1,
+            accountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           folders: [],
           collections: [],
           ciphers: [],
           sends: [],
           domains: [],
           policies: [],
-        }),
-      );
-      await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-        { V1: { private_key: "privateKey" } },
-        user1,
-      );
-      expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
-      expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
+          userDecryption,
+        });
+
+      it("passes an empty list of WebAuthn PRF options when the server reported none", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([]);
+      });
+
+      it("passes the WebAuthn PRF options through", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: ["internal", "hybrid"],
+              },
+            ],
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          {
+            encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+            encryptedUserKey: "4.dXNlcktleQ==",
+            credentialId: "credential-id",
+            transports: ["internal", "hybrid"],
+          },
+        ]);
+      });
+
+      it("drops WebAuthn PRF options that are missing a wrapped key", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              { credentialId: "no-keys", transports: [] },
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: [],
+              },
+            ],
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          expect.objectContaining({ credentialId: "credential-id" }),
+        ]);
+      });
+
+      it("passes the master password unlock data and upgrade token through", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            masterPasswordUnlock: {
+              salt: "test@example.com",
+              kdf: { kdfType: 0, iterations: 600000 },
+              masterKeyEncryptedUserKey: "encryptedUserKey",
+            },
+            v2UpgradeToken: {
+              wrappedUserKey1: "wrappedUserKey1",
+              wrappedUserKey2: "wrappedUserKey2",
+            },
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.masterPasswordUnlock).toEqual(
+          expect.objectContaining({ salt: "test@example.com" }),
+        );
+        // The SDK's V2UpgradeToken has no serde rename, so its fields stay snake_case.
+        expect(data.userDecryption?.v2UpgradeToken).toEqual({
+          wrapped_user_key_1: "wrappedUserKey1",
+          wrapped_user_key_2: "wrappedUserKey2",
+        });
+      });
+
+      it("leaves userDecryption undefined when the server reported none", async () => {
+        apiService.getSync.mockResolvedValue(emptySyncResponse);
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption).toBeUndefined();
+        // Current servers always return account keys.
+        expect(data.accountCryptographicState).toBeDefined();
+      });
+
+      it("fails the sync and skips the remaining sync handlers when the handler rejects the sync", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+
+        await expect(sut.fullSync(true)).resolves.toBe(false);
+
+        expect(folderService.replace).not.toHaveBeenCalled();
+        expect(policyService.replace).not.toHaveBeenCalled();
+      });
+
+      it("throws when the handler rejects the sync and allowThrowOnError is set", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+
+        await expect(sut.fullSync(true, { allowThrowOnError: true })).rejects.toThrow("boom");
+      });
     });
 
     it("sets the correct keys for a V1 user", async () => {
@@ -255,14 +367,6 @@ describe("DefaultSyncService", () => {
         }),
       );
       await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-        { V1: { private_key: "wrappedPrivateKey" } },
-        user1,
-      );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -309,11 +413,6 @@ describe("DefaultSyncService", () => {
         }),
       );
       await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -368,142 +467,269 @@ describe("DefaultSyncService", () => {
     });
 
     describe("in-flight syncs", () => {
+      const user2 = "user2" as UserId;
+
+      let activeAccount: BehaviorSubject<Account>;
+      let lastSyncDates: Record<UserId, Date | null>;
+
+      const syncResponseFor = (userId: UserId) =>
+        new SyncResponse({
+          profile: {
+            id: userId,
+            accountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          folders: [],
+          collections: [],
+          ciphers: [],
+          sends: [],
+          domains: [],
+          policies: [],
+        });
+
+      const deferred = <T>() => {
+        let resolve!: (value: T) => void;
+        const promise = new Promise<T>((r) => (resolve = r));
+        return { promise, resolve };
+      };
+
+      const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
       beforeEach(() => {
-        jest.useFakeTimers();
+        activeAccount = new BehaviorSubject({ id: user1 } as Account);
+        accountService.activeAccount$ = activeAccount;
+        lastSyncDates = { [user1]: null, [user2]: null };
+        stateProvider.getUser.mockImplementation(
+          (userId) =>
+            ({
+              state$: of(lastSyncDates[userId]),
+              update: jest.fn(),
+            }) satisfies Partial<SingleUserState<Date | null>> as unknown as SingleUserState<any>,
+        );
       });
 
-      afterEach(() => {
-        jest.useRealTimers();
+      it("does not refresh the token when a sync for the same user is already in flight", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const loginSync = sut.fullSync(true, { skipTokenRefresh: true });
+        await flushPromises();
+        const catchUpSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all([loginSync, catchUpSync]);
+
+        expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("does not call getSync when one is already in progress", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+      it("syncs each user separately when the active account changes while a sync is in flight", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(user1Sync.promise)
+          .mockResolvedValueOnce(syncResponseFor(user2));
 
-        jest.advanceTimersByTime(100);
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(true);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all([user1FullSync, user2FullSync]);
 
-        await Promise.all(fullSyncPromises);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(1, user1);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(2, user2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(1, user1);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(2, user2);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user1);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user2);
+      });
+
+      it("sends no requests beyond the revision date check for a switched-to user whose vault is unchanged while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(2);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(false);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledWith(user1);
+      });
+
+      it("sends a separate token refresh and sync for a switched-to user whose vault changed while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(1);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(2).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(user1Sync.promise)
+          .mockResolvedValueOnce(syncResponseFor(user2));
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(true);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(2, user2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(2, user2);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user2);
+      });
+
+      it("checks the last sync and revision date of the starting user when the active account changes mid-sync", async () => {
+        lastSyncDates[user1] = new Date(2);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
+        const authStatus = new Subject<AuthenticationStatus>();
+        authService.authStatusFor$.mockReturnValueOnce(authStatus);
+
+        const user1FullSync = sut.fullSync(false);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        authStatus.next(AuthenticationStatus.Unlocked);
+
+        await expect(user1FullSync).resolves.toBe(false);
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).not.toHaveBeenCalled();
+      });
+
+      it("refreshes the token and fetches the sync for the starting user when the active account changes mid-sync", async () => {
+        const authStatus = new Subject<AuthenticationStatus>();
+        authService.authStatusFor$.mockReturnValueOnce(authStatus);
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        authStatus.next(AuthenticationStatus.Unlocked);
+        await user1FullSync;
+
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).toHaveBeenCalledWith(user1);
+      });
+
+      it("sends one sync request for same-user syncs that overlap", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const fullSyncs = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all(fullSyncs);
 
         expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("does not call refreshIdentityToken when one is already in progress", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+      it("sends one token refresh for same-user syncs that overlap before the sync request is sent", async () => {
+        const refresh = deferred<void>();
+        apiService.refreshIdentityToken.mockReturnValueOnce(refresh.promise);
 
-        jest.advanceTimersByTime(100);
-
-        await Promise.all(fullSyncPromises);
+        const fullSyncs = [sut.fullSync(true), sut.fullSync(true)];
+        await flushPromises();
+        refresh.resolve();
+        await Promise.all(fullSyncs);
 
         expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("resets the in-flight properties when the complete", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(true)];
+      it("reuses the sync response for a same-user sync that starts while the response is processed", async () => {
+        const processing = deferred<void>();
+        cryptoSyncHandler.on_sync.mockReturnValueOnce(processing.promise);
 
-        await Promise.all(fullSyncPromises);
+        const firstSync = sut.fullSync(true);
+        await flushPromises();
+        const secondSync = sut.fullSync(true);
+        await flushPromises();
+        processing.resolve();
+        await Promise.all([firstSync, secondSync]);
 
-        expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
-        expect(sut["inFlightApiCalls"].sync).toBeNull();
-      });
-    });
-
-    describe("syncUserDecryption", () => {
-      const salt = "test@example.com";
-      const kdf = new PBKDF2KdfConfig(600_000);
-      const encryptedUserKey = "testUserKey";
-
-      it("should set master password unlock when present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-          },
-          UserDecryption: {
-            MasterPasswordUnlock: {
-              Salt: salt,
-              Kdf: {
-                KdfType: kdf.kdfType,
-                Iterations: kdf.iterations,
-              },
-              MasterKeyEncryptedUserKey: encryptedUserKey,
-            },
-          },
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-          new MasterPasswordUnlockData(
-            salt as MasterPasswordSalt,
-            kdf,
-            encryptedUserKey as MasterKeyWrappedUserKey,
-          ),
-          user1,
-        );
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("should not set master password unlock when not present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-          },
-          UserDecryption: {},
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
+      it("sends new requests after a failed sync", async () => {
+        apiService.getSync.mockRejectedValueOnce(new Error("not connected"));
 
-        await sut.fullSync(true, true);
+        await expect(sut.fullSync(true)).resolves.toBe(false);
+        await expect(sut.fullSync(true)).resolves.toBe(true);
 
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
       });
 
-      it("should persist the V2 upgrade token when present on the user decryption response", async () => {
-        const wrappedUserKey1 = "mockWrappedUserKey1";
-        const wrappedUserKey2 = "mockWrappedUserKey2";
-        const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
-          UserDecryption: {
-            V2UpgradeToken: {
-              WrappedUserKey1: wrappedUserKey1,
-              WrappedUserKey2: wrappedUserKey2,
-            },
-          },
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
+      it("clears the in-flight calls when the syncs complete", async () => {
+        await Promise.all([sut.fullSync(true), sut.fullSync(true)]);
 
-        await sut.fullSync(true, true);
-
-        expect(v2UpgradeTokenStateService.setV2UpgradeToken).toHaveBeenCalledWith(
-          { wrapped_user_key_1: wrappedUserKey1, wrapped_user_key_2: wrappedUserKey2 },
-          user1,
-        );
-        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).not.toHaveBeenCalled();
+        expect(sut["inFlightApiCalls"].size).toBe(0);
       });
 
-      it("should clear the V2 upgrade token when the response omits it", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
-          UserDecryption: {},
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
+      it("keeps a newer sync's in-flight calls when an older sync for the same user completes", async () => {
+        // The first two syncs share one sync request. The second pauses in processing until a
+        // third sync has started a new request.
+        const firstRequest = deferred<SyncResponse>();
+        const secondRequest = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(firstRequest.promise)
+          .mockReturnValueOnce(secondRequest.promise);
+        const secondSyncProcessing = deferred<void>();
+        cryptoSyncHandler.on_sync
+          .mockResolvedValueOnce(undefined)
+          .mockReturnValueOnce(secondSyncProcessing.promise);
 
-        await sut.fullSync(true, true);
+        const firstSync = sut.fullSync(true);
+        await flushPromises();
+        const secondSync = sut.fullSync(true);
+        await flushPromises();
+        firstRequest.resolve(syncResponseFor(user1));
+        await firstSync;
 
-        expect(v2UpgradeTokenStateService.clearV2UpgradeToken).toHaveBeenCalledWith(user1);
-        expect(v2UpgradeTokenStateService.setV2UpgradeToken).not.toHaveBeenCalled();
+        const thirdSync = sut.fullSync(true);
+        await flushPromises();
+        secondSyncProcessing.resolve();
+        await secondSync;
+
+        const fourthSync = sut.fullSync(true);
+        await flushPromises();
+        secondRequest.resolve(syncResponseFor(user1));
+        await Promise.all([thirdSync, fourthSync]);
+
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
       });
     });
 
     describe("mutate 'last update time'", () => {
-      let mockUserState: { update: jest.Mock };
+      let mockUserState: { state$: Observable<Date>; update: jest.Mock };
 
       const setupMockUserState = () => {
-        const mockUserState = { update: jest.fn() };
+        const mockUserState = { state$: of(new Date(1)), update: jest.fn() };
         jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
         return mockUserState;
       };
 
       const setupSyncScenario = (revisionDate: Date, lastSyncDate: Date) => {
         jest.spyOn(apiService, "getAccountRevisionDate").mockResolvedValue(revisionDate.getTime());
-        jest.spyOn(sut as any, "getLastSync").mockResolvedValue(lastSyncDate);
+        mockUserState.state$ = of(lastSyncDate);
       };
 
       const expectUpdateCallCount = (
@@ -589,7 +815,15 @@ describe("DefaultSyncService", () => {
     describe("policy sync", () => {
       it("syncs policies from response.policies into policyService", async () => {
         const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
         });
         apiService.getSync.mockResolvedValue(syncResponse);
@@ -602,32 +836,48 @@ describe("DefaultSyncService", () => {
         );
       });
 
-      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
+      it("clears policy state when the response contains no policies", async () => {
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).not.toHaveBeenCalled();
+        expect(policyService.replace).toHaveBeenCalledWith({}, user1);
       });
 
-      it("calls newPolicyService.replace when policiesNew is present in the response", async () => {
+      it("syncs policiesNew into policyService when present", async () => {
         const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           PoliciesNew: [{ Id: "policy-new-1", OrganizationId: "org1", Type: 0, Enabled: true }],
         });
         apiService.getSync.mockResolvedValue(syncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ "policy-new-1": expect.any(Object) }),
           user1,
         );
       });
 
-      it("routes policies and policiesNew to their respective services independently", async () => {
+      it("uses policiesNew instead of policies when both are present", async () => {
         const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           Policies: [{ Id: "old-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
           PoliciesNew: [{ Id: "new-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
         });
@@ -635,26 +885,31 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
+        expect(policyService.replace).toHaveBeenCalledTimes(1);
         expect(policyService.replace).toHaveBeenCalledWith(
-          expect.objectContaining({ "old-policy": expect.any(Object) }),
-          user1,
-        );
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
-          expect.objectContaining({ "new-policy": expect.any(Object) }),
+          { "new-policy": expect.any(Object) },
           user1,
         );
       });
 
       it("falls back to policies when policiesNew is absent", async () => {
         const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
         });
         apiService.getSync.mockResolvedValue(syncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
@@ -662,7 +917,15 @@ describe("DefaultSyncService", () => {
 
       it("falls back to policies when policiesNew is an empty array", async () => {
         const syncResponse = new SyncResponse({
-          Profile: { Id: user1 },
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
           PoliciesNew: [],
         });
@@ -670,7 +933,7 @@ describe("DefaultSyncService", () => {
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).toHaveBeenCalledWith(
+        expect(policyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
@@ -711,6 +974,12 @@ describe("DefaultSyncService", () => {
         const syncResponse = new SyncResponse({
           Profile: {
             Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
             Organizations: [{ Id: "org1", Status: OrganizationUserStatusType.Confirmed }],
             ProviderOrganizations: [] as any[],
           },
@@ -736,6 +1005,12 @@ describe("DefaultSyncService", () => {
         const syncResponse = new SyncResponse({
           Profile: {
             Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
             Organizations: [{ Id: "old-org", Status: OrganizationUserStatusType.Confirmed }],
             OrganizationsNew: [{ Id: "new-org", Status: OrganizationUserStatusType.Accepted }],
             ProviderOrganizations: [] as any[],
@@ -762,6 +1037,12 @@ describe("DefaultSyncService", () => {
         const syncResponse = new SyncResponse({
           Profile: {
             Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
             Organizations: [] as any[],
             OrganizationsNew: [{ Id: "org1", Status: OrganizationUserStatusType.Accepted }],
             ProviderOrganizations: [
@@ -791,12 +1072,200 @@ describe("DefaultSyncService", () => {
         );
       });
     });
+
+    describe("retry pending send deletions", () => {
+      it("retries pending send deletions", async () => {
+        await sut.fullSync(true);
+
+        expect(sendsClient.retry_pending_deletions).toHaveBeenCalledTimes(1);
+      });
+
+      it("completes the sync and logs the error when retrying pending send deletions rejects", async () => {
+        const error = new Error("still offline");
+        sendsClient.retry_pending_deletions.mockRejectedValue(error);
+
+        await expect(sut.fullSync(true)).resolves.toBe(true);
+
+        expect(logService.error).toHaveBeenCalledWith(expect.any(String), error);
+      });
+    });
+  });
+
+  describe("syncUpsertSend", () => {
+    const sendGuid = Utils.newGuid();
+
+    const notification = new SyncSendNotification({
+      Id: sendGuid,
+      UserId: user1,
+      RevisionDate: "2025-01-02T00:00:00.000Z",
+    });
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: user1 } as Account);
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      // Treat this as a new send (create): no local copy exists yet.
+      sendService.get$.mockReturnValue(of(undefined));
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
+    });
+
+    it("fetches the send through the SDK", async () => {
+      const sdkSend = {
+        id: sendGuid,
+        type: SendType.Text,
+        accessCount: 0,
+        disabled: false,
+        hideEmail: false,
+        authType: 2,
+        revisionDate: "2025-01-02T00:00:00.000Z",
+        deletionDate: "2025-01-09T00:00:00.000Z",
+        text: { text: "2.enc", hidden: false },
+      };
+      sendsClient.fetch.mockResolvedValue(sdkSend);
+
+      const result = await sut.syncUpsertSend(notification, false);
+
+      expect(result).toBe(true);
+      expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
+      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
+    });
+  });
+
+  describe("syncUpsertCipher", () => {
+    const cipherId = Utils.newGuid();
+    const organizationId = Utils.newGuid();
+    const collectionId = Utils.newGuid();
+    const pushRevision = "2025-01-02T00:00:00.000Z";
+
+    const notification = (collectionIds?: string[]) =>
+      new SyncCipherNotification({
+        Id: cipherId,
+        UserId: user1,
+        OrganizationId: collectionIds ? organizationId : undefined,
+        CollectionIds: collectionIds,
+        RevisionDate: pushRevision,
+      });
+
+    const localCipher = (partial: boolean, revisionDate = "2025-01-01T00:00:00.000Z") => {
+      const cipher = new Cipher();
+      cipher.id = cipherId;
+      cipher.revisionDate = new Date(revisionDate);
+      cipher.partialData = partial ? "{}" : undefined;
+      return cipher;
+    };
+
+    const remoteCipher = (partial: boolean) =>
+      new CipherResponse({
+        Id: cipherId,
+        RevisionDate: pushRevision,
+        PartialData: partial ? "{}" : undefined,
+      });
+
+    beforeEach(() => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      cipherService.get.mockResolvedValue(null);
+      collectionService.encryptedCollections$.mockReturnValue(of([]));
+    });
+
+    // CipherService.upsert keeps the stored restricted copy; core sync passes the response through.
+    it("hands a full response over a restricted local copy to cipherService.upsert", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    it.each([
+      ["restricted", "restricted", true, true],
+      ["full", "restricted", false, true],
+      ["full", "full", false, false],
+    ])(
+      "upserts when the local copy is %s and the response is %s",
+      async (_local, _remote, localPartial, remotePartial) => {
+        cipherService.get.mockResolvedValue(localCipher(localPartial));
+        const remote = remoteCipher(remotePartial);
+        apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+        const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+        expect(result).toBe(true);
+        expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+        expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedCipher", { cipherId });
+      },
+    );
+
+    it("upserts a created cipher with no local copy", async () => {
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification(), false, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    // With no local copy, the client can't tell a shared cipher from one a lease made readable.
+    // Only the server can.
+    it("upserts an edited cipher with no local copy when a collection matches", async () => {
+      collectionService.encryptedCollections$.mockReturnValue(
+        of([{ id: collectionId }] as unknown as Collection[]),
+      );
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
+
+      const result = await sut.syncUpsertCipher(notification([collectionId]), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
+    });
+
+    it("does not fetch when the local copy is already at the pushed revision", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true, pushRevision));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+    });
+
+    it("deletes the local copy when an edited cipher is no longer readable", async () => {
+      cipherService.get.mockResolvedValue(localCipher(true));
+      apiService.getFullCipherDetails.mockRejectedValue({ statusCode: 404 });
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(true);
+      expect(cipherService.delete).toHaveBeenCalledWith(cipherId, user1);
+      expect(messageSender.send).toHaveBeenCalledWith("syncedDeletedCipher", { cipherId });
+    });
+
+    it("does not fetch when the user is logged out", async () => {
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
+      cipherService.get.mockResolvedValue(localCipher(false));
+
+      const result = await sut.syncUpsertCipher(notification(), true, user1);
+
+      expect(result).toBe(false);
+      expect(cipherService.get).not.toHaveBeenCalled();
+      expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+    });
   });
 
   describe("SyncResponse", () => {
     it("maps PoliciesNew from the server response", () => {
       const response = new SyncResponse({
-        Profile: { Id: user1 },
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
         PoliciesNew: [{ Id: "policy1", OrganizationId: "org1", Type: 1, Enabled: true }],
       });
 
@@ -806,14 +1275,32 @@ describe("DefaultSyncService", () => {
     });
 
     it("leaves policiesNew undefined when the property is absent from the server response", () => {
-      const response = new SyncResponse({ Profile: { Id: user1 } });
+      const response = new SyncResponse({
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
+      });
 
       expect(response.policiesNew).toBeUndefined();
     });
 
     it("parses policies and policiesNew independently", () => {
       const response = new SyncResponse({
-        Profile: { Id: user1 },
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
         Policies: [{ Id: "old", OrganizationId: "org1", Type: 0, Enabled: true }],
         PoliciesNew: [{ Id: "new", OrganizationId: "org1", Type: 0, Enabled: false }],
       });

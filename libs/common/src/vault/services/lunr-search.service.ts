@@ -3,6 +3,7 @@
 import * as lunr from "lunr";
 import { Opaque } from "type-fest";
 
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -22,6 +23,9 @@ type IndexState = {
   numberOfCiphers: number;
   revisionDate: Date;
 };
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Search;
+const PERF_TRACK = "Lunr";
 
 export class LunrSearchService {
   private static registeredPipeline = false;
@@ -46,6 +50,7 @@ export class LunrSearchService {
     }
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     organizationId: OrganizationId | null,
@@ -53,7 +58,6 @@ export class LunrSearchService {
     ciphers: C[],
   ): Promise<C[]> {
     const results: C[] = [];
-    const searchStartTime = performance.now();
     const index = await this.getOrCreateIndex(makeIndexId(userId, organizationId), ciphers);
 
     // Convert to map that can be looked up in
@@ -73,37 +77,44 @@ export class LunrSearchService {
       this.logService.error(e);
     }
 
-    this.logService.measure(searchStartTime, "Vault", "LunrSearchService", "search complete");
     return results;
   }
 
   private async getOrCreateIndex(indexId: IndexId, ciphers: CipherViewLike[]): Promise<lunr.Index> {
-    if (!this.isIndexUpToDate(indexId, ciphers)) {
-      const start = performance.now();
-      this.logService.info("Starting Lunr index build");
+    if (this.isIndexUpToDate(indexId, ciphers)) {
+      return this.lunrIndices.get(indexId)!.lunrIndex;
+    }
 
-      // Only build one index concurrently
-      await this.acquireIndexLock();
-      let index: lunr.Index;
-      try {
-        index = await buildCipherIndex(ciphers);
-        this.lunrIndices.set(indexId, {
-          lunrIndex: index,
-          numberOfCiphers: ciphers.length,
-          revisionDate: new Date(),
-        });
-      } finally {
-        await this.releaseIndexLock();
+    // Only build one index concurrently
+    await this.acquireIndexLock();
+    try {
+      // Waiting for the lock can take as long as the build it was waiting on, so re-check before
+      // spending another.
+      if (this.isIndexUpToDate(indexId, ciphers)) {
+        return this.lunrIndices.get(indexId)!.lunrIndex;
       }
 
+      const measurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "build index",
+      );
+      this.logService.info("Starting Lunr index build");
+
+      const index = await buildCipherIndex(ciphers);
+      this.lunrIndices.set(indexId, {
+        lunrIndex: index,
+        // Stamp the snapshot that was indexed
+        revisionDate: latestRevisionDate(ciphers),
+        numberOfCiphers: ciphers.length,
+      });
+
       this.logService.info("Lunr index build complete");
-      this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
-        ["Items Indexed", ciphers.length],
-      ]);
+      measurement.finish([["Items Indexed", ciphers.length]]);
 
       return index;
-    } else {
-      return this.lunrIndices.get(indexId)!.lunrIndex;
+    } finally {
+      await this.releaseIndexLock();
     }
   }
 
@@ -124,14 +135,7 @@ export class LunrSearchService {
     if (indexState.numberOfCiphers !== ciphers.length) {
       return false;
     }
-    const latestCipherDate = ciphers.reduce((latest, c) => {
-      const modified = c.revisionDate ? new Date(c.revisionDate) : new Date(0);
-      if (modified > latest) {
-        return modified;
-      }
-      return latest;
-    }, new Date(0));
-    return indexState.revisionDate >= latestCipherDate;
+    return indexState.revisionDate >= latestRevisionDate(ciphers);
   }
 
   private async acquireIndexLock(): Promise<boolean> {
@@ -161,6 +165,19 @@ export class LunrSearchService {
 
 function makeIndexId(userId: UserId, organizationId: OrganizationId | null): IndexId {
   return `${userId}${organizationId ? `-${organizationId}` : ""}` as IndexId;
+}
+
+/**
+ * The most recent revision date across the given ciphers
+ */
+function latestRevisionDate(ciphers: CipherViewLike[]): Date {
+  return ciphers.reduce((latest, c) => {
+    const modified = c.revisionDate ? new Date(c.revisionDate) : new Date(0);
+    if (modified > latest) {
+      return modified;
+    }
+    return latest;
+  }, new Date(0));
 }
 
 /// Helper functions and extractors
@@ -307,7 +324,7 @@ function uriExtractor(c: CipherViewLike): string[] {
     const port = portMatch?.[1];
 
     const hostname = CipherViewLikeUtils.getUriHostname(u);
-    if (hostname !== undefined) {
+    if (hostname) {
       uris.push(hostname);
       if (port) {
         uris.push(`${hostname}:${port}`);

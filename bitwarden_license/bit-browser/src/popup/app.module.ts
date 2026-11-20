@@ -9,6 +9,8 @@ import { AppRoutingModule as OssRoutingModule } from "@bitwarden/browser/popup/a
 import { AppModule as OssModule } from "@bitwarden/browser/popup/app.module";
 // import { WildcardRoutingModule } from "@bitwarden/browser/popup/wildcard-routing.module";
 
+import { providePam } from "../pam/popup/provide-pam";
+
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 /**
@@ -35,5 +37,6 @@ import { AppComponent } from "./app.component";
   ],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
+  providers: [...providePam()],
 })
 export class AppModule {}

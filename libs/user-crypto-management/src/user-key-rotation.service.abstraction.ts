@@ -50,8 +50,14 @@ export abstract class UserKeyRotationService {
    * Verifies the trust of organizations and emergency access users by prompting the user.
    * Since organizations and emergency access grantees are not signed, manual trust prompts
    * are required to verify that the server does not inject public keys.
-   * @param user The user account
+   * @param userId The user account
+   * @param upgradeTokenAction The action the accompanying key rotation takes for creating an upgrade token.
+   * When "CreateIfNeeded" is passed, the upgrade token covers account recovery, so no organizations
+   * require manual trust verification.
    * @returns TrustVerificationResult containing whether trust was denied and the trusted public keys
    */
-  abstract verifyTrust(userId: UserId): Promise<TrustVerificationResult>;
+  abstract verifyTrust(
+    userId: UserId,
+    upgradeTokenAction: UpgradeTokenAction,
+  ): Promise<TrustVerificationResult>;
 }

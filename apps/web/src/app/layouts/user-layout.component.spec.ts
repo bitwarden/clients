@@ -1,0 +1,372 @@
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { RouterModule } from "@angular/router";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
+
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
+import { GlobalStateProvider } from "@bitwarden/state";
+import {
+  PinnedSharedFoldersService,
+  VaultNavService,
+  VaultsNavViewModel,
+  CoachmarkComponent,
+  CoachmarkService,
+  CoachmarkStepId,
+} from "@bitwarden/vault";
+
+import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
+import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+
+import { UserLayoutComponent } from "./user-layout.component";
+import { WebLayoutModule } from "./web-layout.module";
+
+@Component({
+  selector: "app-layout",
+  template: "<ng-content></ng-content>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockWebLayoutComponent {}
+
+@Component({
+  selector: "app-side-nav",
+  template: "<ng-content></ng-content>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockWebSideNavComponent {}
+
+@Component({
+  selector: "billing-free-families-nav-item",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockBillingFreeFamiliesNavItemComponent {}
+
+@Component({
+  selector: "vault-coachmark",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockCoachmarkComponent {
+  popover(): undefined {
+    return undefined;
+  }
+}
+
+const userId = "user-id" as UserId;
+
+const emptyViewModel: VaultsNavViewModel = {
+  vaults: [],
+  organizationDataOwnership: false,
+};
+
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+describe("UserLayoutComponent", () => {
+  let fixture: ComponentFixture<UserLayoutComponent>;
+
+  const flag$ = new BehaviorSubject<boolean>(false);
+  const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
+
+  const canArchive$ = new BehaviorSubject<boolean>(true);
+  const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const organizations$ = new BehaviorSubject<{ usePam: boolean }[]>([]);
+
+  const configService = mock<ConfigService>();
+  const vaultNavService = mock<VaultNavService>();
+  const i18nService = mock<I18nService>();
+  const policyService = mock<PolicyService>();
+  const cipherArchiveService = mock<CipherArchiveService>();
+  const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+  const coachmarkService = mock<CoachmarkService>();
+  const activeStepId = signal<CoachmarkStepId | null>(null);
+  Object.defineProperty(coachmarkService, "activeStepId", { value: activeStepId });
+
+  /** Trimmed text of every rendered nav item and group, in document order. */
+  const navText = () =>
+    Array.from(
+      fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group, bit-nav-section"),
+    ).map((el) => {
+      const element = el as HTMLElement;
+      // Sections render their heading as a sibling of the projected items, so read the heading directly.
+      if (element.tagName.toLowerCase() === "bit-nav-section") {
+        return element.querySelector("[id^='bit-nav-section-']")?.textContent?.trim();
+      }
+      return element.textContent?.trim().split("\n")[0].trim();
+    });
+
+  /** Groups collapse by default, so their children need expanding before they render. */
+  const expandGroup = (label: string) => {
+    const group = fixture.debugElement
+      .queryAll(By.css("bit-nav-group"))
+      .find((el) => el.componentInstance.text() === label);
+    group.componentInstance.open.set(true);
+    fixture.detectChanges();
+    return group.nativeElement as HTMLElement;
+  };
+
+  const childText = (group: HTMLElement) =>
+    Array.from(group.querySelectorAll("bit-nav-item")).map((el) =>
+      (el as HTMLElement).textContent?.trim().split("\n")[0].trim(),
+    );
+
+  /**
+   * The route of the Export nav item. Linking to a path that redirects elsewhere would leave the
+   * item without its selected state, so this must be the final destination.
+   */
+  const exportNavRoute = () =>
+    fixture.debugElement
+      .queryAll(By.css("bit-nav-item"))
+      .find((el) => el.componentInstance.text() === "exportNoun")
+      ?.componentInstance.route();
+
+  /**
+   * The coachmark step each anchored nav entry is wired to, by entry label. Read from the anchor's
+   * `position` so the pairing is observable without opening a popover.
+   */
+  const coachmarkAnchors = () =>
+    Object.fromEntries(
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .map((el) => [
+          el.componentInstance?.text?.() ?? el.name,
+          el.injector.get(PopoverAnchorForDirective).position(),
+        ]),
+    );
+
+  beforeEach(async () => {
+    activeStepId.set(null);
+    flag$.next(false);
+    viewModel$.next(emptyViewModel);
+
+    jest.clearAllMocks();
+
+    canArchive$.next(true);
+    archivedCiphers$.next([]);
+    organizations$.next([]);
+
+    i18nService.t.mockImplementation((key: string) => key);
+    coachmarkService.getStepPosition.mockImplementation(
+      (stepId) => `position-for-${stepId}` as never,
+    );
+    coachmarkService.isStepActive.mockImplementation((stepId) => activeStepId() === stepId);
+    // Keep PAM on in both blocks so the Access requests assertions exercise the nav placement.
+    configService.getFeatureFlag$.mockImplementation((flag) =>
+      flag === FeatureFlag.Pam ? of(true) : flag$,
+    );
+    policyService.policyAppliesToUser$.mockReturnValue(of(false));
+    cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
+    cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
+
+    await TestBed.configureTestingModule({
+      imports: [UserLayoutComponent, RouterModule.forRoot([]), NavigationModule],
+      providers: [
+        { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
+        { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the nav's Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
+        { provide: PolicyService, useValue: policyService },
+        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        { provide: SyncService, useValue: mock<SyncService>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
+        // PamUserNavSlotComponent reads the user's organizations to decide on the PAM link.
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        {
+          provide: PremiumSubscriptionRoutingService,
+          useValue: { getSubscriptionRoute$: () => of(null) },
+        },
+        { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
+        { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+      ],
+    })
+      .overrideComponent(UserLayoutComponent, {
+        remove: {
+          imports: [WebLayoutModule, BillingFreeFamiliesNavItemComponent, CoachmarkComponent],
+        },
+        add: {
+          imports: [
+            NavigationModule,
+            MockWebLayoutComponent,
+            MockWebSideNavComponent,
+            MockBillingFreeFamiliesNavItemComponent,
+            MockCoachmarkComponent,
+          ],
+        },
+      })
+      .compileComponents();
+
+    // Nav items only render their text when the side nav is expanded.
+    TestBed.inject(SideNavService).open.set(true);
+
+    fixture = TestBed.createComponent(UserLayoutComponent);
+    fixture.detectChanges();
+  });
+
+  describe("flag off", () => {
+    it("renders the current navigation unchanged", () => {
+      const text = navText();
+
+      expect(text).toContain("vaults");
+      expect(text).not.toContain("manage");
+      expect(text).not.toContain("allItems");
+      expect(childText(expandGroup("tools"))).toEqual(
+        expect.arrayContaining(["generator", "importNoun", "exportNoun"]),
+      );
+    });
+
+    it("keeps Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text).toContain("pamAccessRequestsTitle");
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeLessThan(text.indexOf("tools"));
+    });
+
+    it("links Export to the Tools export page", () => {
+      expandGroup("tools");
+
+      expect(exportNavRoute()).toBe("/tools/export");
+    });
+  });
+
+  describe("flag on", () => {
+    beforeEach(() => {
+      flag$.next(true);
+      fixture.detectChanges();
+    });
+
+    it("renders Tools with Reports, Send and Generator, and no Import", () => {
+      const text = navText();
+
+      expect(text).toEqual(expect.arrayContaining(["tools", "reports", "send", "generator"]));
+      expect(text).not.toContain("importNoun");
+    });
+
+    it("renders Manage with My folders, Archive, Trash and Settings", () => {
+      const text = navText();
+
+      expect(text).toEqual(
+        expect.arrayContaining(["manage", "myFolders", "archiveNoun", "trash", "settings"]),
+      );
+    });
+
+    it("renders Access requests first in Manage, directly above My folders", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+      const manage = text.indexOf("manage");
+
+      expect(text.slice(manage, manage + 3)).toEqual([
+        "manage",
+        "pamAccessRequestsTitle",
+        "myFolders",
+      ]);
+    });
+
+    it("no longer renders Access requests above Tools", () => {
+      organizations$.next([{ usePam: true }]);
+      fixture.detectChanges();
+
+      const text = navText();
+
+      expect(text.indexOf("pamAccessRequestsTitle")).toBeGreaterThan(text.indexOf("tools"));
+    });
+
+    it("omits Access requests entirely without a PAM organization", () => {
+      expect(navText()).not.toContain("pamAccessRequestsTitle");
+    });
+
+    it("renders Export as the last Settings child", () => {
+      const children = childText(expandGroup("settings"));
+
+      expect(children[children.length - 1]).toBe("exportNoun");
+    });
+
+    it("links Export directly to the Settings export page so it shows as selected", () => {
+      expandGroup("settings");
+
+      expect(exportNavRoute()).toBe("/settings/export");
+    });
+
+    it("anchors the security step on Reports", () => {
+      expect(coachmarkAnchors()).toEqual({ reports: "position-for-monitorSecurity" });
+    });
+
+    it("anchors the shared folders step on the vaults nav section", () => {
+      viewModel$.next({
+        vaults: [
+          { id: "org-a", label: "Acme corporation", icon: "bwi-business", type: "organization" },
+        ] as VaultsNavViewModel["vaults"],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+      expandGroup("Acme corporation");
+
+      expect(coachmarkAnchors()).toEqual({
+        reports: "position-for-monitorSecurity",
+        sharedFolders: "position-for-shareWithCollections",
+      });
+    });
+
+    it("renders Add plan after Appearance and before Domain rules", () => {
+      const children = childText(expandGroup("settings"));
+
+      expect(children).toContain("addPlan");
+      expect(children.indexOf("appearance")).toBeLessThan(children.indexOf("addPlan"));
+      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("domainRules"));
+    });
+  });
+});

@@ -1,4 +1,4 @@
-<div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-px-3 tw-py-2">
+<div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-ps-5 tw-pe-3 tw-py-4">
   <bit-form-field disableMargin class="tw-w-44 tw-shrink-0">
     <bit-label class="tw-sr-only">{{ "rowsPerPage" | i18n }}</bit-label>
     <bit-select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
@@ -29,7 +29,7 @@
       [attr.aria-label]="'goToPage' | i18n"
     />
 
-    <span class="tw-text-sm tw-text-muted tw-whitespace-nowrap">
+    <span class="tw-text-sm tw-text-fg-heading tw-whitespace-nowrap">
       {{ "ofPageCount" | i18n: pageCount() }}
     </span>
 

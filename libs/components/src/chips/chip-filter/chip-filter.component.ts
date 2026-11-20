@@ -14,6 +14,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   inject,
+  untracked,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
@@ -23,6 +24,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ButtonModule } from "../../button";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../../icon-tile";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
 import { BitwardenIcon } from "../../shared/icon";
@@ -31,7 +38,10 @@ import { BaseChipDirective } from "../shared/base-chip.directive";
 import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
-/** An option that will be showed in the overlay menu of `ChipFilterComponent` */
+/**
+ * An option that will be showed in the overlay menu of `ChipFilterComponent`. `iconTile` is
+ * inherited from {@link Option} and takes precedence over `icon` when both are set.
+ */
 export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   /** The options that will be nested under this option */
   children?: ChipFilterOption<T>[];
@@ -60,6 +70,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
     ChipContentComponent,
     ChipDismissButtonComponent,
     IconComponent,
+    IconTileComponent,
   ],
   providers: [
     {
@@ -109,9 +120,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   /** Combined disabled state from both input and programmatic control */
   readonly disabled = computed(() => this.disabledInput() || this.disabledState());
 
-  /** Computed class list for host element based on fullWidth state */
+  /** Padding lives on the trigger button so the menu anchors to the chip's outer edges. */
   protected readonly classList = computed(() => {
-    const baseClasses = "!tw-ps-0 !tw-pb-0";
+    const baseClasses = "!tw-ps-0 !tw-py-0";
     const widthClasses = this.baseChip.fullWidth() ? "tw-block tw-w-full" : "tw-inline-block";
     return `${baseClasses} ${widthClasses}`;
   });
@@ -123,7 +134,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private pendingValue?: T;
 
   constructor() {
-    this.baseChip.variant.set("subtle");
+    this.baseChip.variant.set("filter");
     this.baseChip.hasTrailingIcon.set(true);
 
     // Sync component's disabled state to BaseChipDirective
@@ -164,10 +175,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
       const items = this.menuItems();
       const currentMenu = this.menu();
       const trigger = this.menuTrigger();
-      // Note: `isOpen` is intentionally accessed outside signal tracking (via `trigger?.isOpen`)
-      // to avoid re-focusing when the menu state changes. We only want to focus during
-      // submenu navigation, not on initial open/close.
-      if (items.length > 0 && trigger?.isOpen) {
+      // Note: `isOpen` is intentionally read untracked to avoid re-focusing when the menu state
+      // changes. We only want to focus during submenu navigation, not on initial open/close.
+      if (items.length > 0 && untracked(() => trigger?.isOpen())) {
         currentMenu?.keyManager()?.setFirstItemActive();
       }
     });
@@ -192,7 +202,17 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** The icon to show in the chip button */
   protected get icon(): BitwardenIcon | undefined {
-    return this.selectedOption?.icon || this.placeholderIcon();
+    return (
+      this.selectedOption?.icon ?? this.selectedOption?.iconTile?.icon ?? this.placeholderIcon()
+    );
+  }
+
+  protected tileVariant(option: ChipFilterOption<T>): IconTileVariant {
+    return resolveIconTileVariant(option.iconTile, option.disabled);
+  }
+
+  protected tileColor(option: ChipFilterOption<T>): string | undefined {
+    return resolveIconTileColor(option.iconTile, option.disabled);
   }
 
   /**

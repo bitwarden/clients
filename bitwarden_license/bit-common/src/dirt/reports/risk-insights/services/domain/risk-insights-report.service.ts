@@ -1,6 +1,5 @@
 import { catchError, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherId,
   OrganizationId,
@@ -8,6 +7,8 @@ import {
   UserId,
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";

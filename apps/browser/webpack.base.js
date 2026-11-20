@@ -138,12 +138,32 @@ module.exports.buildConfig = function buildConfig(params) {
         BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(
           process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS === "true",
         ),
+        BW_DETECT_SYNC_BOUNDARIES: JSON.stringify(
+          process.env.BW_DETECT_SYNC_BOUNDARIES === "true" || ENV === "development",
+        ),
       },
     }),
     new webpack.EnvironmentPlugin({
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
     }),
+    // The Chrome and Firefox builds ship without the core-js/stable and explicit resource
+    // management polyfills: modern versions of both provide them natively, and core-js's
+    // IE-era Object.create shim is what the Chrome Web Store flags as "obfuscated code".
+    // The manifests pin minimum_chrome_version to 134 (manifest.v3.json) and gecko
+    // strict_min_version to 141 (manifest.json and manifest.v3.json) so the stores never
+    // serve these builds to a browser lacking native Symbol.dispose / explicit resource
+    // management, which the SDK's `using` disposal needs. The shared array-buffer-base64
+    // polyfill imported by libs/common is not matched here and is still bundled. Safari
+    // still needs all of the polyfills and keeps core-js.
+    ...(browser === "chrome" || browser === "firefox"
+      ? [
+          new webpack.NormalModuleReplacementPlugin(
+            /^core-js\/(stable|proposals\/explicit-resource-management)$/,
+            path.resolve(__dirname, "webpack/empty-module.js"),
+          ),
+        ]
+      : []),
   ];
 
   const plugins = [
@@ -191,8 +211,32 @@ module.exports.buildConfig = function buildConfig(params) {
         },
         { from: path.resolve(__dirname, "src/managed_schema.json"), to: "managed_schema.json" },
         { from: path.resolve(__dirname, "src/_locales"), to: "_locales" },
-        { from: path.resolve(__dirname, "src/images"), to: "images" },
+        // For beta builds (CHANNEL=beta), *_beta.png variants overwrite their default
+        // siblings so the manifest/action/runtime icon paths resolve to beta icons
+        // without any manifest or code changes. Non-beta builds filter *_beta.png
+        // out entirely so those assets don't ship in production.
+        {
+          from: path.resolve(__dirname, "src/images"),
+          to: "images",
+          filter: (resourcePath) => !path.basename(resourcePath).includes("_beta"),
+        },
+        ...(process.env.CHANNEL === "beta"
+          ? [
+              {
+                context: path.resolve(__dirname, "src/images"),
+                from: "*_beta.png",
+                to({ absoluteFilename }) {
+                  return path.join("images", path.basename(absoluteFilename).replace("_beta", ""));
+                },
+                force: true,
+              },
+            ]
+          : []),
         { from: path.resolve(__dirname, "src/popup/images"), to: "popup/images" },
+        {
+          from: path.resolve(__dirname, "../../libs/angular/src/billing/images/premium"),
+          to: "popup/images/premium",
+        },
         { from: path.resolve(__dirname, "src/autofill/content/autofill.css"), to: "content" },
       ],
     }),

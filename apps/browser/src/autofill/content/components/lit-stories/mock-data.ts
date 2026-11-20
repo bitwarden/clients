@@ -2,6 +2,8 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
+import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
+
 export const mockOrganizations = [
   {
     id: "unique-id0",
@@ -102,7 +104,10 @@ export const mockTasks = [
 ];
 
 export const mockI18n = {
-  addNewLoginItemAria: "Add new login item",
+  addNewLoginItemAria: "Add new vault login item, opens in a new window",
+  addNewCardItemAria: "Add new vault card item, opens in a new window",
+  addNewIdentityItemAria: "Add new vault identity item, opens in a new window",
+  addNewVaultItem: "Add new vault item",
   appName: "Bitwarden",
   atRiskPassword: "At-risk password",
   atRiskNavigatePromptV2:
@@ -115,6 +120,15 @@ export const mockI18n = {
   folder: "Folder",
   fillVerificationCode: "Fill verification code",
   fillCredentialsFor: "Fill credentials for",
+  fillGeneratedPassword: "Fill generated password",
+  generatedPassword: "Generated password",
+  regeneratePassword: "Regenerate password",
+  lowercaseAriaLabel: "Lowercase",
+  uppercaseAriaLabel: "Uppercase",
+  hashSignCharacterDescriptor: "Hash sign",
+  ampersandCharacterDescriptor: "Ampersand",
+  asteriskCharacterDescriptor: "Asterisk",
+  exclamationCharacterDescriptor: "Exclamation mark",
   logInWithPasskeyAriaLabel: "Log in with passkey",
   username: "Username",
   cardNumberEndsWith: "card number ends with",
@@ -131,6 +145,8 @@ export const mockI18n = {
   nextSecurityTaskAction: "Change next password",
   newItem: "New item",
   newLogin: "New login",
+  newCard: "New card",
+  newIdentity: "New identity",
   never: "Never",
   noItemsToShow: "No items to show",
   myVault: "My vault",
@@ -200,3 +216,161 @@ export function mockBrowserI18nGetMessage(
 
   return mockI18n[messageName];
 }
+
+const mockInlineMenuIcon = {
+  imageEnabled: false,
+  image: "",
+  fallbackImage: "",
+  icon: "globe",
+};
+
+export function makeCipher(
+  overrides: Partial<InlineMenuCipherData> & Pick<InlineMenuCipherData, "id" | "name" | "type">,
+): InlineMenuCipherData {
+  return {
+    favorite: false,
+    reprompt: CipherRepromptType.None,
+    icon: mockInlineMenuIcon,
+    ...overrides,
+  };
+}
+
+export const mockLoginCiphers: InlineMenuCipherData[] = [
+  makeCipher({
+    id: "1",
+    name: "bitwarden.com",
+    type: CipherType.Login,
+    login: { username: "test@bitwarden.com", passkey: null },
+  }),
+  makeCipher({
+    id: "2",
+    name: "example.com",
+    type: CipherType.Login,
+    login: { username: "codestradamus", passkey: null },
+  }),
+  makeCipher({
+    id: "3",
+    name: "A really long site name that should ellipsize in the list",
+    type: CipherType.Login,
+    login: { username: "long.username@example.com", passkey: null },
+  }),
+];
+
+export const mockTotpCiphers: InlineMenuCipherData[] = [
+  makeCipher({
+    id: "1",
+    name: "site-a",
+    type: CipherType.Login,
+    login: {
+      username: "alice@example.com",
+      totp: "454143",
+      totpField: true,
+      totpCodeTimeInterval: 30,
+      passkey: null,
+    },
+  }),
+  makeCipher({
+    id: "2",
+    name: "site-b",
+    type: CipherType.Login,
+    login: {
+      username: "liz@example.com",
+      totp: "174593",
+      totpField: true,
+      totpCodeTimeInterval: 30,
+      passkey: null,
+    },
+  }),
+];
+
+export const mockPasskeyCiphers: InlineMenuCipherData[] = [
+  makeCipher({
+    id: "1",
+    name: "bitwarden.com",
+    type: CipherType.Login,
+    login: {
+      username: "test@bitwarden.com",
+      passkey: {
+        rpName: "Bitwarden",
+        userName: "test@bitwarden.com",
+      },
+    },
+  }),
+  makeCipher({
+    id: "2",
+    name: "Example Site",
+    type: CipherType.Login,
+    login: {
+      passkey: {
+        rpName: "Example Site",
+        userName: "passkey-user",
+      },
+    },
+  }),
+];
+
+export const mockPasskeysAndPasswords: InlineMenuCipherData[] = [
+  ...mockPasskeyCiphers,
+  makeCipher({
+    id: "3",
+    name: "bitwarden.com",
+    type: CipherType.Login,
+    login: { username: "password-user@bitwarden.com", passkey: null },
+  }),
+];
+
+export const mockCardCiphers: InlineMenuCipherData[] = [
+  makeCipher({
+    id: "1",
+    name: "Personal Visa",
+    type: CipherType.Card,
+    card: "Visa, *4242",
+  }),
+  makeCipher({
+    id: "2",
+    name: "Work Amex",
+    type: CipherType.Card,
+    card: "Amex, *10005",
+  }),
+];
+
+export const mockIdentityCiphers: InlineMenuCipherData[] = [
+  makeCipher({
+    id: "1",
+    name: "Home Address",
+    type: CipherType.Identity,
+    identity: { fullName: "Jane Doe" },
+  }),
+  makeCipher({
+    id: "2",
+    name: "Work Profile",
+    type: CipherType.Identity,
+    identity: { fullName: "Jane Doe", username: "jane.doe@bitwarden.com" },
+  }),
+];
+
+export const mockPasswordGeneratorI18n = {
+  generatedPassword: mockI18n.generatedPassword,
+  lowercaseAriaLabel: mockI18n.lowercaseAriaLabel,
+  uppercaseAriaLabel: mockI18n.uppercaseAriaLabel,
+  regeneratePassword: mockI18n.regeneratePassword,
+  characterDescriptors: {
+    hashSignCharacterDescriptor: mockI18n.hashSignCharacterDescriptor,
+    ampersandCharacterDescriptor: mockI18n.ampersandCharacterDescriptor,
+    asteriskCharacterDescriptor: mockI18n.asteriskCharacterDescriptor,
+    exclamationCharacterDescriptor: mockI18n.exclamationCharacterDescriptor,
+  },
+};
+
+export const mockCipherListI18n = {
+  viewButtonText: mockI18n.view,
+  opensInANewWindowText: mockI18n.opensInANewWindow,
+  fillCredentialsForText: mockI18n.fillCredentialsFor,
+  logInWithPasskeyAriaLabel: mockI18n.logInWithPasskeyAriaLabel,
+  usernameText: mockI18n.username,
+  cardNumberEndsWithText: mockI18n.cardNumberEndsWith,
+  fillVerificationCodeText: mockI18n.fillVerificationCode,
+  totpCodeAria: mockI18n.totpCodeAria,
+  passkeysText: mockI18n.passkeys,
+  passwordsText: mockI18n.passwords,
+};

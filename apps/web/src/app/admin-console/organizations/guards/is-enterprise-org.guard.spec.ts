@@ -11,7 +11,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  buildTestOrganization,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
@@ -21,7 +25,7 @@ import { isEnterpriseOrgGuard } from "./is-enterprise-org.guard";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the home screen!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class HomescreenComponent {}
 
@@ -29,7 +33,7 @@ export class HomescreenComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This component can only be accessed by a enterprise organization!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class IsEnterpriseOrganizationComponent {}
 
@@ -37,20 +41,17 @@ export class IsEnterpriseOrganizationComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the organization upgrade screen!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class OrganizationUpgradeScreenComponent {}
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  buildTestOrganization({
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("Is Enterprise Org Guard", () => {
   let organizationService: MockProxy<OrganizationService>;
@@ -65,6 +66,11 @@ describe("Is Enterprise Org Guard", () => {
     accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
+      imports: [
+        HomescreenComponent,
+        IsEnterpriseOrganizationComponent,
+        OrganizationUpgradeScreenComponent,
+      ],
       providers: [
         { provide: OrganizationService, useValue: organizationService },
         { provide: DialogService, useValue: dialogService },

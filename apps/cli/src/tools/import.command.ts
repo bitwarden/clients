@@ -9,6 +9,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -32,10 +34,27 @@ export class ImportCommand {
     private accountService: AccountService,
     private logService: LogService,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {}
 
-  async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
-    const organizationId = options.organizationid;
+  async run(
+    format: ImportType | undefined,
+    filepath: string | undefined,
+    options: OptionValues,
+  ): Promise<Response> {
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+
+    if (vfo1Enabled && options.organizationid && process.env.BW_QUIET !== "true") {
+      CliUtils.writeLn(
+        "--organizationid is deprecated and will be removed in a future CLI release. Use --vaultid instead",
+        false,
+        true,
+      );
+    }
+
+    const organizationId = vfo1Enabled
+      ? (options.vaultid ?? options.organizationid)
+      : options.organizationid;
     if (organizationId != null) {
       const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       if (!userId) {
@@ -46,14 +65,16 @@ export class ImportCommand {
       );
 
       if (organization == null) {
-        return Response.badRequest(
-          `You do not belong to an organization with the ID of ${organizationId}. Check the organization ID and sync your vault.`,
-        );
+        const errMessage = vfo1Enabled
+          ? `You do not belong to a vault with the ID of ${organizationId}. Check the vault ID and sync your vault.`
+          : `You do not belong to an organization with the ID of ${organizationId}. Check the organization ID and sync your vault.`;
+        return Response.badRequest(errMessage);
       }
 
       if (!organization.canAccessImport) {
+        const targetTerm = vfo1Enabled ? "vault" : "organization";
         return Response.badRequest(
-          "You are not authorized to import into the provided organization.",
+          `You are not authorized to import into the provided ${targetTerm}.`,
         );
       }
     }
@@ -74,12 +95,17 @@ export class ImportCommand {
     if (format == null) {
       return Response.badRequest("`format` was not provided.");
     }
+    const importOption = this.importService.getImportOption(format);
+    // A format without file types signs in to the vendor instead, which only the apps can do.
+    if (importOption != null && importOption.acceptedFileTypes.length === 0) {
+      return Response.badRequest(this.i18nService.t("importDirectOnlyError", importOption.name));
+    }
     if (filepath == null || filepath === "") {
       return Response.badRequest("`filepath` was not provided.");
     }
 
     // SDK-backed importers parse/encrypt/submit entirely in the SDK.
-    if (this.importService.isSdkImporter(format)) {
+    if (importOption?.sdk != null) {
       return await this.importWithSdk(format, filepath, organizationId, options);
     }
 
@@ -130,9 +156,7 @@ export class ImportCommand {
 
       const response = await this.importService.import(importer, contents, organizationId);
       if (response.success) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.syncService.fullSync(true);
+        await this.syncService.fullSync(true);
 
         // Some items may have been skipped while the rest imported. Report which ones and why.
         const skipped = response.errors ?? [];
@@ -177,7 +201,7 @@ export class ImportCommand {
 
     try {
       const credentials = await this.collectSdkCredentials(
-        this.importService.credentialKindFor(format),
+        this.importService.getImportOption(format)?.sdk?.credentialKind,
         options,
       );
 
@@ -242,6 +266,8 @@ export class ImportCommand {
   private async list() {
     const options = this.importService
       .getImportOptions()
+      // The CLI imports from a file, so a direct-only format has no route here to advertise.
+      .filter((option) => option.acceptedFileTypes.length > 0)
       .sort((a, b) => {
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
       })

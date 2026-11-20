@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, output } from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
@@ -13,13 +13,18 @@ import {
   BitwardenIcon,
   ButtonModule,
   ButtonType,
+  IconModule,
   MenuModule,
-  PopoverComponent,
   PopoverModule,
-  PositionIdentifier,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
+import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -33,7 +38,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
     PopoverModule,
     I18nPipe,
     JslibModule,
+    Vfo1I18nPipe,
     TooltipDirective,
+    Vfo1IconPipe,
+    IconModule,
+    CoachmarkComponent,
   ],
 })
 export class NewCipherMenuComponent {
@@ -43,6 +52,7 @@ export class NewCipherMenuComponent {
   readonly canCreateSshKey = input(false);
   readonly icon = input<BitwardenIcon>("bwi-plus");
   readonly buttonType = input<ButtonType>("primary");
+  readonly id = input<string>();
 
   /**
    * When `true`, the "New" button is rendered in a disabled state, e.g. because the
@@ -50,21 +60,19 @@ export class NewCipherMenuComponent {
    */
   readonly disabled = input(false);
 
-  /** Optional popover to anchor to the "New" button for coachmark tours */
-  readonly coachmarkPopover = input<PopoverComponent>();
-  /** Whether the coachmark popover is open */
-  readonly coachmarkPopoverOpen = input(false);
-  /** Popover position */
-  readonly coachmarkPosition = input<PositionIdentifier>();
+  /** Set to `false` on all but one menu when several render the same page. */
+  readonly coachmarkEnabled = input(true);
 
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
   onAddItemDialog = output();
 
-  private readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
+  private readonly terminology = inject(Vfo1TerminologyService);
+  protected readonly coachmark = inject(CoachmarkService);
+
+  protected readonly coachmarkActive = computed(
+    () => this.coachmarkEnabled() && this.coachmark.isStepActive("addItem"),
   );
 
   protected readonly useNewItemDialog = toSignal(
@@ -109,26 +117,14 @@ export class NewCipherMenuComponent {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();
     const canCreateCollection = this.canCreateCollection();
-    const btnTextAddCreateFeatureFlag = this.btnTextAddCreateFeatureFlag();
 
     // If only collections can be created, be specific
     if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
-      if (btnTextAddCreateFeatureFlag) {
-        return "addCollection";
-      } else {
-        return "newCollection";
-      }
+      const sharedFolderTerminology = this.terminology.enabled();
+      return sharedFolderTerminology ? "addSharedFolder" : "addCollection";
     }
 
-    if (btnTextAddCreateFeatureFlag) {
-      if (this.buttonType() === "secondary") {
-        return "addItem";
-      } else {
-        return "add";
-      }
-    } else {
-      return "new";
-    }
+    return this.buttonType() === "secondary" ? "addItem" : "add";
   }
 
   /**

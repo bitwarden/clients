@@ -2,10 +2,11 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
-import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { decodeJwtTokenToJson } from "@bitwarden/common/auth/jwt";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { IdpProvider } from "./enums";
 import {

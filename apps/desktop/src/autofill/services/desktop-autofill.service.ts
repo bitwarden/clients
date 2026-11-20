@@ -16,10 +16,12 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { isDesktopAppUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2AuthenticatorGetAssertionParams,
   Fido2AuthenticatorGetAssertionResult,
@@ -36,7 +38,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { autofill } from "@bitwarden/desktop-napi";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
@@ -44,23 +47,72 @@ type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
 type NativeStatus = autofill.NativeStatus;
+export type PasskeyProviderState = passkey_authenticator.PasskeyProviderState;
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
+import {
+  AutofillOpenSettingsCommand,
+  AutofillRequestEnableCommand,
+} from "../models/autofill-settings.command";
 import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
   AutofillFido2Credential,
   AutofillPasswordCredential,
   AutofillSyncCommand,
 } from "../models/autofill-sync.command";
-import { IpcListenerBindFn } from "../models/ipc-handler.type";
+import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.type";
 
-import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  CredentialNotFound,
+  DesktopFido2UserInterfaceService,
+  ExcludedCredentialMatched,
+  type NativeWindowObject,
+  type RpIdNotAllowedOperation,
+} from "./desktop-fido2-user-interface.service";
+
+type NativeCredentialSyncFeatureFlag =
+  typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
+
+/**
+ * Derives an RP ID from the web vault URL for the purpose of excluding passkey
+ * requests that match it.
+ *
+ * An RP ID ignores the port and path, so a vault on a non-standard port or
+ * under a sub-path shares its RP ID with other services on the same host.
+ * Blocking it would block those services too, so those vaults, along with
+ * localhost and plain-HTTP vaults, don't get this protection.
+ */
+function vaultRpId(webVaultUrl: string): string | undefined {
+  let url: URL;
+  try {
+    url = new URL(webVaultUrl);
+  } catch {
+    return undefined;
+  }
+
+  const hasPath = url.pathname !== "" && url.pathname !== "/";
+  if (url.protocol !== "https:" || url.port !== "" || hasPath) {
+    return undefined;
+  }
+  if (url.hostname === "localhost" || url.hostname.endsWith(".localhost")) {
+    return undefined;
+  }
+
+  // `URL` lowercases the hostname.
+  return url.hostname;
+}
+
+function isVaultRpId(rpId: string, vaultRpId: string | undefined): boolean {
+  return vaultRpId !== undefined && rpId.toLowerCase() === vaultRpId;
+}
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest?: PasskeyRegistrationRequest;
-  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
+  private featureFlag?: NativeCredentialSyncFeatureFlag;
   private isEnabled: boolean = false;
+  /** Whether syncing and IPC listeners have been started. */
+  private started = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
 
   constructor(
@@ -70,11 +122,15 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
+    private environmentService: EnvironmentService,
     platformUtilsService: PlatformUtilsService,
+    private fido2UserInterfaceService: DesktopFido2UserInterfaceService,
   ) {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
       this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    } else if (deviceType === DeviceType.WindowsDesktop) {
+      this.featureFlag = FeatureFlag.WindowsNativeCredentialSync;
     }
   }
 
@@ -82,13 +138,103 @@ export class DesktopAutofillService implements OnDestroy {
     if (!this.featureFlag) {
       return;
     }
-    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
-    if (!this.isEnabled) {
-      return;
-    }
 
+    // Enable as soon as the flag turns on, so a flag value that arrives after startup takes
+    // effect without restarting the app.
     this.configService
       .getFeatureFlag$(this.featureFlag)
+      .pipe(
+        distinctUntilChanged(),
+        filter((enabled) => enabled === true),
+        mergeMap(() => this.ensureEnabled()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  /**
+   * Signals the main process to register the native OS credential provider and start the autofill
+   * IPC server, then starts syncing and listening for requests. Safe to call repeatedly: each call
+   * re-submits the registration, but syncing and listeners are only started once.
+   *
+   * @returns whether native autofill is running.
+   */
+  private async ensureEnabled(): Promise<boolean> {
+    if (!this.featureFlag) {
+      return false;
+    }
+    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
+    if (!this.isEnabled) {
+      return false;
+    }
+
+    // Gated here because the main process cannot evaluate the feature flag itself.
+    const running = await ipc.autofill.desktopAutofill.setEnabled(true);
+    if (!running) {
+      this.logService.error(
+        "[DesktopAutofillService]",
+        "Main process failed to enable native autofill",
+      );
+      return false;
+    }
+
+    if (!this.started) {
+      this.started = true;
+      this.startSync(this.featureFlag);
+      this.listenIpc();
+    }
+    return true;
+  }
+
+  /**
+   * Re-submits the passkey provider registration with the OS, enabling native autofill if needed.
+   *
+   * @returns the app's status as a passkey provider with the OS.
+   */
+  async refreshPasskeyProviderState(): Promise<PasskeyProviderState> {
+    if (!(await this.ensureEnabled())) {
+      return { registered: false, enabled: false };
+    }
+    return this.getPasskeyProviderState();
+  }
+
+  /** Gets the app's status as a passkey provider with the OS, without re-submitting registration. */
+  getPasskeyProviderState(): Promise<PasskeyProviderState> {
+    return ipc.autofill.desktopAutofill.getPasskeyProviderState();
+  }
+
+  /**
+   * Asks the user to turn on the app as a credential provider.
+   *
+   * @returns whether the app is enabled, or `undefined` if the OS cannot prompt.
+   */
+  async requestEnableCredentialProvider(): Promise<boolean | undefined> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillRequestEnableCommand>({
+      namespace: "autofill",
+      command: "requestEnable",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
+    return result.value.supported ? result.value.enabled : undefined;
+  }
+
+  /** Opens the OS settings for credential providers. */
+  async openCredentialProviderSettings(): Promise<void> {
+    const result = await ipc.autofill.desktopAutofill.runCommand<AutofillOpenSettingsCommand>({
+      namespace: "autofill",
+      command: "openSettings",
+      params: {},
+    });
+    if (result.type === "error") {
+      throw new Error(result.error);
+    }
+  }
+
+  private startSync(featureFlag: NativeCredentialSyncFeatureFlag) {
+    this.configService
+      .getFeatureFlag$(featureFlag)
       .pipe(
         distinctUntilChanged(),
         tap((enabled) => (this.isEnabled = enabled === true)),
@@ -124,8 +270,6 @@ export class DesktopAutofillService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.listenIpc();
   }
 
   async adHocSync(): Promise<any> {
@@ -138,7 +282,7 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     const cipherViewMap = await firstValueFrom(this.cipherService.cipherViews$(userId));
-    this.logService.info("Performing AdHoc sync", Object.values(cipherViewMap ?? []));
+    this.logService.info(`Performing AdHoc sync over ${cipherViewMap?.length ?? 0} ciphers`);
     await this.sync(Object.values(cipherViewMap ?? []));
   }
 
@@ -158,38 +302,45 @@ export class DesktopAutofillService implements OnDestroy {
     let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
+      // Desktop app URIs pair a login with an app for Autotype, so OS AutoFill never gets them
+      const isAutofillableUri = (uri: LoginUriView) =>
+        uri.match !== UriMatchStrategy.Never &&
+        !Utils.isNullOrWhitespace(uri.uri) &&
+        !isDesktopAppUri(uri.uri);
+
       passwordCredentials = cipherViews
         .filter(
           (cipher) =>
             !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some(
-              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-            ) &&
+            cipher.login.uris.some(isAutofillableUri) &&
             !Utils.isNullOrWhitespace(cipher.login.username) &&
             !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
           cipherId: cipher.id,
-          uri: cipher.login.uris.find(
-            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-          )!.uri as string,
+          uri: cipher.login.uris.find(isAutofillableUri)!.uri as string,
           username: cipher.login.username as string,
         }));
     }
 
     if (status.value.support.fido2) {
-      fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
-        type: "fido2",
-        ...credential,
-      }));
+      // Filter out passkey requests if the RP ID is this account's web vault
+      // hostname, so a vault can't hold the passkey that unlocks itself.
+      const vaultRpId = await this.activeVaultRpId();
+      fido2Credentials = (await getCredentialsForAutofill(cipherViews))
+        .filter((credential) => !isVaultRpId(credential.rpId, vaultRpId))
+        .map((credential) => ({
+          type: "fido2",
+          ...credential,
+        }));
     }
 
     this.logService.info("Syncing autofill credentials", {
-      fido2Credentials,
-      passwordCredentials,
+      fido2Credentials: fido2Credentials.length,
+      passwordCredentials: passwordCredentials.length,
     });
 
     const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
@@ -217,10 +368,6 @@ export class DesktopAutofillService implements OnDestroy {
     });
   }
 
-  get lastRegistrationRequest() {
-    return this.registrationRequest;
-  }
-
   async doCancelRequest(context: string): Promise<void> {
     const controller = this.inFlightRequests[context];
     if (controller) {
@@ -245,11 +392,11 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyRegistrationRequest,
     abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
-    this.registrationRequest = request;
+    await this.assertRpIdAllowed(request, "registration", abortController);
 
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
     return this.convertRegistrationResponse(request, response);
@@ -259,11 +406,13 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
+    await this.assertRpIdAllowed(request, "assertion", abortController);
+
     const assumeUserPresence = false;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
@@ -274,15 +423,73 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionWithoutUserInterfaceRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
+    await this.assertRpIdAllowed(request, "assertion", abortController);
+
     const assumeUserPresence = true;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
     return this.convertAssertionResponse(request, response);
+  }
+
+  /** The RP ID of the active account's vault, if it can be protected. */
+  private async activeVaultRpId(): Promise<string | undefined> {
+    const environment = await firstValueFrom(this.environmentService.environment$);
+    return vaultRpId(environment.getWebVaultUrl());
+  }
+
+  /**
+   * Refuses requests for a blocked RP ID, telling the user why before
+   * rejecting.
+   *
+   * @throws {DOMException} `NotAllowedError` if the RP ID is blocked.
+   */
+  private async assertRpIdAllowed(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+    operation: RpIdNotAllowedOperation,
+    abortController: AbortController,
+  ) {
+    if (!isVaultRpId(request.rpId, await this.activeVaultRpId())) {
+      return;
+    }
+
+    const session = await this.fido2UserInterfaceService.newSession(
+      false,
+      await this.nativeWindowObject(request),
+      abortController,
+    );
+    await session.informRpIdNotAllowed(operation);
+  }
+
+  /**
+   * Collects everything the FIDO2 user interface needs to know about the
+   * windows involved in a request: where to position our own UI, and which
+   * native windows an OS prompt can attach itself to.
+   */
+  private async nativeWindowObject(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+  ): Promise<NativeWindowObject> {
+    return {
+      windowXy: request.clientWindow.position,
+      clientWindowHandle: request.clientWindow.handle
+        ? new Uint8Array(request.clientWindow.handle)
+        : null,
+      appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
+      rpId: request.rpId,
+      requestContext: request.context,
+      // Discoverable credential requests don't contain a userHandle.
+      userHandle: "userHandle" in request ? request.userHandle : undefined,
+    };
   }
 
   async doNativeStatus(status: NativeStatus): Promise<void> {
@@ -355,10 +562,7 @@ export class DesktopAutofillService implements OnDestroy {
       request: Request,
       /** Callback to return the response back to Autofill main process. May be
        * empty for requests that do not expect a response. */
-      completeCallback?: {
-        (error: null, response: Response): void;
-        (error: Error, response: null): void;
-      },
+      completeCallback?: CompletionCallback<Response>,
     ) => {
       this.logService.debug("[DesktopAutofillService]", `${handlerName}: Received message`, {
         clientId,
@@ -399,7 +603,11 @@ export class DesktopAutofillService implements OnDestroy {
           error,
         );
         if (completeCallback) {
-          if (error instanceof Error) {
+          if (error instanceof ExcludedCredentialMatched) {
+            completeCallback(error, null, AutofillIpcErrorKind.ExcludedCredentialMatched);
+          } else if (error instanceof CredentialNotFound) {
+            completeCallback(error, null, AutofillIpcErrorKind.CredentialNotFound);
+          } else if (error instanceof Error) {
             completeCallback(error, null);
           } else if (typeof error === "string") {
             completeCallback(new Error(error), null);

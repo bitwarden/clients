@@ -13,6 +13,7 @@ export interface InlineMenuFieldQualificationService {
   isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
+  isFieldForSshKeyForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForCardholderName(field: AutofillField): boolean;
   isFieldForCardNumber(field: AutofillField): boolean;
   isFieldForCardExpirationDate(field: AutofillField): boolean;

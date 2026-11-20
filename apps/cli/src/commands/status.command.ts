@@ -4,8 +4,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { LogService } from "@bitwarden/logging";
+import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { Response } from "../models/response";
@@ -17,7 +18,8 @@ export class StatusCommand {
     private syncService: SyncService,
     private accountService: AccountService,
     private authService: AuthService,
-    private userAutoUnlockKeyService: UserAutoUnlockKeyService,
+    private unlockService: UnlockService,
+    private logService: LogService,
   ) {}
 
   async run(): Promise<Response> {
@@ -52,7 +54,12 @@ export class StatusCommand {
     userId: UserId | undefined,
   ): Promise<"unauthenticated" | "locked" | "unlocked"> {
     if (userId != null) {
-      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId);
+      // A failed auto-unlock is reported as a locked vault rather than an errored command.
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(userId);
+      } catch (e) {
+        this.logService.error("[StatusCommand] Failed to unlock with the never-lock key", e);
+      }
     }
 
     const authStatus = await this.authService.getAuthStatus();

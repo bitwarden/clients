@@ -16,13 +16,11 @@ import {
   DefaultDrawerStateService,
   DefaultMemberCipherMappingService,
   DefaultReportGenerationService,
-  DefaultReportPersistenceService,
   DrawerStateService,
   FileReportPersistenceService,
   LegacyRiskInsightsEncryptionService,
   MemberCipherMappingService,
   ReportGenerationService,
-  ReportPersistenceFeatureFlagService,
   ReportPersistenceService,
 } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -45,13 +43,13 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
@@ -145,12 +143,12 @@ const v2Providers = [
   safeProvider({
     provide: CipherHealthService,
     useClass: DefaultCipherHealthService,
-    deps: [AuditService, PasswordStrengthServiceAbstraction],
+    deps: [AuditService, PasswordStrengthServiceAbstraction, ConfigService, LogService],
   }),
   safeProvider({
     provide: MemberCipherMappingService,
     useClass: DefaultMemberCipherMappingService,
-    deps: [],
+    deps: [LogService],
   }),
   safeProvider({
     provide: ReportGenerationService,
@@ -163,16 +161,8 @@ const v2Providers = [
     deps: [ApiService],
   }),
   safeProvider({
-    provide: DefaultReportPersistenceService,
-    deps: [
-      RiskInsightsApiService,
-      AccessReportEncryptionService,
-      AccountServiceAbstraction,
-      LogService,
-    ],
-  }),
-  safeProvider({
-    provide: FileReportPersistenceService,
+    provide: ReportPersistenceService,
+    useClass: FileReportPersistenceService,
     deps: [
       AccessIntelligenceApiService,
       AccessReportEncryptionService,
@@ -180,11 +170,6 @@ const v2Providers = [
       LogService,
       FileUploadService,
     ],
-  }),
-  safeProvider({
-    provide: ReportPersistenceService,
-    useClass: ReportPersistenceFeatureFlagService,
-    deps: [FileReportPersistenceService, DefaultReportPersistenceService, ConfigService],
   }),
   safeProvider({
     provide: AccessIntelligenceDataService,
@@ -196,6 +181,7 @@ const v2Providers = [
       ReportGenerationService,
       ReportPersistenceService,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({

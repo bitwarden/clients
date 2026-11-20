@@ -1,7 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { parse } from "tldts";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
+import { unsafeUrlReason } from "../url-safety";
 
 import { IntegrationMetadata } from "./integration-metadata";
 import { ApiSettings, IntegrationRequest } from "./rpc";
@@ -45,6 +48,20 @@ export class IntegrationContext<Settings extends object> {
     // postconditions
     if (result === "") {
       const error = this.i18n.t("forwarderNoUrl", this.metadata.name);
+      throw error;
+    }
+
+    // an unsafe url the user has deliberately approved for this exact value is exempt;
+    // changing the url invalidates the approval and the check below applies again. A url that
+    // can't be parsed is never exempt, regardless of approval
+    const allowUnsafeUrlFor =
+      this.settings && "allowUnsafeUrlFor" in this.settings
+        ? (this.settings.allowUnsafeUrlFor as string)
+        : undefined;
+
+    const unsafe = unsafeUrlReason(result);
+    if (unsafe && (unsafe.code === "invalid" || allowUnsafeUrlFor !== result)) {
+      const error = this.i18n.t("forwarderUnsafeUrl");
       throw error;
     }
 
@@ -119,37 +136,38 @@ export class IntegrationContext<Settings extends object> {
     return description.slice(0, options?.maxLength);
   }
 
-  /** transform a domain into a valid prefifx
+  /** transform a domain into a valid prefix
    * for example, "example.com" becomes "example", "foo.example.com" becomes "foo_example"
    * @param request supplies information about the state of the extension site
    * @returns prefix derived from the website URL or an empty string if a website isn't available
-   * */
+   */
   prefix(request: IntegrationRequest) {
-    const website = this.website(request);
-
-    // Validate that the URL is actually valid before extracting hostname
-    if (!Utils.getUrl(website)) {
-      return "";
-    }
-
-    const hostname = Utils.getHostname(website) ?? "";
+    const rawWebsite = this.website(request);
+    const hostname = Utils.getHostname(rawWebsite) ?? "";
     if (hostname === "") {
       return "";
     }
 
+    const parsed = parse(hostname, { allowPrivateDomains: true });
+
+    if (parsed.domainWithoutSuffix != null) {
+      // Use tldts-parsed parts so ccSLDs (e.g. .co.uk, .com.au) are handled correctly.
+      // subdomain may itself contain dots (foo.bar), so we split on "." before joining with "_".
+      return [parsed.subdomain, parsed.domainWithoutSuffix]
+        .filter(Boolean)
+        .join(".")
+        .split(".")
+        .join("_");
+    }
+
+    // Fallback for IPs and localhost where tldts has no public suffix data.
     const parts = hostname.split(".");
     if (parts.length <= 1) {
-      return hostname;
+      return Utils.getUrl(rawWebsite) != null ? hostname : "";
     }
 
-    // For second-level domains (example.com), return just the domain name
-    if (parts.length === 2) {
-      return parts[0];
-    }
-
-    // For subdomains (foo.example.com), return "foo_example"
-    // We take all parts except the TLD and join them with underscore
-    const partsWithoutTld = parts.slice(0, parts.length - 1);
-    return partsWithoutTld.join("_");
+    // Preserve existing behavior: strip last label and join with "_"
+    // (e.g. 127.0.0.1 → "127_0_0")
+    return parts.slice(0, parts.length - 1).join("_");
   }
 }

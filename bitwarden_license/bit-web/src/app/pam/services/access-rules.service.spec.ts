@@ -1,0 +1,287 @@
+import { TestBed } from "@angular/core/testing";
+import { firstValueFrom, of } from "rxjs";
+
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccessRuleSdkService, AccessRuleView } from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { AccessRulesService } from "./access-rules.service";
+import { GovernedCollectionsService } from "./governed-collections.service";
+
+const i18nFake: Pick<I18nService, "t" | "translate"> = {
+  t: (id: string) => id,
+  translate: (id: string) => id,
+};
+
+function rule(
+  id: string,
+  { enabled = true, name = "Rule", collections = [] as string[] } = {},
+): AccessRuleView {
+  return {
+    id,
+    organizationId: "org-1",
+    name,
+    description: undefined,
+    enabled,
+    conditions: [],
+    singleActiveLease: false,
+    defaultLeaseDurationSeconds: undefined,
+    maxLeaseDurationSeconds: undefined,
+    allowsExtensions: false,
+    maxExtensionDurationSeconds: undefined,
+    collections,
+    creationDate: "2024-01-01T00:00:00.000Z",
+    revisionDate: "2024-01-01T00:00:00.000Z",
+  } as unknown as AccessRuleView;
+}
+
+describe("AccessRulesService", () => {
+  let service: AccessRulesService;
+  let pamApi: {
+    listAccessRules: jest.Mock;
+    updateAccessRule: jest.Mock;
+    deleteAccessRule: jest.Mock;
+  };
+  let governedCollections: { invalidate: jest.Mock };
+
+  const setup = (cols: { id: string; name: string }[] = []) => {
+    pamApi = {
+      listAccessRules: jest.fn().mockResolvedValue([]),
+      updateAccessRule: jest.fn(),
+      deleteAccessRule: jest.fn().mockResolvedValue(undefined),
+    };
+    governedCollections = { invalidate: jest.fn() };
+
+    TestBed.configureTestingModule({
+      providers: [
+        AccessRulesService,
+        { provide: AccessRuleSdkService, useValue: pamApi },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of(cols) } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: GovernedCollectionsService, useValue: governedCollections },
+      ],
+    });
+
+    service = TestBed.inject(AccessRulesService);
+  };
+
+  const currentRuleIds = async () => (await firstValueFrom(service.rules$)).map((r) => r.id);
+
+  describe("load", () => {
+    it("populates rules + collections and clears loading", async () => {
+      setup([{ id: "col-1", name: "Engineering" }]);
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { collections: ["col-1"] })]);
+
+      await service.load("org-1" as never);
+
+      expect(await currentRuleIds()).toEqual(["rule-1"]);
+      expect(await firstValueFrom(service.collections$)).toEqual([
+        { id: "col-1", name: "Engineering" },
+      ]);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
+    });
+  });
+
+  describe("getRule", () => {
+    it("returns the loaded rule by id, or undefined", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
+      await service.load("org-1" as never);
+
+      expect(service.getRule("rule-1")?.id).toBe("rule-1");
+      expect(service.getRule("missing")).toBeUndefined();
+    });
+  });
+
+  describe("setEnabled", () => {
+    it("round-trips the rule with the new flag and patches state", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { enabled: true })]);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockResolvedValue(rule("rule-1", { enabled: false }));
+
+      await service.setEnabled(rule("rule-1", { enabled: true }), false);
+
+      const [, id, request] = pamApi.updateAccessRule.mock.calls[0];
+      expect(id).toBe("rule-1");
+      expect(request.enabled).toBe(false);
+      const rules = await firstValueFrom(service.rules$);
+      expect(rules[0].enabled).toBe(false);
+    });
+
+    it("invalidates the governed-collections cache once the toggle succeeds", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { enabled: true })]);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockResolvedValue(rule("rule-1", { enabled: false }));
+
+      await service.setEnabled(rule("rule-1", { enabled: true }), false);
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("does not invalidate the governed-collections cache when the toggle fails", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { enabled: true })]);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockRejectedValue(new Error("nope"));
+
+      await expect(service.setEnabled(rule("rule-1", { enabled: true }), false)).rejects.toThrow();
+
+      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setManyEnabled", () => {
+    it("skips rules already in the target state and returns the changed count", async () => {
+      setup();
+      const rules = [rule("rule-1", { enabled: false }), rule("rule-2", { enabled: true })];
+      pamApi.listAccessRules.mockResolvedValue(rules);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockImplementation((_org, id) => rule(id, { enabled: true }));
+
+      const changed = await service.setManyEnabled(rules, true);
+
+      expect(changed).toBe(1);
+      expect(pamApi.updateAccessRule).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns 0 and makes no calls when nothing needs changing", async () => {
+      setup();
+      const rules = [rule("rule-1", { enabled: true })];
+      pamApi.listAccessRules.mockResolvedValue(rules);
+      await service.load("org-1" as never);
+
+      const changed = await service.setManyEnabled(rules, true);
+
+      expect(changed).toBe(0);
+      expect(pamApi.updateAccessRule).not.toHaveBeenCalled();
+    });
+
+    it("invalidates the governed-collections cache once, after all toggles succeed", async () => {
+      setup();
+      const rules = [rule("rule-1", { enabled: false }), rule("rule-2", { enabled: false })];
+      pamApi.listAccessRules.mockResolvedValue(rules);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockImplementation((_org, id) => rule(id, { enabled: true }));
+
+      await service.setManyEnabled(rules, true);
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("does not invalidate the governed-collections cache when nothing needs changing", async () => {
+      setup();
+      const rules = [rule("rule-1", { enabled: true })];
+      pamApi.listAccessRules.mockResolvedValue(rules);
+      await service.load("org-1" as never);
+
+      await service.setManyEnabled(rules, true);
+
+      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+    });
+
+    it("still invalidates when only some toggles land, since the successes are committed", async () => {
+      setup();
+      const rules = [rule("rule-1", { enabled: false }), rule("rule-2", { enabled: false })];
+      pamApi.listAccessRules.mockResolvedValue(rules);
+      await service.load("org-1" as never);
+      pamApi.updateAccessRule.mockImplementation((_org, id) =>
+        String(id) === "rule-1"
+          ? Promise.resolve(rule("rule-1", { enabled: true }))
+          : Promise.reject(new Error("nope")),
+      );
+
+      await expect(service.setManyEnabled(rules, true)).rejects.toThrow("nope");
+
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+      const state = await firstValueFrom(service.rules$);
+      expect(state.map((r) => [r.id, r.enabled])).toEqual([
+        ["rule-1", true],
+        ["rule-2", false],
+      ]);
+    });
+  });
+
+  describe("delete", () => {
+    it("removes the rule from state", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2")]);
+      await service.load("org-1" as never);
+
+      await service.delete(rule("rule-1"));
+
+      expect(await currentRuleIds()).toEqual(["rule-2"]);
+    });
+
+    it("invalidates the governed-collections cache once the delete succeeds", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
+      await service.load("org-1" as never);
+
+      await service.delete(rule("rule-1"));
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("does not invalidate the governed-collections cache when the delete fails", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
+      await service.load("org-1" as never);
+      pamApi.deleteAccessRule.mockRejectedValue(
+        new Error("The access rule service is unavailable."),
+      );
+
+      await expect(service.delete(rule("rule-1"))).rejects.toThrow();
+
+      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+      expect(await currentRuleIds()).toEqual(["rule-1"]);
+    });
+  });
+
+  describe("deleteMany", () => {
+    it("removes all given rules from state", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2"), rule("rule-3")]);
+      await service.load("org-1" as never);
+
+      await service.deleteMany([rule("rule-1"), rule("rule-3")]);
+
+      expect(await currentRuleIds()).toEqual(["rule-2"]);
+    });
+
+    it("invalidates the governed-collections cache once, after all deletes succeed", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2"), rule("rule-3")]);
+      await service.load("org-1" as never);
+
+      await service.deleteMany([rule("rule-1"), rule("rule-3")]);
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("still invalidates when only some deletes land, since the successes are committed", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2")]);
+      await service.load("org-1" as never);
+      pamApi.deleteAccessRule.mockImplementation((_org, id) =>
+        String(id) === "rule-1"
+          ? Promise.resolve(undefined)
+          : Promise.reject(new Error("The access rule service is unavailable.")),
+      );
+
+      await expect(service.deleteMany([rule("rule-1"), rule("rule-2")])).rejects.toThrow(
+        "The access rule service is unavailable.",
+      );
+
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+      expect(await currentRuleIds()).toEqual(["rule-2"]);
+    });
+  });
+});

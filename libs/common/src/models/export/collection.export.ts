@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import {
   CollectionView,
   Collection as CollectionDomain,
 } from "../../admin-console/models/collections";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
 
 import { safeGetString } from "./utils";
@@ -14,6 +16,7 @@ export class CollectionExport {
     const req = new CollectionExport();
     req.organizationId = emptyGuid as OrganizationId;
     req.name = "Collection name";
+    // null (not undefined) so JSON.stringify emits the field in `bw get template` output
     req.externalId = null;
     return req;
   }
@@ -39,7 +42,8 @@ export class CollectionExport {
 
   organizationId: OrganizationId;
   name: string;
-  externalId: string;
+  // Nullable (not just optional) so `template()` can emit `"externalId": null` — JSON.stringify omits undefined
+  externalId: string | null | undefined;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {

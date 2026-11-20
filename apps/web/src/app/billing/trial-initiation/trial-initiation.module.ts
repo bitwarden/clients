@@ -5,11 +5,10 @@ import { NgModule } from "@angular/core";
 import { InputPasswordComponent } from "@bitwarden/auth/angular";
 import { FormFieldModule } from "@bitwarden/components";
 
-import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
+import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { SharedModule } from "../../shared";
 
 import { CompleteTrialInitiationComponent } from "./complete-trial-initiation/complete-trial-initiation.component";
-import { ConfirmationDetailsComponent } from "./confirmation-details.component";
 import { TrialBillingStepComponent } from "./trial-billing-step/trial-billing-step.component";
 import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.module";
 
@@ -19,11 +18,11 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     CdkStepperModule,
     VerticalStepperModule,
     FormFieldModule,
-    OrganizationCreateModule,
+    OrganizationInformationComponent,
     TrialBillingStepComponent,
     InputPasswordComponent,
   ],
-  declarations: [CompleteTrialInitiationComponent, ConfirmationDetailsComponent],
+  declarations: [CompleteTrialInitiationComponent],
   exports: [CompleteTrialInitiationComponent],
   providers: [TitleCasePipe],
 })

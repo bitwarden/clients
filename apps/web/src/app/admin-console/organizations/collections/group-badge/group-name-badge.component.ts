@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BadgeListModule } from "@bitwarden/components";
 
 import { GroupView } from "../../core";
 
 @Component({
   selector: "app-group-badge",
   templateUrl: "group-name-badge.component.html",
-  standalone: false,
+  imports: [BadgeListModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GroupNameBadgeComponent {

@@ -17,7 +17,13 @@
 </form>
 
 <ng-container *ngIf="state === State.NewUser">
-  <button type="button" bitButton block buttonType="primary" [bitAction]="createUser">
+  <button
+    type="button"
+    bitButton
+    block
+    buttonType="primary"
+    [bitAction]="initializeUserCryptoForJitProvisionedAccount"
+  >
     {{ "continue" | i18n }}
   </button>
 </ng-container>

@@ -15,7 +15,7 @@ export const userReportItemHeaders: { [key in keyof MemberAccessExportItem]: str
   twoStepLogin: "Two-Step Login",
   accountRecovery: "Account Recovery",
   group: "Group",
-  collection: "Collection",
-  collectionPermission: "Collection Permission",
+  collection: "Shared Folder",
+  collectionPermission: "Shared Folder Permission",
   totalItems: "Total Items",
 };

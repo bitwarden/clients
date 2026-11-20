@@ -1,9 +1,9 @@
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 

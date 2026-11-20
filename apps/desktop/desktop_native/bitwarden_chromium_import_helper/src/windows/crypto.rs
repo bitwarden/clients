@@ -1,4 +1,4 @@
-use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit};
+use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit};
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use chacha20poly1305::ChaCha20Poly1305;
@@ -6,14 +6,20 @@ use chromium_importer::chromium::crypt_unprotect_data;
 use scopeguard::defer;
 use tracing::debug;
 use windows::{
-    core::w,
-    Win32::Security::Cryptography::{
-        self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC, CRYPTPROTECT_UI_FORBIDDEN,
-        NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
+    core::{w, PCWSTR},
+    Win32::{
+        Foundation::{CloseHandle, HANDLE},
+        Security::Cryptography::{
+            self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC,
+            CRYPTPROTECT_UI_FORBIDDEN, NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE,
+            NCRYPT_SILENT_FLAG,
+        },
     },
 };
 
-use super::impersonate::{start_impersonating, stop_impersonating};
+use super::impersonate::{
+    duplicate_process_token, start_impersonating, start_impersonating_token, stop_impersonating,
+};
 
 //
 // Base64
@@ -38,25 +44,42 @@ pub(crate) fn encode_base64(data: &[u8]) -> String {
 // DPAPI decryption
 //
 
-pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> {
+pub(crate) fn decrypt_app_bound_dpapi_layers(
+    encrypted: &[u8],
+    user_process: HANDLE,
+) -> Result<Vec<u8>> {
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
     let system_token = start_impersonating()?;
-    defer! {
-        debug!("Stopping impersonation");
-        _ = stop_impersonating(system_token);
+    let outer_decrypted = decrypt_with_dpapi(encrypted, true);
+
+    // The helper may be running as a different user than the validated pipe server. Duplicate the
+    // server's user token while impersonating SYSTEM because the helper's primary user may not have
+    // permission to duplicate it.
+    let user_token = if outer_decrypted.is_ok() {
+        Some(duplicate_process_token(user_process))
+    } else {
+        None
+    };
+
+    debug!("Stopping SYSTEM impersonation");
+    if let Err(error) = stop_impersonating(system_token) {
+        if let Some(Ok(token)) = user_token {
+            unsafe {
+                _ = CloseHandle(token);
+            }
+        }
+        return Err(error);
     }
 
-    decrypt_with_dpapi_as_user(encrypted, true)
-}
+    let outer_decrypted = outer_decrypted?;
+    let user_token =
+        user_token.ok_or_else(|| anyhow!("Original-user token was not captured"))??;
 
-pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
-    let system_decrypted = decrypt_with_dpapi(encrypted, expect_appb)?;
-    debug!(
-        "Decrypted data with SYSTEM {} bytes",
-        system_decrypted.len()
-    );
-
-    Ok(system_decrypted)
+    start_impersonating_token(user_token)?;
+    let inner_decrypted = decrypt_with_dpapi(&outer_decrypted, false);
+    debug!("Stopping original-user impersonation");
+    stop_impersonating(user_token)?;
+    inner_decrypted
 }
 
 fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
@@ -110,8 +133,10 @@ pub(crate) fn decode_abe_key_blob(blob_data: &[u8]) -> Result<Vec<u8>> {
         1_u8 => decrypt_abe_key_blob_chrome_aes(key_blob),
         // Google Chrome v2 key encrypted with a hardcoded ChaCha20 key
         2_u8 => decrypt_abe_key_blob_chrome_chacha20(key_blob),
-        // Google Chrome v3 key encrypted with CNG APIs
-        3_u8 => decrypt_abe_key_blob_chrome_cng(key_blob),
+        3_u8 | 4_u8 => {
+            let (key_name, xor_key) = chrome_cng_parameters(version)?;
+            decrypt_abe_key_blob_chrome_cng(key_blob, key_name, &xor_key)
+        }
         v => Err(anyhow!("Unsupported ABE key blob version: {}", v)),
     }
 }
@@ -134,9 +159,7 @@ fn decrypt_abe_key_blob_chrome_aes(blob: &[u8]) -> Result<Vec<u8>> {
         0x51, 0xCF, 0xFB, 0x94, 0x4D, 0x14, 0x3A, 0xB8, 0x16, 0x27, 0x6B, 0xCC, 0x6D, 0xA0, 0x28,
         0x47, 0x87,
     ];
-    let aes_key = Key::<Aes256Gcm>::from_slice(GOOGLE_AES_KEY);
-    let cipher = Aes256Gcm::new(aes_key);
-
+    let cipher = Aes256Gcm::new_from_slice(GOOGLE_AES_KEY)?;
     decrypt_abe_key_blob_with_aead(blob, &cipher, "v1 (AES flavor)")
 }
 
@@ -147,8 +170,7 @@ fn decrypt_abe_key_blob_chrome_chacha20(blob: &[u8]) -> Result<Vec<u8>> {
         0x96, 0x60,
     ];
 
-    let chacha20_key = chacha20poly1305::Key::from_slice(GOOGLE_CHACHA20_KEY);
-    let cipher = ChaCha20Poly1305::new(chacha20_key);
+    let cipher = ChaCha20Poly1305::new_from_slice(GOOGLE_CHACHA20_KEY)?;
 
     decrypt_abe_key_blob_with_aead(blob, &cipher, "v2 (ChaCha20 flavor)")
 }
@@ -169,14 +191,40 @@ where
 
     debug!("Google ABE {} detected: {:?} {:?}", version, iv, ciphertext);
 
+    let iv = iv.try_into()?;
     let decrypted = cipher
-        .decrypt(iv.into(), ciphertext)
+        .decrypt(iv, ciphertext)
         .map_err(|e| anyhow!("Failed to decrypt v20 key with {}: {}", version, e))?;
 
     Ok(decrypted)
 }
 
-fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
+fn chrome_cng_parameters(version: u8) -> Result<(PCWSTR, [u8; 32])> {
+    // Google Chrome flag 3 parameters, the CNG scheme used before flag 4 arrived in Chrome 157
+    const GOOGLE_XOR_KEY_V3: [u8; 32] = [
+        0xCC, 0xF8, 0xA1, 0xCE, 0xC5, 0x66, 0x05, 0xB8, 0x51, 0x75, 0x52, 0xBA, 0x1A, 0x2D, 0x06,
+        0x1C, 0x03, 0xA2, 0x9E, 0x90, 0x27, 0x4F, 0xB2, 0xFC, 0xF5, 0x9B, 0xA4, 0xB7, 0x5C, 0x39,
+        0x23, 0x90,
+    ];
+    // Google Chrome 157+ flag 4 parameters
+    const GOOGLE_XOR_KEY_V4: [u8; 32] = [
+        0x20, 0x8A, 0x6D, 0xA7, 0x11, 0x4A, 0x44, 0xE6, 0xB4, 0x63, 0x11, 0x4B, 0xD9, 0xDA, 0x39,
+        0x7E, 0x93, 0x9A, 0xDE, 0xFE, 0xDB, 0xF4, 0x58, 0x81, 0x17, 0x92, 0x6B, 0x0F, 0x2C, 0x50,
+        0x31, 0x58,
+    ];
+
+    match version {
+        3 => Ok((w!("Google Chromekey1"), GOOGLE_XOR_KEY_V3)),
+        4 => Ok((w!("Google Chromekey2"), GOOGLE_XOR_KEY_V4)),
+        v => Err(anyhow!("Unsupported ABE key blob version: {}", v)),
+    }
+}
+
+fn decrypt_abe_key_blob_chrome_cng(
+    blob: &[u8],
+    key_name: PCWSTR,
+    xor_key: &[u8; 32],
+) -> Result<Vec<u8>> {
     if blob.len() < 92 {
         return Err(anyhow!(
             "Corrupted ABE key blob: expected at least 92 bytes, got {} bytes",
@@ -188,36 +236,24 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     let iv: [u8; 12] = blob[32..32 + 12].try_into()?;
     let ciphertext: [u8; 48] = blob[44..44 + 48].try_into()?;
 
-    debug!(
-        "Google ABE v3 (CNG flavor) detected: {:?} {:?} {:?}",
-        encrypted_aes_key, iv, ciphertext
-    );
-
     // First, decrypt the AES key with CNG API
     let decrypted_aes_key: Vec<u8> = {
         let system_token = start_impersonating()?;
-        defer! {
-            debug!("Stopping impersonation");
-            _ = stop_impersonating(system_token);
-        }
-        decrypt_with_cng(&encrypted_aes_key)?
+        let decrypted = decrypt_with_cng(&encrypted_aes_key, key_name);
+        debug!("Stopping SYSTEM impersonation");
+        stop_impersonating(system_token)?;
+        decrypted?
     };
-
-    const GOOGLE_XOR_KEY: [u8; 32] = [
-        0xCC, 0xF8, 0xA1, 0xCE, 0xC5, 0x66, 0x05, 0xB8, 0x51, 0x75, 0x52, 0xBA, 0x1A, 0x2D, 0x06,
-        0x1C, 0x03, 0xA2, 0x9E, 0x90, 0x27, 0x4F, 0xB2, 0xFC, 0xF5, 0x9B, 0xA4, 0xB7, 0x5C, 0x39,
-        0x23, 0x90,
-    ];
 
     // XOR the decrypted AES key with the hardcoded key
     let aes_key: Vec<u8> = decrypted_aes_key
         .into_iter()
-        .zip(GOOGLE_XOR_KEY)
+        .zip(xor_key)
         .map(|(a, b)| a ^ b)
         .collect();
 
     // Decrypt the actual ABE key with the decrypted AES key
-    let cipher = Aes256Gcm::new(aes_key.as_slice().into());
+    let cipher = Aes256Gcm::new_from_slice(aes_key.as_slice())?;
     let key = cipher
         .decrypt((&iv).into(), ciphertext.as_ref())
         .map_err(|e| anyhow!("Failed to decrypt v20 key with AES-GCM: {}", e))?;
@@ -225,7 +261,7 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     Ok(key)
 }
 
-fn decrypt_with_cng(ciphertext: &[u8]) -> Result<Vec<u8>> {
+fn decrypt_with_cng(ciphertext: &[u8], key_name: PCWSTR) -> Result<Vec<u8>> {
     // 1. Open the cryptographic provider
     let mut provider = NCRYPT_PROV_HANDLE::default();
     unsafe {
@@ -247,7 +283,7 @@ fn decrypt_with_cng(ciphertext: &[u8]) -> Result<Vec<u8>> {
         NCryptOpenKey(
             provider,
             &mut key,
-            w!("Google Chromekey1"),
+            key_name,
             CERT_KEY_SPEC::default(),
             NCRYPT_FLAGS::default(),
         )?;

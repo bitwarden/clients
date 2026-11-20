@@ -113,9 +113,8 @@ export class SendProgram extends BaseProgram {
         );
         writeLn("", true);
       })
-      .action(async (url: string, options: OptionValues) => {
+      .action(async (url: string, options: OptionValues, command: Command) => {
         const cmd = new SendReceiveCommand(
-          this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.cryptoFunctionService,
           this.serviceContainer.platformUtilsService,
@@ -123,8 +122,15 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.apiService,
           this.serviceContainer.sendTokenService,
+          this.serviceContainer.sendDecryptionService,
+          this.serviceContainer.appIdService,
+          this.serviceContainer.customUserAgent,
         );
-        const response = await cmd.run(url, options);
+        // When invoked as `bw send receive`, the parent `send` command also declares
+        // `--password`, so commander binds the flag to the parent and this subcommand's
+        // `options.password` is undefined. `optsWithGlobals()` merges ancestor options so the
+        // password is resolved for both `bw send receive` and top-level `bw receive`. (PM-24945)
+        const response = await cmd.run(url, command.optsWithGlobals());
         this.processResponse(response);
       });
   }
@@ -192,6 +198,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -252,6 +259,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
@@ -259,6 +267,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
 
         const mergedOptions = {
@@ -298,6 +307,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
           this.serviceContainer.accountService,
+          this.serviceContainer.sendDecryptionService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);
@@ -344,6 +354,7 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.accountService,
       this.serviceContainer.policyService,
       this.serviceContainer.configService,
+      this.serviceContainer.sendDecryptionService,
     );
     return await cmd.run(encodedJson, options);
   }

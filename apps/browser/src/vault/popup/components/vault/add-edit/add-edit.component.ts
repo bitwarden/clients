@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
+import { Component, inject, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -21,10 +21,12 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/commo
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -88,7 +90,7 @@ class QueryParams {
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
-    this.collectionId = params.collectionId;
+    this.collectionIds = params.collectionIds;
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
@@ -123,9 +125,10 @@ class QueryParams {
   organizationId?: OrganizationId;
 
   /**
-   * Optional collectionId to pre-select.
+   * Optional collectionId(s) to pre-select.
+   * Can be a single collectionId or comma-separated list of collectionIds.
    */
-  collectionId?: CollectionId;
+  collectionIds?: string;
 
   /**
    * Optional URI to pre-fill for login ciphers.
@@ -192,11 +195,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   ],
 })
 export class AddEditComponent implements OnInit, OnDestroy {
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
   readonly cipherFormComponent = viewChild(CipherFormComponent);
 
   headerText: string;
@@ -222,6 +220,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private fido2PopoutSessionData: Fido2SessionData;
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly revealedCipherService = inject(RevealedCipherService);
   protected userCanArchive$ = this.userId$.pipe(
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
@@ -374,6 +373,16 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // The revealed view of a restricted cipher is a separate copy. Read it again, so the view shows
+    // the save.
+    if (
+      this.config.originalCipher != null &&
+      RestrictedCipherPolicy.isRestricted(this.config.originalCipher)
+    ) {
+      const userId = await firstValueFrom(this.userId$);
+      await this.revealedCipherService.refresh(userId, cipher.id as CipherId);
+    }
+
     // When the cipher is in edit / partial edit, the previous page was the view-cipher page.
     // In the case of creating a new cipher, the user should go view-cipher page but we need to also
     // remove it from the history stack. This avoids the user having to click back twice on the
@@ -426,11 +435,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
             mode = params.clone ? "clone" : "edit";
           }
 
-          if (params.fillAfterSave) {
-            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
-              FeatureFlag.PM29968_FillAfterSave,
-            );
-          }
+          this.saveAndFillEnabled = params.fillAfterSave;
 
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
@@ -498,8 +503,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (params.organizationId) {
       initialValues.organizationId = params.organizationId;
     }
-    if (params.collectionId) {
-      initialValues.collectionIds = [params.collectionId];
+    if (params.collectionIds) {
+      const collectionIds = (params.collectionIds ?? "")?.split(",");
+      initialValues.collectionIds = collectionIds as CollectionId[];
     }
     if (params.uri) {
       initialValues.loginUri = params.uri;
@@ -525,60 +531,26 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const isEditMode = mode === "edit" || mode === "partial-edit";
     const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
-      [CipherType.Login]: isEditMode
-        ? this.btnTextAddCreateFeatureFlag()
-          ? "editItemHeaderLoginSentenceCase"
-          : "editItemHeaderLogin"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderLogin"
-          : "newItemHeaderLogin",
-      [CipherType.Card]: isEditMode
-        ? this.btnTextAddCreateFeatureFlag()
-          ? "editItemHeaderCardSentenceCase"
-          : "editItemHeaderCard"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderCard"
-          : "newItemHeaderCard",
+      [CipherType.Login]: isEditMode ? "editItemHeaderLoginSentenceCase" : "addItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCardSentenceCase" : "addItemHeaderCard",
       [CipherType.Identity]: isEditMode
-        ? this.btnTextAddCreateFeatureFlag()
-          ? "editItemHeaderIdentitySentenceCase"
-          : "editItemHeaderIdentity"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderIdentity"
-          : "newItemHeaderIdentity",
+        ? "editItemHeaderIdentitySentenceCase"
+        : "addItemHeaderIdentity",
       [CipherType.SecureNote]: newItemTypesEnabled
         ? isEditMode
           ? "editItemHeaderSecureNote"
-          : this.btnTextAddCreateFeatureFlag()
-            ? "addItemHeaderSecureNote"
-            : "newItemHeaderSecureNote"
+          : "addItemHeaderSecureNote"
         : isEditMode
-          ? this.btnTextAddCreateFeatureFlag()
-            ? "editItemHeaderNoteSentenceCase"
-            : "editItemHeaderNote"
-          : this.btnTextAddCreateFeatureFlag()
-            ? "addItemHeaderNote"
-            : "newItemHeaderNote",
-      [CipherType.SshKey]: isEditMode
-        ? "editItemHeaderSshKey"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderSshKey"
-          : "newItemHeaderSshKey",
+          ? "editItemHeaderNoteSentenceCase"
+          : "addItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "addItemHeaderSshKey",
       [CipherType.BankAccount]: isEditMode
         ? "editItemHeaderBankAccount"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderBankAccount"
-          : "newItemHeaderBankAccount",
+        : "addItemHeaderBankAccount",
       [CipherType.DriversLicense]: isEditMode
         ? "editItemHeaderLicense"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderDriversLicense"
-          : "newItemHeaderDriversLicense",
-      [CipherType.Passport]: isEditMode
-        ? "editItemHeaderPassport"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderPassport"
-          : "newItemHeaderPassport",
+        : "addItemHeaderDriversLicense",
+      [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "addItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }

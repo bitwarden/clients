@@ -12,17 +12,41 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
+import { AvatarColor, AvatarDefaultColors, getAvatarDefaultColor } from "./avatar-color";
+
 export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
-export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"] as const;
-export type AvatarColor = (typeof AvatarDefaultColors)[number];
-
 const sizeClasses: Record<AvatarSize, string[]> = {
-  "2xl": ["tw-size-16", "tw-min-w-16"],
-  xl: ["tw-size-14", "tw-min-w-14"],
-  lg: ["tw-size-11", "tw-min-w-11"],
-  base: ["tw-size-8", "tw-min-w-8"],
-  sm: ["tw-size-6", "tw-min-w-6"],
+  "2xl": [
+    "tw-size-16",
+    "tw-min-w-16",
+    "[--avatar-status-r:0.5rem]",
+    "[--avatar-status-cutout:0.625rem]",
+  ],
+  xl: [
+    "tw-size-14",
+    "tw-min-w-14",
+    "[--avatar-status-r:0.375rem]",
+    "[--avatar-status-cutout:0.5rem]",
+  ],
+  lg: [
+    "tw-size-11",
+    "tw-min-w-11",
+    "[--avatar-status-r:0.3125rem]",
+    "[--avatar-status-cutout:0.4375rem]",
+  ],
+  base: [
+    "tw-size-8",
+    "tw-min-w-8",
+    "[--avatar-status-r:0.25rem]",
+    "[--avatar-status-cutout:0.3125rem]",
+  ],
+  sm: [
+    "tw-size-6",
+    "tw-min-w-6",
+    "[--avatar-status-r:0.1875rem]",
+    "[--avatar-status-cutout:0.25rem]",
+  ],
 };
 
 /**
@@ -77,7 +101,7 @@ export function isAvatarColor(color: string | undefined): color is AvatarColor {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-inline-block tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover] [&.tw-test-focus-visible_svg]:tw-bg-[--avatar-bg-hover]",
+      "tw-relative tw-inline-block tw-leading-[0px] focus-visible:tw-outline-none tw-rounded-full focus-visible:tw-ring-2 focus-visible:tw-ring-offset-1 focus-visible:tw-ring-border-focus !focus-visible:tw-border-[transparent] focus-visible:tw-z-10 tw-group/avatar aria-disabled:tw-cursor-not-allowed [&.tw-test-hover_svg]:tw-bg-[--avatar-bg-hover] [&.tw-test-focus-visible_svg]:tw-bg-[--avatar-bg-hover]",
     "[class]": "sizeClass()",
     "[style.--avatar-bg]": "avatarColors().bg",
     "[style.--avatar-bg-hover]": "avatarColors().bgHover",
@@ -205,27 +229,8 @@ export class AvatarComponent {
     return characters != null ? characters.slice(0, count).join("") : "";
   }
 
-  /**
-   * Deterministically choose a default avatar color based on the given strings
-   *
-   * Based on the id first and the text second, choose a color from AvatarColors. This ensures that
-   * the user sees the same color for the same avatar input every time.
-   */
+  /** Deterministically choose a default avatar color based on the given strings. */
   protected getDefaultColorKey(id?: string, text?: string) {
-    let magicString = "";
-
-    if (!Utils.isNullOrWhitespace(id)) {
-      magicString = id!.toString();
-    } else {
-      magicString = text?.toUpperCase() ?? "";
-    }
-
-    let hash = 0;
-    for (const char of magicString) {
-      hash = char.charCodeAt(0) + ((hash << 5) - hash);
-    }
-
-    const index = Math.abs(hash) % AvatarDefaultColors.length;
-    return AvatarDefaultColors[index];
+    return getAvatarDefaultColor(id, text);
   }
 }

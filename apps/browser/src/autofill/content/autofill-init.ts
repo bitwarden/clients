@@ -8,6 +8,7 @@ import { DomElementVisibilityService } from "../services/abstractions/dom-elemen
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { DefaultRuleQualificationService } from "../services/rule-qualification.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import { sendExtensionMessage } from "../utils";
 import { EventSecurity } from "../utils/event-security";
@@ -61,6 +62,16 @@ class AutofillInit implements AutofillInitInterface {
       domElementVisibilityService,
       domQueryService,
       this.autofillOverlayContentService,
+    );
+    // Setter injection breaks the circular dependency. The rule qualification
+    // service needs the collect service for its heuristic bypass. The collect
+    // service needs the rule qualification service to qualify matched rules.
+    this.collectAutofillContentService.setRuleQualificationService(
+      new DefaultRuleQualificationService(
+        this.collectAutofillContentService,
+        domQueryService,
+        domElementVisibilityService,
+      ),
     );
     this.insertAutofillContentService = new InsertAutofillContentService(
       domElementVisibilityService,
@@ -146,6 +157,8 @@ class AutofillInit implements AutofillInitInterface {
     message: AutofillExtensionMessage,
     sendDetailsInResponse = false,
   ): Promise<AutofillPageDetails | void> {
+    // Explicit request must not depend on passive shadow DOM discovery.
+    this.collectAutofillContentService.prepareForExplicitCollection();
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
     if (sendDetailsInResponse) {
@@ -163,6 +176,7 @@ class AutofillInit implements AutofillInitInterface {
    * Collects page details and returns them directly in the response for autofill triage.
    */
   private async collectPageDetailsForContextMenu(): Promise<AutofillTriageResponse> {
+    this.collectAutofillContentService.prepareForExplicitCollection();
     const pageDetails = await this.collectAutofillContentService.getPageDetails();
 
     let targetFieldRef: string | undefined;

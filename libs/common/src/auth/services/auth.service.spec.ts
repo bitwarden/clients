@@ -4,6 +4,8 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import {
   FakeAccountService,
@@ -16,7 +18,6 @@ import { ApiService } from "../../abstractions/api.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { TokenService } from "../abstractions/token.service";
@@ -68,7 +69,7 @@ describe("AuthService", () => {
     beforeEach(() => {
       accountService.activeAccountSubject.next(accountInfo);
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.userKey$.mockReturnValue(of(undefined));
     });
 
     it("emits LoggedOut when there is no active account", async () => {
@@ -89,7 +90,7 @@ describe("AuthService", () => {
 
     it("emits LoggedOut when there is no access token but has a user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(false));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(
         AuthenticationStatus.LoggedOut,
@@ -98,14 +99,14 @@ describe("AuthService", () => {
 
     it("emits Locked when there is an access token and no user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.userKey$.mockReturnValue(of(undefined));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(AuthenticationStatus.Locked);
     });
 
     it("emits Unlocked when there is an access token and user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.activeAccountStatus$)).toEqual(AuthenticationStatus.Unlocked);
     });
@@ -123,7 +124,7 @@ describe("AuthService", () => {
       const emissions = trackEmissions(sut.activeAccountStatus$);
 
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
       accountService.activeAccountSubject.next(accountInfo2);
 
       expect(emissions).toEqual([AuthenticationStatus.Locked, AuthenticationStatus.Unlocked]);
@@ -158,7 +159,7 @@ describe("AuthService", () => {
   describe("authStatusFor$", () => {
     beforeEach(() => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.userKey$.mockReturnValue(of(undefined));
     });
 
     it.each([null, undefined, "not a userId"])(
@@ -180,14 +181,14 @@ describe("AuthService", () => {
 
     it("emits Locked when there is an access token and no user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(undefined));
+      keyService.userKey$.mockReturnValue(of(undefined));
 
       expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(AuthenticationStatus.Locked);
     });
 
     it("emits Unlocked when there is an access token and user key", async () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(
         AuthenticationStatus.Unlocked,
@@ -204,7 +205,7 @@ describe("AuthService", () => {
   describe("authStatusFor$ memoization (regression: #20548)", () => {
     beforeEach(() => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
     });
 
     it("returns the same cached observable instance for repeated calls with the same userId", () => {
@@ -255,7 +256,7 @@ describe("AuthService", () => {
         };
       });
       tokenService.hasAccessToken$.mockReturnValue(hasAccessToken$);
-      // getInMemoryUserKeyFor$ is of(userKey) (beforeEach), which completes immediately;
+      // userKey$ is of(userKey) (beforeEach), which completes immediately;
       // within combineLatest only hasAccessToken$ stays open, so the counters below track
       // that single long-lived upstream.
 
@@ -337,7 +338,7 @@ describe("AuthService", () => {
     it("still reflects live auth status transitions through the cached stream", async () => {
       const hasAccessToken$ = new BehaviorSubject<boolean>(true);
       tokenService.hasAccessToken$.mockReturnValue(hasAccessToken$);
-      keyService.getInMemoryUserKeyFor$.mockReturnValue(of(userKey));
+      keyService.userKey$.mockReturnValue(of(userKey));
 
       expect(await firstValueFrom(sut.authStatusFor$(userId))).toEqual(
         AuthenticationStatus.Unlocked,

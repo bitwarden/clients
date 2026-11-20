@@ -10,6 +10,7 @@ export function freeOrgCollectionLimitValidator(
   organizations$: Observable<Organization[]>,
   collections$: Observable<Collection[]>,
   i18nService: I18nService,
+  vfo1Enabled = false,
 ): AsyncValidatorFn {
   return (control: AbstractControl): Observable<ValidationErrors | null> => {
     if (!(control instanceof FormControl)) {
@@ -35,7 +36,11 @@ export function freeOrgCollectionLimitValidator(
 
         if (hasReachedLimit) {
           return {
-            cannotCreateCollections: { message: i18nService.t("cannotCreateCollection") },
+            cannotCreateCollections: {
+              message: i18nService.t(
+                vfo1Enabled ? "cannotCreateSharedFolder" : "cannotCreateCollection",
+              ),
+            },
           };
         }
 

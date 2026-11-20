@@ -1,7 +1,8 @@
 <app-header [title]="organizationName$ | async">
   <sm-new-menu></sm-new-menu>
 </app-header>
-<bit-no-items [icon]="DeactivatedOrg">
+<bit-status-lockup>
+  <bit-svg slot="graphic" [content]="DeactivatedOrg"></bit-svg>
   <ng-container slot="title">{{ "organizationIsDisabled" | i18n }}</ng-container>
   <ng-container slot="description">{{ "secretsAccessSuspended" | i18n }}</ng-container>
-</bit-no-items>
+</bit-status-lockup>

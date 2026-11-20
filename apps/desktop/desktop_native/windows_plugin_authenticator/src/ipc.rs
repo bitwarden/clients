@@ -2,9 +2,8 @@ use std::{sync::Arc, time::Duration};
 
 use autofill_provider::{
     AutofillProviderClient, ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest,
-    PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
-    PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback, TimedCallback,
-    WindowHandleQueryResponse,
+    PasskeyRegistrationRequest, PreparePasskeyAssertionCallback,
+    PreparePasskeyRegistrationCallback, TimedCallback, WindowHandleQueryResponse,
 };
 
 /// Abstraction over an active IPC connection to the desktop app.
@@ -39,12 +38,6 @@ pub(crate) trait IpcClient: Send + Sync {
     fn prepare_passkey_assertion(
         &self,
         request: PasskeyAssertionRequest,
-        callback: Arc<dyn PreparePasskeyAssertionCallback>,
-    );
-
-    fn prepare_passkey_assertion_without_user_interface(
-        &self,
-        request: PasskeyAssertionWithoutUserInterfaceRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     );
 }
@@ -102,15 +95,6 @@ impl IpcClient for RealIpcClient {
     ) {
         self.0.prepare_passkey_assertion(request, callback)
     }
-
-    fn prepare_passkey_assertion_without_user_interface(
-        &self,
-        request: PasskeyAssertionWithoutUserInterfaceRequest,
-        callback: Arc<dyn PreparePasskeyAssertionCallback>,
-    ) {
-        self.0
-            .prepare_passkey_assertion_without_user_interface(request, callback)
-    }
 }
 
 /// Factory + I/O operations that `BitwardenPluginAuthenticator` needs when
@@ -156,5 +140,54 @@ impl IpcConnector for RealIpcConnector {
         use windows::{core::HSTRING, Foundation::Uri, System::Launcher};
         let uri = Uri::CreateUri(&HSTRING::from("bitwarden://webauthn")).expect("valid URI");
         _ = Launcher::LaunchUriAsync(&uri);
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_util {
+    use autofill_provider::BitwardenError;
+
+    use super::*;
+
+    /// Answers every registration and assertion request with `error`.
+    pub(crate) struct FailingIpcClient {
+        pub(crate) error: fn() -> BitwardenError,
+    }
+
+    impl IpcClient for FailingIpcClient {
+        fn get_connection_status(&self) -> ConnectionStatus {
+            ConnectionStatus::Connected
+        }
+
+        fn get_lock_status(&self, _timeout: Duration) -> Result<LockStatusResponse, String> {
+            unimplemented!("not needed in these tests")
+        }
+
+        fn get_window_handle(
+            &self,
+            _timeout: Duration,
+        ) -> Result<WindowHandleQueryResponse, String> {
+            unimplemented!("not needed in these tests")
+        }
+
+        fn send_native_status(&self, _key: String, _value: String) {}
+
+        fn cancel_request(&self, _context: String) {}
+
+        fn prepare_passkey_registration(
+            &self,
+            _request: PasskeyRegistrationRequest,
+            callback: Arc<dyn PreparePasskeyRegistrationCallback>,
+        ) {
+            callback.on_error((self.error)());
+        }
+
+        fn prepare_passkey_assertion(
+            &self,
+            _request: PasskeyAssertionRequest,
+            callback: Arc<dyn PreparePasskeyAssertionCallback>,
+        ) {
+            callback.on_error((self.error)());
+        }
     }
 }

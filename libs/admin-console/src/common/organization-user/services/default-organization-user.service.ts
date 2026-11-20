@@ -4,11 +4,12 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import {
   OrganizationUserApiService,
@@ -151,7 +152,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
   private getEncryptedDefaultCollectionName$(organization: Organization) {
     return this.orgKey$(organization).pipe(
       switchMap((orgKey) =>
-        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
+        this.encryptService.encryptString(this.i18nService.t("myItemsV2"), orgKey),
       ),
     );
   }

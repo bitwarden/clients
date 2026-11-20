@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentInit,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -47,6 +48,11 @@ export class FormControlGroupComponent<T = unknown>
   readonly errorId = `${this.id}-error`;
 
   readonly block = input(false);
+  /**
+   * Lay children out in a responsive grid. Intended for radio and checkbox cards;
+   * switch cards are not supported in grid layout.
+   */
+  readonly grid = input(false, { transform: booleanAttribute });
 
   constructor() {
     if (this.ngControl) {
@@ -58,12 +64,17 @@ export class FormControlGroupComponent<T = unknown>
   readonly hint = contentChild(BitHintDirective, { descendants: false });
 
   // ── Template helpers ─────────────────────────────────────────────────────
-  // Card groups (multi) are always column layout. Inline radio groups (single + !block) flow naturally.
-  readonly containerClass = computed(() =>
-    this.block() || this.mode() === "multi"
+  // `grid` lays children out in a responsive grid and takes precedence over the default flow.
+  // Otherwise: card/multi groups stack in a column; inline radio groups (single + !block) flow in a row.
+  readonly containerClass = computed(() => {
+    if (this.grid()) {
+      // min(100%, …) collapses to a single column when the container is narrower than the track.
+      return "tw-grid tw-grid-cols-[repeat(auto-fit,minmax(min(100%,225px),1fr))] tw-gap-2";
+    }
+    return this.block() || this.mode() === "multi"
       ? "tw-flex tw-flex-col tw-gap-2 [&_bit-form-control-card]:!tw-mb-0 [&_bit-radio-button-card]:!tw-mb-0 [&_bit-radio-button]:!tw-mb-0"
-      : "tw-flex [&_bit-form-control]:tw-flex",
-  );
+      : "tw-flex [&_bit-form-control]:tw-flex";
+  });
 
   // ── Mode (auto-detected from child types) ─────────────────────────────────
   // Radio children call registerRadioChild() in their constructor, which flips

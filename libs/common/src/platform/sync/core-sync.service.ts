@@ -5,18 +5,19 @@ import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { SendId as SdkSendId } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { withPasswordManagerSdk } from "../../key-management/utils";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
-import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -26,7 +27,9 @@ import { InternalFolderService } from "../../vault/abstractions/folder/folder.se
 import { SyncService } from "../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService, asUuid } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider, SYNC_DISK, UserKeyDefinition } from "../state";
 
@@ -57,6 +60,8 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly sendService: InternalSendService,
     protected readonly sendApiService: SendApiService,
     protected readonly stateProvider: StateProvider,
+    protected readonly configService: ConfigService,
+    protected readonly sdkService: SdkService,
   ) {}
 
   abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
@@ -239,9 +244,11 @@ export abstract class CoreSyncService implements SyncService {
           (!isEdit && localSend == null) ||
           (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)
         ) {
-          const remoteSend = await this.sendApiService.getSend(notification.id);
-          if (remoteSend != null) {
-            await this.sendService.upsert(new SendData(remoteSend));
+          // fetch() persists into SEND_USER_ENCRYPTED itself, so no upsert is needed.
+          const sdkSend = await withPasswordManagerSdk(activeUserId, this.sdkService, (sdk) =>
+            sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
+          );
+          if (sdkSend != null) {
             this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
             return this.syncCompleted(true, activeUserId);
           }

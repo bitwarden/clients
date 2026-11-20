@@ -3,6 +3,7 @@ import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EnvironmentService, Region } from "../../platform/abstractions/environment.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -287,12 +288,16 @@ describe("DefaultSubscriptionPricingService", () => {
           return "Unlimited sharing for families";
         case "familiesUnlimitedCollections":
           return "Unlimited collections for families";
+        case "familiesUnlimitedSharedFolders":
+          return "Unlimited shared folders for families";
         case "familiesSharedStorage":
           return "Shared storage for families";
         case "limitedUsersV2":
           return `Limited to ${args[0]} users`;
         case "limitedCollectionsV2":
           return `Limited to ${args[0]} collections`;
+        case "limitedSharedFoldersV2":
+          return `Limited to ${args[0]} shared folders`;
         case "alwaysFree":
           return "Always free";
         case "twoSecretsIncluded":
@@ -434,6 +439,37 @@ describe("DefaultSubscriptionPricingService", () => {
       });
     });
 
+    it("should render shared folder terminology for the Families tier when the VFO1 flag is on", (done) => {
+      const vfo1ConfigService = mock<ConfigService>();
+      vfo1ConfigService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+
+      const vfo1Service = new DefaultSubscriptionPricingService(
+        billingApiService,
+        vfo1ConfigService,
+        i18nService,
+        logService,
+        environmentService,
+      );
+
+      vfo1Service.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const familiesTier = tiers.find(
+          (tier) => tier.id === PersonalSubscriptionPricingTierIds.Families,
+        );
+
+        expect(familiesTier?.passwordManager.features).toContainEqual({
+          key: "familiesUnlimitedSharedFolders",
+          value: "Unlimited shared folders for families",
+        });
+        expect(familiesTier?.passwordManager.features).not.toContainEqual(
+          expect.objectContaining({ key: "familiesUnlimitedCollections" }),
+        );
+
+        done();
+      });
+    });
+
     it("should handle API errors by logging and throwing error", (done) => {
       const errorBillingApiService = mock<BillingApiServiceAbstraction>();
       const errorConfigService = mock<ConfigService>();
@@ -496,6 +532,77 @@ describe("DefaultSubscriptionPricingService", () => {
         );
 
         done();
+      });
+    });
+  });
+
+  describe("getPremiumSubscriptionPricingTier$", () => {
+    it("should return the Premium pricing tier", (done) => {
+      service.getPremiumSubscriptionPricingTier$().subscribe((tier) => {
+        expect(tier.id).toEqual(PersonalSubscriptionPricingTierIds.Premium);
+        expect(tier.passwordManager.annualPrice).toEqual(10);
+        expect(tier.passwordManager.annualPricePerAdditionalStorageGB).toEqual(4);
+        expect(tier.passwordManager.providedStorageGB).toEqual(1);
+        done();
+      });
+    });
+
+    it("should not depend on the organization plans request", (done) => {
+      const premiumOnlyBillingApiService = mock<BillingApiServiceAbstraction>();
+      const premiumOnlyConfigService = mock<ConfigService>();
+      const premiumOnlyEnvironmentService = mock<EnvironmentService>();
+
+      premiumOnlyBillingApiService.getPlans.mockRejectedValue(new Error("Plans API error"));
+      premiumOnlyBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+      premiumOnlyConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(premiumOnlyEnvironmentService);
+
+      const premiumOnlyService = new DefaultSubscriptionPricingService(
+        premiumOnlyBillingApiService,
+        premiumOnlyConfigService,
+        i18nService,
+        logService,
+        premiumOnlyEnvironmentService,
+      );
+
+      premiumOnlyService.getPremiumSubscriptionPricingTier$().subscribe((tier) => {
+        expect(tier.passwordManager.annualPrice).toEqual(10);
+        expect(premiumOnlyBillingApiService.getPlans).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should handle API errors by logging and throwing error", (done) => {
+      const errorBillingApiService = mock<BillingApiServiceAbstraction>();
+      const errorConfigService = mock<ConfigService>();
+      const errorLogService = mock<LogService>();
+      const errorEnvironmentService = mock<EnvironmentService>();
+
+      const testError = new Error("Premium plan API error");
+      errorBillingApiService.getPremiumPlan.mockRejectedValue(testError);
+      errorConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      setupEnvironmentService(errorEnvironmentService);
+
+      const errorService = new DefaultSubscriptionPricingService(
+        errorBillingApiService,
+        errorConfigService,
+        i18nService,
+        errorLogService,
+        errorEnvironmentService,
+      );
+
+      errorService.getPremiumSubscriptionPricingTier$().subscribe({
+        next: () => {
+          fail("Observable should error, not return a value");
+        },
+        error: (error: unknown) => {
+          expect(errorLogService.error).toHaveBeenCalledWith(
+            "Failed to load premium subscription pricing tier",
+            testError,
+          );
+          expect(error).toBe(testError);
+          done();
+        },
       });
     });
   });
@@ -864,6 +971,35 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(i18nService.t).toHaveBeenCalledWith("complimentaryFamiliesPlan");
         expect(i18nService.t).toHaveBeenCalledWith("unlimitedUsers");
         expect(i18nService.t).toHaveBeenCalledWith("includedMachineAccountsV2", 50);
+
+        done();
+      });
+    });
+
+    it("should render shared folder terminology for the Free tier when the VFO1 flag is on", (done) => {
+      const vfo1ConfigService = mock<ConfigService>();
+      vfo1ConfigService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.VFO1Foundation),
+      );
+
+      const vfo1Service = new DefaultSubscriptionPricingService(
+        billingApiService,
+        vfo1ConfigService,
+        i18nService,
+        logService,
+        environmentService,
+      );
+
+      vfo1Service.getDeveloperSubscriptionPricingTiers$().subscribe((tiers) => {
+        const freeTier = tiers.find((tier) => tier.id === BusinessSubscriptionPricingTierIds.Free);
+
+        expect(freeTier?.passwordManager.features).toContainEqual({
+          key: "limitedSharedFoldersV2",
+          value: `Limited to ${mockFreePlan.PasswordManager.maxCollections} shared folders`,
+        });
+        expect(freeTier?.passwordManager.features).not.toContainEqual(
+          expect.objectContaining({ key: "limitedCollectionsV2" }),
+        );
 
         done();
       });

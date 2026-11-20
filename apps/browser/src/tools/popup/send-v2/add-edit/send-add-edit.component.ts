@@ -50,7 +50,11 @@ class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
     const sendTypeValue = parseInt(params.type, 10);
-    if (sendTypeValue === SendType.Text || sendTypeValue === SendType.File) {
+    if (
+      sendTypeValue === SendType.Text ||
+      sendTypeValue === SendType.File ||
+      sendTypeValue === SendType.Item
+    ) {
       this.type = sendTypeValue;
     } else {
       throw new Error(`Invalid SendType: ${params.type}`);
@@ -235,6 +239,10 @@ export class SendAddEditComponent {
       const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
         this.config.originalSend,
       );
+      // We can make a copy of a disabled Send only if two conditions are met
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
+      // 2. The Send is a Text Send (we can't attach existing files to new Sends)
       if (sendDisabledReason === SendDisabledReason.RestrictedType) {
         this.disabledSendConfig.set({
           title:
@@ -242,17 +250,24 @@ export class SendAddEditComponent {
               ? "orgDoesNotAllowTextSends"
               : "orgDoesNotAllowFileSends",
           message: "sendWillAutomaticallyExpire",
+          // This branch violates condition 1 so we never allow copying
           showMakeCopyButton: false,
         });
       } else if (sendDisabledReason === SendDisabledReason.Other) {
+        // This branch meets condition 1, so all we need to check is condition 2
+        const showMakeCopyButton = this.config.originalSend?.type === SendType.Text;
         this.disabledSendConfig.set({
           title: "sendNotCompliantWithYourOrgsPolicy",
-          message: "sendDisabledNonCompliantBannerMessage",
-          showMakeCopyButton: true,
+          message: showMakeCopyButton
+            ? "sendDisabledNonCompliantBannerMessage"
+            : "sendWillAutomaticallyExpire",
+          showMakeCopyButton,
         });
       } else {
         this.disabledSendConfig.set(null);
       }
+    } else {
+      this.disabledSendConfig.set(null);
     }
   }
 
@@ -280,6 +295,11 @@ export class SendAddEditComponent {
         edit: "editItemHeaderFileSendV2",
         add: "newItemHeaderFileSendV2",
       },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
+      },
     };
     return this.i18nService.t(translation[type][sendAction]);
   }
@@ -291,7 +311,7 @@ export class SendAddEditComponent {
 
   protected async onCancelClick() {
     if (this.config.mode === "add") {
-      await this.router.navigate(["tabs/send"]);
+      await this.navigateToSendList();
     } else {
       this.editing.set(false);
       this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
@@ -300,10 +320,19 @@ export class SendAddEditComponent {
 
   protected async onBackClick() {
     if (this.config.mode === "add" || !this.editing()) {
-      await this.router.navigate(["tabs/send"]);
+      await this.navigateToSendList();
     } else {
       await this.onCancelClick();
     }
+  }
+
+  /**
+   * Navigates back to the Send list. If a file send's create/upload is still in flight, aborts
+   * it first so a send doesn't survive this navigation — a no-op if nothing is in flight.
+   */
+  private async navigateToSendList() {
+    this.sendFormService.abortPendingSubmission();
+    await this.router.navigate(["tabs/send"]);
   }
 
   protected async makeCopy() {
@@ -332,6 +361,11 @@ export class SendAddEditComponent {
               : AuthType.None,
       },
     };
+    await this.setSendDisabledConfig();
     this.editSend();
+  }
+
+  protected async onGoToItem(cipherId: string) {
+    await this.router.navigate(["/view-cipher"], { queryParams: { cipherId } });
   }
 }

@@ -12,11 +12,13 @@ import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-ac
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { removeSendAuthI18nKeys } from "../../send-auth/remove-send-auth-i18n";
 import { SendPolicyService } from "../../services/send-policy.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -36,6 +38,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
   private sendPolicyService = inject(SendPolicyService);
+  private sendDecryptionService = inject(SendDecryptionService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -49,10 +52,11 @@ export class DefaultSendFormService implements SendFormService {
   private readonly _updatedSendView = signal<SendView | null>(null);
   readonly updatedSendView = this._updatedSendView.asReadonly();
   private file: File | null = null;
+  private abortController: AbortController | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await send.decrypt(userId);
+    return this.sendDecryptionService.decryptSend(send, userId);
   }
 
   registerChildForm<K extends keyof SendForm>(
@@ -101,6 +105,8 @@ export class DefaultSendFormService implements SendFormService {
 
   async submitSendForm() {
     this._submitting.set(true);
+    const abortController = new AbortController();
+    this.abortController = abortController;
     if (this._sendForm.invalid) {
       this._sendForm.markAllAsTouched();
       this._submitting.set(false);
@@ -124,15 +130,15 @@ export class DefaultSendFormService implements SendFormService {
 
     try {
       const plaintextPassword = this._updatedSendView().password;
-      const sendData = await this.sendService.encrypt(
+      // The SDK owns the send key and encryption, so it takes the plaintext view.
+      // Forward the plaintext password (null when preserving an existing password) so the SDK
+      // can derive the send password over its key.
+      const newSend = await this.sendApiService.saveView(
         this._updatedSendView(),
         this.file,
         plaintextPassword,
-        null,
+        abortController.signal,
       );
-      // Forward the plaintext (null when preserving an existing password) so the SDK path can
-      // derive the send password over the key it generates; the legacy path ignores it.
-      const newSend = await this.sendApiService.save(sendData, plaintextPassword);
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
       this._updatedSendView.set(null);
@@ -142,8 +148,22 @@ export class DefaultSendFormService implements SendFormService {
       // We surface any errors but make sure that the submitting
       // status signal is set to false before we do
       this._submitting.set(false);
+      // The Send was already rolled back by the API service when the abort was noticed; treat
+      // this the same as "nothing to submit" rather than surfacing an error toast for a cancel
+      // the user asked for.
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return undefined;
+      }
       throw err;
+    } finally {
+      if (this.abortController === abortController) {
+        this.abortController = null;
+      }
     }
+  }
+
+  abortPendingSubmission(): void {
+    this.abortController?.abort();
   }
 
   sendFormHasEdits() {
@@ -190,14 +210,16 @@ export class DefaultSendFormService implements SendFormService {
     return true;
   }
 
-  async removeSendPassword(): Promise<boolean> {
-    const originalSendViewId = this.originalSendView()?.id;
+  async removeSendAuth(): Promise<boolean> {
+    const originalSendView = this.originalSendView();
+    const originalSendViewId = originalSendView?.id;
     if (!originalSendViewId) {
       return false;
     }
+    const i18nKeys = removeSendAuthI18nKeys(originalSendView.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -205,12 +227,12 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    await this.sendApiService.removeAuth(originalSendViewId);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedPassword"),
+      message: this.i18nService.t(i18nKeys.removed),
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));

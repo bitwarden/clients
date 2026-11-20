@@ -1,20 +1,45 @@
-import { ComponentRef, signal, WritableSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ComponentRef,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LogService } from "@bitwarden/logging";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { ITEM_DETAILS_BADGE } from "../../tokens/item-details-badge.token";
 
 import { ItemDetailsV2Component } from "./item-details-v2.component";
+
+@Component({
+  selector: "app-stub-state-badge",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="stub-state-badge">{{ cipher().name }}</span>`,
+})
+class StubStateBadgeComponent {
+  readonly cipher = input.required<CipherView>();
+  readonly isAdminConsole = input(false);
+}
 
 describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
@@ -55,6 +80,7 @@ describe("ItemDetailsV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
@@ -96,6 +122,41 @@ describe("ItemDetailsV2Component", () => {
     expect(itemDetailsList[3].nativeElement.textContent.trim()).toContain(folder.name);
   });
 
+  it("names the member's own My items collection from i18n rather than its stored name", () => {
+    const myItems = Object.assign(
+      new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "My Items",
+      }),
+      { type: CollectionTypes.DefaultUserCollection },
+    );
+
+    expect(component.getItemName(myItems)).toBe("myItemsV2");
+    expect(component.getAriaLabel(myItems)).toBe("collectionAriaLabel myItemsV2");
+  });
+
+  describe("getAriaLabel", () => {
+    it("separates the label and name with a space for organizations", () => {
+      const org = buildTestOrganization({ name: "Organization 1" });
+      expect(component.getAriaLabel(org)).toBe("ownerAriaLabel Organization 1");
+    });
+
+    it("separates the label and name with a space for collections", () => {
+      const col = new CollectionView({
+        id: "col1" as CollectionId,
+        organizationId: "org1" as OrganizationId,
+        name: "Collection 1",
+      });
+      expect(component.getAriaLabel(col)).toBe("collectionAriaLabel Collection 1");
+    });
+
+    it("separates the label and name with a space for folders", () => {
+      const folderView = Object.assign(new FolderView(), { name: "Folder 1" });
+      expect(component.getAriaLabel(folderView)).toBe("folderAriaLabel Folder 1");
+    });
+  });
+
   it("does not render owner when `hideOwner` is true", () => {
     componentRef.setInput("hideOwner", true);
     fixture.detectChanges();
@@ -110,7 +171,7 @@ describe("ItemDetailsV2Component", () => {
     });
 
     it("uses 'vault' i18n key for the org item aria-label", () => {
-      const orgInstance = Object.assign(new Organization(), {
+      const orgInstance = buildTestOrganization({
         id: "org1",
         name: "Organization 1",
       });
@@ -161,5 +222,71 @@ describe("ItemDetailsV2Component", () => {
 
       expect(personalVaultChip).toBeUndefined();
     });
+  });
+});
+
+describe("ItemDetailsV2Component badge seam (ITEM_DETAILS_BADGE)", () => {
+  const cipher = { id: "cipher1", name: "cipher name", collectionIds: [] } as unknown as CipherView;
+
+  async function render(badge: typeof StubStateBadgeComponent | null, isAdminConsole = false) {
+    await TestBed.configureTestingModule({
+      imports: [ItemDetailsV2Component],
+      providers: [
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
+        },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: signal(false) }) },
+        ...(badge == null ? [] : [{ provide: ITEM_DETAILS_BADGE, useValue: badge }]),
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ItemDetailsV2Component);
+    fixture.componentRef.setInput("cipher", cipher);
+    fixture.componentRef.setInput("isAdminConsole", isAdminConsole);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  function nameRow(fixture: ComponentFixture<ItemDetailsV2Component>): HTMLElement {
+    return fixture.debugElement.query(By.css('[data-testid="item-name"]')).nativeElement
+      .parentElement;
+  }
+
+  it("adds nothing to the name row when no host provides the token", async () => {
+    const fixture = await render(null);
+
+    const row = nameRow(fixture);
+    expect(fixture.debugElement.query(By.css("app-stub-state-badge"))).toBeNull();
+    expect(row.lastElementChild).toBe(row.querySelector('[data-testid="item-name"]'));
+  });
+
+  it("renders the provided badge on the name row, after the item name", async () => {
+    const fixture = await render(StubStateBadgeComponent);
+
+    const badge = fixture.debugElement.query(By.css('[data-testid="stub-state-badge"]'));
+    expect(badge).not.toBeNull();
+    expect(badge.nativeElement.textContent.trim()).toBe(cipher.name);
+
+    const row = nameRow(fixture);
+    expect(row.lastElementChild?.contains(badge.nativeElement)).toBe(true);
+  });
+
+  it("hands the badge the cipher and isAdminConsole", async () => {
+    const fixture = await render(StubStateBadgeComponent, true);
+
+    const badge = fixture.debugElement.query(By.directive(StubStateBadgeComponent))
+      .componentInstance as StubStateBadgeComponent;
+    expect(badge.cipher()).toBe(cipher);
+    expect(badge.isAdminConsole()).toBe(true);
   });
 });

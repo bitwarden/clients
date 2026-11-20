@@ -1,9 +1,9 @@
 <div class="tw-grid tw-gap-16 tw-mt-6">
-  @if (showChangeKdf) {
+  @if (showChangeKdf$ | async) {
     <app-change-kdf></app-change-kdf>
   }
 
-  @if (showKeyRotation && sdkKeyRotationFlag$ | async) {
+  @if (showKeyRotation$ | async) {
     <app-user-key-rotation></app-user-key-rotation>
   }
 

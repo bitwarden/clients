@@ -33,15 +33,16 @@ type NudgeStatus = {
 
 These services work on **all clients** (browser, web, desktop) and use `@Injectable({ providedIn: "root" })`.
 
-| Service                           | Purpose                                                                |
-| --------------------------------- | ---------------------------------------------------------------------- |
-| `NewAccountNudgeService`          | Auto-dismisses after account is 30 days old                            |
-| `NewItemNudgeService`             | Checks cipher counts for "add first item" nudges                       |
-| `HasItemsNudgeService`            | Checks if vault has items                                              |
-| `EmptyVaultNudgeService`          | Checks empty vault state                                               |
-| `AccountSecurityNudgeService`     | Checks security settings (PIN, biometrics)                             |
-| `VaultSettingsImportNudgeService` | Checks import status                                                   |
-| `NoOpNudgeService`                | Always returns dismissed (used as fallback for client specific nudges) |
+| Service                           | Purpose                                                                 |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| `NewAccountNudgeService`          | Auto-dismisses after account is 30 days old                             |
+| `NewItemNudgeService`             | Checks cipher counts for "add first item" nudges                        |
+| `HasItemsNudgeService`            | Checks if vault has items                                               |
+| `EmptyVaultNudgeService`          | Checks empty vault state                                                |
+| `AccountSecurityNudgeService`     | Checks security settings (PIN, biometrics)                              |
+| `VaultSettingsImportNudgeService` | Checks import status                                                    |
+| `Vfo1OnboardingNudgeService`      | Shows only to pre-GA accounts, for six months after the VFO1 GA release |
+| `NoOpNudgeService`                | Always returns dismissed (used as fallback for client specific nudges)  |
 
 ### Client-Specific Services
 

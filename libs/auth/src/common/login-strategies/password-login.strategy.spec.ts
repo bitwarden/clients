@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -17,9 +18,10 @@ import {
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -30,25 +32,32 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { MasterKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
+import { PasswordLoginStrategy } from "./password-login.strategy";
 
 const email = "hello@world.com";
 const masterPassword = "password";
 const hashedPassword = "HASHED_PASSWORD";
+// Server dictates the KDF salt, so a fixture where salt === email would pass no matter which one the strategy used.
+const preloginSalt = "server.normalized+salt@world.com" as MasterPasswordSalt;
 const masterKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
     "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg==",
@@ -60,6 +69,17 @@ const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
   EnforceOnLogin: true,
   MinLength: 8,
 });
+const kdfConfig = PBKDF2KdfConfig.createDefault();
+
+function credentialsWithPrefetchedData(salt: MasterPasswordSalt = preloginSalt) {
+  return new PasswordLoginCredentials(
+    email,
+    masterPassword,
+    undefined,
+    undefined,
+    new PasswordPreloginData(kdfConfig, salt),
+  );
+}
 
 describe("PasswordLoginStrategy", () => {
   let accountService: FakeAccountService;
@@ -68,6 +88,7 @@ describe("PasswordLoginStrategy", () => {
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -75,7 +96,6 @@ describe("PasswordLoginStrategy", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
-  let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let policyService: MockProxy<PolicyService>;
@@ -98,6 +118,7 @@ describe("PasswordLoginStrategy", () => {
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -105,7 +126,6 @@ describe("PasswordLoginStrategy", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     policyService = mock<PolicyService>();
@@ -123,22 +143,23 @@ describe("PasswordLoginStrategy", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), preloginSalt)),
     );
-    keyService.makeMasterKey.mockResolvedValue(masterKey);
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
 
-    keyService.hashMasterKey
+    legacyCompatKeyService.hashMasterKey
       .calledWith(masterPassword, expect.anything())
       .mockResolvedValue(hashedPassword);
 
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
     passwordLoginStrategy = new PasswordLoginStrategy(
-      new PasswordLoginStrategyData(),
+      undefined,
       passwordStrengthService,
       policyService,
       passwordPreloginService,
       unlockService,
+      legacyCompatKeyService,
       accountService,
       masterPasswordService,
       keyService,
@@ -149,7 +170,6 @@ describe("PasswordLoginStrategy", () => {
       platformUtilsService,
       messagingService,
       logService,
-      stateService,
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
@@ -209,12 +229,6 @@ describe("PasswordLoginStrategy", () => {
       { V1: { private_key: tokenResponse.privateKey } },
       userId,
     );
-
-    // The unlock service owns key setup, so the strategy must not set keys directly.
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
-    expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
   describe("makePasswordPreloginMasterKey", () => {
@@ -226,14 +240,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     it("does not call getPreloginData$ when preFetchedPreloginData is provided", async () => {
-      const preloginData = new PasswordPreloginData(PBKDF2KdfConfig.createDefault());
-      const credentialsWithPrefetch = new PasswordLoginCredentials(
-        email,
-        masterPassword,
-        undefined,
-        undefined,
-        preloginData,
-      );
+      const credentialsWithPrefetch = credentialsWithPrefetchedData();
 
       await passwordLoginStrategy.logIn(credentialsWithPrefetch);
 
@@ -254,6 +261,77 @@ describe("PasswordLoginStrategy", () => {
       await passwordLoginStrategy.logIn(credentials);
 
       expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears the prelogin cache when the master key derivation fails", async () => {
+      // Without this the fetched data stays in the service's refCount:false replay cache and
+      // every retry on the same email replays it.
+      legacyCompatKeyService.makeMasterKey.mockRejectedValue(new Error("derivation failed"));
+
+      await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow("derivation failed");
+
+      expect(passwordPreloginService.clearCache).toHaveBeenCalledTimes(1);
+    });
+
+    // PM-27060: the salt is resolved once, at fetch time, by PasswordPreloginService. The
+    // strategy derives from whatever salt the data carries and makes no decision of its own.
+    describe("salt selection", () => {
+      it("derives the master key from the prelogin salt for prefetched data", async () => {
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
+
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          preloginSalt,
+          kdfConfig,
+        );
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
+          masterPassword,
+          email,
+          expect.anything(),
+        );
+      });
+
+      it("derives the master key from the prelogin salt for freshly fetched data", async () => {
+        // credentials from the outer beforeEach carries no prefetched data, so the strategy
+        // fetches via passwordPreloginService, which is stubbed to return preloginSalt.
+        await passwordLoginStrategy.logIn(credentials);
+
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          preloginSalt,
+          PBKDF2KdfConfig.createDefault(),
+        );
+        expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalledWith(
+          masterPassword,
+          email,
+          expect.anything(),
+        );
+      });
+
+      it("forwards the salt to the key service unmodified", async () => {
+        // Scoped to the strategy: it does no normalization of its own. LegacyCompatKeyService
+        // trims and lower-cases the salt itself before deriving, so this asserts the strategy's
+        // hand-off, not the salt the KDF ultimately receives.
+        const unnormalizedSalt = "  MiXeD.Case@World.Com  " as MasterPasswordSalt;
+
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(unnormalizedSalt));
+
+        expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+          masterPassword,
+          unnormalizedSalt,
+          kdfConfig,
+        );
+      });
+
+      // Regression guard for the torn read: a second flag read here could disagree with the one
+      // that produced the data, and pass a null salt to makeMasterKey.
+      it("does not re-read the prelogin feature flag when deriving", async () => {
+        await passwordLoginStrategy.logIn(credentialsWithPrefetchedData());
+
+        expect(configService.getFeatureFlag).not.toHaveBeenCalledWith(
+          FeatureFlag.PM27060_PasswordPreloginFromSdk,
+        );
+      });
     });
   });
 
@@ -327,6 +405,30 @@ describe("PasswordLoginStrategy", () => {
       expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
         ForceSetPasswordReason.WeakMasterPassword,
         userId,
+      );
+    });
+
+    it("evaluates the password against the org invite policies alone when the token response has no policy", async () => {
+      const orgInvitePolicies = Object.assign(new MasterPasswordPolicyOptions(), {
+        minLength: 12,
+        minComplexity: 3,
+        requireUpper: true,
+        enforceOnLogin: false,
+      });
+      credentials.masterPasswordPoliciesFromOrgInvite = orgInvitePolicies;
+      apiService.postIdentityToken.mockResolvedValueOnce(identityTokenResponseFactory());
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 4 } as any);
+      const realPolicyService: DefaultPolicyService = Object.create(DefaultPolicyService.prototype);
+      policyService.combineMasterPasswordPolicyOptions.mockImplementation((...options) =>
+        realPolicyService.combineMasterPasswordPolicyOptions(...options),
+      );
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(policyService.evaluateMasterPassword).toHaveBeenCalledWith(
+        4,
+        credentials.masterPassword,
+        Object.assign(new MasterPasswordPolicyOptions(), orgInvitePolicies),
       );
     });
 
@@ -481,7 +583,7 @@ describe("PasswordLoginStrategy", () => {
   });
 
   describe("encryptionKeyMigrationRequired", () => {
-    it("returns requiresEncryptionKeyMigration and skips setUserKey when response has no key", async () => {
+    it("returns requiresEncryptionKeyMigration and skips the unlock when response has no key", async () => {
       // Very old accounts were encrypted with the master key directly (no user key). These
       // accounts have no `key` field on the token response. PasswordLoginStrategy overrides
       // encryptionKeyMigrationRequired to return true when key is absent, which causes the base
@@ -565,10 +667,6 @@ describe("PasswordLoginStrategy", () => {
     };
 
     apiService.postIdentityToken.mockResolvedValue(accountKeysTokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
-      new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-    );
 
     await passwordLoginStrategy.logIn(credentials);
 

@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ApplicationHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { createReport } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ReviewApplicationsViewV2Component } from "./review-applications-view-v2.component";
 
@@ -15,14 +14,6 @@ describe("ReviewApplicationsViewV2Component", () => {
    * Helper to access protected/private members for testing.
    */
   const testAccess = (comp: ReviewApplicationsViewV2Component) => comp as any;
-
-  /** Creates a minimal CipherView with a specific ID for icon lookup testing */
-  const createTestCipher = (id: string, name: string): CipherView => {
-    const cipher = new CipherView();
-    cipher.id = id;
-    cipher.name = name;
-    return cipher;
-  };
 
   /** Sample applications for reuse across tests */
   const sampleApps: ApplicationHealthView[] = [
@@ -48,7 +39,6 @@ describe("ReviewApplicationsViewV2Component", () => {
 
     // Set required signal inputs
     fixture.componentRef.setInput("applications", sampleApps);
-    fixture.componentRef.setInput("ciphers", []);
     fixture.componentRef.setInput("selectedApplications", new Set<string>());
   });
 
@@ -173,56 +163,6 @@ describe("ReviewApplicationsViewV2Component", () => {
       component.toggleAll();
 
       expect(emitCount).toBe(1);
-    });
-  });
-
-  // ==================== getIconCipher ====================
-
-  describe("getIconCipher()", () => {
-    it("should return the matching cipher when app has a known icon cipher ID", () => {
-      const testCipher = createTestCipher("cipher-github", "GitHub Login");
-      fixture.componentRef.setInput("ciphers", [testCipher]);
-
-      const app = sampleApps[0]; // github.com
-      jest.spyOn(app, "getIconCipherId").mockReturnValue("cipher-github");
-
-      const result = component.getIconCipher(app);
-
-      expect(result).toBe(testCipher);
-    });
-
-    it("should return undefined when the icon cipher ID does not match any cipher", () => {
-      const testCipher = createTestCipher("cipher-other", "Other Login");
-      fixture.componentRef.setInput("ciphers", [testCipher]);
-
-      const app = sampleApps[0];
-      jest.spyOn(app, "getIconCipherId").mockReturnValue("cipher-not-in-list");
-
-      const result = component.getIconCipher(app);
-
-      expect(result).toBeUndefined();
-    });
-
-    it("should return undefined when app has no icon cipher ID", () => {
-      fixture.componentRef.setInput("ciphers", [createTestCipher("cipher-abc", "Some Login")]);
-
-      const app = sampleApps[0];
-      jest.spyOn(app, "getIconCipherId").mockReturnValue(undefined);
-
-      const result = component.getIconCipher(app);
-
-      expect(result).toBeUndefined();
-    });
-
-    it("should return undefined when ciphers list is empty", () => {
-      fixture.componentRef.setInput("ciphers", []);
-
-      const app = sampleApps[0];
-      jest.spyOn(app, "getIconCipherId").mockReturnValue("cipher-github");
-
-      const result = component.getIconCipher(app);
-
-      expect(result).toBeUndefined();
     });
   });
 });

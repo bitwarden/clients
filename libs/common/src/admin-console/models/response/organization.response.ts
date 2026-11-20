@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 import { PlanResponse } from "../../../billing/models/response/plan.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -14,7 +12,7 @@ export class OrganizationResponse extends BaseResponse {
   businessCountry: string;
   businessTaxNumber: string;
   billingEmail: string;
-  plan: PlanResponse;
+  plan?: PlanResponse;
   planType: PlanType;
   seats: number;
   maxAutoscaleSeats: number;
@@ -59,7 +57,7 @@ export class OrganizationResponse extends BaseResponse {
     this.billingEmail = this.getResponseProperty("BillingEmail");
 
     const plan = this.getResponseProperty("Plan");
-    this.plan = plan == null ? null : new PlanResponse(plan);
+    this.plan = plan == null ? undefined : new PlanResponse(plan);
 
     this.planType = this.getResponseProperty("PlanType");
     this.seats = this.getResponseProperty("Seats");

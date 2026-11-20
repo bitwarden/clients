@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, debounceTime, take } from "rxjs";
+import { debounceTime, map, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   PopoverModule,
   SearchModule,
   TableDataSource,
@@ -54,7 +53,6 @@ import {
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     PipesModule,
     PopoverModule,
     SharedModule,
@@ -85,19 +83,21 @@ export class CriticalApplicationsTabComponent {
   protected readonly loading = toSignal(this.accessIntelligenceService.loading$, {
     initialValue: false,
   });
-  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
-    initialValue: [],
-  });
 
   protected readonly drawerState = this.drawerStateService.drawerState;
 
-  protected readonly unassignedCipherIds = toSignal(
-    this.securityTasksService.unassignedCriticalCipherIds$,
+  protected readonly atRiskCipherIds = toSignal(
+    this.accessIntelligenceService.report$.pipe(
+      map(
+        (report) =>
+          report?.getCriticalAtRiskApplications().flatMap((app) => app.getAtRiskCipherIds()) ?? [],
+      ),
+    ),
     { initialValue: [] },
   );
 
   protected readonly enableRequestPasswordChange = computed(
-    () => this.unassignedCipherIds().length > 0,
+    () => this.atRiskCipherIds().length > 0,
   );
 
   protected readonly helpMembersOpen = computed(
@@ -122,42 +122,31 @@ export class CriticalApplicationsTabComponent {
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
 
-    combineLatest([this.accessIntelligenceService.report$, this.accessIntelligenceService.ciphers$])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([report, ciphers]) => {
-        if (!report) {
-          this.dataSource.data = [];
-          return;
-        }
+    this.accessIntelligenceService.report$.pipe(takeUntilDestroyed()).subscribe((report) => {
+      if (!report) {
+        this.dataSource.data = [];
+        return;
+      }
 
-        const appMetadataMap = new Map(
-          report.applications.map((app) => [app.applicationName, app]),
-        );
+      const appMetadataMap = new Map(report.applications.map((app) => [app.applicationName, app]));
 
-        const tableData: ApplicationTableRowV2[] = report.reports
-          .filter((reportData) => {
-            const metadata = appMetadataMap.get(reportData.applicationName);
-            return metadata?.isCritical ?? false;
-          })
-          .map((reportData) => {
-            const iconCipherId = reportData.getIconCipherId();
-            const iconCipher = iconCipherId
-              ? ciphers.find((c) => c.id === iconCipherId)
-              : undefined;
+      const tableData: ApplicationTableRowV2[] = report.reports
+        .filter((reportData) => {
+          const metadata = appMetadataMap.get(reportData.applicationName);
+          return metadata?.isCritical ?? false;
+        })
+        .map((reportData) => ({
+          applicationName: reportData.applicationName,
+          passwordCount: reportData.passwordCount,
+          atRiskPasswordCount: reportData.atRiskPasswordCount,
+          memberCount: reportData.memberCount,
+          atRiskMemberCount: reportData.atRiskMemberCount,
+          isMarkedAsCritical: true,
+          iconCipher: reportData.iconCipher,
+        }));
 
-            return {
-              applicationName: reportData.applicationName,
-              passwordCount: reportData.passwordCount,
-              atRiskPasswordCount: reportData.atRiskPasswordCount,
-              memberCount: reportData.memberCount,
-              atRiskMemberCount: reportData.atRiskMemberCount,
-              isMarkedAsCritical: true,
-              iconCipher,
-            };
-          });
-
-        this.dataSource.data = tableData;
-      });
+      this.dataSource.data = tableData;
+    });
   }
 
   protected openCriticalAtRiskMembersDrawer(): void {
@@ -211,7 +200,7 @@ export class CriticalApplicationsTabComponent {
     }
 
     this.securityTasksService
-      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .requestPasswordChangeForCriticalApplications$(orgId, this.atRiskCipherIds())
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

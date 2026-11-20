@@ -1,18 +1,33 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  AsyncActionsModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogModule,
+} from "@bitwarden/components";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
   ImportComponent,
   ImporterProviders,
+  OnePasswordSsoBrowser,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
+import { DesktopOnePasswordSsoBrowser } from "./desktop-onepassword-sso-browser";
+
+interface ImportDesktopDialogData {
+  /** Pre-selects an organization in the import form */
+  defaultOrganizationId?: string;
+  /** Pre-selects a collection in the import form; only applied when defaultOrganizationId is also set */
+  defaultCollectionId?: string;
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -33,11 +48,17 @@ import { DesktopImportMetadataService } from "./desktop-import-metadata.service"
       useClass: DesktopImportMetadataService,
       deps: [SYSTEM_SERVICE_PROVIDER],
     }),
+    safeProvider({
+      provide: OnePasswordSsoBrowser,
+      useClass: DesktopOnePasswordSsoBrowser,
+      deps: [],
+    }),
   ],
 })
 export class ImportDesktopComponent {
   protected disabled = false;
   protected loading = false;
+  protected readonly data = inject<ImportDesktopDialogData>(DIALOG_DATA, { optional: true });
 
   protected readonly onLoadProfilesFromBrowser = this._onLoadProfilesFromBrowser.bind(this);
   protected readonly onImportFromBrowser = this._onImportFromBrowser.bind(this);

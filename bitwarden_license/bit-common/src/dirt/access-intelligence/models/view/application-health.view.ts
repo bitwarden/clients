@@ -1,8 +1,8 @@
 import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ApplicationHealthApi } from "../api/application-health.api";
 import { ApplicationHealthData } from "../data/application-health.data";
 import { ApplicationHealth } from "../domain/application-health";
 
@@ -25,13 +25,9 @@ export class ApplicationHealthView implements View {
   atRiskPasswordCount: number = 0;
 
   /**
-   * Icon metadata for display purposes
-   *
-   * Pre-computed during report generation to avoid runtime lookups.
-   * Contains the URI/hostname and cipher ID of the first cipher for icon display.
+   * Minimal cipher view for icon display purposes. Contains the login URI from one cipher for the application.
    */
-  iconUri?: string;
-  iconCipherId?: string;
+  iconCipher?: CipherView;
 
   /**
    * Member references with at-risk status
@@ -139,23 +135,6 @@ export class ApplicationHealthView implements View {
       .map(([id]) => id);
   }
 
-  /**
-   * Get the cipher ID to use for icon display
-   *
-   * Returns the pre-computed icon cipher ID if available,
-   * otherwise returns the first cipher ID from cipherRefs.
-   *
-   * @returns Cipher ID for icon display, or undefined if no ciphers
-   */
-  getIconCipherId(): string | undefined {
-    if (this.iconCipherId) {
-      return this.iconCipherId;
-    }
-
-    const cipherIds = this.getAllCipherIds();
-    return cipherIds.length > 0 ? cipherIds[0] : undefined;
-  }
-
   toJSON() {
     return this;
   }
@@ -169,8 +148,17 @@ export class ApplicationHealthView implements View {
     view.cipherRefs = { ...data.cipherRefs };
     view.memberCount = data.memberCount;
     view.atRiskMemberCount = data.atRiskMemberCount;
-    view.iconUri = data.iconUri;
-    view.iconCipherId = data.iconCipherId;
+
+    // create minimal cipher for icon display purposes
+    if (data.iconUri) {
+      view.iconCipher = new CipherView();
+      view.iconCipher.login.uris = [];
+
+      const uri = new LoginUriView();
+      uri.uri = data.iconUri;
+      view.iconCipher.login.uris.push(uri);
+    }
+
     return view;
   }
 

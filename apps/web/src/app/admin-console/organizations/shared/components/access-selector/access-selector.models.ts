@@ -1,6 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserUserDetailsResponse,
+  OrganizationUserUserMiniResponse,
+} from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -13,23 +14,21 @@ import { GroupView } from "../../../core";
 /**
  * Permission options that replace/correspond with manage, readOnly, and hidePassword server fields.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionPermission {
-  View = "view",
-  ViewExceptPass = "viewExceptPass",
-  Edit = "edit",
-  EditExceptPass = "editExceptPass",
-  Manage = "manage",
-}
+export const CollectionPermission = Object.freeze({
+  View: "view",
+  ViewExceptPass: "viewExceptPass",
+  Edit: "edit",
+  EditExceptPass: "editExceptPass",
+  Manage: "manage",
+} as const);
+export type CollectionPermission = (typeof CollectionPermission)[keyof typeof CollectionPermission];
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AccessItemType {
-  Collection,
-  Group,
-  Member,
-}
+export const AccessItemType = Object.freeze({
+  Collection: 0,
+  Group: 1,
+  Member: 2,
+} as const);
+export type AccessItemType = (typeof AccessItemType)[keyof typeof AccessItemType];
 
 /**
  * A "generic" type that describes an item that can be selected from a
@@ -55,14 +54,14 @@ export type AccessItemView = SelectItemView & {
   readonlyPermission?: CollectionPermission;
 } & (
     | {
-        type: AccessItemType.Collection;
+        type: typeof AccessItemType.Collection;
         viaGroupName?: string;
       }
     | {
-        type: AccessItemType.Group;
+        type: typeof AccessItemType.Group;
       }
     | {
-        type: AccessItemType.Member; // Members have a few extra details required to display, so they're added here
+        type: typeof AccessItemType.Member; // Members have a few extra details required to display, so they're added here
         email: string;
         role: OrganizationUserType;
         status: OrganizationUserStatusType;
@@ -81,6 +80,26 @@ export type AccessItemValue = {
 export type Permission = {
   perm: CollectionPermission;
   labelId: string;
+  /**
+   * VFO1 terminology feature flag variant of `labelId`. Falls back to `labelId` when not set.
+   */
+  vfo1LabelId?: string;
+};
+
+/**
+ * Resolves the i18n label id to display for `permission`, honoring the VFO1 terminology
+ * feature flag. Falls back to the legacy `labelId` when the permission has no `vfo1LabelId`
+ * or `vfo1Enabled` is false. All consumers of `getPermissionList()` should render labels
+ * through this helper so they stay consistent with each other.
+ */
+export const permissionLabelId = (
+  permission: Permission | undefined,
+  vfo1Enabled: boolean,
+): string | undefined => {
+  if (permission == null) {
+    return undefined;
+  }
+  return vfo1Enabled ? (permission.vfo1LabelId ?? permission.labelId) : permission.labelId;
 };
 
 export const getPermissionList = (): Permission[] => {
@@ -89,7 +108,9 @@ export const getPermissionList = (): Permission[] => {
     { perm: CollectionPermission.View, labelId: "viewItems" },
     { perm: CollectionPermission.EditExceptPass, labelId: "editItemsHidePass" },
     { perm: CollectionPermission.Edit, labelId: "editItems" },
-    { perm: CollectionPermission.Manage, labelId: "manageCollection" },
+    // "manageCollection" is shortened to "manage" rather than following the usual
+    // collection -> shared folder renaming pattern.
+    { perm: CollectionPermission.Manage, labelId: "manageCollection", vfo1LabelId: "manage" },
   ];
 
   return permissions;
@@ -129,11 +150,20 @@ export const convertToSelectionView = (value: AccessItemValue) => {
   });
 };
 
-const readOnly = (perm: CollectionPermission) =>
-  [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
+const readOnly = (perm: CollectionPermission | undefined) =>
+  perm != null &&
+  (
+    [CollectionPermission.View, CollectionPermission.ViewExceptPass] as CollectionPermission[]
+  ).includes(perm);
 
-const hidePassword = (perm: CollectionPermission) =>
-  [CollectionPermission.ViewExceptPass, CollectionPermission.EditExceptPass].includes(perm);
+const hidePassword = (perm: CollectionPermission | undefined) =>
+  perm != null &&
+  (
+    [
+      CollectionPermission.ViewExceptPass,
+      CollectionPermission.EditExceptPass,
+    ] as CollectionPermission[]
+  ).includes(perm);
 
 export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
   return {
@@ -145,13 +175,16 @@ export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
 }
 
 // TODO: Use view when user apis are migrated to a service
-export function mapUserToAccessItemView(user: OrganizationUserUserDetailsResponse): AccessItemView {
+export function mapUserToAccessItemView(
+  user: OrganizationUserUserDetailsResponse | OrganizationUserUserMiniResponse,
+): AccessItemView {
   return {
     id: user.id,
     type: AccessItemType.Member,
     email: user.email,
     role: user.type,
-    listName: user.name?.length > 0 ? `${user.name} (${user.email})` : user.email,
+    listName:
+      user.name != null && user.name.length > 0 ? `${user.name} (${user.email})` : user.email,
     labelName: user.name ?? user.email,
     status: user.status,
   };

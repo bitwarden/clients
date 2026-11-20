@@ -18,10 +18,6 @@ import {
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -33,6 +29,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -44,12 +41,14 @@ import {
   BadgeModule,
   ButtonModule,
   CheckboxModule,
+  CopyClickDirective,
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
   DialogRef,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   IconComponent,
   LinkModule,
   MenuModule,
@@ -58,7 +57,9 @@ import {
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
+import { OrganizationUserType, OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import {
@@ -79,6 +80,10 @@ import {
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 import {
+  ProblemDetailsFieldMap,
+  ProblemDetailsService,
+} from "../../services/problem-details/problem-details.service";
+import {
   EditMemberDialogParams,
   MemberDialogResult,
   MemberDialogTab,
@@ -97,10 +102,12 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     BadgeModule,
     ButtonModule,
     CheckboxModule,
+    CopyClickDirective,
     DatePipe,
     DialogModule,
     FormFieldModule,
     I18nPipe,
+    IconButtonModule,
     IconComponent,
     LinkModule,
     MenuModule,
@@ -110,6 +117,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     TabsModule,
     AccessSelectorModule,
     NestedCheckboxComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class EditMemberDialogComponent {
@@ -130,7 +138,9 @@ export class EditMemberDialogComponent {
   private readonly organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
+  private readonly problemDetailsService = inject(ProblemDetailsService);
   private readonly logService = inject(LogService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -140,9 +150,20 @@ export class EditMemberDialogComponent {
   readonly isRevoked = signal(false);
   readonly showNoMasterPasswordWarning = signal(false);
   protected readonly tabIndex = signal<number>(this.params.initialTab);
-  protected readonly detailsTabEnabled = toSignal(
-    from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
+
+  protected readonly privilegedControlsEnabled = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
   );
+
+  protected readonly rotationEnabled = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.PamAccessConnector)),
+  );
+
+  protected readonly emailEditable = computed(
+    () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
+  );
+
+  protected readonly nameEditable = computed(() => this.params.claimedByOrganization ?? false);
 
   protected readonly collectionAccessItems = signal<AccessItemView[]>([]);
   protected readonly groupAccessItems = signal<AccessItemView[]>([]);
@@ -156,9 +177,26 @@ export class EditMemberDialogComponent {
     // set to readonly in the template
     ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
+    accessPam: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
   });
+
+  // Map server Problem Detail Error Keys to client owned i18n keys for fields that support inline errors
+  private readonly problemDetailFieldMap: ProblemDetailsFieldMap = {
+    email: {
+      new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
+      email_already_in_use: "emailErrorAlreadyInUse",
+      email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      email_taken_by_organization_member: "emailErrorAlreadyInUse",
+      email_taken_outside_organization: "emailErrorClaimedByOrg",
+      member_has_master_password: "emailErrorHasMasterPassword",
+      email_change_failed: "emailErrorChangeFailed",
+    },
+    name: {
+      name_member_not_claimed: "nameErrorNotClaimed",
+    },
+  };
 
   protected readonly permissionsGroup = this.formBuilder.group({
     manageAllCollectionsGroup: this.formBuilder.group<Record<string, boolean>>({
@@ -175,6 +213,8 @@ export class EditMemberDialogComponent {
     managePolicies: false,
     manageUsers: false,
     manageResetPassword: false,
+    manageAccessRules: false,
+    manageRotation: false,
   });
 
   private readonly formTypeValue = toSignal(this.formGroup.controls.type.valueChanges, {
@@ -237,7 +277,7 @@ export class EditMemberDialogComponent {
     map(
       ([org, allowAdminAccessToAllCollectionItems]) =>
         org.canEditAnyCollection ||
-        (org.permissions.manageUsers && allowAdminAccessToAllCollectionItems),
+        ((org.permissions.manageUsers ?? false) && allowAdminAccessToAllCollectionItems),
     ),
   );
 
@@ -249,6 +289,14 @@ export class EditMemberDialogComponent {
           : of([] as GroupDetailsView[]),
       ),
     );
+
+    this.formGroup.controls.email.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.email.setErrors(null));
+
+    this.formGroup.controls.name.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.name.setErrors(null));
 
     this.restrictEditingSelf$.pipe(takeUntilDestroyed()).subscribe((restrictEditingSelf) => {
       if (restrictEditingSelf) {
@@ -322,8 +370,9 @@ export class EditMemberDialogComponent {
   ) {
     this.isRevoked.set(userDetails.status === OrganizationUserStatusType.Revoked);
     this.showNoMasterPasswordWarning.set(
-      userDetails.status > OrganizationUserStatusType.Invited &&
-        userDetails.hasMasterPassword === false,
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        userDetails.status,
+      ) && userDetails.hasMasterPassword === false,
     );
     const allCollectionsPermissions = {
       createNewCollections: userDetails.permissions.createNewCollections,
@@ -344,6 +393,8 @@ export class EditMemberDialogComponent {
         managePolicies: userDetails.permissions.managePolicies,
         manageUsers: userDetails.permissions.manageUsers,
         manageResetPassword: userDetails.permissions.manageResetPassword,
+        manageAccessRules: userDetails.permissions.manageAccessRules,
+        manageRotation: userDetails.permissions.manageRotation,
         manageAllCollectionsGroup: allCollectionsPermissions,
       });
     }
@@ -373,14 +424,27 @@ export class EditMemberDialogComponent {
 
     this.formGroup.patchValue({
       type: userDetails.type,
-      name: this.params.name,
+      name: this.params.profileName ?? "",
       email: this.params.email ?? "",
       externalId: userDetails.externalId,
       ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
+      accessPam: userDetails.accessPam,
       groups: groupAccessSelections,
     });
+
+    if (this.emailEditable()) {
+      this.formGroup.controls.email.enable();
+    } else {
+      this.formGroup.controls.email.disable();
+    }
+
+    if (this.nameEditable()) {
+      this.formGroup.controls.name.enable();
+    } else {
+      this.formGroup.controls.name.disable();
+    }
   }
 
   private setRequestPermissions(p: PermissionsApi, clearPermissions: boolean): PermissionsApi {
@@ -396,6 +460,8 @@ export class EditMemberDialogComponent {
       managePolicies: this.permissionsGroup.value.managePolicies ?? undefined,
       manageUsers: this.permissionsGroup.value.manageUsers ?? undefined,
       manageResetPassword: this.permissionsGroup.value.manageResetPassword ?? undefined,
+      manageAccessRules: this.permissionsGroup.value.manageAccessRules ?? undefined,
+      manageRotation: this.permissionsGroup.value.manageRotation ?? undefined,
       createNewCollections:
         this.permissionsGroup.value.manageAllCollectionsGroup?.createNewCollections ?? undefined,
       editAnyCollection:
@@ -424,6 +490,13 @@ export class EditMemberDialogComponent {
       : this.formGroup.value.groups?.map((m) => m.id);
 
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? undefined;
+    const accessPam = this.formGroup.value.accessPam ?? undefined;
+
+    const email = this.emailEditable()
+      ? (this.formGroup.getRawValue().email ?? undefined)
+      : undefined;
+
+    const name = this.nameEditable() ? (this.formGroup.getRawValue().name ?? undefined) : undefined;
 
     const request = new OrganizationUserUpdateRequest({
       type,
@@ -431,9 +504,21 @@ export class EditMemberDialogComponent {
       groups,
       collections,
       accessSecretsManager,
+      accessPam,
+      email,
+      name,
     });
 
-    await this.userService.saveV2(request, userId, organization);
+    try {
+      await this.userService.saveV2(request, userId, organization);
+    } catch (error: unknown) {
+      if (error instanceof ProblemDetailsErrorResponse && error.statusCode === 400) {
+        this.problemDetailsService.applyErrors(error, this.formGroup, this.problemDetailFieldMap);
+        return;
+      } else {
+        throw error;
+      }
+    }
 
     this.toastService.showToast({
       variant: "success",
@@ -456,14 +541,10 @@ export class EditMemberDialogComponent {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
-      const detailsTab = this.detailsTabEnabled() ? MemberDialogTab.Details : MemberDialogTab.Role;
-      if (this.tabIndex() !== detailsTab) {
-        const tabName = this.detailsTabEnabled()
-          ? this.i18nService.t("details")
-          : this.i18nService.t("role");
+      if (this.tabIndex() !== MemberDialogTab.Details) {
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("fieldOnTabRequiresAttention", tabName),
+          message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("details")),
         });
       }
       return;
@@ -611,7 +692,9 @@ export class EditMemberDialogComponent {
         placeholders: [this.params.name],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.params.name],
       },
       type: "warning",

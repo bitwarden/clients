@@ -1,10 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -49,7 +55,17 @@ const _mappedPersonalInfoAsIdentityColumns = new Set([
 const _mappedSecureNoteColumns = new Set(["title", "note"]);
 
 export class DashlaneCsvImporter extends BaseImporter implements Importer {
-  parse(data: string): Promise<ImportResult> {
+  constructor(
+    private configService: ConfigService,
+    logService: LogService,
+  ) {
+    super(logService);
+  }
+
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const result = new ImportResult();
     const results = this.parseCsv(data, true);
     if (results == null) {
@@ -85,11 +101,11 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "account_name") {
-        this.parsePaymentRecord(cipher, row);
+        this.parsePaymentRecord(cipher, row, useNewDedicatedTypes);
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "number") {
-        this.parseIdRecord(cipher, row);
+        this.parseIdRecord(cipher, row, useNewDedicatedTypes);
       }
 
       if (rowKeys[0] === "type" && rowKeys[1] === "title") {
@@ -127,7 +143,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     this.importUnmappedFields(cipher, row, _mappedCredentialsColumns);
   }
 
-  parsePaymentRecord(cipher: CipherView, row: PaymentsRecord) {
+  parsePaymentRecord(cipher: CipherView, row: PaymentsRecord, useNewDedicatedTypes: boolean) {
     cipher.type = CipherType.Card;
     cipher.card = new CardView();
 
@@ -135,6 +151,13 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     let mappedValues: string[] = [];
     switch (row.type) {
       case "credit_card":
+      case "payment_card":
+        // Dashlane's curent CSV export uses `payment_card` instead of `credit_card`, but we support both
+        // If a credit card item has no specific item name (exported to the `name` column in the current
+        // export format) the cardholder name in `account_name` is used as the item title instead
+        cipher.type = CipherType.Card;
+        cipher.card = new CardView();
+        cipher.name = !this.isNullOrWhitespace(row.name) ? row.name : row.account_name;
         cipher.card.cardholderName = row.account_name;
         cipher.card.number = row.cc_number;
         cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
@@ -149,14 +172,24 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           "code",
           "expiration_month",
           "expiration_year",
+          "name",
         ];
         break;
       case "bank":
-        cipher.card.cardholderName = row.account_holder;
-        cipher.card.number = row.account_number;
-
         // If you add more mapped fields please extend this
         mappedValues = ["account_name", "account_holder", "account_number"];
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.BankAccount;
+          const bankAccount = new BankAccountView();
+          bankAccount.nameOnAccount = row.account_holder;
+          bankAccount.accountNumber = row.account_number;
+          cipher.bankAccount = bankAccount;
+          // Type isn't mapped to a property but we don't want it as a custom field
+          mappedValues.push("type");
+        } else {
+          cipher.card.cardholderName = row.account_holder;
+          cipher.card.number = row.account_number;
+        }
         break;
       default:
         break;
@@ -165,7 +198,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     this.importUnmappedFields(cipher, row, new Set(mappedValues));
   }
 
-  parseIdRecord(cipher: CipherView, row: IdRecord) {
+  parseIdRecord(cipher: CipherView, row: IdRecord, useNewDedicatedTypes: boolean) {
     cipher.type = CipherType.Identity;
     cipher.identity = new IdentityView();
 
@@ -178,15 +211,49 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         break;
       case "passport":
         cipher.name = `${row.name} ${row.type}`;
-        this.processFullName(cipher, row.name);
-        cipher.identity.passportNumber = row.number;
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.Passport;
+          const passport = new PassportView();
+          const [firstName, middleName, lastName] = this.getFullName(row.name);
+          passport.givenName = firstName;
+          if (!this.isNullOrWhitespace(middleName)) {
+            passport.givenName = passport.givenName + " " + middleName;
+          }
+          passport.surname = lastName;
+          passport.passportNumber = row.number;
+          passport.issueDate = this.parseDashlaneDateString(row.issue_date);
+          passport.expirationDate = this.parseDashlaneDateString(row.expiration_date);
+          passport.issuingCountry = row.place_of_issue;
+          cipher.passport = passport;
+          // Type isn't mapped to a property but we don't want it as a custom field
+          mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
+        } else {
+          this.processFullName(cipher, row.name);
+          cipher.identity.passportNumber = row.number;
+        }
         break;
       case "license":
         cipher.name = `${row.name} ${row.type}`;
-        this.processFullName(cipher, row.name);
-        cipher.identity.licenseNumber = row.number;
-        cipher.identity.state = row.state;
-
+        if (useNewDedicatedTypes) {
+          cipher.type = CipherType.DriversLicense;
+          const license = new DriversLicenseView();
+          const [firstName, middleName, lastName] = this.getFullName(row.name);
+          license.firstName = firstName;
+          license.middleName = middleName;
+          license.lastName = lastName;
+          license.licenseNumber = row.number;
+          license.issueDate = this.parseDashlaneDateString(row.issue_date);
+          license.expirationDate = this.parseDashlaneDateString(row.expiration_date);
+          license.issuingCountry = row.place_of_issue;
+          license.issuingState = row.state;
+          cipher.driversLicense = license;
+          // Type isn't mapped to a property but we don't want it as a custom field
+          mappedValues.push(...["issue_date", "expiration_date", "place_of_issue", "type"]);
+        } else {
+          this.processFullName(cipher, row.name);
+          cipher.identity.licenseNumber = row.number;
+          cipher.identity.state = row.state;
+        }
         mappedValues.push("state");
         break;
       case "social_security":
@@ -205,6 +272,22 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
 
     // If you add more mapped fields please extend this
     this.importUnmappedFields(cipher, row, new Set(mappedValues));
+  }
+
+  // Dashlane dates are formatted as `YYYY-MM-DD` but the month and day omit leading zeros
+  private parseDashlaneDateString(dateString: string): string | undefined {
+    if (this.isNullOrWhitespace(dateString)) {
+      return;
+    }
+    const [year, month, day] = dateString.split("-");
+    if (
+      this.isNullOrWhitespace(year) ||
+      this.isNullOrWhitespace(month) ||
+      this.isNullOrWhitespace(day)
+    ) {
+      return;
+    }
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
 
   parsePersonalInformationRecord(cipher: CipherView, row: PersonalInformationRecord) {

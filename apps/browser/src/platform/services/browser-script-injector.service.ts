@@ -41,19 +41,11 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
 
     const tab = tabId && (await BrowserApi.getTab(tabId));
 
-    // Check if the tab URL is on the disabled URLs list
-    let injectionAllowedInTab = true;
-    const blockedDomains = await firstValueFrom(
-      this.domainSettingsService.blockedInteractionsUris$,
-    );
+    const blockedURI = await this.findBlockedInjectionUrl(tabId, tab, injectDetails);
 
-    if (blockedDomains && tab?.url) {
-      injectionAllowedInTab = !isUrlInList(tab?.url, blockedDomains);
-    }
-
-    if (!injectionAllowedInTab) {
+    if (blockedURI !== undefined) {
       this.logService.warning(
-        `${injectDetails.file} was not injected because ${tab?.url || "the tab URL"} is on the user's blocked domains list.`,
+        `${injectDetails.file} was not injected because ${blockedURI || "the tab URL"} is on the user's blocked domains list.`,
       );
       return;
     }
@@ -86,6 +78,44 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
     }
 
     await BrowserApi.executeScriptInTab(tabId, injectionDetails);
+  }
+
+  /**
+   * Identifies the URL that blocks an injection, or `undefined` when the injection is allowed.
+   *
+   * @param tabId - The id of the tab targeted for injection.
+   * @param tab - The targeted tab, when it could be resolved.
+   * @param injectDetails - The details for the script injection.
+   */
+  private async findBlockedInjectionUrl(
+    tabId: number,
+    tab: chrome.tabs.Tab,
+    injectDetails: CommonScriptInjectionDetails,
+  ): Promise<string | undefined> {
+    const blockedDomains = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+
+    // If the tab URL is in blockedDomains, no frame lookups are needed,
+    // so check that first
+    if (!blockedDomains || Object.keys(blockedDomains).length === 0) {
+      return undefined;
+    }
+
+    if (tab?.url && isUrlInList(tab.url, blockedDomains)) {
+      return tab.url;
+    }
+
+    const { frame } = injectDetails;
+    if (typeof frame !== "number" || frame === 0) {
+      return undefined;
+    }
+
+    const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId: frame })
+      .then((frameDetails) => frameDetails?.url)
+      .catch((): undefined => undefined);
+
+    return frameUrl && isUrlInList(frameUrl, blockedDomains) ? frameUrl : undefined;
   }
 
   /**

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from "@angular/core";
 
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../shared/shared.module";
 
@@ -17,11 +18,11 @@ export class AccountFingerprintComponent implements OnInit {
 
   protected readonly fingerprint = signal<string | undefined>(undefined);
 
-  private readonly keyService = inject(KeyService);
+  private readonly legacyCompatKeyService = inject(LegacyCompatKeyService);
 
   async ngOnInit() {
     // TODO - In the future, remove this code and use the fingerprint pipe once merged
-    const generatedFingerprint = await this.keyService.getFingerprint(
+    const generatedFingerprint = await this.legacyCompatKeyService.getFingerprint(
       this.fingerprintMaterial(),
       this.publicKeyBuffer(),
     );

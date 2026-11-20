@@ -1,12 +1,17 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
+import {
+  collapsedSideNavDecorator,
+  positionFixedWrapperDecorator,
+} from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
@@ -92,7 +97,7 @@ export const WithLongText: Story = {
 export const WithoutRoute: Story = {
   render: () => ({
     template: /*html*/ `
-        <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
+        <bit-nav-item text="Hello World" icon="bwi-shared-folder"></bit-nav-item>
       `,
   }),
 };
@@ -101,7 +106,7 @@ export const WithChildButtons: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
+      <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-shared-folder">
         <button
           type="button"
           slot="end"
@@ -132,8 +137,8 @@ export const MultipleItemsWithDivider: Story = {
       <bit-nav-item text="Hello World"></bit-nav-item>
       <bit-nav-item text="Hello World Long Text Long"></bit-nav-item>
       <bit-nav-divider></bit-nav-divider>
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="Hello World" icon="bwi-shared-folder"></bit-nav-item>
+      <bit-nav-item text="Hello World" icon="bwi-shared-folder"></bit-nav-item>
     `,
   }),
 };
@@ -142,9 +147,27 @@ export const ForceActiveStyles: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-nav-item text="First Nav" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Active Nav" icon="bwi-collection-shared" [forceActiveStyles]="true"></bit-nav-item>
-      <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="First Nav" icon="bwi-shared-folder"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-shared-folder" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-shared-folder"></bit-nav-item>
     `,
   }),
+};
+
+export const ForceActiveStylesVfo1: Story = {
+  ...ForceActiveStyles,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/** Collapsed items hide their label, so `bitTooltip` names them on hover and keyboard focus. */
+export const CollapsedVfo1: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-nav-item text="Vault" icon="bwi-lock" [route]="['']"></bit-nav-item>
+      <bit-nav-item text="Send" icon="bwi-send"></bit-nav-item>
+      <bit-nav-item text="Reports With A Very Long Name" icon="bwi-bar-chart"></bit-nav-item>
+    `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  decorators: [collapsedSideNavDecorator],
 };

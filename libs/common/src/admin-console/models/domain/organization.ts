@@ -1,11 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { ProviderType } from "../../../provider/enums";
 import { OrganizationId } from "../../../types/guid";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
@@ -38,22 +37,27 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  /**
+   * This member's own PAM seat, drawn against the organization's {@link usePam} subscription.
+   * Acting on a governed item needs both; see {@link canAccessPrivilegedAccess}.
+   */
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number;
-  maxCollections: number;
+  seats: number | undefined;
+  maxCollections: number | undefined;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string;
+  identifier: string | undefined;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string;
+  organizationUserId: string | undefined;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
-  providerName: string;
+  providerId: string | undefined;
+  providerName: string | undefined;
   providerType?: ProviderType;
   /**
    * Indicates that a user is a ProviderUser for the organization
@@ -63,11 +67,11 @@ export class Organization {
    * Indicates that a user is a member for the organization (may be `false` if they have access via a Provider only)
    */
   isMember: boolean;
-  familySponsorshipFriendlyName: string;
+  familySponsorshipFriendlyName: string | undefined;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string;
+  keyConnectorUrl: string | undefined;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -79,13 +83,13 @@ export class Organization {
   limitCollectionDeletion: boolean;
 
   /**
-   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
-   */
-  limitItemDeletion: boolean;
-  /**
    * Refers to the ability to limit delete permission of collection items.
    * If set to true, members can only delete items when they have a Can Manage permission over the collection.
    * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
@@ -104,11 +108,7 @@ export class Organization {
   useMyItems: boolean;
   useInviteLinks: boolean;
 
-  constructor(obj?: OrganizationData) {
-    if (obj == null) {
-      return;
-    }
-
+  constructor(obj: OrganizationData) {
     this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
@@ -130,30 +130,31 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.usePam = obj.usePam;
+    this.accessPam = obj.accessPam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
-    this.seats = obj.seats;
-    this.maxCollections = obj.maxCollections;
+    this.seats = obj.seats ?? undefined;
+    this.maxCollections = obj.maxCollections ?? undefined;
     this.maxStorageGb = obj.maxStorageGb;
     this.ssoBound = obj.ssoBound;
-    this.identifier = obj.identifier;
+    this.identifier = obj.identifier ?? undefined;
     this.permissions = obj.permissions;
     this.resetPasswordEnrolled = obj.resetPasswordEnrolled;
     this.userId = obj.userId;
-    this.organizationUserId = obj.organizationUserId;
+    this.organizationUserId = obj.organizationUserId ?? undefined;
     this.hasPublicAndPrivateKeys = obj.hasPublicAndPrivateKeys;
-    this.providerId = obj.providerId;
-    this.providerName = obj.providerName;
+    this.providerId = obj.providerId ?? undefined;
+    this.providerName = obj.providerName ?? undefined;
     this.providerType = obj.providerType;
     this.isProviderUser = obj.isProviderUser;
     this.isMember = obj.isMember;
-    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName;
+    this.familySponsorshipFriendlyName = obj.familySponsorshipFriendlyName ?? undefined;
     this.familySponsorshipAvailable = obj.familySponsorshipAvailable;
     this.productTierType = obj.productTierType;
     this.keyConnectorEnabled = obj.keyConnectorEnabled;
-    this.keyConnectorUrl = obj.keyConnectorUrl;
+    this.keyConnectorUrl = obj.keyConnectorUrl ?? undefined;
     this.familySponsorshipLastSyncDate = obj.familySponsorshipLastSyncDate;
     this.familySponsorshipValidUntil = obj.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = obj.familySponsorshipToDelete;
@@ -240,6 +241,19 @@ export class Organization {
     );
   }
 
+  /**
+   * Whether the user can assign collection access to a group. Members with the Manage Groups
+   * custom permission can only do so when collection management settings permit admin access to
+   * all collection items; users who can edit any collection outright are unaffected by that
+   * setting.
+   */
+  get canAssignAccessToAnyCollection() {
+    return (
+      this.canEditAnyCollection ||
+      (this.permissions.manageGroups && this.allowAdminAccessToAllCollectionItems)
+    );
+  }
+
   get canEditUnmanagedCollections() {
     // Any admin or custom user with editAnyCollection permission can edit unmanaged collections
     return this.isAdmin || this.permissions.editAnyCollection;
@@ -312,6 +326,26 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  /**
+   * Whether the member may author access rules. Mirrors the server's
+   * `ManageAccessRulesRequirement`, which admits no provider, though {@link isAdmin} counts one as
+   * an Owner.
+   */
+  get canManageAccessRules() {
+    return (
+      (this.isAdmin || this.permissions.manageAccessRules) && this.usePam && !this.isProviderUser
+    );
+  }
+
+  /**
+   * Whether the member may administer access connectors, their target systems and rotation
+   * configs. Mirrors the server's `ManageAccessConnectorRequirement`, which also admits no
+   * provider.
+   */
+  get canManageRotation() {
+    return (this.isAdmin || this.permissions.manageRotation) && this.usePam && !this.isProviderUser;
+  }
+
   get canManageUsers() {
     return this.isAdmin || this.permissions.manageUsers;
   }
@@ -375,6 +409,13 @@ export class Organization {
   get hasReseller() {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
   }
+  /**
+   * Whether this member may use PAM. Mirrors the server's `CurrentContextOrganization.AccessPam`.
+   * An admin without a seat can manage PAM but not use it.
+   */
+  get canAccessPrivilegedAccess() {
+    return this.usePam && this.accessPam;
+  }
 
   get canAccessSecretsManager() {
     return this.useSecretsManager && this.accessSecretsManager;
@@ -386,7 +427,7 @@ export class Organization {
   }
 
   get canManageSponsorships() {
-    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
+    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== undefined;
   }
 
   /**
@@ -401,10 +442,19 @@ export class Organization {
       return null;
     }
 
-    return Object.assign(new Organization(), json, {
-      familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
-      familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
-    });
+    const data: OrganizationData = {
+      ...json,
+      familySponsorshipLastSyncDate:
+        json.familySponsorshipLastSyncDate == null
+          ? undefined
+          : new Date(json.familySponsorshipLastSyncDate),
+      familySponsorshipValidUntil:
+        json.familySponsorshipValidUntil == null
+          ? undefined
+          : new Date(json.familySponsorshipValidUntil),
+      permissions: json.permissions as PermissionsApi,
+    };
+    return new Organization(data);
   }
 
   get canAccessIntegrations() {

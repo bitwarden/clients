@@ -4,19 +4,25 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, UserAdminService } from "../../../core";
@@ -56,11 +62,20 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockLogService = {
+  error: () => {},
+};
+
+const mockServerSettingsService = {
+  isOpenInviteLinkEmailVerificationDisabled$: of(false),
 };
 
 const mockDialogRef = {
@@ -105,40 +120,52 @@ const mockCollectionAdminService = {
 const mockInviteLinkUrl =
   "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
 
-const mockInviteLink: OrganizationInviteLink = Object.assign(
-  new OrganizationInviteLink({} as any),
+const mockInviteLink: OrganizationInviteLinkView = Object.assign(
+  new OrganizationInviteLinkView({} as any),
   {
     id: "link-1",
-    code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    invite: "enc-key",
     supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
+    url: mockInviteLinkUrl,
   },
 );
 
-function makeMockInviteLinkService(initialLink: OrganizationInviteLink | undefined = undefined) {
-  const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
+function makeMockInviteLinkService(
+  initialLink: OrganizationInviteLinkView | undefined = undefined,
+) {
+  const inviteLink$ = new BehaviorSubject<OrganizationInviteLinkView | undefined>(initialLink);
 
-  const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) => {
+  const patchLink = (patch: Partial<OrganizationInviteLinkView>) => {
     const current = inviteLink$.getValue();
     inviteLink$.next(
-      Object.assign(new OrganizationInviteLink({} as any), {
+      Object.assign(new OrganizationInviteLinkView({} as any), {
         ...mockInviteLink,
-        allowedDomains: domains,
         creationDate: current?.creationDate ?? new Date().toISOString(),
+        supportsConfirmation: current?.supportsConfirmation ?? mockInviteLink.supportsConfirmation,
+        ...patch,
       }),
     );
     return Promise.resolve();
   };
 
+  const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) =>
+    patchLink({ allowedDomains: domains });
+
+  const setSupportsConfirmation = (
+    _userId: unknown,
+    _orgId: unknown,
+    supportsConfirmation: boolean,
+  ) => patchLink({ supportsConfirmation });
+
   return {
     inviteLink$: () => inviteLink$.asObservable(),
-    reconstructUrl: () => of(mockInviteLinkUrl),
-    createInviteLink: upsertLink,
-    updateInviteLink: upsertLink,
-    refreshInviteLink: () => Promise.resolve(),
+    create: (_userId: unknown, _orgId: unknown, domains: string[], supportsConfirmation: boolean) =>
+      patchLink({ allowedDomains: domains, supportsConfirmation }),
+    updateAllowedDomains: upsertLink,
+    refresh: setSupportsConfirmation,
+    setInviteConfirmation: setSupportsConfirmation,
     delete: () => {
       inviteLink$.next(undefined);
       return Promise.resolve();
@@ -159,6 +186,8 @@ type StoryArgs = {
   seats: number;
   /** Number of seats already occupied. */
   occupiedSeatCount: number;
+  /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
+  vfo1FoundationEnabled: boolean;
 };
 
 export default {
@@ -171,6 +200,7 @@ export default {
     useCustomPermissions: false,
     seats: 10,
     occupiedSeatCount: 3,
+    vfo1FoundationEnabled: false,
   },
   argTypes: {
     useInviteLinks: {
@@ -197,6 +227,11 @@ export default {
       control: { type: "number", min: 0, step: 1 },
       description: "Seats already occupied; affects the remaining-seat hint.",
     },
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
+      name: "Shared folder terminology (flag on)",
+    },
   },
   decorators: [
     moduleMetadata({
@@ -212,9 +247,11 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
-          provide: OrgDomainApiServiceAbstraction,
-          useValue: { getAllByOrgId: () => Promise.resolve([]) },
+          provide: OrganizationDomainsService,
+          useValue: { verifiedDomains$: () => of([]) },
         },
       ],
     }),
@@ -227,7 +264,7 @@ export default {
 type Story = StoryObj<StoryArgs>;
 
 const makeRender =
-  (initialLink: OrganizationInviteLink | undefined = undefined): Story["render"] =>
+  (initialLink: OrganizationInviteLinkView | undefined = undefined): Story["render"] =>
   (args) => ({
     moduleMetadata: {
       providers: [
@@ -258,6 +295,23 @@ const makeRender =
         {
           provide: OrganizationInviteLinkService,
           useValue: makeMockInviteLinkService(initialLink),
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.InviteLinkAutoConfirm),
+          },
+        },
+        {
+          provide: ValidationService,
+          useValue: { showError: () => {} },
+        },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => args.vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
         },
       ],
     },
@@ -294,6 +348,18 @@ export const EmailOnlyNoTabs: Story = {
 export const WithSecretsManager: Story = {
   args: {
     useSecretsManager: true,
+  },
+  render: makeRender(),
+};
+
+/**
+ * The vfo1-foundation flag is on — role hints, the collections access selector, and (with a
+ * custom role selected) the nested-checkbox permission labels render "Shared folder" terminology.
+ */
+export const SharedFolderTerminology: Story = {
+  args: {
+    vfo1FoundationEnabled: true,
+    useCustomPermissions: true,
   },
   render: makeRender(),
 };

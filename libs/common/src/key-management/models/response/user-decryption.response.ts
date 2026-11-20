@@ -1,3 +1,5 @@
+import { CryptoSyncUserDecryption, KeyId } from "@bitwarden/sdk-internal";
+
 import { WebAuthnPrfDecryptionOptionResponse } from "../../../auth/models/response/user-decryption-options/webauthn-prf-decryption-option.response";
 import { BaseResponse } from "../../../models/response/base.response";
 import { MasterPasswordUnlockResponse } from "../../master-password/models/response/master-password-unlock.response";
@@ -12,6 +14,8 @@ export class UserDecryptionResponse extends BaseResponse {
   webAuthnPrfOptions?: WebAuthnPrfDecryptionOptionResponse[];
 
   v2UpgradeToken?: V2UpgradeTokenResponse;
+
+  userKeyId?: KeyId;
 
   constructor(response: unknown) {
     super(response);
@@ -32,5 +36,30 @@ export class UserDecryptionResponse extends BaseResponse {
     if (v2UpgradeToken != null && typeof v2UpgradeToken === "object") {
       this.v2UpgradeToken = new V2UpgradeTokenResponse(v2UpgradeToken);
     }
+
+    const userKeyId = this.getResponseProperty("UserKeyId");
+    if (userKeyId != null && typeof userKeyId === "string") {
+      this.userKeyId = userKeyId as KeyId;
+    }
+  }
+
+  /**
+   * Converts this response into the SDK's user decryption shape.
+   *
+   * WebAuthn PRF options that the server sent without both wrapped keys are dropped, since they
+   * cannot unlock anything.
+   */
+  toSdk(): CryptoSyncUserDecryption {
+    return {
+      masterPasswordUnlock: this.masterPasswordUnlock?.toMasterPasswordUnlockData().toSdk(),
+      v2UpgradeToken: this.v2UpgradeToken?.toV2UpgradeToken(),
+      webAuthnPrfOptions:
+        this.webAuthnPrfOptions == null
+          ? []
+          : this.webAuthnPrfOptions
+              .map((option) => option.toWebAuthnPrfUnlockOption())
+              .filter((option) => option != null),
+      userKeyId: this.userKeyId,
+    };
   }
 }

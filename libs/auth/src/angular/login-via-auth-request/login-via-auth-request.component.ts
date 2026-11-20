@@ -17,13 +17,13 @@ import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymo
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/common/auth/login-via-auth-request";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -38,8 +38,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { ButtonModule, LinkModule, IconModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
-import { AuthRequestApiServiceAbstraction } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 // FIXME: update to use a const object instead of a typescript enum

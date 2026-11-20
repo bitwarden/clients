@@ -18,13 +18,21 @@ const routes: Routes = [
     canActivate: [organizationPermissionsGuard(canAccessBillingTab)],
     children: [
       { path: "", pathMatch: "full", redirectTo: "subscription" },
-      {
-        path: "subscription",
-        component: WebPlatformUtilsService.isSelfHost()
-          ? OrganizationSubscriptionSelfhostComponent
-          : OrganizationSubscriptionCloudComponent,
-        data: { titleId: "subscription" },
-      },
+      ...(WebPlatformUtilsService.isSelfHost()
+        ? [
+            {
+              path: "subscription",
+              component: OrganizationSubscriptionSelfhostComponent,
+              data: { titleId: "subscription" },
+            },
+          ]
+        : [
+            {
+              path: "subscription",
+              component: OrganizationSubscriptionCloudComponent,
+              data: { titleId: "subscription" },
+            },
+          ]),
       {
         path: "payment-details",
         component: OrganizationPaymentDetailsComponent,

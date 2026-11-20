@@ -3,13 +3,14 @@ import { NgModule } from "@angular/core";
 import { BulkDialogsModule } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../admin-console/organizations/collections";
-import { GroupBadgeModule } from "../../admin-console/organizations/collections/group-badge/group-badge.module";
+import { GroupNameBadgeComponent } from "../../admin-console/organizations/collections/group-badge/group-name-badge.component";
 import { CollectionDialogComponent } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared";
 
 import { BulkDeleteDialogsModule } from "./bulk-action-dialogs/bulk-dialogs.module";
 import { OrganizationBadgeModule } from "./organization-badge/organization-badge.module";
 import { PipesModule } from "./pipes/pipes.module";
+import { VaultNextComponent } from "./vault-next.component";
 import { VaultRoutingModule } from "./vault-routing.module";
 import { VaultComponent } from "./vault.component";
 
@@ -17,7 +18,7 @@ import { VaultComponent } from "./vault.component";
   imports: [
     VaultRoutingModule,
     OrganizationBadgeModule,
-    GroupBadgeModule,
+    GroupNameBadgeComponent,
     CollectionNameBadgeComponent,
     PipesModule,
     SharedModule,
@@ -25,6 +26,7 @@ import { VaultComponent } from "./vault.component";
     BulkDeleteDialogsModule,
     CollectionDialogComponent,
     VaultComponent,
+    VaultNextComponent,
   ],
 })
 export class VaultModule {}

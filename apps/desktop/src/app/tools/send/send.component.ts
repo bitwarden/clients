@@ -12,6 +12,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -28,6 +29,8 @@ import {
   SendFormService,
   SendFormModule,
   SendFormConfig,
+  SendTableV2Component,
+  removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -43,6 +46,7 @@ import { DesktopHeaderComponent } from "../../layout/header";
     NewSendDropdownV2Component,
     DesktopHeaderComponent,
     SendFormModule,
+    SendTableV2Component,
   ],
   providers: [
     DefaultSendFormConfigService,
@@ -66,18 +70,15 @@ export class SendComponent {
   private logService = inject(LogService);
   private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
-  private readonly configService = inject(ConfigService);
-
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
+  private configService = inject(ConfigService);
+  private sendService = inject(SendService);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
 
   protected readonly filteredSends = toSignal(this.sendItemsService.filteredAndSortedSends$, {
     initialValue: [],
   });
+  protected readonly allSends = toSignal(this.sendService.sendViews$);
 
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
@@ -86,6 +87,10 @@ export class SendComponent {
   });
 
   protected readonly disableSend = toSignal(this.sendPolicyService.disableSend$, {
+    initialValue: false,
+  });
+
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
     initialValue: false,
   });
 
@@ -105,6 +110,11 @@ export class SendComponent {
       }),
     ),
     { initialValue: null },
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
   );
 
   constructor() {
@@ -160,14 +170,15 @@ export class SendComponent {
     });
   }
 
-  protected async onRemovePassword(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+  protected async onRemoveAuth(send: SendView): Promise<void> {
+    if (this.disableSend() || this.sendAuthRequired() || send.disabled) {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(send.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -176,11 +187,11 @@ export class SendComponent {
     }
 
     try {
-      await this.sendApiService.removePassword(send.id);
+      await this.sendApiService.removeAuth(send.id);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedPassword"),
+        message: this.i18nService.t(i18nKeys.removed),
       });
     } catch (e) {
       this.logService.error(e);

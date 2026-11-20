@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   EventEmitter,
   inject,
   Input,
@@ -32,18 +31,20 @@ import {
   MenuModule,
   SimpleDialogOptions,
   IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import {
   NewCipherMenuComponent,
   All,
   RoutedVaultFilterModel,
+  Vfo1I18nPipe,
   Vfo1TerminologyService,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { CoachmarkComponent, CoachmarkService } from "../../components/coachmark";
 import { PipesModule } from "../pipes/pipes.module";
 
 @Component({
@@ -58,24 +59,19 @@ import { PipesModule } from "../pipes/pipes.module";
     PipesModule,
     JslibModule,
     NewCipherMenuComponent,
-    CoachmarkComponent,
     IconModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   protected readonly Unassigned = Unassigned;
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly CipherType = CipherType;
-
-  protected readonly coachmarkService = inject(CoachmarkService);
-  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
-
-  /** Computed signal for add item coachmark open state */
-  protected readonly addItemCoachmarkOpen = computed(
-    () => this.coachmarkService.activeStepId() === "addItem",
-  );
 
   /**
    * Boolean to determine the loading state of the header.
@@ -214,7 +210,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"
@@ -329,10 +325,14 @@ export class VaultHeaderComponent {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        organization.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
-        organization.maxCollections,
+        this.vfo1TerminologyService.enabled()
+          ? organization.canEditSubscription
+            ? "freeOrgMaxSharedFolderReachedManageBilling"
+            : "freeOrgMaxSharedFolderReachedNoManageBilling"
+          : organization.canEditSubscription
+            ? "freeOrgMaxCollectionReachedManageBilling"
+            : "freeOrgMaxCollectionReachedNoManageBilling",
+        organization.maxCollections ?? undefined,
       ),
       type: "primary",
     };

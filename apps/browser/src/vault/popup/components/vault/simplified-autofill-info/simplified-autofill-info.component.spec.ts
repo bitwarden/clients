@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/state";
 
@@ -12,7 +11,6 @@ describe("SimplifiedAutofillInfoComponent", () => {
   let fixture: ComponentFixture<SimplifiedAutofillInfoComponent>;
 
   const getUserState$ = jest.fn().mockReturnValue(of(null));
-  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
   const activeAccount$ = new BehaviorSubject({ id: "test-user-id" });
 
   beforeEach(async () => {
@@ -25,10 +23,6 @@ describe("SimplifiedAutofillInfoComponent", () => {
       imports: [SimplifiedAutofillInfoComponent],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        {
-          provide: ConfigService,
-          useValue: { getFeatureFlag$ },
-        },
         {
           provide: AccountService,
           useValue: { activeAccount$: activeAccount$ },
@@ -81,7 +75,7 @@ describe("SimplifiedAutofillInfoComponent", () => {
   });
 
   describe("shouldShowIcon$", () => {
-    it("renders the icon button when feature flag is enabled and not dismissed", async () => {
+    it("renders the icon button when not dismissed", async () => {
       getUserState$.mockReturnValue(of({ hasSeen: false, hasDismissed: false }));
 
       const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);
@@ -93,7 +87,6 @@ describe("SimplifiedAutofillInfoComponent", () => {
     });
 
     it("does not render icon button when dismissed", async () => {
-      getFeatureFlag$.mockReturnValue(of(true));
       getUserState$.mockReturnValue(of({ hasSeen: true, hasDismissed: true }));
 
       const newFixture = TestBed.createComponent(SimplifiedAutofillInfoComponent);

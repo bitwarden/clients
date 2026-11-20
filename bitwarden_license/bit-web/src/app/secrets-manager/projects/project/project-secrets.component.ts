@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -12,6 +12,8 @@ import {
   switchMap,
 } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
+import { ProjectService, ProjectView, SecretListView, SecretService } from "@bitwarden/bit-sm";
 import {
   getOrganizationById,
   OrganizationService,
@@ -21,10 +23,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
-import { ProjectView } from "../../models/view/project.view";
-import { SecretListView } from "../../models/view/secret-list.view";
 import {
   SecretDeleteDialogComponent,
   SecretDeleteOperation,
@@ -34,13 +35,13 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../../secrets/dialog/secret-dialog.component";
+import { SecretVersionDialogService } from "../../secrets/dialog/secret-version-dialog.service";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
 } from "../../secrets/dialog/secret-view-dialog.component";
-import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
-import { ProjectService } from "../project.service";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -48,10 +49,10 @@ import { ProjectService } from "../project.service";
   templateUrl: "./project-secrets.component.html",
   standalone: false,
 })
-export class ProjectSecretsComponent implements OnInit {
+export class ProjectSecretsComponent implements OnInit, OnDestroy {
   secrets$: Observable<SecretListView[]>;
 
-  private organizationId: string;
+  private organizationId: OrganizationId;
   private projectId: string;
   protected project$: Observable<ProjectView>;
   private organizationEnabled: boolean;
@@ -66,7 +67,14 @@ export class ProjectSecretsComponent implements OnInit {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private logService: LogService,
+    private secretVersionDialogService: SecretVersionDialogService,
   ) {}
+
+  readonly noItemsIcon = NoResults;
+
+  ngOnDestroy(): void {
+    this.dialogService.closeAll();
+  }
 
   ngOnInit() {
     const currentProjectEdited = this.projectService.project$.pipe(
@@ -82,7 +90,7 @@ export class ProjectSecretsComponent implements OnInit {
       startWith(null),
       combineLatestWith(this.route.params, currentProjectEdited),
       switchMap(async ([_, params]) => {
-        this.organizationId = params.organizationId;
+        this.organizationId = params.organizationId as OrganizationId;
         this.projectId = params.projectId;
         const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
@@ -102,7 +110,8 @@ export class ProjectSecretsComponent implements OnInit {
   }
 
   openEditSecret(secretId: string) {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    this.dialogService.closeAll();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Edit,
@@ -113,7 +122,7 @@ export class ProjectSecretsComponent implements OnInit {
   }
 
   openViewSecret(secretId: string) {
-    this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
+    void this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
       data: {
         organizationId: this.organizationId,
         secretId: secretId,
@@ -122,7 +131,7 @@ export class ProjectSecretsComponent implements OnInit {
   }
 
   openDeleteSecret(event: SecretListView[]) {
-    this.dialogService.open<unknown, SecretDeleteOperation>(SecretDeleteDialogComponent, {
+    void this.dialogService.open<unknown, SecretDeleteOperation>(SecretDeleteDialogComponent, {
       data: {
         secrets: event,
       },
@@ -131,7 +140,8 @@ export class ProjectSecretsComponent implements OnInit {
   }
 
   openNewSecretDialog() {
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    this.dialogService.closeAll();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,
@@ -157,5 +167,9 @@ export class ProjectSecretsComponent implements OnInit {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  async openVersionHistory(secretId: string) {
+    await this.secretVersionDialogService.openVersionHistory(this.organizationId, secretId);
   }
 }

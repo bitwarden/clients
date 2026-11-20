@@ -28,6 +28,7 @@ export enum DeviceType {
   MacOsCLI = 24,
   LinuxCLI = 25,
   DuckDuckGoBrowser = 26,
+  DuckDuckGoExtension = 27,
 }
 
 /**
@@ -49,6 +50,7 @@ export const DeviceTypeMetadata: Record<DeviceType, DeviceTypeMetadata> = {
   [DeviceType.EdgeExtension]: { category: "extension", platform: "Edge" },
   [DeviceType.VivaldiExtension]: { category: "extension", platform: "Vivaldi" },
   [DeviceType.SafariExtension]: { category: "extension", platform: "Safari" },
+  [DeviceType.DuckDuckGoExtension]: { category: "extension", platform: "DuckDuckGo" },
   [DeviceType.ChromeBrowser]: { category: "webApp", platform: "Chrome" },
   [DeviceType.FirefoxBrowser]: { category: "webApp", platform: "Firefox" },
   [DeviceType.OperaBrowser]: { category: "webApp", platform: "Opera" },

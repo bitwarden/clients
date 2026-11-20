@@ -8,9 +8,14 @@ export class OrganizationCollectionResponse extends CollectionResponse {
   groups: SelectionReadOnly[];
   users: SelectionReadOnly[];
 
-  constructor(o: CollectionView, groups: SelectionReadOnly[], users: SelectionReadOnly[]) {
+  constructor(
+    o: CollectionView,
+    groups: SelectionReadOnly[],
+    users: SelectionReadOnly[],
+    useSharedFoldersTerm = false,
+  ) {
     super(o);
-    this.object = "org-collection";
+    this.object = useSharedFoldersTerm ? "org-shared-folder" : "org-collection";
     this.groups = groups;
     this.users = users;
   }

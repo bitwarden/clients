@@ -3,24 +3,23 @@ import { AbstractControl, FormControl } from "@angular/forms";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 
 import {
   getEmailBatchLimit,
   inputEmailLimitValidator,
   isDynamicSeatPlan,
   isFixedSeatPlan,
+  isSeatConstrainedEmailBatch,
 } from "./input-email-limit.validator";
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  buildTestOrganization({
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  });
 
 describe("inputEmailLimitValidator", () => {
   const getErrorMessage = (max: number) => `You can only add up to ${max} unique emails.`;
@@ -204,6 +203,26 @@ describe("getEmailBatchLimit", () => {
       expect(getEmailBatchLimit(organization, 6)).toBe(0);
       expect(getEmailBatchLimit(organization, 8)).toBe(0);
     });
+  });
+});
+
+describe("isSeatConstrainedEmailBatch", () => {
+  it("returns false for dynamic-seat plans, which can autoscale past their current seat count", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Teams, seats: 10 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 10)).toBe(false);
+  });
+
+  it("returns false for a fixed-seat plan with more remaining seats than the batch limit", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Free, seats: 100 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 0)).toBe(false);
+  });
+
+  it("returns true for a fixed-seat plan with fewer remaining seats than the batch limit", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Families, seats: 6 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 3)).toBe(true);
   });
 });
 

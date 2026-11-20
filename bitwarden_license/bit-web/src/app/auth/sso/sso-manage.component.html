@@ -83,19 +83,35 @@
             {{ "trustedDevices" | i18n }}
           </bit-label>
           <bit-hint>
-            {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            @if (vfo1Enabled()) {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link1" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part2" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link2" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part3" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link3" | i18n
+              }}</a>
+              {{ "memberDecryptionOptionTdeDescVfo1Part4" | i18n }}
+            } @else {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            }
           </bit-hint>
         </bit-radio-button>
       </bit-radio-group>

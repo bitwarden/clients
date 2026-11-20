@@ -40,6 +40,15 @@ export abstract class VaultExportServiceAbstraction {
   ) => Promise<ExportedVault>;
 
   /**
+   * Number of PAM-gated ("partial") ciphers a managed-collections export of `organizationId` would
+   * omit, to warn before the file is produced.
+   */
+  abstract getManagedExportGatedItemCount: (
+    userId: UserId,
+    organizationId: OrganizationId,
+  ) => Promise<number>;
+
+  /**
    * Get available export formats based on vault context
    * @param options Options determining which formats are available
    * @returns Observable stream of available export formats

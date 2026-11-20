@@ -123,7 +123,7 @@ impl TryFrom<ssh_key::private::PrivateKey> for PrivateKey {
                     .ok_or(anyhow!("Failed to parse RSA key"))?
                     .to_owned(),
             )),
-            _ => Err(anyhow!("Unsupported key type")),
+            _ => Err(anyhow!("Unsupported key type: {}", key.algorithm())),
         }
     }
 }

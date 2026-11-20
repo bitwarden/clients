@@ -5,9 +5,12 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
@@ -29,6 +32,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
   let reportPersistenceService: jest.Mocked<ReportPersistenceService>;
   let logService: jest.Mocked<LogService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const orgId = "org-123" as OrganizationId;
   const testReport = createRiskInsights({
@@ -40,10 +44,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
     // Create mocks
     apiService = {
       getManyCollectionsWithAccessDetails: jest.fn().mockResolvedValue({ data: [] }),
+      getManyCollectionsWithOrganizationDetails: jest.fn().mockResolvedValue({ data: [] }),
     } as any;
 
     cipherService = {
       getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
+      getCiphersOrganizationLogins: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
     } as any;
 
     organizationUserApiService = {
@@ -64,6 +70,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
       debug: jest.fn(),
       error: jest.fn(),
       info: jest.fn(),
+      measure: jest.fn(),
+      mark: jest.fn(),
+    } as any;
+
+    configService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
     } as any;
 
     service = new DefaultAccessIntelligenceDataService(
@@ -73,6 +85,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService,
       reportPersistenceService,
       logService,
+      configService,
     );
   });
 
@@ -120,6 +133,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(report?.id).toBe(newId);
     });
 
+    it("requests member items so ciphers in a member's My Items collection are loaded", async () => {
+      reportPersistenceService.loadLastReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.initializeForOrganization$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+      expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+    });
+
     it("should handle load errors gracefully", async () => {
       reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
@@ -132,6 +159,56 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBeNull();
+    });
+
+    describe("with AccessIntelligencePerformanceAtScale enabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockImplementation((flag) =>
+          of(flag === FeatureFlag.AccessIntelligencePerformanceAtScale),
+        );
+        cipherService.getCiphersOrganizationLogins.mockResolvedValue({
+          successes: testCiphers,
+          failures: [],
+        });
+      });
+
+      it("does not load ciphers when a report exists", async () => {
+        reportPersistenceService.loadLastReport$.mockReturnValue(
+          of({ report: testReport, hadLegacyBlobs: false }),
+        );
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getCiphersOrganizationLogins).not.toHaveBeenCalled();
+        expect(await firstValueFrom(service.report$)).toBe(testReport);
+        expect(await firstValueFrom(service.ciphers$)).toEqual([]);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
+
+      it("loads ciphers when no report exists", async () => {
+        reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getCiphersOrganizationLogins).toHaveBeenCalledWith(orgId);
+        expect(await firstValueFrom(service.report$)).toBeNull();
+        expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
+
+      it("loads ciphers when an empty report exists (i.e. no login items)", async () => {
+        const emptyReport = createRiskInsights({ reports: [] });
+        reportPersistenceService.loadLastReport$.mockReturnValue(
+          of({ report: emptyReport, hadLegacyBlobs: false }),
+        );
+
+        await firstValueFrom(service.initializeForOrganization$(orgId));
+
+        expect(cipherService.getCiphersOrganizationLogins).toHaveBeenCalledWith(orgId);
+        expect(await firstValueFrom(service.report$)).toBeNull();
+        expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+        expect(await firstValueFrom(service.loading$)).toBe(false);
+      });
     });
   });
 
@@ -180,7 +257,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(report?.id).toBe("report-id-123" as OrganizationReportId);
       expect(report?.organizationId).toBe(orgId);
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
         includeGroups: true,
       });
@@ -190,6 +267,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     it("should carry over previous application metadata", async () => {
       const previousReport = createRiskInsights({
+        reports: [createReport("github.com")],
         applications: [
           { applicationName: "github.com", isCritical: true, reviewedDate: new Date() } as any,
         ],
@@ -217,6 +295,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toEqual(testCiphers);
+    });
+
+    it("requests member items so ciphers in a member's My Items collection are reported on", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+    });
+
+    it("requests member items when refreshing an existing report", async () => {
+      await firstValueFrom(service.refreshReport$(orgId));
+
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
     });
 
     it("should handle generation errors and keep previous report", async () => {
@@ -311,6 +403,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     beforeEach(() => {
       mockReport = createRiskInsights({
+        reports: [createReport("github.com")],
         applications: [
           { applicationName: "github.com", isCritical: false, reviewedDate: undefined } as any,
         ],
@@ -507,6 +600,77 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       error = await firstValueFrom(service.error$);
       expect(error).toBeNull();
+    });
+  });
+
+  describe("Cipher Endpoint Feature Flag", () => {
+    beforeEach(() => {
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of({
+          id: "report-id-123" as OrganizationReportId,
+          contentEncryptionKey: new EncString(""),
+        }),
+      );
+    });
+
+    it("should call getAllFromApiForOrganization when flag is off", async () => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+      expect(cipherService.getCiphersOrganizationLogins).not.toHaveBeenCalled();
+    });
+
+    it("should call getCiphersOrganizationLogins when flag is on", async () => {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        flag === FeatureFlag.AccessIntelligencePerformanceAtScale ? of(true) : of(false),
+      );
+      cipherService.getCiphersOrganizationLogins.mockResolvedValue({
+        successes: testCiphers,
+        failures: [],
+      });
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(cipherService.getCiphersOrganizationLogins).toHaveBeenCalledWith(orgId);
+      expect(cipherService.getAllFromApiForOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Collection Endpoint Feature Flag", () => {
+    beforeEach(() => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+      organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of({
+          id: "report-id-123" as OrganizationReportId,
+          contentEncryptionKey: new EncString(""),
+        }),
+      );
+    });
+
+    it("should call getManyCollectionsWithAccessDetails when flag is off", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(apiService.getManyCollectionsWithAccessDetails).toHaveBeenCalledWith(orgId);
+      expect(apiService.getManyCollectionsWithOrganizationDetails).not.toHaveBeenCalled();
+    });
+
+    it("should call getManyCollectionsWithOrganizationDetails when flag is on", async () => {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        flag === FeatureFlag.AccessIntelligencePerformanceAtScale ? of(true) : of(false),
+      );
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      expect(apiService.getManyCollectionsWithOrganizationDetails).toHaveBeenCalledWith(orgId);
+      expect(apiService.getManyCollectionsWithAccessDetails).not.toHaveBeenCalled();
     });
   });
 

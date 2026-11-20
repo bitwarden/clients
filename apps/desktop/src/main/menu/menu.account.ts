@@ -5,7 +5,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
-import { isMacAppStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isWindowsStore } from "../platform-utils.main";
 
 import { IMenubarMenu } from "./menubar";
 
@@ -38,6 +38,7 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  private readonly _hasPremium: boolean;
   // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
   private readonly _desktopAddDevices: boolean;
 
@@ -48,6 +49,7 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    hasPremium: boolean,
     private shell: SafeShell,
     desktopAddDevices: boolean = false,
   ) {
@@ -57,6 +59,7 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    this._hasPremium = hasPremium;
     // TODO: PM-34438 - remove this assignment
     this._desktopAddDevices = desktopAddDevices;
   }
@@ -66,7 +69,8 @@ export class AccountMenu implements IMenubarMenu {
       label: this.localize("premiumMembership"),
       click: () => this.sendMessage("openPremium"),
       id: "premiumMembership",
-      visible: !isWindowsStore() && !isMacAppStore(),
+      // Only an upgrade path — hidden once the user already has premium (PM-39452).
+      visible: !isWindowsStore() && !isMacAppStore() && !this._hasPremium,
       enabled: !this._isLocked,
     };
   }

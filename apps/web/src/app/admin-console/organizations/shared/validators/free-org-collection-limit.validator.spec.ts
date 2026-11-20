@@ -75,4 +75,23 @@ describe("freeOrgCollectionLimitValidator", () => {
       cannotCreateCollections: { message: "cannotCreateCollection" },
     });
   });
+
+  it("returns the shared folder error message when the VFO1 flag is on and the collection limit is reached", async () => {
+    const org = { id: "org-id", maxCollections: 1 } as Organization;
+    const collections = [{ organizationId: "org-id" } as Collection];
+    const validator = freeOrgCollectionLimitValidator(
+      of([org]),
+      of(collections),
+      i18nService,
+      true,
+    );
+    const control = new FormControl("org-id");
+
+    const result$ = validator(control) as Observable<ValidationErrors | null>;
+
+    const value = await lastValueFrom(result$);
+    expect(value).toEqual({
+      cannotCreateCollections: { message: "cannotCreateSharedFolder" },
+    });
+  });
 });

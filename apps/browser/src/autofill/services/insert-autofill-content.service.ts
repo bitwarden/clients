@@ -47,7 +47,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     if (
       !fillScript.script?.length ||
       currentlyInSandboxedIframe() ||
-      this.userCancelledInsecureUrlAutofill(fillScript.savedUrls) ||
+      this.userCancelledInsecureUrlAutofill(fillScript.requiresInsecurePageConfirmation) ||
       this.userCancelledUntrustedIframeAutofill(fillScript)
     ) {
       return;
@@ -61,13 +61,14 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   /**
    * Checks if the autofill is occurring on a page that can be considered secure. If the page is not secure,
    * the user is prompted to confirm that they want to autofill on the page.
-   * @param {string[] | null} savedUrls
+   * The background determines whether the cipher holds an HTTPS URI that applies to this page.
+   * @param {boolean} requiresInsecurePageConfirmation
    * @returns {boolean}
    * @private
    */
-  private userCancelledInsecureUrlAutofill(savedUrls?: string[] | null): boolean {
+  private userCancelledInsecureUrlAutofill(requiresInsecurePageConfirmation?: boolean): boolean {
     if (
-      !savedUrls?.some((url) => url.startsWith(`https://${globalThis.location.hostname}`)) ||
+      !requiresInsecurePageConfirmation ||
       globalThis.location.protocol !== "http:" ||
       !this.isPasswordFieldWithinDocument()
     ) {

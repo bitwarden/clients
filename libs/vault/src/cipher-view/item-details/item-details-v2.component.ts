@@ -25,6 +25,8 @@ import {
 import { OrgIconDirective } from "../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { ITEM_DETAILS_BADGE, ItemDetailsBadge } from "../../tokens/item-details-badge.token";
+import { sharedFolderDisplayName } from "../../utils/shared-folder-name";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -43,14 +45,22 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
   ],
 })
 export class ItemDetailsV2Component {
-  private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
+  /** Optional host-provided badge on the item name row; null when unprovided. */
+  protected readonly badgeComponent: ItemDetailsBadge | null = inject(ITEM_DETAILS_BADGE, {
+    optional: true,
+  });
+
   readonly hideOwner = input<boolean>(false);
+  /** Whether the item is open in the Admin Console. Relayed to the badge. */
+  readonly isAdminConsole = input(false);
   readonly cipher = input.required<CipherView>();
   readonly organization = input<Organization | undefined>();
   readonly folder = input<FolderView | undefined>();
   readonly collections = input<CollectionView[] | undefined>();
+  readonly showEmptyDetails = input<boolean>(true);
   readonly showAllDetails = signal(false);
 
   readonly showOwnership = computed(() => {
@@ -104,18 +114,27 @@ export class ItemDetailsV2Component {
       const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
       return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
-      return this.i18nService.t("collection") + item.name;
+      const key = this.vfo1Enabled() ? "sharedFolderAriaLabel" : "collectionAriaLabel";
+      return this.i18nService.t(key, this.getItemName(item));
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder") + item.name;
+      const key = this.vfo1Enabled() ? "myFolderAriaLabel" : "folderAriaLabel";
+      return this.i18nService.t(key, item.name);
     }
     return "";
   }
 
+  /** The item's name, a shared folder's as {@link sharedFolderDisplayName} gives it. */
+  getItemName(item: Organization | CollectionView | FolderView): string {
+    return item instanceof CollectionView
+      ? sharedFolderDisplayName(item, this.i18nService)
+      : item.name;
+  }
+
   getIconClass(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return item.type === CollectionTypes.DefaultUserCollection
-        ? "bwi-user"
-        : "bwi-collection-shared";
+      return this.vfo1TerminologyService.iconClass(
+        item.type === CollectionTypes.DefaultUserCollection ? "bwi-user" : "bwi-collection-shared",
+      );
     } else if (item instanceof FolderView) {
       return "bwi-folder";
     }
@@ -124,9 +143,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t("collection");
+      return this.i18nService.t(this.vfo1Enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder");
+      return this.i18nService.t(this.vfo1Enabled() ? "myFolder" : "folder");
     }
     return "";
   }

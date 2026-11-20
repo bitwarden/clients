@@ -54,7 +54,12 @@ describe("ScimApiKeyDialogComponent", () => {
 
   describe("non-rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false });
+      await setupTestBed({
+        organizationId: orgId,
+        titleKey: "viewScimApiKey",
+        submitButtonKey: "viewApiKey",
+        isRotation: false,
+      });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
@@ -98,7 +103,12 @@ describe("ScimApiKeyDialogComponent", () => {
 
   describe("rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, titleKey: "rotateScimKey", isRotation: true });
+      await setupTestBed({
+        organizationId: orgId,
+        titleKey: "rotateScimKey",
+        submitButtonKey: "rotateKey",
+        isRotation: true,
+      });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
@@ -127,6 +137,7 @@ describe("ScimApiKeyDialogComponent", () => {
       const data: ScimApiKeyDialogData = {
         organizationId: orgId,
         titleKey: "rotateScimKey",
+        submitButtonKey: "rotateKey",
         isRotation: true,
       };
 

@@ -7,15 +7,13 @@ import {
   inject,
   effect,
 } from "@angular/core";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InfoFilledIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PopoverModule, IconModule, ButtonModule, SvgModule } from "@bitwarden/components";
 import { StateProvider, UserKeyDefinition, VAULT_AUTOFILL_SIMPLIFIED_ICON } from "@bitwarden/state";
 
@@ -35,7 +33,6 @@ const VAULT_AUTOFILL_SIMPLIFIED_ICON_KEY = new UserKeyDefinition<{
   imports: [JslibModule, PopoverModule, IconModule, ButtonModule, SvgModule, AsyncPipe],
 })
 export class SimplifiedAutofillInfoComponent {
-  private readonly configService = inject(ConfigService);
   private readonly stateProvider = inject(StateProvider);
   private readonly accountService = inject(AccountService);
 
@@ -55,17 +52,8 @@ export class SimplifiedAutofillInfoComponent {
   );
 
   /** Emits true when the icon should be shown to the user */
-  protected readonly shouldShowIcon$ = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.PM31039ItemActionInExtension),
-    this.vaultAutofillSimplifiedIconState$,
-  ]).pipe(
-    map(([isFeatureEnabled, state]) => {
-      if (!isFeatureEnabled) {
-        return false;
-      }
-
-      return !state?.hasDismissed;
-    }),
+  protected readonly shouldShowIcon$ = this.vaultAutofillSimplifiedIconState$.pipe(
+    map((state) => !state?.hasDismissed),
   );
 
   constructor() {

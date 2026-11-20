@@ -1,4 +1,4 @@
-import { Directive, ElementRef, inject } from "@angular/core";
+import { booleanAttribute, Directive, ElementRef, inject, input } from "@angular/core";
 
 /**
  * Marks an element as the trailing affordance of a parent `[bitOverflowList]` —
@@ -18,4 +18,12 @@ import { Directive, ElementRef, inject } from "@angular/core";
 })
 export class OverflowTriggerDirective {
   readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * When true, the parent list keeps the trigger visible even when nothing has
+   * overflowed. Use this when the trigger opens a menu that has other content
+   * (e.g., always-present "additional actions") so it shouldn't disappear just
+   * because the overflow set happens to be empty.
+   */
+  readonly alwaysShow = input(false, { transform: booleanAttribute });
 }

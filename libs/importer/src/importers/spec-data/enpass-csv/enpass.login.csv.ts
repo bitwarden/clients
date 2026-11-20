@@ -1,0 +1,2 @@
+export const data = `Booking,Username,,E-mail,rwilsoncloud@gmail.com,*Password,MyPassWordHere,Website,https://account.booking.com,ADDITIONAL DETAILS,,Phone number,,One-time code,,Security question,,*Security answer,,Website,https://account.booking.com/sign-in
+Consumerreports,Username,rwilsoncloud@gmail.com,E-mail,rwilsoncloud@gmail.com,*Password,MyPassWordHere2,Website,https://secure.consumerreports.org,ADDITIONAL DETAILS,,Phone number,,One-time code,,Security question,,*Security answer,,Website,https://secure.consumerreports.org/ec/account/change-password`;

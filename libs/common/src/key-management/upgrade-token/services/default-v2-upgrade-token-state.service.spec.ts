@@ -4,7 +4,7 @@ import { V2UpgradeToken } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
-import { V2_UPGRADE_TOKEN } from "../v2-upgrade-token.state";
+import { V2_UPGRADE_TOKEN } from "../../state-definitions";
 
 import { DefaultV2UpgradeTokenStateService } from "./default-v2-upgrade-token-state.service";
 

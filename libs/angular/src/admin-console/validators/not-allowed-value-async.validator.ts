@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AbstractControl, AsyncValidatorFn, ValidationErrors } from "@angular/forms";
 
 export function notAllowedValueAsync(
@@ -19,5 +17,7 @@ export function notAllowedValueAsync(
         notAllowedValue: true,
       };
     }
+
+    return null;
   };
 }

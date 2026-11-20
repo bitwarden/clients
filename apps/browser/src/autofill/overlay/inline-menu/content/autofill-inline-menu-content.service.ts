@@ -141,7 +141,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    *
    * @param element  - The element being checked
    */
-  isElementInlineMenu(element: HTMLElement) {
+  isElementInlineMenu(element: Element) {
     return element === this.buttonElement || element === this.listElement;
   }
 
@@ -149,8 +149,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Checks if the inline menu button is visible at the top frame.
    */
   private async isInlineMenuButtonVisible() {
+    // `isConnected` check for extra defensiveness in cases where the host element is disconnected
     return (
-      !!this.buttonElement &&
+      !!this.buttonElement?.isConnected &&
       (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true
     );
   }
@@ -159,8 +160,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Checks if the inline menu list if visible at the top frame.
    */
   private async isInlineMenuListVisible() {
+    // `isConnected` check for extra defensiveness in cases where the host element is disconnected
     return (
-      !!this.listElement &&
+      !!this.listElement?.isConnected &&
       (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true
     );
   }
@@ -282,15 +284,40 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * @param element - The inline menu element to append to the menu container.
    */
   private appendInlineMenuElementToDom(element: HTMLElement) {
-    const parentDialogElement = globalThis.document.activeElement?.closest("dialog");
+    const containerElement = this.getInlineMenuContainerElement();
+    this.observeContainerElement(containerElement);
+    containerElement.appendChild(element);
+  }
+
+  /**
+   * Determines which element the inline menu should be appended to. When the
+   * focused field lives inside a modal, the menu must be appended within that
+   * modal so it shares the modal's DOM subtree. Modals commonly run a focus trap
+   * that forces focus back inside their subtree; a menu appended to
+   * `document.body` sits outside it, so the trap steals focus the moment the user
+   * interacts with the menu and both clicks and keyboard navigation fail.
+   * Both native top-layer `<dialog>` modals and ARIA modals
+   * (`role="dialog"`/`role="alertdialog"` with `aria-modal="true"`) are
+   * handled; otherwise the menu is appended to `document.body`.
+   */
+  private getInlineMenuContainerElement(): HTMLElement {
+    const activeElement = globalThis.document.activeElement;
+
+    const parentDialogElement = activeElement?.closest("dialog");
+
     if (parentDialogElement?.open && parentDialogElement.matches(":modal")) {
-      this.observeContainerElement(parentDialogElement);
-      parentDialogElement.appendChild(element);
-      return;
+      return parentDialogElement;
     }
 
-    this.observeContainerElement(globalThis.document.body);
-    globalThis.document.body.appendChild(element);
+    const parentAriaModalElement = activeElement?.closest<HTMLElement>(
+      '[role="dialog"][aria-modal="true"], [role="alertdialog"][aria-modal="true"]',
+    );
+
+    if (parentAriaModalElement) {
+      return parentAriaModalElement;
+    }
+
+    return globalThis.document.body;
   }
 
   /**
@@ -536,36 +563,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
-   * Returns the name of the generated container tags for usage internally to avoid
-   * unintentional targeting of the owned experience.
-   */
-  getOwnedTagNames = (): string[] => {
-    return [
-      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
-      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
-    ];
-  };
-
-  /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
    * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
    * may or may not be active) should be included in the query
    */
-  getUnownedTopLayerItems = (includeCandidates = false) => {
-    const inlineMenuTagExclusions = [
-      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
-      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
-      ":popover-open",
-    ].join("");
+  getUnownedTopLayerItems = (includeCandidates = false): Element[] => {
     const selector = [
       ":modal",
-      inlineMenuTagExclusions,
+      ":popover-open",
       ...(includeCandidates ? ["[popover], dialog"] : []),
     ].join(",");
-    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+    const topLayerItems = globalThis.document.querySelectorAll(selector);
 
-    return otherTopLayeritems;
+    // Exclude the inline menu by element identity rather than by tag name: Firefox renders
+    // the menu containers as plain `div` elements, so a tag name exclusion would also
+    // exclude every page `div` popover.
+    return Array.from(topLayerItems).filter((element) => !this.isElementInlineMenu(element));
   };
 
   /**
@@ -606,6 +620,29 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     element.showPopover();
   };
 
+  /**
+   * Re-promotes an inline menu popover into the top layer, so that it renders above
+   * dialogs and popovers the page has opened. Uses the stored element reference rather
+   * than looking the element up by tag name: Firefox renders the menu containers as
+   * plain `div` elements, so a tag name lookup resolves the page's first `div` instead of
+   * the menu and `hidePopover` throws for that element.
+   *
+   * @param element - The inline menu element to refresh
+   * @returns whether the element was refreshed
+   */
+  private refreshPopoverTopLayerPosition = (element?: HTMLElement): boolean => {
+    // `hidePopover` throws for elements that are not popovers, and `showPopover`
+    // requires the element to be connected, so verify both before refreshing.
+    if (!element?.isConnected || !element.hasAttribute("popover")) {
+      return false;
+    }
+
+    element.hidePopover();
+    element.showPopover();
+
+    return true;
+  };
+
   refreshTopLayerPosition = () => {
     if (!this.inlineMenuEnabled) {
       return;
@@ -618,24 +655,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const buttonInDocument =
-      this.buttonElement &&
-      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
-    const listInDocument =
-      this.listElement &&
-      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    const buttonRefreshed = this.refreshPopoverTopLayerPosition(this.buttonElement);
+    const listRefreshed = this.refreshPopoverTopLayerPosition(this.listElement);
 
-    if (buttonInDocument) {
-      buttonInDocument.hidePopover();
-      buttonInDocument.showPopover();
-    }
-
-    if (listInDocument) {
-      listInDocument.hidePopover();
-      listInDocument.showPopover();
-    }
-
-    if (buttonInDocument || listInDocument) {
+    if (buttonRefreshed || listRefreshed) {
       this.checkAndUpdateRefreshCount("topLayer");
     }
   };

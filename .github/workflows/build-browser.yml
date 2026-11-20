@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+# If additional artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-browser-target.yml".
 
 name: Build Browser
 
@@ -51,14 +51,16 @@ jobs:
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
+      beta_number: ${{ steps.gen_vars.outputs.beta_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
         id: gen_vars
@@ -68,6 +70,17 @@ jobs:
 
           echo "repo_url=$repo_url" >> "$GITHUB_OUTPUT"
           echo "adj_build_number=$adj_build_num" >> "$GITHUB_OUTPUT"
+
+          # beta-release.json holds the beta ordinal, which is bumped on rc for a
+          # second beta off the same base version. The Chrome Web Store rejects an
+          # upload that does not out-rank the previous one in the same listing.
+          beta_number=$(jq -r '.betaNumber' apps/browser/beta-release.json)
+          if [[ ! "$beta_number" =~ ^[0-9]+$ ]]; then
+            echo "[!] Invalid beta ordinal '$beta_number'; expected a positive integer"
+            exit 1
+          fi
+          echo "Setting beta ordinal to $beta_number"
+          echo "beta_number=$beta_number" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -94,10 +107,11 @@ jobs:
         working-directory: apps/browser
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Testing locales - extName length
         run: |
@@ -136,7 +150,7 @@ jobs:
       matrix:
         license_type:
           - include_bitwarden_license_folder: false
-            archive_name_prefix: ""
+            archive_name_prefix: "oss-"
             readable: "open source license"
           - include_bitwarden_license_folder: true
             archive_name_prefix: "bit-"
@@ -146,13 +160,14 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -164,6 +179,8 @@ jobs:
           npm --version
 
       - name: Build sources for reviewers
+        env:
+          _ARCHIVE_NAME_PREFIX: ${{ matrix.license_type.archive_name_prefix }}
         run: |
           # Include hidden files in glob copy
           shopt -s dotglob
@@ -180,23 +197,29 @@ jobs:
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
 
-          # Copy bitwarden_license/bit-browser to the Browser source directory
+          # Copy bitwarden_license/bit-browser and its bit-common, bit-pam and bit-pam-components dependencies to the Browser source directory
           if [[ ${{matrix.license_type.include_bitwarden_license_folder}} == "true" ]]; then
             mkdir -p browser-source/bitwarden_license/bit-browser
             cp -r bitwarden_license/bit-browser/* browser-source/bitwarden_license/bit-browser
+            mkdir -p browser-source/bitwarden_license/bit-common
+            cp -r bitwarden_license/bit-common/* browser-source/bitwarden_license/bit-common
+            mkdir -p browser-source/bitwarden_license/bit-pam
+            cp -r bitwarden_license/bit-pam/* browser-source/bitwarden_license/bit-pam
+            mkdir -p browser-source/bitwarden_license/bit-pam-components
+            cp -r bitwarden_license/bit-pam-components/* browser-source/bitwarden_license/bit-pam-components
           fi
 
           # Copy libs to Browser source directory
           mkdir browser-source/libs
           cp -r libs/* browser-source/libs
 
-          zip -r browser-source.zip browser-source
+          zip -r "${_ARCHIVE_NAME_PREFIX}browser-source.zip" browser-source
 
       - name: Upload browser source
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source.zip
+          path: ${{ matrix.license_type.archive_name_prefix }}browser-source.zip
           if-no-files-found: error
 
 
@@ -214,9 +237,9 @@ jobs:
       matrix:
         license_type:
           - build_prefix: ""
-            artifact_prefix: ""
-            source_archive_name_prefix: ""
-            archive_name_prefix: ""
+            artifact_prefix: "oss-"
+            source_archive_name_prefix: "oss-"
+            archive_name_prefix: "oss-"
             npm_command_prefix: "dist:"
             npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
@@ -240,6 +263,8 @@ jobs:
             npm_command_suffix: "beta:chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3-beta"
+            artifact_name_dev: "dev-chrome-MV3-beta"
+            archive_name_dev: "dev-chrome-beta.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -248,6 +273,10 @@ jobs:
             npm_command_suffix: "firefox"
             archive_name: "dist-firefox.zip"
             artifact_name: "dist-firefox"
+          - name: "firefox-beta"
+            npm_command_suffix: "beta:firefox"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "dist-firefox-beta"
           - name: "firefox-mv3"
             npm_command_suffix: "firefox:mv3"
             archive_name: "dist-firefox.zip"
@@ -258,13 +287,14 @@ jobs:
             artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -281,9 +311,11 @@ jobs:
           name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
       - name: Unzip browser source artifact
+        env:
+          _SOURCE_ARCHIVE_NAME_PREFIX: ${{ matrix.license_type.source_archive_name_prefix }}
         run: |
-          unzip browser-source.zip
-          rm browser-source.zip
+          unzip "${_SOURCE_ARCHIVE_NAME_PREFIX}browser-source.zip"
+          rm "${_SOURCE_ARCHIVE_NAME_PREFIX}browser-source.zip"
 
       - name: NPM setup
         run: npm ci
@@ -353,7 +385,11 @@ jobs:
               exit 1
           fi
 
+      # Beta npm scripts (chrome-beta, firefox-beta) stamp BETA_NUMBER into the
+      # built manifest via update-manifest-beta.sh.
       - name: Build extension
+        env:
+          BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
         run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
@@ -392,8 +428,8 @@ jobs:
       matrix:
         license_type:
           - build_prefix: ""
-            artifact_prefix: ""
-            archive_name_prefix: ""
+            artifact_prefix: "oss-"
+            archive_name_prefix: "oss-"
             npm_command_prefix: "dist:"
             readable: "open source license"
             type: "oss"
@@ -408,13 +444,14 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -570,9 +607,8 @@ jobs:
       - build-safari
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
 
       - name: Log in to Azure

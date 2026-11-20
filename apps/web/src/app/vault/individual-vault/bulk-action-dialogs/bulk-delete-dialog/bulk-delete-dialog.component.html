@@ -12,7 +12,10 @@
         }
         @if (collections?.length) {
           <span>
-            {{ "deleteSelectedCollectionsDesc" | i18n: collections.length }}
+            {{
+              "deleteSelectedCollectionsDesc"
+                | vfo1I18n: "deleteSelectedSharedFoldersDesc" : collections.length
+            }}
           </span>
         }
         {{ "deleteSelectedConfirmation" | i18n }}

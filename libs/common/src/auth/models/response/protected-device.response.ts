@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { DeviceType } from "../../../enums";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { RotateableKeySet } from "../../../key-management/keys/models/rotateable-key-set";
 import { BaseResponse } from "../../../models/response/base.response";
 

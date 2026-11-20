@@ -2,11 +2,11 @@ import { mock } from "jest-mock-extended";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { RendererBiometricsService } from "./renderer-biometrics.service";
@@ -37,7 +37,6 @@ describe("renderer biometrics service tests", function () {
           getBiometricsStatusForUser: jest.fn(),
           deleteBiometricUnlockKeyForUser: jest.fn(),
           setupBiometrics: jest.fn(),
-          setClientKeyHalfForUser: jest.fn(),
           getShouldAutoprompt: jest.fn(),
           setShouldAutoprompt: jest.fn(),
           enrollPersistent: jest.fn(),
@@ -116,8 +115,24 @@ describe("renderer biometrics service tests", function () {
       );
       expect(biometricStateService.setBiometricEnrolledKeyId).toHaveBeenCalledWith(
         testUserId,
-        Utils.fromBufferToB64(mockKeyId),
+        Utils.fromArrayToHex(mockKeyId),
       );
+    });
+
+    // A failed enrollment must not record the key id; otherwise the biometric re-enrollment
+    // migration sees matching key ids and never retries.
+    it("does not store the enrolled key id when enrollment fails", async () => {
+      const enrollmentError = new Error("Failed to parse user key");
+      (global as any).ipc.keyManagement.biometric.enrollPersistent.mockRejectedValue(
+        enrollmentError,
+      );
+      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      getKeyIdMock().mockReturnValue(mockKeyId);
+
+      await expect(service.enrollPersistent(testUserId, mockUserKey)).rejects.toThrow(
+        enrollmentError,
+      );
+      expect(biometricStateService.setBiometricEnrolledKeyId).not.toHaveBeenCalled();
     });
 
     it("clears the enrolled key id when the SDK returns no key id", async () => {

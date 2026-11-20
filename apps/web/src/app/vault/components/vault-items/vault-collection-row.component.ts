@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  Output,
+  ViewChild,
+} from "@angular/core";
 
 import {
   CollectionAdminView,
@@ -12,6 +20,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -19,9 +28,11 @@ import {
   CollectionPermission,
   convertToPermission,
   getPermissionList,
+  permissionLabelId,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -31,6 +42,12 @@ import { RowHeightClass } from "./vault-items.component";
   standalone: false,
 })
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  protected readonly leaseBadge: VaultRowLeaseBadge | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
+
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
   protected CollectionPermission = CollectionPermission;
@@ -73,6 +90,9 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showPermissionsColumn: boolean;
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -123,8 +143,11 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     }
     if ((this.collection as CollectionAdminView).assigned) {
       const permissionList = getPermissionList();
+      const permission = permissionList.find(
+        (p) => p.perm === convertToPermission(this.collection),
+      );
       return this.i18nService.t(
-        permissionList.find((p) => p.perm === convertToPermission(this.collection))?.labelId,
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
       );
     }
     return this.i18nService.t("noAccess");
@@ -132,9 +155,18 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
 
   get permissionTooltip() {
     if (this.collection.id == Unassigned) {
-      return this.i18nService.t("collectionAdminConsoleManaged");
+      return this.i18nService.t(
+        this.vfo1TerminologyService.enabled()
+          ? "sharedFolderAdminConsoleManaged"
+          : "collectionAdminConsoleManaged",
+      );
     }
     return "";
+  }
+
+  /** Query params to navigate to this collection, using the terminology-appropriate param key. */
+  get collectionQueryParams() {
+    return this.vfo1TerminologyService.collectionQueryParams(this.collection.id);
   }
 
   protected edit(readonly: boolean) {

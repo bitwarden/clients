@@ -21,6 +21,9 @@ import { CryptoUtils } from "./crypto-utils";
 import { Parser } from "./parser";
 import { RestClient } from "./rest-client";
 
+// The requests mimic LastPass CLI, which reports its version to the server.
+const LastPassCliVersion = "1.6.2";
+
 const PlatformToUserAgent = new Map<Platform, string>([
   [Platform.Desktop, "cli"],
   [Platform.Mobile, "android"],
@@ -158,19 +161,8 @@ export class Client {
     const rest = new RestClient();
     rest.baseUrl = "https://lastpass.com";
 
-    /*
-    1. First we need to request PBKDF2 key iteration count.
-    
-    We no longer request the iteration count from the server in a separate request because it
-    started to fail in weird ways. It seems there's a special combination or the UA and cookies
-    that returns the correct result. And that is not 100% reliable. After two or three attempts
-    it starts to fail again with an incorrect result.
-    
-    So we just went back a few years to the original way LastPass used to handle the iterations.
-    Namely, submit the default value and if it fails, the error would contain the correct value:
-    <response><error iterations="5000" /></response>
-    */
-    let keyIterationCount = 100_100;
+    // 1. First we need to request PBKDF2 key iteration count.
+    let keyIterationCount = await this.requestIterationCount(username, rest);
 
     let response: Document = null;
     let session: Session = null;
@@ -307,9 +299,6 @@ export class Client {
     if (session == null) {
       throw this.makeLoginError(response);
     }
-    if (passcode.rememberMe) {
-      await this.markDeviceAsTrusted(session, clientInfo, rest);
-    }
     return session;
   }
 
@@ -366,11 +355,7 @@ export class Client {
       }
       const extraParameters = new Map<string, any>();
       extraParameters.set("otp", answer.passcode);
-      const session = await attemptLogin(extraParameters);
-      if (answer.rememberMe) {
-        await this.markDeviceAsTrusted(session, clientInfo, rest);
-      }
-      return session;
+      return attemptLogin(extraParameters);
     };
 
     const session: Session = await Promise.race([
@@ -425,28 +410,11 @@ export class Client {
     return ui.approveDuo();
   }
 
-  private async markDeviceAsTrusted(session: Session, clientInfo: ClientInfo, rest: RestClient) {
-    const parameters = new Map<string, string>([
-      ["uuid", clientInfo.id],
-      ["trustlabel", clientInfo.description],
-      ["token", session.token],
-    ]);
-    const response = await rest.postForm(
-      "trust.php",
-      parameters,
-      null,
-      this.getSessionCookies(session),
-    );
-    if (response.status == HttpStatusCode.Ok) {
-      return;
-    }
-    this.makeError(response);
-  }
-
   private async logout(session: Session, rest: RestClient) {
     const parameters = new Map<string, any>([
       ["method", PlatformToUserAgent.get(session.platform)],
       ["noredirect", 1],
+      ["token", session.token],
     ]);
     const response = await rest.postForm(
       "logout.php",
@@ -461,13 +429,19 @@ export class Client {
   }
 
   private async downloadVault(session: Session, rest: RestClient): Promise<Uint8Array> {
-    const endpoint =
-      "getaccts.php?mobile=1&b64=1&hash=0.0&hasplugin=3.0.23&requestsrc=" +
-      PlatformToUserAgent.get(session.platform);
-    const response = await rest.get(endpoint, null, this.getSessionCookies(session));
+    const parameters = new Map<string, string>([
+      ["mobile", "1"],
+      ["requestsrc", PlatformToUserAgent.get(session.platform)],
+      ["hasplugin", LastPassCliVersion],
+    ]);
+    const response = await rest.postForm(
+      "getaccts.php",
+      parameters,
+      null,
+      this.getSessionCookies(session),
+    );
     if (response.status == HttpStatusCode.Ok) {
-      const b64 = await response.text();
-      return Utils.fromB64ToArray(b64);
+      return new Uint8Array(await response.arrayBuffer());
     }
     this.makeError(response);
   }
@@ -539,6 +513,23 @@ export class Client {
     return session;
   }
 
+  private async requestIterationCount(username: string, rest: RestClient): Promise<number> {
+    const response = await rest.postForm(
+      "iterations.php",
+      new Map<string, string>([["email", username]]),
+    );
+    if (response.status != HttpStatusCode.Ok) {
+      this.makeError(response);
+    }
+
+    const text = await response.text();
+    const iterationCount = parseInt(text);
+    if (isNaN(iterationCount) || iterationCount <= 0) {
+      throw new Error("Failed to parse the iteration count, expected an integer value");
+    }
+    return iterationCount;
+  }
+
   private async performSingleLoginRequest(
     username: string,
     password: string,
@@ -559,7 +550,7 @@ export class Client {
       ["includeprivatekeyenc", "1"],
       ["outofbandsupported", "1"],
       ["uuid", clientInfo.id],
-      // TODO: Test against the real server if it's ok to send this every time!
+      // With the second factor code this trusts the device, so later imports skip the second factor.
       ["trustlabel", clientInfo.description],
     ]);
     if (fragmentId != null) {

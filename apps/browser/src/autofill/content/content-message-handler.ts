@@ -17,7 +17,7 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
     handleAuthResultMessage(data, referrer),
   webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleWebAuthnResultMessage(data, referrer),
-  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
+  [VaultMessages.checkBwInstalled]: ({ referrer }) => handleExtensionInstallCheck(referrer),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
@@ -38,11 +38,16 @@ setupExtensionDisconnectAction(() => {
   chrome.runtime.onMessage.removeListener(handleExtensionMessage);
 });
 
-/**
- * Handles the post to the web vault showing the extension has been installed
- */
-function handleExtensionInstallCheck() {
-  window.postMessage({ command: VaultMessages.HasBwInstalled });
+/** Posts hasBwInstalled only after background confirms a known vault host. */
+function handleExtensionInstallCheck(referrer: string) {
+  chrome.runtime.sendMessage({ command: VaultMessages.checkBwInstalled, referrer }, (response) => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+    if (response?.result === true) {
+      window.postMessage({ command: VaultMessages.HasBwInstalled });
+    }
+  });
 }
 
 /**
@@ -123,13 +128,14 @@ function handleWindowMessageEvent(event: MessageEvent) {
 
 /**
  * Commands to forward from this script to the extension background.
+ *
+ * Only add a command here when a script outside the background needs to act on it. Forwarding
+ * makes the command reachable by anything that can reach this content script.
+ *
+ * Do not add commands containing sensitive information to this set. Use the background's
+ * `IntraprocessMessageSender` to transmit those commands instead of forwarding.
  */
-const forwardCommands = new Set([
-  "bgUnlockPopoutOpened",
-  "addToLockedVaultPendingNotifications",
-  "unlockCompleted",
-  "addedCipher",
-]);
+const forwardCommands = new Set(["bgUnlockPopoutOpened", "addedCipher"]);
 
 /**
  * Handles messages from the extension. Currently, this is

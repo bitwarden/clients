@@ -11,14 +11,14 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -31,6 +31,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { ImportOptions, ImporterClient } from "@bitwarden/sdk-internal";
 
 import {
   ArcCsvImporter,
@@ -96,29 +99,36 @@ import {
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
   PasswordDepot17XmlImporter,
+  DelineaXmlImporter,
+  DelineaCsvImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
-  featuredImportOptions,
+  importOptions,
+  importOptionsById,
   ImportOption,
   ImportType,
-  regularImportOptions,
 } from "../models/import-options";
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import {
   buildSdkImporterRegistry,
-  CredentialKind,
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  OnePasswordSignInAddress,
+  OnePasswordSignInMethods,
+  OnePasswordSsoImportRequest,
+  resolveSdkImportTargets,
   SdkImportCredentials,
   SdkImporterRegistry,
   SdkImportSummary,
 } from "../sdk";
+import { toSdkCipherType } from "../sdk/sdk-cipher-type";
+import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
 export class ImportService implements ImportServiceAbstraction {
-  featuredImportOptions = featuredImportOptions as readonly ImportOption[];
-
-  regularImportOptions = regularImportOptions as readonly ImportOption[];
+  importOptions = importOptions;
 
   private readonly sdkImporters: SdkImporterRegistry = buildSdkImporterRegistry();
 
@@ -132,12 +142,19 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
-    private restrictedItemTypesService: RestrictedItemTypesService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
     private sdkService: SdkService,
+    protected logService: LogService,
   ) {}
 
   getImportOptions(): ImportOption[] {
-    return this.featuredImportOptions.concat(this.regularImportOptions);
+    return [...this.importOptions];
+  }
+
+  getImportOption(id: ImportType): ImportOption | undefined {
+    const option = importOptionsById[id];
+    return option ? { id, ...option } : undefined;
   }
 
   async import(
@@ -171,35 +188,9 @@ export class ImportService implements ImportServiceAbstraction {
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean = false,
   ): Promise<ImportResult> {
-    if (!importResult.success) {
-      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
-        throw new Error(importResult.errorMessage);
-      }
-      throw new Error(this.i18nService.t("importFormatError"));
-    }
+    this.validateImportResult(importResult);
 
-    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
-      throw new Error(this.i18nService.t("importNothingError"));
-    }
-
-    if (importResult.ciphers.length > 0) {
-      const halfway = Math.floor(importResult.ciphers.length / 2);
-      const last = importResult.ciphers.length - 1;
-
-      if (
-        this.badData(importResult.ciphers[0]) &&
-        this.badData(importResult.ciphers[halfway]) &&
-        this.badData(importResult.ciphers[last])
-      ) {
-        throw new Error(this.i18nService.t("importFormatError"));
-      }
-    }
-
-    const restrictedItemTypes = await firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restrictedItemTypes) => restrictedItemTypes.map((r) => r.cipherType)),
-      ),
-    );
+    const restrictedItemTypes = await this.restrictedTypesFor(organizationId);
 
     // Filter out restricted item types from the import result
     importResult.ciphers = importResult.ciphers.filter(
@@ -229,6 +220,47 @@ export class ImportService implements ImportServiceAbstraction {
     return importResult;
   }
 
+  /**
+   * The cipher types removed from an import. Legacy rule: every restricted type, whatever the
+   * destination; ImportUpgradeService narrows it to what the destination org allows.
+   */
+  protected async restrictedTypesFor(
+    _organizationId: OrganizationId | null,
+  ): Promise<CipherType[]> {
+    return firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restricted) => restricted.map((r) => r.cipherType)),
+      ),
+    );
+  }
+
+  /** Throws if a parsed result failed, is empty, or looks like unparseable data. Never imports. */
+  protected validateImportResult(importResult: ImportResult): void {
+    if (!importResult.success) {
+      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
+        throw new Error(importResult.errorMessage);
+      }
+      throw new Error(this.i18nService.t("importFormatError"));
+    }
+
+    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
+      throw new Error(this.i18nService.t("importNothingError"));
+    }
+
+    if (importResult.ciphers.length > 0) {
+      const halfway = Math.floor(importResult.ciphers.length / 2);
+      const last = importResult.ciphers.length - 1;
+
+      if (
+        this.badData(importResult.ciphers[0]) &&
+        this.badData(importResult.ciphers[halfway]) &&
+        this.badData(importResult.ciphers[last])
+      ) {
+        throw new Error(this.i18nService.t("importFormatError"));
+      }
+    }
+  }
+
   getImporter(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
@@ -244,21 +276,6 @@ export class ImportService implements ImportServiceAbstraction {
     }
     importer.organizationId = organizationId;
     return importer;
-  }
-
-  /** True when the format's parse/encrypt/submit is handled by an SDK importer strategy. */
-  isSdkImporter(format: ImportType): boolean {
-    return this.sdkImporters.has(format);
-  }
-
-  /** The credentials an SDK importer requires, so callers can collect them generically. */
-  credentialKindFor(format: ImportType): CredentialKind | undefined {
-    return this.sdkImporters.get(format)?.credentialKind;
-  }
-
-  /** Optional file-picker `accept` hint declared by an SDK importer. */
-  sdkFileTypeHint(format: ImportType): string | undefined {
-    return this.sdkImporters.get(format)?.fileTypeHint;
   }
 
   /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
@@ -290,11 +307,7 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("importUnassignedItemsError"));
     }
 
-    const restrictedTypes = await firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restricted) => restricted.map((r) => r.cipherType)),
-      ),
-    );
+    const restrictedTypes = await this.restrictedTypesFor(organizationId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     return await firstValueFrom(
@@ -314,6 +327,110 @@ export class ImportService implements ImportServiceAbstraction {
     );
   }
 
+  /**
+   * Signs in to 1Password through the SDK and imports the account. Unlike {@link importWithSdk}
+   * there is no file: the SDK downloads and decrypts the vaults itself, asking `twoFactorUi` for a
+   * code when the account requires one.
+   */
+  async importOnePassword(
+    request: OnePasswordImportRequest,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<OnePasswordImportSummary> {
+    return await this.runOnePasswordImport(
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+      (importers, options) =>
+        importers.import_onepassword(request.credentials, request.twoFactorUi, options),
+    );
+  }
+
+  /**
+   * Like {@link importOnePassword}, for an account that signs in through its identity provider. The
+   * SDK has `request.ui` take the user through that login and through the approval of the device,
+   * which is a new one on every import.
+   */
+  async importOnePasswordSso(
+    request: OnePasswordSsoImportRequest,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<OnePasswordImportSummary> {
+    return await this.runOnePasswordImport(
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+      (importers, options) =>
+        importers.import_onepassword_sso(request.credentials, request.ui, options),
+    );
+  }
+
+  private async runOnePasswordImport(
+    organizationId: OrganizationId | null,
+    selectedImportTarget: FolderView | CollectionView | null,
+    canAccessImportExport: boolean,
+    run: (importers: ImporterClient, options: ImportOptions) => Promise<OnePasswordImportSummary>,
+  ): Promise<OnePasswordImportSummary> {
+    // Mirror the pipeline's guard: an org import with no target collection leaves every item
+    // unassigned, which is only allowed with import/export permission.
+    if (organizationId && !selectedImportTarget && !canAccessImportExport) {
+      throw new Error(this.i18nService.t("importUnassignedItemsError"));
+    }
+
+    const restrictedTypes = await this.restrictedTypesFor(organizationId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const { folder, collection } = resolveSdkImportTargets({
+            organizationId: organizationId ?? undefined,
+            selectedImportTarget: selectedImportTarget ?? undefined,
+            restrictedTypes,
+          });
+          return await run(ref.value.importers(), {
+            organization_id: organizationId ? asUuid(organizationId) : undefined,
+            target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
+            target_collection: collection
+              ? {
+                  id: asUuid(collection.id),
+                  name: collection.name,
+                  type: toSdkCollectionType(collection.type),
+                }
+              : undefined,
+            restricted_types: restrictedTypes.map(toSdkCipherType),
+          });
+        }),
+      ),
+    );
+  }
+
+  async onePasswordSignInMethods(
+    username: string,
+    signInAddress: OnePasswordSignInAddress,
+  ): Promise<OnePasswordSignInMethods> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          return await ref.value.importers().onepassword_sign_in_methods(username, signInAddress);
+        }),
+      ),
+    );
+  }
+
+  // Intentionally redundant with respect to importOptions/SdkImporterRegistry because of heterogeneous
+  // constructor dependencies (e.g. BitwardenPasswordProtectedImporter needs 6 injected services)
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
@@ -324,7 +441,7 @@ export class ImportService implements ImportServiceAbstraction {
 
     switch (format) {
       case "bitwardencsv":
-        return new BitwardenCsvImporter();
+        return new BitwardenCsvImporter(this.logService);
       case "bitwardenjson":
       case "bitwardenpasswordprotected":
         return new BitwardenPasswordProtectedImporter(
@@ -335,134 +452,139 @@ export class ImportService implements ImportServiceAbstraction {
           this.keyGenerationService,
           this.accountService,
           promptForPassword_callback,
+          this.logService,
         );
       case "lastpasscsv":
       case "passboltcsv":
-        return new LastPassCsvImporter();
+        return new LastPassCsvImporter(this.configService, this.logService);
       case "keepassxcsv":
-        return new KeePassXCsvImporter();
+        return new KeePassXCsvImporter(this.logService);
       case "aviracsv":
-        return new AviraCsvImporter();
+        return new AviraCsvImporter(this.logService);
       case "blurcsv":
-        return new BlurCsvImporter();
+        return new BlurCsvImporter(this.logService);
       case "safeincloudxml":
-        return new SafeInCloudXmlImporter();
+        return new SafeInCloudXmlImporter(this.logService);
       case "padlockcsv":
-        return new PadlockCsvImporter();
+        return new PadlockCsvImporter(this.logService);
       case "keepass2xml":
-        return new KeePass2XmlImporter();
+        return new KeePass2XmlImporter(this.logService);
       case "arccsv":
-        return new ArcCsvImporter();
+        return new ArcCsvImporter(this.logService);
       case "edgecsv":
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":
       case "bravecsv":
-        return new ChromeCsvImporter();
+        return new ChromeCsvImporter(this.logService);
       case "firefoxcsv":
-        return new FirefoxCsvImporter();
+        return new FirefoxCsvImporter(this.logService);
       case "upmcsv":
-        return new UpmCsvImporter();
+        return new UpmCsvImporter(this.logService);
       case "saferpasscsv":
-        return new SaferPassCsvImporter();
+        return new SaferPassCsvImporter(this.logService);
       case "safaricsv":
-        return new SafariCsvImporter();
+        return new SafariCsvImporter(this.logService);
       case "meldiumcsv":
-        return new MeldiumCsvImporter();
+        return new MeldiumCsvImporter(this.logService);
       case "1password1pif":
-        return new OnePassword1PifImporter();
+        return new OnePassword1PifImporter(this.configService, this.logService);
       case "1password1pux":
-        return new OnePassword1PuxImporter();
+        return new OnePassword1PuxImporter(this.configService, this.logService);
       case "1passwordwincsv":
-        return new OnePasswordWinCsvImporter();
+        return new OnePasswordWinCsvImporter(this.logService);
       case "1passwordmaccsv":
-        return new OnePasswordMacCsvImporter();
+        return new OnePasswordMacCsvImporter(this.logService);
       case "keepercsv":
-        return new KeeperCsvImporter();
+        return new KeeperCsvImporter(this.configService, this.logService);
       case "keeperjson":
-        return new KeeperJsonImporter();
+        return new KeeperJsonImporter(this.configService, this.logService);
       case "passworddragonxml":
-        return new PasswordDragonXmlImporter();
+        return new PasswordDragonXmlImporter(this.logService);
       case "enpasscsv":
-        return new EnpassCsvImporter();
+        return new EnpassCsvImporter(this.logService);
       case "enpassjson":
-        return new EnpassJsonImporter();
+        return new EnpassJsonImporter(this.logService);
       case "pwsafexml":
-        return new PasswordSafeXmlImporter();
+        return new PasswordSafeXmlImporter(this.logService);
       case "dashlanecsv":
-        return new DashlaneCsvImporter();
+        return new DashlaneCsvImporter(this.configService, this.logService);
       case "dashlanejson":
-        return new DashlaneJsonImporter();
+        return new DashlaneJsonImporter(this.logService);
       case "msecurecsv":
-        return new MSecureCsvImporter();
+        return new MSecureCsvImporter(this.logService);
       case "stickypasswordxml":
-        return new StickyPasswordXmlImporter();
+        return new StickyPasswordXmlImporter(this.logService);
       case "truekeycsv":
-        return new TrueKeyCsvImporter();
+        return new TrueKeyCsvImporter(this.logService);
       case "clipperzhtml":
-        return new ClipperzHtmlImporter();
+        return new ClipperzHtmlImporter(this.logService);
       case "roboformcsv":
-        return new RoboFormCsvImporter();
+        return new RoboFormCsvImporter(this.logService);
       case "ascendocsv":
-        return new AscendoCsvImporter();
+        return new AscendoCsvImporter(this.logService);
       case "passwordbossjson":
-        return new PasswordBossJsonImporter();
+        return new PasswordBossJsonImporter(this.logService);
       case "zohovaultcsv":
-        return new ZohoVaultCsvImporter();
+        return new ZohoVaultCsvImporter(this.logService);
       case "splashidcsv":
-        return new SplashIdCsvImporter();
+        return new SplashIdCsvImporter(this.logService);
       case "passkeepcsv":
-        return new PassKeepCsvImporter();
+        return new PassKeepCsvImporter(this.logService);
       case "gnomejson":
-        return new GnomeJsonImporter();
+        return new GnomeJsonImporter(this.logService);
       case "passwordagentcsv":
-        return new PasswordAgentCsvImporter();
+        return new PasswordAgentCsvImporter(this.logService);
       case "passpackcsv":
-        return new PasspackCsvImporter();
+        return new PasspackCsvImporter(this.logService);
       case "passmanjson":
-        return new PassmanJsonImporter();
+        return new PassmanJsonImporter(this.logService);
       case "avastcsv":
-        return new AvastCsvImporter();
+        return new AvastCsvImporter(this.logService);
       case "avastjson":
-        return new AvastJsonImporter();
+        return new AvastJsonImporter(this.logService);
       case "fsecurefsk":
-        return new FSecureFskImporter();
+        return new FSecureFskImporter(this.logService);
       case "kasperskytxt":
-        return new KasperskyTxtImporter();
+        return new KasperskyTxtImporter(this.logService);
       case "remembearcsv":
-        return new RememBearCsvImporter();
+        return new RememBearCsvImporter(this.logService);
       case "passwordwallettxt":
-        return new PasswordWalletTxtImporter();
+        return new PasswordWalletTxtImporter(this.logService);
       case "mykicsv":
-        return new MykiCsvImporter();
+        return new MykiCsvImporter(this.logService);
       case "securesafecsv":
-        return new SecureSafeCsvImporter();
+        return new SecureSafeCsvImporter(this.logService);
       case "logmeoncecsv":
-        return new LogMeOnceCsvImporter();
+        return new LogMeOnceCsvImporter(this.logService);
       case "blackberrycsv":
-        return new BlackBerryCsvImporter();
+        return new BlackBerryCsvImporter(this.logService);
       case "buttercupcsv":
-        return new ButtercupCsvImporter();
+        return new ButtercupCsvImporter(this.logService);
       case "codebookcsv":
-        return new CodebookCsvImporter();
+        return new CodebookCsvImporter(this.logService);
       case "encryptrcsv":
-        return new EncryptrCsvImporter();
+        return new EncryptrCsvImporter(this.logService);
       case "yoticsv":
-        return new YotiCsvImporter();
+        return new YotiCsvImporter(this.logService);
       case "nordpasscsv":
-        return new NordPassCsvImporter();
+        return new NordPassCsvImporter(this.logService);
       case "psonojson":
-        return new PsonoJsonImporter();
+        return new PsonoJsonImporter(this.logService);
       case "passkyjson":
-        return new PasskyJsonImporter();
+        return new PasskyJsonImporter(this.logService);
       case "protonpass":
-        return new ProtonPassJsonImporter(this.i18nService);
+        return new ProtonPassJsonImporter(this.i18nService, this.configService, this.logService);
       case "passwordxpcsv":
-        return new PasswordXPCsvImporter();
+        return new PasswordXPCsvImporter(this.logService);
       case "netwrixpasswordsecure":
-        return new NetwrixPasswordSecureCsvImporter();
+        return new NetwrixPasswordSecureCsvImporter(this.logService);
       case "passworddepot17xml":
-        return new PasswordDepot17XmlImporter();
+        return new PasswordDepot17XmlImporter(this.configService, this.logService);
+      case "delineaxml":
+        return new DelineaXmlImporter(this.logService);
+      case "delineacsv":
+        return new DelineaCsvImporter(this.logService);
       default:
         return null;
     }
@@ -636,7 +758,7 @@ export class ImportService implements ImportServiceAbstraction {
                 importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
             )
           ) {
-            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
+            throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollectionV2"));
           }
           importResult.folders = importResult.collections.map((c) => {
             const f = new FolderView();
@@ -650,6 +772,7 @@ export class ImportService implements ImportServiceAbstraction {
         }
         // In either case set target collection to My Items...
         importResult.collections = [importTarget];
+        importResult.targetCollectionIncluded = true;
         // ...and set the collection relationships accordingly
         importResult.collectionRelationships = importResult.ciphers.map((_c, idx) => [idx, 0]);
         return;
@@ -657,6 +780,7 @@ export class ImportService implements ImportServiceAbstraction {
 
       const collections = [...importResult.collections];
       importResult.collections = [importTarget];
+      importResult.targetCollectionIncluded = true;
       collections.map((x) => {
         const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
@@ -677,9 +801,12 @@ export class ImportService implements ImportServiceAbstraction {
       throw new Error(this.i18nService.t("errorAssigningTargetFolder"));
     }
 
+    // Decide which ciphers have no folder from the folder relationships, not `cipher.folderId`.
+    // Bitwarden JSON exports carry the source vault's folder ids on each item, so `folderId` can be
+    // set on a cipher that has no folder in this import.
     const noFolderRelationShips: FolderRelationship[] = [];
     importResult.ciphers.forEach((c, index) => {
-      if (Utils.isNullOrEmpty(c.folderId)) {
+      if (!importResult.folderRelationships.some(([cipherPos]) => cipherPos === index)) {
         c.folderId = importTarget.id;
         noFolderRelationShips.push([index, 0]);
       }
@@ -687,6 +814,7 @@ export class ImportService implements ImportServiceAbstraction {
 
     const folders = [...importResult.folders];
     importResult.folders = [importTarget];
+    importResult.targetFolderIncluded = true;
     folders.map((x) => {
       const newFolderName = `${importTarget.name}/${x.name}`;
       const f = new FolderView();

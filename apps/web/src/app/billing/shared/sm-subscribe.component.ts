@@ -1,11 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import { SecretsManagerAlt } from "@bitwarden/assets/svg";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
@@ -37,6 +36,8 @@ export const secretsManagerSubscribeFormFactory = (
   standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
+  private i18nService = inject(I18nService);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
@@ -53,12 +54,9 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() customerDiscount: BillingCustomerDiscount;
 
-  logo = SecretsManagerAlt;
   productTypes = ProductTierType;
 
   private destroy$ = new Subject<void>();
-
-  constructor(private i18nService: I18nService) {}
 
   ngOnInit() {
     this.formGroup.controls.enabled.valueChanges
@@ -90,18 +88,6 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
 
   get product() {
     return this.selectedPlan.productTier;
-  }
-
-  get planName() {
-    switch (this.product) {
-      case ProductTierType.Free:
-        return this.i18nService.t("free2PersonOrganization");
-      case ProductTierType.Teams:
-      case ProductTierType.TeamsStarter:
-        return this.i18nService.t("planNameTeams");
-      case ProductTierType.Enterprise:
-        return this.i18nService.t("planNameEnterprise");
-    }
   }
 
   get serviceAccountsIncluded() {

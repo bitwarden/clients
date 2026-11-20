@@ -21,6 +21,7 @@ export const LinkTypes = [
   "success",
   "warning",
   "danger",
+  "accent-primary",
 ] as const;
 
 export type LinkType = (typeof LinkTypes)[number];
@@ -64,6 +65,11 @@ const linkStyles: Record<LinkType, string[]> = {
     "hover:tw-text-fg-contrast-strong",
     "focus-visible:tw-text-fg-contrast-strong",
     "focus-visible:before:tw-ring-fg-contrast",
+  ],
+  "accent-primary": [
+    "tw-text-fg-accent-primary",
+    "hover:tw-text-fg-accent-primary-strong",
+    "focus-visible:tw-text-fg-accent-primary-strong",
   ],
 };
 
@@ -157,13 +163,35 @@ export class LinkComponent {
    */
   readonly disabled = input(false, { transform: booleanAttribute });
 
+  /**
+   * Truncate the link text with an ellipsis when it overflows the available width.
+   *
+   * The link must be constrained by its container (e.g. a `bit-cell`, or a block/flex parent
+   * with a bounded width) for the text to overflow.
+   * @default false
+   */
+  readonly truncate = input(false, { transform: booleanAttribute });
+
   protected readonly isButton = this.el.nativeElement.tagName === "BUTTON";
 
   readonly classList = computed(() => {
     return [!this.isButton && "tw-inline-flex"]
+      .concat(this.truncate() ? ["tw-min-w-0", "tw-max-w-full"] : [])
       .concat(commonStyles)
       .concat(linkStyles[this.linkType()] ?? []);
   });
+
+  protected readonly contentClasses = computed(() =>
+    this.truncate() ? "tw-min-w-0 tw-max-w-full" : "",
+  );
+
+  protected readonly textClasses = computed(() =>
+    // `tw-truncate` applies `overflow-hidden`, which would clip descenders at the link's
+    // `tw-leading-none`, so the vertical padding gives them room without shifting the layout.
+    this.truncate() ? "tw-min-w-0 tw-truncate tw-py-0.5 -tw-my-0.5" : "",
+  );
+
+  protected readonly iconClasses = computed(() => (this.truncate() ? "tw-shrink-0" : ""));
 
   focus() {
     this.el.nativeElement.focus();

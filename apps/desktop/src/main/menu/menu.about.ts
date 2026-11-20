@@ -2,8 +2,9 @@ import { BrowserWindow, clipboard, dialog, MenuItemConstructorOptions } from "el
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { flagEnabled } from "../../platform/flags";
 import { VersionMain } from "../../platform/main/version.main";
-import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isSnapStore, isWindowsStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { IMenubarMenu } from "./menubar";
@@ -70,16 +71,19 @@ export class AboutMenu implements IMenubarMenu {
           process.versions.node +
           "\nArchitecture " +
           process.arch;
+        const productName = this.localize(
+          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
+        );
         const result = await dialog.showMessageBox(this._window, {
-          title: "Bitwarden",
-          message: "Bitwarden",
+          title: productName,
+          message: productName,
           detail: aboutInformation,
           type: "info",
           noLink: true,
           buttons: [this.localize("ok"), this.localize("copy")],
         });
         if (result.response === 1) {
-          clipboard.writeText(aboutInformation);
+          await clipboard.writeText(aboutInformation);
         }
       },
     };

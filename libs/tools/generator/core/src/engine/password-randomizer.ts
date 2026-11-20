@@ -16,7 +16,12 @@ import { Randomizer } from "./abstractions";
 import { Ascii } from "./data";
 import { CharacterSet, EffWordListRequest, RandomAsciiRequest } from "./types";
 
-/** Generation algorithms that produce randomized secrets */
+/**
+ * Generation algorithms that produce randomized secrets.
+ *
+ * @deprecated Legacy TS composition. Generate passwords and passphrases through the
+ * SDK-backed {@link CredentialGeneratorService.generate$} instead.
+ */
 export class PasswordRandomizer
   implements
     CredentialGenerator<PassphraseGenerationOptions>,

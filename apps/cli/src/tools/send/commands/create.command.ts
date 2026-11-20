@@ -10,12 +10,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -35,6 +35,7 @@ export class SendCreateCommand {
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -148,6 +149,8 @@ export class SendCreateCommand {
         req.text.text = text;
         req.text.hidden = hidden;
         break;
+      case SendType.Item:
+        return Response.badRequest("Item type Send functionality not yet available");
       default:
         return Response.badRequest(
           "Unknown Send type " + SendType[req.type] + ". Valid types are: file, text",
@@ -161,13 +164,11 @@ export class SendCreateCommand {
       }
 
       const sendView = SendResponse.toView(req);
-      const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      // Forward the plaintext password so the SDK path can derive the send password over the key it
-      // generates; the legacy path ignores it.
-      await this.sendApiService.save([encSend, fileData], password);
-      const newSend = await this.sendService.getFromState(encSend.id);
+      // The SDK generates the send key, so it needs the plaintext password to derive the hash.
+      const savedSend = await this.sendApiService.saveView(sendView, fileBuffer, password);
+      const newSend = await this.sendService.getFromState(savedSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const decSend = await newSend.decrypt(activeUserId);
+      const decSend = await this.sendDecryptionService.decryptSend(newSend, activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const res = new SendResponse(decSend, env.getSendUrl());
       return Response.success(res);
@@ -177,11 +178,6 @@ export class SendCreateCommand {
   }
 
   private async enforceSendPolicy(req: SendResponse): Promise<Response | null> {
-    const sendControlsEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendControls);
-    if (!sendControlsEnabled) {
-      return null;
-    }
-
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const policies = await firstValueFrom(
       this.policyService.policiesByType$(PolicyType.SendControls, userId),

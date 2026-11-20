@@ -121,72 +121,71 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>घरमा, काममा, वा यात्रामा, Bitwarden ले तपाईंका सबै पासवर्ड, पासकी, र संवेदनशील जानकारी सजिलै सुरक्षित गर्दछ।</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2, र थप द्वारा उत्कृष्ट पासवर्ड प्रबन्धकको रूपमा मान्यता प्राप्त!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+तपाईंको डिजिटल जीवन सुरक्षित गर्नुहोस्
+प्रत्येक खाताको लागि अद्वितीय, बलियो पासवर्डहरू उत्पन्न र बचत गरेर आफ्नो डिजिटल जीवन सुरक्षित गर्नुहोस् र डाटा उल्लङ्घनबाट बच्नुहोस्। सबै कुरा इन्ड-टु-इन्ड इन्क्रिप्टेड पासवर्ड भल्टमा राख्नुहोस् जुन तपाईं मात्र पहुँच गर्न सक्नुहुन्छ।
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+तपाईंको डाटा कुनै पनि ठाउँ, कुनै पनि समय, कुनै पनि यन्त्रमा पहुँच गर्नुहोस्
+प्रतिबन्ध बिना असीमित यन्त्रहरूमा असीमित पासवर्डहरू सजिलै व्यवस्थापन, भण्डारण, सुरक्षित, र साझा गर्नुहोस्।
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+सबैलाई अनलाइन सुरक्षित रहन उपकरणहरू हुनुपर्छ
+विज्ञापन वा डाटा बेचबिखन बिना Bitwarden नि:शुल्क प्रयोग गर्नुहोस्। Bitwarden विश्वास गर्दछ कि सबैलाई अनलाइन सुरक्षित रहन सक्ने क्षमता हुनुपर्छ। प्रिमियम योजनाहरूले उन्नत सुविधाहरूमा पहुँच प्रदान गर्दछन्।
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+Bitwarden संग आफ्नो टोलीलाई सशक्त बनाउनुहोस्
+Teams and Enterprise का योजनाहरू व्यावसायिक व्यवसाय सुविधाहरूको साथ आउँछन्। केही उदाहरणहरूमा SSO एकीकरण, स्वयं-होस्टिङ, निर्देशिका एकीकरण र SCIM प्रावधान, विश्वव्यापी नीतिहरू, API पहुँच, घटना लगहरू, र थप समावेश छन्।
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+आफ्नो कार्यबल सुरक्षित गर्न र सहकर्मीहरूसँग संवेदनशील जानकारी साझा गर्न Bitwarden प्रयोग गर्नुहोस्।
 
 
-More reasons to choose Bitwarden:
+Bitwarden छान्नको लागि थप कारणहरू:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+विश्व-स्तरीय इन्क्रिप्शन
+पासवर्डहरू उन्नत इन्ड-टु-इन्ड इन्क्रिप्शन (AES-256 बिट, नुन ह्यासिङ, र PBKDF2 SHA-256) द्वारा सुरक्षित छन् ताकि तपाईंको डाटा सुरक्षित र निजी रहन्छ।
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+तेस्रो-पक्ष अडिटहरू
+Bitwarden ले नियमित रूपमा उल्लेखनीय सुरक्षा फर्महरूसँग व्यापक तेस्रो-पक्ष सुरक्षा अडिटहरू सञ्चालन गर्दछ। यी वार्षिक अडिटहरूमा स्रोत कोड मूल्याङ्कन र Bitwarden IPs, सर्भरहरू, र वेब अनुप्रयोगहरूमा पेनिट्रेशन परीक्षण समावेश छ।
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+उन्नत 2FA
+तेस्रो-पक्ष प्रमाणीकरणकर्ता, इमेल गरिएका कोडहरू, वा FIDO2 WebAuthn प्रमाणहरू जस्तै हार्डवेयर सुरक्षा कुञ्जी वा पासकीको साथ आफ्नो लगइन सुरक्षित गर्नुहोस्।
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+इन्ड-टु-इन्ड इन्क्रिप्टेड सुरक्षा कायम राख्दै र एक्सपोजर सीमित गर्दै अरूलाई सिधै डाटा पठाउनुहोस्।
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+निर्मित जेनेरेटर
+तपाईंले भ्रमण गर्नुहुने प्रत्येक साइटको लागि लामो, जटिल, र फरक पासवर्डहरू र अद्वितीय प्रयोगकर्ता नामहरू सिर्जना गर्नुहोस्। थप गोपनीयताको लागि इमेल उपनाम प्रदायकहरूसँग एकीकृत गर्नुहोस्।
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+विश्वव्यापी अनुवादहरू
+Bitwarden अनुवादहरू ६० भन्दा बढी भाषाहरूको लागि अवस्थित छन्, विश्वव्यापी समुदायद्वारा Crowdin मार्फत अनुवाद गरिएको।
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+क्रस-प्लेटफर्म अनुप्रयोगहरू
+कुनै पनि ब्राउजर, मोबाइल यन्त्र, वा डेस्कटप OS, र थपबाट आफ्नो Bitwarden भल्ट भित्र संवेदनशील डाटा सुरक्षित र साझा गर्नुहोस्।
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden ले पासवर्डहरू भन्दा बढी सुरक्षित गर्दछ
+Bitwarden बाट इन्ड-टु-इन्ड इन्क्रिप्टेड प्रमाण व्यवस्थापन समाधानहरूले संस्थाहरूलाई सबै कुरा सुरक्षित गर्न सशक्त बनाउँछ, जसमा विकासकर्ता गोप्यहरू र पासकी अनुभवहरू समावेश छन्। Bitwarden Secrets Manager र Bitwarden Passwordless.dev बारे थप जान्न Bitwarden.com भ्रमण गर्नुहोस्!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>घरमा, काममा, वा यात्रामा, Bitwarden ले तपाईंका सबै पासवर्ड, पासकी, र संवेदनशील जानकारी सजिलै सुरक्षित गर्दछ।</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>धेरै यन्त्रहरूबाट आफ्नो भल्ट सिंक र पहुँच गर्नुहोस्</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>सुरक्षित भल्टबाट आफ्ना सबै लगइन र पासवर्डहरू व्यवस्थापन गर्नुहोस्</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>तपाईंले भ्रमण गर्नुहुने कुनै पनि वेबसाइटमा छिटो आफ्नो लगइन प्रमाणहरू स्वतः भर्नुहोस्</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>तपाईंको भल्ट दायाँ-क्लिक मेनुबाट पनि सुविधाजनक रूपमा पहुँचयोग्य छ</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>स्वचालित रूपमा बलियो, अनियमित, र सुरक्षित पासवर्डहरू उत्पन्न गर्नुहोस्</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>तपाईंको जानकारी AES-256 बिट इन्क्रिप्शन प्रयोग गरेर सुरक्षित रूपमा व्यवस्थापन गरिन्छ</value>
   </data>
 </root>

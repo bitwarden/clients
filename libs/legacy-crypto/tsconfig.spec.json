@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false,
+    // nodenext implies esModuleInterop, which the `import forge from "node-forge"` default imports
+    // in dangerous/ rely on. Matches libs/common/tsconfig.spec.json, where this code used to live.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["jest", "node"]
+  },
+  "files": ["./test.setup.ts"],
+  "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
+}

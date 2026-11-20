@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { combineLatest, firstValueFrom, from, map, switchMap } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -16,18 +16,26 @@ import { KeyService } from "@bitwarden/key-management";
 import { GroupApiService } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class OrganizationMembersService {
-  constructor(
-    private organizationUserApiService: OrganizationUserApiService,
-    private groupService: GroupApiService,
-    private apiService: ApiService,
-    private keyService: KeyService,
-    private accountService: AccountService,
-    private collectionService: CollectionService,
-  ) {}
+  private organizationUserApiService = inject(OrganizationUserApiService);
+  private groupService = inject(GroupApiService);
+  private apiService = inject(ApiService);
+  private keyService = inject(KeyService);
+  private accountService = inject(AccountService);
+  private collectionService = inject(CollectionService);
 
   async loadUsers(organization: Organization): Promise<OrganizationUserView[]> {
+    return (await this.loadMembers(organization)).users;
+  }
+
+  /**
+   * Loads the members along with the name of every group in the organization, keyed by ID, or of
+   * every collection when the organization doesn't use groups.
+   */
+  async loadMembers(
+    organization: Organization,
+  ): Promise<{ users: OrganizationUserView[]; accessNames: Map<string, string> }> {
     let groupsPromise: Promise<Map<string, string>> | undefined;
     let collectionsPromise: Promise<Map<string, string>> | undefined;
 
@@ -48,7 +56,7 @@ export class OrganizationMembersService {
       collectionsPromise,
     ]);
 
-    return (
+    const users =
       usersResponse.data?.map<OrganizationUserView>((r) => {
         const userView = OrganizationUserView.fromResponse(r);
 
@@ -62,8 +70,9 @@ export class OrganizationMembersService {
           .sort();
 
         return userView;
-      }) ?? []
-    );
+      }) ?? [];
+
+    return { users, accessNames: groupNamesMap ?? collectionNamesMap ?? new Map() };
   }
 
   private async getGroupNameMap(organization: Organization): Promise<Map<string, string>> {

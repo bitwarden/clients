@@ -7,6 +7,16 @@ import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/o
 
 type ChurnMitigationOfferDuration = "once" | "repeating";
 
+export type PurchasePrivilegedControlsRequest = {
+  seats: number;
+  maxAutoscaleSeats: number | null;
+};
+
+export type UpdatePrivilegedControlsSubscriptionRequest = {
+  seatAdjustment: number;
+  maxAutoscaleSeats: number | null;
+};
+
 export class ChurnMitigationOfferResponseModel extends BaseResponse {
   couponId: string;
   percentOff: number | null;
@@ -23,6 +33,19 @@ export class ChurnMitigationOfferResponseModel extends BaseResponse {
     this.duration = this.getResponseProperty("Duration");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.name = this.getResponseProperty("Name");
+  }
+}
+
+export class AnnualUpgradeOfferResponseModel extends BaseResponse {
+  currentAnnualCost: number;
+  newAnnualCost: number;
+  savings: number;
+
+  constructor(response: any) {
+    super(response);
+    this.currentAnnualCost = this.getResponseProperty("CurrentAnnualCost");
+    this.newAnnualCost = this.getResponseProperty("NewAnnualCost");
+    this.savings = this.getResponseProperty("Savings");
   }
 }
 
@@ -59,6 +82,65 @@ export class OrganizationBillingClient {
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/vnext/churn-mitigation-offer/redeem`,
+      null,
+      true,
+      false,
+    );
+  };
+
+  getAnnualUpgradeOffer = async (
+    organizationId: OrganizationId,
+  ): Promise<AnnualUpgradeOfferResponseModel | null> => {
+    const response = await this.apiService.send(
+      "GET",
+      `/organizations/${organizationId}/billing/vnext/annual-upgrade-offer`,
+      null,
+      true,
+      true,
+    );
+    return response ? new AnnualUpgradeOfferResponseModel(response) : null;
+  };
+
+  redeemAnnualUpgradeOffer = async (organizationId: OrganizationId): Promise<void> => {
+    await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/vnext/annual-upgrade-offer/redeem`,
+      null,
+      true,
+      false,
+    );
+  };
+
+  purchasePrivilegedControls = async (
+    organizationId: OrganizationId,
+    request: PurchasePrivilegedControlsRequest,
+  ): Promise<void> => {
+    await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls/purchase`,
+      request,
+      true,
+      false,
+    );
+  };
+
+  updatePrivilegedControlsSubscription = async (
+    organizationId: OrganizationId,
+    request: UpdatePrivilegedControlsSubscriptionRequest,
+  ): Promise<void> => {
+    await this.apiService.send(
+      "PUT",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls`,
+      request,
+      true,
+      false,
+    );
+  };
+
+  removePrivilegedControls = async (organizationId: OrganizationId): Promise<void> => {
+    await this.apiService.send(
+      "DELETE",
+      `/organizations/${organizationId}/billing/subscription/privileged-controls`,
       null,
       true,
       false,

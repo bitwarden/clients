@@ -1,5 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 
+import { CipherListView } from "@bitwarden/sdk-internal";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { UserId } from "../../types/guid";
@@ -27,6 +29,14 @@ function createLoginCipherView(id: string, name: string, uris: string[]): Cipher
     return uriView;
   });
   return cipher;
+}
+
+function createLoginCipherListView(id: string, name: string, uris: string[]): CipherListView {
+  return {
+    id,
+    name,
+    type: { login: { uris: uris.map((uri) => ({ uri })) } },
+  } as unknown as CipherListView;
 }
 
 describe("SearchService", () => {
@@ -191,6 +201,24 @@ describe("SearchService", () => {
 
         expect(service.searchCiphersBasic(ciphers, "secret-path")).toHaveLength(0);
         expect(service.searchCiphersBasic(ciphers, "secretvalue")).toHaveLength(0);
+      });
+
+      it("matches against the URI hostname of a CipherListView", () => {
+        const ciphers = [
+          createLoginCipherListView("cipher-1", "My Login", ["https://example.com/path"]),
+        ];
+
+        expect(service.searchCiphersBasic(ciphers, "example.com")).toHaveLength(1);
+      });
+
+      it("does not throw and does not match when a URI has no parseable hostname", () => {
+        const ciphers = [
+          createLoginCipherView("cipher-1", "My Login", ["data:text/plain,hello"]),
+          createLoginCipherListView("cipher-2", "Other Login", ["data:text/plain,hello"]),
+        ];
+
+        expect(() => service.searchCiphersBasic(ciphers, "hello")).not.toThrow();
+        expect(service.searchCiphersBasic(ciphers, "hello")).toHaveLength(0);
       });
     });
   });

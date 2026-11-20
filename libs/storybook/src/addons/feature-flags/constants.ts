@@ -10,18 +10,31 @@
 export const ADDON_ID = "bitwarden/feature-flags";
 export const PANEL_ID = `${ADDON_ID}/panel`;
 
-/** Global holding the list of currently-enabled feature flag keys. */
+/**
+ * Global holding the list of currently-enabled feature flag keys.
+ *
+ * Globals are user state: Storybook diffs them, array-merges them and round-trips
+ * them through the `?globals=` query param. Only URL-safe primitives (and flat
+ * arrays of them that start out empty) survive that intact — a structured value
+ * comes back as a sparse array once it drifts from `initialGlobals`. Keep
+ * anything richer out of globals; see `FEATURE_FLAGS_PARAM`.
+ */
 export const FEATURE_FLAGS_GLOBAL = "bwEnabledFeatureFlags";
 
 /**
- * Global holding the full catalog of toggleable flags. Seeded by the preview
- * (which can read the enum) via `initialGlobals` and read by the manager panel.
- * Globals sync across the preview/manager boundary, so the panel never needs to
- * import the flag enum itself.
+ * Parameter holding the full catalog of toggleable flags. Set project-wide by the
+ * preview (which can read the enum) and read by the manager panel via
+ * `useParameter`, so the panel never needs to import the flag enum itself.
+ *
+ * Parameters rather than globals because parameters are never diffed or
+ * URL-serialized, so an array of objects crosses the preview/manager boundary
+ * unchanged.
  */
-export const FEATURE_FLAGS_CATALOG_GLOBAL = "bwFeatureFlagCatalog";
+export const FEATURE_FLAGS_PARAM = "bwFeatureFlags";
 
 export type FeatureFlagOption = { name: string; value: string };
+
+export type FeatureFlagsParameter = { catalog: FeatureFlagOption[] };
 
 /**
  * Builds a story-level `globals` override that enables the given flag(s) (and

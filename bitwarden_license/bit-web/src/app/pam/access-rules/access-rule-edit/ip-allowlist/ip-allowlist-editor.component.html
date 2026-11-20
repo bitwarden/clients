@@ -1,0 +1,48 @@
+<p bitTypography="body2">{{ "accessRuleIpAllowlistHelpText" | i18n }}</p>
+
+<div class="tw-flex tw-flex-col tw-gap-2">
+  @for (control of cidrArray().controls; track control) {
+    <bit-form-field>
+      <bit-label>{{ "accessRuleIpAllowlistCidrLabel" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        [formControl]="control"
+        [placeholder]="'accessRuleIpAllowlistCidrPlaceholder' | i18n"
+        [readonly]="readonly()"
+        (blur)="markTouched()"
+      />
+      @if (!readonly() && cidrArray().length > 1) {
+        <button
+          slot="inline-end"
+          bitIconButton="bwi-trash"
+          type="button"
+          buttonType="dangerGhost"
+          [title]="'accessRuleIpAllowlistRemoveRow' | i18n"
+          [label]="'accessRuleIpAllowlistRemoveRow' | i18n"
+          (click)="removeRow($index)"
+        ></button>
+      }
+    </bit-form-field>
+  }
+</div>
+
+@if (cidrArray().touched && cidrArray().hasError("atLeastOneCidr")) {
+  <p class="tw-text-danger" bitTypography="helper">
+    {{ "accessRuleIpAllowlistAtLeastOne" | i18n }}
+  </p>
+}
+
+@if (!readonly()) {
+  <button
+    bitButton
+    type="button"
+    buttonType="secondary"
+    startIcon="bwi-plus"
+    class="tw-mt-3"
+    (click)="addRow()"
+    id="ip-allowlist-editor_button_add-row"
+  >
+    {{ "accessRuleIpAllowlistAddRow" | i18n }}
+  </button>
+}

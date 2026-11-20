@@ -18,4 +18,16 @@ export class DefaultServerSettingsService {
       map((settings: ServerSettings) => settings.disableUserRegistration),
     );
   }
+
+  get isEmailVerificationDisabled$(): Observable<boolean> {
+    return this.getSettings$().pipe(
+      map((settings: ServerSettings) => settings.disableEmailVerification),
+    );
+  }
+
+  get isOpenInviteLinkEmailVerificationDisabled$(): Observable<boolean> {
+    return this.getSettings$().pipe(
+      map((settings: ServerSettings) => settings.disableOpenInviteLinkEmailVerification),
+    );
+  }
 }

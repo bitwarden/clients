@@ -55,6 +55,14 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
+  getPremiumSubscriptionPricingTier$ = (): Observable<PersonalSubscriptionPricingTier> =>
+    this.premium$.pipe(
+      catchError((error: unknown) => {
+        this.logService.error("Failed to load premium subscription pricing tier", error);
+        return throwError(() => error);
+      }),
+    );
+
   /**
    * Gets business subscription pricing tiers (Teams, Enterprise, and Custom).
    * Throws any errors that occur during api request so callers must handle errors.
@@ -91,6 +99,8 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
   private bypassSelfHostPremiumCheck$ = this.configService.getFeatureFlag$(
     FeatureFlag.DebugDisableSelfHostPremiumCheck,
   );
+
+  private vfo1Enabled$ = this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation);
 
   private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> = combineLatest([
     this.environmentService.environment$,
@@ -145,36 +155,41 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     })),
   );
 
-  private families$: Observable<PersonalSubscriptionPricingTier> =
-    this.organizationPlansResponse$.pipe(
-      map((plans) => {
-        const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
+  private families$: Observable<PersonalSubscriptionPricingTier> = combineLatest([
+    this.organizationPlansResponse$,
+    this.vfo1Enabled$,
+  ]).pipe(
+    map(([plans, vfo1Enabled]) => {
+      const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
 
-        return {
-          id: PersonalSubscriptionPricingTierIds.Families,
-          name: this.i18nService.t("planNameFamilies"),
-          description: this.i18nService.t("planDescFamiliesV2"),
-          availableCadences: [SubscriptionCadenceIds.Annually],
-          passwordManager: {
-            type: "packaged",
-            users: familiesPlan?.PasswordManager?.baseSeats,
-            annualPrice: familiesPlan?.PasswordManager?.basePrice,
-            annualPricePerAdditionalStorageGB:
-              familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
-            providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
-            features: [
-              this.featureTranslations.premiumAccounts(),
-              this.featureTranslations.familiesUnlimitedSharing(),
-              this.featureTranslations.familiesUnlimitedCollections(),
-              this.featureTranslations.familiesSharedStorage(),
-            ],
-          },
-        };
-      }),
-    );
+      return {
+        id: PersonalSubscriptionPricingTierIds.Families,
+        name: this.i18nService.t("planNameFamilies"),
+        description: this.i18nService.t("planDescFamiliesV2"),
+        availableCadences: [SubscriptionCadenceIds.Annually],
+        passwordManager: {
+          type: "packaged",
+          users: familiesPlan?.PasswordManager?.baseSeats,
+          annualPrice: familiesPlan?.PasswordManager?.basePrice,
+          annualPricePerAdditionalStorageGB:
+            familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
+          providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
+          features: [
+            this.featureTranslations.premiumAccounts(),
+            this.featureTranslations.familiesUnlimitedSharing(),
+            this.featureTranslations.familiesUnlimitedCollections(vfo1Enabled),
+            this.featureTranslations.familiesSharedStorage(),
+          ],
+        },
+      };
+    }),
+  );
 
-  private free$: Observable<BusinessSubscriptionPricingTier> = this.organizationPlansResponse$.pipe(
-    map((plans): BusinessSubscriptionPricingTier => {
+  private free$: Observable<BusinessSubscriptionPricingTier> = combineLatest([
+    this.organizationPlansResponse$,
+    this.vfo1Enabled$,
+  ]).pipe(
+    map(([plans, vfo1Enabled]): BusinessSubscriptionPricingTier => {
       const freePlan = plans.data.find((plan) => plan.type === PlanType.Free);
 
       return {
@@ -188,6 +203,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
             this.featureTranslations.limitedUsersV2(freePlan?.PasswordManager?.maxSeats),
             this.featureTranslations.limitedCollectionsV2(
               freePlan?.PasswordManager?.maxCollections,
+              vfo1Enabled,
             ),
             this.featureTranslations.alwaysFree(),
           ],
@@ -331,9 +347,11 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "familiesUnlimitedSharing",
       value: this.i18nService.t("familiesUnlimitedSharing"),
     }),
-    familiesUnlimitedCollections: () => ({
-      key: "familiesUnlimitedCollections",
-      value: this.i18nService.t("familiesUnlimitedCollections"),
+    familiesUnlimitedCollections: (vfo1Enabled?: boolean) => ({
+      key: vfo1Enabled ? "familiesUnlimitedSharedFolders" : "familiesUnlimitedCollections",
+      value: this.i18nService.t(
+        vfo1Enabled ? "familiesUnlimitedSharedFolders" : "familiesUnlimitedCollections",
+      ),
     }),
     familiesSharedStorage: () => ({
       key: "familiesSharedStorage",
@@ -343,9 +361,12 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "limitedUsersV2",
       value: this.i18nService.t("limitedUsersV2", users),
     }),
-    limitedCollectionsV2: (collections?: number) => ({
-      key: "limitedCollectionsV2",
-      value: this.i18nService.t("limitedCollectionsV2", collections),
+    limitedCollectionsV2: (collections?: number, vfo1Enabled?: boolean) => ({
+      key: vfo1Enabled ? "limitedSharedFoldersV2" : "limitedCollectionsV2",
+      value: this.i18nService.t(
+        vfo1Enabled ? "limitedSharedFoldersV2" : "limitedCollectionsV2",
+        collections,
+      ),
     }),
     alwaysFree: () => ({
       key: "alwaysFree",

@@ -85,13 +85,13 @@ describe("DriversLicenseSectionComponent", () => {
       expect(patchFn(cipher).driversLicense.dateOfBirth).toBe("2025-04-15");
     });
 
-    it("stores an empty string when date is empty", () => {
+    it("stores null when date is empty", () => {
       component.driversLicenseForm.patchValue({ firstName: "trigger" });
 
       const patchFn = patchCipherSpy.mock.calls[0][0];
       const cipher = new CipherView();
       cipher.driversLicense = new DriversLicenseView();
-      expect(patchFn(cipher).driversLicense.dateOfBirth).toBe("");
+      expect(patchFn(cipher).driversLicense.dateOfBirth).toBeNull();
     });
 
     it("prefills date controls from existing cipher", () => {

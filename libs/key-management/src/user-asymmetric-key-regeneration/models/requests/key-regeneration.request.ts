@@ -1,4 +1,5 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 export class KeyRegenerationRequest {
   userPublicKey: string;

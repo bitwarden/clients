@@ -2,14 +2,20 @@
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptionType,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
-import { EncryptionType } from "../src/platform/enums";
+import { PermissionsApi } from "../src/admin-console/models/api/permissions.api";
+import { OrganizationData } from "../src/admin-console/models/data/organization.data";
+import { Organization } from "../src/admin-console/models/domain/organization";
 import { Utils } from "../src/platform/misc/utils";
-import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -28,6 +34,22 @@ export function BuildTestObject<T, K extends keyof T = keyof T>(
   constructor?: new () => T,
 ): T {
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
+}
+
+/**
+ * Builds an `Organization` for use in tests, with all fields defaulted (mostly `undefined`)
+ * except for the given overrides.
+ */
+export function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
 }
 
 export function mockEnc(s: string): MockProxy<EncString> {
@@ -83,10 +105,15 @@ export const mockFromSdk = (stub: any) => {
 export const mockContainerService = () => {
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   encryptService.decryptString.mockImplementation(async (encStr, _key) => {
     return encStr.decryptedValue;
   });
-  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+  (window as any).bitwardenContainerService = new ContainerService(
+    keyService,
+    encryptService,
+    legacyCompatKeyService,
+  );
   return (window as any).bitwardenContainerService;
 };
 
