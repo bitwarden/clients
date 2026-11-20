@@ -123,7 +123,7 @@ jobs:
 
             const body = [
               COMMENT_TAG,
-              '**UIF Bot:**',
+              '💅 **UIF Bot:**',
               '',
               'This PR contains UI changes. Chromatic workflows are not run automatically in draft PRs. Add the `ci:chromatic` label or mark the PR as ready for review to run the workflows.',
             ].join('\n');
