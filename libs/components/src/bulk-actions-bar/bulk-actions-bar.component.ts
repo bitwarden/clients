@@ -112,6 +112,7 @@ export class BulkActionsBarComponent {
   protected readonly primaryActions = contentChildren(BulkActionComponent);
   protected readonly additionalActions = contentChildren(BulkAdditionalActionComponent);
   protected readonly hasAdditionalActions = computed(() => this.additionalActions().length > 0);
+  protected readonly hasNoActions = computed(() => this.primaryActions().length === 0);
 
   // The toolbar buttons the bar renders for each primary data holder. Sourced via viewChildren
   // (not contentChildren) because the bar renders them itself via @for.
