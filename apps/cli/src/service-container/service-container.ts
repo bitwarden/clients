@@ -36,6 +36,7 @@ import {
   DefaultAuthRequestApiService,
 } from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
+import { NoopOrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -54,6 +55,10 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   DefaultTwoFactorService,
@@ -818,6 +823,12 @@ export class ServiceContainer {
       this.sendPasswordService,
     );
 
+    // This client has no stored organization invites, so the noop invite service is enough.
+    const ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+      this.registerSdkService,
+      this.configService,
+      new NoopOrganizationInviteService(),
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -829,7 +840,8 @@ export class ServiceContainer {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      this.registerSdkService,
+      () => ssoJitProvisionFinishService,
+      new SsoJitProvisionFinishApiService(this.apiService, this.logService),
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,

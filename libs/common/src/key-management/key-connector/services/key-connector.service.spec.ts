@@ -16,7 +16,7 @@ import {
   PBKDF2KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
+import { KeyConnectorRegistrationResult, PureCrypto } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -27,13 +27,17 @@ import { OrganizationData } from "../../../admin-console/models/data/organizatio
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
 import { TokenService } from "../../../auth/services/token.service";
+import {
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+  SsoJitProvisionFinishSetKeyConnectorKeyRequest,
+} from "../../../auth/sso-jit-provision-finish";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
-import { Rc } from "../../../platform/misc/reference-counting/rc";
 import { Utils } from "../../../platform/misc/utils";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
@@ -60,7 +64,8 @@ describe("KeyConnectorService", () => {
   const organizationService = mock<OrganizationService>();
   const logoutCallback = jest.fn();
   const configService = mock<ConfigService>();
-  const registerSdkService = mock<RegisterSdkService>();
+  const ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
+  const ssoJitProvisionFinishApiService = mock<SsoJitProvisionFinishApiService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
   const sdkService = mock<SdkService>();
@@ -104,7 +109,8 @@ describe("KeyConnectorService", () => {
       logoutCallback,
       stateProvider,
       configService,
-      registerSdkService,
+      () => ssoJitProvisionFinishService,
+      ssoJitProvisionFinishApiService,
       accountCryptographicStateService,
       sdkService,
       userDecryptionOptionsService,
@@ -438,59 +444,49 @@ describe("KeyConnectorService", () => {
       const mockSignedPublicKey = "mockSignedPublicKey";
       const mockSecurityState = "mockSecurityState";
 
-      let mockSdkRef: any;
-      let mockSdk: any;
+      const registration = {
+        key_connector_key: mockKeyConnectorKey,
+        user_key: mockUserKeyString,
+        key_connector_key_wrapped_user_key: mockKeyConnectorKeyWrappedUserKey,
+        account_cryptographic_state: {
+          V2: {
+            private_key: mockPrivateKey,
+            signing_key: mockSigningKey,
+            signed_public_key: mockSignedPublicKey,
+            security_state: mockSecurityState,
+          },
+        },
+      } as unknown as KeyConnectorRegistrationResult;
 
       beforeEach(() => {
         configService.getFeatureFlag$.mockReturnValue(of(true));
-
-        mockSdkRef = {
-          value: {
-            auth: jest.fn().mockReturnValue({
-              registration: jest.fn().mockReturnValue({
-                post_keys_for_key_connector_registration: jest.fn().mockResolvedValue({
-                  key_connector_key: mockKeyConnectorKey,
-                  user_key: mockUserKeyString,
-                  key_connector_key_wrapped_user_key: mockKeyConnectorKeyWrappedUserKey,
-                  account_cryptographic_state: {
-                    V2: {
-                      private_key: mockPrivateKey,
-                      signing_key: mockSigningKey,
-                      signed_public_key: mockSignedPublicKey,
-                      security_state: mockSecurityState,
-                    },
-                  },
-                }),
-              }),
-            }),
-          },
-          [Symbol.dispose]: jest.fn(),
-        };
-
-        mockSdk = {
-          take: jest.fn().mockReturnValue(mockSdkRef),
-        };
-
-        registerSdkService.registerClient$.mockReturnValue(of(mockSdk));
+        ssoJitProvisionFinishService.finishKeyConnector.mockResolvedValue({
+          registration,
+          organizationInviteAccepted: true,
+        });
       });
 
       it("should set up a new SSO user with key connector using V2", async () => {
+        // Arrange
         const conversionState = stateProvider.singleUser.getFake(
           mockUserId,
           NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
         );
         conversionState.nextState(conversion);
 
-        await keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId);
+        // Act
+        await keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId);
 
-        expect(registerSdkService.registerClient$).toHaveBeenCalledWith(mockUserId);
-        expect(mockSdk.take).toHaveBeenCalled();
-        expect(mockSdkRef.value.auth).toHaveBeenCalled();
-
-        const mockRegistration = mockSdkRef.value
-          .auth()
-          .registration().post_keys_for_key_connector_registration;
-        expect(mockRegistration).toHaveBeenCalledWith(keyConnectorUrl, mockSsoOrgIdentifier);
+        // Assert
+        expect(ssoJitProvisionFinishService.finishKeyConnector).toHaveBeenCalledWith({
+          userId: mockUserId,
+          orgId: mockOrgId,
+          orgSsoIdentifier: mockSsoOrgIdentifier,
+          keyConnectorUrl,
+        });
+        expect(ssoJitProvisionFinishService.shouldAcceptOrganizationInvite).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishApiService.postKeyConnector).not.toHaveBeenCalled();
+        expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
 
         expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
           {
@@ -510,42 +506,41 @@ describe("KeyConnectorService", () => {
         expect(await firstValueFrom(conversionState.state$)).toBeNull();
       });
 
-      it("should throw error when SDK is not available", async () => {
-        registerSdkService.registerClient$.mockReturnValue(
-          of(null as unknown as Rc<BitwardenClient>),
-        );
+      it.each([true, false])(
+        "should return organizationInviteAccepted (%s) from finishKeyConnector",
+        async (organizationInviteAccepted) => {
+          // Arrange
+          stateProvider.singleUser
+            .getFake(mockUserId, NEW_SSO_USER_KEY_CONNECTOR_CONVERSION)
+            .nextState(conversion);
+          ssoJitProvisionFinishService.finishKeyConnector.mockResolvedValue({
+            registration,
+            organizationInviteAccepted,
+          });
 
-        const conversionState = stateProvider.singleUser.getFake(
-          mockUserId,
-          NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
-        );
-        conversionState.nextState(conversion);
+          // Act
+          const result = await keyConnectorService.convertNewSsoUserToKeyConnector(
+            mockUserId,
+            mockOrgId,
+          );
 
-        await expect(
-          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
-        ).rejects.toThrow("SDK not available");
-
-        expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
-        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
-        expect(
-          accountCryptographicStateService.setAccountCryptographicState,
-        ).not.toHaveBeenCalled();
-      });
+          // Assert
+          expect(result).toBe(organizationInviteAccepted);
+        },
+      );
 
       it("should throw error when account cryptographic state is not V2", async () => {
-        mockSdkRef.value
-          .auth()
-          .registration()
-          .post_keys_for_key_connector_registration.mockResolvedValue({
-            key_connector_key: mockKeyConnectorKey,
-            user_key: mockUserKeyString,
-            key_connector_key_wrapped_user_key: mockKeyConnectorKeyWrappedUserKey,
+        ssoJitProvisionFinishService.finishKeyConnector.mockResolvedValue({
+          registration: {
+            ...registration,
             account_cryptographic_state: {
               V1: {
                 private_key: mockPrivateKey,
               },
             },
-          });
+          } as unknown as KeyConnectorRegistrationResult,
+          organizationInviteAccepted: true,
+        });
 
         const conversionState = stateProvider.singleUser.getFake(
           mockUserId,
@@ -554,7 +549,7 @@ describe("KeyConnectorService", () => {
         conversionState.nextState(conversion);
 
         await expect(
-          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
+          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId),
         ).rejects.toThrow("Unexpected account cryptographic state version");
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
@@ -564,12 +559,9 @@ describe("KeyConnectorService", () => {
         ).not.toHaveBeenCalled();
       });
 
-      it("should throw error when post_keys_for_key_connector_registration fails", async () => {
+      it("should throw error when finishKeyConnector fails", async () => {
         const sdkError = new Error("Key Connector registration failed");
-        mockSdkRef.value
-          .auth()
-          .registration()
-          .post_keys_for_key_connector_registration.mockRejectedValue(sdkError);
+        ssoJitProvisionFinishService.finishKeyConnector.mockRejectedValue(sdkError);
 
         const conversionState = stateProvider.singleUser.getFake(
           mockUserId,
@@ -578,7 +570,7 @@ describe("KeyConnectorService", () => {
         conversionState.nextState(conversion);
 
         await expect(
-          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
+          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId),
         ).rejects.toThrow("Key Connector registration failed");
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
@@ -619,6 +611,8 @@ describe("KeyConnectorService", () => {
         tokenService.getEmail.mockResolvedValue(mockEmail);
         masterPasswordService.mock.emailToSalt.mockReturnValue(mockEmailSalt);
         configService.getFeatureFlag$.mockReturnValue(of(false));
+        configService.getFeatureFlag.mockResolvedValue(false);
+        ssoJitProvisionFinishService.shouldAcceptOrganizationInvite.mockResolvedValue(true);
       });
 
       it.each([
@@ -643,8 +637,15 @@ describe("KeyConnectorService", () => {
           );
           conversionState.nextState(conversion);
 
-          await keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId);
+          const result = await keyConnectorService.convertNewSsoUserToKeyConnector(
+            mockUserId,
+            mockOrgId,
+          );
 
+          expect(result).toBe(true);
+          expect(ssoJitProvisionFinishService.shouldAcceptOrganizationInvite).toHaveBeenCalledWith(
+            mockOrgId,
+          );
           expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
           expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             passwordKey.keyB64,
@@ -677,11 +678,88 @@ describe("KeyConnectorService", () => {
               new KeysRequest(mockKeyPair[0], mockKeyPair[1].encryptedString!),
             ),
           );
+          expect(ssoJitProvisionFinishApiService.postKeyConnector).not.toHaveBeenCalled();
 
           // Verify that conversion data is cleared from conversionState
           expect(await firstValueFrom(conversionState.state$)).toBeNull();
         },
       );
+
+      it.each([true, false])(
+        "posts to the SSO JIT provision finish endpoint with acceptOrganizationInvite %s when the invite link auto-confirm flag is on",
+        async (organizationInviteAccepted) => {
+          // Arrange
+          configService.getFeatureFlag.mockImplementation(
+            async (flag) => flag === FeatureFlag.InviteLinkAutoConfirm,
+          );
+          ssoJitProvisionFinishService.shouldAcceptOrganizationInvite.mockResolvedValue(
+            organizationInviteAccepted,
+          );
+          const conversionState = stateProvider.singleUser.getFake(
+            mockUserId,
+            NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
+          );
+          conversionState.nextState(conversion);
+
+          // Act
+          const result = await keyConnectorService.convertNewSsoUserToKeyConnector(
+            mockUserId,
+            mockOrgId,
+          );
+
+          // Assert
+          expect(result).toBe(organizationInviteAccepted);
+          expect(ssoJitProvisionFinishService.shouldAcceptOrganizationInvite).toHaveBeenCalledWith(
+            mockOrgId,
+          );
+          expect(ssoJitProvisionFinishApiService.postKeyConnector).toHaveBeenCalledWith(
+            new SsoJitProvisionFinishSetKeyConnectorKeyRequest(
+              new SetKeyConnectorKeyRequest(
+                mockMakeUserKeyResult[1].encryptedString!,
+                conversion.kdfConfig,
+                mockSsoOrgIdentifier,
+                new KeysRequest(mockKeyPair[0], mockKeyPair[1].encryptedString!),
+              ),
+              organizationInviteAccepted,
+            ),
+          );
+          expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
+          expect(ssoJitProvisionFinishService.finishKeyConnector).not.toHaveBeenCalled();
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).toHaveBeenCalledWith(
+            { V1: { private_key: mockKeyPair[1].encryptedString } },
+            mockUserId,
+          );
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+            mockUserId,
+            mockMakeUserKeyResult[0],
+          );
+          expect(await firstValueFrom(conversionState.state$)).toBeNull();
+        },
+      );
+
+      it("does not write state when the SSO JIT provision finish endpoint fails", async () => {
+        // Arrange
+        configService.getFeatureFlag.mockResolvedValue(true);
+        ssoJitProvisionFinishApiService.postKeyConnector.mockRejectedValue(new Error("API error"));
+        const conversionState = stateProvider.singleUser.getFake(
+          mockUserId,
+          NEW_SSO_USER_KEY_CONNECTOR_CONVERSION,
+        );
+        conversionState.nextState(conversion);
+
+        // Act
+        const promise = keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId);
+
+        // Assert
+        await expect(promise).rejects.toThrow("API error");
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+        expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
+      });
 
       it("handles api error", async () => {
         apiService.postUserKeyToKeyConnector.mockRejectedValue(new Error("API error"));
@@ -693,7 +771,7 @@ describe("KeyConnectorService", () => {
         conversionState.nextState(conversion);
 
         await expect(
-          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
+          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId),
         ).rejects.toThrow(new Error("Key Connector error"));
 
         expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
@@ -729,7 +807,7 @@ describe("KeyConnectorService", () => {
         conversionState.nextState(null);
 
         await expect(
-          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId),
+          keyConnectorService.convertNewSsoUserToKeyConnector(mockUserId, mockOrgId),
         ).rejects.toThrow(new Error("Key Connector conversion not found"));
 
         // Verify that no key generation or API calls were made
@@ -737,6 +815,7 @@ describe("KeyConnectorService", () => {
         expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
         expect(apiService.postUserKeyToKeyConnector).not.toHaveBeenCalled();
         expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
+        expect(ssoJitProvisionFinishService.shouldAcceptOrganizationInvite).not.toHaveBeenCalled();
       });
     });
   });
