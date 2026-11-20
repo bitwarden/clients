@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Ongeldige app-pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website toegevoegd"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Website of app toevoegen"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website verwijderen"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Ik"
   },
-  "myItems": {
-    "message": "Mijn items"
-  },
   "myItemsV2": {
     "message": "Mijn items"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Alles wissen"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Importeren gelukt"
+  },
+  "importConfirmationBody": {
+    "message": "Je hebt $AMOUNT$ items met succes geïmporteerd in Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Je hebt 1item met succes geïmporteerd in Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Vergeet niet $FILENAME$ te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Vergeet je importbestand niet te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld."
+  },
+  "importingTitle": {
+    "message": "Importeren"
+  },
+  "importingDescription": {
+    "message": "Dit proces kan enkele minuten duren."
   },
   "dataExportSuccess": {
     "message": "Gegevens succesvol geëxporteerd"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Bedankt voor het aanmelden voor Bitwarden voor $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Bedankt voor het aanmelden voor Bitwarden Secrets Manager voor $PLAN$!",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Je gratis proefperiode van $TRIAL_LENGTH$ dagen $PLAN$ wordt na $TRIAL_LENGTH$ dagen omgezet naar een betaald abonnement.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "We hebben een bevestigingsmail gestuurd naar het factuuradres van je team op "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Je proefperiode bevat Privileged Controls."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Je nieuwe organisatie is klaar voor gebruik!"
+  },
+  "trialStarted": {
+    "message": "Proefperiode gestart"
+  },
+  "trialActive": {
+    "message": "Je gratis proefperiode is nu actief."
   },
   "organizationUpgraded": {
     "message": "Organisatie bijgewerkt"
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Verzameling aangemaakt $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Gedeelde map $ID$ toegevoegd.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Weet je zeker dat je deze Send permanent wil verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Weet je zeker dat je deze Send wilt verwijderen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Verwijderingsdatum"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Automatisch invullen voor desktop-app standaard inschakelen voor alle leden. Je kunt een sneltoets instellen en kiezen of leden dit moeten bevestigen voordat het invult. Deze functie is beta."
+  },
+  "keyboardShortcut": {
+    "message": "Sneltoets"
+  },
+  "appAutofillShortcut": {
+    "message": "Sneltoets automatisch invullen"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Leden kunnen deze sneltoets op elk moment wijzigen."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Gebruik de Bitwarden-standaardsneltoets: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Je eigen aangepaste sneltoetsen invoeren."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Gebruik Ctrl, Alt of Win en minstens 1 letter."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Altijd vragen voor het invullen"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Laat de leden altijd een bevestiging zien wanneer de desktopsnelkoppeling is ingevoerd."
+  },
+  "invalidShortcut": {
+    "message": "Ongeldige sneltoets"
   },
   "disableSend": {
     "message": "Send uitschakelen"
@@ -13040,27 +13105,27 @@
     "message": "Advanced access rules"
   },
   "privilegedControlsFeatureRotation": {
-    "message": "Automated password rotation"
+    "message": "Geautomatiseerde wachtwoordrotatie"
   },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Compliance-ready audit logs"
+    "message": "Compliance-ready auditlogboeken"
   },
   "privilegedControlsFeatureGovernanceDashboard": {
-    "message": "Governance dashboard"
+    "message": "Governance-dashboard"
   },
   "addPrivilegedControls": {
-    "message": "Add Privileged Controls",
+    "message": "Privileged Controls toevoegen",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "seatLimit": {
-    "message": "Seat limit",
+    "message": "Zetellimiet",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "whatsIncluded": {
-    "message": "What's included"
+    "message": "Wat inbegrepen is"
   },
   "pricePerMember": {
-    "message": "$COST$ per member",
+    "message": "$COST$ per gebruiker",
     "placeholders": {
       "cost": {
         "content": "$1",
@@ -13069,7 +13134,7 @@
     }
   },
   "privilegedControlsSeatsAbovePasswordManagerSeats": {
-    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "message": "Zetels kunnen niet meer zijn dan de zitplaatsen van je Wachtwoordbeheerder ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13079,7 +13144,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
-    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "message": "Zetellimiet kan niet hoger zijn dan de zitplaatsen van je Wachtwoordbeheerder ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13089,7 +13154,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
-    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "message": "Zetellimiet kan niet hoger zijn dan de zetellimiet van je Wachtwoordbeheerder ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13099,14 +13164,14 @@
     }
   },
   "privilegedControlsSeatLimitDesc": {
-    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "message": "Stel een zetellimiet in voor je Privileged Controls-abonnement. Zodra deze limiet is bereikt, kun je niet leden toegang verlenen tot Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsSeatLimitNotAboveSeats": {
-    "message": "Seat limit must be greater than the number of seats."
+    "message": "De zitplaatslimiet moet groter zijn dan het aantal zetels."
   },
   "privilegedControlsPurchased": {
-    "message": "Subscription updated. You now have Privileged Controls.",
+    "message": "Abonnement bijgewerkt. Je heeft nu Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "Account herstellen"
   },
+  "recover": {
+    "message": "Herstellen",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Account voor $NAME$ herstellen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Geen acties voor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "Als je het wachtwoord of tweestapsaanmelding voor dit lid opnieuw instelt, worden ze op de hoogte gebracht van de wijziging en uitgelogd."
   },
@@ -13861,7 +13948,7 @@
     "message": "Gebruikers uitnodigen"
   },
   "secretsManagerPurchaseDesc": {
-    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
+    "message": "Stel je ontwikkel- en DevOps-teams in staat om geheimen centraal te bewaren, beheren en uitrollen tijdens de ontwikkelcyclus van software."
   },
   "unlimitedSecrets": {
     "message": "Onbeperkte geheimen"
@@ -13897,7 +13984,7 @@
     }
   },
   "addSecretsManager": {
-    "message": "Add Secrets Manager",
+    "message": "Secrets Manager toevoegen",
     "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Bevestigingsdetails"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Bedankt voor het aanmelden voor Bitwarden Secrets Manager!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "We hebben een bevestiging gestuurd naar je e-mailadres "
@@ -16570,9 +16654,16 @@
     "message": "Gevoelige informatie veilig versturen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Je hebt geen Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Tekst of bestanden veilig delenmet anderen. Je informatie zal end-to-end versleuteld worden."
   },
   "generatorNudgeTitle": {
     "message": "Snel wachtwoorden maken"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Hoe beheer ik mijn kluis?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Items overdragen aan $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Je items overdragen aan $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ vereist nu dat alle leden-items eigendom zijn van de organisatie. Je persoonlijke items zullen worden verplaatst naar een map met de naam Mijn items die alleen jij kunt zien.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Help-artikel openen over de overdracht van items"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Dit 1Password-account gebruikt een aanmeldmethode die niet wordt ondersteund. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Vul een geldig inlogadres in."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Vind dit in je 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Geheime sleutel is vereist."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password. Alleen inloggen met het wachtwoord wordt ondersteund."
+  },
   "secretKey": {
     "message": "Geheime sleutel"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Inloggen met SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Ga naar de SSO-inlogpagina om het importeren in Bitwarden te voltooien."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Overdracht encryptiesleutel"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in bij 1Password en navigeer naar inlogverzoeken om dit verzoek te verifiëren."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Deze code werkte niet. Controleer je andere apparaat voor een nieuwe."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "De SSO-login pagina is gesloten voordat je klaar was met inloggen. Probeer het opnieuw om door te gaan met importeren."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Dit apparaat is niet goedgekeurd op je andere apparaat. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Te veel onjuiste verificatiecodes. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "keeperEmail": {
     "message": "E-mailadres Keeper"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
   },
   "searchDriversLicense": {

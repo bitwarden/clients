@@ -69,6 +69,9 @@ export const AllVariations: Story = {
         <div class="tw-flex tw-gap-4 tw-p-2">
           <a bitLink linkType="subtle" href="#">Subtle</a>
         </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="accent-primary" href="#">Accent Primary</a>
+        </div>
         <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
           <a bitLink linkType="contrast" href="#">Contrast</a>
         </div>

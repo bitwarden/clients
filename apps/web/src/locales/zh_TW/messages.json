@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "網站已新增"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "新增網站或應用程式"
-  },
-  "app": {
-    "message": "應用程式"
   },
   "deleteWebsite": {
     "message": "刪除網站"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "我"
   },
-  "myItems": {
-    "message": "個人文章"
-  },
   "myItemsV2": {
     "message": "我的項目"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "全部清除"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "資料匯出成功"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "感謝您申請 Bitwarden for $PLAN$！",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "感謝您申請 Bitwarden 機密管理 $PLAN$！",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "您的 $PLAN$ $TRIAL_LENGTH$ 天免費試用期，將會在 $TRIAL_LENGTH$ 天後轉換為付費訂閱。",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "我們已經將確認信件傳送至團隊的計費信箱： "
   },
   "trialIncludesPrivilegedControls": {
     "message": "您的試用方案包含 Privileged Controls。"
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "您的新組織已準備好！"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "組織已升級"
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "已建立集合 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "您確定要永久刪除此 Send 嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Are you sure you want to delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "刪除日期"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "appAutofillShortcut": {
+    "message": "App autofill shortcut"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Members can change this keyboard shortcut at any time."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Use the Bitwarden default shortcut: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Enter your own custom shortcut."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Always ask before filling"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "disableSend": {
     "message": "停用 Send"
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "復原帳戶"
   },
+  "recover": {
+    "message": "Recover",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Recover account for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "No actions for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "當重設此成員的密碼或兩步驟登入時，系統會通知該成員並將其登出。"
   },
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "確認詳情"
-  },
-  "smFreeTrialThankYou": {
-    "message": "感謝您註冊 Bitwarden Secrets Manager！"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "我們已向你的電子郵件地址傳送了一封確認電子郵件"
@@ -16570,9 +16654,16 @@
     "message": "安全傳送機密的資訊",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "generatorNudgeTitle": {
     "message": "快速建立密碼"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "我要如何管理我的密碼庫？"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "將項目轉移至 $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "點擊「接受」以轉移您項目的擁有權。"
   },
   "openTransferItemsHelpArticle": {
     "message": "開啟關於轉移項目的說明文章"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "發生錯誤。請檢查您的登入憑證，然後再試一次。"
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "僅支援使用密碼登入。"
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "僅支援使用密碼登入。請再試一次，或使用其他匯入方式。"
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "請輸入有效的電子郵件地址，或使用其他匯入方式。"
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "請輸入有效的登入網址。"
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "必須輸入秘密金鑰。"
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "輸入您用來登入 1Password 的電子郵件地址"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "金鑰"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "您的帳號已受金鑰及密碼保護。您需要輸入兩者才能繼續。"
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper 電子郵件"
@@ -18425,8 +18543,8 @@
   "separateDomainsWithComma": {
     "message": "請以逗號分隔網域"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "搜尋駕照"

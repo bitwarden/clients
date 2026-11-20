@@ -1383,7 +1383,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "选择 $ITEMNAME$ 中的 $ITEMTYPE$",
+    "message": "选择 $ITEMTYPE$ 中的 $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "文件 Send"
   },
+  "item": {
+    "message": "项目"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ 个 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 个 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "您没有 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "与任何人安全地分享文本和文件。您的信息将经过端到端加密。"
+  },
+  "pendingDeletion": {
+    "message": "待删除"
+  },
   "allSends": {
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4757,7 +4784,7 @@
     "message": "自动填充登录快捷键未设置。请在浏览器设置中更改它。"
   },
   "autofillLoginShortcutText": {
-    "message": "自动填充登录快捷键是 $COMMAND$。请在浏览器设置中管理所有快捷键。",
+    "message": "自动填充登录快捷键是 $COMMAND$。在浏览器设置中管理所有快捷键。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -5236,6 +5263,77 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "导入成功"
+  },
+  "importConfirmationBody": {
+    "message": "您已成功将 $AMOUNT$ 个项目导入 Bitwarden。",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "您已成功将 1 个项目导入 Bitwarden。"
+  },
+  "importConfirmationTipLabel": {
+    "message": "提示："
+  },
+  "importDeleteFileTip": {
+    "message": "不要忘记删除 $FILENAME$。该文件包含敏感数据，且可能未经加密。",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "不要忘记删除导入文件。该文件包含敏感数据，且可能未经加密。"
+  },
+  "importingTitle": {
+    "message": "正在导入"
+  },
+  "importingDescription": {
+    "message": "此过程可能需要几分钟时间。"
+  },
+  "importingItemsTitle": {
+    "message": "正在导入 $COUNT$ 个项目！",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "正在导入 1 个项目！"
+  },
+  "openingExtensionSubtitle": {
+    "message": "正在打开浏览器扩展"
+  },
+  "openedExtensionTitle": {
+    "message": "已打开浏览器扩展"
+  },
+  "somethingWentWrong": {
+    "message": "出错了..."
+  },
+  "openingExtensionError": {
+    "message": "打开 Bitwarden 浏览器扩展时出现问题。点击按钮立即将其打开。"
+  },
+  "openExtension": {
+    "message": "打开扩展"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "打开 Bitwarden 浏览器扩展时出现问题。请从工具栏打开 Bitwarden 图标 ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": "。",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "tryAgain": {
     "message": "重试"
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "发生错误。请检查您的凭据，然后重试。"
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "仅支持带密码的登录。"
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "仅支持带密码的登录。请重试或使用其他导入方式。"
+    "message": "仅支持密码方式登录。请重试或使用其他导入方式。"
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "请输入有效的登录地址。"
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "必须填写安全密钥。"
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "输入您用于登录 1Password 的电子邮箱"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "安全密钥"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "复制地址"
   },
-  "myItems": {
-    "message": "我的项目"
-  },
   "myItemsV2": {
     "message": "我的项目"
   },
@@ -7079,11 +7204,11 @@
     }
   },
   "desktopApp": {
-    "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "message": "桌面 App",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
-    "message": "Desktop app $COUNT$",
+    "message": "桌面 App $COUNT$",
     "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -7091,6 +7216,10 @@
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "App 配对无效",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "网址已添加"
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "添加网站或 App"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "删除网站"
@@ -8190,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "我该如何管理我的密码库？"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "转移项目到 $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "将您的项目转移到 $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "为确保安全性和合规性，$ORGANIZATION$ 要求所有项目由组织拥有。",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ 现在要求所有成员项目归组织拥有。您的个人项目将移动到名为「我的项目」的文件夹中，此文件夹仅您本人可见。",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "点击「接受」以转移您的项目的所有权。"
   },
   "openTransferItemsHelpArticle": {
     "message": "打开有关转移项目的帮助文章"
@@ -8470,8 +8593,8 @@
     "message": "此 Send 将在设置的删除日期自动过期",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "您不能将属于多个集合的项目导入到「我的项目」"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "您不能将属于多个集合的项目导入「我的项目」"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
@@ -8891,43 +9014,46 @@
     "message": "浏览器登录自动填充提示已关闭"
   },
   "httpAuthenticationTurnedOffNotice": {
-    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存此条目以保留此更改。"
+    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存项目以保留此更改。"
+  },
+  "vaultItem": {
+    "message": "Vault item"
   },
   "pamStartLeaseErrorWindowNotStarted": {
-    "message": "The approved access window has not started yet."
+    "message": "已批准的访问时间段尚未开始。"
   },
   "pamStartLeaseErrorWindowEnded": {
-    "message": "The approved access window has already ended."
+    "message": "已批准的访问时间段已经结束。"
   },
   "pamStartLeaseErrorNotApproved": {
-    "message": "This request has not been approved yet."
+    "message": "此请求尚未被批准。"
   },
   "pamStartLeaseErrorNoLongerActivatable": {
-    "message": "This request can no longer be activated."
+    "message": "此请求已无法激活。"
   },
   "pamStartLeaseErrorAlreadyUsed": {
-    "message": "This request's access has already been used and is no longer active."
+    "message": "此请求的访问权限已被使用，已不再有效。"
   },
   "pamStartLeaseErrorSingleActiveAccess": {
-    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+    "message": "同一时间只能有一名用户拥有此项目的活动访问权限。请在当前访问结束后重试。"
   },
   "pamStartLeaseErrorNetworkNotPermitted": {
-    "message": "Access to this item is not permitted from your current network."
+    "message": "不允许从您的当前网络访问此项目。"
   },
   "pamStartLeaseErrorTimeNotPermitted": {
-    "message": "Access to this item is not permitted at this time."
+    "message": "当前不允许访问此项目。"
   },
   "pamStartLeaseErrorNotPermitted": {
-    "message": "Access to this item is not permitted right now."
+    "message": "目前不允许访问此项目。"
   },
   "requestAccessModalAlreadyApproved": {
-    "message": "You already have an approved request for this item."
+    "message": "您已经有此项目已批准的请求。"
   },
   "requestAccessModalAlreadyPending": {
-    "message": "You already have a pending request for this item."
+    "message": "您已经拥有此项目待处理的请求。"
   },
   "pamLeaseExpires": {
-    "message": "Expires $DATE$ at $TIME$",
+    "message": "$DATE$ $TIME$ 到期",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -8940,7 +9066,7 @@
     }
   },
   "pamLeaseExpiresToday": {
-    "message": "Expires today at $TIME$",
+    "message": "今天 $TIME$ 到期",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -8949,61 +9075,61 @@
     }
   },
   "pamStartLeaseButton": {
-    "message": "Start access"
+    "message": "发起访问"
   },
   "pamStartLeaseSuccess": {
-    "message": "Access started."
+    "message": "访问已发起。"
   },
   "pamStartLeaseError": {
-    "message": "Couldn't start access."
+    "message": "无法发起访问。"
   },
   "pamEndLeaseButton": {
-    "message": "End access"
+    "message": "结束访问"
   },
   "pamEndLeaseTitle": {
-    "message": "End access?"
+    "message": "结束访问吗？"
   },
   "pamEndLeaseConfirm": {
-    "message": "This immediately revokes your access. This action cannot be undone."
+    "message": "这将立即撤销您的访问权限。此操作无法撤销！"
   },
   "pamEndLeaseSuccess": {
-    "message": "Access ended."
+    "message": "访问已结束。"
   },
   "pamExtendLeaseButtonV2": {
-    "message": "Extend access"
+    "message": "延期访问权限"
   },
   "pamExtendLeaseDialogTitle": {
-    "message": "Extend access"
+    "message": "延期访问权限"
   },
   "pamExtendLeaseDurationLabel": {
-    "message": "Extension length"
+    "message": "延期长度"
   },
   "pamExtendLeaseReasonLabel": {
-    "message": "Reason"
+    "message": "理由"
   },
   "pamExtendLeaseSuccess": {
-    "message": "Access extended."
+    "message": "访问权限已延期。"
   },
   "pamExtendLeaseError": {
-    "message": "Couldn't extend access."
+    "message": "无法延期访问权限。"
   },
   "pamExtendLeaseEnded": {
-    "message": "Your access ended before it could be extended. The request is in your history."
+    "message": "您的访问已在延期前结束。请求已记录在您的历史记录中。"
   },
   "pamAccessBadgePrivileged": {
-    "message": "Privileged"
+    "message": "特权"
   },
   "pamAccessBadgePending": {
-    "message": "Pending approval"
+    "message": "待批准"
   },
   "pamAccessBadgeUnavailable": {
-    "message": "Unavailable"
+    "message": "不可用"
   },
   "pamAccessBadgeReady": {
-    "message": "Ready to use"
+    "message": "已就绪"
   },
   "pamAccessBadgeTimeLeft": {
-    "message": "$DURATION$ left",
+    "message": "剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9012,7 +9138,7 @@
     }
   },
   "pamAccessBadgeEndingSoon": {
-    "message": "Ending soon • $DURATION$ left",
+    "message": "即将结束 • 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9021,10 +9147,10 @@
     }
   },
   "pamAccessBadgeEnded": {
-    "message": "Session ended"
+    "message": "会话已结束"
   },
   "pamActiveLeaseBannerTitleV2": {
-    "message": "Access active • $DURATION$ left",
+    "message": "访问权限有效 • 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9033,7 +9159,7 @@
     }
   },
   "pamActiveLeaseBannerEndingSoonTitleV2": {
-    "message": "Ending soon • $DURATION$ left",
+    "message": "即将结束 • 剩余 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9042,13 +9168,13 @@
     }
   },
   "pamPendingRequestBannerHeading": {
-    "message": "Access request pending approval"
+    "message": "访问请求待批准"
   },
   "pamPendingSubmittedJustNow": {
-    "message": "Submitted just now"
+    "message": "刚刚提交"
   },
   "pamPendingSubmittedAgo": {
-    "message": "Submitted $WHEN$",
+    "message": "$WHEN$ 提交",
     "placeholders": {
       "when": {
         "content": "$1",
@@ -9057,53 +9183,53 @@
     }
   },
   "pamPrivilegedCredentialsHeading": {
-    "message": "Privileged credentials"
+    "message": "特权凭据"
   },
   "pamLicenseNeededTooltip": {
-    "message": "Privileged Controls license needed",
+    "message": "需要 Privileged Controls 许可证",
     "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamRequestToUse": {
-    "message": "Request to use"
+    "message": "请求使用"
   },
   "pamUnavailableToRequest": {
-    "message": "Unavailable to request",
+    "message": "无法请求",
     "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
   },
   "pamExtendAccessMenuItem": {
-    "message": "Extend access",
+    "message": "延期访问权限",
     "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
   },
   "pamAccessBadgeLessThanMinuteLeft": {
-    "message": "<1m left",
+    "message": "剩余不足 1 分钟",
     "description": "Badge for a vault item whose access ends in under a minute."
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "受控的访问权限"
   },
   "pamControlledAccessFilterActive": {
-    "message": "In use"
+    "message": "使用中"
   },
   "pamControlledAccessFilterEndingSoon": {
-    "message": "Ending soon"
+    "message": "即将结束"
   },
   "pamEndedBannerHeading": {
-    "message": "Your access has ended"
+    "message": "您的访问已结束"
   },
   "pamEndedBannerBody": {
-    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+    "message": "此凭据的租约已过期。您的访问结束后此凭据将被立即轮换。"
   },
   "pamUnavailableBannerHeading": {
-    "message": "You can't request access right now"
+    "message": "您现在不能请求访问权限"
   },
   "pamUnavailableBannerBody": {
-    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+    "message": "此凭据的访问规则不允许来自您当前网络的请求，或不允许当前时间的请求。"
   },
   "pamApprovedRequestBannerHeadingV2": {
-    "message": "Ready to use"
+    "message": "已就绪"
   },
   "pamApprovedAccessUntilToday": {
-    "message": "You can access this credential until $TIME$ today.",
+    "message": "您可以在今天 $TIME$ 之前访问此凭据。",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -9112,7 +9238,7 @@
     }
   },
   "pamApprovedAccessUntil": {
-    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "message": "您可以在 $DATE$ $TIME$ 之前访问此凭据。",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -9125,29 +9251,29 @@
     }
   },
   "pamRequestAccessBannerBody": {
-    "message": "Credentials are masked until access is granted."
+    "message": "在授予访问权限之前，凭据将保持隐藏状态。"
   },
   "pamRequestAccessBannerHeading": {
-    "message": "You can request access"
+    "message": "您可以请求访问权限"
   },
   "pamUnlicensedBannerHeadingV2": {
-    "message": "You need a Privileged Controls license to use this item",
+    "message": "您需要 Privileged Controls 许可证才能使用此项目",
     "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamUnlicensedBannerRequestUnavailable": {
-    "message": "Requesting access is not available while unlicensed.",
+    "message": "无许可证时，无法请求访问权限。",
     "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
   },
   "pamUnlicensedBannerBodyV2": {
-    "message": "Ask your admin to activate your license.",
+    "message": "联系管理员激活您的许可证。",
     "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamLeaseErrorUnlicensed": {
-    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "message": "需要 Privileged Controls 许可证。请联系管理员激活您的许可证。",
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
   "pamRequestAccessBannerMaxDuration": {
-    "message": "Access up to $DURATION$",
+    "message": "访问时长最多 $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9156,7 +9282,7 @@
     }
   },
   "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "message": "访问时长最多 $DURATION$，符合条件即可即时获批",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9165,13 +9291,13 @@
     }
   },
   "pamRequestAccessButton": {
-    "message": "Request access"
+    "message": "请求访问权限"
   },
   "pamRequestSlotTaken": {
-    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+    "message": "目前其他人拥有此项目的访问权限。您可以请求访问权限，但需等到其完成之后您才能发起访问。"
   },
   "pamRequestSlotTakenUntil": {
-    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "message": "目前其他人拥有此项目的访问权限。您可以请求访问权限，但需等到 $TIME$ 之后您才能发起访问。",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -9180,55 +9306,55 @@
     }
   },
   "pendingStateCancelRequest": {
-    "message": "Cancel request"
+    "message": "取消请求"
   },
   "pamKeepRequest": {
-    "message": "Keep request"
+    "message": "保留请求"
   },
   "pamCancelRequestTitle": {
-    "message": "Cancel access request"
+    "message": "取消访问请求"
   },
   "pamCancelRequestPendingConfirm": {
-    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+    "message": "这将在审批人决策之前撤回您的请求。您可以随时提交新的请求。"
   },
   "pamCancelRequestApprovedConfirm": {
-    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+    "message": "这将放弃已被批准的访问权限。您可以提交新的请求，但需要再次批准。"
   },
   "pamCancelRequestCanceledToast": {
-    "message": "Request canceled"
+    "message": "请求已取消"
   },
   "pendingStateCancelError": {
-    "message": "Couldn't cancel the request."
+    "message": "无法取消请求。"
   },
   "requestAccessModalSubmitV2": {
-    "message": "Send request"
+    "message": "发送请求"
   },
   "requestAccessModalDurationV2": {
-    "message": "How long do you need it?"
+    "message": "您需要多长时间？"
   },
   "requestAccessModalDurationHint": {
-    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+    "message": "批准后，您将收到通知。当您开始使用此凭据时，才会开始倒计时。"
   },
   "requestAccessModalDetailsHeading": {
-    "message": "Request details"
+    "message": "请求详细信息"
   },
   "requestAccessModalStartDate": {
-    "message": "Start date"
+    "message": "开始日期"
   },
   "requestAccessModalStart": {
-    "message": "Start time"
+    "message": "开始时间"
   },
   "requestAccessModalEndDate": {
-    "message": "End date"
+    "message": "结束日期"
   },
   "requestAccessModalEnd": {
-    "message": "End time"
+    "message": "结束时间"
   },
   "requestAccessModalEndNotAfterStart": {
-    "message": "End must be after the start."
+    "message": "结束时间必须晚于开始时间。"
   },
   "requestAccessModalStartNow": {
-    "message": "$TIME$ (now)",
+    "message": "$TIME$（现在）",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -9237,19 +9363,19 @@
     }
   },
   "requestAccessModalCustomOption": {
-    "message": "Custom time…"
+    "message": "自定义时间…"
   },
   "requestAccessModalCustomEndOption": {
-    "message": "Custom end date and time…"
+    "message": "自定义结束日期和时间…"
   },
   "requestAccessModalShowStartPresets": {
-    "message": "Show suggested start times"
+    "message": "显示建议的开始时间"
   },
   "requestAccessModalShowEndPresets": {
-    "message": "Back to suggested durations"
+    "message": "恢复到建议的持续时间"
   },
   "requestAccessModalDurationUntil": {
-    "message": "$DURATION$, until $END$",
+    "message": "$DURATION$，截止到 $END$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9262,7 +9388,7 @@
     }
   },
   "requestAccessModalWindowSummary": {
-    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "message": "请求的访问时长为 $DURATION$：$START$ – $END$",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9279,10 +9405,10 @@
     }
   },
   "requestAccessModalWindowInPast": {
-    "message": "The requested window has already ended. Pick a later date or time."
+    "message": "请求的时间段已经结束。请选择一个更晚的日期或时间。"
   },
   "requestAccessModalWindowExceedsMax": {
-    "message": "The window can't exceed $DURATION$.",
+    "message": "时间段不能超过 $DURATION$。",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9291,30 +9417,30 @@
     }
   },
   "requestAccessModalReasonRequiredV2": {
-    "message": "Why do you need it?"
+    "message": "您为什么需要它？"
   },
   "requestAccessModalReasonOptionalV2": {
-    "message": "Why do you need it?"
+    "message": "您为什么需要它？"
   },
   "requestAccessModalReasonPlaceholderV2": {
     "message": "例如：季度审计，需要运行一些只读查询"
   },
   "requestAccessModalAutomaticReasonHintV2": {
-    "message": "Visible to your approver and saved to the audit log."
+    "message": "对您的审批人可见并会保存到审计日志中。"
   },
   "requestAccessModalHumanReasonHintV2": {
-    "message": "Visible to your approver and saved to the audit log."
+    "message": "对您的审批人可见并会保存到审计日志中。"
   },
   "requestAccessModalGenericError": {
-    "message": "Could not request access. Try again."
+    "message": "无法请求访问权限。请重试。"
   },
   "requestAccessModalAlreadyActive": {
-    "message": "You already have active access to this item."
+    "message": "您已经有对此项目的访问权限。"
   },
   "requestAccessModalApprovedSuccessV2": {
-    "message": "Access approved. Select Start access to begin."
+    "message": "访问已批准。选择「发起访问」以开始。"
   },
   "requestAccessModalRequestCreatedSuccessV2": {
-    "message": "Access requested"
+    "message": "已请求访问权限"
   }
 }

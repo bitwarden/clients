@@ -59,11 +59,12 @@ describe("SendTableComponent", () => {
     return Object.assign(send, overrides);
   }
 
-  async function renderWithSend(send: SendView, disableSend = false) {
+  async function renderWithSend(send: SendView, disableSend = false, sendAuthRequired = false) {
     const dataSource = new TableDataSource<SendView>();
     dataSource.data = [send];
     fixture.componentRef.setInput("dataSource", dataSource);
     fixture.componentRef.setInput("disableSend", disableSend);
+    fixture.componentRef.setInput("sendAuthRequired", sendAuthRequired);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -117,6 +118,30 @@ describe("SendTableComponent", () => {
 
     expect(items).toContain("copySendLink");
     expect(items).not.toContain("removeEmailVerification");
+  });
+
+  it("hides the remove option when policy requires Sends to have authentication", async () => {
+    await renderWithSend(
+      createSend({ authType: AuthType.Password, password: "hash" }),
+      false,
+      true,
+    );
+
+    const items = openMenuItems();
+
+    expect(items).toContain("copySendLink");
+    expect(items).not.toContain("removePassword");
+  });
+
+  it("hides the remove option for Sends that don't comply with policy", async () => {
+    await renderWithSend(
+      createSend({ authType: AuthType.Password, password: "hash", disabled: true }),
+    );
+
+    const items = openMenuItems();
+
+    expect(items).toContain("copySendLink");
+    expect(items).not.toContain("removePassword");
   });
 
   it("emits removeAuth with the Send when the remove option is clicked", async () => {

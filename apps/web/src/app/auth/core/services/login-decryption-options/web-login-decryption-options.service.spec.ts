@@ -2,6 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 
@@ -41,7 +42,7 @@ describe("WebLoginDecryptionOptionsService", () => {
         }),
       );
 
-      await service.handleCreateUserSuccess();
+      await service.handleCreateUserSuccess(true);
 
       expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
@@ -50,10 +51,48 @@ describe("WebLoginDecryptionOptionsService", () => {
     it("should NOT clear the redirect URL or the org invite when no org invite is stashed", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      await service.handleCreateUserSuccess();
+      await service.handleCreateUserSuccess(true);
 
       expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should keep the open org invite and its login redirect URL when we send acceptOrganizationInvite: false", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "org-name",
+        }),
+      );
+
+      // Act
+      await service.handleCreateUserSuccess(false);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should clear a stashed open invite for a different organization when we send acceptOrganizationInvite: true", async () => {
+      // Arrange: the domain service accepts, because the open invite is for another organization.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "other-org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "other-org-name",
+        }),
+      );
+
+      // Act
+      await service.handleCreateUserSuccess(true);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
     });
   });
 });
