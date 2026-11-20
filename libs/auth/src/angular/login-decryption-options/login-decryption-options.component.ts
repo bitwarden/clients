@@ -8,7 +8,6 @@ import { Router } from "@angular/router";
 import {
   EMPTY,
   catchError,
-  concatMap,
   defer,
   filter,
   firstValueFrom,
@@ -31,6 +30,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { LogoutService } from "@bitwarden/common/auth/logout";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -39,10 +39,8 @@ import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.ser
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -59,7 +57,6 @@ import {
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
@@ -109,7 +106,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   // New User Properties
-  private newUserOrgId: string;
+  private newUserOrgId: OrganizationId;
 
   // Existing User Untrusted Device Properties
   protected canApproveFromOtherDevice = false;
@@ -134,7 +131,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
     private logoutService: LogoutService,
-    private registerSdkService: RegisterSdkService,
+    private ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     private appIdService: AppIdService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private authService: AuthService,
@@ -262,7 +259,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const autoEnrollStatus = await firstValueFrom(autoEnrollStatus$);
 
-    this.newUserOrgId = autoEnrollStatus.id;
+    this.newUserOrgId = autoEnrollStatus.id as OrganizationId;
   }
 
   private loadExistingUserUntrustedDeviceData(userDecryptionOptions: UserDecryptionOptions) {
@@ -352,34 +349,21 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       const organizationId = this.newUserOrgId;
 
       const orgKeyResponse = await this.organizationApiService.getKeys(organizationId);
-      const register_result = await firstValueFrom(
-        this.registerSdkService.registerClient$(userId).pipe(
-          concatMap(async (sdk) => {
-            if (!sdk) {
-              throw new Error("SDK not available");
-            }
-
-            using ref = sdk.take();
-            return await ref.value
-              .auth()
-              .registration()
-              .post_keys_for_tde_registration({
-                org_id: asUuid<SdkOrganizationId>(organizationId),
-                org_public_key: orgKeyResponse.publicKey,
-                user_id: asUuid<SdkUserId>(userId),
-                device_identifier: deviceIdentifier,
-                trust_device: this.formGroup.value.rememberDevice,
-              });
-          }),
-        ),
-      );
+      const { registration: register_result, organizationInviteAccepted } =
+        await this.ssoJitProvisionFinishService.finishTrustedDevice({
+          userId,
+          orgId: organizationId,
+          orgPublicKey: orgKeyResponse.publicKey,
+          deviceIdentifier,
+          trustDevice: this.formGroup.value.rememberDevice,
+        });
       // The keys returned here can only be v2 keys, since the SDK only implements returning V2 keys.
       if ("V1" in register_result.account_cryptographic_state) {
         throw new Error("Unexpected V1 account cryptographic state");
       }
 
       // Note: When SDK state management matures, the state writes and the unlock below should all
-      // be moved into post_keys_for_tde_registration
+      // be moved into SsoJitProvisionFinishService.finishTrustedDevice
       // Set account cryptography state
       await this.accountCryptographicStateService.setAccountCryptographicState(
         register_result.account_cryptographic_state,
@@ -405,13 +389,16 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("inviteAccepted"),
-      });
+      // An open invite stays Invited, so the invite is not accepted yet.
+      if (organizationInviteAccepted) {
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("inviteAccepted"),
+        });
+      }
 
-      await this.loginDecryptionOptionsService.handleCreateUserSuccess();
+      await this.loginDecryptionOptionsService.handleCreateUserSuccess(organizationInviteAccepted);
 
       if (this.clientType === ClientType.Desktop) {
         this.messagingService.send("redrawMenu");
