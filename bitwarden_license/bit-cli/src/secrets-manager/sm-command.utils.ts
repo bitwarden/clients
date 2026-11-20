@@ -133,12 +133,22 @@ const SM_READ_ONLY_PROPERTIES = ["read", "write"] as const;
  * Rejects a request body that sets the `read` or `write` permission flags, which are computed by
  * the server and cannot be edited. `creationDate` and `revisionDate` are deliberately not
  * rejected, so the output of a `get` command can still be piped into `edit`.
+ *
+ * Pass `existing` when the entity's response always includes the flags (projects do), so a body
+ * piped from `get` is accepted: a flag is then rejected only when its value differs from the
+ * existing one. Without `existing`, any supplied flag is rejected (machine accounts, whose
+ * responses never include the flags). A `false` value counts as supplied.
  */
 export function checkSmReadOnlyProperties(
   request: Record<string, unknown>,
   entity: string,
+  existing?: Partial<Record<(typeof SM_READ_ONLY_PROPERTIES)[number], unknown>>,
 ): Response | undefined {
-  const present = SM_READ_ONLY_PROPERTIES.filter((property) => !isMissing(request[property]));
+  const present = SM_READ_ONLY_PROPERTIES.filter(
+    (property) =>
+      !isMissing(request[property]) &&
+      (existing == null || request[property] !== existing[property]),
+  );
   if (present.length === 0) {
     return undefined;
   }

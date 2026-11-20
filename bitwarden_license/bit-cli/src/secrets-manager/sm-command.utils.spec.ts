@@ -157,6 +157,32 @@ describe("sm-command.utils", () => {
     });
   });
 
+  describe("checkSmReadOnlyProperties with an existing entity", () => {
+    const existing = { read: true, write: true };
+
+    it("allows values equal to the existing ones", () => {
+      expect(
+        checkSmReadOnlyProperties({ name: "A", read: true, write: true }, "project", existing),
+      ).toBeUndefined();
+    });
+
+    it("allows absent values", () => {
+      expect(checkSmReadOnlyProperties({ name: "A" }, "project", existing)).toBeUndefined();
+    });
+
+    it("rejects only the values that differ", () => {
+      expect(
+        checkSmReadOnlyProperties({ read: true, write: false }, "project", existing)?.message,
+      ).toBe("`write` cannot be edited on a project. Remove this property from the request.");
+    });
+
+    it("rejects a value of a different type", () => {
+      expect(checkSmReadOnlyProperties({ write: "true" }, "project", existing)?.success).toBe(
+        false,
+      );
+    });
+  });
+
   describe("checkSmRequestOrganization", () => {
     it("allows a missing or matching organization id", () => {
       expect(checkSmRequestOrganization(smOrgId, undefined)).toBeUndefined();

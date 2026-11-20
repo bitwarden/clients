@@ -33,10 +33,6 @@ export class ProjectEditCommand {
     if (orgMismatch) {
       return orgMismatch;
     }
-    const readOnly = checkSmReadOnlyProperties(parsed.request, "project");
-    if (readOnly) {
-      return readOnly;
-    }
     const name = readSmName(parsed.request);
     if (name.error) {
       return name.error;
@@ -46,6 +42,11 @@ export class ProjectEditCommand {
       const existing = await this.projectService.getByProjectId(project.id, true);
       if (existing.organizationId !== org.organizationId) {
         return smNotFoundResponse("project");
+      }
+      // `get` always emits read/write, so only a value that differs from the project's is an edit.
+      const readOnly = checkSmReadOnlyProperties(parsed.request, "project", existing);
+      if (readOnly) {
+        return readOnly;
       }
       if (!existing.write) {
         return Response.noEditPermission();
