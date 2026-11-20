@@ -2,20 +2,16 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SecretsManagerSubscribeRequest } from "@bitwarden/common/billing/models/request/sm-subscribe.request";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
@@ -49,9 +45,8 @@ export class SecretsManagerSubscribeStandaloneComponent {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationService: InternalOrganizationServiceAbstraction,
     private toastService: ToastService,
-    private accountService: AccountService,
+    private syncService: SyncService,
   ) {}
 
   submit = async () => {
@@ -63,22 +58,16 @@ export class SecretsManagerSubscribeStandaloneComponent {
       ? this.formGroup.value.additionalServiceAccounts
       : 0;
 
-    const profileOrganization = await this.organizationApiService.subscribeToSecretsManager(
-      this.organization.id,
-      request,
-    );
-    const organizationData = new OrganizationData(profileOrganization, {
-      isMember: this.organization.isMember,
-      isProviderUser: this.organization.isProviderUser,
-    });
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await this.organizationService.upsert(organizationData, userId);
+    await this.organizationApiService.subscribeToSecretsManager(this.organization.id, request);
 
     /*
       Because subscribing to Secrets Manager automatically provides access to Secrets Manager for the
       subscribing user, we need to refresh the identity token to account for their updated permissions.
     */
     await this.apiService.refreshIdentityToken();
+
+    // Sync so the organization's updated Secrets Manager state is reflected locally.
+    await this.syncService.fullSync(true);
 
     this.toastService.showToast({
       variant: "success",
