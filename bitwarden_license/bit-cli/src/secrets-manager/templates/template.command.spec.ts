@@ -3,8 +3,10 @@ import { mock } from "jest-mock-extended";
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { TemplateResponse } from "@bitwarden/cli/models/response/template.response";
 
+import { AccessSetCommand } from "../access/access-set.command";
 import { ProjectCreateCommand } from "../projects/project-create.command";
 import { checkSmRequestOrganization } from "../sm-command.utils";
+import { bobId, createSmAccessFixture, smTargetId, userPolicy } from "../spec/sm-access-test-utils";
 import { encodeSmRequest, smOrg, smOrgId } from "../spec/sm-test-utils";
 
 import { TemplateCommand } from "./template.command";
@@ -45,6 +47,26 @@ describe("TemplateCommand", () => {
       smOrgId,
       expect.objectContaining({ organizationId: smOrgId, name: "Backend" }),
     );
+  });
+
+  it("returns an sm-access-policies template that keeps a grantee's existing permission", async () => {
+    const fixture = createSmAccessFixture();
+    fixture.accessPolicyService.getProjectPeopleAccessPolicies.mockResolvedValue({
+      userAccessPolicies: [userPolicy(bobId, "Bob", true)],
+      groupAccessPolicies: [],
+    });
+    const request = await template("sm-access-policies");
+    request.policies[0].id = bobId;
+
+    const response = await new AccessSetCommand(fixture.store).run(
+      smOrg,
+      "project",
+      smTargetId,
+      encodeSmRequest(request),
+    );
+
+    expect(response.success).toBe(true);
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
   });
 
   it("rejects an unknown object", async () => {

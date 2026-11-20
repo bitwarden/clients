@@ -233,6 +233,10 @@ module.exports.buildConfig = function buildConfig(params) {
             ]
           : []),
         { from: path.resolve(__dirname, "src/popup/images"), to: "popup/images" },
+        {
+          from: path.resolve(__dirname, "../../libs/angular/src/billing/images/premium"),
+          to: "popup/images/premium",
+        },
         { from: path.resolve(__dirname, "src/autofill/content/autofill.css"), to: "content" },
       ],
     }),

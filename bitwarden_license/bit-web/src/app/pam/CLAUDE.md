@@ -256,7 +256,7 @@ which spells out which happened and when; the row builders have no need for it, 
 ## Refresh model
 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
-Two services drive every refresh:
+Two services drive almost every refresh:
 
 - `AccessEventService`, the server's pushes for the active user, filtered to bare ticks:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
@@ -265,11 +265,20 @@ Two services drive every refresh:
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
 
-Page-level services subscribe to the pushes directly and reload: `MyAccessService` on
-`accessChanged$`, `ApproverInboxService` on both. Use `concatMap`, not `switchMap`: two pushes
-arriving together must not interleave their loads and leave several subjects describing
-different moments. `AccessRequestDetailService` reads one request, so it re-fetches with
-`switchMap` on the `:id` and `accessChanged$`.
+The one exception: `PamRevealedCipherService` listens for `SyncCipherUpdate` itself and reads a
+held view again. During a lease, core sync keeps the stored restricted copy on that push, so
+neither service above carries the edit. The extension's `PamLeaseRefreshService` does the same for
+its held copies.
+
+Page-level services reload on these streams. `MyAccessService` listens on
+`AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
+elsewhere in this client (the request dialog, the vault) updates its tabs and counts even when the
+push is missed. It skips its own announcements, since each of its mutations already patched or
+reloaded the state. `ApproverInboxService` subscribes to both pushes directly.
+
+**Use `concatMap`, not `switchMap`**: two refreshes arriving together must not interleave their
+loads and leave several subjects describing different moments. `AccessRequestDetailService` reads
+one request, so it re-fetches with `switchMap` on the `:id` and `accessChanged$`.
 
 ### A lease running out
 
@@ -281,16 +290,20 @@ lapsed lease whatever the response said and fails closed on an unparseable `notA
 
 Something has to move that clock. **Use one of the two that already tick; do not add a third.**
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
-active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
-`PamRevealedCipherService` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
-clock the badges run on, and only while the state they hold carries a live lease.
+active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent`,
+`PamRevealedCipherService` and `VaultRowAccessActionsService` take a single tick off
+`AccessBadgeTickerService.ticks$`, the shared clock the badges run on, and only while the state
+they hold has something left to lapse.
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
 device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
-re-reads it when its lease lapses, through `rereadOnLapse`
-(`bit-pam/src/helpers/lease-liveness.ts`), and judges the answer with `liveActiveLease` again. A
-server whose clock trails still hands back the old `notAfter`, so the item still locks; only a
-genuinely later end keeps it open.
+re-reads it when it lapses, through `rereadOnLapse` (`bit-pam/src/helpers/lease-liveness.ts`), and
+judges the answer with `liveActiveLease` again. A server whose clock trails still hands back the
+old `notAfter`, so the item still locks; only a genuinely later end keeps it open. "Lapses" also
+covers a pending or approved request's `leaseNotAfter`: the server drops the request once its
+window closes, but announces nothing, so without that re-read the row and the dialog keep showing
+Pending or Start access (PAM-445). A request has no local clamp, so `nextRereadMs` retries a
+trailing server for a bounded time (see its constants) rather than once.
 
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
@@ -308,8 +321,10 @@ PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
 binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
 `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the vault table's "Controlled access" chip and
-column, over the same state reads), and
-`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
+column, over the same state reads),
+`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name), and
+`REVEALABLE_CIPHERS` (the ciphers under a live lease, so the vault-row menu offers what a
+reveal allows before the item is opened). In `apps/web`:
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows;
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a

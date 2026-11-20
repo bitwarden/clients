@@ -23,7 +23,6 @@ export {
 } from "./services/vault-copy-buttons.service";
 export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
-export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
 
 export * from "./cipher-view";
@@ -182,6 +181,7 @@ export {
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
 export { CIPHER_SHARE_ACCESS, CipherShareAccess } from "./tokens/cipher-share-access.token";
+export { REVEALABLE_CIPHERS, RevealableCiphers } from "./tokens/revealable-ciphers.token";
 export {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,

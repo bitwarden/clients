@@ -65,7 +65,8 @@ on first SSO login), the **server** accepts the user into the org as a side
 effect of finishing account setup. The client never re-fires acceptance for
 these users — the cleanup services drop the stashed invite and the deep-link
 redirect URL so the guard doesn't replay the accept route. Applies to both
-invite kinds equally.
+invite kinds equally, with one open invite exception for master password and
+TDE below.
 
 Which acceptance path runs depends on the org's configured **member
 decryption option** — the mechanism users employ to decrypt their vaults
@@ -74,11 +75,25 @@ after SSO authentication (configured under the org's SSO settings):
 - **Master password member decryption option**: server's
   `FinishSsoJitProvisionMasterPasswordCommand` accepts the user when they
   submit their initial master password.
+  Exception: when the stashed invite is an open invite for the same org, we
+  tell the server not to accept the invite
+  (`SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this
+  decision). The membership stays Invited, and `WebSetInitialPasswordService`
+  keeps the stash and the `/join` redirect. `deepLinkGuard` then replays `/join`
+  into `AcceptOrgOpenInviteComponent`, which runs the Admin Console accept flow.
+  Key Connector does not have this exception yet.
 - **Trusted Device Encryption (TDE) member decryption option**: server
   accepts the user during admin-recovery enrollment (the org feature that
   lets admins recover user accounts via a shared key — TDE users are
   enrolled automatically as part of first-device setup, and the acceptance
   is bundled into that server call).
+  Exception: the same open invite exception as master password applies.
+  `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes the
+  decision. When we send `acceptOrganizationInvite: false`, the server also
+  does not enroll the user in admin recovery. The membership stays Invited, and
+  `WebLoginDecryptionOptionsService` keeps the stash and the `/join` redirect.
+  `AcceptOrgOpenInviteComponent` then runs the Admin Console accept flow,
+  which owns the enrollment.
 - **Key Connector member decryption option**: server's
   `SetKeyConnectorKeyCommand` accepts the user when the client completes
   key-connector provisioning — the client posts the master-key encryption
@@ -194,11 +209,11 @@ decryption. After SSO they land in a "set initial password" flow.
 2. IdP auth + callback
 3. Server JIT-provisions the user
 4. Client navigates the user through "set initial password"
-5. User submits their new MP → `WebSetInitialPasswordService.setInitialPassword` (or `.initializePasswordJitPasswordUserV2Encryption` for the V2 path — V2 is the current SDK-based encryption path; V1 is the deprecated direct path)
+5. User submits their new MP → `WebSetInitialPasswordService.initializePasswordJitPasswordUserV2Encryption`
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
-7. Client-side cleanup, in `WebSetInitialPasswordService`, when an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
+7. Client-side cleanup, in `WebSetInitialPasswordService`, when we sent `acceptOrganizationInvite: true` and an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
    - `routerService.getAndClearLoginRedirectUrl()` — drops the `/accept-organization` redirect
    - `organizationInviteService.clearOrganizationInvite()` — drops both invite stashes
 8. User lands in `/vault`
@@ -227,10 +242,18 @@ The flow below covers the net-new TDE case:
 3. Server JIT-provisions the user
 4. Client routes through [`LoginDecryptionOptionsComponent`](../../../../../../libs/auth/src/angular/login-decryption-options/login-decryption-options.component.ts) for TDE setup
 5. Server accepts the user into the org during admin-recovery enrollment (see the admin-recovery gloss under "The two acceptance mechanisms")
-6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`, when an invite is stashed:
+6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`, when we sent `acceptOrganizationInvite: true` and an invite is stashed:
    - `routerService.getAndClearLoginRedirectUrl()`
    - `organizationInviteService.clearOrganizationInvite()`
 7. User completes device-trust setup and lands in `/vault`
+
+For an open invite to the same org, steps 5 and 6 change. We send
+`acceptOrganizationInvite: false`, so the server does not accept the invite and
+does not enroll the user in admin recovery. The
+membership stays Invited, and `handleCreateUserSuccess` keeps the stash and the
+`/join` redirect. `deepLinkGuard` then replays `/join` into
+`AcceptOrgOpenInviteComponent`. See the TDE exception under "The two acceptance
+mechanisms".
 
 #### SSO + Key Connector
 
@@ -261,8 +284,15 @@ All three run the same cleanup — `getAndClearLoginRedirectUrl()` plus
 of an invite also persists that invite's accept URL as the login redirect, so
 a stashed invite marks the redirect as the invite's. Without a stashed invite,
 the redirect is an unrelated deep link (e.g. `/settings/account`) that
-`deepLinkGuard` should replay after account setup. Consolidation of the MP +
-TDE pair is tracked in [PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
+`deepLinkGuard` should replay after account setup.
+
+The MP-SSO and TDE-SSO cleanups have one more condition: we must have sent
+`acceptOrganizationInvite: true`. When we send `false` for an open invite to
+the same org, the membership stays Invited. Both services then keep the stash
+and the `/join` redirect for `AcceptOrgOpenInviteComponent`. Key Connector-SSO
+does not have this exception yet, so it cleans up whenever an invite is stashed.
+Consolidation of the MP + TDE pair is tracked in
+[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
 
 ### Edge / historical cases
 
@@ -485,13 +515,20 @@ downstream outcomes:
    setup — see [The two acceptance mechanisms > 2. Server-side acceptance
    as a side effect of account setup](#2-server-side-acceptance-as-a-side-effect-of-account-setup)
    for the MP / TDE / KC breakdown. Same server commands, same client-side
-   cleanup services, invite-kind-agnostic.
+   cleanup services. Exception: for MP and TDE, we tell the server not to
+   accept the open invite when it is for this org, so the membership stays
+   Invited.
 4. Client-side cleanup (MP: `WebSetInitialPasswordService`; TDE:
    `WebLoginDecryptionOptionsService`; KC: `ConfirmKeyConnectorDomainComponent`
    override) sees the stashed open invite and drops both the persisted
    `/join` deep-link URL and the stash via `clearOrganizationInvite`, which
    clears both state keys. `deepLinkGuard` therefore does not replay `/join`
    and `authedHandler` does not re-fire `acceptOpenOrgInvite`.
+   MP and TDE exception: when we sent `acceptOrganizationInvite: false` (step 3),
+   `WebSetInitialPasswordService` (MP) or `WebLoginDecryptionOptionsService`
+   (TDE) keeps the stash and the `/join` URL.
+   `deepLinkGuard` replays `/join`, and `authedHandler` runs
+   `acceptOpenOrgInvite`, which applies the Admin Console checks.
 
 #### SSO-required org, existing user (MP detour to /login)
 
