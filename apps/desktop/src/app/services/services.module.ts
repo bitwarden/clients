@@ -123,7 +123,10 @@ import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
@@ -147,6 +150,7 @@ import {
 import {
   CryptoFunctionService as CryptoFunctionServiceAbstraction,
   EncryptService,
+  LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
@@ -224,6 +228,7 @@ import { DesktopDeviceManagementComponentService } from "../../services/desktop-
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+import { DesktopCipherService } from "../../vault/services/desktop-cipher.service";
 import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-item.presenter";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
@@ -479,6 +484,26 @@ const safeProviders: SafeProvider[] = [
       UnlockService,
       ConfigService,
       StateProvider,
+    ],
+  }),
+  safeProvider({
+    provide: CipherServiceAbstraction,
+    useClass: DesktopCipherService,
+    deps: [
+      KeyService,
+      LegacyCompatKeyService,
+      DomainSettingsService,
+      ApiService,
+      I18nServiceAbstraction,
+      AutofillSettingsServiceAbstraction,
+      EncryptService,
+      CipherFileUploadServiceAbstraction,
+      ConfigService,
+      StateProvider,
+      AccountServiceAbstraction,
+      LogService,
+      CipherEncryptionService,
+      CipherSdkService,
     ],
   }),
   safeProvider({
