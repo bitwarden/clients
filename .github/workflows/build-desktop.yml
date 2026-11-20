@@ -199,12 +199,11 @@ jobs:
           - variant: bit
             license_type: commercial
             artifact_prefix: "bit-"
-    # Note, before updating the ubuntu version of the workflow, ensure the snap base image
-    # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
-    # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
-    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
-    # for maximum compatibility across GLIBC versions
-    runs-on: ubuntu-22.04
+    # Note: The snap base is core24 (defined in `apps/desktop/electron-builder.json`).
+    # Destructive/host mode requires the runner OS to match the snap base, so this
+    # job runs on ubuntu-24.04. The gnome-46-2404 content snap is used instead of
+    # the gnome extension, which is incompatible with destructive mode.
+    runs-on: ubuntu-24.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -242,10 +241,16 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder
+          sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder squashfs-tools
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic --channel=8.x/stable
+        run: sudo snap install snapcraft --classic --channel=9.x/stable
+
+      - name: Install snaps required by snapcraft in destructive mode
+        run: |
+          sudo snap install core24
+          sudo snap install gtk-common-themes
+          sudo snap install gnome-46-2404
 
       - name: Print environment
         run: |
@@ -329,6 +334,8 @@ jobs:
           mv electron-builder.json.tmp electron-builder.json
 
       - name: Build application
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
         run: npm run dist:${{ matrix.variant }}:lin
 
       - name: Upload tar.gz artifact
@@ -398,12 +405,11 @@ jobs:
           - variant: bit
             license_type: commercial
             artifact_prefix: "bit-"
-    # Note, before updating the ubuntu version of the workflow, ensure the snap base image
-    # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
-    # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
-    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
-    # for maximum compatibility across GLIBC versions
-    runs-on: ubuntu-22.04-arm
+    # Note: The snap base is core24 (defined in `apps/desktop/electron-builder.json`).
+    # Destructive/host mode requires the runner OS to match the snap base, so this
+    # job runs on ubuntu-24.04-arm. The gnome-46-2404 content snap is used instead of
+    # the gnome extension, which is incompatible with destructive mode.
+    runs-on: ubuntu-24.04-arm
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -441,13 +447,13 @@ jobs:
           sudo gem install --no-document fpm
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic --channel=8.x/stable
+        run: sudo snap install snapcraft --classic --channel=9.x/stable
 
       - name: Install snaps required by snapcraft in destructive mode
         run: |
-          sudo snap install core22
+          sudo snap install core24
           sudo snap install gtk-common-themes
-          sudo snap install gnome-3-28-1804
+          sudo snap install gnome-46-2404
 
       - name: Print environment
         run: |
@@ -2773,19 +2779,19 @@ jobs:
 
   validate-linux-snap:
     name: Validate Linux ${{ matrix.os }} Snap
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     strategy:
       matrix:
         os:
-          - ubuntu-22.04
-          - ubuntu-22.04-arm
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
     needs:
       - setup
       - linux
       - linux-arm64
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
+      _CPU_ARCH: ${{ matrix.os == 'ubuntu-24.04' && 'amd64' || 'arm64' }}
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
