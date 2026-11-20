@@ -1382,44 +1382,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
-    // SsoJitProvisionFinishService is resolved lazily. On web, it depends on KeyConnectorService
-    // through OrganizationInviteService, OrganizationApiService and SyncService.
-    useFactory: (
-      accountService: AccountServiceAbstraction,
-      masterPasswordService: InternalMasterPasswordServiceAbstraction,
-      legacyCompatKeyService: LegacyCompatKeyService,
-      apiService: ApiServiceAbstraction,
-      tokenService: TokenServiceAbstraction,
-      logService: LogService,
-      organizationService: OrganizationServiceAbstraction,
-      logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
-      stateProvider: StateProvider,
-      configService: ConfigService,
-      ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService,
-      accountCryptographicStateService: AccountCryptographicStateService,
-      sdkService: SdkService,
-      userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-      unlockService: UnlockService,
-      injector: Injector,
-    ) =>
-      new KeyConnectorService(
-        accountService,
-        masterPasswordService,
-        legacyCompatKeyService,
-        apiService,
-        tokenService,
-        logService,
-        organizationService,
-        logoutCallback,
-        stateProvider,
-        configService,
-        () => injector.get(SsoJitProvisionFinishService),
-        ssoJitProvisionFinishApiService,
-        accountCryptographicStateService,
-        sdkService,
-        userDecryptionOptionsService,
-        unlockService,
-      ),
+    useClass: KeyConnectorService,
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
@@ -1431,12 +1394,12 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       StateProvider,
       ConfigService,
+      SsoJitProvisionFinishService,
       SsoJitProvisionFinishApiService,
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
       UnlockService,
-      Injector,
     ],
   }),
   safeProvider({
@@ -2195,7 +2158,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoJitProvisionFinishService,
     useClass: DefaultSsoJitProvisionFinishService,
-    deps: [RegisterSdkService, ConfigService, OrganizationInviteService],
+    deps: [RegisterSdkService, ConfigService, GlobalStateProvider],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

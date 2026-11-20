@@ -66,7 +66,6 @@ import {
   DefaultAuthRequestApiService,
 } from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
-import { NoopOrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -81,6 +80,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import {
   DefaultSsoJitProvisionFinishService,
   SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
 } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import {
   AutofillSettingsService,
@@ -508,6 +508,8 @@ export default class MainBackground {
   organizationService: InternalOrganizationServiceAbstraction;
   providerService: ProviderServiceAbstraction;
   keyConnectorService: KeyConnectorServiceAbstraction;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationServiceAbstraction;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
@@ -1085,12 +1087,16 @@ export default class MainBackground {
     this.unlockService.init();
     void browserBiometricsService.setUnlockService(this.unlockService);
 
-    // This client has no stored organization invites, so the noop invite service is enough.
-    const ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
       this.registerSdkService,
       this.configService,
-      new NoopOrganizationInviteService(),
+      this.globalStateProvider,
     );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
+    );
+
     // Constructed after the unlock service, which it depends on.
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
@@ -1103,8 +1109,8 @@ export default class MainBackground {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      () => ssoJitProvisionFinishService,
-      new SsoJitProvisionFinishApiService(this.apiService, this.logService),
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,

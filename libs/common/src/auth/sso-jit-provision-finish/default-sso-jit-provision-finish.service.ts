@@ -13,8 +13,9 @@ import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import { GlobalStateProvider } from "../../platform/state";
 import { OrganizationId, UserId } from "../../types/guid";
-import { OrganizationInviteService } from "../organization-invite/services/organization-invite.service";
+import { OPEN_ORGANIZATION_INVITE } from "../organization-invite/services/implementations/organization-invite.state";
 
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
 import { SsoJitProvisionFinishPasswordParams } from "./sso-jit-provision-finish-password.params";
@@ -26,7 +27,15 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
   constructor(
     private registerSdkService: RegisterSdkService,
     private configService: ConfigService,
-    private organizationInviteService: OrganizationInviteService,
+    /**
+     * Reads the stored open invite. This service does not use `OrganizationInviteService` for
+     * this read. On web, that service depends on `OrganizationApiService` → `SyncService` →
+     * `KeyConnectorService` → this service, which is a construction cycle.
+     *
+     * TODO: Reassess a read-only organization invite state service that owns this read, so
+     * this service does not need to know the invite state key.
+     */
+    private globalStateProvider: GlobalStateProvider,
   ) {}
 
   async shouldAcceptOrganizationInvite(orgId: OrganizationId): Promise<boolean> {
@@ -37,7 +46,9 @@ export class DefaultSsoJitProvisionFinishService implements SsoJitProvisionFinis
       return true;
     }
 
-    const openOrgInvite = await this.organizationInviteService.getOpenOrgInvite();
+    const openOrgInvite = await firstValueFrom(
+      this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE).state$,
+    );
     if (openOrgInvite == null) {
       return true;
     }

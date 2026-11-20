@@ -109,7 +109,7 @@ describe("KeyConnectorService", () => {
       logoutCallback,
       stateProvider,
       configService,
-      () => ssoJitProvisionFinishService,
+      ssoJitProvisionFinishService,
       ssoJitProvisionFinishApiService,
       accountCryptographicStateService,
       sdkService,

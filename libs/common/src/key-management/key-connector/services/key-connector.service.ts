@@ -92,11 +92,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
     private configService: ConfigService,
-    /**
-     * A getter, not the service. On web, `SsoJitProvisionFinishService` depends (through
-     * `OrganizationInviteService`, `OrganizationApiService` and `SyncService`) on this service.
-     */
-    private getSsoJitProvisionFinishService: () => SsoJitProvisionFinishService,
+    private ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     private ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private sdkService: SdkService,
@@ -218,7 +214,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     ssoOrganizationIdentifier: string,
   ): Promise<boolean> {
     const { registration: result, organizationInviteAccepted } =
-      await this.getSsoJitProvisionFinishService().finishKeyConnector({
+      await this.ssoJitProvisionFinishService.finishKeyConnector({
         userId,
         orgId,
         orgSsoIdentifier: ssoOrganizationIdentifier,
@@ -256,7 +252,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     ssoOrganizationIdentifier: string,
   ): Promise<boolean> {
     const organizationInviteAccepted =
-      await this.getSsoJitProvisionFinishService().shouldAcceptOrganizationInvite(orgId);
+      await this.ssoJitProvisionFinishService.shouldAcceptOrganizationInvite(orgId);
 
     await SdkLoadService.Ready;
     const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());

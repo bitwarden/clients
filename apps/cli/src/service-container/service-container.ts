@@ -36,7 +36,6 @@ import {
   DefaultAuthRequestApiService,
 } from "@bitwarden/common/auth/login-via-auth-request";
 import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
-import { NoopOrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -58,6 +57,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import {
   DefaultSsoJitProvisionFinishService,
   SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
 } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
@@ -345,6 +345,8 @@ export class ServiceContainer {
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationService;
   pinService: PinServiceAbstraction;
   stateService: StateService;
@@ -823,11 +825,14 @@ export class ServiceContainer {
       this.sendPasswordService,
     );
 
-    // This client has no stored organization invites, so the noop invite service is enough.
-    const ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
       this.registerSdkService,
       this.configService,
-      new NoopOrganizationInviteService(),
+      this.globalStateProvider,
+    );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
     );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
@@ -840,8 +845,8 @@ export class ServiceContainer {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      () => ssoJitProvisionFinishService,
-      new SsoJitProvisionFinishApiService(this.apiService, this.logService),
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
