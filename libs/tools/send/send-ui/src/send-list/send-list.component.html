@@ -9,6 +9,7 @@
   <tools-send-table
     [dataSource]="dataSource"
     [disableSend]="disableSend()"
+    [sendAuthRequired]="sendAuthRequired()"
     (editSend)="onEditSend($event)"
     (copySend)="onCopySend($event)"
     (removeAuth)="onRemoveAuth($event)"
