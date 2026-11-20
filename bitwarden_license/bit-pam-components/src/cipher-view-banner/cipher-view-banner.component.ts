@@ -69,6 +69,7 @@ import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dial
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
+import { startBlockedUntil$ } from "../services/start-slot";
 
 import { AccessEndedCardComponent } from "./cards/access-ended-card.component";
 import { ActiveLeaseCardComponent } from "./cards/active-lease-card.component";
@@ -278,6 +279,29 @@ export class CipherViewBannerComponent implements OnInit {
                 return of(null);
               }),
             ),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  private readonly startSlotDeps = {
+    accessRequestSdkService: this.accessRequestSdkService,
+    accessRefreshService: this.accessRefreshService,
+    ticker: this.ticker,
+    logService: this.logService,
+  };
+
+  /**
+   * When another member holds the single-active-lease slot, the time it frees; `null` while the
+   * caller may start. Read only while an approved request waits, so Start access is disabled
+   * rather than failing. Fails open, since the server still refuses a start while the slot is
+   * taken.
+   */
+  protected readonly startBlockedUntil = toSignal<string | null>(
+    toObservable(computed(() => (this.approvedRequest() != null ? this.cipher().id : null))).pipe(
+      distinctUntilChanged(),
+      switchMap((cipherId) =>
+        cipherId == null ? of(null) : startBlockedUntil$(String(cipherId), this.startSlotDeps),
       ),
     ),
     { initialValue: null },

@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, NEVER, Subject, firstValueFrom, of } from "rxjs";
 
 import {
   AccessEventService,
@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/bit-pam";
 import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { ApprovalRow } from "../../approvals/approval-row";
 import { ApproverInboxService } from "../../approvals/approver-inbox.service";
@@ -85,6 +86,7 @@ describe("AccessRequestDetailService", () => {
           useValue: { activeAccount$: of({ id: activeUserId }) },
         },
         { provide: ApproverInboxService, useValue: inbox },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     });
     service = TestBed.inject(AccessRequestDetailService);
@@ -406,6 +408,49 @@ describe("AccessRequestDetailService", () => {
 
       expect(inbox.revokeLease).toHaveBeenCalledWith(REQUEST_ID, "lease-1");
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe("Start session while another member holds the single-active-lease slot", () => {
+    const approved: Record<string, unknown> = { status: "approved", producedLeaseId: null };
+
+    beforeEach(() => {
+      accessRefresh.accessChanged$.mockReturnValue(NEVER);
+    });
+
+    it("reports when the slot frees for the requester's unstarted approval", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(request(approved));
+      requestsApi.preCheck.mockResolvedValue({
+        canStartLease: false,
+        slotFreesAt: "2026-08-17T12:30:00.000Z",
+      } as never);
+      await setup();
+
+      expect(await firstValueFrom(service.startBlockedUntil$)).toBe("2026-08-17T12:30:00.000Z");
+      expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("is null while the slot is free", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(request(approved));
+      requestsApi.preCheck.mockResolvedValue({ canStartLease: true } as never);
+      await setup();
+
+      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+    });
+
+    it("does not pre-check for an approver, who cannot start the requester's access", async () => {
+      activeUserId = "approver-1";
+      requestsApi.getAccessRequest.mockResolvedValue(request(approved));
+      await setup();
+
+      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+
+    it("does not pre-check a request that is not an unstarted approval", async () => {
+      await setup();
+
+      expect(await firstValueFrom(service.startBlockedUntil$)).toBeNull();
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
     });
   });
 });

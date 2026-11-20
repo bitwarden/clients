@@ -12,6 +12,7 @@ import {
   from,
   map,
   merge,
+  of,
   switchMap,
   take,
 } from "rxjs";
@@ -26,8 +27,9 @@ import {
   AccessRequestView,
   isLeaseLive,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { AccessBadgeTickerService, startBlockedUntil$ } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -64,6 +66,7 @@ export class MyAccessService {
   private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly logService = inject(LogService);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -108,6 +111,34 @@ export class MyAccessService {
         .filter((r) => r.status === "pending" || isRedeemableGrant(r, nowMs))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
     }),
+  );
+
+  /**
+   * The ciphers of the caller's startable grants whose single-active-lease slot another member
+   * holds, so the table disables their Start access. One pre-check per such cipher, and only for
+   * startable grants, never one per row.
+   */
+  readonly startBlockedCipherIds$: Observable<ReadonlySet<string>> = this.pendingRows$.pipe(
+    map((rows) => {
+      const nowMs = Date.now();
+      const ids = rows.filter((r) => isRedeemableGrant(r, nowMs)).map((r) => r.cipherId);
+      return [...new Set(ids)].sort();
+    }),
+    distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
+    switchMap((cipherIds) =>
+      cipherIds.length === 0
+        ? of(new Set<string>())
+        : combineLatest(
+            cipherIds.map((cipherId) =>
+              startBlockedUntil$(cipherId, {
+                accessRequestSdkService: this.requestsApi,
+                accessRefreshService: this.accessRefresh,
+                ticker: this.ticker,
+                logService: this.logService,
+              }).pipe(map((freesAt) => (freesAt == null ? null : cipherId))),
+            ),
+          ).pipe(map((blocked) => new Set(blocked.filter((id): id is string => id != null)))),
+    ),
   );
 
   /**

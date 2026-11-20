@@ -10,6 +10,7 @@ import {
   filter,
   from,
   map,
+  of,
   startWith,
   switchMap,
 } from "rxjs";
@@ -27,8 +28,10 @@ import {
   canApprove,
   isRequestNoLongerPendingError,
 } from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService, startBlockedUntil$ } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -59,6 +62,8 @@ export class AccessRequestDetailService {
   private readonly accountService = inject(AccountService);
   private readonly inbox = inject(ApproverInboxService);
   private readonly route = inject(ActivatedRoute);
+  private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly logService = inject(LogService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _request$ = new BehaviorSubject<AccessRequestView | null>(null);
@@ -112,6 +117,35 @@ export class AccessRequestDetailService {
       const id = uuidAsString(request.id);
       return rows.find((row) => row.canDecide && uuidAsString(row.id) === id) ?? null;
     }),
+  );
+
+  /**
+   * While the requester looks at their unstarted approval, when another member's lease on its
+   * cipher frees; `null` otherwise. Start session stays disabled while this is set.
+   */
+  readonly startBlockedUntil$: Observable<string | null> = combineLatest([
+    this.request$,
+    this.viewer$,
+  ]).pipe(
+    map(([request, viewer]) =>
+      request != null &&
+      viewer === "requester" &&
+      request.status === "approved" &&
+      request.producedLeaseId == null
+        ? uuidAsString(request.cipherId)
+        : null,
+    ),
+    distinctUntilChanged(),
+    switchMap((cipherId) =>
+      cipherId == null
+        ? of(null)
+        : startBlockedUntil$(cipherId, {
+            accessRequestSdkService: this.requestsApi,
+            accessRefreshService: this.accessRefresh,
+            ticker: this.ticker,
+            logService: this.logService,
+          }),
+    ),
   );
 
   /** Whether the request is on a collection the viewer manages and has already been decided. */

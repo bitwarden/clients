@@ -168,7 +168,7 @@
           buttonType="primary"
           id="access-request-dialog_button_start"
           [loading]="starting()"
-          [disabled]="starting()"
+          [disabled]="starting() || startBlocked()"
           (click)="startAccess()"
         >
           {{ "pamStartSessionButton" | i18n }}

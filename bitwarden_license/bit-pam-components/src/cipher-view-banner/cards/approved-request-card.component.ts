@@ -40,6 +40,8 @@ export class ApprovedRequestCardComponent {
   /** The banner's clock, so "today" turns over with it. */
   readonly nowMs = input.required<number>();
   readonly startAction = input.required<FunctionReturningAwaitable>();
+  /** Another member holds the single-active-lease slot, so Start access would be refused. */
+  readonly startBlocked = input(false);
 
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);

@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, NEVER, Subject } from "rxjs";
 
 import {
   AccessEventService,
@@ -10,6 +10,7 @@ import {
   DefaultAccessRefreshService,
 } from "@bitwarden/bit-pam";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import type {
   AccessLeaseId,
   AccessLeaseView,
@@ -102,6 +103,7 @@ describe("MyAccessService", () => {
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     });
 
@@ -552,6 +554,44 @@ describe("MyAccessService", () => {
 
       expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(2);
       expect(await firstValueFrom(service.loading$)).toBe(false);
+    });
+  });
+  describe("start-blocked ciphers", () => {
+    const openGrant = { status: "approved", leaseNotAfter: "2099-01-01T00:00:00.000Z" };
+
+    beforeEach(() => {
+      jest.spyOn(accessRefresh, "accessChanged$").mockReturnValue(NEVER);
+    });
+
+    it("lists a startable grant's cipher while another member holds its slot", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", openGrant)]);
+      requestsApi.preCheck.mockResolvedValue({
+        canStartLease: false,
+        slotFreesAt: "2099-01-01T00:00:00.000Z",
+      } as never);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.startBlockedCipherIds$)).toEqual(new Set(["cipher-1"]));
+      expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("lists nothing while the slot is free", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", openGrant)]);
+      requestsApi.preCheck.mockResolvedValue({ canStartLease: true } as never);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.startBlockedCipherIds$)).toEqual(new Set());
+    });
+
+    it("pre-checks nothing for undecided requests", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1")]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.startBlockedCipherIds$)).toEqual(new Set());
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
     });
   });
 });

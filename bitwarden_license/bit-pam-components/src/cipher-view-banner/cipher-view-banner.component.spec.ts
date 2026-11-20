@@ -32,6 +32,7 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonComponent, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -613,6 +614,67 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_start")?.classList.contains("tw-w-full")).toBe(
         true,
       );
+    });
+  });
+
+  describe("Start access while another member holds the single-active-lease slot", () => {
+    const FREES_AT = "2026-08-31T10:52:00Z";
+    let ticks$: Subject<number>;
+
+    function startDisabled(): boolean {
+      return fixture.debugElement
+        .query(By.css("#pam-cipher-view-banner_button_start"))
+        .injector.get(ButtonComponent)
+        .disabled();
+    }
+
+    beforeEach(() => {
+      ticks$ = new Subject<number>();
+      TestBed.overrideProvider(AccessBadgeTickerService, { useValue: { ticks$ } });
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+    });
+
+    it("disables Start access", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ canStartLease: false, slotFreesAt: FREES_AT }),
+      );
+
+      await create(gatedCipher());
+
+      expect(startDisabled()).toBe(true);
+    });
+
+    it("leaves Start access enabled while the slot is free", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
+
+      await create(gatedCipher());
+
+      expect(startDisabled()).toBe(false);
+    });
+
+    it("fails open when the pre-check cannot be read, since the server still gates the start", async () => {
+      requestsApi.preCheck.mockRejectedValue(new Error("offline"));
+
+      await create(gatedCipher());
+
+      expect(startDisabled()).toBe(false);
+    });
+
+    it("re-enables Start access once the slot should have freed", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ canStartLease: false, slotFreesAt: FREES_AT }),
+      );
+      await create(gatedCipher());
+      expect(startDisabled()).toBe(true);
+
+      requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
+      ticks$.next(Date.parse(FREES_AT));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(startDisabled()).toBe(false);
     });
   });
 

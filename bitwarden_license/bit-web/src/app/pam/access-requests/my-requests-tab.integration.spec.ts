@@ -97,6 +97,7 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
     dialogService = mock<DialogService>();
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
+    requestsApi.preCheck.mockResolvedValue({ canStartLease: true } as never);
     leasesApi.listMyLeases.mockResolvedValue([]);
     dialogService.openSimpleDialog.mockResolvedValue(true);
 

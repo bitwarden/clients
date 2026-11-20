@@ -22,7 +22,7 @@
     </div>
   </section>
 } @else if (requestMode() !== null) {
-  @if (slotContention(); as contention) {
+  @if (visibleContention(); as contention) {
     <p bitTypography="body2" class="tw-m-0 tw-flex tw-items-start tw-gap-2">
       <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
       <span>

@@ -14,6 +14,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import {
@@ -157,6 +158,32 @@ export class RequestAccessFormComponent implements OnInit {
     reason: this.formBuilder.nonNullable.control("", [Validators.required, nonBlank]),
   });
 
+  private readonly humanWindow = toSignal(this.humanForm.controls.window.valueChanges, {
+    initialValue: this.humanForm.controls.window.value,
+  });
+
+  /**
+   * {@link slotContention} as the form shows it. The automatic path starts now, so it always
+   * applies; a human window only collides when it starts before the slot frees, and the answer
+   * follows the window as the requester edits it.
+   */
+  protected readonly visibleContention = computed(() => {
+    const contention = this.slotContention();
+    if (contention == null || this.requestMode() !== "human") {
+      return contention;
+    }
+    const requested = this.humanWindow();
+    const window = requested == null ? null : composeRequestWindow(requested);
+    if (window == null) {
+      return null;
+    }
+    // Without a free time the slot may stay taken through any window.
+    if (contention.freesAt == null) {
+      return contention;
+    }
+    return window.start.getTime() < Date.parse(contention.freesAt) ? contention : null;
+  });
+
   ngOnInit(): void {
     void this.loadRequestForm();
   }
@@ -234,16 +261,17 @@ export class RequestAccessFormComponent implements OnInit {
         this.humanForm.patchValue({
           window: defaultRequestWindow(openedAt, bounds.defaultSeconds),
         });
-        // `canStartLease` answers about now, not this future window, so no contention warning here.
       } else {
         // `requestDurationOptions` always offers the rule's default, so this select cannot render
         // blank.
         this.automaticForm.patchValue({ durationSeconds: bounds.defaultSeconds });
+      }
 
-        // The SDK owns the fail-open default (absent reads as true), so this is a plain boolean.
-        if (!preCheck.canStartLease) {
-          this.slotContention.set({ freesAt: preCheck.slotFreesAt ?? null });
-        }
+      // `canStartLease` answers about now; `visibleContention` decides whether a human window
+      // reaches into it. The SDK owns the fail-open default (absent reads as true), so this is a
+      // plain boolean.
+      if (!preCheck.canStartLease) {
+        this.slotContention.set({ freesAt: preCheck.slotFreesAt ?? null });
       }
       this.requestMode.set(preCheck.approvalMode);
     } catch (e) {
