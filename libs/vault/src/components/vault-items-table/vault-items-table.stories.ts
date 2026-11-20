@@ -606,6 +606,9 @@ export default {
               upgradeToPremium: "Upgrade to premium",
               // Bulk-action bar chrome
               bulkActionsBar: "Bulk actions",
+              keyEscape: "Esc",
+              keyControl: "Ctrl",
+              keyCommand: "Command",
               bulkActionsBarAnnouncement: (count, shortcut) =>
                 `${count} item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press ${shortcut} to toggle focus to the bulk action bar.`,
               selectedLowercase: "selected",
