@@ -26,7 +26,7 @@ export function requestTerms({
   return approvalMode === "automatic"
     ? {
         maxSeconds: maxRequestDurationSeconds(maxDurationSeconds, defaultDurationSeconds),
-        messageKey: "pamRequestAccessBannerMaxDurationAutomatic",
+        messageKey: "pamRequestAccessBannerMaxDurationInstantApproval",
       }
     : { maxSeconds: maxDurationSeconds, messageKey: "pamRequestAccessBannerMaxDuration" };
 }

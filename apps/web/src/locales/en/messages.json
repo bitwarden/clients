@@ -19274,7 +19274,7 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
     "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {

@@ -249,7 +249,7 @@ describe("RequestAccessFormComponent", () => {
       await create();
       expect(component.terms()).toEqual({
         maxSeconds: 86_400,
-        messageKey: "pamRequestAccessBannerMaxDurationAutomatic",
+        messageKey: "pamRequestAccessBannerMaxDurationInstantApproval",
       });
 
       requestsApi.preCheck.mockResolvedValue(
@@ -270,7 +270,7 @@ describe("RequestAccessFormComponent", () => {
 
       expect(component.terms()).toEqual({
         maxSeconds: 86_400,
-        messageKey: "pamRequestAccessBannerMaxDurationAutomatic",
+        messageKey: "pamRequestAccessBannerMaxDurationInstantApproval",
       });
       expect(Math.max(...component["durationOptions"]().map((o) => o.seconds))).toBe(86_400);
     });

@@ -968,7 +968,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
-        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
       );
     });
 
@@ -985,7 +985,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
-        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
       );
     });
 
