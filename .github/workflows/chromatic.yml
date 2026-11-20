@@ -106,11 +106,28 @@ jobs:
           fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
 
-          if [[ "$MODE" == "wait" ]]; then
-            MESSAGE="This draft PR changes UI-related files. Add the \"ci:chromatic\" label when you are ready to run Chromatic, or mark the PR ready for review to run it on every commit."
-            echo "::notice::$MESSAGE"
-            echo "$MESSAGE" >> "$GITHUB_STEP_SUMMARY"
-          fi
+      # Posted once per PR to explain the process. It is never updated with run results.
+      - name: Comment Chromatic instructions on draft PR
+        if: steps.mode.outputs.mode == 'wait'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const COMMENT_TAG = '<!-- comment_tag: chromatic-draft-instructions -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            if (comments.some((comment) => comment.body?.startsWith(COMMENT_TAG))) {
+              return;
+            }
+
+            const body = [
+              COMMENT_TAG,
+              '**UIF Bot:**',
+              '',
+              'This PR contains UI changes. Chromatic workflows are not run automatically in draft PRs. Add the `ci:chromatic` label or mark the PR as ready for review to run the workflows.',
+            ].join('\n');
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });
 
   chromatic:
     name: Chromatic
