@@ -6,6 +6,7 @@ import { Observable, map, startWith, switchMap } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -159,8 +160,15 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
     ),
   );
 
+  private readonly policies = signal<Policy[]>([]);
+
   /** Whether the single organization policy, which this policy requires, is on. */
-  protected readonly singleOrgEnabled = signal(true);
+  protected readonly singleOrgEnabled = computed(() => {
+    const organizationId = this.organizationId() ?? this.policyResponse()?.organizationId;
+    return this.policies().some(
+      (p) => p.type === PolicyType.SingleOrg && p.organizationId === organizationId && p.enabled,
+    );
+  });
 
   /**
    * Number of existing items per cipher type across the organization's vaults. Used to tell admins
@@ -209,11 +217,10 @@ export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent 
       .pipe(
         getUserId,
         switchMap((userId) => this.policyService.policies$(userId)),
-        map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
         takeUntilDestroyed(),
       )
-      .subscribe((singleOrgEnabled) => {
-        this.singleOrgEnabled.set(singleOrgEnabled);
+      .subscribe((policies) => {
+        this.policies.set(policies);
         this.applyEnabledLock();
       });
 

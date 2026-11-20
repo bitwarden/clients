@@ -114,10 +114,18 @@ describe("RestrictedItemTypesPolicyComponent data", () => {
 
   it("allows turning the policy on when single organization is on", async () => {
     const component = await setup({ enabled: false, data: null }, [
-      { type: PolicyType.SingleOrg, enabled: true },
+      { type: PolicyType.SingleOrg, organizationId: "org-id", enabled: true },
     ]);
 
     expect(component.enabled.enabled).toBe(true);
+  });
+
+  it("ignores a single organization policy from a different organization", async () => {
+    const component = await setup({ enabled: false, data: null }, [
+      { type: PolicyType.SingleOrg, organizationId: "other-org-id", enabled: true },
+    ]);
+
+    expect(component.enabled.disabled).toBe(true);
   });
 
   it("saves unchecked types as restrictedTypes", async () => {
