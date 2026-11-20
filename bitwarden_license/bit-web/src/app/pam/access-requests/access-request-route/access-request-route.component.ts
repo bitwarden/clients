@@ -71,6 +71,8 @@ export class AccessRequestRouteComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // History is a record, so a row opened from it reads without actions. History lists no
+    // approval that can still be withdrawn, so this hides nothing it could offer.
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
       detail: this.detail,
       readOnly: this.navigatedFrom === "history",
