@@ -7,10 +7,8 @@ export interface RequestTerms {
 }
 
 /**
- * `null` when the pre-check carries no cap, rather than a made-up limit. An auto-approved request is
- * capped at what the duration picker offers, since the server reports its 365-day ceiling for a rule
- * with no cap but the picker stops well short of it. An approver-gated request picks its own window,
- * so it keeps the server's cap.
+ * `null` when the pre-check carries no cap. Auto-approved requests are capped at the longest duration
+ * the picker offers.
  */
 export function requestTerms({
   approvalMode,
