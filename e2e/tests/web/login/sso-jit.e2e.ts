@@ -5,6 +5,7 @@ import { expect, Page, test } from "@playwright/test";
 import { clientAccounts } from "../../../src/accounts";
 import { SsoOrganization, ssoIdentifier } from "../../../src/credentials";
 import { LockScreen } from "../../../src/lock-screen";
+import { IS_DEV_SERVER } from "../../../src/server";
 import { logOut } from "../../../src/web/account-menu";
 import { MockSamlIdp, mockSamlEmail } from "../../../src/web/mock-saml";
 import {
@@ -19,6 +20,7 @@ const VAULT_URL = /#\/vault/;
 const POST_LOGIN_URL = new RegExp(`${VAULT_URL.source}|${SETUP_EXTENSION_URL.source}`);
 const SET_INITIAL_PASSWORD_URL = /#\/set-initial-password/;
 const LOGIN_INITIATED_URL = /#\/login-initiated/;
+const CONFIRM_KEY_CONNECTOR_URL = /#\/confirm-key-connector-domain/;
 const SSO_TIMEOUT_MS = 60_000;
 
 /** The org's SSO identifier, skipping the test when this run has none configured. */
@@ -102,4 +104,29 @@ test("logs in through SSO as a provisioned trusted device user", async ({ page }
 
   // Then the trusted device unlocks the vault
   await expectUnlockedVault(page, email);
+});
+
+test.describe(() => {
+  // The dev server's CSP only lets the vault reach a key connector on localhost:5000 (see
+  // apps/web/webpack.base.js), a port macOS gives to AirPlay. A deployed vault keeps its CSP.
+  test.use({ bypassCSP: IS_DEV_SERVER });
+
+  test("logs in through SSO as a provisioned key connector user", async ({ page }) => {
+    const identifier = identifierOf(SsoOrganization.KeyConnector);
+
+    // Given a user provisioned by signing in through the org's SSO and trusting its key connector,
+    // which then holds their user key
+    const email = mockSamlEmail();
+    await ssoSignIn(page, identifier, email);
+    await page.waitForURL(CONFIRM_KEY_CONNECTOR_URL, { timeout: SSO_TIMEOUT_MS });
+    await page.getByRole("button", { name: "Continue with log in" }).click();
+    await expectUnlockedVault(page, email);
+    await logOutOfVault(page);
+
+    // When they sign in through SSO again
+    await ssoSignIn(page, identifier, email);
+
+    // Then the key connector unlocks the vault
+    await expectUnlockedVault(page, email);
+  });
 });
