@@ -160,7 +160,7 @@
     "storybook": "10.6.0",
     "style-loader": "4.0.0",
     "svgo": "4.0.2",
-    "tailwindcss": "3.4.18",
+    "tailwindcss": "4.3.5",
     "ts-jest": "29.4.9",
     "ts-loader": "9.5.7",
     "tsconfig-paths-webpack-plugin": "4.2.0",
