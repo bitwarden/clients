@@ -59,6 +59,11 @@ interface UriField {
  */
 const DESKTOP_APP_URI_MATCH_STRATEGY: UriMatchStrategySetting = UriMatchStrategy.Exact;
 
+// A desktop app URI with no desktop app selected yet is not saved on the cipher
+function isSavedUri(uri: UriField): boolean {
+  return uri?.uri !== DESKTOP_APP_URI_PREFIX;
+}
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -169,7 +174,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.publishUriMatchStrategies();
       this.cipherFormContainer.patchCipher((cipher) => {
-        cipher.login.uris = value.uris?.map((uri: UriField) =>
+        cipher.login.uris = value.uris?.filter(isSavedUri).map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
             match: this.savedMatchDetection(uri),
@@ -364,13 +369,15 @@ export class AutofillOptionsComponent implements OnInit {
   /** Create a new list of LoginUriViews from the form objects and update the cipher */
   private updateUriFields() {
     this.cipherFormContainer.patchCipher((cipher) => {
-      cipher.login.uris = this.uriControls.map(
-        (control) =>
-          Object.assign(new LoginUriView(), {
-            uri: control.value.uri,
-            match: this.savedMatchDetection(control.value) ?? null,
-          }) as LoginUriView,
-      );
+      cipher.login.uris = this.uriControls
+        .filter((control) => isSavedUri(control.value))
+        .map(
+          (control) =>
+            Object.assign(new LoginUriView(), {
+              uri: control.value.uri,
+              match: this.savedMatchDetection(control.value) ?? null,
+            }) as LoginUriView,
+        );
       return cipher;
     });
   }

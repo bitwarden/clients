@@ -4,6 +4,7 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import {
   Component,
   computed,
+  effect,
   ElementRef,
   EventEmitter,
   forwardRef,
@@ -12,6 +13,7 @@ import {
   input,
   Output,
   signal,
+  untracked,
   ViewChild,
   viewChild,
 } from "@angular/core";
@@ -199,9 +201,13 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   /**
    * How this row was created, when it's a desktop app row. The parent sets it when it creates the
-   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row.
+   * row, so typing a desktop app URI into a website row doesn't make it a desktop app row. Desktop
+   * apps saved on the cipher are locked: they can be removed and reordered, but not changed.
    */
   readonly desktopAppRow = input<DesktopAppRow | null>(null);
+
+  /** Whether the whole row is disabled, e.g. because the cipher form is disabled. */
+  private rowDisabled = false;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -282,12 +288,19 @@ export class UriOptionComponent implements ControlValueAccessor {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
   ) {
-    this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.onChange(value);
+    // The raw value includes the URI of a locked desktop app, which is disabled
+    this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.onChange(this.uriForm.getRawValue());
     });
 
     this.uriForm.statusChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.onTouched();
+    });
+
+    effect(() => {
+      this.recognizeDesktopApps();
+      this.desktopAppRow();
+      untracked(() => this.applyAppUriLock());
     });
 
     this.uriForm.controls.matchDetection.valueChanges
@@ -357,7 +370,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   private restoreMatchDetection(value: UriMatchStrategySetting) {
     this.uriForm.controls.matchDetection.setValue(value, { emitEvent: false });
     this.lastMatchDetection = value;
-    this.onChange(this.uriForm.value);
+    this.onChange(this.uriForm.getRawValue());
   }
 
   focusInput() {
@@ -387,6 +400,7 @@ export class UriOptionComponent implements ControlValueAccessor {
       );
       this.lastMatchDetection = value.matchDetection ?? null;
       this.writtenUri.set(value.uri ?? null);
+      this.applyAppUriLock();
     }
   }
 
@@ -399,7 +413,29 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   setDisabledState?(isDisabled: boolean): void {
+    this.rowDisabled = isDisabled;
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
+    // Enabling the row enables every control, so a locked desktop app is locked again
+    this.applyAppUriLock();
+  }
+
+  /**
+   * Disables only the URI of a desktop app saved on the cipher, so the desktop app can't be changed
+   * but the row can still be removed and reordered.
+   */
+  private applyAppUriLock() {
+    const uriControl = this.uriForm.controls.uri;
+    const disabled =
+      this.rowDisabled || (this.desktopAppRow() === DesktopAppRow.Saved && this.isAppUri);
+    if (disabled === uriControl.disabled) {
+      return;
+    }
+
+    if (disabled) {
+      uriControl.disable({ emitEvent: false });
+    } else {
+      uriControl.enable({ emitEvent: false });
+    }
   }
 
   getMatchHints() {
