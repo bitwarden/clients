@@ -23,6 +23,10 @@ import {
   MultiStepPolicyEditModalComponent,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
+import {
+  PamWelcomePrompt,
+  VAULT_PAM_WELCOME_PROMPT,
+} from "../individual-vault/vault-pam-welcome-prompt.token";
 
 import { WebVaultExtensionPromptService } from "./web-vault-extension-prompt.service";
 import { WelcomeDialogService } from "./welcome-dialog.service";
@@ -51,6 +55,9 @@ export class WebVaultPromptService {
   private sideNavService = inject(SideNavService);
   private coachmarkService = inject(CoachmarkService);
   private injector = inject(Injector);
+  private pamWelcomePrompt: PamWelcomePrompt | null = inject(VAULT_PAM_WELCOME_PROMPT, {
+    optional: true,
+  });
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -80,8 +87,9 @@ export class WebVaultPromptService {
       return;
     }
 
-    // A user who was just welcomed to Bitwarden is not also told what changed about it.
-    if (await this.welcomeDialogService.conditionallyShowWelcomeDialog()) {
+    // A user who was just welcomed to Bitwarden is not also told what changed about it, nor
+    // welcomed to PAM; that welcome waits for a later visit.
+    if (await this.withTourStartsHeld(() => this.runWelcomeDialogs())) {
       return;
     }
 
@@ -106,6 +114,40 @@ export class WebVaultPromptService {
     }
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
+  }
+
+  /** @returns true if an onboarding interstitial was shown */
+  private async runWelcomeDialogs(): Promise<boolean> {
+    if (await this.welcomeDialogService.conditionallyShowWelcomeDialog()) {
+      return true;
+    }
+
+    if (this.pamWelcomePrompt == null || !(await this.pamWelcomePrompt.shouldPrompt())) {
+      return false;
+    }
+
+    // The checks above are async, so a tour may have started since the one at the top.
+    if (this.coachmarkService.isRunning()) {
+      return false;
+    }
+
+    await this.pamWelcomePrompt.prompt();
+    return true;
+  }
+
+  /**
+   * Defers every tour start made while an interstitial may be open, so a PAM auto-trigger firing
+   * behind it does not stack a popover and backdrop on the dialog. Released in `finally` once
+   * the dialog has closed, which replays the deferred starts, including a welcome dialog's own
+   * "Start tour".
+   */
+  private async withTourStartsHeld<T>(run: () => Promise<T>): Promise<T> {
+    const release = this.coachmarkService.holdStarts();
+    try {
+      return await run();
+    } finally {
+      release();
+    }
   }
 
   private waitForTourToEnd(): Promise<boolean> {

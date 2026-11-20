@@ -1,6 +1,7 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,10 +12,30 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { I18nMockService, NavigationModule } from "@bitwarden/components";
+import { CoachmarkService } from "@bitwarden/vault";
 
 import { PamNavBadgeService } from "../pam-nav-badge.service";
 
 import { PamUserNavSlotComponent } from "./pam-user-nav-slot.component";
+
+const coachmarkI18n = {
+  learnMore: "Learn more",
+  coachmarkStepsIndicator: "step",
+  back: "Back",
+  done: "Done",
+  next: "Next",
+};
+
+function coachmarkService(): CoachmarkService {
+  const service = mock<CoachmarkService>({
+    currentStepNumber: signal(1),
+    totalSteps: signal(1),
+  });
+  service.isStepActive.mockReturnValue(false);
+  service.getStepTitle.mockReturnValue("");
+  service.getStepDescription.mockReturnValue("");
+  return service;
+}
 
 describe("PamUserNavSlotComponent", () => {
   let fixture: ComponentFixture<PamUserNavSlotComponent>;
@@ -41,11 +62,13 @@ describe("PamUserNavSlotComponent", () => {
           useValue: { activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }) },
         },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        { provide: CoachmarkService, useValue: coachmarkService() },
         { provide: PamNavBadgeService, useValue: { count$: badgeCount$ } },
         {
           provide: I18nService,
           useValue: new I18nMockService({
             pamAccessRequestsTitle: "Access requests",
+            ...coachmarkI18n,
           }),
         },
       ],
@@ -82,6 +105,12 @@ describe("PamUserNavSlotComponent", () => {
     organizations$.next([nonPamOrg]);
     fixture.detectChanges();
     expect(navItem()).toBeNull();
+  });
+
+  it("keeps the nav item for a member unlicensed for PAM, so My requests stays reachable to withdraw", () => {
+    organizations$.next([{ usePam: true, accessPam: false } as Organization]);
+    fixture.detectChanges();
+    expect(navItem()).not.toBeNull();
   });
 
   it("generates no box of its own, so rendering nothing takes up no space", () => {
@@ -134,9 +163,13 @@ describe("PamUserNavSlotComponent", () => {
           },
           { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
           { provide: PamNavBadgeService, useValue: null },
+          { provide: CoachmarkService, useValue: coachmarkService() },
           {
             provide: I18nService,
-            useValue: new I18nMockService({ pamAccessRequestsTitle: "Access requests" }),
+            useValue: new I18nMockService({
+              pamAccessRequestsTitle: "Access requests",
+              ...coachmarkI18n,
+            }),
           },
         ],
       })

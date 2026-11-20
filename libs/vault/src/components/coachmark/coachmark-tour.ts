@@ -4,6 +4,9 @@ import { CoachmarkStep } from "./coachmark-step";
 
 /** A sequence of coachmark steps, with how its completion is stored and what happens when it ends */
 export interface CoachmarkTour {
+  /** Stable identity used to coalesce start requests deferred by `CoachmarkService.holdStarts` */
+  id?: string;
+
   /** Steps in display order; the engine still filters by requiresOrganization / requiresCollections */
   steps: CoachmarkStep[];
 

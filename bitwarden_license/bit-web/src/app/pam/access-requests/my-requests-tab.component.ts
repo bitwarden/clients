@@ -50,6 +50,7 @@ import {
   HoverRevealDirective,
   IconButtonModule,
   IconTileOptions,
+  PopoverModule,
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
@@ -61,6 +62,7 @@ import {
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CoachmarkComponent, CoachmarkService } from "@bitwarden/vault";
 
 import { announcementHoldMs } from "./announcement-hold";
 import {
@@ -118,12 +120,14 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
+    CoachmarkComponent,
     FilterMenuComponent,
     FilterOptionComponent,
     BitIconComponent,
     HoverRevealDirective,
     IconButtonModule,
     IconComponent,
+    PopoverModule,
     SearchModule,
     TypographyModule,
     I18nPipe,
@@ -134,6 +138,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
   ],
 })
 export class MyRequestsTabComponent {
+  protected readonly coachmark = inject(CoachmarkService);
   private readonly myAccess = inject(MyAccessService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);

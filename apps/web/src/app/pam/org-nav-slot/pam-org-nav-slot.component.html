@@ -1,13 +1,51 @@
 @if (showPam()) {
-  <bit-nav-group icon="bwi-lock-encrypted" [text]="'privilegedControls' | i18n" route="pam">
+  <bit-nav-group
+    #navGroup
+    icon="bwi-lock-encrypted"
+    [text]="'privilegedControls' | i18n"
+    route="pam"
+    [bitPopoverAnchorFor]="orgGroupCoachmark.popover()"
+    [popoverOpen]="coachmark.isStepActive('pamOrgGroup')"
+    [position]="coachmark.getStepPosition('pamOrgGroup')"
+    [closeOnBackdropClick]="false"
+    [spotlight]="coachmark.isStepActive('pamOrgGroup')"
+  >
     @if (showAccessRules()) {
-      <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules" />
+      <bit-nav-item
+        [text]="'pamAccessRules' | i18n"
+        route="pam/access-rules"
+        [bitPopoverAnchorFor]="accessRulesCoachmark.popover()"
+        [popoverOpen]="coachmark.isStepActive('pamAccessRules')"
+        [position]="coachmark.getStepPosition('pamAccessRules')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmark.isStepActive('pamAccessRules')"
+      />
+      <vault-coachmark #accessRulesCoachmark stepId="pamAccessRules" />
     }
     @if (showAuditLog()) {
-      <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit" />
+      <bit-nav-item
+        [text]="'pamAuditLog' | i18n"
+        route="pam/audit"
+        [bitPopoverAnchorFor]="auditLogCoachmark.popover()"
+        [popoverOpen]="coachmark.isStepActive('pamAuditLog')"
+        [position]="coachmark.getStepPosition('pamAuditLog')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmark.isStepActive('pamAuditLog')"
+      />
+      <vault-coachmark #auditLogCoachmark stepId="pamAuditLog" />
     }
     @if (showRotation()) {
-      <bit-nav-item [text]="'pamRotation' | i18n" route="pam/rotation" />
+      <bit-nav-item
+        [text]="'pamRotation' | i18n"
+        route="pam/rotation"
+        [bitPopoverAnchorFor]="rotationCoachmark.popover()"
+        [popoverOpen]="coachmark.isStepActive('pamRotation')"
+        [position]="coachmark.getStepPosition('pamRotation')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmark.isStepActive('pamRotation')"
+      />
+      <vault-coachmark #rotationCoachmark stepId="pamRotation" />
     }
   </bit-nav-group>
+  <vault-coachmark #orgGroupCoachmark stepId="pamOrgGroup" />
 }

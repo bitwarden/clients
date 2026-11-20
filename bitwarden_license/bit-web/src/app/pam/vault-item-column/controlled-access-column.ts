@@ -26,6 +26,8 @@ export function controlledAccessColumn(
     // The ID the column had as a built-in, kept so nothing keyed on it moves.
     key: "controlledAccess",
     label: i18nService.t("controlledAccess"),
+    // The header is the anchor for the privileged-items step of the PAM vault tour.
+    coachmarkStepId: "pamPrivilegedItems",
     component: ControlledAccessCellComponent,
     visible$: (scope: VaultItemColumnScope): Observable<boolean> =>
       configService

@@ -6,6 +6,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
+import { CoachmarkStepId } from "../components/coachmark/coachmark-step";
 import { VaultScope } from "../models/vault-scope";
 
 /** Where the table is, as the host's side nav and route define it. Fields can be added later. */
@@ -26,6 +27,12 @@ export type VaultItemColumn = {
   readonly key: string;
   /** Already-translated header text. */
   readonly label: string;
+  /**
+   * Optional. The coachmark step the column's header anchors. The table spotlights the header
+   * label and opens the step's popover while the step is active. The anchor exists only while the
+   * column itself is shown, so a tour that includes this step must not start otherwise.
+   */
+  readonly coachmarkStepId?: CoachmarkStepId;
   /** Rendered once per row with `cipher` as its only input. */
   readonly component: Type<{ cipher: InputSignal<CipherViewLike> }>;
   /** Whether the column shows in this scope. Live: the table re-subscribes when the scope changes. */

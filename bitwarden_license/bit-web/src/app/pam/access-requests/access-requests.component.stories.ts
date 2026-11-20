@@ -3,7 +3,10 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ToastService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
+import { CoachmarkService } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
@@ -56,6 +59,17 @@ function shell(options: ShellOptions = {}) {
           },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
+        // The first-visit tour stays off in Storybook: flag off, no popovers opened.
+        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
+        { provide: StateProvider, useValue: {} },
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: (): boolean => false,
+            getStepPosition: (): undefined => undefined,
+            startTour: (): Promise<void> => Promise.resolve(),
+          },
+        },
       ],
     }),
     applicationConfig({

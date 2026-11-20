@@ -337,10 +337,11 @@ restriction while a governed collection is the active filter, off the shared per
 `GovernedCollectionsService` lookup, because it is handed ids alone and so has no flag
 to read), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), `PAM_ROUTES` (the
-lazy loader for the user-scoped pages), and
+lazy loader for the user-scoped pages),
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
 redirect guard can land a member who holds only one of the PAM permissions; see "Routing and
-DI").
+DI"), and `VAULT_PAM_WELCOME_PROMPT` (the once-only welcome modal, which
+`WebVaultPromptService` sequences with the other onboarding dialogs).
 Add a seam rather than importing PAM from OSS code.
 
 `RevealedCipherService` (`libs/common`, Vault's) is the exception to `{ optional: true }`: Vault
@@ -394,3 +395,38 @@ member to the one section only the rule permission opens.
 `approvals` tab with `canViewApprovalsGuard`, which redirects a non-approver to
 `my-requests` rather than blocking. Mounting these modules and calling `providePam()` from
 `app.module.ts` happen elsewhere.
+
+## Onboarding tours
+
+Tours are defined in `libs/vault/src/components/coachmark/tours/pam-tours.ts` and run by the shared
+`CoachmarkService`; all are gated on `FeatureFlag.Pam`, and completion (including closing the
+popover) is persisted per user under `PAM_COACHMARK_DISK`, one key per tour. Start triggers:
+the welcome tour starts from the welcome modal's "Start the tour"; the end-user vault tour starts
+when `cipher-view-banner` first shows a request-access control for a gated cipher (licensing known
+and not unlicensed, `canRequestAccess()`); the access requests tour starts on first visit to `/pam`
+in `access-requests.component.ts`, with the Approvals step only when `canApprove$` is true, and
+not at all for a member unlicensed in every PAM organization (`unlicensedEverywhere`); the admin
+tour lives in the OSS `org-nav-slot` and starts once a PAM nav item is visible (`showPam`), not
+merely once an item exists. Only one tour runs at a time, so remaining tours start on a later
+eligible visit. The admin tour starts only once both the PAM and Rotation flags have resolved (the
+nav slot's flag signals have no initial value), or a late Rotation flag would drop that step and
+the tour would still be marked complete; the access requests tour waits one render after
+`canApprove$` so every tab anchor is mounted. Its Approved requests step (anchored on the status filter, or the empty state when there are no requests) carries `route:
+"/pam/my-requests"`, since its anchor mounts only on that routed tab.
+Specs use `testing/coachmark-service-stub.ts` to keep the service inert.
+
+The welcome modal (`onboarding/welcome/`, `PamWelcomePromptService`) is a standard `bit-dialog` intro (title in the header, illustration, one short paragraph, primary "Start the tour" first, then "Not now"); keep it free of custom layout and checklists. It is offered once per user: when
+the Pam flag is on, the member holds PAM access in a non-provider organization (`usePam` and
+`accessPam`), and neither the acknowledged key (`PAM_WELCOME_ACKNOWLEDGED_KEY`, set however the
+modal is closed) nor any PAM tour's completion key is set, so nobody is welcomed retroactively.
+`WebVaultPromptService` sequences it: it shows only if the Bitwarden Welcome did not show that
+visit, so a new account gets it one visit late. While either welcome is up, it holds tour starts
+(`CoachmarkService.holdStarts()`); starts requested meanwhile replay on release, so a PAM
+auto-trigger never stacks a popover on a dialog. The welcome tour's first step anchors the
+Controlled access column header, which only the VFO1 vault table renders (and only with rows), so
+it is `skipWhenUnanchored`: the engine drops it when no `vault-coachmark` for it mounts, and ends
+without marking the tour complete if nothing is left to show.
+
+`onboarding/ONBOARDING.md` documents every step with its exact copy, anchor and conditions, and
+`onboarding/onboarding-tours.mmd` is the same flow as a Mermaid flowchart for import into
+FigJam. Both are generated from `messages.json`, so regenerate them when copy or steps change.

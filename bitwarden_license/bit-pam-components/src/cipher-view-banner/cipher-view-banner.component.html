@@ -109,9 +109,15 @@
         [startIcon]="popupLayout ? 'bwi-lock' : undefined"
         (click)="openRequest()"
         id="pam-cipher-view-banner_button_request-toggle"
+        [bitPopoverAnchorFor]="requestAccessCoachmark.popover()"
+        [popoverOpen]="coachmarkService.isStepActive('pamRequestAccess')"
+        [position]="coachmarkService.getStepPosition('pamRequestAccess')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmarkService.isStepActive('pamRequestAccess')"
       >
         {{ "pamRequestAccessButton" | i18n }}
       </button>
+      <vault-coachmark #requestAccessCoachmark stepId="pamRequestAccess" />
     }
   </ng-template>
 

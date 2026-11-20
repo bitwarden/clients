@@ -38,9 +38,11 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import {
   CIPHER_VIEW_BANNER,
+  CoachmarkService,
   ITEM_DETAILS_BADGE,
   REVEALABLE_CIPHERS,
   SHARED_FOLDER_DECORATION,
@@ -55,6 +57,7 @@ import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/com
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
+import { VAULT_PAM_WELCOME_PROMPT } from "@bitwarden/web-vault/app/vault/individual-vault/vault-pam-welcome-prompt.token";
 
 import { AuditApiService } from "./access-audit/audit-api.service";
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
@@ -63,6 +66,7 @@ import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
+import { PamWelcomePromptService } from "./onboarding/pam-welcome-prompt.service";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { RotationSdkService } from "./rotation/rotation-sdk.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
@@ -200,6 +204,18 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: SHARED_FOLDER_DECORATION,
       useValue: GovernedSharedFolderIconComponent,
+    }),
+    safeProvider({
+      provide: VAULT_PAM_WELCOME_PROMPT,
+      useClass: PamWelcomePromptService,
+      deps: [
+        AccountService,
+        OrganizationService,
+        ConfigService,
+        StateProvider,
+        DialogService,
+        CoachmarkService,
+      ],
     }),
     safeProvider({
       provide: AccessEventService,

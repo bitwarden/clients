@@ -1429,6 +1429,32 @@ describe("VaultItemsTableComponent", () => {
       expect(fixture.nativeElement.querySelectorAll("test-item-column-cell")).toHaveLength(0);
     });
 
+    it("renders no coachmark anchor on the header unless the column declares a step", () => {
+      renderHost(itemColumnDouble());
+
+      expect(
+        hostFixture.nativeElement.querySelector('[role="columnheader"] vault-coachmark'),
+      ).toBeNull();
+      expect(
+        hostFixture.nativeElement.querySelector(
+          '[data-testid="vault-items-table-item-column-anchor"]',
+        ),
+      ).toBeNull();
+      expect(headers()).toContain("Status");
+    });
+
+    it("anchors the header label for the declared coachmark step", () => {
+      renderHost(itemColumnDouble({ coachmarkStepId: "pamPrivilegedItems" }));
+
+      const anchor = hostFixture.nativeElement.querySelector(
+        '[data-testid="vault-items-table-item-column-anchor"]',
+      ) as HTMLElement;
+      expect(anchor.textContent?.trim()).toBe("Status");
+      expect(
+        hostFixture.nativeElement.querySelector('[role="columnheader"] vault-coachmark'),
+      ).not.toBeNull();
+    });
+
     it("leaves the column out while visible$ is false", () => {
       renderHost(itemColumnDouble({ visible$: () => of(false) }));
 

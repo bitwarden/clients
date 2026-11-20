@@ -18,6 +18,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { coachmarkServiceStub } from "../testing/coachmark-service-stub";
+
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
@@ -154,6 +156,7 @@ describe("MyRequestsTabComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
+        coachmarkServiceStub,
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },

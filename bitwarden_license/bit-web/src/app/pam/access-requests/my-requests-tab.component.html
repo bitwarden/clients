@@ -49,7 +49,16 @@
     </div>
   }
 } @else if (!hasRows()) {
-  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-empty">
+  <!-- Same step as the status filter below: only one of the two is rendered at a time. -->
+  <bit-status-lockup
+    class="tw-mt-2 tw-block"
+    data-testid="my-access-empty"
+    [bitPopoverAnchorFor]="activeAccessCoachmark.popover()"
+    [popoverOpen]="coachmark.isStepActive('pamActiveAccess')"
+    [position]="coachmark.getStepPosition('pamActiveAccess')"
+    [closeOnBackdropClick]="false"
+    [spotlight]="coachmark.isStepActive('pamActiveAccess')"
+  >
     <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
     <span slot="title">{{ "pamMyRequestsEmptyTitle" | i18n }}</span>
     <span slot="description">{{ "pamMyRequestsEmptyDescription" | i18n }}</span>
@@ -62,7 +71,17 @@
         [placeholder]="'search' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <bit-filter-menu multiple key="status" [placeholderText]="'pamColumnStatus' | i18n">
+      <!-- Approved requests are found by status, so the step anchors here. -->
+      <bit-filter-menu
+        multiple
+        key="status"
+        [placeholderText]="'pamColumnStatus' | i18n"
+        [bitPopoverAnchorFor]="activeAccessCoachmark.popover()"
+        [popoverOpen]="coachmark.isStepActive('pamActiveAccess')"
+        [position]="coachmark.getStepPosition('pamActiveAccess')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmark.isStepActive('pamActiveAccess')"
+      >
         @for (option of statusOptions(); track option.value) {
           <bit-filter-option
             [value]="option.value"
@@ -221,3 +240,5 @@
     </bit-column>
   </bit-table-v2>
 }
+
+<vault-coachmark #activeAccessCoachmark stepId="pamActiveAccess" />

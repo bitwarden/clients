@@ -43,6 +43,7 @@ import { DAY, HOUR, fromNow, liveFromNow, startClockAtStoryNow } from "@bitwarde
 import { CipherViewComponent, CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { coachmarkServiceStub } from "../testing/coachmark-service-stub";
 import {
   accessRequest,
   provideStoryChangeDetection,
@@ -148,6 +149,7 @@ function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
     imports: [CipherViewBannerComponent, ItemDetailsStateBadgeComponent],
     providers: [
+      coachmarkServiceStub,
       { provide: CIPHER_VIEW_BANNER, useValue: CipherViewBannerComponent },
       { provide: ITEM_DETAILS_BADGE, useValue: ItemDetailsStateBadgeComponent },
       {

@@ -43,6 +43,10 @@ describe("controlledAccessColumn", () => {
     expect(column.component).toBe(ControlledAccessCellComponent);
   });
 
+  it("declares the header as the privileged-items coachmark anchor", () => {
+    expect(column.coachmarkStepId).toBe("pamPrivilegedItems");
+  });
+
   describe("visible$", () => {
     it("shows while the flag is on and an organization in scope uses PAM", async () => {
       expect(

@@ -1,0 +1,34 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{ "pamWelcomeTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <bit-svg [content]="heroIllustration" class="tw-mx-auto tw-w-48 tw-py-4"></bit-svg>
+    <p
+      id="pam-welcome-dialog_description"
+      bitTypography="body1"
+      class="tw-mb-0 tw-mt-4 tw-break-words tw-text-fg-body-subtle"
+    >
+      {{ "pamWelcomeDescription" | i18n }}
+    </p>
+  </div>
+  <div bitDialogFooter>
+    <button
+      id="pam-welcome-dialog_button_start-tour"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-arrow-right"
+      type="button"
+      (click)="startTour()"
+    >
+      {{ "pamWelcomeStartTour" | i18n }}
+    </button>
+    <button
+      id="pam-welcome-dialog_button_dismiss"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      (click)="dismiss()"
+    >
+      {{ "pamWelcomeDismiss" | i18n }}
+    </button>
+  </div>
+</bit-dialog>

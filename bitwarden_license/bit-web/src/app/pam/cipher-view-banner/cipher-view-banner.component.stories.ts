@@ -26,6 +26,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { HOUR, MINUTE, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { coachmarkServiceStub } from "../testing/coachmark-service-stub";
 import {
   accessLease,
   accessRequest,
@@ -103,6 +104,7 @@ function pam(
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
     providers: [
+      coachmarkServiceStub,
       { provide: ConfigService, useValue: { getFeatureFlag$: () => of(enabled) } },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       {
@@ -307,6 +309,7 @@ export const StateReadFails: Story = {
     moduleMetadata({
       imports: [CipherViewBannerComponent],
       providers: [
+        coachmarkServiceStub,
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {

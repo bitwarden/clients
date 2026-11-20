@@ -1,0 +1,73 @@
+flowchart TD
+  subgraph wel["Welcome tour (from the PAM welcome modal)"]
+    wel_start(["User chooses Start the tour in the PAM welcome modal"])
+    wel_gate{"Feature flag pm-37044-pam-v-0 is on; Tour not already completed"}
+    wel_skip["No tour shown"]
+    wel_done(["Tour marked completed (pamWelcomeTourCompleted); never shown again"])
+    wel_start --> wel_gate
+    wel_gate -->|no| wel_skip
+    wel_s1["Privileged items<br/>Items marked Privileged in the Controlled access column need approval before you can use them."]
+    wel_gate -->|yes| wel_s1
+    wel_s1 -.->|Close popover| wel_done
+    wel_s2["Access requests<br/>Track your requests here, and start your access once a request is approved."]
+    wel_s1 -->|Next| wel_s2
+    wel_s2 -.->|Close popover| wel_done
+    wel_s2 -->|Done| wel_done
+  end
+  subgraph vault["Tour 1: End-user vault tour"]
+    vault_start(["User opens a gated item for the first time"])
+    vault_gate{"Feature flag pm-37044-pam-v-0 is on; Member is licensed for PAM (licensing known, not unlicensed); Request access button is rendered (user can request); Tour not already completed"}
+    vault_skip["No tour shown"]
+    vault_done(["Tour marked completed (pamVaultTourCompleted); never shown again"])
+    vault_start --> vault_gate
+    vault_gate -->|no| vault_skip
+    vault_s1["Request access<br/>Request access to use this item. Some items are approved instantly; others are reviewed by an approver. Once approved, you still need to start your access."]
+    vault_gate -->|yes| vault_s1
+    vault_s1 -.->|Close popover| vault_done
+    vault_s2["Access requests<br/>Track your requests here, and start your access once a request is approved."]
+    vault_s1 -->|Next| vault_s2
+    vault_s2 -.->|Close popover| vault_done
+    vault_s2 -->|Done| vault_done
+  end
+  subgraph req["Tour 2: End-user Access requests tour"]
+    req_start(["User opens /pam (Access requests) for the first time"])
+    req_gate{"Feature flag pm-37044-pam-v-0 is on; Approval privilege known (wait for it, then wait one render); Tour not already completed"}
+    req_skip["No tour shown"]
+    req_done(["Tour marked completed (pamAccessRequestsTourCompleted); never shown again"])
+    req_start --> req_gate
+    req_gate -->|no| req_skip
+    req_s1["Approvals<br/>Review and decide on access requests assigned to you."]
+    req_gate -->|yes| req_s1
+    req_s1 -.->|Close popover| req_done
+    req_s2["My requests<br/>Your pending and active access requests appear here."]
+    req_s1 -->|Next| req_s2
+    req_s2 -.->|Close popover| req_done
+    req_s3["Approved requests<br/>Approved requests show up here. Start your access from the Actions column when you are ready to use the item."]
+    req_s2 -->|Next| req_s3
+    req_s3 -.->|Close popover| req_done
+    req_s4["History<br/>Review your past access requests and their outcomes."]
+    req_s3 -->|Next| req_s4
+    req_s4 -.->|Close popover| req_done
+    req_s4 -->|Done| req_done
+  end
+  subgraph adm["Tour 3: Admin tour"]
+    adm_start(["Admin opens the Admin Console and the Privileged Controls group first renders"])
+    adm_gate{"PAM and Rotation feature flags both resolved; at least one PAM nav item is visible to the admin; Tour not already completed"}
+    adm_skip["No tour shown"]
+    adm_done(["Tour marked completed (pamAdminTourCompleted); never shown again"])
+    adm_start --> adm_gate
+    adm_gate -->|no| adm_skip
+    adm_s1["Privileged controls<br/>Manage privileged access for your organization from this section."]
+    adm_gate -->|yes| adm_s1
+    adm_s1 -.->|Close popover| adm_done
+    adm_s2["Access rules<br/>Start here: create a rule from a template to choose which items require approval and who can approve them."]
+    adm_s1 -->|Next| adm_s2
+    adm_s2 -.->|Close popover| adm_done
+    adm_s3["Audit log<br/>See a record of privileged access activity."]
+    adm_s2 -->|Next| adm_s3
+    adm_s3 -.->|Close popover| adm_done
+    adm_s4["Rotation<br/>Configure automatic credential rotation for privileged items."]
+    adm_s3 -->|Next| adm_s4
+    adm_s4 -.->|Close popover| adm_done
+    adm_s4 -->|Done| adm_done
+  end

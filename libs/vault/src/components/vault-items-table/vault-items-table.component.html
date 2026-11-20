@@ -286,7 +286,22 @@
         [sortFn]="sortByContributed"
         width="minmax(140px, 200px)"
       >
-        <bit-header-cell>{{ column.label }}</bit-header-cell>
+        <bit-header-cell>
+          @if (column.coachmarkStepId; as stepId) {
+            <span
+              data-testid="vault-items-table-item-column-anchor"
+              [bitPopoverAnchorFor]="itemColumnCoachmark.popover()"
+              [popoverOpen]="coachmark.isStepActive(stepId)"
+              [position]="coachmark.getStepPosition(stepId)"
+              [closeOnBackdropClick]="false"
+              [spotlight]="coachmark.isStepActive(stepId)"
+              >{{ column.label }}</span
+            >
+            <vault-coachmark #itemColumnCoachmark [stepId]="stepId" />
+          } @else {
+            {{ column.label }}
+          }
+        </bit-header-cell>
         <bit-cell
           *bitCellDef="table.columns[key]; let row"
           [class.tw-cursor-pointer]="itemAction() != null"

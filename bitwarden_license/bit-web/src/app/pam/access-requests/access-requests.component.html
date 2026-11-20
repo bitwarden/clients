@@ -4,15 +4,41 @@
   }
   <bit-tab-nav-bar slot="tabs" [label]="'pamAccessRequestsTitle' | i18n">
     @if (canApprove()) {
-      <bit-tab-link route="approvals" [berryValue]="approvalsCount()">{{
-        "pamTabApprovals" | i18n
-      }}</bit-tab-link>
+      <bit-tab-link
+        route="approvals"
+        [berryValue]="approvalsCount()"
+        [bitPopoverAnchorFor]="approvalsCoachmark.popover()"
+        [popoverOpen]="coachmark.isStepActive('pamApprovalsTab')"
+        [position]="coachmark.getStepPosition('pamApprovalsTab')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="coachmark.isStepActive('pamApprovalsTab')"
+        >{{ "pamTabApprovals" | i18n }}</bit-tab-link
+      >
     }
-    <bit-tab-link route="my-requests" [berryValue]="myRequestsCount()">{{
-      "pamTabMyRequests" | i18n
-    }}</bit-tab-link>
-    <bit-tab-link route="history">{{ "pamTabHistory" | i18n }}</bit-tab-link>
+    <bit-tab-link
+      route="my-requests"
+      [berryValue]="myRequestsCount()"
+      [bitPopoverAnchorFor]="myRequestsCoachmark.popover()"
+      [popoverOpen]="coachmark.isStepActive('pamMyRequestsTab')"
+      [position]="coachmark.getStepPosition('pamMyRequestsTab')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="coachmark.isStepActive('pamMyRequestsTab')"
+      >{{ "pamTabMyRequests" | i18n }}</bit-tab-link
+    >
+    <bit-tab-link
+      route="history"
+      [bitPopoverAnchorFor]="historyCoachmark.popover()"
+      [popoverOpen]="coachmark.isStepActive('pamHistoryTab')"
+      [position]="coachmark.getStepPosition('pamHistoryTab')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="coachmark.isStepActive('pamHistoryTab')"
+      >{{ "pamTabHistory" | i18n }}</bit-tab-link
+    >
   </bit-tab-nav-bar>
 </app-header>
 
 <router-outlet></router-outlet>
+
+<vault-coachmark #myRequestsCoachmark stepId="pamMyRequestsTab" />
+<vault-coachmark #historyCoachmark stepId="pamHistoryTab" />
+<vault-coachmark #approvalsCoachmark stepId="pamApprovalsTab" />

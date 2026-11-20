@@ -1,3 +1,4 @@
+import { DOCUMENT } from "@angular/common";
 import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -15,6 +16,9 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
 
 import { CoachmarkStep, CoachmarkStepId } from "./coachmark-step";
 import { CoachmarkTour } from "./coachmark-tour";
+
+const ANCHOR_WAIT_MS = 1000;
+const ANCHOR_POLL_MS = 50;
 
 @Injectable({
   providedIn: "root",
@@ -44,11 +48,17 @@ export class CoachmarkService {
 
   private readonly activeTour = signal<CoachmarkTour | null>(null);
 
+  private activeHolds = 0;
+
+  /** Start requests deferred by a hold: latest per tour, in order of arrival. */
+  private readonly deferredStarts = new Map<string | CoachmarkTour, CoachmarkTour>();
+
   private readonly sideNavService = inject(SideNavService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
   private readonly i18nService = inject(I18nService);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly collectionService = inject(CollectionService);
 
@@ -119,12 +129,49 @@ export class CoachmarkService {
   }
 
   /**
+   * Defers every `startTour` call until the returned function has been called, for example while
+   * an onboarding dialog is open. Holds stack: deferred requests replay, in order of arrival and
+   * through the normal `startTour` checks, once the last hold is released. Only the latest
+   * request per tour is kept. Releasing more than once is a no-op.
+   */
+  holdStarts(): () => void {
+    this.activeHolds++;
+    let released = false;
+    return () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      this.activeHolds--;
+      if (this.activeHolds === 0) {
+        void this.replayDeferredStarts();
+      }
+    };
+  }
+
+  private async replayDeferredStarts(): Promise<void> {
+    const deferred = [...this.deferredStarts.values()];
+    this.deferredStarts.clear();
+    for (const tour of deferred) {
+      await this.startTour(tour);
+    }
+  }
+
+  /**
    * Starts the given tour if the user hasn't completed it and no other tour is running.
    * The tour will display steps the user can reach, based on organization membership
    * and whether they have any collections.
    */
   async startTour(tour: CoachmarkTour): Promise<void> {
-    if (this.isRunning()) {
+    if (this.activeHolds > 0) {
+      const key = tour.id ?? tour;
+      this.deferredStarts.delete(key);
+      this.deferredStarts.set(key, tour);
+      return;
+    }
+
+    // A tour mid-start (waiting on its route or anchor) is not yet running but holds the engine.
+    if (this.isRunning() || this.activeTour() !== null) {
       return;
     }
 
@@ -162,9 +209,11 @@ export class CoachmarkService {
   }
 
   /**
-   * Navigates to the step's route and sets it as active after navigation completes.
+   * Navigates to the step's route and sets it as active after navigation completes. A step
+   * flagged `skipWhenUnanchored` whose anchor never mounts is dropped from the tour, and the
+   * step beyond it in `direction` is shown instead.
    */
-  private async navigateToStep(step: CoachmarkStep): Promise<void> {
+  private async navigateToStep(step: CoachmarkStep, direction: 1 | -1 = 1): Promise<void> {
     // Before the navigation, so the anchored entry mounts in an earlier change detection cycle
     // than the one that opens the popover — see `VaultNavSectionComponent.coachmarkExpands`.
     if (step.opensSideNav) {
@@ -179,7 +228,56 @@ export class CoachmarkService {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
+    if (
+      (step.skipWhenUnanchored || step.endWhenUnanchored) &&
+      !(await this.anchorMounted(step.id))
+    ) {
+      if (step.endWhenUnanchored) {
+        this.abandonTour();
+      } else {
+        await this.dropStep(step, direction);
+      }
+      return;
+    }
+
     this.activeStepId.set(step.id);
+  }
+
+  /** Waits briefly for a slow-rendering anchor before giving up on it. */
+  private async anchorMounted(stepId: CoachmarkStepId): Promise<boolean> {
+    const mounted = () =>
+      this.document.querySelector(`vault-coachmark[data-coachmark-step="${stepId}"]`) != null;
+    for (let waited = 0; waited < ANCHOR_WAIT_MS && !mounted(); waited += ANCHOR_POLL_MS) {
+      await new Promise((resolve) => setTimeout(resolve, ANCHOR_POLL_MS));
+    }
+    return mounted();
+  }
+
+  /** Ends the tour without persisting completion, so a later start can show it. */
+  private abandonTour() {
+    this.activeStepId.set(null);
+    this.applicableSteps.set([]);
+    this.activeTour.set(null);
+  }
+
+  private async dropStep(step: CoachmarkStep, direction: 1 | -1): Promise<void> {
+    const before = this.applicableSteps();
+    const index = before.indexOf(step);
+    const remaining = before.filter((s) => s !== step);
+    this.applicableSteps.set(remaining);
+
+    // Forward, the step after the dropped one now sits at its index; backward, the one before.
+    const target = remaining[direction === 1 ? index : index - 1];
+    if (target != null) {
+      await this.navigateToStep(target, direction);
+    } else if (this.activeStepId() == null) {
+      // Nothing was ever shown, so end quietly rather than marking the tour complete.
+      this.applicableSteps.set([]);
+      this.activeTour.set(null);
+    } else if (direction === 1) {
+      await this.completeTour();
+    }
+    // Going back past the first step: stay on the current one.
   }
 
   /**
@@ -212,7 +310,7 @@ export class CoachmarkService {
     const currentIndex = steps.findIndex((s) => s.id === this.activeStepId());
 
     if (currentIndex > 0) {
-      await this.navigateToStep(steps[currentIndex - 1]);
+      await this.navigateToStep(steps[currentIndex - 1], -1);
     }
   }
 

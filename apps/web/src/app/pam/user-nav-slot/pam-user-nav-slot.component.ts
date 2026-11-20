@@ -7,8 +7,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { BadgeModule, NavigationModule } from "@bitwarden/components";
+import { BadgeModule, NavigationModule, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CoachmarkComponent, CoachmarkService } from "@bitwarden/vault";
 
 import { PamNavBadgeService } from "../pam-nav-badge.service";
 
@@ -17,13 +18,14 @@ import { PamNavBadgeService } from "../pam-nav-badge.service";
   selector: "app-pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",
   host: { class: "tw-contents" },
-  imports: [BadgeModule, I18nPipe, NavigationModule],
+  imports: [BadgeModule, CoachmarkComponent, I18nPipe, NavigationModule, PopoverModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PamUserNavSlotComponent {
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
+  protected readonly coachmarkService = inject(CoachmarkService);
 
   private readonly pamEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
   private readonly memberOfPamOrg$ = this.accountService.activeAccount$.pipe(
