@@ -14,6 +14,9 @@ import { TooltipDirective } from "../tooltip";
 export class FilterTreeRowDirective {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 
+  /** The row's position in the tree's full list of rows, rendered or not. */
+  readonly index = input.required<number>({ alias: "bitFilterTreeRow" });
+
   /** Whether this row holds the tree's single tab stop. */
   readonly tabbable = input(false);
 
@@ -27,11 +30,12 @@ export class FilterTreeRowDirective {
     }
   }
 
-  focus(): void {
-    this.el.nativeElement.focus();
+  focus(options?: FocusOptions): void {
+    this.el.nativeElement.focus(options);
   }
 
   hasFocus(): boolean {
-    return this.el.nativeElement.matches(":focus");
+    // Not `:focus`, which stops matching whenever the window itself loses focus.
+    return document.activeElement === this.el.nativeElement;
   }
 }

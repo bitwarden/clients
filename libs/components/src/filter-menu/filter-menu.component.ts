@@ -222,6 +222,12 @@ export class FilterMenuComponent
    */
   readonly searchable = input(false, { transform: booleanAttribute });
 
+  /**
+   * Renders only the options in view, for a list long enough to be slow to open — a few
+   * hundred options or more. `multiple` only: a single-select chip ignores it.
+   */
+  readonly virtualized = input(false, { transform: booleanAttribute });
+
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
   protected readonly triggerPaddingClass = computed(() =>

@@ -98,7 +98,11 @@
   </div>
 </ng-template>
 
-<ng-template #optionsBody>
+<!-- A virtualized list scrolls itself unless it is given `scrollElement`. Anything that renders
+     this inside its own scroll area, as the filter dialog does, has to pass that element: left
+     to itself there, the list grows to its full height and renders every row. `cards` is for a
+     surface that draws each group as a card. -->
+<ng-template #optionsBody let-scrollElement="scrollElement" let-cards="cards">
   @if (showSearch()) {
     <div data-filter-search-row class="tw-p-1">
       <bit-search
@@ -120,7 +124,14 @@
     </div>
   }
   @if (multiple()) {
-    <bit-filter-tree [nodes]="treeNodes()" [label]="placeholderText()"></bit-filter-tree>
+    <bit-filter-tree
+      [nodes]="treeNodes()"
+      [label]="placeholderText()"
+      [virtualized]="virtualized()"
+      [scrollElement]="scrollElement"
+      [cards]="!!cards"
+      [searching]="searchTerm().trim() !== ''"
+    ></bit-filter-tree>
     @if (noResults()) {
       <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
     }

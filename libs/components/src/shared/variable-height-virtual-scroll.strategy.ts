@@ -6,21 +6,20 @@ import { Observable, Subject, distinctUntilChanged } from "rxjs";
 const BUFFER_PX = 200;
 
 /**
- * A {@link VirtualScrollStrategy} for items of **known but differing** heights — the
- * table's data rows plus its group-header rows. Unlike CDK's fixed-size strategy
- * (one height for all items), it positions each item from a prefix-sum of the
- * per-item heights, so a single viewport can virtualize an interleaved list of
- * group headers and rows.
+ * A {@link VirtualScrollStrategy} for items of **known but differing** heights — for example a
+ * table's data rows plus its group-header rows, or a filter menu's options plus its section
+ * headers. Unlike CDK's fixed-size strategy (one height for all items), it positions each item from
+ * a prefix-sum of the per-item heights, so a single viewport can virtualize an interleaved list.
  *
  * Heights are read lazily from a signal (pull-based), so every CDK callback sees the
  * current values — there's no window where the strategy holds stale heights. The
  * strategy never measures the DOM, so the rendered height of each item must match
  * the height it was given.
  *
- * `BitTableV2Component` owns the instance and provides it to its viewport via the
+ * The component that renders the viewport owns the instance and provides it through the
  * `VIRTUAL_SCROLL_STRATEGY` token, calling {@link refresh} when heights change.
  */
-export class TableVirtualScrollStrategy implements VirtualScrollStrategy {
+export class VariableHeightVirtualScrollStrategy implements VirtualScrollStrategy {
   private readonly indexChange = new Subject<number>();
   readonly scrolledIndexChange: Observable<number> = this.indexChange.pipe(distinctUntilChanged());
 

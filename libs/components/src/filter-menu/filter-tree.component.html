@@ -1,4 +1,6 @@
-@for (node of nodes(); track $index) {
+<!-- One row, with the divider that precedes it. Shared by the plain list, the virtualized
+     list and the sizer, so all three draw a row the same way. -->
+<ng-template #row let-node let-index="index">
   @let expandable = node.row.expandable();
   @let checked = owner.nodeChecked(node);
   @if (node.dividerBefore) {
@@ -14,11 +16,14 @@
     [attr.data-filter-section-row]="node.row.kind === 'section' ? '' : null"
     [attr.data-filter-card-top]="node.groupStart ? '' : null"
     [attr.data-filter-card-bottom]="node.groupEnd ? '' : null"
-    bitFilterTreeRow
-    [tabbable]="$index === activeIndex()"
-    [class]="node.row.kind === 'option' ? optionRowClasses : rowBaseClasses"
+    [bitFilterTreeRow]="index"
+    [tabbable]="index === activeIndex()"
+    [class]="node.row.kind === 'option' ? optionRowClasses() : sectionRowClasses()"
     [style.padding-inline-start.rem]="
       node.row.kind === 'section' ? null : 0.5 + (node.indent - 1) * 1.75
+    "
+    [style.margin-bottom.rem]="
+      virtualized() && cards() && hasCardGap(node, index) ? cardGapRem : null
     "
     [attr.aria-level]="node.level"
     [attr.aria-setsize]="node.setsize"
@@ -27,7 +32,8 @@
     [attr.aria-checked]="checked"
     [attr.aria-disabled]="node.row.disabled() ? true : null"
     (click)="node.row.disabled() ? null : owner.activateNode(node)"
-    (focus)="onRowFocus($index)"
+    (focus)="onRowFocus(index)"
+    (blur)="onRowBlur($event)"
   >
     @if (node.row.kind !== "section") {
       @if (expandable) {
@@ -118,4 +124,52 @@
       }
     }
   </div>
+</ng-template>
+
+@if (virtualized()) {
+  <!-- Determine which width sizers (represents longest labels, invisible with 0 height) are needed:
+     - `scrollElement` is specified, so we assume that the scroll container's width is controlled
+        elsewhere (example: filter dialog). Only render a sizer inside of the virtual scroll 
+        viewport to allow horizontal scroll inside the viewport. 
+     - `scrollElement` is not specified, so we assume that the tree content itself is what sets the
+        width of the container (example: filter popover). Render the virtual scroll viewport sizer
+        for horizontal scroll, but also render a sizer outside of the virtual scroll viewport to set
+        the container width. 
+  -->
+  @if (!scrollElement()) {
+    <div class="tw-invisible tw-h-0 tw-flex-none tw-overflow-hidden" aria-hidden="true" inert>
+      @for (node of sizerNodes(); track $index) {
+        <ng-container
+          *ngTemplateOutlet="row; context: { $implicit: node, index: sizerIndex }"
+        ></ng-container>
+      }
+    </div>
+  }
+  <cdk-virtual-scroll-viewport [class]="viewportClasses()" [style.height.px]="viewportHeight()">
+    @if (deepestNode(); as node) {
+      <div class="tw-invisible tw-h-0 tw-overflow-hidden" aria-hidden="true" inert>
+        <ng-container
+          *ngTemplateOutlet="row; context: { $implicit: node, index: sizerIndex }"
+        ></ng-container>
+      </div>
+    }
+    <ng-container
+      *cdkVirtualFor="
+        let node of nodes();
+        let index = index;
+        trackBy: trackByIndex;
+        templateCacheSize: 0
+      "
+    >
+      <ng-container
+        *ngTemplateOutlet="row; context: { $implicit: node, index: index }"
+      ></ng-container>
+    </ng-container>
+  </cdk-virtual-scroll-viewport>
+} @else {
+  @for (node of nodes(); track $index) {
+    <ng-container
+      *ngTemplateOutlet="row; context: { $implicit: node, index: $index }"
+    ></ng-container>
+  }
 }
