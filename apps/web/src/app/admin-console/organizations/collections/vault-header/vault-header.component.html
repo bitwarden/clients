@@ -10,10 +10,7 @@
         }"
         queryParamsHandling="merge"
       >
-        {{ organization().name }}
-        <span>
-          {{ "collections" | vfo1I18n: "sharedFolders" | lowercase }}
-        </span>
+        {{ organizationBreadcrumb() }}
       </bit-breadcrumb>
       <ng-container>
         @for (collection of collections(); track collection) {

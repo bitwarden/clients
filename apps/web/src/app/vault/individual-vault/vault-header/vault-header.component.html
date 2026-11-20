@@ -7,7 +7,7 @@
           [queryParams]="organizationBreadcrumbQueryParams"
           queryParamsHandling="merge"
         >
-          {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+          {{ "orgNameVault" | i18n: (activeOrganizationId | orgNameFromId: organizations) }}
         </bit-breadcrumb>
       }
       <ng-container>

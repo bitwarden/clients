@@ -20064,6 +20064,24 @@
       }
     }
   },
+  "orgNameCollections": {
+    "message": "$ORGNAME$ collections",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "orgNameSharedFolders": {
+    "message": "$ORGNAME$ shared folders",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
   "inviteLinkCalloutHeading": {
     "message": "Invite your whole team with a single link"
   },
