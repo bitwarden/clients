@@ -5,7 +5,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { UserId } from "../../types/guid";
-import { CipherType } from "../enums";
+import { CipherType, FieldType } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
@@ -28,6 +28,18 @@ function createLoginCipherView(id: string, name: string, uris: string[]): Cipher
     uriView.uri = uri;
     return uriView;
   });
+  return cipher;
+}
+
+function withCustomFields(
+  cipher: CipherView,
+  fields: { name: string; value: string }[],
+): CipherView {
+  cipher.fields = fields.map((f) => ({
+    name: f.name,
+    value: f.value,
+    type: FieldType.Text,
+  })) as CipherView["fields"];
   return cipher;
 }
 
@@ -180,6 +192,25 @@ describe("SearchService", () => {
         const ciphers = [createCipherView("cipher-1", "Ré Login")];
 
         expect(service.searchCiphersBasic(ciphers, "ré")).toHaveLength(1);
+      });
+    });
+
+    describe("custom field matching", () => {
+      it("matches a cipher by a custom field name", () => {
+        const cipher = withCustomFields(createLoginCipherView("cipher-1", "work", []), [
+          { name: "jira token", value: "abc123" },
+        ]);
+
+        expect(service.searchCiphersBasic([cipher], "jira token")).toHaveLength(1);
+        expect(service.searchCiphersBasic([cipher], "jira")).toHaveLength(1);
+      });
+
+      it("does not match a cipher by a custom field value", () => {
+        const cipher = withCustomFields(createLoginCipherView("cipher-1", "work", []), [
+          { name: "jira token", value: "abc123" },
+        ]);
+
+        expect(service.searchCiphersBasic([cipher], "abc123")).toHaveLength(0);
       });
     });
 

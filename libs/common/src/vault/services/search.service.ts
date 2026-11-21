@@ -161,6 +161,17 @@ export class SearchService implements SearchServiceAbstraction {
           return true;
         }
 
+        // Custom field names were searchable before basic search replaced the lunr index for plain
+        // queries. Field values are still not matched, so hidden or secret values stay out of search.
+        const fields = CipherViewLikeUtils.getFields(c);
+        if (
+          fields?.some(
+            (f) => f?.name != null && normalizeSearchQuery(f.name.toLowerCase()).indexOf(term) > -1,
+          )
+        ) {
+          return true;
+        }
+
         const notes = CipherViewLikeUtils.getNotes(c);
         if (notes && normalizeSearchQuery(notes.toLowerCase()).indexOf(term) > -1) {
           return true;
