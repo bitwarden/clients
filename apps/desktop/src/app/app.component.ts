@@ -856,6 +856,12 @@ export class AppComponent implements OnInit, OnDestroy {
       if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
         continue;
       }
+      // Logged out accounts stay in accounts$. Their timeout action must not be evaluated, as
+      // without user decryption options it resolves to log out only and resets the stored action.
+      const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId as UserId));
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        continue;
+      }
 
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {

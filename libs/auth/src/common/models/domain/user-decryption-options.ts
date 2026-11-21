@@ -215,20 +215,24 @@ export class UserDecryptionOptions {
   /**
    * Initializes a new instance of the UserDecryptionOptions from a JSON object.
    * @param obj JSON object to deserialize.
-   * @returns A new instance of the UserDecryptionOptions. Will initialize even if the JSON object is nullish.
+   * @returns A new instance of the UserDecryptionOptions, or null when the JSON object is nullish.
    */
-  static fromJSON(obj: Jsonify<UserDecryptionOptions>): UserDecryptionOptions {
+  static fromJSON(obj: Jsonify<UserDecryptionOptions> | null): UserDecryptionOptions | null {
+    if (obj == null) {
+      return null;
+    }
+
     const decryptionOptions = Object.assign(new UserDecryptionOptions(), obj);
 
     decryptionOptions.trustedDeviceOption = TrustedDeviceUserDecryptionOption.fromJSON(
-      obj?.trustedDeviceOption,
+      obj.trustedDeviceOption,
     );
 
     decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromJSON(
-      obj?.keyConnectorOption,
+      obj.keyConnectorOption,
     );
 
-    if (obj?.webAuthnPrfOptions && Array.isArray(obj.webAuthnPrfOptions)) {
+    if (obj.webAuthnPrfOptions && Array.isArray(obj.webAuthnPrfOptions)) {
       decryptionOptions.webAuthnPrfOptions = obj.webAuthnPrfOptions
         .map((option) => WebAuthnPrfUserDecryptionOption.fromJSON(option))
         .filter((option) => option !== undefined);
