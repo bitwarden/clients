@@ -116,5 +116,16 @@ describe("BrowserClipboardService", () => {
 
       await BrowserClipboardService.read(windowMock as Window);
     });
+
+    it("prints a warning message when execCommand('paste') returns false", async () => {
+      windowMock.document.queryCommandSupported.mockReturnValue(true);
+      windowMock.navigator.clipboard.readText.mockRejectedValue(new Error("test"));
+      windowMock.document.execCommand.mockReturnValue(false);
+
+      const returnValue = await BrowserClipboardService.read(windowMock as Window);
+
+      expect(returnValue).toBe("");
+      expect(consoleWarnSpy).toHaveBeenCalledWith("execCommand('paste') returned false");
+    });
   });
 });
