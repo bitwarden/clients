@@ -1,0 +1,111 @@
+<bit-item-group class="tw-block tw-max-h-64 tw-overflow-y-auto">
+  @switch (state().view) {
+    @case ("locked") {
+      <bit-item>
+        <autofill-inline-menu-action
+          name="unlock"
+          icon="bwi-lock"
+          [text]="'unlockAccount' | i18n"
+          [ariaLabel]="'unlockAccountAria' | i18n"
+          (action)="unlock.emit()"
+        />
+      </bit-item>
+    }
+    @case ("noResults") {
+      @if (newItem(); as newItem) {
+        <bit-item>
+          <autofill-inline-menu-action
+            name="new-item"
+            icon="bwi-plus"
+            [text]="newItem.text"
+            [ariaLabel]="newItem.ariaLabel"
+            (action)="addNewItem.emit()"
+          />
+        </bit-item>
+      }
+    }
+    @case ("saveLogin") {
+      <bit-item>
+        <autofill-inline-menu-action
+          name="save-login"
+          icon="bwi-plus"
+          [text]="'saveToBitwarden' | i18n"
+          [ariaLabel]="saveLoginAriaLabel()"
+          (action)="saveLogin.emit()"
+        />
+      </bit-item>
+    }
+    @case ("authenticating") {
+      <bit-item>
+        <div bit-item-content role="status">
+          <bit-icon slot="start" name="bwi-spinner" class="bwi-spin tw-text-fg-brand" />
+          {{ "authenticating" | i18n }}
+        </div>
+      </bit-item>
+    }
+    @case ("ciphers") {
+      @for (cipher of cipherState()?.ciphers; track cipher.id) {
+        <bit-item>
+          <autofill-inline-menu-cipher-item
+            [cipher]="cipher"
+            [totpSecondsRemaining]="cipherState()?.totpSecondsRemaining"
+            (fill)="fillCipher.emit(cipher)"
+            (totpPeriodElapsed)="totpPeriodElapsed.emit()"
+          />
+          <bit-item-action slot="end">
+            <button
+              id="inline-menu-list_button_view"
+              type="button"
+              bitIconButton="bwi-external-link"
+              buttonType="subtleGhost"
+              size="small"
+              [label]="viewLabel(cipher)"
+              (click)="viewCipher.emit(cipher)"
+            ></button>
+          </bit-item-action>
+        </bit-item>
+      }
+      @if (newItem(); as newItem) {
+        <bit-item>
+          <autofill-inline-menu-action
+            name="new-item"
+            icon="bwi-plus"
+            [text]="newItem.text"
+            [ariaLabel]="newItem.ariaLabel"
+            (action)="addNewItem.emit()"
+          />
+        </bit-item>
+      }
+    }
+    @case ("passwordGenerator") {
+      <bit-item>
+        <button
+          id="inline-menu-list_button_fill-generated-password"
+          type="button"
+          bit-item-content
+          [truncate]="false"
+          [attr.aria-label]="generatorHeading()"
+          (click)="fillPassword.emit()"
+        >
+          {{ generatorHeading() }}
+          <bit-color-password
+            slot="secondary"
+            class="tw-break-all"
+            [password]="generatorState()?.password ?? ''"
+          />
+        </button>
+        <bit-item-action slot="end">
+          <button
+            id="inline-menu-list_button_regenerate-password"
+            type="button"
+            bitIconButton="bwi-generate"
+            buttonType="subtleGhost"
+            size="small"
+            [label]="'regeneratePassword' | i18n"
+            (click)="regeneratePassword.emit()"
+          ></button>
+        </bit-item-action>
+      </bit-item>
+    }
+  }
+</bit-item-group>

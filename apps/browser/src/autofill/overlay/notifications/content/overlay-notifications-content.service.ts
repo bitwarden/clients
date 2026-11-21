@@ -99,6 +99,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       importType: typeData.importType,
       launchTimestamp: typeData.launchTimestamp,
       showAnimations: typeData.showAnimations,
+      useAngularUi: typeData.useAngularUi,
       params,
       isConfirmation,
       confirmationData,
@@ -204,7 +205,11 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
     const parentOrigin = globalThis.location.origin;
-    const iframeUrl = new URL(BrowserApi.getRuntimeURL("notification/bar.html"));
+    const iframeUrl = new URL(
+      BrowserApi.getRuntimeURL(
+        initData.useAngularUi === true ? "notification/bar-angular.html" : "notification/bar.html",
+      ),
+    );
     iframeUrl.searchParams.set("parentOrigin", parentOrigin);
     this.notificationBarIframeElement.src = iframeUrl.toString();
     this.notificationBarIframeElement.setAttribute("credentialless", "");
