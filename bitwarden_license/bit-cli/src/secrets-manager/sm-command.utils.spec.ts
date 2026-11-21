@@ -19,11 +19,13 @@ import { SmSecretResponse } from "./models/sm-secret.response";
 import {
   checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   isInSmOrganization,
   parseSmId,
   parseSmIds,
   parseSmRequest,
   readSmName,
+  SM_EDITABLE_PROPERTIES,
   SM_READ_ONLY_PROPERTIES,
   validateSmOrganizationAccess,
   smBulkResponse,
@@ -212,27 +214,64 @@ describe("sm-command.utils", () => {
     });
 
     // Every property an edit command's response prints must be either editable or read-only, so
-    // a new response property cannot silently become an ignored request property.
+    // a new response property cannot silently become an ignored request property, and the output
+    // of `get` is never rejected as unknown.
     it.each([
-      ["project", new SmProjectResponse(new ProjectView()), ["organizationId", "name"]],
+      ["project", new SmProjectResponse(new ProjectView())],
       [
         "machine account",
         new SmMachineAccountResponse(
           Object.assign(new ServiceAccountSecretsDetailsView(), { accessToSecrets: 1 }),
         ),
-        ["organizationId", "name"],
       ],
-      [
-        "secret",
-        new SmSecretResponse(new SecretView()),
-        ["organizationId", "key", "value", "note", "projects"],
-      ],
-    ])("covers every %s response property", (_entity, response, editable) => {
+      ["secret", new SmSecretResponse(new SecretView())],
+    ] as const)("covers every %s response property", (entity, response) => {
+      const editable: readonly string[] = SM_EDITABLE_PROPERTIES[entity];
       const readOnly: readonly string[] = SM_READ_ONLY_PROPERTIES;
-      const uncovered = Object.keys(response).filter(
-        (key) => !editable.includes(key) && !readOnly.includes(key),
+      const keys = Object.keys(response);
+      const uncovered = keys.filter(
+        (key) => key !== "organizationId" && !editable.includes(key) && !readOnly.includes(key),
       );
       expect(uncovered).toEqual([]);
+      expect(
+        checkSmUnknownProperties(Object.fromEntries(keys.map((key) => [key, "x"])), entity),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("checkSmUnknownProperties", () => {
+    it("allows editable, read-only and organizationId properties", () => {
+      expect(
+        checkSmUnknownProperties(
+          { organizationId: smOrgId, name: "A", id: "x", decryptionError: false },
+          "project",
+        ),
+      ).toBeUndefined();
+    });
+
+    it.each([true, false])("rejects the misspelled decryptError %p", (decryptError) => {
+      expect(checkSmUnknownProperties({ name: "A", decryptError }, "project")?.message).toBe(
+        "`decryptError` is not a project property. Remove this property from the request. Properties that can be edited on a project: `name`.",
+      );
+    });
+
+    it("matches property names case-sensitively", () => {
+      expect(checkSmUnknownProperties({ Name: "A" }, "machine account")?.message).toBe(
+        "`Name` is not a machine account property. Remove this property from the request. Properties that can be edited on a machine account: `name`.",
+      );
+    });
+
+    it("names multiple properties in the plural", () => {
+      expect(checkSmUnknownProperties({ key: "A", name: "A", notes: "x" }, "secret")?.message).toBe(
+        "`name`, `notes` are not secret properties. Remove these properties from the request. Properties that can be edited on a secret: `key`, `value`, `note`, `projectIds`, `projects`.",
+      );
+    });
+
+    it("treats a false value as present and null or whitespace-only values as missing", () => {
+      expect(checkSmUnknownProperties({ enabled: false }, "project")?.success).toBe(false);
+      expect(
+        checkSmUnknownProperties({ a: null, b: undefined, c: " " }, "project"),
+      ).toBeUndefined();
     });
   });
 
