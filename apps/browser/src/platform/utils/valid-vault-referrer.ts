@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+import { punycodeToUnicode } from "@bitwarden/common/autofill/utils/punycode";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -32,8 +33,12 @@ export async function isValidVaultReferrer(
     .map((r) => r.urls.webVault ?? r.urls.base)
     .filter((url): url is string => url != null);
   const environmentWebVaultUrl = environment.getWebVaultUrl();
+  const referrerHostname = punycodeToUnicode(referrer);
   const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
-    (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
+    (webVaultUrl) => {
+      const hostname = Utils.getHostname(webVaultUrl);
+      return hostname != null && punycodeToUnicode(hostname) === referrerHostname;
+    },
   );
 
   return messageIsFromKnownVault;

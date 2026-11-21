@@ -60,6 +60,14 @@ describe("isValidVaultReferrer", () => {
     await expect(isValidVaultReferrer(environmentService, "selfhosted.test")).resolves.toBe(true);
   });
 
+  it("accepts the punycode-encoded hostname of the configured web vault", async () => {
+    configure("https://vault.münchen.test", []);
+
+    await expect(
+      isValidVaultReferrer(environmentService, "vault.xn--mnchen-3ya.test"),
+    ).resolves.toBe(true);
+  });
+
   it("falls back to the region's base URL when it declares no web vault URL", async () => {
     configure("https://vault.bitwarden.com", [
       { key: Region.SelfHosted, domain: "base.test", urls: { base: "https://base.test" } },
