@@ -49,7 +49,7 @@ describe("buildFlightRecorderCsvExport", () => {
       const { blobData } = buildFlightRecorderCsvExport([sampleEvent], new Date(2026, 0, 1));
 
       const [header] = blobData.split(/\r?\n/);
-      expect(header).toBe("timestamp,level,target,message,fields");
+      expect(header).toBe("timestamp,level,target,message,fields,process");
     });
 
     it("returns an empty string for an empty events array", () => {
@@ -104,6 +104,19 @@ describe("buildFlightRecorderCsvExport", () => {
       expect(row[2]).toBe("target.a");
       expect(row[3]).toBe("msg-a");
       expect(JSON.parse(row[4])).toEqual({ k: "v" });
+    });
+
+    it("writes the process, or an empty cell when the event has none", () => {
+      const events: FlightRecorderEvent[] = [
+        { ...sampleEvent, process: "browser-background" },
+        { ...sampleEvent, timestamp: 2000 },
+      ];
+
+      const { blobData } = buildFlightRecorderCsvExport(events, new Date(2026, 0, 1));
+      const [, attributedRow, unattributedRow] = papa.parse<string[]>(blobData).data;
+
+      expect(attributedRow[5]).toBe("browser-background");
+      expect(unattributedRow[5]).toBe("");
     });
   });
 });

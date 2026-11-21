@@ -2,7 +2,7 @@ import * as papa from "papaparse";
 
 import { FlightRecorderEvent } from "@bitwarden/sdk-internal";
 
-const CSV_COLUMNS = ["timestamp", "level", "target", "message", "fields"] as const;
+const CSV_COLUMNS = ["timestamp", "level", "target", "message", "fields", "process"] as const;
 
 /**
  * Build a CSV download payload for {@link FlightRecorderEvent}s.
@@ -23,6 +23,7 @@ export function buildFlightRecorderCsvExport(
     target: e.target,
     message: e.message,
     fields: JSON.stringify(e.fields),
+    process: e.process,
   }));
 
   const blobData = papa.unparse(rows, {

@@ -12,6 +12,10 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   })),
 }));
 
+function event(timestamp: number, message: string): FlightRecorderEvent {
+  return { timestamp, level: "INFO", target: "typescript", message, fields: {} };
+}
+
 describe("FlightRecorder", () => {
   let sdkReady: Promise<void>;
 
@@ -22,16 +26,8 @@ describe("FlightRecorder", () => {
 
   describe("read", () => {
     it("returns events from the underlying client", async () => {
-      const events: FlightRecorderEvent[] = [
-        {
-          timestamp: 1000,
-          level: "INFO",
-          target: "bitwarden_core::client",
-          message: "Client initialized",
-          fields: {},
-        },
-      ];
-      mockRead.mockReturnValue(events);
+      const events = [event(1000, "Client initialized")];
+      mockRead.mockResolvedValue(events);
       const recorder = new FlightRecorder(sdkReady);
 
       const result = await recorder.read();
@@ -39,8 +35,29 @@ describe("FlightRecorder", () => {
       expect(result).toEqual(events);
     });
 
+    it("sorts events by timestamp", async () => {
+      mockRead.mockResolvedValue([event(3000, "late"), event(1000, "early"), event(2000, "mid")]);
+      const recorder = new FlightRecorder(sdkReady);
+
+      const result = await recorder.read();
+
+      expect(result.map((e) => e.message)).toEqual(["early", "mid", "late"]);
+    });
+
+    it("attributes events without a process to this context's process", async () => {
+      mockRead.mockResolvedValue([
+        { ...event(1000, "local"), process: undefined },
+        { ...event(2000, "collected"), process: "browser-background" },
+      ]);
+      const recorder = new FlightRecorder(sdkReady, "browser-popup");
+
+      const result = await recorder.read();
+
+      expect(result.map((e) => e.process)).toEqual(["browser-popup", "browser-background"]);
+    });
+
     it("returns an empty array when there are no events", async () => {
-      mockRead.mockReturnValue([]);
+      mockRead.mockResolvedValue([]);
       const recorder = new FlightRecorder(sdkReady);
 
       const result = await recorder.read();
@@ -91,7 +108,7 @@ describe("FlightRecorder", () => {
     it("reuses the same client across multiple calls", async () => {
       const recorder = new FlightRecorder(sdkReady);
       mockCount.mockReturnValue(0);
-      mockRead.mockReturnValue([]);
+      mockRead.mockResolvedValue([]);
 
       await recorder.count();
       await recorder.read();
@@ -105,7 +122,7 @@ describe("FlightRecorder", () => {
       const pending = new Promise<void>((r) => (resolve = r));
       const recorder = new FlightRecorder(pending);
       mockCount.mockReturnValue(0);
-      mockRead.mockReturnValue([]);
+      mockRead.mockResolvedValue([]);
 
       // Fire two calls concurrently while sdkReady is still pending
       const p1 = recorder.count();

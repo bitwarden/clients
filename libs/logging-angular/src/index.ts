@@ -1,3 +1,4 @@
+export { FlightRecorderForwardingService } from "./flight-recorder-forwarding.service";
 export { FlightRecorderService } from "./flight-recorder.service";
 export { FlightRecorderLogRecorderService } from "./flight-recorder-log-recorder.service";
 export { TroubleshootingDialogComponent } from "./troubleshooting-dialog/troubleshooting-dialog.component";
