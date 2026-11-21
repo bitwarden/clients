@@ -38,7 +38,7 @@ describe("Send State Provider", () => {
   describe("Decrypted Sends", () => {
     it("should return SendView", async () => {
       const state = [testSendViewData("1", "Test")];
-      await sendStateProvider.setDecryptedSends(state);
+      await sendStateProvider.setDecryptedSends(state, mockUserId);
       await awaitAsync();
 
       const actual = await sendStateProvider.getDecryptedSends();
