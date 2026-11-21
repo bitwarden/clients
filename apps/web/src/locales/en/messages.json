@@ -961,6 +961,16 @@
   "folderNestingCalloutDesc": {
     "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
   },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Are you sure you want to permanently delete this folder?"
   },

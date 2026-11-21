@@ -140,10 +140,20 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  private readonly parentOptionsState$ = this.folders$.pipe(
+    map((folders) => this.buildParentOptions(folders)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** Full paths the folder can be nested under, sorted for display. */
   protected readonly parentOptions = toSignal(
-    this.folders$.pipe(map((folders) => this.buildParentOptions(folders))),
+    this.parentOptionsState$.pipe(map((state) => state.options)),
     { initialValue: [] as string[] },
+  );
+
+  /** The edited folder's parent when no folder holds that path, e.g. after the parent was renamed. */
+  protected readonly deletedParent = toSignal(
+    this.parentOptionsState$.pipe(map((state) => state.deletedParent)),
   );
 
   /** Shown to accounts that predate VFO1 until dismissed from either dialog variant. */
@@ -286,9 +296,13 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
   /**
    * Every folder path, minus the folder being edited and its descendants so a folder cannot be
    * nested under itself. A parent that only exists as part of the edited folder's name (no folder
-   * holds that path) stays selectable so saving does not silently un-nest it.
+   * holds that path) is returned separately as deleted, matching the shared folder dialog: it is
+   * shown but cannot be reselected, and it stays the value so saving does not silently un-nest.
    */
-  private buildParentOptions(folders: FolderView[]): string[] {
+  private buildParentOptions(folders: FolderView[]): {
+    options: string[];
+    deletedParent?: string;
+  } {
     const editedFolder = this.data?.editFolderConfig?.folder;
     const editedPath = editedFolder ? normalizedPath(editedFolder.name) : undefined;
 
@@ -307,12 +321,10 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
       this.i18nService.collator?.compare(a, b) ?? a.localeCompare(b);
     const options = [...paths].sort(compare);
 
-    const impliedParent = editedPath ? parseFolderName(editedPath).parent : undefined;
-    if (impliedParent && !paths.has(impliedParent)) {
-      options.unshift(impliedParent);
-    }
+    const editedParent = editedPath ? parseFolderName(editedPath).parent : undefined;
+    const deletedParent = editedParent && !paths.has(editedParent) ? editedParent : undefined;
 
-    return options;
+    return { options, deletedParent };
   }
 
   /** Success toast key for the current variant. */

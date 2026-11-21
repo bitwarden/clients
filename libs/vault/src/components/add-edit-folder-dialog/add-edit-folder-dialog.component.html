@@ -22,6 +22,14 @@
         <bit-label>{{ "nestFolderUnder" | i18n }}</bit-label>
         <bit-select id="add-edit-folder_select_parent" formControlName="parent">
           <bit-option [value]="null" [label]="'nestFolderUnderNone' | i18n"></bit-option>
+          @if (deletedParent(); as deletedParent) {
+            <bit-option
+              disabled
+              icon="bwi-folder"
+              [value]="deletedParent"
+              [label]="'deletedParentFolder' | i18n: deletedParent"
+            ></bit-option>
+          }
           @for (path of parentOptions(); track path) {
             <bit-option icon="bwi-folder" [value]="path" [label]="path"></bit-option>
           }

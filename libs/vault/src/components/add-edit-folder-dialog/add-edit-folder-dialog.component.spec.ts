@@ -310,13 +310,32 @@ describe("AddEditFolderDialogComponent", () => {
         expect(parentOptions()).toEqual(["Family", "Work"]);
       });
 
-      it("keeps a parent that no folder holds selectable", async () => {
+      it("shows a parent that no folder holds as deleted rather than as an option", async () => {
         dialogData.editFolderConfig = { folder: buildFolder("kids", "Relatives/Kids") };
 
         await createWithVfo1();
 
-        expect(parentOptions()[0]).toBe("Relatives");
+        expect(component["deletedParent"]()).toBe("Relatives");
+        expect(parentOptions()).not.toContain("Relatives");
         expect(component.folderForm.controls.parent.value).toBe("Relatives");
+      });
+
+      it("keeps the deleted parent when saving without changes", async () => {
+        dialogData.editFolderConfig = { folder: buildFolder("kids", "Relatives/Kids") };
+        await createWithVfo1();
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(
+          expect.objectContaining({ name: "Relatives/Kids" }),
+          "",
+        );
+      });
+
+      it("has no deleted parent when the parent folder exists", async () => {
+        await createWithVfo1();
+
+        expect(component["deletedParent"]()).toBeUndefined();
       });
 
       it("saves the stored name unchanged when nothing was edited", async () => {
