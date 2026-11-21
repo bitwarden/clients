@@ -67,5 +67,31 @@ describe("VaultProfileService", () => {
       expect(date.toISOString()).toBe("2024-02-24T12:00:00.000Z");
       expect(getProfile).not.toHaveBeenCalled();
     });
+
+    it("shares one in-flight `getProfile` call between concurrent callers", async () => {
+      let resolveGetProfile: (value: unknown) => void;
+      getProfile.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveGetProfile = resolve;
+          }),
+      );
+
+      const first = service.getProfileCreationDate(userId);
+      const second = service.getProfileCreationDate(userId);
+
+      resolveGetProfile!({
+        creationDate: hardcodedDateString,
+        twoFactorEnabled: true,
+        id: "new-user-id",
+        organizations: [],
+      });
+
+      const [firstDate, secondDate] = await Promise.all([first, second]);
+
+      expect(getProfile).toHaveBeenCalledTimes(1);
+      expect(firstDate.toISOString()).toBe("2024-02-24T12:00:00.000Z");
+      expect(secondDate.toISOString()).toBe("2024-02-24T12:00:00.000Z");
+    });
   });
 });
