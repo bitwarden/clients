@@ -43,7 +43,7 @@ export class TwoFactorAuthAuthenticatorComponent {
   submitOnPaste = output<void>();
 
   onTokenChange(event: Event) {
-    const tokenValue = (event.target as HTMLInputElement).value || "";
+    const tokenValue = (event.target as HTMLInputElement).value?.trim() || "";
     this.tokenChange.emit({ token: tokenValue });
   }
 
