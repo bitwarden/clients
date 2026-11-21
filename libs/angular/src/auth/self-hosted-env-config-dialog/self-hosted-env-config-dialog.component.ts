@@ -21,6 +21,7 @@ import {
   DialogRef,
   AsyncActionsModule,
   ButtonModule,
+  CheckboxModule,
   DialogModule,
   DialogService,
   FormFieldModule,
@@ -100,6 +101,7 @@ function onlyHttpsValidator(): ValidatorFn {
     ReactiveFormsModule,
     FormFieldModule,
     AsyncActionsModule,
+    CheckboxModule,
   ],
 })
 export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
@@ -127,6 +129,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       iconsUrl: ["", [onlyHttpsValidator()]],
       notificationsUrl: ["", [onlyHttpsValidator()]],
       sendUrl: ["", [onlyHttpsValidator()]],
+      ssoOnly: [false],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );
@@ -196,6 +199,13 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
           });
         },
       });
+
+    // Populate the SSO-only toggle from its own stream, which is stored alongside the environment.
+    this.environmentService.ssoOnly$
+      .pipe(take(1), takeUntil(this.destroy$))
+      .subscribe((ssoOnly) => {
+        this.formGroup.patchValue({ ssoOnly });
+      });
   }
   submit = async () => {
     this.formGroup.markAllAsTouched();
@@ -215,6 +225,10 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       notifications: this.notificationsUrl.value,
       send: this.sendUrl.value,
     });
+
+    // Order matters: setEnvironment writes the fresh self-hosted state (clearing any prior flag),
+    // then setSsoOnly merges the toggle onto it.
+    await this.environmentService.setSsoOnly(this.formGroup.value.ssoOnly ?? false);
 
     await this.dialogRef.close(true);
   };
