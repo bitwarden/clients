@@ -1,4 +1,5 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { userEvent, within } from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -48,9 +49,15 @@ export const PolicyOn: Story = {
 };
 
 /**
- * The organization already has items of some types, so the drawer shows how many would be hidden.
+ * The organization already has items of some types. The saved policy restricts cards only, so
+ * the story unchecks Identity to show how many identities would newly be hidden.
  */
 export const PolicyOnWithExistingItems: Story = {
   args: { enabled: true },
   decorators: [withItemTypeCounts({ [CipherType.Card]: 12, [CipherType.Identity]: 3 })],
+  play: async ({ canvasElement }) => {
+    // The drawer renders in an overlay outside the story canvas.
+    const screen = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await screen.findByLabelText("Identity"));
+  },
 };
