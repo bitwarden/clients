@@ -11,7 +11,9 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
+  AssertCredentialResult,
   CreateCredentialParams,
+  CreateCredentialResult,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -508,6 +510,24 @@ describe("Fido2Background", () => {
           }),
           abortController,
         );
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+      });
+
+      it("refocuses the requesting tab when a popout was shown", async () => {
+        fido2ClientService.createCredential.mockImplementation(async (_data, tab) => {
+          tab.popoutOpened = true;
+          return mock<CreateCredentialResult>();
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
       });
@@ -661,6 +681,24 @@ describe("Fido2Background", () => {
           }),
           abortController,
         );
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+      });
+
+      it("refocuses the requesting tab when a popout was shown", async () => {
+        fido2ClientService.assertCredential.mockImplementation(async (_data, tab) => {
+          tab.popoutOpened = true;
+          return mock<AssertCredentialResult>();
+        });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
       });

@@ -119,6 +119,12 @@ export type BrowserFido2Message = { sessionId: string } & (
  */
 export type BrowserFido2ParentWindowReference = chrome.tabs.Tab & {
   requestFrameUrl: string | undefined;
+  /**
+   * Set once a passkey popout has been shown for this request, so that the requesting tab can be
+   * refocused afterwards. Requests that never surface UI (e.g. an aborted conditional mediation
+   * request) must not steal focus from whatever the user is doing.
+   */
+  popoutOpened?: boolean;
 };
 
 /**
@@ -373,6 +379,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // Defensive measure in case an existing notification appeared before the passkey popout
     await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
 
+    this.tab.popoutOpened = true;
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,
