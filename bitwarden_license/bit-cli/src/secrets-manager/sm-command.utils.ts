@@ -127,27 +127,51 @@ export function checkSmRequestOrganization(
   return undefined;
 }
 
-const SM_READ_ONLY_PROPERTIES = ["read", "write"] as const;
+/**
+ * Properties of Secrets Manager responses that the server controls and an `edit` cannot change.
+ * `organizationId` is not listed because `checkSmRequestOrganization` already rejects a
+ * mismatching one.
+ */
+export const SM_READ_ONLY_PROPERTIES = [
+  "object",
+  "id",
+  "creationDate",
+  "revisionDate",
+  "read",
+  "write",
+  "decryptionError",
+  "accessToSecrets",
+] as const;
+
+function isSameSmValue(supplied: unknown, current: unknown): boolean {
+  if (supplied === current) {
+    return true;
+  }
+  return (
+    typeof supplied === "string" &&
+    typeof current === "string" &&
+    Utils.isGuid(current) &&
+    supplied.toLowerCase() === current.toLowerCase()
+  );
+}
 
 /**
- * Rejects a request body that sets the `read` or `write` permission flags, which are computed by
- * the server and cannot be edited. `creationDate` and `revisionDate` are deliberately not
- * rejected, so the output of a `get` command can still be piped into `edit`.
+ * Rejects a request body that sets a server-controlled property (see `SM_READ_ONLY_PROPERTIES`).
  *
- * Pass `existing` when the entity's response always includes the flags (projects do), so a body
- * piped from `get` is accepted: a flag is then rejected only when its value differs from the
- * existing one. Without `existing`, any supplied flag is rejected (machine accounts, whose
- * responses never include the flags). A `false` value counts as supplied.
+ * `existing` is the entity's current response, i.e. what `get` prints. A read-only property that
+ * repeats the existing value unchanged is accepted, so the output of `get` can be piped into
+ * `edit`. Any other value is rejected, including for properties the entity's response never
+ * contains. A `false` value counts as supplied; `null` and whitespace-only values count as absent.
  */
 export function checkSmReadOnlyProperties(
   request: Record<string, unknown>,
   entity: string,
-  existing?: Partial<Record<(typeof SM_READ_ONLY_PROPERTIES)[number], unknown>>,
+  existing: object,
 ): Response | undefined {
+  const current = existing as Record<string, unknown>;
   const present = SM_READ_ONLY_PROPERTIES.filter(
     (property) =>
-      !isMissing(request[property]) &&
-      (existing == null || request[property] !== existing[property]),
+      !isMissing(request[property]) && !isSameSmValue(request[property], current[property]),
   );
   if (present.length === 0) {
     return undefined;
