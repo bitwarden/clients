@@ -39,6 +39,28 @@ export function installedRustTargets(): string[] | undefined {
     .filter((line) => line !== "");
 }
 
+/// Xcode is needed for the macOS autofill extension, which is an Xcode project rather than a
+/// cargo package. There is nothing to cross-compile here: an Xcode build only runs on macOS.
+export function verifyXcode(): ToolchainReport {
+  if (process.platform !== "darwin") {
+    return {
+      errors: [`the macOS autofill extension can only be built on macOS, not ${process.platform}`],
+      warnings: [],
+    };
+  }
+  if (probeVersion(["xcodebuild", "-version"]) == null) {
+    return {
+      errors: [
+        "xcodebuild was not found.\n" +
+          "       Install Xcode from the App Store, then: sudo xcode-select --switch " +
+          "/Applications/Xcode.app",
+      ],
+      warnings: [],
+    };
+  }
+  return { errors: [], warnings: [] };
+}
+
 export function verifyToolchain(plan: CrossCompilationPlan): ToolchainReport {
   const report: ToolchainReport = { errors: [], warnings: [] };
 
