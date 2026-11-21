@@ -38,6 +38,7 @@ import {
 } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { SettingsSubject, TransientPasswordSettings } from "./transient-password-settings";
 import { hasRangeOfValues } from "./util";
 
 const Controls = Object.freeze({
@@ -100,6 +101,12 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /** Binds the form to these settings instead of the account's stored settings. Read on init. */
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input()
+  transientSettings: TransientPasswordSettings | null = null;
+
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -155,9 +162,11 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnInit() {
-    const settings = await this.generatorService.settings(BuiltIn.password, {
-      account$: this.account$,
-    });
+    const settings: SettingsSubject =
+      this.transientSettings ??
+      (await this.generatorService.settings(BuiltIn.password, {
+        account$: this.account$,
+      }));
 
     // bind settings to the UI
     settings.withConstraints$

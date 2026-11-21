@@ -17,6 +17,7 @@ import {
   ForwarderOptions,
   GeneratedCredential,
   GenerateRequest,
+  PasswordGenerationOptions,
 } from "../types";
 import { GeneratorConstraints } from "../types/generator-constraints";
 
@@ -106,4 +107,10 @@ export abstract class CredentialGeneratorService {
     dependencies: BoundDependency<"account", Account>,
     profile?: GeneratorProfile,
   ) => Observable<GeneratorConstraints<Settings>>;
+
+  /** Turns a website's password rules into password settings.
+   *  @param rules the rules, in the syntax of the HTML `passwordrules` attribute
+   *  @returns the settings, or `null` when the rules can't be parsed. The error is logged.
+   */
+  abstract passwordRules: (rules: string) => Promise<PasswordGenerationOptions | null>;
 }
