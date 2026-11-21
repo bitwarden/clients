@@ -253,8 +253,13 @@
         @if (row.automated) {
           <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
         } @else if (linkedMember(row.actorId, row.actor); as member) {
+          <!--
+            A link is inline-flex, so the cell's `break-words` can't split a long token such as an
+            email; `anywhere` can, which keeps it inside the column.
+          -->
           <a
             bitLink
+            class="[overflow-wrap:anywhere]"
             href="#"
             id="access-audit_link_actor-{{ rowIndex().get(row) }}"
             [title]="member.email"
@@ -279,6 +284,7 @@
         @if (linkedMember(row.requesterId, row.requester); as member) {
           <a
             bitLink
+            class="[overflow-wrap:anywhere]"
             href="#"
             id="access-audit_link_requester-{{ rowIndex().get(row) }}"
             [title]="member.email"
@@ -303,6 +309,7 @@
         @if (row.cipherName && row.cipherId) {
           <a
             bitLink
+            class="[overflow-wrap:anywhere]"
             href="#"
             id="access-audit_link_item-{{ rowIndex().get(row) }}"
             [bitTooltip]="row.collectionName"
