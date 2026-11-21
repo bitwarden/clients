@@ -348,8 +348,12 @@ export class CipherViewLikeUtils {
         return !!cipher.login?.password;
       case "totp":
         return !!cipher.login?.totp;
+      case "cardholderName":
+        return !!cipher.card?.cardholderName;
       case "cardNumber":
         return !!cipher.card?.number;
+      case "cardExpiration":
+        return !!cipher.card?.expMonth && !!cipher.card?.expYear;
       case "securityCode":
         return !!cipher.card?.code;
       case "email":
@@ -501,7 +505,9 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   usernameLogin: "LoginUsername",
   password: "LoginPassword",
   totp: "LoginTotp",
+  cardholderName: "CardCardholderName",
   cardNumber: "CardNumber",
+  cardExpiration: "CardExpiration",
   securityCode: "CardSecurityCode",
   usernameIdentity: "IdentityUsername",
   email: "IdentityEmail",

@@ -141,6 +141,42 @@ describe("CopyCipherFieldService", () => {
       });
     });
 
+    describe("card fields", () => {
+      it.each([true, false])(
+        "requires confirmation for expiration (confirmed: %s)",
+        async (confirmed) => {
+          cipher.reprompt = CipherRepromptType.Password;
+          passwordRepromptService.showPasswordPrompt.mockResolvedValue(confirmed);
+
+          const copied = await service.copy("05 / 2030", "cardExpiration", cipher);
+
+          expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
+          expect(copied).toBe(confirmed);
+          expect(platformUtilsService.copyToClipboard).toHaveBeenCalledTimes(confirmed ? 1 : 0);
+        },
+      );
+
+      it("copies the cardholder name without a password prompt", async () => {
+        cipher.reprompt = CipherRepromptType.Password;
+
+        expect(await service.copy("Jane Doe", "cardholderName", cipher)).toBe(true);
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("Jane Doe");
+      });
+
+      it.each([
+        ["cardholderName", "cardholderName"],
+        ["cardExpiration", "expiration"],
+      ] as [CopyAction, string][])("uses the localized field name for %s", async (action, key) => {
+        cipher.reprompt = CipherRepromptType.None;
+
+        await service.copy(valueToCopy, action, cipher);
+
+        expect(i18nService.t).toHaveBeenCalledWith(key);
+        expect(toastService.showToast).toHaveBeenCalled();
+      });
+    });
+
     describe("totp", () => {
       beforeEach(() => {
         actionType = "totp";
