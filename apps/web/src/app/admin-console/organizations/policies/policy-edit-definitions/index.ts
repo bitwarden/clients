@@ -12,7 +12,10 @@ export { PasswordGeneratorPolicy } from "./password-generator.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";
 export { ResetPasswordPolicy } from "./reset-password.component";
-export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
+export {
+  ManageItemTypesPolicy,
+  RestrictedItemTypesPolicy,
+} from "./restricted-item-types.component";
 export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 export { UriMatchDefaultPolicy } from "./uri-match-default.component";
