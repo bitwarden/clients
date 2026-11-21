@@ -27,6 +27,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
         tabindex="0"
         [bitTooltip]="tooltip()"
         [addTooltipToDescribedby]="true"
+        data-testid="access-rule-collection-badges-badge"
         >{{ label() }}</span
       >
     }
