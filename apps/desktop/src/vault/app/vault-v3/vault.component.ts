@@ -1238,6 +1238,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected async openImport(): Promise<void> {
     let defaultOrganizationId;
     let defaultCollectionId;
+    let defaultFolderId;
     let startedFrom;
 
     const vfo1Enabled = this.vfo1Foundation();
@@ -1252,6 +1253,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         isGuid(scope.collectionId)
           ? scope.collectionId
           : undefined;
+      defaultFolderId = scopedFolderId(scope);
     }
 
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
@@ -1267,7 +1269,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     this.dialogService.open(ImportDesktopComponent, {
-      data: { defaultOrganizationId, defaultCollectionId },
+      data: { defaultOrganizationId, defaultCollectionId, defaultFolderId },
     });
   }
 
