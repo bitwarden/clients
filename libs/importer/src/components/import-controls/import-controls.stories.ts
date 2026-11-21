@@ -180,7 +180,8 @@ const importServiceStub: Partial<ImportUpgradeServiceAbstraction> = {
   import: async () =>
     ({ success: true, ciphers: [], folders: [], collections: [], errors: [] }) as any,
   importImportResult: async (result) => result as any,
-  importWithSdk: async () => ({ ciphers: [], folders: 0, collections: 0 }) as any,
+  importWithSdk: async () =>
+    ({ ciphers: [{ type: 1, count: 1 }], folders: 0, collections: 0 }) as any,
   sdkErrorMessageKey: () => undefined,
 };
 
@@ -311,9 +312,12 @@ function decoratorsFor(
               errorOccurred: "An error has occurred.",
               selectFile: "Select a file.",
               selectFileUnsupportedType: "That file type isn't accepted for this source.",
-              fileTypeNotSupported: (types?: string) =>
+              fileTypeNotSupportedV2: (types?: string) =>
                 `This file type isn't supported. Select a ${types} file.`,
-              pasteContentFormatMismatch: "The pasted content doesn't match the selected format.",
+              importFileRequired: (types?: string) => `Select a ${types} file to upload.`,
+              importPasteContentRequired: "Add the text you want to import.",
+              importDataFormatInvalid:
+                "Data is formatted incorrectly. Copy and paste the file data.",
               pasteContentRequired: "Paste the exported content.",
               selectFormat: "Select the format of the import file.",
               // Chromium's stub always resolves zero logins, so Continue always hits this key.
@@ -347,8 +351,8 @@ function decoratorsFor(
               // Only reachable by ChromiumNoProfiles, whose stub resolves an empty profile list.
               noBrowserProfilesFound: "No browser profiles were found",
               uploadFile: "Upload file",
-              pasteAsPlainText: "Paste as plain text",
-              plainText: "Plain text",
+              importPasteContent: "Paste content",
+              importFileLabel: "Import file",
               profile: "Profile",
               email: "Email",
               keeperLoginServerLabel: "Server",
@@ -364,8 +368,8 @@ function decoratorsFor(
               importDataDirectTitle: "Import your data in minutes",
               importDataDirectSubtitlePrefix: "Import your items directly from",
               importDataDirectSubtitleSuffix: "to get all your data.",
-              importDataManualSubtitle: (vendor?: string) =>
-                `Import from ${vendor} or copy and paste the export content.`,
+              importDataManualSubtitleV2: (vendor?: string) =>
+                `Select the export file from ${vendor} or copy and paste the file content. We'll parse it and show you a preview before importing.`,
               importDataChromiumSubtitle: "Select the profile you wish to import passwords from.",
               importDataLoginTitle: (vendor?: string) => `Log in to ${vendor}`,
               importDataLoginSubtitle:
@@ -379,9 +383,9 @@ function decoratorsFor(
               importDataAutomaticTransferTitle: "What will transfer",
               importDataAutomaticTransferBody:
                 "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded.",
-              importHelpCenterInstructions: (vendor?: string) =>
-                `See detailed ${vendor} instructions in our`,
-              importHelpCenterLinkText: "Help Center",
+              importHelpSiteInstructions: (vendor?: string) =>
+                `See detailed ${vendor} instructions on our`,
+              importHelpSiteLinkText: "help site",
               importDashlaneCsvInstructions:
                 'Log in to Dashlane, click on "My Account" → "Settings" → "Export file" and select "Export as a CSV file". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually.',
               importDashlaneJsonInstructions:

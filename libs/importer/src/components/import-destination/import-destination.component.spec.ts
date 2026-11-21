@@ -1976,10 +1976,26 @@ describe("ImportDestinationComponent", () => {
         await submit();
 
         expect(toastService.showToast).toHaveBeenCalledWith(
-          expect.objectContaining({ variant: "error", message: "importAccountMismatchError" }),
+          expect.objectContaining({ variant: "error", message: "importEncryptionKeyMismatch" }),
         );
         expect(dialogService.open).not.toHaveBeenCalled();
         expect(importService.importImportResult).not.toHaveBeenCalled();
+        expect(stagingService.current()).toBeDefined();
+      });
+
+      it("shows the too-much-data toast, not the error dialog, when the server refuses the size", async () => {
+        stageFile();
+        await setup();
+        importService.importImportResult.mockRejectedValue(
+          new ImportResultError("importTooMuchData", ImportResultErrorKey.TooMuchData),
+        );
+
+        await submit();
+
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error", message: "importTooMuchData" }),
+        );
+        expect(dialogService.open).not.toHaveBeenCalled();
         expect(stagingService.current()).toBeDefined();
       });
 
@@ -2010,21 +2026,112 @@ describe("ImportDestinationComponent", () => {
       });
     });
 
-    it("shows the incorrect-password message when the SDK rejects a staged kdbx password", async () => {
-      stagingService.stage({
-        kind: "sdk",
-        format: "keepasskdbx",
-        file: new Uint8Array([1]),
-        credentials: { kind: "password", password: "wrong" },
+    describe("a KeePass file the SDK rejects", () => {
+      const stageKdbx = (importedFile?: { name: string }) =>
+        stagingService.stage({
+          kind: "sdk",
+          format: "keepasskdbx",
+          file: new Uint8Array([1, 2, 3]),
+          credentials: {
+            kind: "passwordWithKeyFile",
+            password: "wrong",
+            keyFile: new Uint8Array([9, 8]),
+            keyFileName: "my.key",
+          },
+          importedFile,
+        });
+      const rejectWith = (sdkKey: string) => {
+        importService.importWithSdk.mockRejectedValue(new Error("raw"));
+        importService.sdkErrorMessageKey.mockReturnValue(sdkKey);
+      };
+
+      it.each([
+        ["invalidFilePassword", { field: "kdbxPassword", messageKey: "kdbxPasswordInvalidV2" }],
+        [
+          "kdbxWrongFileType",
+          { field: "file", messageKey: "fileTypeNotSupportedV2", args: [".kdbx"] },
+        ],
+        ["kdbxCorruptOrOutdated", { field: "file", messageKey: "importFileStructureInvalid" }],
+        ["kdbxFileTooLarge", { field: "file", messageKey: "kdbxFileTooLarge" }],
+      ])("hands the import back to the step that chose the file for %s", async (sdkKey, error) => {
+        stageKdbx({ name: "db.kdbx" });
+        await setup();
+        rejectWith(sdkKey);
+        const back = jest.fn();
+        component().back.subscribe(back);
+
+        await submit();
+
+        expect(back).toHaveBeenCalledTimes(1);
+        expect(dialogService.open).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+        // The staged bytes were zeroed on leaving; what was handed back is a copy.
+        expect(stagingService.current()).toBeUndefined();
+        expect(stagingService.takeFileStepReturn()).toEqual({
+          format: "keepasskdbx",
+          file: { name: "db.kdbx", bytes: new Uint8Array([1, 2, 3]) },
+          password: "wrong",
+          keyFile: { name: "my.key", bytes: new Uint8Array([9, 8]) },
+          error,
+        });
       });
-      await setup();
-      importService.importWithSdk.mockRejectedValue(new Error("raw"));
-      importService.sdkErrorMessageKey.mockReturnValue("invalidFilePassword");
 
-      await submit();
+      it("names the file export.kdbx when it had no name", async () => {
+        stageKdbx();
+        await setup();
+        rejectWith("kdbxCorruptOrOutdated");
 
-      const call = dialogService.open.mock.calls.find((c) => c[0] === ImportErrorDialogComponent);
-      expect((call?.[1] as { data: Error }).data.message).toBe("kdbxPasswordInvalid");
+        await submit();
+
+        expect(stagingService.takeFileStepReturn()?.file.name).toBe("export.kdbx");
+      });
+
+      it("hands back no key file when none was chosen", async () => {
+        stagingService.stage({
+          kind: "sdk",
+          format: "keepasskdbx",
+          file: new Uint8Array([1]),
+          credentials: { kind: "passwordWithKeyFile", password: "wrong", keyFile: null },
+        });
+        await setup();
+        rejectWith("invalidFilePassword");
+
+        await submit();
+
+        expect(stagingService.takeFileStepReturn()?.keyFile).toBeNull();
+      });
+
+      it("still opens the error dialog for an SDK error that is not a KeePass failure", async () => {
+        stageKdbx();
+        await setup();
+        rejectWith("someOtherKey");
+        const back = jest.fn();
+        component().back.subscribe(back);
+
+        await submit();
+
+        const call = dialogService.open.mock.calls.find((c) => c[0] === ImportErrorDialogComponent);
+        expect((call?.[1] as { data: Error }).data.message).toBe("someOtherKey");
+        expect(back).not.toHaveBeenCalled();
+        expect(stagingService.takeFileStepReturn()).toBeUndefined();
+      });
+
+      it("shows the empty-file toast and stays when the SDK imports nothing", async () => {
+        stageKdbx();
+        await setup();
+        importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 0 });
+        const back = jest.fn();
+        component().back.subscribe(back);
+
+        await submit();
+
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error", message: "importFileEmpty" }),
+        );
+        expect(dialogService.open).not.toHaveBeenCalled();
+        expect(back).not.toHaveBeenCalled();
+        expect(stagingService.current()).toBeDefined();
+      });
     });
 
     it("does nothing when nothing is staged", async () => {

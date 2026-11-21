@@ -314,12 +314,27 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).not.toContain("Zoho Vault");
   });
 
-  it("shows a no-results message when the search matches nothing", () => {
+  it("shows the empty state when the search matches nothing", () => {
     component["searchControl"].setValue("nonexistent-vendor-xyz");
     fixture.detectChanges();
 
     expect(cardLabels()).toEqual([]);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain("noMatchingItems");
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain("noSourcesMatch");
+    expect(fixture.debugElement.query(By.css("bit-status-lockup"))).not.toBeNull();
+    expect(component["searchValue"]()).toBe("nonexistent-vendor-xyz");
+  });
+
+  it("clears the search from the empty state and lists the sources again", () => {
+    component["searchControl"].setValue("nonexistent-vendor-xyz");
+    fixture.detectChanges();
+
+    const clear = fixture.debugElement.query(By.css("#import-source-select_button_clear-search"));
+    (clear.nativeElement as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component["searchControl"].value).toBe("");
+    expect(fixture.debugElement.query(By.css("bit-status-lockup"))).toBeNull();
+    expect(cardLabels().length).toBeGreaterThan(0);
   });
 
   it("keeps Continue disabled until a source is selected, then emits it", () => {

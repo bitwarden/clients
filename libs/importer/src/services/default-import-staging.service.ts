@@ -1,12 +1,14 @@
 import { BehaviorSubject, Observable } from "rxjs";
 
 import {
+  FileStepReturn,
   ImportStagingServiceAbstraction,
   StagedImport,
 } from "./import-staging.service.abstraction";
 
 export class DefaultImportStagingService implements ImportStagingServiceAbstraction {
   private readonly stagedSubject = new BehaviorSubject<StagedImport | undefined>(undefined);
+  private fileStepReturn: FileStepReturn | undefined;
 
   readonly staged$: Observable<StagedImport | undefined> = this.stagedSubject.asObservable();
 
@@ -28,5 +30,22 @@ export class DefaultImportStagingService implements ImportStagingServiceAbstract
       }
     }
     this.stagedSubject.next(undefined);
+  }
+
+  returnToFileStep(state: FileStepReturn): void {
+    this.discardFileStepReturn();
+    this.fileStepReturn = state;
+  }
+
+  takeFileStepReturn(): FileStepReturn | undefined {
+    const state = this.fileStepReturn;
+    this.fileStepReturn = undefined;
+    return state;
+  }
+
+  discardFileStepReturn(): void {
+    this.fileStepReturn?.file.bytes.fill(0);
+    this.fileStepReturn?.keyFile?.bytes.fill(0);
+    this.fileStepReturn = undefined;
   }
 }

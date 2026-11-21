@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { ImportResult } from "../models/import-result";
 
 import { DefaultImportStagingService } from "./default-import-staging.service";
-import { StagedImport } from "./import-staging.service.abstraction";
+import { FileStepReturn, StagedImport } from "./import-staging.service.abstraction";
 
 describe("DefaultImportStagingService", () => {
   let sut: DefaultImportStagingService;
@@ -71,6 +71,61 @@ describe("DefaultImportStagingService", () => {
 
     expect(sut.current()).toBeUndefined();
     expect(Array.from(file)).toEqual([0, 0]);
+  });
+
+  describe("an import returned to the file step", () => {
+    const returned = (): FileStepReturn => ({
+      format: "keepasskdbx",
+      file: { name: "db.kdbx", bytes: Uint8Array.from([1, 2]) },
+      password: "pw",
+      keyFile: { name: "my.key", bytes: Uint8Array.from([3]) },
+      error: { field: "file", messageKey: "importFileStructureInvalid" },
+    });
+
+    it("hands it over once", () => {
+      const state = returned();
+      sut.returnToFileStep(state);
+
+      expect(sut.takeFileStepReturn()).toBe(state);
+      expect(sut.takeFileStepReturn()).toBeUndefined();
+    });
+
+    it("is kept apart from the staged import: clearing or staging does not drop it", () => {
+      const state = returned();
+      sut.returnToFileStep(state);
+
+      sut.stage(parsed());
+      sut.clear();
+
+      expect(sut.takeFileStepReturn()).toBe(state);
+    });
+
+    it("zeroes an earlier one that was never taken when another is returned", () => {
+      const first = returned();
+      sut.returnToFileStep(first);
+
+      sut.returnToFileStep(returned());
+
+      expect(Array.from(first.file.bytes)).toEqual([0, 0]);
+      expect(Array.from(first.keyFile!.bytes)).toEqual([0]);
+    });
+
+    it("zeroes and drops one nobody took when discarded", () => {
+      const state = returned();
+      sut.returnToFileStep(state);
+
+      sut.discardFileStepReturn();
+
+      expect(Array.from(state.file.bytes)).toEqual([0, 0]);
+      expect(Array.from(state.keyFile!.bytes)).toEqual([0]);
+      expect(sut.takeFileStepReturn()).toBeUndefined();
+    });
+
+    it("discards without a key file or without anything returned", () => {
+      expect(() => sut.discardFileStepReturn()).not.toThrow();
+      sut.returnToFileStep({ ...returned(), keyFile: null });
+      expect(() => sut.discardFileStepReturn()).not.toThrow();
+    });
   });
 
   it("clear tolerates an sdk import with no key file", () => {

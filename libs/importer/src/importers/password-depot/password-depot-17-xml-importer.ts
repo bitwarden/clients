@@ -14,6 +14,7 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 import { BankAccountView as SdkBankAccountView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
@@ -32,7 +33,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     super(logService);
   }
 
-  result = new ImportResult();
+  result = new ImportUpgradeResult();
 
   _favouritesLookupTable = new Set<string>();
 
@@ -84,6 +85,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     const encryptedNode = this.querySelectorDirectChild(headerNode, "encrypted");
     if (encryptedNode != null && encryptedNode.textContent == "True") {
       this.result.errorMessage = "Encrypted Password Depot files are not supported.";
+      this.result.errorKey = ImportResultErrorKey.EncryptedUnsupported;
       this.result.success = false;
       return Promise.resolve(this.result);
     }

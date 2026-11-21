@@ -8,3 +8,8 @@ export interface SdkImportSummary {
   folders: number;
   collections: number;
 }
+
+/** Nothing was imported: no items and no folders, as for a parsed file. */
+export function isEmptySdkSummary(summary: SdkImportSummary): boolean {
+  return summary.folders === 0 && summary.ciphers.every(({ count }) => count === 0);
+}

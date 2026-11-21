@@ -670,7 +670,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       await settle();
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "keeperLoginUnsupportedTwoFactor" }),
+        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
       );
       expect(component().directStep()).toBe("credentials");
       expect(isShown("importer-controls_input_keeper-email")).toBe(true);
@@ -901,7 +901,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(options.type).toBe("danger");
     });
 
-    it("unsupported second factor: the toast carries the design's message", async () => {
+    it("unsupported second factor: the toast carries the message from the acceptance criteria", async () => {
       await login(async (ui) => {
         await ui.showError("keeperUnsupported2faMethod");
         throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
@@ -911,7 +911,8 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
           variant: "error",
-          message: "Unsupported two-factor method. Switch methods or import manually.",
+          message:
+            "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer.",
         }),
       );
     });
@@ -1220,7 +1221,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       fixture.detectChanges();
 
       expect(controls().keeperEmail.errors).toEqual({
-        errors: { message: "multifactorAuthenticationFailed" },
+        errors: { message: "multifactorAuthenticationFailedV2" },
       });
       expect(isShown("importer-controls_input_keeper-email")).toBe(true);
       expect(continueDisabled()).toBe(false);

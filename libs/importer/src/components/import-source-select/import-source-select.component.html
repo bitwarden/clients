@@ -29,9 +29,21 @@
       </ng-template>
 
       @if (!hasAnyResults()) {
-        <p bitTypography="body2" noMargin class="tw-col-span-full tw-text-fg-body-subtle">
-          {{ "noMatchingItems" | i18n }}
-        </p>
+        <bit-status-lockup class="tw-col-span-full">
+          <bit-svg slot="graphic" [content]="searchFolder"></bit-svg>
+          <span slot="title">{{ "noSourcesMatch" | i18n: searchValue() }}</span>
+          <button
+            slot="button"
+            bitButton
+            type="button"
+            buttonType="secondary"
+            startIcon="bwi-clear"
+            id="import-source-select_button_clear-search"
+            (click)="clearSearch()"
+          >
+            {{ "clearSearch" | i18n }}
+          </button>
+        </bit-status-lockup>
       }
 
       @if (browsers().length > 0) {

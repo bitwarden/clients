@@ -4,7 +4,7 @@
       {{ key | i18n }}
     }
     @if (instructionLink(); as link) {
-      {{ "importHelpCenterInstructions" | i18n: vendorName() }}
+      {{ "importHelpSiteInstructions" | i18n: vendorName() }}
       <a
         bitLink
         linkType="primary"
@@ -12,7 +12,7 @@
         rel="noreferrer"
         [href]="link"
         endIcon="bwi-external-link"
-        >{{ "importHelpCenterLinkText" | i18n }}</a
+        >{{ "importHelpSiteLinkText" | i18n }}</a
       >
     }
   </bit-callout>

@@ -5,4 +5,10 @@
 export type SdkImportCredentials =
   | { kind: "none" }
   | { kind: "password"; password: string }
-  | { kind: "passwordWithKeyFile"; password: string; keyFile: Uint8Array | null };
+  | {
+      kind: "passwordWithKeyFile";
+      password: string;
+      keyFile: Uint8Array | null;
+      /** For showing the key file again if the import returns to the step that chose it. */
+      keyFileName?: string;
+    };
