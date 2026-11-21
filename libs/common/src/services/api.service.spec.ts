@@ -1270,6 +1270,45 @@ describe("ApiService", () => {
     });
   });
 
+  describe("refreshToken", () => {
+    const userId = testActiveUser;
+    const refreshError = new ErrorResponse({ error: "invalid_grant" }, 400, true);
+
+    it("does not leave an unhandled rejection when the refresh fails", async () => {
+      jest.spyOn(sut as any, "internalRefreshToken").mockRejectedValue(refreshError);
+
+      await expect((sut as any).refreshToken(userId)).rejects.toBe(refreshError);
+      // Node fails the whole run on an unhandled rejection once the microtask queue drains.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    it("tries again after a failed refresh", async () => {
+      const internalRefreshToken = jest
+        .spyOn(sut as any, "internalRefreshToken")
+        .mockRejectedValueOnce(refreshError)
+        .mockResolvedValueOnce("new_access_token");
+
+      await expect((sut as any).refreshToken(userId)).rejects.toBe(refreshError);
+      await expect((sut as any).refreshToken(userId)).resolves.toBe("new_access_token");
+
+      expect(internalRefreshToken).toHaveBeenCalledTimes(2);
+    });
+
+    it("shares one refresh between parallel callers", async () => {
+      const internalRefreshToken = jest
+        .spyOn(sut as any, "internalRefreshToken")
+        .mockResolvedValue("new_access_token");
+
+      const results = await Promise.all([
+        (sut as any).refreshToken(userId),
+        (sut as any).refreshToken(userId),
+      ]);
+
+      expect(results).toEqual(["new_access_token", "new_access_token"]);
+      expect(internalRefreshToken).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("getSync", () => {
     it.each([
       ["the given user", testInactiveUser, testInactiveUser],
