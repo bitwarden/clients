@@ -47,6 +47,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamActivateRowDirective } from "../../row-activation/activate-row.directive";
 import { assignableTargetSystems } from "../assignable";
 import { filterOptions } from "../filter-options";
 import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation";
@@ -84,6 +85,7 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     TimestampPipe,
     ReactiveFormsModule,
     AsyncActionsModule,

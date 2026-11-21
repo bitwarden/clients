@@ -63,6 +63,7 @@
   </bit-status-lockup>
 } @else {
   <bit-table-v2
+    pamActivateRow
     [tableDef]="table"
     [displayedColumns]="displayedColumns()"
     [filter]="rowMatchesFilter"
@@ -113,9 +114,12 @@
         @if (cipherFor(row.cipherId); as cipher) {
           <app-vault-icon slot="start" [cipher]="cipher" />
         }
-        <a [routerLink]="['/pam/requests', row.id]" [id]="'pam-approvals_link_item-' + row.id">{{
-          row.cipherName
-        }}</a>
+        <a
+          data-pam-row-activator
+          [routerLink]="['/pam/requests', row.id]"
+          [id]="'pam-approvals_link_item-' + row.id"
+          >{{ row.cipherName }}</a
+        >
         @if (row.collectionName) {
           <span slot="secondary" class="tw-flex tw-items-center tw-gap-1">
             <bit-icon name="bwi-collection-shared" class="tw-shrink-0" />

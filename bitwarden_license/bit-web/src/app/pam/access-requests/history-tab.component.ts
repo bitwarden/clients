@@ -54,6 +54,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
 
 import { announcementHoldMs } from "./announcement-hold";
 import {
@@ -98,6 +99,7 @@ const minuteMs = 60_000;
   templateUrl: "./history-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     RouterModule,
     BitCellComponent,
     BitCellDefDirective,
