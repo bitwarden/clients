@@ -29,11 +29,9 @@ export function initiateWebAppSso(code: string, state: string) {
 
 export function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
   window.postMessage({ command: "authResult", code, state, lastpass }, window.location.origin);
-  const handOffMessage = ("; " + document.cookie)
-    .split("; ssoHandOffMessage=")
-    .pop()
-    .split(";")
-    .shift();
+  const handOffMessage = decodeURIComponent(
+    ("; " + document.cookie).split("; ssoHandOffMessage=").pop().split(";").shift(),
+  );
   document.cookie = "ssoHandOffMessage=;SameSite=strict;max-age=0";
   const content = document.getElementById("content");
   content.innerHTML = "";
