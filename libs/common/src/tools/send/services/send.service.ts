@@ -265,7 +265,7 @@ export class SendService implements InternalSendServiceAbstraction {
     decSends = await this.sendDecryptionService.decryptSends(sends, userId);
     decSends.sort(Utils.getSortFunction(this.i18nService, "name"));
 
-    await this.stateProvider.setDecryptedSends(decSends);
+    await this.stateProvider.setDecryptedSends(decSends, userId);
     return decSends;
   }
 
@@ -309,6 +309,8 @@ export class SendService implements InternalSendServiceAbstraction {
 
   async replace(sends: { [id: string]: SendData }, userId: UserId): Promise<any> {
     await this.stateProvider.setEncryptedSends(sends, userId);
+    // The decrypted sends are a cache of the encrypted ones; drop it so it is rebuilt on next read
+    await this.stateProvider.setDecryptedSends(null, userId);
   }
 
   async getRotatedData(

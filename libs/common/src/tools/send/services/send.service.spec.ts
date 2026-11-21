@@ -500,6 +500,40 @@ describe("SendService", () => {
         "No user key found.",
       );
     });
+
+    describe("after the encrypted sends change", () => {
+      beforeEach(() => {
+        i18nService.collator = new Intl.Collator("en");
+        keyService.hasUserKey.mockResolvedValue(true);
+        sendDecryptionService.decryptSends.mockImplementation(async (sends) =>
+          sends.map((send) => testSendViewData(send.id, `${send.id} decrypted`)),
+        );
+      });
+
+      it("decrypts again after upsert", async () => {
+        await sendService.upsert(testSendData("2", "Test 2"));
+
+        const sends = await sendService.getAllDecryptedFromState(mockUserId);
+
+        expect(sends.map((s) => s.id)).toEqual(["1", "2"]);
+      });
+
+      it("decrypts again after replace", async () => {
+        await sendService.replace({ "2": testSendData("2", "test 2") }, mockUserId);
+
+        const sends = await sendService.getAllDecryptedFromState(mockUserId);
+
+        expect(sends.map((s) => s.id)).toEqual(["2"]);
+      });
+
+      it("decrypts again after delete", async () => {
+        await sendService.delete("1");
+
+        const sends = await sendService.getAllDecryptedFromState(mockUserId);
+
+        expect(sends).toEqual([]);
+      });
+    });
   });
 
   describe("getRotatedData", () => {
