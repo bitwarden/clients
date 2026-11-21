@@ -16,6 +16,7 @@ const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
 const PROXY_ENTITLEMENTS = {
   "com.bitwarden.desktop": "entitlements.desktop_proxy.plist",
   "com.bitwarden.beta.desktop": "entitlements.desktop_proxy.beta.plist",
+  "com.bitwarden.qa.desktop": "entitlements.desktop_proxy.qa.plist",
 };
 
 /**

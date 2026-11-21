@@ -31,6 +31,12 @@
         },
         "commercial-dev": {
           "command": "cross-env NODE_ENV=development webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name main"
+        },
+        "oss-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config webpack.config.js --config-name main"
+        },
+        "commercial-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name main"
         }
       }
     },
@@ -53,6 +59,12 @@
         },
         "commercial-dev": {
           "command": "cross-env NODE_ENV=development webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name preload"
+        },
+        "oss-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config webpack.config.js --config-name preload"
+        },
+        "commercial-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name preload"
         }
       }
     },
@@ -75,6 +87,12 @@
         },
         "commercial-dev": {
           "command": "cross-env NODE_ENV=development webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name renderer"
+        },
+        "oss-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config webpack.config.js --config-name renderer"
+        },
+        "commercial-qa": {
+          "command": "cross-env NODE_ENV=production ENV=qa webpack --config ../../bitwarden_license/bit-desktop/webpack.config.js --config-name renderer"
         }
       }
     },
@@ -117,6 +135,20 @@
             "nx run desktop:build-main --configuration=commercial-dev",
             "nx run desktop:build-preload --configuration=commercial-dev",
             "nx run desktop:build-renderer --configuration=commercial-dev"
+          ]
+        },
+        "oss-qa": {
+          "commands": [
+            "nx run desktop:build-main --configuration=oss-qa",
+            "nx run desktop:build-preload --configuration=oss-qa",
+            "nx run desktop:build-renderer --configuration=oss-qa"
+          ]
+        },
+        "commercial-qa": {
+          "commands": [
+            "nx run desktop:build-main --configuration=commercial-qa",
+            "nx run desktop:build-preload --configuration=commercial-qa",
+            "nx run desktop:build-renderer --configuration=commercial-qa"
           ]
         }
       }
