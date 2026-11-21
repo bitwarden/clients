@@ -114,7 +114,7 @@ export class CardView extends ItemView implements SdkCardView {
 
     // Discover
     re = new RegExp(
-      "^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)",
+      "^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5])|64[4-9]|65)",
     );
     if (cardNum.match(re) != null) {
       return "Discover";
