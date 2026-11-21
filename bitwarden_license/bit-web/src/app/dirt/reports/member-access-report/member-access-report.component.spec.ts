@@ -111,6 +111,7 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
         canEditAnyCollection: true,
         allowAdminAccessToAllCollectionItems: true,
         permissions: { manageUsers: true },
+        canManageUsers: true,
         productTierType: 3,
         useCustomPermissions: true,
       },
@@ -238,6 +239,43 @@ describe("MemberAccessReportComponent", () => {
       );
 
       dialogService.closeAll();
+    });
+  });
+
+  describe("member name link", () => {
+    async function initWithCanManageUsers(canManageUsers: boolean) {
+      await TestBed.configureTestingModule({
+        imports: [MemberAccessReportComponent],
+        providers: [
+          ...environmentProviders(),
+          { provide: DialogService, useValue: mock<DialogService>() },
+        ],
+      })
+        .overrideComponent(MemberAccessReportComponent, { set: { template: "" } })
+        .compileComponents();
+
+      const organizationService = TestBed.inject(
+        OrganizationService,
+      ) as MockProxy<OrganizationService>;
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: ORGANIZATION_ID, canManageUsers } as unknown as Organization]),
+      );
+
+      const component = TestBed.createComponent(MemberAccessReportComponent).componentInstance;
+      await component.ngOnInit();
+      return component;
+    }
+
+    it("is enabled when the user can manage users", async () => {
+      const component = await initWithCanManageUsers(true);
+
+      expect(component["canManageUsers"]()).toBe(true);
+    });
+
+    it("is disabled when the user can only access reports", async () => {
+      const component = await initWithCanManageUsers(false);
+
+      expect(component["canManageUsers"]()).toBe(false);
     });
   });
 

@@ -2,11 +2,14 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
-  CollectionAdminService,
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionAccessDetailsResponse,
+  CollectionAdminView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -38,7 +41,6 @@ describe("MemberAccessReportService", () => {
   const userId = newGuid() as UserId;
   const mockAccountService = mockAccountServiceWith(userId);
   const mockKeyService = mock<KeyService>();
-  const mockCollectionAdminService = mock<CollectionAdminService>();
   const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
   const mockCipherService = mock<CipherService>();
   const mockLogService = mock<LogService>();
@@ -61,13 +63,15 @@ describe("MemberAccessReportService", () => {
     // Default: mock groups as empty array (tests can override)
     mockGroupApiService.getAll.mockResolvedValue([]);
     mockVfo1TerminologyService.enabled.mockReturnValue(false);
+    jest
+      .spyOn(CollectionAdminView, "fromCollectionAccessDetails")
+      .mockImplementation(async (c) => c as unknown as CollectionAdminView);
     memberAccessReportService = new MemberAccessReportService(
       reportApiService,
       i18nMock,
       mockEncryptService,
       mockKeyService,
       mockAccountService,
-      mockCollectionAdminService,
       mockOrganizationUserApiService,
       mockCipherService,
       mockLogService,
@@ -75,6 +79,11 @@ describe("MemberAccessReportService", () => {
       mockVfo1TerminologyService,
     );
   });
+
+  const mockCollections = (collections: CollectionAdminView[]) =>
+    reportApiService.getCollectionAccessDetails.mockResolvedValue(
+      collections as unknown as CollectionAccessDetailsResponse[],
+    );
 
   // Helper functions to create properly typed test data
   const createMockCollection = (
@@ -139,13 +148,11 @@ describe("MemberAccessReportService", () => {
       resetPasswordEnrolled?: boolean;
     } = {},
   ) => {
-    mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-      of([
-        createMockCollection(collectionId, "Test Collection", [
-          { id: userId, readOnly: false, hidePasswords: false, manage: false },
-        ]),
-      ] as CollectionAdminView[]),
-    );
+    mockCollections([
+      createMockCollection(collectionId, "Test Collection", [
+        { id: userId, readOnly: false, hidePasswords: false, manage: false },
+      ]),
+    ] as CollectionAdminView[]);
 
     mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
       data: [
@@ -179,16 +186,14 @@ describe("MemberAccessReportService", () => {
       groupName?: string;
     } = {},
   ) => {
-    mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-      of([
-        createMockCollection(
-          collectionId,
-          "Group Collection",
-          [],
-          [{ id: groupId, readOnly: false, hidePasswords: false, manage: false }],
-        ),
-      ] as CollectionAdminView[]),
-    );
+    mockCollections([
+      createMockCollection(
+        collectionId,
+        "Group Collection",
+        [],
+        [{ id: groupId, readOnly: false, hidePasswords: false, manage: false }],
+      ),
+    ] as CollectionAdminView[]);
 
     mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
       data: [
@@ -342,6 +347,52 @@ describe("MemberAccessReportService", () => {
   });
 
   describe("generateMemberAccessReportViewV2", () => {
+    it("leaves My Items collections out of the report", async () => {
+      const user = { id: "user-1", readOnly: false, hidePasswords: false, manage: false };
+      mockCollections([
+        {
+          ...createMockCollection("shared-1", "Shared", [user]),
+          type: CollectionTypes.SharedCollection,
+        },
+        {
+          ...createMockCollection("default-1", "My Items", [user]),
+          type: CollectionTypes.DefaultUserCollection,
+        },
+      ] as CollectionAdminView[]);
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [createMockOrganizationUser("user-1", "user1@test.com", "User One")],
+      } as ListResponse<OrganizationUserUserDetailsResponse>);
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+
+      const report =
+        await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
+
+      expect(report).toHaveLength(1);
+      expect(report[0].collectionsCount).toBe(1);
+    });
+
+    it("loads collections from the report-reader endpoint with the org key", async () => {
+      const response = {
+        id: "collection-1",
+        users: [],
+        groups: [],
+      } as unknown as CollectionAccessDetailsResponse;
+      reportApiService.getCollectionAccessDetails.mockResolvedValue([response]);
+      mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [],
+      } as unknown as ListResponse<OrganizationUserUserDetailsResponse>);
+      mockCipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+
+      await memberAccessReportService.generateMemberAccessReportViewV2(mockOrganizationId);
+
+      expect(reportApiService.getCollectionAccessDetails).toHaveBeenCalledWith(mockOrganizationId);
+      expect(CollectionAdminView.fromCollectionAccessDetails).toHaveBeenCalledWith(
+        response,
+        mockEncryptService,
+        expect.any(SymmetricCryptoKey),
+      );
+    });
+
     it("should generate report using frontend mapping with direct user access", async () => {
       const userId1 = "user-1";
       const userId2 = "user-2";
@@ -349,19 +400,17 @@ describe("MemberAccessReportService", () => {
       const cipherId1 = "cipher-1";
 
       // Mock collections with direct user access
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Test Collection",
-            [
-              { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-              { id: userId2, readOnly: true, hidePasswords: true, manage: false },
-            ],
-            [],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Test Collection",
+          [
+            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+            { id: userId2, readOnly: true, hidePasswords: true, manage: false },
+          ],
+          [],
+        ),
+      ] as CollectionAdminView[]);
 
       // Mock organization users
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
@@ -419,16 +468,14 @@ describe("MemberAccessReportService", () => {
       const cipherId1 = "cipher-1";
 
       // Mock collections with group access
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Group Collection",
-            [],
-            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Group Collection",
+          [],
+          [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       // Mock organization users with group membership
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
@@ -473,16 +520,14 @@ describe("MemberAccessReportService", () => {
       const cipherId3 = "cipher-3";
 
       // Mock collections
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Collection 1", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-          createMockCollection(collectionId2, "Collection 2", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Collection 1", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+        createMockCollection(collectionId2, "Collection 2", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       // Mock organization users
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
@@ -521,9 +566,9 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
 
       // Mock collection with no user assignments
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([createMockCollection(collectionId1, "Empty Collection")] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Empty Collection"),
+      ] as CollectionAdminView[]);
 
       // Mock organization users (user exists but has no access)
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
@@ -559,13 +604,11 @@ describe("MemberAccessReportService", () => {
       const userId1 = "user-1";
       const collectionId1 = "collection-1";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Test Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Test Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       // User without name
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
@@ -594,13 +637,11 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
 
       // Collection has a direct user assignment but NO ciphers reference it
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Empty Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Empty Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -634,16 +675,14 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
 
       // Collection with group assignment, no direct user assignment
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Empty Collection",
-            [],
-            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Empty Collection",
+          [],
+          [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -674,9 +713,7 @@ describe("MemberAccessReportService", () => {
       const userId1 = "user-1";
 
       // No collections at all
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([] as CollectionAdminView[]),
-      );
+      mockCollections([] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -774,16 +811,14 @@ describe("MemberAccessReportService", () => {
       const cipherId1 = "cipher-1";
       const cipherId2 = "cipher-2";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Mixed Access Collection",
-            [{ id: userId1, readOnly: false, hidePasswords: false, manage: false }],
-            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Mixed Access Collection",
+          [{ id: userId1, readOnly: false, hidePasswords: false, manage: false }],
+          [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -820,15 +855,13 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
       const cipherId1 = "cipher-1";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "", // Empty collection name
-            [{ id: userId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "", // Empty collection name
+          [{ id: userId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -868,22 +901,20 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
       const collectionId2 = "collection-2";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Engineering Collection",
-            [],
-            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-          createMockCollection(
-            collectionId2,
-            "Marketing Collection",
-            [],
-            [{ id: groupId2, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Engineering Collection",
+          [],
+          [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+        createMockCollection(
+          collectionId2,
+          "Marketing Collection",
+          [],
+          [{ id: groupId2, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -932,13 +963,11 @@ describe("MemberAccessReportService", () => {
       const validCipherId = "cipher-1";
       const zeroGuid = "00000000-0000-0000-0000-000000000000";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Test Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Test Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -970,13 +999,11 @@ describe("MemberAccessReportService", () => {
       const collectionId1 = "collection-1";
       const cipherId1 = "cipher-1";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Test Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Test Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -1028,13 +1055,11 @@ describe("MemberAccessReportService", () => {
       const userId1 = "user-1";
       const collectionId1 = "collection-1";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Empty Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Empty Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -1068,16 +1093,14 @@ describe("MemberAccessReportService", () => {
       const groupId1 = "group-1";
       const collectionId1 = "collection-1";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(
-            collectionId1,
-            "Empty Collection",
-            [],
-            [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
-          ),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(
+          collectionId1,
+          "Empty Collection",
+          [],
+          [{ id: groupId1, readOnly: false, hidePasswords: false, manage: false }],
+        ),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -1145,14 +1168,12 @@ describe("MemberAccessReportService", () => {
       const cipherId1 = "cipher-1";
       const cipherId2 = "cipher-2";
 
-      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(
-        of([
-          createMockCollection(collectionId1, "Shared Collection", [
-            { id: userId1, readOnly: false, hidePasswords: false, manage: false },
-            { id: userId2, readOnly: true, hidePasswords: true, manage: false },
-          ]),
-        ] as CollectionAdminView[]),
-      );
+      mockCollections([
+        createMockCollection(collectionId1, "Shared Collection", [
+          { id: userId1, readOnly: false, hidePasswords: false, manage: false },
+          { id: userId2, readOnly: true, hidePasswords: true, manage: false },
+        ]),
+      ] as CollectionAdminView[]);
 
       mockOrganizationUserApiService.getAllUsers.mockResolvedValue({
         data: [

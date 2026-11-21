@@ -1,15 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom, map, take } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
-import {
-  CollectionAdminService,
-  OrganizationUserApiService,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   CollectionAccessSelectionView,
   CollectionAdminView,
+  CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -77,7 +75,6 @@ export class MemberAccessReportService {
     private keyService: KeyService,
     private accountService: AccountService,
     // V2 dependencies for frontend member-to-cipher mapping
-    private collectionAdminService: CollectionAdminService,
     private organizationUserApiService: OrganizationUserApiService,
     private cipherService: CipherService,
     private logService: LogService,
@@ -258,6 +255,30 @@ export class MemberAccessReportService {
   // V2 performs member-to-cipher mapping on the frontend using collection relationships,
   // eliminating the need for the problematic backend member-access endpoint for large orgs.
 
+  // Uses the report-reader endpoint so users with only Access Reports see every collection
+  private async _loadCollectionsV2(
+    organizationId: OrganizationId,
+    userId: UserId,
+  ): Promise<CollectionAdminView[]> {
+    const [orgKeys, collections] = await Promise.all([
+      firstValueFrom(this.keyService.orgKeys$(userId)),
+      this.reportApiService.getCollectionAccessDetails(organizationId),
+    ]);
+    // My Items collections never hold report ciphers, so they would only add empty rows
+    const sharedCollections = collections.filter(
+      (c) => c.type !== CollectionTypes.DefaultUserCollection,
+    );
+    return Promise.all(
+      sharedCollections.map((c) =>
+        CollectionAdminView.fromCollectionAccessDetails(
+          c,
+          this.encryptService,
+          orgKeys[organizationId],
+        ),
+      ),
+    );
+  }
+
   /**
    * Loads organization data (collections, users, groups) for V2 member mapping
    * @param organizationId - The organization ID
@@ -272,11 +293,7 @@ export class MemberAccessReportService {
 
     // Fetch collections, users, and groups in parallel
     const [collections, orgUsersResponse, groups] = await Promise.all([
-      firstValueFrom(
-        this.collectionAdminService
-          .collectionAdminViews$(organizationId, currentUserId)
-          .pipe(take(1)),
-      ),
+      this._loadCollectionsV2(organizationId, currentUserId),
       this.organizationUserApiService.getAllUsers(organizationId, { includeGroups: true }),
       this.groupApiService.getAll(organizationId),
     ]);
