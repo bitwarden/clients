@@ -81,4 +81,80 @@ describe("MachineAccountEditCommand", () => {
     expect(response.message).toBe("`name` is required.");
     expect(serviceAccountService.getByServiceAccountId).not.toHaveBeenCalled();
   });
+
+  describe("read-only properties", () => {
+    const getBody = () => ({
+      object: "sm-machine-account",
+      id: machineAccountId,
+      organizationId: smOrgId,
+      name: "CI",
+      creationDate: "2024-01-01T00:00:00Z",
+      revisionDate: "2024-01-02T00:00:00Z",
+      decryptionError: false,
+    });
+
+    beforeEach(() => {
+      serviceAccountService.getByServiceAccountId.mockResolvedValue(
+        makeMachineAccount({
+          creationDate: "2024-01-01T00:00:00Z",
+          revisionDate: "2024-01-02T00:00:00Z",
+          decryptionError: false,
+        }),
+      );
+      serviceAccountService.update.mockResolvedValue(makeMachineAccount({ name: "Deploy" }));
+    });
+
+    it.each([
+      ["a template-shaped body", { organizationId: null, name: "Deploy" }],
+      ["a full get-shaped body", { ...getBody(), name: "Deploy" }],
+    ])("renames from %s", async (_shape, body) => {
+      const response = await command.run(smOrg, machineAccountId, encodeSmRequest(body));
+
+      expect(response.success).toBe(true);
+      expect(serviceAccountService.update).toHaveBeenCalledWith(
+        machineAccountId,
+        smOrgId,
+        expect.objectContaining({ id: machineAccountId, name: "Deploy" }),
+      );
+    });
+
+    it.each([
+      ["object", { object: "sm-project" }],
+      ["id", { id: "33333333-3333-3333-3333-333333333333" }],
+      ["creationDate", { creationDate: "2026-11-17T04:22:34.0716668Z" }],
+      ["revisionDate", { revisionDate: "2026-11-17T04:22:34.0716668Z" }],
+      ["read", { read: true }],
+      ["write", { write: false }],
+      ["decryptionError", { decryptionError: true }],
+      ["accessToSecrets", { accessToSecrets: 1 }],
+    ])("rejects a changed %s and saves nothing", async (property, change) => {
+      const response = await command.run(smOrg, machineAccountId, {
+        ...getBody(),
+        name: "Renamed",
+        ...change,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`" +
+          property +
+          "` cannot be edited on a machine account. Remove this property from the request.",
+      );
+      expect(serviceAccountService.update).not.toHaveBeenCalled();
+    });
+
+    it("names every rejected property", async () => {
+      const response = await command.run(smOrg, machineAccountId, {
+        name: "Renamed",
+        write: "true",
+        read: true,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`read`, `write` cannot be edited on a machine account. Remove these properties from the request.",
+      );
+      expect(serviceAccountService.update).not.toHaveBeenCalled();
+    });
+  });
 });

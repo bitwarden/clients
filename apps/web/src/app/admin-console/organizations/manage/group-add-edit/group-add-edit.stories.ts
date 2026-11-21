@@ -11,6 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -40,12 +41,24 @@ import {
 } from "./group-add-edit.types";
 import { GroupEditDialogComponent } from "./group-edit-dialog.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 const ORG_ID = "org-1" as OrganizationId;
 const GROUP_ID = "group-1";
 const USER_ID = "user-1" as UserId;
 
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORG_ID,
     name: "Acme Corp",
     useGroups: true,

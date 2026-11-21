@@ -12,7 +12,10 @@ import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NotificationType } from "@bitwarden/common/enums";
+import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
@@ -35,6 +38,8 @@ describe("PamRevealedCipherService", () => {
   let activeAccount$: BehaviorSubject<Account | null>;
   let authService: MockProxy<AuthService>;
   let authStatuses$: Subject<Record<UserId, AuthenticationStatus>>;
+  let notifications$: Subject<readonly [NotificationResponse, UserId]>;
+  let serverNotificationsService: ServerNotificationsService;
   let logService: MockProxy<LogService>;
   let ngZone: NgZone;
   let service: PamRevealedCipherService;
@@ -85,6 +90,7 @@ describe("PamRevealedCipherService", () => {
       accessLeaseSdkService,
       accountService,
       authService,
+      serverNotificationsService,
       ngZone,
       logService,
     );
@@ -108,6 +114,8 @@ describe("PamRevealedCipherService", () => {
     });
     authService = mock<AuthService>();
     Object.defineProperty(authService, "authStatuses$", { value: authStatuses$ });
+    notifications$ = new Subject<readonly [NotificationResponse, UserId]>();
+    serverNotificationsService = { notifications$ } as unknown as ServerNotificationsService;
     logService = mock<LogService>();
     ngZone = { run: jest.fn((fn: () => unknown) => fn()) } as unknown as NgZone;
 
@@ -332,6 +340,75 @@ describe("PamRevealedCipherService", () => {
       await service.refresh(userId, cipherId);
 
       expect(service.isRevealed(userId, cipherId)).toBe(false);
+    });
+  });
+
+  describe("sync push", () => {
+    const push = (type: NotificationType, id: string = cipherId, forUser: UserId = userId) =>
+      notifications$.next([
+        new NotificationResponse({ Type: type, Payload: { Id: id } }),
+        forUser,
+      ] as const);
+
+    it("does not listen while it holds no views", () => {
+      expect(notifications$.observed).toBe(false);
+    });
+
+    describe("while holding a view", () => {
+      beforeEach(async () => {
+        state = leaseEndingIn();
+        await service.getOrReveal(userId, cipherId);
+        accessLeaseSdkService.leasedCipher.mockClear();
+      });
+
+      it("reveals a held cipher again on its update push, inside the zone", async () => {
+        accessLeaseSdkService.leasedCipher.mockResolvedValue(sdkView({ name: "Renamed" }));
+
+        push(NotificationType.SyncCipherUpdate);
+        await flush();
+
+        expect(ngZone.run).toHaveBeenCalled();
+        expect(accessLeaseSdkService.leasedCipher).toHaveBeenCalledWith(cipherId);
+        expect(service.get(userId, cipherId)?.name).toBe("Renamed");
+      });
+
+      it("drops the view when the lease ended before the push", async () => {
+        state = noLease();
+
+        push(NotificationType.SyncCipherUpdate);
+        await flush();
+
+        expect(service.isRevealed(userId, cipherId)).toBe(false);
+        expect(notifications$.observed).toBe(false);
+      });
+
+      it("ignores a push for a cipher it does not hold", async () => {
+        push(NotificationType.SyncCipherUpdate, "cipher-2");
+        await flush();
+
+        expect(accessLeaseSdkService.leasedCipher).not.toHaveBeenCalled();
+      });
+
+      it("ignores a push for another user", async () => {
+        push(NotificationType.SyncCipherUpdate, cipherId, "user-2" as UserId);
+        await flush();
+
+        expect(accessLeaseSdkService.leasedCipher).not.toHaveBeenCalled();
+      });
+
+      it("ignores other notification types", async () => {
+        push(NotificationType.SyncCipherCreate);
+        push(NotificationType.SyncCipherDelete);
+        await flush();
+
+        expect(accessLeaseSdkService.leasedCipher).not.toHaveBeenCalled();
+      });
+
+      it("stops listening once it is cleared on lock", () => {
+        authStatuses$.next({ [userId]: AuthenticationStatus.Locked });
+
+        expect(notifications$.observed).toBe(false);
+      });
     });
   });
 

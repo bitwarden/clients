@@ -31,7 +31,6 @@ function makeMenu(isLocked = false, hasPremium = false): AccountMenu {
     isLocked,
     true,
     hasPremium,
-    false,
     shell,
     false,
   );

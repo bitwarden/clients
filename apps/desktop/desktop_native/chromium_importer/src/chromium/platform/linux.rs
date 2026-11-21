@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use oo7::XDG_SCHEMA_ATTRIBUTE;
 
 use crate::{
-    chromium::{BrowserConfig, CryptoService, LocalState},
+    chromium::{BrowserConfig, CryptoService, LocalState, WrongKeyError},
     util,
 };
 
@@ -134,9 +134,14 @@ impl CryptoService for LinuxCryptoService {
     }
 }
 
+// CBC is not authenticated, so a wrong key can also pass the padding check and yield garbage that
+// isn't valid UTF-8.
 fn decrypt(key: &[u8], encrypted: &[u8]) -> Result<String> {
-    let plaintext = util::decrypt_aes_128_cbc(key, &IV, encrypted)?;
-    String::from_utf8(plaintext).map_err(|e| anyhow!("UTF-8 error: {:?}", e))
+    let plaintext =
+        util::decrypt_aes_128_cbc(key, &IV, encrypted).map_err(|e| WrongKeyError(e.to_string()))?;
+    let plaintext =
+        String::from_utf8(plaintext).map_err(|e| WrongKeyError(format!("UTF-8 error: {:?}", e)))?;
+    Ok(plaintext)
 }
 
 async fn get_master_password(application_tag: &str) -> Result<Vec<u8>> {

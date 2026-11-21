@@ -45,7 +45,7 @@ export function getEmailBatchLimit(organization: Organization, occupiedSeatCount
     return emailBatchLimit;
   }
 
-  const remainingSeats = organization.seats - occupiedSeatCount;
+  const remainingSeats = (organization.seats ?? 0) - occupiedSeatCount;
   return Math.min(emailBatchLimit, Math.max(0, remainingSeats));
 }
 

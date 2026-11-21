@@ -1,4 +1,4 @@
-import type { AccessPreCheckView } from "@bitwarden/bit-pam";
+import { type AccessPreCheckView, maxRequestDurationSeconds } from "@bitwarden/bit-pam";
 
 /** The governing rule's cap, worded for its approval path. */
 export interface RequestTerms {
@@ -6,18 +6,25 @@ export interface RequestTerms {
   messageKey: string;
 }
 
-/** `null` when the pre-check carries no cap, rather than a made-up limit. */
+/**
+ * `null` when the pre-check carries no cap. Auto-approved requests are capped at the longest duration
+ * the picker offers.
+ */
 export function requestTerms({
   approvalMode,
   maxDurationSeconds,
-}: Pick<AccessPreCheckView, "approvalMode" | "maxDurationSeconds">): RequestTerms | null {
-  return Number.isFinite(maxDurationSeconds)
+  defaultDurationSeconds,
+}: Pick<
+  AccessPreCheckView,
+  "approvalMode" | "maxDurationSeconds" | "defaultDurationSeconds"
+>): RequestTerms | null {
+  if (!Number.isFinite(maxDurationSeconds)) {
+    return null;
+  }
+  return approvalMode === "automatic"
     ? {
-        maxSeconds: maxDurationSeconds,
-        messageKey:
-          approvalMode === "automatic"
-            ? "pamRequestAccessBannerMaxDurationAutomatic"
-            : "pamRequestAccessBannerMaxDuration",
+        maxSeconds: maxRequestDurationSeconds(maxDurationSeconds, defaultDurationSeconds),
+        messageKey: "pamRequestAccessBannerMaxDurationInstantApproval",
       }
-    : null;
+    : { maxSeconds: maxDurationSeconds, messageKey: "pamRequestAccessBannerMaxDuration" };
 }

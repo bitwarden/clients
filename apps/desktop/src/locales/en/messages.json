@@ -976,7 +976,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -988,6 +988,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website added"
   },
@@ -996,9 +1000,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Add website or app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -2004,17 +2005,8 @@
   "syncNow": {
     "message": "Sync now"
   },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
   "changeMasterPassword": {
     "message": "Change master password"
-  },
-  "continueToWebApp": {
-    "message": "Continue to web app?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
@@ -4631,6 +4623,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
   "total": {
     "message": "Total"
   },
@@ -5664,11 +5692,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -5687,6 +5715,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Enter a valid sign-in address."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Secret key is required."
@@ -5709,6 +5740,9 @@
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Secret key"
   },
@@ -5717,6 +5751,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper email"
@@ -6399,6 +6457,9 @@
   },
   "itemLower":{
     "message": "item"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower":{
     "message": "items"
@@ -7800,5 +7861,13 @@
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

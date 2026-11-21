@@ -26,6 +26,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -117,7 +118,7 @@ const ORGANIZATION_ID = "org-1";
  * `accessPam` to model an un-synced membership.
  */
 function organization(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: ORGANIZATION_ID,
     enabled: true,
     isProviderUser: false,
@@ -968,7 +969,40 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
-        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
+      );
+    });
+
+    it("caps an auto-approved rule with no maximum at the longest duration the picker offers", async () => {
+      // A rule with no maximum reports the server's one-year ceiling.
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          maxDurationSeconds: 365 * 86_400,
+          defaultDurationSeconds: 3600,
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
+      );
+    });
+
+    it("keeps the server's cap for an approver-gated rule with no maximum", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "human",
+          maxDurationSeconds: 365 * 86_400,
+          defaultDurationSeconds: 3600,
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDuration 365 days",
       );
     });
 

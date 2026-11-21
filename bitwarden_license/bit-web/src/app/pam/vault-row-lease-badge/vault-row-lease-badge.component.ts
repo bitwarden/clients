@@ -51,10 +51,6 @@ export class VaultRowLeaseBadgeComponent {
 
   protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
 
-  /**
-   * One PAM organization in view turns the column on for every row, so the em dash narrows to rows
-   * whose own organization uses PAM.
-   */
   private readonly pamOrganizationIds = toSignal(
     this.accountService.activeAccount$.pipe(
       getOptionalUserId,
@@ -98,8 +94,14 @@ export class VaultRowLeaseBadgeComponent {
     if (this.cell() !== "none") {
       return false;
     }
-    const organizationId = this.cipher()?.organizationId;
-    return organizationId != null && this.pamOrganizationIds().has(String(organizationId));
+    const cipher = this.cipher();
+    if (cipher == null) {
+      return false;
+    }
+    if (cipher.organizationId == null) {
+      return true;
+    }
+    return this.pamOrganizationIds().has(String(cipher.organizationId));
   });
 
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {

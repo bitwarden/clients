@@ -83,6 +83,48 @@ describe("SmExportCommand", () => {
     expect(fs.readFileSync(output, "utf8")).toBe(exportJson);
   });
 
+  it.each(["export.png", "export.jpg", "export.csv", "export.zip"])(
+    "rejects the unsupported output extension in %s before verifying or exporting",
+    async (name) => {
+      const output = path.join(tempDir, name);
+
+      const response = await command.run(adminOrg, { output, passwordEnv });
+
+      expect(response.success).toBe(false);
+      expect((response as any).message).toContain("Unsupported output file extension");
+      expect((response as any).message).toContain(".json");
+      expect(fs.existsSync(output)).toBe(false);
+      expect(portingApiService.export).not.toHaveBeenCalled();
+    },
+  );
+
+  it("accepts an uppercase .JSON extension", async () => {
+    const output = path.join(tempDir, "export.JSON");
+
+    const response = await command.run(adminOrg, { output, passwordEnv });
+
+    expect(response.success).toBe(true);
+    expect(fs.existsSync(output)).toBe(true);
+  });
+
+  it("accepts an output without an extension", async () => {
+    const output = path.join(tempDir, "export");
+
+    const response = await command.run(adminOrg, { output, passwordEnv });
+
+    expect(response.success).toBe(true);
+  });
+
+  it("uses a default file name when the output is a directory without a trailing separator", async () => {
+    const response = await command.run(adminOrg, { output: tempDir, passwordEnv });
+
+    expect(response.success).toBe(true);
+    const files = fs.readdirSync(tempDir);
+    expect(files).toHaveLength(1);
+    expect(files[0]).toMatch(/^bitwarden_export_\d{14}\.json$/);
+    expect(fs.readFileSync(path.join(tempDir, files[0]), "utf8")).toBe(exportJson);
+  });
+
   it("uses a default file name when the output is a directory", async () => {
     const response = await command.run(adminOrg, { output: tempDir + path.sep, passwordEnv });
 

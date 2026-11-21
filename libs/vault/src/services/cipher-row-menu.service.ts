@@ -1,6 +1,6 @@
 import { inject, Injectable, isDevMode } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map, shareReplay, switchMap } from "rxjs";
+import { map, of, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -27,6 +27,7 @@ import {
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-access.token";
+import { REVEALABLE_CIPHERS, RevealableCiphers } from "../tokens/revealable-ciphers.token";
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
@@ -98,6 +99,9 @@ export class CipherRowMenuService {
   private readonly cipherShareAccess = inject<CipherShareAccess>(CIPHER_SHARE_ACCESS, {
     optional: true,
   });
+  private readonly revealableCiphers = inject<RevealableCiphers>(REVEALABLE_CIPHERS, {
+    optional: true,
+  });
   private readonly contributedActions = uniqueContributedActions(
     inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
     BUILT_IN_ACTION_IDS,
@@ -119,6 +123,17 @@ export class CipherRowMenuService {
   private readonly revealed = toSignal(
     this.userId$.pipe(switchMap((userId) => this.revealedCipherService.revealed$(userId))),
     { initialValue: new Map() as ReadonlyMap<CipherId, CipherView> },
+  );
+
+  /**
+   * The ciphers the active user may reveal now. A revealable row offers what a revealed one does,
+   * so the menu does not wait for the item to be opened; the action reveals when it runs.
+   */
+  private readonly revealable = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) => this.revealableCiphers?.revealable$(userId) ?? of(new Set<CipherId>())),
+    ),
+    { initialValue: new Set() as ReadonlySet<CipherId> },
   );
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
@@ -251,7 +266,11 @@ export class CipherRowMenuService {
   }
 
   private allows(cipher: CipherViewLike, action: RestrictedCipherAction): boolean {
-    const revealedView = cipher.id == null ? undefined : this.revealed().get(cipher.id as CipherId);
+    const cipherId = cipher.id as CipherId | undefined;
+    const revealedView = cipherId == null ? undefined : this.revealed().get(cipherId);
+    if (revealedView == null && cipherId != null && this.revealable().has(cipherId)) {
+      return RestrictedCipherPolicy.allowsOnReveal(cipher, action);
+    }
     return RestrictedCipherPolicy.allows(cipher, action, revealedView);
   }
 
