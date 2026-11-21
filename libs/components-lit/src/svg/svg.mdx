@@ -1,0 +1,25 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./svg.stories";
+
+<Meta of={stories} />
+
+# Svg
+
+Renders SVGs defined in `libs/assets/svg` with the `svg` template tag. See the `libs/components` Svg
+docs for how to add a new SVG (minify, replace hardcoded fills/strokes with `tw-fill-*` /
+`tw-stroke-*` illustration classes, drop fixed width/height, make `clipPath` ids unique).
+
+```ts
+import { ExampleIcon } from "@bitwarden/assets/svg";
+
+html`<bit-svg .content=${ExampleIcon}></bit-svg>`;
+```
+
+SVGs are decorative (`aria-hidden`) unless `label` is set:
+
+```ts
+html`<bit-svg .content=${ExampleIcon} label="Your custom label"></bit-svg>`;
+```
+
+<Canvas of={stories.Default} />

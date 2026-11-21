@@ -1,0 +1,61 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./filter-menu.stories";
+
+<Meta of={stories} />
+
+# Filter Menu
+
+A composable family of filter chips for narrowing a list or table.
+
+<Canvas of={stories.Default} />
+
+## Composition
+
+A chip is single-select by default; add `multiple` for a checkbox-style multi-select.
+
+```html
+<bit-filter-menu key="type" placeholder-text="Type" unset-label="All">
+  <bit-filter-option value="login" count="12">Login</bit-filter-option>
+  <bit-filter-option value="card" count="3">Card</bit-filter-option>
+</bit-filter-menu>
+```
+
+| Element                     | Purpose                                                                                |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| `bit-filter-menu`           | Chip trigger + popover; owns the selection (`multiple` for multi).                     |
+| `bit-filter-toggle`         | Single on/off chip (no menu); boolean value; `icon-active` swaps the icon while on.    |
+| `bit-filter-option`         | A selectable row; its text is the label. Nests by placing options inside options.      |
+| `bit-filter-section`        | A labelled, optionally `collapsible` group of options with a selected-count berry.     |
+| `bit-filter-option-divider` | Separates runs of top-level options (a rule in the popover, a new card in the dialog). |
+| `bit-filter-divider`        | A vertical rule between groups of chips.                                               |
+| `bit-filter-dialog`         | The small-screen view over a set of chips; open it with `openFilterDialog(chips)`.     |
+
+Options, sections and dividers are found at any depth under the chip, so wrapper elements (or a
+framework's own components) between them are fine. Nesting requires `multiple`.
+
+For a tree built from data — unknown depth, like a collection or folder list — set `options` on
+`bit-filter-menu` or `bit-filter-section` to a `FilterOptionNode[]`
+(`{ value, label, count?, options?, dividerBefore? }`). A non-empty `options` takes precedence over
+child elements.
+
+## Value
+
+A chip owns its selection — there is no form binding. Read `value` (a single value, an array for
+`multiple`, a boolean for a toggle), listen for `filterChange` (`detail: { key, value }`), or call
+`setValue()`, `clear()` and `deselect(value)`.
+
+Inside a filter host (an element providing `filterHostContext`, e.g. a table) every chip registers
+itself as a `FilterControl` under its `key`, and option counts come from the host's `optionCount`
+unless an option sets `count`.
+
+## Behavior
+
+- The in-menu search appears above ten options, or always with `searchable`. The term resets when
+  the menu closes.
+- Rows truncate long labels and carry a tooltip with the full text, on hover and keyboard focus.
+- The multi-select list is a tree: arrows move and expand/collapse, Home/End jump, Enter/Space
+  toggle, `*` expands siblings.
+- `disabled-tooltip` explains a disabled chip; it is also the trigger's accessible description.
+- Set `icon` on a `multiple` chip so its selections stay recognizable when a toolbar collapses them
+  into separate chips.

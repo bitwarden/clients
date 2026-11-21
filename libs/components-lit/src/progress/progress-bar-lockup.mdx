@@ -1,0 +1,22 @@
+import { Meta, Canvas, Primary, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./progress-bar-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitProgressBarLockup } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Primary />
+
+## Slots
+
+- `slot="illustration"` — optional decorative illustration (mark it `aria-hidden`).
+- `slot="title"` and `slot="description"`.
+- Default slot — the `bit-progress-bar` (required).
+
+<Canvas of={stories.WithoutIllustration} />

@@ -1,0 +1,46 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./select.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/select";
+```
+
+# Select
+
+A select-only combobox with its own label, hint and error. Options come from `bit-option` children
+or the `items` property (`SelectOption<T>[]`); values are compared with `===`. It is
+form-associated: `name`, `required`, `validators`, reset and disabled fieldsets work like a native
+`<select>`.
+
+<Primary />
+<Controls />
+
+## Leading visuals
+
+`bit-option` accepts either a plain `icon` or an `iconTile`. `iconTile` takes precedence and is
+always rendered at `xs`. Set it as a property, or as JSON in the `icon-tile` attribute.
+
+```html
+<bit-select label="Type">
+  <bit-option
+    value="login"
+    label="Login"
+    icon-tile='{"icon": "bwi-globe", "variant": "brand"}'
+  ></bit-option>
+</bit-select>
+```
+
+- Use a leading visual for every option, or for none of them, and don't mix `icon` and `iconTile`.
+- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`.
+
+## Keyboard
+
+Down/Up, Enter, Space, Home/End or typing open the list. Arrows, Home/End and typeahead move the
+active option; Enter, Space, Tab and Alt+Up select it; Escape closes the list without closing an
+enclosing dialog.
+
+<Canvas of={stories.IconTiles} />
+<Canvas of={stories.InDialog} />

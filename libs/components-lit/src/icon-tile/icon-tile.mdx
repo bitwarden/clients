@@ -1,0 +1,43 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./icon-tile.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Variants
+
+- **Decorative color families** (`brand`, `teal`, `green`, `orange`, `red`, `purple`, `gray`) — each
+  available in `subtle` (default) or `bold` emphasis.
+- **Semantic variants** — `primary`, `success`, `danger`, `warning` render as `brand`, `green`,
+  `red`, `orange` (subtle) and ignore `emphasis`. `dark` has its own high-contrast styling.
+
+<Canvas of={stories.AllVariants} />
+
+## Custom color
+
+Set `color` to a hex value (typically to match a user's avatar). It overrides `variant` and
+`emphasis`: the fill matches the color, the icon color is chosen for contrast, and the border is the
+color adjusted ±15% lightness.
+
+<Canvas of={stories.CustomColor} />
+
+## Sizes
+
+`xs` (16px), `sm` (24px), `base` (32px), `lg` (48px), `xl` (64px).
+
+<Canvas of={stories.AllSizes} />
+
+## Accessibility
+
+Icon tiles are decorative by default. When a tile conveys meaning (status, category) not available
+in adjacent text, set `label`; the tile is then exposed with `role="img"`.
+
+```html
+<bit-icon-tile icon="bwi-check-circle" variant="success" label="Payment successful"></bit-icon-tile>
+```

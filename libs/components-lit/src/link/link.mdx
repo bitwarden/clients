@@ -1,0 +1,44 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./link.stories";
+
+<Meta of={stories} />
+
+<Title>Link / Text button</Title>
+<Description />
+
+<Primary />
+<Controls />
+
+## Element
+
+`<bit-link>` renders an anchor when `href` is set and a button otherwise. Pick based on the intended
+action: navigation is a link, everything else a button. Buttons support `disabled` and
+`type="submit"`; links can't be disabled.
+
+## Variants
+
+Set `link-type`:
+
+- @deprecated `primary` => use `default` instead
+- @deprecated `secondary` => use `subtle` instead
+- `default` - most common, uses brand color
+- `subtle` - matches the main text color
+- `contrast` - for high contrast against a dark background (or a light background in dark mode)
+- `light` - always a light color, even in dark mode
+- `warning`, `success`, `danger` - used with the matching callouts/banners
+
+## Sizes
+
+For smaller text, apply `tw-text-sm` to the element; the link inherits the font size.
+
+## With Icon
+
+Use `start-icon` and `end-icon` to add a Bitwarden icon (`bwi-*`). Don't put a `<bit-icon>` inside
+the link.
+
+<Canvas of={stories.WithIcons} />
+
+## Accessibility
+
+- Only use the link on backgrounds that maintain WCAG color contrast ratios.

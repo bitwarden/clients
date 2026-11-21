@@ -1,0 +1,52 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./avatar.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Static
+
+By default the avatar is non-interactive. Use it as an atom in a larger molecule like a list item,
+table, or card. Static avatars have no hover or focus states.
+
+## Interactive
+
+Set `interactive` to render the avatar as a button, e.g. to open an account switcher menu. It has
+hover and focus states, and supports `disabled`.
+
+<Canvas of={stories.Interactive} />
+
+### Inactive
+
+<Canvas of={stories.Inactive} />
+
+## Sizes
+
+`"2xl" | "xl" | "lg" | "base" | "sm"`
+
+<Canvas of={stories.Sizes} />
+
+## Color
+
+| Method         | Property    | Accepted values                                       |
+| -------------- | ----------- | ----------------------------------------------------- |
+| Default colors | `color`     | `"teal" \| "coral" \| "brand" \| "green" \| "purple"` |
+| Custom color   | `color`     | CSS colors like a hex code                            |
+| ID             | `avatar-id` | Unique string identifier                              |
+| Text           | `text`      | The user's name; its first letters are displayed      |
+
+<Canvas of={stories.DefaultColors} />
+<Canvas of={stories.CustomColor} />
+<Canvas of={stories.ColorByID} />
+<Canvas of={stories.ColorByText} />
+
+## Accessibility
+
+Avatar background color should have 3.1:1 contrast with its background. The accessible name is
+`label`, falling back to `text`.

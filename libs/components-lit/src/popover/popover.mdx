@@ -1,0 +1,53 @@
+import { Meta, Canvas, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./popover.stories";
+
+<Meta of={stories} />
+
+# Popover
+
+A page overlay opened from a trigger, with interactive content. It stays open until the user presses
+Escape, the close button, a button inside it that closes it, or clicks outside.
+
+Use popovers for in-app help (usually from a question-mark icon button) and guided tours. For short
+text on hover, use a tooltip instead.
+
+<Primary />
+
+## Usage
+
+```html
+<bit-icon-button id="help" icon="bwi-question-circle" label="Help"></bit-icon-button>
+<bit-popover trigger="help" heading="Help">Help content</bit-popover>
+```
+
+- `trigger="id"` toggles on click (also `attachPopoverTrigger()` and the `popoverTrigger()`
+  directive).
+- `anchor="id"` plus the `open` property opens it from code (also `attachPopoverAnchor()` and
+  `popoverAnchor()`). `openChange` fires when the user dismisses it.
+- `openPopover(popover, anchor, options)` returns a `PopoverRef`; `anchor` may be a getter for an
+  element that isn't rendered yet. The popover waits for the anchor to finish animating in, hides
+  while it's gone and returns with it.
+
+`bit-popover-header` (with a `slot="media"` child) and `bit-popover-footer` assign themselves to the
+right place. If content has a bottom margin, remove it from the last element so spacing stays even.
+
+## Positions
+
+The popover uses the first of these positions that fits the viewport, after any preferred
+`position`: `right-start`, `right-center`, `right-end`, `left-start`, `left-center`, `left-end`,
+`below-center`, `below-start`, `below-end`, `above-center`, `above-start`, `above-end`. The position
+is kept while scrolling and re-picked when the window resizes.
+
+<Canvas of={stories.LeftStart} />
+
+## Spotlight
+
+`spotlight` dims the page and rings the anchor for guided tours. Only one spotlight popover is open
+at a time; opening another closes the first. Spotlight popovers ignore Escape and outside clicks.
+The anchor must be block-level so its size can be tracked. A `data-spotlight-host` anchor moves the
+ring to its `[data-spotlight-target]` descendant.
+
+<Canvas of={stories.SpotlightTour} />
+
+<Canvas of={stories.OpenFromCode} />

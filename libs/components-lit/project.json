@@ -1,0 +1,28 @@
+{
+  "name": "@bitwarden/components-lit",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/components-lit/src",
+  "projectType": "library",
+  "tags": ["scope:components", "type:lib"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/components-lit/**/*.ts"]
+      }
+    },
+    "storybook": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "storybook"
+      }
+    },
+    "build-storybook": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build-storybook"
+      }
+    }
+  }
+}

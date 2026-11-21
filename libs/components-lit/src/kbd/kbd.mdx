@@ -1,0 +1,37 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./kbd.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Keys
+
+`keys` takes the shortcut in press order. Each entry is rendered verbatim, so pass the label you
+want displayed (`"F"`, `"Esc"`, `"Shift"`).
+
+<Canvas of={stories.SingleKey} />
+
+### The `modifier` token
+
+Pass `"modifier"` to render the platform's primary modifier key — `⌘` on macOS, `Ctrl` elsewhere.
+The platform is guessed from `navigator`, then upgraded to `⌘` the first time a Cmd chord is
+observed. The correction is one-way. Key labels are not localized.
+
+## Accessibility
+
+The component is presentational and not focusable. Hide the hint from assistive technology and
+announce the shortcut on the control with `aria-keyshortcuts` (UI Events key names, e.g.
+`Control+f`):
+
+```html
+<input type="search" aria-keyshortcuts="Control+f Meta+f" />
+<span aria-hidden="true"><bit-kbd .keys=${["modifier", "F"]}></bit-kbd></span>
+```
+
+<Canvas of={stories.WithControl} />

@@ -1,0 +1,18 @@
+import { Meta, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./search.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/search";
+```
+
+# Search field
+
+Esc clears the field (and stops there, so an enclosing overlay only closes on a second press). With
+`use-key-shortcuts`, ⌘/Ctrl+F focuses the field unless a modal dialog that doesn't contain it is
+open. Listen to `input` for live filtering.
+
+<Primary />
+<Controls />

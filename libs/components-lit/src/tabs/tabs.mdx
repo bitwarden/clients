@@ -1,0 +1,66 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./tabs.stories";
+
+<Meta of={stories} />
+
+# Tabs
+
+Tabs organize related content into distinct, selectable sections. Use them for content that belongs
+to the same context but doesn't need to be viewed simultaneously. Tabs support between 2 and 8
+items.
+
+## Content Tabs
+
+`bit-tab-group` with `bit-tab` children. Bind `selected-index` and listen to `selectedIndexChange`
+(user selection) or `selectedTabChange` (any change after first render).
+
+```html
+<bit-tab-group label="Settings">
+  <bit-tab label="General">...</bit-tab>
+  <bit-tab label="Advanced" disabled>...</bit-tab>
+</bit-tab-group>
+```
+
+<Canvas of={stories.ContentTabs} />
+
+Inactive panels are hidden and their slot isn't rendered. Wrap content in a `<template>` to defer
+creating it until the tab is first shown.
+
+<Canvas of={stories.LazyTemplateContent} />
+
+## Navigation Tabs
+
+`bit-tab-nav-bar` with `bit-tab-link` children renders a `<nav>` of links. Set `href` on each link
+and `active` on the one matching the current page.
+
+<Canvas of={stories.NavigationTabs} />
+
+## Leading and Trailing Icons
+
+Use `start-icon`, `end-icon` and `berry-value` on `bit-tab` or `bit-tab-link`.
+
+<Canvas of={stories.TabsWithIcons} />
+
+## Overflow Tabs
+
+Tabs that don't fit move into a More menu showing how many tabs are hidden. The selected tab always
+stays visible; labels only truncate when a single tab is left.
+
+<Canvas of={stories.OverflowTabs} />
+
+## Preserve Content Tabs
+
+Set `preserve-content` to keep the content of off-screen tabs in the DOM, e.g. so audio or video
+doesn't re-initialize.
+
+<Canvas of={stories.PreserveContentTabs} />
+
+## Accessibility
+
+- Content tabs follow the ARIA tablist pattern: arrow keys (wrapping) and Home/End move focus,
+  Enter/Space selects. Only the selected tab is in the tab sequence.
+- Set `content-tab-index="0"` on a `bit-tab` whose panel has no focusable content.
+- Navigation tabs use `<nav>` and links with `aria-current="page"` on the active one.
+
+<Canvas of={stories.KeyboardNavigation} />

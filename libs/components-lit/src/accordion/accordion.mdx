@@ -1,0 +1,68 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./accordion.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitAccordion, BitAccordionGroup } from "@bitwarden/components-lit";
+```
+
+# Accordion
+
+An expandable container for progressively disclosing content. Well suited for FAQs, settings panels
+and filters where users are unlikely to need every section at once.
+
+<Primary />
+<Controls />
+
+## Variants
+
+`default` uses a secondary header background; use it on `bg-primary`. `subtle` uses a primary header
+background with a border between header and panel; use it on `bg-secondary` or `bg-tertiary`.
+
+<Canvas of={stories.Default} />
+<Canvas of={stories.Subtle} />
+
+## Sizes
+
+`default` shows the subtitle. `sm` reduces padding and hides the subtitle.
+
+<Canvas of={stories.DefaultExpanded} />
+<Canvas of={stories.SmallSize} />
+
+## Height
+
+By default the panel has a max height and scrolls. `height="auto"` sizes it to its content.
+
+<Canvas of={stories.AutoHeight} />
+
+## Header content
+
+`start-icon` adds an icon tile before the heading; `slot="end"` adds content (e.g. a badge) before
+the chevron.
+
+<Canvas of={stories.WithStartIcon} />
+<Canvas of={stories.WithEndSlot} />
+
+## Disabled
+
+<Canvas of={stories.Inactive} />
+
+## Grouped accordions
+
+Wrap accordions in `bit-accordion-group` to collapse inner radii and shared borders. The group's
+`variant` applies to every accordion in it. `single-select` keeps only one row open at a time; never
+use it on groups containing forms.
+
+<Canvas of={stories.Grouped} />
+<Canvas of={stories.SingleSelect} />
+
+## Events
+
+Toggling fires `openChange` with the new `open` value, as does a single-select group closing a row.
+
+## Accessibility
+
+The trigger button has `aria-expanded` and `aria-controls` pointing at the content region, which is
+labelled by the trigger. <kbd>Enter</kbd> and <kbd>Space</kbd> toggle it, with a visible focus ring.

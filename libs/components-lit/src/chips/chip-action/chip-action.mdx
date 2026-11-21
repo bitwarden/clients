@@ -1,0 +1,37 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-action.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/chips";
+```
+
+<Title />
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+Replaces `button[bit-chip-action]` and `a[bit-chip-action]`: the element renders a button, or a link
+when `href` is set. Use a link when the chip navigates.
+
+```html
+<bit-chip-action label="Filter" start-icon="bwi-filter"></bit-chip-action>
+<bit-chip-action label="View all" href="/items"></bit-chip-action>
+```
+
+## Variants
+
+<Canvas of={stories.AllVariants} />
+
+## Sizes
+
+<Canvas of={stories.AllSizes} />
+
+## Inactive
+
+Disabled chips use `aria-disabled`, so they stay focusable while clicks are blocked.
+
+<Canvas of={stories.Inactive} />
