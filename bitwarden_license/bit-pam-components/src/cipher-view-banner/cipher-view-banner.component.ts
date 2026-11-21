@@ -69,6 +69,7 @@ import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dial
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
+import { type StartBlock, StartSlotService } from "../services/start-slot.service";
 
 import { AccessEndedCardComponent } from "./cards/access-ended-card.component";
 import { ActiveLeaseCardComponent } from "./cards/active-lease-card.component";
@@ -130,6 +131,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly injector = inject(Injector);
+  private readonly startSlotService = inject(StartSlotService);
   protected readonly popupLayout = injectPopupLayout();
 
   /** Advanced every second while {@link clockAdvances}. */
@@ -284,6 +286,20 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
+   * Another member's hold on the single-active-lease slot, or `null` while the caller may start.
+   * Read only while an approved request waits, so Start access is disabled rather than failing.
+   */
+  protected readonly startBlock = toSignal<StartBlock | null>(
+    toObservable(computed(() => (this.approvedRequest() != null ? this.cipher().id : null))).pipe(
+      distinctUntilChanged(),
+      switchMap((cipherId) =>
+        cipherId == null ? of(null) : this.startSlotService.blockedUntil$(String(cipherId)),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  /**
    * Set when a lease the user was holding runs out on its own, so the item explains why it went
    * back to masked. A lease the user ends does not set it, and a new active lease, request or
    * cipher clears it.
@@ -402,7 +418,7 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly activateRequest = async (): Promise<void> => {
     const approved = this.approvedRequest();
-    if (approved == null) {
+    if (approved == null || this.startBlock() != null) {
       return;
     }
     try {

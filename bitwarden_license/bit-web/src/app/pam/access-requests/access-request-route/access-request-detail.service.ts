@@ -10,6 +10,7 @@ import {
   filter,
   from,
   map,
+  of,
   startWith,
   switchMap,
 } from "rxjs";
@@ -27,6 +28,7 @@ import {
   canApprove,
   isRequestNoLongerPendingError,
 } from "@bitwarden/bit-pam";
+import { type StartBlock, StartSlotService } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -59,6 +61,7 @@ export class AccessRequestDetailService {
   private readonly accountService = inject(AccountService);
   private readonly inbox = inject(ApproverInboxService);
   private readonly route = inject(ActivatedRoute);
+  private readonly startSlotService = inject(StartSlotService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _request$ = new BehaviorSubject<AccessRequestView | null>(null);
@@ -112,6 +115,25 @@ export class AccessRequestDetailService {
       const id = uuidAsString(request.id);
       return rows.find((row) => row.canDecide && uuidAsString(row.id) === id) ?? null;
     }),
+  );
+
+  /**
+   * While the requester looks at their still-startable approval, another member's hold on its
+   * cipher's single-active-lease slot; `null` otherwise. Start session stays disabled while set.
+   */
+  readonly startBlock$: Observable<StartBlock | null> = combineLatest([
+    this.request$,
+    this.viewer$,
+  ]).pipe(
+    map(([request, viewer]) =>
+      request != null && viewer === "requester" && isStartableApproval(request, Date.now())
+        ? uuidAsString(request.cipherId)
+        : null,
+    ),
+    distinctUntilChanged(),
+    switchMap((cipherId) =>
+      cipherId == null ? of(null) : this.startSlotService.blockedUntil$(cipherId),
+    ),
   );
 
   /** Whether the request is on a collection the viewer manages and has already been decided. */
@@ -259,4 +281,16 @@ export class AccessRequestDetailService {
   private isRequestNotFoundError(e: unknown): boolean {
     return this.leasingErrors.isLeasingError(e) && e.variant === "Api" && /\[404\]/.test(e.message);
   }
+}
+
+/**
+ * An approved, unactivated request whose window is still open, the SDK view's counterpart of the
+ * table's `isRedeemableGrant`, whose row type carries the lease id as a plain string.
+ */
+function isStartableApproval(request: AccessRequestView, nowMs: number): boolean {
+  return (
+    request.status === "approved" &&
+    request.producedLeaseId == null &&
+    Date.parse(request.leaseNotAfter) > nowMs
+  );
 }

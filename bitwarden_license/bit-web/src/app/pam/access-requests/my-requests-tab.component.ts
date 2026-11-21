@@ -214,6 +214,11 @@ export class MyRequestsTabComponent {
     { initialValue: Date.now() },
   );
 
+  /** Ciphers whose single-active-lease slot another member holds, so Start access is refused. */
+  private readonly startBlockedCipherIds = toSignal(this.myAccess.startBlockedCipherIds$, {
+    initialValue: new Set<string>() as ReadonlySet<string>,
+  });
+
   private readonly cipherById = toSignal(this.myAccess.cipherById$, {
     initialValue: new Map<string, CipherView>(),
   });
@@ -372,6 +377,10 @@ export class MyRequestsTabComponent {
     return isRedeemableGrant(row, this.nowMs()) && this.hasOpened(row.leaseNotBefore);
   }
 
+  protected startBlocked(row: MyAccessRequestRow): boolean {
+    return this.startBlockedCipherIds().has(row.cipherId);
+  }
+
   protected badgesReady(row: MyAccessRequestRow): boolean {
     return isRedeemableGrant(row, this.nowMs());
   }
@@ -405,7 +414,7 @@ export class MyRequestsTabComponent {
   }
 
   protected async activate(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canStart(row) || this.isStarting(row.id)) {
+    if (!this.canStart(row) || this.isStarting(row.id) || this.startBlocked(row)) {
       return;
     }
     this.starting.update((s) => new Set([...s, row.id]));

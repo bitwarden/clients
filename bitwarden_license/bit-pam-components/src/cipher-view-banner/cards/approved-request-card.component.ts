@@ -18,21 +18,36 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   FunctionReturningAwaitable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { type StartBlock } from "../../services/start-slot.service";
 import { injectPopupLayout } from "../cipher-view-banner-layout";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
+
+/** Stands in for the time while the message is split, so only the time renders bold. */
+const TIME_MARK = "\u0000time\u0000";
+
+/** Gives each card its own callout id, so `aria-describedby` never resolves to another card's. */
+let nextCardId = 0;
 
 /** An approved request the requester has not started yet. */
 @Component({
   selector: "app-pam-approved-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
-  imports: [AsyncActionsModule, ButtonModule, CardComponent, BannerCardHeaderComponent, I18nPipe],
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CalloutModule,
+    CardComponent,
+    BannerCardHeaderComponent,
+    I18nPipe,
+  ],
   templateUrl: "./approved-request-card.component.html",
 })
 export class ApprovedRequestCardComponent {
@@ -40,11 +55,17 @@ export class ApprovedRequestCardComponent {
   /** The banner's clock, so "today" turns over with it. */
   readonly nowMs = input.required<number>();
   readonly startAction = input.required<FunctionReturningAwaitable>();
+  /**
+   * Another member's hold on the single-active-lease slot; `null` while the slot is free. Set
+   * disables Start access and shows why above it.
+   */
+  readonly startBlock = input<StartBlock | null>(null);
 
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
+  protected readonly itemInUseCalloutId = `pam-cipher-view-banner_callout_item-in-use-${nextCardId++}`;
   protected readonly popupLayout = injectPopupLayout();
 
   /** "…until 4:45 PM today." while the approved window ends on the current day, else its date too. */
@@ -59,5 +80,32 @@ export class ApprovedRequestCardComponent {
       time,
       formatCalendarDate(this.locale, endMs),
     );
+  });
+
+  protected readonly startBlocked = computed(() => this.startBlock() != null);
+
+  /**
+   * "…You can start access at 8:45 AM today." split around the time, which renders bold. Falls back
+   * to the untimed message when the server gives no end, or one that cannot be read.
+   */
+  protected readonly itemInUseMessage = computed(() => {
+    const block = this.startBlock();
+    if (block == null) {
+      return null;
+    }
+    const freesAtMs = block.freesAt == null ? NaN : Date.parse(block.freesAt);
+    if (Number.isNaN(freesAtMs)) {
+      return { before: this.i18nService.t("pamStartItemInUse"), time: null, after: "" };
+    }
+    const message =
+      toDateInputValue(new Date(freesAtMs)) === toDateInputValue(new Date(this.nowMs()))
+        ? this.i18nService.t("pamStartItemInUseAtToday", TIME_MARK)
+        : this.i18nService.t(
+            "pamStartItemInUseAt",
+            TIME_MARK,
+            formatCalendarDate(this.locale, freesAtMs),
+          );
+    const [before, after = ""] = message.split(TIME_MARK);
+    return { before, time: formatTimeOfDay(this.locale, freesAtMs), after };
   });
 }

@@ -90,6 +90,7 @@ describe("MyRequestsTabComponent", () => {
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
+    startBlockedCipherIds$: BehaviorSubject<ReadonlySet<string>>;
     activate: jest.Mock;
     cancel: jest.Mock;
     endLease: jest.Mock;
@@ -138,6 +139,7 @@ describe("MyRequestsTabComponent", () => {
       loading$,
       loadError$,
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+      startBlockedCipherIds$: new BehaviorSubject<ReadonlySet<string>>(new Set()),
       activate: jest.fn().mockResolvedValue(undefined),
       cancel: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
@@ -444,6 +446,22 @@ describe("MyRequestsTabComponent", () => {
       // Both circled, per the Action cell frame: check-circle to start, clear to cancel.
       expect(start?.querySelector("i")?.className).toContain("bwi-check-circle");
       expect(cancel?.querySelector("i")?.className).toContain("bwi-error");
+    });
+
+    it("disables Start while another member holds the item's single-active-lease slot", async () => {
+      pendingRows$.next([requestRow({ id: "req-grant", status: "approved" })]);
+      myAccess.startBlockedCipherIds$.next(new Set(["cipher-1"]));
+      create();
+
+      const start = query('[data-testid="my-access-approved-start-req-grant"]');
+      expect(start?.getAttribute("aria-disabled")).toBe("true");
+
+      await component["activate"](requestRow({ id: "req-grant", status: "approved" }));
+      expect(myAccess.activate).not.toHaveBeenCalled();
+
+      myAccess.startBlockedCipherIds$.next(new Set());
+      fixture.detectChanges();
+      expect(start?.getAttribute("aria-disabled")).not.toBe("true");
     });
 
     it("withholds Start on a grant whose window has not opened yet", () => {

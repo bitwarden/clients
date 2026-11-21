@@ -196,7 +196,7 @@
                 size="small"
                 [id]="'pam-my-requests_button_start-' + request.id"
                 [loading]="isStarting(request.id)"
-                [disabled]="isStarting(request.id)"
+                [disabled]="isStarting(request.id) || startBlocked(request)"
                 [label]="'pamStartLeaseButton' | i18n"
                 (click)="activate(request)"
                 [attr.data-testid]="'my-access-approved-start-' + request.id"

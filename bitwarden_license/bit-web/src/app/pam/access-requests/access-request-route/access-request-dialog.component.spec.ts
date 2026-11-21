@@ -56,6 +56,7 @@ describe("AccessRequestDialogComponent", () => {
     viewer$: BehaviorSubject<AccessRequestViewer | null>;
     approvalRow$: BehaviorSubject<ApprovalRow | null>;
     managed$: BehaviorSubject<boolean>;
+    startBlock$: BehaviorSubject<{ freesAt: string | null } | null>;
     cancel: jest.Mock;
     activate: jest.Mock;
     endLease: jest.Mock;
@@ -93,6 +94,7 @@ describe("AccessRequestDialogComponent", () => {
       viewer$: new BehaviorSubject<AccessRequestViewer | null>("requester"),
       approvalRow$: new BehaviorSubject<ApprovalRow | null>(null),
       managed$: new BehaviorSubject<boolean>(false),
+      startBlock$: new BehaviorSubject<{ freesAt: string | null } | null>(null),
       cancel: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
@@ -629,6 +631,24 @@ describe("AccessRequestDialogComponent", () => {
       expect(footer.querySelector("#access-request-dialog_button_close")).not.toBeNull();
       // Withdrawing an approval is the table's job, so the dialog does not double as one.
       expect(footer.querySelector("#access-request-dialog_button_cancel-request")).toBeNull();
+    });
+
+    it("disables Start while another member holds the single-active-lease slot", () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.startBlock$.next({ freesAt: "2026-08-17T12:30:00.000Z" });
+
+      create();
+
+      const start = fixture.nativeElement.querySelector(
+        "#access-request-dialog_button_start",
+      ) as HTMLButtonElement;
+      expect(component["startBlocked"]()).toBe(true);
+      expect(start.getAttribute("aria-disabled")).toBe("true");
+
+      detail.startBlock$.next(null);
+      fixture.detectChanges();
+
+      expect(component["startBlocked"]()).toBe(false);
     });
 
     it("leaves a pending request with Cancel beside Close", () => {

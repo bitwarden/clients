@@ -13,7 +13,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter } from "rxjs";
+import { filter, map } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import {
@@ -147,6 +147,11 @@ export class AccessRequestDialogComponent implements OnInit {
   private readonly viewer = toSignal(this.detail.viewer$, { initialValue: null });
   private readonly approvalRow = toSignal(this.detail.approvalRow$, { initialValue: null });
   private readonly managed = toSignal(this.detail.managed$, { initialValue: false });
+  /** Another member holds the cipher's single-active-lease slot, so Start session is refused. */
+  protected readonly startBlocked = toSignal(
+    this.detail.startBlock$.pipe(map((block) => block != null)),
+    { initialValue: false },
+  );
   private readonly isRequester = computed(() => this.viewer() === "requester");
   private readonly isApprover = computed(() => this.viewer() === "approver");
   /** An approver looking at a decided request on a collection they manage. */
@@ -467,7 +472,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async startAccess(): Promise<void> {
-    if (!this.canStart() || this.starting()) {
+    if (!this.canStart() || this.starting() || this.startBlocked()) {
       return;
     }
     this.starting.set(true);

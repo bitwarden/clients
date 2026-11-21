@@ -7,6 +7,7 @@ import {
   LeasingErrorService,
   REQUEST_ACCESS_SERVER_ERRORS,
   composeRequestWindow,
+  defaultRequestWindow,
   toDateInputValue,
 } from "@bitwarden/bit-pam";
 import type { AccessPreCheckView, RequestWindowFormValue } from "@bitwarden/bit-pam";
@@ -305,19 +306,79 @@ describe("RequestAccessFormComponent", () => {
         expect(component.requestMode()).toBe("automatic");
       });
 
-      it("stays quiet on the human path, whose window is not now", async () => {
+      describe("on the human path, whose window may start later", () => {
+        const HOUR_MS = 3_600_000;
+        let freesAtMs: number;
+
+        /** Picks a window of `hours` starting `startsInMs` from now, as the requester would. */
+        function pickWindow(startsInMs: number, hours = 1): void {
+          component["humanForm"].controls.window.setValue(
+            defaultRequestWindow(new Date(Date.now() + startsInMs), hours * 3600),
+          );
+          fixture.detectChanges();
+        }
+
+        beforeEach(async () => {
+          freesAtMs = Date.now() + 2 * HOUR_MS;
+          requestsApi.preCheck.mockResolvedValue(
+            preCheck({
+              approvalMode: "human",
+              canStartLease: false,
+              slotFreesAt: new Date(freesAtMs).toISOString(),
+            }),
+          );
+          await create();
+        });
+
+        it("warns when the seeded window starts now, inside the holder's lease", () => {
+          expect(text()).toContain("pamRequestSlotTakenUntil");
+          expect(text()).toContain("requestAccessModalStartDate");
+        });
+
+        it("stays quiet for a window that starts once the slot frees", () => {
+          pickWindow(3 * HOUR_MS);
+
+          expect(text()).not.toContain("pamRequestSlotTaken");
+        });
+
+        it("follows the window as the requester moves its start", () => {
+          pickWindow(24 * HOUR_MS);
+          expect(text()).not.toContain("pamRequestSlotTaken");
+
+          pickWindow(HOUR_MS);
+          expect(text()).toContain("pamRequestSlotTakenUntil");
+        });
+
+        it("keeps warning while the window is incomplete, reading it as starting now", () => {
+          component["humanForm"].controls.window.setValue({
+            startDate: "",
+            startTime: "",
+            endDate: "",
+            endTime: "",
+          });
+          fixture.detectChanges();
+
+          expect(text()).toContain("pamRequestSlotTakenUntil");
+        });
+
+        it("keeps warning when the slot's end cannot be read", async () => {
+          requestsApi.preCheck.mockResolvedValue(
+            preCheck({ approvalMode: "human", canStartLease: false, slotFreesAt: "not a date" }),
+          );
+          await create();
+          pickWindow(24 * HOUR_MS);
+
+          expect(text()).toContain("pamRequestSlotTaken");
+        });
+      });
+
+      it("stays quiet on the human path while the slot is free", async () => {
         requestsApi.preCheck.mockResolvedValue(
-          preCheck({
-            approvalMode: "human",
-            canStartLease: false,
-            slotFreesAt: "2026-08-31T10:52:00Z",
-          }),
+          preCheck({ approvalMode: "human", canStartLease: true }),
         );
         await create();
 
-        expect(component["slotContention"]()).toBeNull();
         expect(text()).not.toContain("pamRequestSlotTaken");
-        expect(text()).toContain("requestAccessModalStartDate");
       });
     });
   });

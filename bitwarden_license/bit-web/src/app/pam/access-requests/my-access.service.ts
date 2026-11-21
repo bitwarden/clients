@@ -6,12 +6,15 @@ import {
   Observable,
   combineLatest,
   concatMap,
+  defer,
   distinctUntilChanged,
   filter,
   firstValueFrom,
   from,
   map,
   merge,
+  of,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -26,7 +29,7 @@ import {
   AccessRequestView,
   isLeaseLive,
 } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { AccessBadgeTickerService, StartSlotService } from "@bitwarden/bit-pam-components";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -64,6 +67,7 @@ export class MyAccessService {
   private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly startSlotService = inject(StartSlotService);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -108,6 +112,36 @@ export class MyAccessService {
         .filter((r) => r.status === "pending" || isRedeemableGrant(r, nowMs))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
     }),
+  );
+
+  /**
+   * The ciphers of the caller's grants that can be started now whose single-active-lease slot
+   * another member holds, so the table disables their Start access. One pre-check per such cipher,
+   * never one per row. Re-evaluated on the clock, so a grant whose window opens or closes joins or
+   * leaves the set without a reload.
+   */
+  readonly startBlockedCipherIds$: Observable<ReadonlySet<string>> = combineLatest([
+    this.pendingRows$,
+    defer(() => this.ticker.ticks$.pipe(startWith(Date.now()))),
+  ]).pipe(
+    map(([rows, nowMs]) => {
+      const ids = rows
+        .filter((r) => isRedeemableGrant(r, nowMs) && Date.parse(r.leaseNotBefore) <= nowMs)
+        .map((r) => r.cipherId);
+      return [...new Set(ids)].sort();
+    }),
+    distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
+    switchMap((cipherIds) =>
+      cipherIds.length === 0
+        ? of(new Set<string>())
+        : combineLatest(
+            cipherIds.map((cipherId) =>
+              this.startSlotService
+                .blockedUntil$(cipherId)
+                .pipe(map((block) => (block == null ? null : cipherId))),
+            ),
+          ).pipe(map((blocked) => new Set(blocked.filter((id): id is string => id != null)))),
+    ),
   );
 
   /**
