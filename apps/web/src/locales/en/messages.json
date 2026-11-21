@@ -19039,6 +19039,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Credential access denied"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Access rule created"
   },
