@@ -156,9 +156,7 @@ export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "dis
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
 export const IPC_MEMORY = new StateDefinition("interProcessCommunication", "memory");
-export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
-  browser: "memory-large-object",
-});
+export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory");
 export const SYNC_DISK = new StateDefinition("sync", "disk", { web: "memory" });
 export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-local" });
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web: "disk-local" });

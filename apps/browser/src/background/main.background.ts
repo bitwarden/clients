@@ -847,6 +847,7 @@ export default class MainBackground {
       this.messageListener,
       this.globalStateProvider,
       this.taskSchedulerService,
+      this.logService,
     );
     this.popupRouterCacheBackgroundService = new PopupRouterCacheBackgroundService(
       this.globalStateProvider,
