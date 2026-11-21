@@ -1,8 +1,18 @@
 <ng-template #body>
   <p>{{ descriptionKey | i18n }}</p>
-  <span [id]="labelId" class="tw-block tw-mb-4 tw-font-bold">
-    {{ labelKey | i18n }}
-  </span>
+  <div class="tw-mb-2 tw-flex tw-items-center tw-justify-between tw-gap-2">
+    <span [id]="labelId" class="tw-font-bold">{{ labelKey | i18n }}</span>
+    <button
+      id="decryption-failure-dialog_button_copy-ids"
+      type="button"
+      bitIconButton="bwi-clone"
+      size="small"
+      [label]="copyButtonKey | i18n"
+      [appCopyClick]="valueToCopy"
+      [valueLabel]="labelKey | i18n"
+      showToast
+    ></button>
+  </div>
   <div
     role="group"
     tabindex="0"
@@ -13,6 +23,27 @@
       <div class="tw-whitespace-nowrap tw-font-mono tw-text-sm tw-leading-6">{{ id }}</div>
     }
   </div>
+</ng-template>
+
+<ng-template #footer>
+  <button
+    id="decryption-failure-dialog_button_data-recovery"
+    type="button"
+    bitButton
+    buttonType="primary"
+    [bitAction]="openDataRecovery"
+  >
+    {{ "goToDataRecoveryTool" | i18n }}
+  </button>
+  <button
+    id="decryption-failure-dialog_button_close"
+    type="button"
+    bitButton
+    buttonType="secondary"
+    (click)="dialogRef.close(false)"
+  >
+    {{ "close" | i18n }}
+  </button>
 </ng-template>
 
 <!--
@@ -29,20 +60,7 @@
       <ng-container *ngTemplateOutlet="body"></ng-container>
     </div>
     <ng-container bitDialogFooter>
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        startIcon="bwi-clone"
-        [appCopyClick]="valueToCopy"
-        [valueLabel]="labelKey | i18n"
-        showToast
-      >
-        {{ copyButtonKey | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
-        {{ "close" | i18n }}
-      </button>
+      <ng-container *ngTemplateOutlet="footer"></ng-container>
     </ng-container>
   </bit-dialog>
 } @else {
@@ -53,20 +71,7 @@
       <ng-container *ngTemplateOutlet="body"></ng-container>
     </div>
     <ng-container bitDialogFooter>
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        startIcon="bwi-clone"
-        [appCopyClick]="valueToCopy"
-        [valueLabel]="labelKey | i18n"
-        showToast
-      >
-        {{ copyButtonKey | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="secondary" (click)="dialogRef.close(false)">
-        {{ "close" | i18n }}
-      </button>
+      <ng-container *ngTemplateOutlet="footer"></ng-container>
     </ng-container>
   </bit-simple-dialog>
 }

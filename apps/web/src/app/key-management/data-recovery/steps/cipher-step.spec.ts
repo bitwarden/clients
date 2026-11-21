@@ -1,13 +1,19 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { UserKey } from "@bitwarden/common/types/key";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";
@@ -15,520 +21,416 @@ import { LogRecorder } from "../log-recorder";
 import { CipherStep } from "./cipher-step";
 import { RecoveryWorkingData } from "./recovery-step";
 
+const userId = "user-id" as UserId;
+const orgA = "org-a" as OrganizationId;
+const orgB = "org-b" as OrganizationId;
+
+function personalCipher(id: string): Cipher {
+  return { id, organizationId: null } as unknown as Cipher;
+}
+
+function orgCipher(id: string, organizationId: OrganizationId, canDelete = true): Cipher {
+  const permissions = new CipherPermissionsApi();
+  permissions.delete = canDelete;
+  return { id, organizationId, permissions } as unknown as Cipher;
+}
+
+function workingDataWith(ciphers: Cipher[]): RecoveryWorkingData {
+  return { userId, userKey: null, isPrivateKeyCorrupt: false, ciphers, folders: [] };
+}
+
 describe("CipherStep", () => {
   let cipherStep: CipherStep;
   let apiService: MockProxy<ApiService>;
   let cipherEncryptionService: MockProxy<CipherEncryptionService>;
   let dialogService: MockProxy<DialogService>;
-  let encryptService: MockProxy<EncryptService>;
+  let keyService: MockProxy<KeyService>;
+  let i18nService: MockProxy<I18nService>;
   let logger: MockProxy<LogRecorder>;
+  let decryptionKeys$: BehaviorSubject<CipherDecryptionKeys | null>;
 
-  const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+  /** Makes the given ciphers fail to decrypt; every other cipher succeeds. */
+  const failDecryptionFor = (failing: Cipher[]) => {
+    cipherEncryptionService.decryptManyLegacy.mockImplementation(async (ciphers) => [
+      [],
+      // decryptManyLegacy reports failures as placeholder views carrying the cipher's ID.
+      ciphers.filter((c) => failing.includes(c)).map((c) => ({ id: c.id }) as CipherView),
+    ]);
+  };
+
+  const logLines = () => logger.record.mock.calls.map(([line]) => line);
 
   beforeEach(() => {
     apiService = mock<ApiService>();
     cipherEncryptionService = mock<CipherEncryptionService>();
     dialogService = mock<DialogService>();
-    encryptService = mock<EncryptService>();
+    keyService = mock<KeyService>();
+    i18nService = mock<I18nService>();
     logger = mock<LogRecorder>();
 
-    cipherStep = new CipherStep(apiService, cipherEncryptionService, dialogService, encryptService);
+    i18nService.t.mockImplementation((key: string, ...args: unknown[]) => [key, ...args].join(":"));
+
+    // Both organizations' keys are available unless a test says otherwise.
+    decryptionKeys$ = new BehaviorSubject<CipherDecryptionKeys | null>({
+      orgKeys: { [orgA]: {} as OrgKey, [orgB]: {} as OrgKey },
+    } as unknown as CipherDecryptionKeys);
+    keyService.cipherDecryptionKeys$.mockReturnValue(decryptionKeys$);
+
+    failDecryptionFor([]);
+
+    cipherStep = new CipherStep(
+      apiService,
+      cipherEncryptionService,
+      dialogService,
+      keyService,
+      i18nService,
+    );
   });
 
   describe("runDiagnostics", () => {
     it("returns false and logs error when userId is missing", async () => {
-      const workingData: RecoveryWorkingData = {
-        userId: null,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [],
-        folders: [],
-      };
-
-      const result = await cipherStep.runDiagnostics(workingData, logger);
+      const result = await cipherStep.runDiagnostics(
+        { ...workingDataWith([]), userId: null },
+        logger,
+      );
 
       expect(result).toBe(false);
       expect(logger.record).toHaveBeenCalledWith("Missing user ID");
     });
 
-    it("returns true when all user ciphers are decryptable", async () => {
-      const userId = "user-id" as UserId;
-      const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
-      const cipher2 = { id: "cipher-2", organizationId: null } as Cipher;
+    it("decrypts personal and organization ciphers through CipherEncryptionService", async () => {
+      const personal = personalCipher("personal-1");
+      const org = orgCipher("org-1", orgA);
 
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher1, cipher2],
-        folders: [],
-      };
-
-      cipherEncryptionService.decrypt.mockResolvedValue({} as any);
-
-      const result = await cipherStep.runDiagnostics(workingData, logger);
+      const result = await cipherStep.runDiagnostics(workingDataWith([personal, org]), logger);
 
       expect(result).toBe(true);
-      expect(cipherEncryptionService.decrypt).toHaveBeenCalledWith(cipher1, userId);
-      expect(cipherEncryptionService.decrypt).toHaveBeenCalledWith(cipher2, userId);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [personal, org],
+        userId,
+      );
     });
 
-    it("filters out organization ciphers (organizationId !== null) and only processes user ciphers", async () => {
-      const userId = "user-id" as UserId;
-      const userCipher = { id: "user-cipher", organizationId: null } as Cipher;
-      const orgCipher1 = { id: "org-cipher-1", organizationId: "org-1" } as Cipher;
-      const orgCipher2 = { id: "org-cipher-2", organizationId: "org-2" } as Cipher;
+    it("flags corrupt personal and organization ciphers with their ownership", async () => {
+      const personal = personalCipher("personal-1");
+      const org = orgCipher("org-1", orgA);
+      const healthy = personalCipher("personal-2");
+      failDecryptionFor([personal, org]);
 
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [userCipher, orgCipher1, orgCipher2],
-        folders: [],
-      };
-
-      cipherEncryptionService.decrypt.mockResolvedValue({} as any);
-
-      const result = await cipherStep.runDiagnostics(workingData, logger);
-
-      expect(result).toBe(true);
-      // Only user cipher should be processed
-      expect(cipherEncryptionService.decrypt).toHaveBeenCalledTimes(1);
-      expect(cipherEncryptionService.decrypt).toHaveBeenCalledWith(userCipher, userId);
-      // Organization ciphers should not be processed
-      expect(cipherEncryptionService.decrypt).not.toHaveBeenCalledWith(orgCipher1, userId);
-      expect(cipherEncryptionService.decrypt).not.toHaveBeenCalledWith(orgCipher2, userId);
-    });
-
-    it("returns false and records undecryptable user ciphers", async () => {
-      const userId = "user-id" as UserId;
-      const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
-      const cipher2 = { id: "cipher-2", organizationId: null } as Cipher;
-      const cipher3 = { id: "cipher-3", organizationId: null } as Cipher;
-
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher1, cipher2, cipher3],
-        folders: [],
-      };
-
-      cipherEncryptionService.decrypt
-        .mockResolvedValueOnce({} as any) // cipher1 succeeds
-        .mockRejectedValueOnce(new Error("Decryption failed")) // cipher2 fails
-        .mockRejectedValueOnce(new Error("Decryption failed")); // cipher3 fails
-
-      const result = await cipherStep.runDiagnostics(workingData, logger);
+      const result = await cipherStep.runDiagnostics(
+        workingDataWith([personal, org, healthy]),
+        logger,
+      );
 
       expect(result).toBe(false);
-      expect(logger.record).toHaveBeenCalledWith(
-        "Cipher ID cipher-2 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
+      expect(logLines()).toContain(
+        "Cipher ID personal-1 (personal) was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent)",
       );
-      expect(logger.record).toHaveBeenCalledWith(
-        "Cipher ID cipher-3 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
-      );
-      expect(logger.record).toHaveBeenCalledWith("Found 2 undecryptable ciphers");
-    });
-
-    it("logs that a cipher key is present on an undecryptable cipher", async () => {
-      const userId = "user-id" as UserId;
-      const cipher = {
-        id: "cipher-1",
-        organizationId: null,
-        key: new EncString("2.key-iv|key-data|key-mac"),
-      } as Cipher;
-
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher],
-        folders: [],
-      };
-
-      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
-
-      await cipherStep.runDiagnostics(workingData, logger);
-
-      expect(logger.record).toHaveBeenCalledWith(
-        "Cipher ID cipher-1 was undecryptable (cipher key present, item type unknown, FIDO2 credentials absent): full decryption failed: Decryption failed",
+      expect(logLines()).toContain(
+        "Cipher ID org-1 (organization org-a) was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent)",
       );
     });
 
-    it("logs the item type and FIDO2 credential state of an undecryptable cipher", async () => {
-      const userId = "user-id" as UserId;
+    it("logs the cipher key, item type and FIDO2 credential state of an undecryptable cipher", async () => {
       const cipher = {
         id: "cipher-1",
         organizationId: null,
+        key: new EncString("2.AAAA|BBBB|CCCC"),
         type: CipherType.Login,
-        login: { fido2Credentials: [{}] },
-      } as Cipher;
+        login: { fido2Credentials: [] },
+      } as unknown as Cipher;
+      failDecryptionFor([cipher]);
 
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher],
-        folders: [],
-      };
+      await cipherStep.runDiagnostics(workingDataWith([cipher]), logger);
 
-      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
-
-      await cipherStep.runDiagnostics(workingData, logger);
-
-      expect(logger.record).toHaveBeenCalledWith(
-        `Cipher ID cipher-1 was undecryptable (cipher key absent, item type ${CipherType.Login}, FIDO2 credentials present): full decryption failed: Decryption failed`,
+      expect(logLines()).toContain(
+        `Cipher ID cipher-1 (personal) was undecryptable (cipher key present, item type ${CipherType.Login}, FIDO2 credentials present)`,
       );
     });
 
-    it("returns correct results when running diagnostics multiple times", async () => {
-      const userId = "user-id" as UserId;
-      const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
-      const cipher2 = { id: "cipher-2", organizationId: null } as Cipher;
+    it("skips organization ciphers whose organization key is unavailable, like the vault", async () => {
+      decryptionKeys$.next({
+        orgKeys: { [orgA]: {} as OrgKey },
+      } as unknown as CipherDecryptionKeys);
+      const personal = personalCipher("personal-1");
+      const withKey = orgCipher("org-a-1", orgA);
+      const withoutKey = orgCipher("org-b-1", orgB);
+      failDecryptionFor([withoutKey]);
 
-      const workingData: RecoveryWorkingData = {
+      const result = await cipherStep.runDiagnostics(
+        workingDataWith([personal, withKey, withoutKey]),
+        logger,
+      );
+
+      expect(result).toBe(true);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [personal, withKey],
         userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher1, cipher2],
-        folders: [],
-      };
-
-      // First run: cipher1 succeeds, cipher2 fails
-      cipherEncryptionService.decrypt
-        .mockResolvedValueOnce({} as any)
-        .mockRejectedValueOnce(new Error("Decryption failed"));
-
-      const result1 = await cipherStep.runDiagnostics(workingData, logger);
-
-      expect(result1).toBe(false);
-      expect(cipherStep.canRecover(workingData)).toBe(true);
-
-      // Second run: all ciphers succeed
-      cipherEncryptionService.decrypt.mockResolvedValue({} as any);
-
-      const result2 = await cipherStep.runDiagnostics(workingData, logger);
-
-      expect(result2).toBe(true);
-      expect(cipherStep.canRecover(workingData)).toBe(false);
-      expect(cipherStep["undecryptableCipherIds"]).toHaveLength(0);
-      expect(cipherStep["decryptableCipherIds"]).toHaveLength(2);
+      );
+      expect(logLines()).toContain(
+        "Cipher ID org-b-1 (organization org-b) was skipped: no key is available for the organization",
+      );
     });
 
-    describe("name field check", () => {
-      const userId = "user-id" as UserId;
-      const encryptedName = new EncString("2.name-iv|name-data|name-mac");
+    it("checks every cipher when no organization keys are loaded, like the vault", async () => {
+      decryptionKeys$.next(null);
+      const org = orgCipher("org-1", orgA);
 
-      const workingDataFor = (
-        cipher: Cipher,
-        key: UserKey | null = userKey,
-      ): RecoveryWorkingData => ({
-        userId,
-        userKey: key,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher],
-        folders: [],
-      });
+      await cipherStep.runDiagnostics(workingDataWith([org]), logger);
 
-      beforeEach(() => {
-        cipherEncryptionService.decrypt.mockResolvedValue({} as any);
-      });
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith([org], userId);
+    });
 
-      it("does not probe a cipher with no name", async () => {
-        const workingData = workingDataFor({ id: "cipher-1", organizationId: null } as Cipher);
+    it("does not decrypt when there is nothing to check", async () => {
+      const result = await cipherStep.runDiagnostics(workingDataWith([]), logger);
 
-        const result = await cipherStep.runDiagnostics(workingData, logger);
+      expect(result).toBe(true);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+    });
 
-        expect(result).toBe(true);
-        expect(encryptService.decryptString).not.toHaveBeenCalled();
-        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
-      });
+    it("logs summary counts split by personal and organization", async () => {
+      decryptionKeys$.next({
+        orgKeys: { [orgA]: {} as OrgKey },
+      } as unknown as CipherDecryptionKeys);
+      const corruptPersonal = personalCipher("p-bad");
+      const healthyPersonal = personalCipher("p-ok");
+      const corruptOrg = orgCipher("o-bad", orgA);
+      const healthyOrg = orgCipher("o-ok", orgA);
+      const skippedOrg = orgCipher("o-skip", orgB);
+      failDecryptionFor([corruptPersonal, corruptOrg]);
 
-      it("does not probe a name that is not an AesCbc256_HmacSha256 encrypted string", async () => {
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: new EncString("7.cose-data"),
-        } as Cipher);
+      await cipherStep.runDiagnostics(
+        workingDataWith([corruptPersonal, healthyPersonal, corruptOrg, healthyOrg, skippedOrg]),
+        logger,
+      );
 
-        const result = await cipherStep.runDiagnostics(workingData, logger);
+      expect(logLines()).toContain("Personal items: 1 undecryptable, 1 decryptable");
+      expect(logLines()).toContain(
+        "Organization items: 1 undecryptable, 1 decryptable, 1 skipped (organization key unavailable)",
+      );
+      expect(logLines()).toContain("Found 2 undecryptable ciphers");
+      expect(logLines()).toContain("Found 2 decryptable ciphers");
+    });
 
-        expect(result).toBe(true);
-        expect(encryptService.decryptString).not.toHaveBeenCalled();
-      });
+    it("reports corrupt organization ciphers the user cannot delete", async () => {
+      const notDeletable = orgCipher("org-1", orgA, false);
+      failDecryptionFor([notDeletable]);
 
-      it("does not probe when the user key is missing", async () => {
-        const workingData = workingDataFor(
-          { id: "cipher-1", organizationId: null, name: encryptedName } as Cipher,
-          null,
-        );
+      await cipherStep.runDiagnostics(
+        workingDataWith([notDeletable, orgCipher("org-ok", orgA), personalCipher("ok")]),
+        logger,
+      );
 
-        const result = await cipherStep.runDiagnostics(workingData, logger);
+      expect(logLines()).toContain(
+        "Cipher ID org-1 (organization org-a) cannot be deleted: the user lacks delete permission",
+      );
+      expect(cipherStep.message).toBe("recoveryOrgItemsContactSupport:1");
+    });
 
-        expect(result).toBe(true);
-        expect(encryptService.decryptString).not.toHaveBeenCalled();
-      });
+    it("throws a readable error when decryption cannot run at all", async () => {
+      cipherEncryptionService.decryptManyLegacy.mockRejectedValue(
+        new Error("no elements in sequence"),
+      );
 
-      it("does not probe when the user key is not an AesCbc256_HmacSha256 key", async () => {
-        // A COSE user key cannot decrypt an AesCbc256_HmacSha256 name, so the probe would report a
-        // failure that says nothing about the cipher.
-        const coseUserKey = new SymmetricCryptoKey(new Uint8Array(70)) as UserKey;
-        const workingData = workingDataFor(
-          { id: "cipher-1", organizationId: null, name: encryptedName } as Cipher,
-          coseUserKey,
-        );
+      await expect(
+        cipherStep.runDiagnostics(workingDataWith([personalCipher("p")]), logger),
+      ).rejects.toThrow("Vault item decryption could not run: no elements in sequence");
+    });
 
-        const result = await cipherStep.runDiagnostics(workingData, logger);
+    it("resets results between runs", async () => {
+      const cipher = personalCipher("p");
+      failDecryptionFor([cipher]);
+      expect(await cipherStep.runDiagnostics(workingDataWith([cipher]), logger)).toBe(false);
 
-        expect(result).toBe(true);
-        expect(encryptService.decryptString).not.toHaveBeenCalled();
-        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
-      });
-
-      it("decrypts the name with the user key when the cipher has no cipher key", async () => {
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: encryptedName,
-        } as Cipher);
-
-        encryptService.decryptString.mockResolvedValue("name");
-
-        const result = await cipherStep.runDiagnostics(workingData, logger);
-
-        expect(result).toBe(true);
-        expect(encryptService.unwrapSymmetricKey).not.toHaveBeenCalled();
-        expect(encryptService.decryptString).toHaveBeenCalledWith(encryptedName, userKey);
-      });
-
-      it("decrypts the name with the unwrapped cipher key when the cipher has one", async () => {
-        const cipherKey = new EncString("2.key-iv|key-data|key-mac");
-        const unwrappedKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1));
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: encryptedName,
-          key: cipherKey,
-        } as Cipher);
-
-        encryptService.unwrapSymmetricKey.mockResolvedValue(unwrappedKey);
-        encryptService.decryptString.mockResolvedValue("name");
-
-        const result = await cipherStep.runDiagnostics(workingData, logger);
-
-        expect(result).toBe(true);
-        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(cipherKey, userKey);
-        expect(encryptService.decryptString).toHaveBeenCalledWith(encryptedName, unwrappedKey);
-      });
-
-      it("flags a cipher whose name fails to decrypt even when full decryption succeeds", async () => {
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: encryptedName,
-        } as Cipher);
-
-        encryptService.decryptString.mockRejectedValue(new Error("mac mismatch"));
-
-        const result = await cipherStep.runDiagnostics(workingData, logger);
-
-        expect(result).toBe(false);
-        expect(logger.record).toHaveBeenCalledWith(
-          "Cipher ID cipher-1 was undecryptable (cipher key absent, item type unknown, FIDO2 credentials absent): name field could not be decrypted: mac mismatch",
-        );
-      });
-
-      it("flags a cipher whose cipher key cannot be unwrapped", async () => {
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: encryptedName,
-          key: new EncString("2.key-iv|key-data|key-mac"),
-        } as Cipher);
-
-        encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("mac mismatch"));
-
-        const result = await cipherStep.runDiagnostics(workingData, logger);
-
-        expect(result).toBe(false);
-        expect(encryptService.decryptString).not.toHaveBeenCalled();
-        expect(logger.record).toHaveBeenCalledWith(
-          "Cipher ID cipher-1 was undecryptable (cipher key present, item type unknown, FIDO2 credentials absent): cipher key could not be unwrapped: mac mismatch",
-        );
-      });
-
-      it("reports both failures when full decryption and the name probe fail", async () => {
-        const workingData = workingDataFor({
-          id: "cipher-1",
-          organizationId: null,
-          name: encryptedName,
-        } as Cipher);
-
-        cipherEncryptionService.decrypt.mockRejectedValue(new Error("no elements in sequence"));
-        encryptService.decryptString.mockRejectedValue(new Error("mac mismatch"));
-
-        const result = await cipherStep.runDiagnostics(workingData, logger);
-
-        expect(result).toBe(false);
-        expect(logger.record).toHaveBeenCalledWith(
-          "Cipher ID cipher-1 was undecryptable " +
-            "(cipher key absent, item type unknown, FIDO2 credentials absent): " +
-            "full decryption failed: no elements in sequence; " +
-            "name field could not be decrypted: mac mismatch",
-        );
-      });
+      failDecryptionFor([]);
+      expect(await cipherStep.runDiagnostics(workingDataWith([cipher]), logger)).toBe(true);
+      expect(cipherStep.message).toBeUndefined();
     });
   });
 
   describe("canRecover", () => {
     it("returns false when there are no undecryptable ciphers", async () => {
-      const userId = "user-id" as UserId;
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [
-          { id: "cipher-1", organizationId: null } as Cipher,
-          { id: "cipher-2", organizationId: null } as Cipher,
-        ],
-        folders: [],
-      };
+      await cipherStep.runDiagnostics(workingDataWith([personalCipher("p")]), logger);
 
-      cipherEncryptionService.decrypt.mockResolvedValue({} as any);
-
-      await cipherStep.runDiagnostics(workingData, logger);
-      const result = cipherStep.canRecover(workingData);
-
-      expect(result).toBe(false);
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
     });
 
-    it("returns true when there are undecryptable ciphers but at least one decryptable cipher", async () => {
-      const userId = "user-id" as UserId;
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [
-          { id: "cipher-1", organizationId: null } as Cipher,
-          { id: "cipher-2", organizationId: null } as Cipher,
-        ],
-        folders: [],
-      };
+    it("returns true when a deletable cipher is corrupt and another item under its key decrypts", async () => {
+      const bad = orgCipher("org-1", orgA);
+      failDecryptionFor([bad]);
+      await cipherStep.runDiagnostics(workingDataWith([bad, orgCipher("org-ok", orgA)]), logger);
 
-      cipherEncryptionService.decrypt.mockRejectedValueOnce(new Error("Decryption failed"));
-
-      await cipherStep.runDiagnostics(workingData, logger);
-      const result = cipherStep.canRecover(workingData);
-
-      expect(result).toBe(true);
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(true);
     });
 
-    it("returns false when all ciphers are undecryptable", async () => {
-      const userId = "user-id" as UserId;
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [
-          { id: "cipher-1", organizationId: null } as Cipher,
-          { id: "cipher-2", organizationId: null } as Cipher,
-        ],
-        folders: [],
-      };
+    it("returns false when every cipher fails to decrypt", async () => {
+      const a = personalCipher("a");
+      const b = personalCipher("b");
+      failDecryptionFor([a, b]);
+      await cipherStep.runDiagnostics(workingDataWith([a, b]), logger);
 
-      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
+    });
 
-      await cipherStep.runDiagnostics(workingData, logger);
-      const result = cipherStep.canRecover(workingData);
+    it("returns false when the only corrupt ciphers cannot be deleted by the user", async () => {
+      const bad = orgCipher("org-1", orgA, false);
+      failDecryptionFor([bad]);
+      await cipherStep.runDiagnostics(workingDataWith([bad, orgCipher("org-ok", orgA)]), logger);
 
-      expect(result).toBe(false);
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
+    });
+  });
+
+  describe("deletion safeguard per key", () => {
+    it("does not offer personal items for deletion when every personal item fails, even if org items decrypt", async () => {
+      const a = personalCipher("p-a");
+      const b = personalCipher("p-b");
+      failDecryptionFor([a, b]);
+
+      await cipherStep.runDiagnostics(workingDataWith([a, b, orgCipher("org-ok", orgA)]), logger);
+
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
+      expect(logLines()).toContain(
+        "Cipher ID p-a (personal) cannot be deleted: no other item encrypted with the same key decrypts",
+      );
+    });
+
+    it("does not offer an organization's items for deletion when every item in it fails, even with delete permission", async () => {
+      const a = orgCipher("org-a-1", orgA);
+      const b = orgCipher("org-a-2", orgA);
+      failDecryptionFor([a, b]);
+
+      await cipherStep.runDiagnostics(workingDataWith([a, b, personalCipher("ok")]), logger);
+
+      expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
+      expect(logLines()).toContain(
+        "Cipher ID org-a-1 (organization org-a) cannot be deleted: no other item encrypted with the same key decrypts",
+      );
+      expect(cipherStep.message).toBe("recoveryOrgItemsContactSupport:2");
+    });
+
+    it("judges each organization separately", async () => {
+      const brokenInA = orgCipher("org-a-bad", orgA);
+      const onlyItemInB = orgCipher("org-b-bad", orgB);
+      failDecryptionFor([brokenInA, onlyItemInB]);
+
+      await cipherStep.runDiagnostics(
+        workingDataWith([brokenInA, orgCipher("org-a-ok", orgA), onlyItemInB]),
+        logger,
+      );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      await cipherStep.runRecovery(workingDataWith([]), logger);
+
+      expect(apiService.deleteCipher).toHaveBeenCalledWith("org-a-bad");
+      expect(apiService.deleteCipher).not.toHaveBeenCalledWith("org-b-bad");
+    });
+
+    it("logs every reason an item cannot be deleted", async () => {
+      const locked = orgCipher("org-a-locked", orgA, false);
+      failDecryptionFor([locked]);
+
+      await cipherStep.runDiagnostics(workingDataWith([locked, personalCipher("ok")]), logger);
+
+      expect(logLines()).toContain(
+        "Cipher ID org-a-locked (organization org-a) cannot be deleted: no other item encrypted with the same key decrypts; the user lacks delete permission",
+      );
     });
   });
 
   describe("runRecovery", () => {
-    it("logs and returns early when there are no undecryptable ciphers", async () => {
-      const workingData: RecoveryWorkingData = {
-        userId: "user-id" as UserId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [],
-        folders: [],
-      };
+    const personalBad = personalCipher("p-bad");
+    const orgBad = orgCipher("o-bad", orgA);
+    const orgBadNoPermission = orgCipher("o-locked", orgA, false);
 
-      await cipherStep.runRecovery(workingData, logger);
+    beforeEach(async () => {
+      failDecryptionFor([personalBad, orgBad, orgBadNoPermission]);
+      await cipherStep.runDiagnostics(
+        workingDataWith([
+          personalBad,
+          orgBad,
+          orgBadNoPermission,
+          personalCipher("ok"),
+          orgCipher("o-ok", orgA),
+        ]),
+        logger,
+      );
+      logger.record.mockClear();
+    });
+
+    it("logs and returns early when there are no deletable ciphers", async () => {
+      failDecryptionFor([]);
+      await cipherStep.runDiagnostics(workingDataWith([personalCipher("ok")]), logger);
+
+      await cipherStep.runRecovery(workingDataWith([]), logger);
 
       expect(logger.record).toHaveBeenCalledWith("No undecryptable ciphers to recover");
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-      expect(apiService.deleteCipher).not.toHaveBeenCalled();
     });
 
-    it("throws error when user cancels deletion", async () => {
-      const userId = "user-id" as UserId;
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [{ id: "cipher-1", organizationId: null } as Cipher],
-        folders: [],
-      };
+    it("states what will be deleted and the undecryptable items that will be left unchanged", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
-      await cipherStep.runDiagnostics(workingData, logger);
+      await cipherStep.runRecovery(workingDataWith([]), logger);
 
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: { key: "recoveryDeleteCiphersWithUndeletableDesc", placeholders: [2, 1] },
+          type: "danger",
+        }),
+      );
+    });
+
+    it("omits the left-unchanged count when every undecryptable item can be deleted", async () => {
+      failDecryptionFor([personalBad, orgBad]);
+      await cipherStep.runDiagnostics(
+        workingDataWith([personalBad, orgBad, personalCipher("ok"), orgCipher("o-ok", orgA)]),
+        logger,
+      );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await cipherStep.runRecovery(workingDataWith([]), logger);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: { key: "recoveryDeleteCiphersCountDesc", placeholders: [2] },
+        }),
+      );
+    });
+
+    it("throws when the user cancels deletion", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await expect(cipherStep.runRecovery(workingData, logger)).rejects.toThrow(
+      await expect(cipherStep.runRecovery(workingDataWith([]), logger)).rejects.toThrow(
         "Cipher recovery cancelled by user",
       );
-
-      expect(logger.record).toHaveBeenCalledWith("Showing confirmation dialog for 1 ciphers");
-      expect(logger.record).toHaveBeenCalledWith("User cancelled cipher deletion");
       expect(apiService.deleteCipher).not.toHaveBeenCalled();
     });
 
-    it("deletes undecryptable ciphers when user confirms", async () => {
-      const userId = "user-id" as UserId;
-      const cipher1 = { id: "cipher-1", organizationId: null } as Cipher;
-      const cipher2 = { id: "cipher-2", organizationId: null } as Cipher;
-
-      const workingData: RecoveryWorkingData = {
-        userId,
-        userKey: null,
-        encryptedPrivateKey: null,
-        isPrivateKeyCorrupt: false,
-        ciphers: [cipher1, cipher2],
-        folders: [],
-      };
-
-      cipherEncryptionService.decrypt.mockRejectedValue(new Error("Decryption failed"));
-      await cipherStep.runDiagnostics(workingData, logger);
-
+    it("deletes only the ciphers the user is allowed to delete", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
-      apiService.deleteCipher.mockResolvedValue(undefined);
 
-      await cipherStep.runRecovery(workingData, logger);
+      await cipherStep.runRecovery(workingDataWith([]), logger);
 
-      expect(logger.record).toHaveBeenCalledWith("Showing confirmation dialog for 2 ciphers");
-      expect(logger.record).toHaveBeenCalledWith("Deleting 2 ciphers");
-      expect(apiService.deleteCipher).toHaveBeenCalledWith("cipher-1");
-      expect(apiService.deleteCipher).toHaveBeenCalledWith("cipher-2");
-      expect(logger.record).toHaveBeenCalledWith("Deleted cipher cipher-1");
-      expect(logger.record).toHaveBeenCalledWith("Deleted cipher cipher-2");
+      expect(apiService.deleteCipher).toHaveBeenCalledWith("p-bad");
+      expect(apiService.deleteCipher).toHaveBeenCalledWith("o-bad");
+      expect(apiService.deleteCipher).not.toHaveBeenCalledWith("o-locked");
+      expect(logger.record).toHaveBeenCalledWith("Deleted cipher o-bad (organization org-a)");
       expect(logger.record).toHaveBeenCalledWith("Successfully deleted 2 ciphers");
+    });
+
+    it("keeps deleting after a failure and then reports the partial failure", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      apiService.deleteCipher.mockRejectedValueOnce(new Error("Forbidden"));
+
+      await expect(cipherStep.runRecovery(workingDataWith([]), logger)).rejects.toThrow(
+        "Failed to delete 1 of 2 ciphers",
+      );
+
+      expect(apiService.deleteCipher).toHaveBeenCalledTimes(2);
+      expect(logger.record).toHaveBeenCalledWith(
+        "Failed to delete cipher p-bad (personal): Forbidden",
+      );
+      expect(logger.record).toHaveBeenCalledWith("Deleted cipher o-bad (organization org-a)");
     });
   });
 });
