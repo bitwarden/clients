@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, mergeMap } from "rxjs";
+import { filter, mergeMap, share } from "rxjs";
 
 import {
   AbstractStorageService,
@@ -68,6 +68,7 @@ export default abstract class AbstractChromeStorageService
           };
         });
       }),
+      share(),
     );
   }
 
