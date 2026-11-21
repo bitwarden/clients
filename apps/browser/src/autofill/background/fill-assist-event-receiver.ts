@@ -1,34 +1,42 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { isExternalMessage } from "@bitwarden/common/platform/messaging";
 
-export const FillAssistEventName = Object.freeze({
-  QualificationFailed: "fill_assist_rule_qualification_failed",
-} as const);
-export type FillAssistEventName = (typeof FillAssistEventName)[keyof typeof FillAssistEventName];
+import { FillAssistEvent, FillAssistEventName, FillAssistMissReason } from "./fill-assist-event";
 
-export const FillAssistMissReason = Object.freeze({
-  Structural: "structural",
-  InScopeExtras: "in_scope_extras",
-} as const);
-export type FillAssistMissReason = (typeof FillAssistMissReason)[keyof typeof FillAssistMissReason];
-
-export type FillAssistEvent = {
-  name: typeof FillAssistEventName.QualificationFailed;
-  payload: {
-    domain: string;
-    missReason: FillAssistMissReason;
-    ruleId: string;
-  };
-};
+/**
+ * Type guard for `FillAssistEvent`. Combines the external-tag check with a
+ * full shape check so the narrowed type implies both that the message arrived
+ * through the chrome.runtime ingest boundary and that its members match the
+ * receiver's contract.
+ */
+export function isFillAssistEvent(msg: unknown): msg is FillAssistEvent {
+  if (!isExternalMessage(msg)) {
+    return false;
+  }
+  if (msg.name !== FillAssistEventName.QualificationFailed) {
+    return false;
+  }
+  const payload = msg.payload;
+  if (typeof payload !== "object" || payload === null) {
+    return false;
+  }
+  const p = payload as Record<PropertyKey, unknown>;
+  return (
+    typeof p.domain === "string" &&
+    typeof p.ruleId === "string" &&
+    (Object.values(FillAssistMissReason) as unknown[]).includes(p.missReason)
+  );
+}
 
 export interface FillAssistEventReceiver {
   receive(event: FillAssistEvent): void;
 }
 
 /**
- * TODO: Update or remove this temporary note during fill assist M6. This class is
- * an M3.5 placeholder. Logs the event locally to observe emissions during
- * development. M6 will wire in the real consumer. The emitter, the message shape,
- * and this interface stay stable across the swap.
+ * No-op receiver. Logs the event locally so emissions are observable during
+ * development.
+ *
+ * FIXME (PM-34713): replace with the real consumer during fill assist M6.
  */
 export class NoopFillAssistEventReceiver implements FillAssistEventReceiver {
   constructor(private logService: LogService) {}

@@ -36,8 +36,8 @@ import {
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
 import {
-  FillAssistEvent,
   FillAssistEventReceiver,
+  isFillAssistEvent,
 } from "../autofill/background/fill-assist-event-receiver";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
@@ -310,20 +310,6 @@ export default class RuntimeBackground {
 
         return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
-      case "fillAssistEmit": {
-        // Trusted-sender gate: only the content-script emitter routes this message.
-        // Content scripts carry a sender.tab; popup and options senders do not.
-        // Chrome's extension model (no `externally_connectable` in the manifest) is
-        // the backstop that keeps page-origin dispatches off this listener entirely.
-        if (!sender.tab?.id) {
-          return;
-        }
-        this.fillAssistEventReceiver.receive({
-          name: msg.name,
-          payload: msg.payload,
-        } satisfies FillAssistEvent);
-        return;
-      }
       case "runFillAssistHeuristicFallback": {
         // Trusted-sender gate: only the content-script emitter routes this message.
         // Content scripts carry a sender.tab; popup and options senders do not.
@@ -436,6 +422,19 @@ export default class RuntimeBackground {
 
   async processMessage(msg: any) {
     switch (msg.command) {
+      case "fillAssistEmit": {
+        // Combined tag and shape check. The guard rejects anything not tagged
+        // by the chrome.runtime ingest boundary, and narrows the type so the
+        // message passes through to the receiver without a cast. Handled on
+        // the `allMessages$` ingest path so the external tag is applied by
+        // the time this handler runs.
+        if (!isFillAssistEvent(msg)) {
+          this.logService.warning("Discarded malformed fillAssistEmit message.");
+          return;
+        }
+        this.fillAssistEventReceiver.receive(msg);
+        return;
+      }
       case "loggedIn":
       case "unlocked": {
         let item: LockedVaultPendingNotificationsData;
