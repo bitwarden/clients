@@ -1,0 +1,26 @@
+# Owner review list for @bitwarden/team-billing-dev
+#
+# This file is YAML. It has two keys, and each key contains a list of path patterns:
+#   include   Required. Paths where a change always needs this team's review.
+#   exclude   Optional. Paths that never need this team's review, even when an include pattern
+#             matches them.
+# Any other key makes the list invalid.
+#
+# Patterns use CODEOWNERS syntax, such as `libs/auth`, `*.spec.ts`, and `apps/**/auth`. Negation
+# with `!` and ranges with `[ ]` are not supported. Put quotes around a pattern that starts with
+# `*`, because YAML reads a leading `*` as an alias.
+
+include:
+  ## Always-review lists are owned by their teams
+  - .github/review/team-billing-dev.yml
+
+  ## Billing team files ##
+  - apps/browser/src/billing
+  - apps/desktop/src/billing
+  - apps/web/src/app/billing
+  - libs/angular/src/billing
+  - libs/common/src/billing
+  - libs/billing
+  - libs/pricing
+  - libs/subscription
+  - bitwarden_license/bit-web/src/app/billing

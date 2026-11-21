@@ -1,0 +1,34 @@
+# Owner review list for @bitwarden/team-skunkworks
+#
+# This file is YAML. It has two keys, and each key contains a list of path patterns:
+#   include   Required. Paths where a change always needs this team's review.
+#   exclude   Optional. Paths that never need this team's review, even when an include pattern
+#             matches them.
+# Any other key makes the list invalid.
+#
+# Patterns use CODEOWNERS syntax, such as `libs/auth`, `*.spec.ts`, and `apps/**/auth`. Negation
+# with `!` and ranges with `[ ]` are not supported. Put quotes around a pattern that starts with
+# `*`, because YAML reads a leading `*` as an alias.
+
+include:
+  ## Always-review lists are owned by their teams
+  - .github/review/team-skunkworks.yml
+
+  ## Native Passkey files
+  - apps/desktop/desktop_native/autofill_provider
+  - apps/desktop/desktop_native/core/src/autofill
+  - apps/desktop/desktop_native/napi/src/autofill.rs
+  - apps/desktop/desktop_native/napi/src/passkey_authenticator.rs
+  - apps/desktop/desktop_native/napi/src/passkey_authenticator_internal
+  - apps/desktop/desktop_native/objc/src/native/autofill
+  - apps/desktop/desktop_native/win_webauthn
+  - apps/desktop/desktop_native/windows_plugin_authenticator
+  - apps/desktop/macos
+  - apps/desktop/src/autofill/desktop-autofill.preload.ts
+  - "apps/desktop/src/autofill/main/main-desktop-autofill*"
+  - apps/desktop/src/autofill/modal/credentials
+  - "apps/desktop/src/autofill/models/autofill-*"
+  - apps/desktop/src/autofill/models/ipc-handler.type.ts
+  - apps/desktop/src/autofill/services/desktop-autofill.service.ts
+  - apps/desktop/src/autofill/services/desktop-autofill.service.spec.ts
+  - "apps/desktop/src/autofill/services/desktop-fido2*"

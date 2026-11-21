@@ -6,5 +6,6 @@
     "moduleResolution": "NodeNext",
     "target": "ESNext"
   },
-  "include": ["*.ts"]
+  "include": ["*.ts"],
+  "exclude": ["*.spec.ts"]
 }
