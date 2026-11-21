@@ -193,7 +193,10 @@ function build(config: BuildConfig): void {
     );
   }
 
-  console.log(`Building the autofill extension (${settings.xcodeConfiguration})`);
+  console.log(
+    `Building the autofill extension (${settings.xcodeConfiguration}` +
+      `${settings.signed ? "" : ", unsigned"})`,
+  );
 
   buildFfi(config);
 
@@ -217,15 +220,20 @@ function build(config: BuildConfig): void {
     "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO",
     // Carried over verbatim from build-macos-extension.js, quotes included.
     "OTHER_CODE_SIGN_FLAGS='--timestamp'",
-    // Passed rather than left to the configuration. A setting given on the command line
-    // outranks both the target's own build settings and the .xcconfig behind them -- which is
-    // the only reason these take effect at all, since the autofill-extension target sets its
-    // own CODE_SIGN_IDENTITY and so the .xcconfig values never win on their own.
-    `CODE_SIGN_IDENTITY=${settings.codeSignIdentity}`,
-    `PROVISIONING_PROFILE_SPECIFIER=${settings.provisioningProfileSpecifier}`,
-    // Absolute, because xcodebuild resolves this against the Xcode project's directory while
-    // the configuration names it relative to apps/desktop.
-    `CODE_SIGN_ENTITLEMENTS=${path.resolve(projectDir, entitlements)}`,
+    ...(settings.signed
+      ? [
+          // Passed rather than left to the configuration. A setting given on the command line
+          // outranks both the target's own build settings and the .xcconfig behind them --
+          // which is the only reason these take effect at all, since the autofill-extension
+          // target sets its own CODE_SIGN_IDENTITY and so the .xcconfig values never win on
+          // their own.
+          `CODE_SIGN_IDENTITY=${settings.codeSignIdentity}`,
+          `PROVISIONING_PROFILE_SPECIFIER=${settings.provisioningProfileSpecifier}`,
+          // Absolute, because xcodebuild resolves this against the Xcode project's directory
+          // while the configuration names it relative to apps/desktop.
+          `CODE_SIGN_ENTITLEMENTS=${path.resolve(projectDir, entitlements)}`,
+        ]
+      : ["CODE_SIGNING_ALLOWED=NO"]),
   ]);
 
   stageBundle(
