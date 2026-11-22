@@ -2504,7 +2504,9 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Creates an identity state fill script action for the provided field. This is used
    * when filling a `state` field, using the state value from the identity cipher item.
-   * If the state value is a full name, it will be converted to an ISO code.
+   * If the state value is the full name of a US state or Canadian province, its ISO code
+   * is tried first. The stored value is used as entered when no ISO code is known, or when
+   * a select field has no option for the ISO code.
    *
    * @param fillScript - The autofill script to add the action to
    * @param filledFields - The fields that have already been filled
@@ -2521,24 +2523,27 @@ export default class AutofillService implements AutofillServiceInterface {
       return;
     }
 
-    if (identity.state.length <= 2) {
-      this.makeScriptActionWithValue(fillScript, identity.state, field, filledFields);
-      return;
-    }
-
     const stateLower = identity.state.toLowerCase();
     const isoState =
-      IdentityAutoFillConstants.IsoStates[stateLower] ||
-      IdentityAutoFillConstants.IsoProvinces[stateLower];
-    if (isoState) {
-      this.makeScriptActionWithValue(fillScript, isoState, field, filledFields);
-    }
+      identity.state.length > 2
+        ? IdentityAutoFillConstants.IsoStates[stateLower] ||
+          IdentityAutoFillConstants.IsoProvinces[stateLower]
+        : undefined;
+
+    this.makeScriptActionWithFirstAcceptedValue(
+      fillScript,
+      [isoState, identity.state],
+      field,
+      filledFields,
+    );
   }
 
   /**
    * Creates an identity country fill script action for the provided field. This is used
    * when filling a `country` field, using the country value from the identity cipher item.
-   * If the country value is a full name, it will be converted to an ISO code.
+   * If the country value is a full country name, its ISO code is tried first. The stored
+   * value is used as entered when no ISO code is known, or when a select field has no
+   * option for the ISO code.
    *
    * @param fillScript - The autofill script to add the action to
    * @param filledFields - The fields that have already been filled
@@ -2555,15 +2560,45 @@ export default class AutofillService implements AutofillServiceInterface {
       return;
     }
 
-    if (identity.country.length <= 2) {
-      this.makeScriptActionWithValue(fillScript, identity.country, field, filledFields);
-      return;
-    }
+    const isoCountry =
+      identity.country.length > 2
+        ? IdentityAutoFillConstants.IsoCountries[identity.country.toLowerCase()]
+        : undefined;
 
-    const countryLower = identity.country.toLowerCase();
-    const isoCountry = IdentityAutoFillConstants.IsoCountries[countryLower];
-    if (isoCountry) {
-      this.makeScriptActionWithValue(fillScript, isoCountry, field, filledFields);
+    this.makeScriptActionWithFirstAcceptedValue(
+      fillScript,
+      [isoCountry, identity.country],
+      field,
+      filledFields,
+    );
+  }
+
+  /**
+   * Adds a fill script action using the first candidate value the field accepts. A text
+   * field accepts the first non-empty candidate. A select field accepts the first candidate
+   * that matches one of its options.
+   *
+   * @param fillScript - The autofill script to add the action to
+   * @param candidateValues - The values to try, in order of preference
+   * @param field - The field to fill
+   * @param filledFields - The fields that have already been filled
+   */
+  private makeScriptActionWithFirstAcceptedValue(
+    fillScript: AutofillScript,
+    candidateValues: (string | undefined)[],
+    field: AutofillField,
+    filledFields: Record<string, AutofillField>,
+  ) {
+    const actionCount = fillScript.script.length;
+    for (const value of candidateValues) {
+      if (!value) {
+        continue;
+      }
+
+      this.makeScriptActionWithValue(fillScript, value, field, filledFields);
+      if (fillScript.script.length > actionCount) {
+        return;
+      }
     }
   }
 
