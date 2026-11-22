@@ -138,13 +138,10 @@ body * {
 .inline-menu-list-actions {
   padding: 0;
   margin: 0;
-  max-height: 18rem;
+  max-height: var(--inline-menu-list-max-height, 18rem);
+  overflow-y: auto;
   -ms-overflow-style: none;
   scrollbar-width: thin;
-
-  &--scrollbar {
-    overflow-y: scroll;
-  }
 
   @include themify($themes) {
     scrollbar-color: themed("inputBorderColor") darken(themed("backgroundColor"), 1%);
@@ -215,7 +212,8 @@ body * {
 
 .inline-menu-list-container--with-new-item-button {
   .inline-menu-list-actions {
-    max-height: 13.8rem;
+    // 4.2rem matches the previous 18rem vs 13.8rem split for the "Add new login" footer
+    max-height: calc(var(--inline-menu-list-max-height, 18rem) - 4.2rem);
   }
 }
 

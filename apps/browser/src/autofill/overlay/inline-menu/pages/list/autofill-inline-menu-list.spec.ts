@@ -2035,4 +2035,63 @@ describe("AutofillInlineMenuList", () => {
       );
     });
   });
+
+  describe("updateAutofillInlineMenuListMaxHeight", () => {
+    it("sets the CSS max-height variable used by the cipher list", async () => {
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
+      await flushPromises();
+
+      postWindowMessage({
+        command: "updateAutofillInlineMenuListMaxHeight",
+        maxHeight: 420,
+        token: "test-token",
+      });
+
+      expect(
+        globalThis.document.documentElement.style.getPropertyValue("--inline-menu-list-max-height"),
+      ).toBe("420px");
+    });
+
+    it("loads additional cipher pages until the list fills the available height", async () => {
+      const ciphers = Array.from({ length: 16 }, (_, index) =>
+        createAutofillOverlayCipherDataMock(index + 1),
+      );
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey, ciphers }));
+      await flushPromises();
+      expect(autofillInlineMenuList["currentCipherIndex"]).toBe(6);
+
+      Object.defineProperty(autofillInlineMenuList["ciphersList"], "scrollHeight", {
+        configurable: true,
+        get: () => (autofillInlineMenuList["currentCipherIndex"] >= 12 ? 500 : 200),
+      });
+
+      postWindowMessage({
+        command: "updateAutofillInlineMenuListMaxHeight",
+        maxHeight: 400,
+        token: "test-token",
+      });
+
+      expect(autofillInlineMenuList["currentCipherIndex"]).toBe(12);
+    });
+
+    it("does not load additional pages when the first page already overflows", async () => {
+      const ciphers = Array.from({ length: 16 }, (_, index) =>
+        createAutofillOverlayCipherDataMock(index + 1),
+      );
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey, ciphers }));
+      await flushPromises();
+      Object.defineProperty(autofillInlineMenuList["ciphersList"], "scrollHeight", {
+        configurable: true,
+        get: () => 500,
+      });
+
+      postWindowMessage({
+        command: "updateAutofillInlineMenuListMaxHeight",
+        maxHeight: 180,
+        token: "test-token",
+      });
+
+      expect(autofillInlineMenuList["currentCipherIndex"]).toBe(6);
+    });
+  });
 });

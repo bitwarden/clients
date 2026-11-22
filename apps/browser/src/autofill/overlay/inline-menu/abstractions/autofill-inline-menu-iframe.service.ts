@@ -6,6 +6,7 @@ export type AutofillInlineMenuIframeExtensionMessage = {
   generatedPassword?: string;
   refreshPassword?: boolean;
   showAnimations?: boolean;
+  maxHeight?: number;
 };
 
 export type AutofillInlineMenuIframeExtensionMessageParam = {
