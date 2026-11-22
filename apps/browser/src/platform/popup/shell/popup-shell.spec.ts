@@ -20,6 +20,7 @@ describe("styleShell", () => {
   afterEach(() => {
     document.documentElement.className = "";
     localStorage.clear();
+    window.history.replaceState({}, "", "/");
   });
 
   it.each([
@@ -37,4 +38,31 @@ describe("styleShell", () => {
   ])("follows the OS for %s (prefersDark=%s)", (stored, prefersDark, expected) => {
     expect(styleWith(stored, prefersDark)).toBe(expected);
   });
+
+  it.each(["browser_chrome", "browser_edge", "browser_opera"])(
+    "uses dark theme for a %s incognito popout when theme follows system",
+    (browserClass) => {
+      document.documentElement.className = browserClass;
+      window.history.replaceState({}, "", "/?uilocation=popout&incognito=true#/fido2");
+
+      expect(styleWith("system", false)).toBe(`${browserClass} theme_dark`);
+    },
+  );
+
+  it("keeps an explicit light theme for a Chromium incognito popout", () => {
+    document.documentElement.className = "browser_chrome";
+    window.history.replaceState({}, "", "/?uilocation=popout&incognito=true#/fido2");
+
+    expect(styleWith("light", false)).toBe("browser_chrome theme_light");
+  });
+
+  it.each(["browser_firefox", "browser_safari"])(
+    "follows matchMedia for a %s incognito popout",
+    (browserClass) => {
+      document.documentElement.className = browserClass;
+      window.history.replaceState({}, "", "/?uilocation=popout&incognito=true#/fido2");
+
+      expect(styleWith("system", false)).toBe(`${browserClass} theme_light`);
+    },
+  );
 });

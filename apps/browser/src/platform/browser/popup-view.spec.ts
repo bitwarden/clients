@@ -1,4 +1,9 @@
-import { PopupWidthOptions, isPopupLocation, parsePopupWidthOption } from "./popup-view";
+import {
+  PopupWidthOptions,
+  isIncognitoPopoutLocation,
+  isPopupLocation,
+  parsePopupWidthOption,
+} from "./popup-view";
 
 describe("popup view", () => {
   describe("parsePopupWidthOption", () => {
@@ -27,6 +32,27 @@ describe("popup view", () => {
       ["chrome-extension://id/popup/index.html?uilocation=sidebar#/vault", false],
     ])("%s -> %s", (href, expected) => {
       expect(isPopupLocation(href)).toBe(expected);
+    });
+  });
+
+  describe("isIncognitoPopoutLocation", () => {
+    it.each([
+      ["chrome-extension://id/popup/index.html?uilocation=popout&incognito=true#/fido2", true],
+      [
+        "chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=vault_Fido2Popout_1&incognito=true#/fido2",
+        true,
+      ],
+      ["chrome-extension://id/popup/index.html?uilocation=popout#/fido2", false],
+      [
+        "chrome-extension://id/popup/index.html?uilocation=popout#/fido2?senderUrl=https%3A%2F%2Fexample.com%3Fincognito%3Dtrue",
+        false,
+      ],
+      ["chrome-extension://id/popup/index.html?uilocation=popout#/fido2?incognito=true", false],
+      ["chrome-extension://id/popup/index.html?uilocation=popup&incognito=true#/vault", false],
+      ["chrome-extension://id/popup/index.html?incognito=true#/vault", false],
+      ["", false],
+    ])("%s -> %s", (href, expected) => {
+      expect(isIncognitoPopoutLocation(href)).toBe(expected);
     });
   });
 });

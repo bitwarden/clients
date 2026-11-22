@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { merge, of, Subject } from "rxjs";
+import { merge, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
-import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import {
@@ -266,6 +265,7 @@ import { Fido2UserVerificationService } from "../../vault/services/fido2-user-ve
 import { ForegroundCipherService } from "../../vault/services/foreground-cipher.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
+import { createBrowserSystemThemeObservable } from "./browser-system-theme";
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
@@ -578,18 +578,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SYSTEM_THEME_OBSERVABLE,
-    useFactory: (platformUtilsService: PlatformUtilsService) => {
-      // Safari doesn't properly handle the (prefers-color-scheme) media query in the popup window, it always returns light.
-      // This means we have to use the background page instead, which comes with limitations like not dynamically
-      // changing the extension theme when the system theme is changed. We also have issues with memory leaks when
-      // holding the reference to the background page.
-      const backgroundWindow = BrowserApi.getBackgroundPage();
-      if (platformUtilsService.isSafari() && backgroundWindow) {
-        return of(AngularThemingService.getSystemThemeFromWindow(backgroundWindow));
-      } else {
-        return AngularThemingService.createSystemThemeFromWindow(window);
-      }
-    },
+    useFactory: (platformUtilsService: PlatformUtilsService) =>
+      createBrowserSystemThemeObservable(platformUtilsService, window),
     deps: [PlatformUtilsService],
   }),
   safeProvider({

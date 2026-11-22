@@ -8,6 +8,7 @@ import {
   POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOption,
   PopupWidthOptions,
+  isIncognitoPopoutLocation,
   isPopupLocation,
   parsePopupWidthOption,
 } from "./popup-view";
@@ -32,6 +33,10 @@ export default class BrowserPopupUtils {
    */
   static inPopout(win: Window): boolean {
     return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "popout");
+  }
+
+  static inIncognitoPopout(win: Window): boolean {
+    return isIncognitoPopoutLocation(win?.location?.href ?? "");
   }
 
   /**
@@ -151,6 +156,9 @@ export default class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
+    const incognito =
+      senderWindow?.incognito === true ||
+      (senderWindowId == null && isIncognitoPopoutLocation(globalThis.location?.href ?? ""));
 
     // On Wayland, browser window coordinates are not being precisely reported. This is
     // particularly troublesome for multi-monitor configurations, where the popup can be placed
@@ -175,7 +183,7 @@ export default class BrowserPopupUtils {
       ...defaultPopoutWindowOptions,
       ...positionOptions,
       ...windowOptions,
-      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
+      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey, incognito),
     };
 
     if (
@@ -380,12 +388,22 @@ export default class BrowserPopupUtils {
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param singleActionKey - The single action popout key used to identify the popout.
    */
-  private static buildPopoutUrl(extensionUrlPath: string, singleActionKey: string) {
+  private static buildPopoutUrl(
+    extensionUrlPath: string,
+    singleActionKey?: string,
+    incognito = false,
+  ) {
     const parsedUrl = new URL(chrome.runtime.getURL(extensionUrlPath));
     parsedUrl.searchParams.set("uilocation", "popout");
 
     if (singleActionKey) {
       parsedUrl.searchParams.set("singleActionPopout", singleActionKey);
+    }
+
+    if (incognito) {
+      parsedUrl.searchParams.set("incognito", "true");
+    } else {
+      parsedUrl.searchParams.delete("incognito");
     }
 
     return parsedUrl.toString();

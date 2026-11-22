@@ -12,6 +12,7 @@ describe("BrowserPopupUtils", () => {
   afterEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    window.history.replaceState({}, "", "/");
   });
 
   describe("inSidebar", () => {
@@ -57,6 +58,24 @@ describe("BrowserPopupUtils", () => {
       const win = { location: { href: "https://jest-testing.com?uilocation=sidebar" } } as Window;
 
       expect(BrowserPopupUtils.inPopout(win)).toBe(false);
+    });
+  });
+
+  describe("inIncognitoPopout", () => {
+    it("returns true when the window URL is a popout with incognito=true", () => {
+      const win = {
+        location: { href: "https://jest-testing.com?uilocation=popout&incognito=true#/fido2" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inIncognitoPopout(win)).toBe(true);
+    });
+
+    it("returns false when incognito=true is absent or only inside the hash", () => {
+      const popoutWin = {
+        location: { href: "https://jest-testing.com?uilocation=popout#/fido2?incognito=true" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inIncognitoPopout(popoutWin)).toBe(false);
     });
   });
 
@@ -460,6 +479,59 @@ describe("BrowserPopupUtils", () => {
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout`,
       });
+    });
+
+    it("appends incognito=true when the sender window is incognito", async () => {
+      jest
+        .spyOn(BrowserApi, "getWindow")
+        .mockReset()
+        .mockResolvedValueOnce(
+          mock<chrome.windows.Window>({
+            id: 2,
+            left: 100,
+            top: 100,
+            width: PopupWidthOptions.default,
+            incognito: true,
+          }),
+        );
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout("popup/index.html#/fido2", {
+        senderWindowId: 2,
+        singleActionKey: "vault_Fido2Popout_session",
+      });
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=vault_Fido2Popout_session&incognito=true#/fido2",
+        }),
+      );
+    });
+
+    it("preserves incognito=true when opening a popout from an incognito popout without a senderWindowId", async () => {
+      window.history.replaceState({}, "", "/?uilocation=popout&incognito=true#/tabs/vault");
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout("popup/index.html#/settings");
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "chrome-extension://id/popup/index.html?uilocation=popout&incognito=true#/settings",
+        }),
+      );
+    });
+
+    it("does not inherit incognito=true when senderWindowId points to a non-incognito window", async () => {
+      window.history.replaceState({}, "", "/?uilocation=popout&incognito=true#/tabs/vault");
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout("popup/index.html#/fido2", { senderWindowId: 1 });
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: "chrome-extension://id/popup/index.html?uilocation=popout#/fido2",
+        }),
+      );
     });
   });
 

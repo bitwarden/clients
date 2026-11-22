@@ -33,3 +33,12 @@ export function parsePopupWidthOption(stored: unknown): PopupWidthOption | null 
 export function isPopupLocation(href: string): boolean {
   return !href.includes("uilocation=") || href.includes("uilocation=popup");
 }
+
+export function isIncognitoPopoutLocation(href: string): boolean {
+  try {
+    const { searchParams } = new URL(href);
+    return searchParams.get("uilocation") === "popout" && searchParams.get("incognito") === "true";
+  } catch {
+    return false;
+  }
+}

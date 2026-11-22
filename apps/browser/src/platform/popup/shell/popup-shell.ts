@@ -2,6 +2,7 @@ import {
   POPUP_THEME_STORAGE_KEY,
   POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOptions,
+  isIncognitoPopoutLocation,
   isPopupLocation,
   parsePopupWidthOption,
 } from "../../browser/popup-view";
@@ -19,6 +20,15 @@ function isActionPopup(): boolean {
   }
 
   return chrome.extension.getViews({ type: "popup" }).includes(window);
+}
+
+function isChromiumIncognitoPopout(): boolean {
+  const { classList } = document.documentElement;
+  const isChromiumBuild =
+    classList.contains("browser_chrome") ||
+    classList.contains("browser_edge") ||
+    classList.contains("browser_opera");
+  return isChromiumBuild && isIncognitoPopoutLocation(window.location.href);
 }
 
 /**
@@ -39,7 +49,10 @@ export function styleShell() {
     // light or dark, including nothing stored yet, follows the OS like the `system` default.
     let theme = localStorage.getItem(POPUP_THEME_STORAGE_KEY);
     if (theme !== "light" && theme !== "dark") {
-      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      theme =
+        isChromiumIncognitoPopout() || window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
     }
     document.documentElement.classList.add(`theme_${theme}`);
   } catch {
