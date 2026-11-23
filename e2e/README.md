@@ -87,6 +87,12 @@ url=http://localhost:5047
 `url` is optional. `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD` take precedence over the
 file, as a pair, and `E2E_SEEDER_URL` over `url`.
 
+Every seeded user logs in, and a local Identity rate-limits each IP, to 10 token requests and
+60 requests in all a minute. A run of more than a handful of seeded tests trips it, and login
+hangs on a 429. Turn IP rate limiting off for localhost: set
+`globalSettings:selfHosted` to true, or add `127.0.0.1` and `::1` to
+`IpRateLimitOptions:IpWhitelist`, on Identity.
+
 Data a test creates through the client, rather than seeds, is only deleted when the server
 tracks it too. Add `"testPlayIdTrackingEnabled": true` to `globalSettings` in the server's
 `dev/secrets.json`, rerun `dev/setup_secrets.ps1`, and restart Api and Identity. The SeederApi

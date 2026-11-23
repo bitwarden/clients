@@ -3,8 +3,17 @@ import { mock } from "jest-mock-extended";
 import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { TemplateResponse } from "@bitwarden/cli/models/response/template.response";
 
+import { AccessSetCommand } from "../access/access-set.command";
 import { ProjectCreateCommand } from "../projects/project-create.command";
 import { checkSmRequestOrganization } from "../sm-command.utils";
+import {
+  bobId,
+  createSmAccessFixture,
+  groupId,
+  machineAccountId,
+  smTargetId,
+  userPolicy,
+} from "../spec/sm-access-test-utils";
 import { encodeSmRequest, smOrg, smOrgId } from "../spec/sm-test-utils";
 
 import { TemplateCommand } from "./template.command";
@@ -46,6 +55,48 @@ describe("TemplateCommand", () => {
       expect.objectContaining({ organizationId: smOrgId, name: "Backend" }),
     );
   });
+
+  it("returns an sm-access-policies template that keeps a grantee's existing permission", async () => {
+    const fixture = createSmAccessFixture();
+    fixture.accessPolicyService.getProjectPeopleAccessPolicies.mockResolvedValue({
+      userAccessPolicies: [userPolicy(bobId, "Bob", true)],
+      groupAccessPolicies: [],
+    });
+    const request = await template("sm-access-policies");
+    request.policies[0].id = bobId;
+
+    const response = await new AccessSetCommand(fixture.store).run(
+      smOrg,
+      "project",
+      smTargetId,
+      encodeSmRequest(request),
+    );
+
+    expect(response.success).toBe(true);
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["group", groupId],
+    ["machineAccount", machineAccountId],
+  ])(
+    "returns an sm-access-policies template that access set accepts once `type` is set to %s",
+    async (type, id) => {
+      const fixture = createSmAccessFixture();
+      const request = await template("sm-access-policies");
+      request.policies[0].type = type;
+      request.policies[0].id = id;
+
+      const response = await new AccessSetCommand(fixture.store).run(
+        smOrg,
+        "project",
+        smTargetId,
+        encodeSmRequest(request),
+      );
+
+      expect(response.success).toBe(true);
+    },
+  );
 
   it("rejects an unknown object", async () => {
     const response = await command.run("item");

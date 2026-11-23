@@ -154,10 +154,9 @@ describe("WebLoginComponentService", () => {
       const mockMismatchedEmail = "mismatched@example.com";
       it("should clear the login redirect URL and organization invite", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         await service.getOrgPoliciesFromOrgInvite(mockEmail);
@@ -169,10 +168,9 @@ describe("WebLoginComponentService", () => {
 
       it("should log an error and return undefined", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
@@ -311,6 +309,24 @@ describe("WebLoginComponentService", () => {
           const result = await service.handleQueryParamErrors(paramsFor());
 
           expect(result.kind).toBe("auto-submit");
+          expect(router.navigate).not.toHaveBeenCalled();
+        });
+
+        it.each([
+          ["direct", directOrgInviteFor],
+          ["open", openOrgInviteFor],
+        ])("treats the %s-invite org id match as case-insensitive", async (_, inviteFor) => {
+          const lowerCaseOrgId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            inviteFor({ organizationId: lowerCaseOrgId.toUpperCase() }),
+          );
+
+          const result = await service.handleQueryParamErrors(
+            paramsFor({ organizationId: lowerCaseOrgId }),
+          );
+
+          expect(result.kind).toBe("auto-submit");
+          expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
       });
