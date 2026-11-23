@@ -15,7 +15,7 @@ import {
   AutofillIpcResponse,
 } from "../models/autofill-ipc-channels";
 
-import { FeatureActivity } from "./feature-activity";
+import { FeatureStatus } from "./feature-status";
 
 import AutofillIpcServer = autofill.AutofillIpcServer;
 import WindowHandleQueryResponse = autofill.WindowHandleQueryResponse;
@@ -56,8 +56,8 @@ export class DesktopAutofillMain {
   ) {}
 
   /** Whether the OS autofill / passkey provider is serving requests. */
-  get active(): FeatureActivity {
-    return this.enabled ? FeatureActivity.Active : FeatureActivity.Inactive;
+  get status(): FeatureStatus {
+    return this.enabled ? FeatureStatus.Active : FeatureStatus.Inactive;
   }
 
   /**

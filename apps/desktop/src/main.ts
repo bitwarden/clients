@@ -46,7 +46,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
-import { FeatureActivity } from "./autofill/main/feature-activity";
+import { FeatureStatus } from "./autofill/main/feature-status";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -492,18 +492,18 @@ export class Main {
     return new RendererTeardownMain(
       cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
       [
-        { name: "ssh-agent", active: () => this.sshAgentService.running },
+        { name: "ssh-agent", active: () => this.sshAgentService.status === FeatureStatus.Active },
         {
           name: "autotype",
-          active: () => this.mainDesktopAutotypeMvpService.active === FeatureActivity.Active,
+          active: () => this.mainDesktopAutotypeMvpService.status === FeatureStatus.Active,
         },
         {
           name: "autotype-ga",
-          active: () => this.mainDesktopAutotypeService.active === FeatureActivity.Active,
+          active: () => this.mainDesktopAutotypeService.status === FeatureStatus.Active,
         },
         {
           name: "autofill-provider",
-          active: () => this.desktopAutofillMain.active === FeatureActivity.Active,
+          active: () => this.desktopAutofillMain.status === FeatureStatus.Active,
         },
         { name: "duckduckgo", active: () => ddgEnabled },
       ],
