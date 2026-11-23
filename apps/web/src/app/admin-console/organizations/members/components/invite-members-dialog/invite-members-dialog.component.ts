@@ -229,12 +229,12 @@ export class InviteMembersDialogComponent {
     map(
       ([org, allowAdminAccessToAllCollectionItems]) =>
         org.canEditAnyCollection ||
-        (org.permissions.manageUsers && allowAdminAccessToAllCollectionItems),
+        ((org.permissions.manageUsers ?? false) && allowAdminAccessToAllCollectionItems),
     ),
   );
 
   protected readonly remainingSeats$: Observable<number> = this.organization$.pipe(
-    map((organization) => organization.seats - this.params.occupiedSeatCount),
+    map((organization) => (organization.seats ?? 0) - this.params.occupiedSeatCount),
   );
 
   protected readonly emailBatchLimit$: Observable<number> = this.organization$.pipe(

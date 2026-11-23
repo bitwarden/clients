@@ -176,7 +176,8 @@
         @if (row.twoFactorEnabled) {
           <bit-icon
             name="bwi-lock"
-            class="tw-shrink-0 tw-text-muted"
+            class="tw-shrink-0 tw-rounded tw-text-muted focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+            tabindex="0"
             [ariaLabel]="'userUsingTwoStep' | i18n"
             [bitTooltip]="'userUsingTwoStep' | i18n"
           />
@@ -184,7 +185,8 @@
         @if (showEnrolledStatus(row)) {
           <bit-icon
             name="bwi-key"
-            class="tw-shrink-0 tw-text-muted"
+            class="tw-shrink-0 tw-rounded tw-text-muted focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+            tabindex="0"
             [ariaLabel]="'enrolledAccountRecovery' | i18n"
             [bitTooltip]="'enrolledAccountRecovery' | i18n"
           />
@@ -202,28 +204,27 @@
     <bit-cell *bitCellDef="table.columns.status; let row">
       @let badge = statusBadge(row.status);
       @if (badge) {
-        <span bitBadge [variant]="badge.variant">{{ badge.labelKey | i18n }}</span>
+        <span
+          bitBadge
+          class="focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+          tabindex="0"
+          [variant]="badge.variant"
+          >{{ badge.labelKey | i18n }}</span
+        >
       }
     </bit-cell>
   </bit-column>
 
   <!-- Role -->
-  <bit-column sortable width="minmax(120px, 1fr)">
+  <bit-column sortable [sortFn]="sortByRole" width="minmax(120px, 1fr)">
     <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.type; let row">
-      @if (canManage && organization) {
-        <button
-          type="button"
-          bitLink
-          linkType="secondary"
-          [attr.id]="'members-v2_button_edit-role-' + row.id"
-          (click)="edit(row, organization, memberTab.Details)"
-        >
-          {{ row.type | userType }}
-        </button>
-      } @else {
-        {{ row.type | userType }}
-      }
+    <!-- Matches v1: clicking the role cell opens the member dialog on the role tab. -->
+    <bit-cell
+      *bitCellDef="table.columns.type; let row"
+      [class.tw-cursor-pointer]="canManage && organization"
+      (click)="canManage && organization && edit(row, organization, memberTab.Details)"
+    >
+      {{ row.type | userType }}
     </bit-cell>
   </bit-column>
 

@@ -152,7 +152,9 @@ export default {
           provide: PremiumCheckoutPendingService,
           useValue: {
             markCheckoutLaunched: () => Promise.resolve(),
-            consumeCheckoutPending: () => Promise.resolve(false),
+            getCheckoutPending: () => Promise.resolve(null),
+            clearCheckoutPending: () => Promise.resolve(),
+            consumeCheckoutPending: () => Promise.resolve(null),
           },
         },
       ],

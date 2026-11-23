@@ -1,28 +1,19 @@
-import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
-import { platformBrowser } from "@angular/platform-browser";
-
-import { PopupSizeService } from "@bitwarden/browser/platform/popup/layout/popup-size.service";
-import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
-
-import { AppModule } from "./app.module";
+import { styleShell } from "@bitwarden/browser/platform/popup/shell/popup-shell";
 
 import "@bitwarden/browser/popup/scss";
 
-// We put these first to minimize the delay in window changing.
-PopupSizeService.initBodyWidthFromLocalStorage();
-// Should be removed once we deprecate support for Safari 16.0 and older. See Jira ticket [PM-1861]
-if (BrowserPlatformUtilsService.shouldApplySafariHeightFix(window)) {
-  document.documentElement.classList.add("safari_height_fix");
-}
+/**
+ * Chrome shows an action popup only when its document reaches `load`, and runs the renderer at
+ * background priority until then. Everything imported here is parsed before the popup appears, so
+ * this entry only styles the static shell and loads the app afterwards. Keep it that way: the
+ * ESLint override for pre-load files restricts what this file and the shell module may import.
+ */
+styleShell();
 
-if (process.env.ENV === "production") {
-  enableProdMode();
-}
-
-function init() {
-  void platformBrowser().bootstrapModule(AppModule, {
-    applicationProviders: [provideZoneChangeDetection()],
-  });
-}
-
-init();
+window.addEventListener(
+  "load",
+  () => void import(/* webpackChunkName: "popup/app" */ "./bootstrap"),
+  {
+    once: true,
+  },
+);

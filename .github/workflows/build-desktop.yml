@@ -195,10 +195,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -319,6 +319,15 @@ jobs:
         run: |
           node build.js --target=x86_64-unknown-linux-gnu --release
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application
         run: npm run dist:${{ matrix.variant }}:lin
 
@@ -385,10 +394,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
@@ -521,6 +530,15 @@ jobs:
             exit 1
           fi
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application
         env:
           # Snapcraft environment variables to bypass LXD requirement on ARM64
@@ -563,10 +581,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: windows-2022
     needs:
       - setup
@@ -721,6 +739,16 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
+      - name: Set update feed URL
+        shell: bash
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
         run: |
@@ -745,8 +773,6 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
-            -NewName "Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
           Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64.appx" `
             -NewName "Bitwarden-$env:_PACKAGE_VERSION-x64-store.appx"
           Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64.appx" `
@@ -832,8 +858,6 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
-            -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z `
@@ -852,30 +876,6 @@ jobs:
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
-          if-no-files-found: error
-
-      - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
-          if-no-files-found: error
-
-      - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          if-no-files-found: error
-
-      - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
@@ -990,10 +990,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: windows-2022
     needs: setup
     permissions:
@@ -1152,6 +1152,16 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
+      - name: Set update feed URL
+        shell: bash
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.beta.json > electron-builder.beta.json.tmp
+          mv electron-builder.beta.json.tmp electron-builder.beta.json
+
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
         env:
@@ -1177,8 +1187,6 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
-            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
           Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
             -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
           Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
@@ -1250,8 +1258,6 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.nsis.7z `
-            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-ia32.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.nsis.7z `
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
@@ -1270,30 +1276,6 @@ jobs:
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
-          if-no-files-found: error
-
-      - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
-          if-no-files-found: error
-
-      - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          if-no-files-found: error
-
-      - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
@@ -1360,10 +1342,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: macos-15
     needs:
       - setup
@@ -1613,11 +1595,11 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
-            browser_artifact_prefix: ""
+            artifact_prefix: "oss-"
+            browser_artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
             browser_artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1873,6 +1855,15 @@ jobs:
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.json > electron-builder.json.tmp
+          mv electron-builder.json.tmp electron-builder.json
+
       - name: Build application (dist)
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
@@ -1917,10 +1908,10 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
+            artifact_prefix: "oss-"
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
@@ -2126,6 +2117,15 @@ jobs:
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
+      - name: Set update feed URL
+        env:
+          LICENSE_TYPE: ${{ matrix.license_type }}
+        run: |
+          url="https://artifacts.bitwarden.com/desktop"
+          if [[ "$LICENSE_TYPE" == "oss" ]]; then url="$url/oss"; fi
+          jq --arg url "$url" '.publish.url = $url' electron-builder.beta.json > electron-builder.beta.json.tmp
+          mv electron-builder.beta.json.tmp electron-builder.beta.json
+
       # pack:mac:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
       # electron-builder reads for artifact names and the channel file. The `-beta.N`
       # tag selects beta-mac.yml over latest-mac.yml.
@@ -2170,14 +2170,14 @@ jobs:
         include:
           - variant: oss
             license_type: oss
-            artifact_prefix: ""
-            browser_artifact_prefix: ""
+            artifact_prefix: "oss-"
+            browser_artifact_prefix: "oss-"
             build_number_suffix: ""
           # Both variants upload to the same TestFlight app, so the commercial
           # build needs its own build number (e.g. 3456 vs 3456.1).
           - variant: bit
             license_type: commercial
-            artifact_prefix: "commercial-"
+            artifact_prefix: "bit-"
             browser_artifact_prefix: "bit-"
             build_number_suffix: ".1"
     runs-on: macos-15
@@ -2609,7 +2609,7 @@ jobs:
       - name: Download deb artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/artifacts/linux/deb
 
       - name: Install deps
@@ -2651,7 +2651,7 @@ jobs:
       - name: Download appimage artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
 
       - name: Install deps
@@ -2691,7 +2691,7 @@ jobs:
       - name: Download appimage artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
 
       - name: Install deps
@@ -2745,7 +2745,7 @@ jobs:
       - name: Download flatpak artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
+          name: oss-com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
           path: apps/desktop/artifacts/linux/flatpak/
 
       - name: Install deps
@@ -2796,7 +2796,7 @@ jobs:
       - name: Download snap artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
+          name: oss-bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
           path: apps/desktop/artifacts/linux/snap
 
       - name: Install deps
@@ -2839,7 +2839,7 @@ jobs:
       - name: Download dmg artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          name: oss-Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/artifacts/macos/dmg
 
       - name: Install dmg
@@ -2895,7 +2895,7 @@ jobs:
       - name: Download portable artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: oss-Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/artifacts/windows/portable
 
       - name: Run Portable exe
