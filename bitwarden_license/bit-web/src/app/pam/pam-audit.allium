@@ -155,9 +155,9 @@ enum AccessAuditEventKind {
     -- was gated with a path no enabled rule gates: a collection without one, or no
     -- collection at all (pam.allium's re-filing bypass, PAM-203). Written by the
     -- member and admin collection endpoints and the bulk add and remove, one event
-    -- per item. actor = whoever changed the collections, collection = an ungated
-    -- collection the item is now in, or none when it is in no collection. Gated
-    -- here is organization-wide and ignores leases.
+    -- per item. actor = whoever changed the collections, collection = the ungated
+    -- collection the change added, or none when it added several or left the item
+    -- in no collection. Gated here is organization-wide and ignores leases.
     credential_ungated |
     -- (EMITTED) as an outcome alone by the whole-vault export, when the export
     -- carries at least one gated item (pam.allium VaultExportBypassesLeasing,
