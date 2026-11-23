@@ -195,6 +195,19 @@ export class PopupHeaderComponent {
   });
 
   /**
+   * TODO: remove with the VFO1Foundation flag, along with `headerClasses`.
+   *
+   * True once the page has scrolled at least once. The bar's border can change color in the first
+   * change detection after it renders, and a transition present then animates the border from its
+   * initial color instead of a scroll, which shows as a light line fading under the logo. The
+   * transition is for scrolling, so it goes in only once a scroll has happened.
+   */
+  private readonly headerBorderAnimated = linkedSignal<boolean, boolean>({
+    source: this.pageScrolled,
+    computation: (scrolled, previous) => scrolled || (previous?.value ?? false),
+  });
+
+  /**
    * TODO: remove with the VFO1Foundation flag, along with the `header` class binding it feeds.
    *
    * The one-bar header paints `header` itself rather than a descendant, which is what keeps it
@@ -213,8 +226,7 @@ export class PopupHeaderComponent {
       // padding to achieve visual alignment.
       "tw-pe-1",
       "bit-compact:tw-pe-0.5",
-      "tw-transition-colors",
-      "tw-duration-200",
+      ...(this.headerBorderAnimated() ? ["tw-transition-colors", "tw-duration-200"] : []),
       "tw-border-0",
       "tw-border-b",
       "tw-border-solid",
