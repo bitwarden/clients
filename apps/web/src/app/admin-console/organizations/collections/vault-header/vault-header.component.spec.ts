@@ -133,10 +133,10 @@ describe("VaultHeaderComponent", () => {
           useValue: {
             iconClass: (icon: string) => icon,
             enabled: () => vfo1Enabled,
-            collectionQueryParams: (id: string | null) =>
+            collectionQueryParams: (id: string | undefined) =>
               vfo1Enabled
-                ? { sharedFolderId: id, collectionId: null }
-                : { collectionId: id, sharedFolderId: null },
+                ? { sharedFolderId: id ?? null, collectionId: null }
+                : { collectionId: id ?? null, sharedFolderId: null },
           },
         },
       ],
