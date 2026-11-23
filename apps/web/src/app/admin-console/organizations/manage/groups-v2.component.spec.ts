@@ -176,8 +176,6 @@ describe("GroupsV2Component", () => {
       createComponent();
       await detectAndFlush();
 
-      // Regression (PM-47206): the chip was previously disabled on an empty *group* list, which
-      // left it enabled-but-empty whenever collections were missing but groups were not.
       expect(component.hasNoGroups()).toBe(true);
       expect(component.hasNoCollections()).toBe(false);
     });
