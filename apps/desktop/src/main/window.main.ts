@@ -102,6 +102,15 @@ export function isConfinedSnap() {
   }
 }
 
+/** When to request the macOS focus steal in {@link WindowMain["showAndFocus"]}. */
+const MacFocusSteal = {
+  /** The window is being shown for the first time; stealing focus right away works. */
+  Immediate: "immediate",
+  /** The window was just restored/shown again; the steal must wait a tick or macOS drops it. */
+  Deferred: "deferred",
+} as const;
+type MacFocusSteal = (typeof MacFocusSteal)[keyof typeof MacFocusSteal];
+
 export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
@@ -369,7 +378,7 @@ export class WindowMain {
     if (this.win.isMinimized()) {
       this.win.restore();
     }
-    this.showAndFocus(this.win);
+    this.showAndFocus(this.win, MacFocusSteal.Deferred);
   }
 
   private showWhenReady(win: BrowserWindow) {
@@ -377,22 +386,29 @@ export class WindowMain {
       if (win.isDestroyed()) {
         return;
       }
-      this.showAndFocus(win);
+      this.showAndFocus(win, MacFocusSteal.Immediate);
     });
   }
 
-  private showAndFocus(win: BrowserWindow): void {
+  private showAndFocus(win: BrowserWindow, macFocusSteal: MacFocusSteal): void {
     win.show();
     win.focus();
-    if (isMac()) {
-      // Showing and focusing the window is not enough to raise it above other
-      // applications' windows when the app was hidden to the tray (its dock was
-      // hidden too). Steal focus to bring it to the foreground. Defer the steal
-      // to the next tick so macOS has processed the show()/restore() (and, on the
-      // restore-from-tray path, the dock show that precedes it) before we request
-      // activation; stealing in the same tick as show() is sometimes dropped.
-      setTimeout(() => app.focus({ steal: true }));
+    if (!isMac()) {
+      return;
     }
+
+    // Showing and focusing the window is not enough to raise it above other
+    // applications' windows when the app was hidden to the tray (its dock was
+    // hidden too). Steal focus to bring it to the foreground.
+    if (macFocusSteal === MacFocusSteal.Immediate) {
+      app.focus({ steal: true });
+      return;
+    }
+
+    // Defer the steal to the next tick so macOS has processed the show()/restore()
+    // (and, on the restore-from-tray path, the dock show that precedes it) before we
+    // request activation; stealing in the same tick as show() is sometimes dropped.
+    setTimeout(() => app.focus({ steal: true }));
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
