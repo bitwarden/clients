@@ -1,11 +1,11 @@
 import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, Observable } from "rxjs";
 
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -17,20 +17,65 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
-import { UNLOCK_COMPLETED } from "./unlock/unlock-ipc.types";
+import { UnlockSessionsResponse } from "./unlock/unlock-ipc.types";
 
-// Main owns the user key; these messages announce key changes across the process boundary.
-const LOCKED = new CommandDefinition<{ userId: UserId }>("locked");
-const LOGGED_OUT = new CommandDefinition<{ userId: UserId }>("logout");
+/** The renderer's copy of the keys main holds. */
+class UserKeyStore {
+  private readonly keys$ = new BehaviorSubject<Record<UserId, UserKey | null>>({});
+  /**
+   * Serialises applications so they land in arrival order.
+   *
+   * Main pushes over IPC and the listener cannot await, so a second push can start while the
+   * first is still writing. See {@link replaceAll}.
+   */
+  private applying: Promise<void> = Promise.resolve();
 
-/**
- * The renderer's {@link KeyService}. Main owns the user key, so the renderer does not read a local
- * copy of it. Instead this service caches main's key in a {@link BehaviorSubject}, seeding it once
- * from main over IPC and updating it from the `unlockCompleted` / `locked` / `logout` messages main
- * broadcasts.
- */
+  constructor(private readonly stateProvider: StateProvider) {}
+
+  get$(userId: UserId): Observable<UserKey | null> {
+    return this.keys$.pipe(
+      map((keys) => keys[userId] ?? null),
+      // Rewriting the same key must not make consumers, e.g. vault decryption, start over.
+      distinctUntilChanged((a, b) => a?.keyB64 === b?.keyB64),
+    );
+  }
+
+  async has(userId: UserId): Promise<boolean> {
+    return (await firstValueFrom(this.get$(userId))) != null;
+  }
+
+  /**
+   * Replaces everything held with the set main reported.
+   *
+   * Applications are chained because each awaits a state write per key, and an empty set awaits
+   * none. Interleaved, a lock carrying no keys can finish before an unlock that arrived earlier,
+   * leaving the renderer holding a key main has already dropped.
+   */
+  async replaceAll(keys: Record<UserId, UserKey>): Promise<void> {
+    this.applying = this.applying.then(() => this.apply(keys));
+    await this.applying;
+  }
+
+  private async apply(keys: Record<UserId, UserKey>): Promise<void> {
+    for (const [userId, key] of Object.entries(keys)) {
+      await this.stateProvider.setUserState(USER_KEY, key, userId as UserId);
+    }
+
+    // A key main no longer holds has to leave state too, not just the cache: the SDK's bridge
+    // reads it from there, so leaving it behind keeps a locked account's key usable.
+    for (const userId of Object.keys(this.keys$.value) as UserId[]) {
+      if (keys[userId] == null) {
+        await this.stateProvider.setUserState(USER_KEY, null, userId);
+      }
+    }
+
+    this.keys$.next(keys);
+  }
+}
+
+/** The renderer's {@link KeyService}. Reads the user key from main over IPC. */
 export class DesktopRendererKeyService extends DefaultKeyService {
-  private readonly userKeys$ = new BehaviorSubject<Record<UserId, UserKey | null>>({});
+  private readonly userKeys: UserKeyStore;
 
   constructor(
     cryptoFunctionService: CryptoFunctionService,
@@ -42,7 +87,6 @@ export class DesktopRendererKeyService extends DefaultKeyService {
     accountCryptographyStateService: AccountCryptographicStateService,
     biometricsService: BiometricsService,
     sdkService: SdkService,
-    private readonly messageListener: MessageListener,
   ) {
     super(
       cryptoFunctionService,
@@ -56,23 +100,18 @@ export class DesktopRendererKeyService extends DefaultKeyService {
       sdkService,
     );
 
-    this.messageListener
-      .messages$(UNLOCK_COMPLETED)
-      .subscribe(({ userId, userKeyB64 }) =>
-        this.setKey(userId, SymmetricCryptoKey.fromString(userKeyB64) as UserKey),
-      );
-    this.messageListener.messages$(LOCKED).subscribe(({ userId }) => this.clearKey(userId));
-    this.messageListener.messages$(LOGGED_OUT).subscribe(({ userId }) => this.clearKey(userId));
+    this.userKeys = new UserKeyStore(stateProvider);
 
+    // Main pushes the whole set whenever it changes, so there is nothing to infer from lock,
+    // logout and unlock announcements. The pull covers the window before the first push.
+    ipc.keyManagement.unlock.onUnlockSessionsChanged(
+      ({ unlocked }) => void this.applyUnlockSessions(unlocked),
+    );
     void this.loadInitialUserKeys();
   }
 
   override userKey$(userId: UserId): Observable<UserKey | null> {
-    return this.userKeys$.pipe(
-      map((keys) => keys[userId] ?? null),
-      // Rewriting the same key must not make consumers, e.g. vault decryption, start over.
-      distinctUntilChanged((a, b) => a?.keyB64 === b?.keyB64),
-    );
+    return this.userKeys.get$(userId);
   }
 
   override async hasUserKey(userId: UserId): Promise<boolean> {
@@ -80,24 +119,19 @@ export class DesktopRendererKeyService extends DefaultKeyService {
       return false;
     }
 
-    return (await firstValueFrom(this.userKey$(userId))) != null;
+    return await this.userKeys.has(userId);
   }
 
   private async loadInitialUserKeys(): Promise<void> {
     const { unlocked } = await ipc.keyManagement.unlock.getUnlockSessions();
+    await this.applyUnlockSessions(unlocked);
+  }
 
+  private async applyUnlockSessions(unlocked: UnlockSessionsResponse["unlocked"]): Promise<void> {
     const keys: Record<UserId, UserKey> = {};
-    for (const [userId, seed] of Object.entries(unlocked)) {
-      keys[userId as UserId] = SymmetricCryptoKey.fromString(seed.userKeyB64) as UserKey;
+    for (const [userId, session] of Object.entries(unlocked)) {
+      keys[userId as UserId] = SymmetricCryptoKey.fromString(session.userKeyB64) as UserKey;
     }
-    this.userKeys$.next(keys);
-  }
-
-  private setKey(userId: UserId, key: UserKey): void {
-    this.userKeys$.next({ ...this.userKeys$.value, [userId]: key });
-  }
-
-  private clearKey(userId: UserId): void {
-    this.userKeys$.next({ ...this.userKeys$.value, [userId]: null });
+    await this.userKeys.replaceAll(keys);
   }
 }

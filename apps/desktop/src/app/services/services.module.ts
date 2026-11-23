@@ -463,7 +463,6 @@ const safeProviders: SafeProvider[] = [
       AccountCryptographicStateService,
       BiometricsService,
       SdkService,
-      MessageListener,
     ],
   }),
   safeProvider({
@@ -668,7 +667,8 @@ const safeProviders: SafeProvider[] = [
     useClass: flagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
     deps: [],
   }),
-  // Main owns the user key; the renderer's SDK reads it from main over IPC via a desktop state bridge.
+  // Main owns the user key; DesktopRendererKeyService mirrors it into the state the SDK's
+  // default bridge reads, and this subclass leaves the local unlock migrations to main.
   safeProvider({
     provide: SdkService,
     useFactory: (

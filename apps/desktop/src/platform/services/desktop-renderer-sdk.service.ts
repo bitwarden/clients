@@ -1,15 +1,20 @@
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
-import { DesktopRendererStateBridge } from "../../key-management/desktop-renderer-state-bridge";
+import { rendererTeardownEnabled } from "../renderer-teardown-flag";
 
 /**
- * The renderer's {@link DefaultSdkService}. It only changes the state bridge the SDK client uses:
- * the renderer reads the user key from main over IPC instead of a local copy.
+ * Since the renderer's {@link DefaultSdkService} owns the unlock session and migration, we disable
+ * them in the renderer sdk so that we don't have double migrations that could race with each other.
  */
 export class DesktopRendererSdkService extends DefaultSdkService {
-  protected override createStateBridge(userId: UserId): JsWasmStateBridge {
-    return new DesktopRendererStateBridge(this.stateProvider, userId);
+  protected override async onClientCreated(
+    userId: UserId,
+    client: PasswordManagerClient,
+  ): Promise<void> {
+    if (await rendererTeardownEnabled()) {
+      client.crypto().disable_local_unlock_migrations();
+    }
   }
 }

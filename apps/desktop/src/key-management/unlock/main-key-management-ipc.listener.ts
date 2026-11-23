@@ -1,5 +1,14 @@
 import { ipcMain } from "electron";
-import { firstValueFrom } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
@@ -13,7 +22,15 @@ import { StateProvider } from "@bitwarden/state";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
-import { UnlockSessionsResponse, UnlockRequest, UnlockResponse } from "./unlock-ipc.types";
+import { WindowMain } from "../../main/window.main";
+
+import {
+  UNLOCK_SESSIONS_CHANGED_CHANNEL,
+  UnlockSessionsResponse,
+  UnlockRequest,
+  UnlockResponse,
+  VaultState,
+} from "./unlock-ipc.types";
 
 /**
  * The main-process IPC surface the renderer uses to request a seed and to unlock. Main is the
@@ -26,9 +43,14 @@ export class MainKeyManagementIpcListener {
     private readonly accountService: AccountService,
     private readonly stateProvider: StateProvider,
     private readonly logService: LogService,
+    private readonly windowMain: WindowMain,
   ) {}
 
+  private readonly destroy$ = new Subject<void>();
+
   init(): void {
+    this.pushUnlockSessionsOnChange();
+
     ipcMain.handle("keyManagement.getUnlockSessions", async (): Promise<UnlockSessionsResponse> => {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const unlocked: UnlockSessionsResponse["unlocked"] = {};
@@ -97,5 +119,55 @@ export class MainKeyManagementIpcListener {
         return { userKeyB64: userKey?.toBase64() ?? null };
       },
     );
+  }
+
+  dispose(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Tells the renderer the keys main holds, every time that set changes, so it never has to infer
+   * them from lock, logout and unlock announcements. A destroyed renderer simply misses the push
+   * and pulls the current set when it starts.
+   */
+  private pushUnlockSessionsOnChange(): void {
+    this.accountService.accounts$
+      .pipe(
+        switchMap((accounts) => {
+          const userIds = Object.keys(accounts) as UserId[];
+          if (userIds.length === 0) {
+            return of({} as Record<UserId, VaultState>);
+          }
+
+          return combineLatest(
+            userIds.map((userId) =>
+              this.keyService.userKey$(userId).pipe(map((key) => [userId, key] as const)),
+            ),
+          ).pipe(
+            map((entries) =>
+              Object.fromEntries(
+                entries
+                  .filter(([, key]) => key != null)
+                  .map(([userId, key]) => [userId, { userKeyB64: key!.toBase64() }]),
+              ),
+            ),
+          );
+        }),
+        distinctUntilChanged(
+          (a, b) =>
+            Object.keys(a).length === Object.keys(b).length &&
+            Object.entries(a).every(
+              ([userId, state]) => b[userId as UserId]?.userKeyB64 === state.userKeyB64,
+            ),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (unlocked) =>
+          this.windowMain.win?.webContents.send(UNLOCK_SESSIONS_CHANGED_CHANNEL, { unlocked }),
+        error: (e: unknown) =>
+          this.logService.error("[KeyManagementIpc] Unlock session pipeline stopped", e),
+      });
   }
 }

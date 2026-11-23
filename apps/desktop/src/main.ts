@@ -390,6 +390,7 @@ export class Main {
       accountService,
       this.serviceContainer.stateProvider,
       this.logService,
+      this.windowMain,
     ).init();
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
@@ -531,17 +532,20 @@ export class Main {
         });
 
         // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
-        // A failure leaves that account locked rather than failing startup for the others.
-        const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
-        await Promise.all(
-          (Object.keys(accounts) as UserId[]).map(async (userId) => {
-            try {
-              await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
-            } catch (e) {
-              this.logService.error("[Main] Failed to auto-unlock user on startup", e);
-            }
-          }),
-        );
+        // A failure leaves that account locked rather than failing startup for the others. The
+        // renderer still does this itself while the flag is off.
+        if (this.rendererTeardownFlag.isEnabled) {
+          const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
+          await Promise.all(
+            (Object.keys(accounts) as UserId[]).map(async (userId) => {
+              try {
+                await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
+              } catch (e) {
+                this.logService.error("[Main] Failed to auto-unlock user on startup", e);
+              }
+            }),
+          );
+        }
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);

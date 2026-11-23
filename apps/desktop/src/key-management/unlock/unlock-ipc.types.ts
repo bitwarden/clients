@@ -27,6 +27,13 @@ export type UnlockSessionsResponse = {
   unlocked: Record<UserId, VaultState>;
 };
 
+/**
+ * The channel main pushes {@link UnlockSessionsResponse} on whenever the set of keys it holds
+ * changes. It carries the whole set rather than a delta, so a renderer that missed a push, or
+ * started late, is corrected by the next one instead of drifting.
+ */
+export const UNLOCK_SESSIONS_CHANGED_CHANNEL = "keyManagement.onUnlockSessionsChanged";
+
 /** Response to `keyManagement.unlock`: the freshly-decrypted user key, if one was produced. */
 export type UnlockResponse = {
   userKeyB64: string | null;

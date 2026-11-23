@@ -12,6 +12,7 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -29,6 +30,7 @@ import { DesktopAutofillService } from "../../autofill/services/desktop-autofill
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
+import { rendererTeardownEnabled } from "../../platform/renderer-teardown-flag";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { VersionService } from "../../platform/services/version.service";
@@ -67,6 +69,7 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private logService: LogService,
     private automationDriver: AutomationDriver,
   ) {}
 
@@ -84,8 +87,25 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
-      // Shared unlock still runs in the renderer; main owns the key and restores never-lock unlocks.
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
       await this.sharedUnlockPeerService.start();
+
+      // For each acct, we must await the process of unlocking with the never-lock key
+      // if it is set, to avoid race conditions of any code trying to access the user key
+      // from mem. A failure to unlock one account leaves that account locked rather than
+      // failing app initialization for every other account. Main does this instead once it
+      // owns the session.
+      if (!(await rendererTeardownEnabled())) {
+        await Promise.all(
+          userIds.map(async (userId) => {
+            try {
+              await this.unlockService.unlockWithAutoUnlockKey(userId);
+            } catch (e) {
+              this.logService.error("[InitService] Failed to auto-unlock user on startup", e);
+            }
+          }),
+        );
+      }
 
       await this.serverCommunicationConfigService.init();
       await this.vaultTimeoutService.init(true);
