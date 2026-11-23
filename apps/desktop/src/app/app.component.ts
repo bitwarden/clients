@@ -621,10 +621,6 @@ export class AppComponent implements OnInit, OnDestroy {
             hasPremium: await firstValueFrom(
               this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
             ),
-            // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
-            multiClientPasswordManagement: await firstValueFrom(
-              this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
-            ),
             // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
             desktopAddDevices: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),

@@ -17,15 +17,31 @@ import {
   parseSmAccessTarget,
   parseSmPermission,
   smAccessGranteeTypes,
+  SmAccessPermission,
   SmAccessPolicy,
   SmAccessPolicyStore,
   SmAccessTarget,
+  toSmPermission,
 } from "./sm-access-policies";
 
 type SmAccessSetRequest = {
   organizationId: string;
   policies: unknown;
 };
+
+/**
+ * A policy read from the request. `permission` is undefined when the request leaves it out.
+ */
+type SmAccessSetPolicy = {
+  type: SmAccessPolicy["type"];
+  id: string;
+  permission?: SmAccessPermission;
+};
+
+/**
+ * Applied to a grantee that has no access yet when the request leaves out `permission`.
+ */
+const DefaultPermission: SmAccessPermission = "read";
 
 export class AccessSetCommand {
   constructor(private store: SmAccessPolicyStore) {}
@@ -61,7 +77,21 @@ export class AccessSetCommand {
       return orgMismatch;
     }
 
-    const saved = await this.store.save(loaded.state, policies.policies);
+    const resolved = this.resolvePermissions(
+      parsedTarget.target,
+      loaded.state.policies,
+      policies.policies,
+    );
+    if (resolved.error) {
+      return resolved.error;
+    }
+
+    const invalidGrantee = await this.store.checkNewGrantees(loaded.state, resolved.policies);
+    if (invalidGrantee) {
+      return invalidGrantee;
+    }
+
+    const saved = await this.store.save(loaded.state, resolved.policies);
     if (saved.error) {
       return saved.error;
     }
@@ -73,12 +103,14 @@ export class AccessSetCommand {
   private readPolicies(
     target: SmAccessTarget,
     value: unknown,
-  ): { policies: SmAccessPolicy[]; error?: undefined } | { policies?: undefined; error: Response } {
+  ):
+    | { policies: SmAccessSetPolicy[]; error?: undefined }
+    | { policies?: undefined; error: Response } {
     if (!Array.isArray(value)) {
       return { error: Response.badRequest("`policies` must be an array.") };
     }
 
-    const policies: SmAccessPolicy[] = [];
+    const policies: SmAccessSetPolicy[] = [];
     for (const item of value) {
       if (item == null || typeof item !== "object" || Array.isArray(item)) {
         return { error: Response.badRequest("Each policy must be a JSON object.") };
@@ -98,20 +130,65 @@ export class AccessSetCommand {
       if (parsedId.error) {
         return { error: parsedId.error };
       }
-      const parsedPermission = parseSmPermission(permission);
-      if (parsedPermission.error) {
-        return { error: parsedPermission.error };
-      }
-      const invalid = checkSmAccessPolicy(target, type, parsedPermission.permission);
-      if (invalid) {
-        return { error: invalid };
+      let parsedPermission: SmAccessPermission | undefined;
+      if (permission != null) {
+        const parsed = parseSmPermission(permission);
+        if (parsed.error) {
+          return { error: parsed.error };
+        }
+        const invalid = checkSmAccessPolicy(target, type, parsed.permission);
+        if (invalid) {
+          return { error: invalid };
+        }
+        parsedPermission = parsed.permission;
       }
       if (policies.some((p) => p.type === type && p.id === parsedId.id)) {
         return {
           error: Response.badRequest("`" + parsedId.id + "` is listed more than once."),
         };
       }
-      policies.push({ type, id: parsedId.id, ...fromSmPermission(parsedPermission.permission) });
+      policies.push({ type, id: parsedId.id, permission: parsedPermission });
+    }
+    return { policies };
+  }
+
+  /**
+   * Fills in each policy's permission. A policy without one keeps the permission its grantee
+   * already has on the target, or gets the default permission if the grantee has no access yet.
+   */
+  private resolvePermissions(
+    target: SmAccessTarget,
+    current: SmAccessPolicy[],
+    requested: SmAccessSetPolicy[],
+  ): { policies: SmAccessPolicy[]; error?: undefined } | { policies?: undefined; error: Response } {
+    const policies: SmAccessPolicy[] = [];
+    for (const policy of requested) {
+      if (policy.permission != null) {
+        policies.push({
+          type: policy.type,
+          id: policy.id,
+          ...fromSmPermission(policy.permission),
+        });
+        continue;
+      }
+
+      const existing = current.find(
+        (p) => p.type === policy.type && p.id.toLowerCase() === policy.id,
+      );
+      if (existing) {
+        policies.push({
+          type: policy.type,
+          id: policy.id,
+          ...fromSmPermission(toSmPermission(existing)),
+        });
+        continue;
+      }
+
+      const invalid = checkSmAccessPolicy(target, policy.type, DefaultPermission);
+      if (invalid) {
+        return { error: invalid };
+      }
+      policies.push({ type: policy.type, id: policy.id, ...fromSmPermission(DefaultPermission) });
     }
     return { policies };
   }

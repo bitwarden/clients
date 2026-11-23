@@ -10,6 +10,8 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/pre-validate-sponsorship.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,10 +27,22 @@ import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { FamiliesForEnterpriseSetupComponent } from "./families-for-enterprise-setup.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 const USER_ID = "user-story-1" as UserId;
 
 function familyOrg(overrides: Partial<Organization> = {}): Organization {
-  return Object.assign(new Organization(), {
+  return buildTestOrganization({
     id: "org-1" as OrganizationId,
     name: "My Family",
     status: OrganizationUserStatusType.Confirmed,

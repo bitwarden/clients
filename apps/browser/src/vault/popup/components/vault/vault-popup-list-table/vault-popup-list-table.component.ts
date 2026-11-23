@@ -48,6 +48,7 @@ import {
   ChipFilterOption,
   CollapseOnScrollDirective,
   CompactModeService,
+  countOptions,
   defineTable,
   FilterMenuModule,
   FilterOptionNode,
@@ -62,6 +63,7 @@ import {
 } from "@bitwarden/components";
 import {
   EmptyVaultComponent,
+  folderValues,
   hasMultipleVaults,
   matchesFolder,
   matchesSharedFolder,
@@ -70,6 +72,7 @@ import {
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
+  sharedFolderValues,
   VAULT_ITEM_FILTER,
   type VaultItemFilter,
   type VaultItemFilterOption,
@@ -355,6 +358,28 @@ export class VaultPopupListTableComponent {
   };
 
   /**
+   * The values a row holds for the chips counted in one pass. Each must agree with the chip's
+   * matcher in {@link filterPredicate}.
+   */
+  private readonly optionValues = {
+    collection: (row: VaultTableRow) => sharedFolderValues(row.cipher),
+    folder: (row: VaultTableRow) => folderValues(row.cipher),
+  };
+
+  /**
+   * {@link optionCount} for each entry of `pinned`, in one pass over the unique ciphers.
+   */
+  private optionCounts(key: "collection" | "folder", pinned: readonly unknown[]): number[] {
+    const cleared = { ...(this.tableEl()?.filterValues() as any), [key]: null };
+    return countOptions(
+      this.uniqueRows(),
+      (row) => this.filterPredicate(row, cleared),
+      this.optionValues[key],
+      pinned,
+    );
+  }
+
+  /**
    * The filter options. Each stream empties when its filter doesn't apply (no orgs, or
    * folders/collections narrowed away by the selected organization), which hides that chip.
    *
@@ -508,7 +533,7 @@ export class VaultPopupListTableComponent {
     const pinned: FilterOptionNode<string> = {
       value: NO_FOLDER,
       label: noFolder.label ?? "",
-      count: this.optionCount("folder", [NO_FOLDER]),
+      count: this.optionCounts("folder", [[NO_FOLDER]])[0],
     };
     if (folders.length === 0) {
       return [pinned];
@@ -596,23 +621,33 @@ export class VaultPopupListTableComponent {
     visibleIds: ReadonlySet<string>,
     key: "collection" | "folder",
   ): FilterOptionNode<string>[] {
-    return tree.flatMap((option) => {
-      const id = option.value?.id;
-      if (id == null) {
-        return [];
-      }
-      const children = this.toFilterOptionNodes(option.children ?? [], visibleIds, key);
-      if (!visibleIds.has(id) && children.length === 0) {
-        return [];
-      }
-      const node: FilterOptionNode<string> = {
-        value: id,
-        label: option.label ?? "",
-        count: this.optionCount(key, [id, ...subtreeValues(children)]),
-        options: children,
-      };
-      return [node];
-    });
+    // Built first and counted after, so every node's count comes from one pass over the rows.
+    const built: FilterOptionNode<string>[] = [];
+    const prune = (options: ChipFilterOption<T>[]): FilterOptionNode<string>[] =>
+      options.flatMap((option) => {
+        const id = option.value?.id;
+        if (id == null) {
+          return [];
+        }
+        const children = prune(option.children ?? []);
+        if (!visibleIds.has(id) && children.length === 0) {
+          return [];
+        }
+        const node: FilterOptionNode<string> = {
+          value: id,
+          label: option.label ?? "",
+          options: children,
+        };
+        built.push(node);
+        return [node];
+      });
+    const nodes = prune(tree);
+    const counts = this.optionCounts(
+      key,
+      built.map((node) => [node.value, ...subtreeValues(node.options ?? [])]),
+    );
+    built.forEach((node, index) => (node.count = counts[index]));
+    return nodes;
   }
 
   protected readonly itemHeight = toSignal(
