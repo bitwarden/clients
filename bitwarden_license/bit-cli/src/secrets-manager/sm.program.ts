@@ -178,7 +178,14 @@ export class SmProgram extends BaseProgram {
           .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
           .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
           .on("--help", () => {
-            writeLn("\n  Examples:");
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn(
+              "    Only `name` can be changed. Other properties printed by `get` are accepted",
+            );
+            writeLn("    only when unchanged; any other property is rejected.");
+            writeLn("");
+            writeLn("  Examples:");
             writeLn("");
             writeLn(
               '    echo \'{"name":"Backend"}\' | bw encode | bw sm project edit <projectId> --organizationid <organizationid>',
@@ -326,6 +333,10 @@ export class SmProgram extends BaseProgram {
               "    with an `id` per project; not both) properties in the request are changed;",
             );
             writeLn("    missing properties keep their current values.");
+            writeLn(
+              "    Other properties printed by `get` are accepted only when unchanged; any other",
+            );
+            writeLn("    property is rejected.");
             writeLn("    Access to the secret is not changed.");
             writeLn("");
             writeLn("  Examples:");
@@ -506,7 +517,14 @@ export class SmProgram extends BaseProgram {
           .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
           .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
           .on("--help", () => {
-            writeLn("\n  Examples:");
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn(
+              "    Only `name` can be changed. Other properties printed by `get` are accepted",
+            );
+            writeLn("    only when unchanged; any other property is rejected.");
+            writeLn("");
+            writeLn("  Examples:");
             writeLn("");
             writeLn(
               '    echo \'{"name":"CI"}\' | bw encode | bw sm machine-account edit <machineAccountId> --organizationid <organizationid>',
