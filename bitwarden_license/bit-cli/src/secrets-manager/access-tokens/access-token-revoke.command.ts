@@ -1,7 +1,9 @@
-import { AccessService, ServiceAccountService } from "@bitwarden/bit-sm";
+import { AccessService, BulkOperationStatus, ServiceAccountService } from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
+import { ListResponse } from "@bitwarden/cli/models/response/list.response";
 
 import { ServiceContainer } from "../../service-container";
+import { SmBulkStatusResponse } from "../models/sm-bulk-status.response";
 import {
   parseSmIds,
   SmOrganization,
@@ -40,14 +42,20 @@ export class AccessTokenRevokeCommand {
         org.organizationId,
         machineAccount.machineAccountId,
       );
+      const statuses: BulkOperationStatus[] = [];
       for (const id of parsed.ids) {
-        if (!accessTokens.some((t) => t.id === id)) {
+        const token = accessTokens.find((t) => t.id === id);
+        if (token == null) {
           return smNotFoundResponse("access token `" + id + "`");
         }
+        const status = new BulkOperationStatus();
+        status.id = token.id;
+        status.name = token.name;
+        statuses.push(status);
       }
 
       await this.accessService.revokeAccessTokens(machineAccount.machineAccountId, parsed.ids);
-      return Response.success();
+      return Response.success(new ListResponse(statuses.map((s) => new SmBulkStatusResponse(s))));
     } catch (e) {
       return smErrorResponse(e, "machine account");
     }

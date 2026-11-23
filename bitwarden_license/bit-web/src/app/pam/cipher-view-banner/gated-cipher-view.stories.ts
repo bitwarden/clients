@@ -104,7 +104,8 @@ function provideStoryCipherView() {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
     },
-    { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+    // Favicons off, so snapshots don't depend on remote favicon fetches.
+    { provide: DomainSettingsService, useValue: { showFavicons$: of(false) } },
     { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
     { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
     { provide: CollectionService, useValue: { decryptedCollections$: () => of([]) } },

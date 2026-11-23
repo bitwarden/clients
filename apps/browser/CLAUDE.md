@@ -4,6 +4,7 @@
   - Always use `BrowserApi` abstraction: `/apps/browser/src/platform/browser/browser-api.ts`
   - Required for cross-browser compatibility (Chrome/Firefox/Safari/Opera)
   - Exception: injected content scripts (see `.claude/rules/autofill-content-scripts.md`)
+  - Exception: the popup shell (`/apps/browser/src/platform/popup/shell/popup-shell.ts`), which runs before the app is loaded and cannot import `BrowserApi`
 
 - **ALWAYS** use `BrowserApi.addListener()` for event listeners in popup context
   - Safari requires manual cleanup to prevent memory leaks
