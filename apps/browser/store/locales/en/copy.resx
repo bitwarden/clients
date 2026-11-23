@@ -121,55 +121,46 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Securely store, share, and autofill passwords and passkeys anywhere.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Bitwarden is the trusted open source password manager used by millions to secure their accounts from hackers and data breaches. Generate, save, and autofill strong passwords for every account on every device.
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+Recognized by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+AUTOFILL EVERYTHING INSTANTLY
+Never forget a password again. Autofill logins from anywhere, on any device.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+EASILY GENERATE STRONG PASSWORDS
+Protect all accounts with long, complex, and unique passwords. Generate usernames and email aliases for added security.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+A SECURE VAULT FOR SENSITIVE INFORMATION
+Keep passkeys, payment cards, secure notes, identities, and more in the end-to-end encrypted vault that syncs everywhere.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+SYNC PASSKEYS SECURELY
+Create and store passkeys for your logins that you can use across your devices, regardless of browser, mobile device, or computer OS.
 
+SHARE PASSWORDS SAFELY
+Share logins with family or friends in a shared vault or use a secure link to directly share encrypted text, or vault items and files with Premium, with strong security controls.
 
-More reasons to choose Bitwarden:
+ACCESS FROM ANY DEVICE
+Use Bitwarden on your phone, tablet, and computer, in every major browser. Store unlimited passwords and sync across unlimited devices.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+SECURITY YOU CAN VERIFY
+Bitwarden codebase is open source, meaning it can be viewed by anyone to ensure it functions securely. Third-party security audits are published annually. There’s nothing to hide.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+INDIVIDUALS AND FAMILIES
+Bitwarden offers plans for everyone, even a basic free plan. Premium plans have even more features to make security easier, and a Families plan gives six users premium features and a shared vault.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+TEAMS AND ENTERPRISE
+Bitwarden secures businesses around the world. Features like Login with SSO, role-based access controls, SCIM provisioning, enterprise policies, reporting, and centralized ownership secure organizations of any size.
 
-Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
-
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
-
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
-
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
-
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+MORE FROM BITWARDEN
+For developers and DevOps, Bitwarden Secrets Manager secures dev secrets, AI agents, and machine accounts and integrates with Bitwarden Password Manager.
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Securely store, share, and autofill passwords and passkeys anywhere.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sync and access your vault from multiple devices</value>
