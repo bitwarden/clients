@@ -102,15 +102,6 @@ export function isConfinedSnap() {
   }
 }
 
-/** When to request the macOS focus steal in {@link WindowMain["showAndFocus"]}. */
-const MacFocusSteal = {
-  /** The window is being shown for the first time; stealing focus right away works. */
-  Immediate: "immediate",
-  /** The window was just restored/shown again; the steal must wait a tick or macOS drops it. */
-  Deferred: "deferred",
-} as const;
-type MacFocusSteal = (typeof MacFocusSteal)[keyof typeof MacFocusSteal];
-
 export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
@@ -118,6 +109,8 @@ export class WindowMain {
   private isReloading = false;
   // Settles once the first window exists. A reopen during startup must not create a second one.
   private startup: Promise<void> = Promise.resolve();
+  /** The in-flight ensureRenderer, so concurrent callers share one window. */
+  private ensuringRenderer?: Promise<void>;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -366,6 +359,16 @@ export class WindowMain {
    * races the asynchronous `loadURL`, and macOS sometimes drops the activation.
    */
   async ensureRenderer(): Promise<void> {
+    // createWindow awaits stored state before it assigns `win`, so without this two overlapping
+    // callers would both see no window and each create one.
+    this.ensuringRenderer ??= this.ensureRendererOnce().finally(() => {
+      this.ensuringRenderer = undefined;
+    });
+
+    await this.ensuringRenderer;
+  }
+
+  private async ensureRendererOnce(): Promise<void> {
     // A window created during startup must not be created twice.
     await this.startup;
 
@@ -378,7 +381,7 @@ export class WindowMain {
     if (this.win.isMinimized()) {
       this.win.restore();
     }
-    this.showAndFocus(this.win, MacFocusSteal.Deferred);
+    this.showAndFocus(this.win);
   }
 
   private showWhenReady(win: BrowserWindow) {
@@ -386,11 +389,11 @@ export class WindowMain {
       if (win.isDestroyed()) {
         return;
       }
-      this.showAndFocus(win, MacFocusSteal.Immediate);
+      this.showAndFocus(win);
     });
   }
 
-  private showAndFocus(win: BrowserWindow, macFocusSteal: MacFocusSteal): void {
+  private showAndFocus(win: BrowserWindow): void {
     win.show();
     win.focus();
     if (!isMac()) {
@@ -399,15 +402,10 @@ export class WindowMain {
 
     // Showing and focusing the window is not enough to raise it above other
     // applications' windows when the app was hidden to the tray (its dock was
-    // hidden too). Steal focus to bring it to the foreground.
-    if (macFocusSteal === MacFocusSteal.Immediate) {
-      app.focus({ steal: true });
-      return;
-    }
-
-    // Defer the steal to the next tick so macOS has processed the show()/restore()
-    // (and, on the restore-from-tray path, the dock show that precedes it) before we
-    // request activation; stealing in the same tick as show() is sometimes dropped.
+    // hidden too). Steal focus to bring it to the foreground. Defer the steal to the
+    // next tick so macOS has processed the show()/restore() (and, on the
+    // restore-from-tray path, the dock show that precedes it) before we request
+    // activation; stealing in the same tick as show() is sometimes dropped.
     setTimeout(() => app.focus({ steal: true }));
   }
 

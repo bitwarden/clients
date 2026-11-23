@@ -175,6 +175,33 @@ describe("WindowMain", () => {
       expect(createWindow).toHaveBeenCalledWith("full-app", true);
     });
 
+    it("creates one window when two callers need the renderer at once", async () => {
+      await sut.init(true);
+      createWindow.mockClear();
+      sut.win = null;
+
+      // createWindow awaits stored window state before it constructs the BrowserWindow, so two
+      // callers can both pass the null check before either assigns sut.win.
+      const pending: Array<() => void> = [];
+      createWindow.mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            pending.push(() => {
+              sut.win = mock<BrowserWindow>();
+              resolve();
+            });
+          }),
+      );
+
+      const first = sut.ensureRenderer();
+      const second = sut.ensureRenderer();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      pending.forEach((finish) => finish());
+      await Promise.all([first, second]);
+
+      expect(createWindow).toHaveBeenCalledTimes(1);
+    });
+
     describe("while the startup window is still being created", () => {
       let finishStartupWindow: () => void;
       let initDone: Promise<void>;
@@ -503,6 +530,9 @@ describe("WindowMain", () => {
 
       expect(recreated.show).toHaveBeenCalled();
       expect(recreated.focus).toHaveBeenCalled();
+      expect(app.focus).not.toHaveBeenCalled();
+
+      jest.runOnlyPendingTimers();
       expect(app.focus).toHaveBeenCalledWith({ steal: true });
     });
   });
