@@ -11,8 +11,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
-// Finer-grained than DefaultVaultTimeoutService's 10s: without a renderer, nothing else notices
-// a timeout until this check runs, so a shorter interval keeps that lag small.
 const CheckIntervalMs = 1 * 1000;
 
 /**
@@ -23,7 +21,7 @@ const CheckIntervalMs = 1 * 1000;
  * timeout keep the renderer alive instead (see {@link logoutOnTimeout}).
  *
  * ```
- *  every 10s ──────────────┐
+ *  every 1s ───────────────┐
  *  sleep / lock / idle ────┼─▶ flag enabled? ─ yes ─▶ lock timed-out accounts
  *                          │                 no  ──▶ renderer handles it
  * ```
