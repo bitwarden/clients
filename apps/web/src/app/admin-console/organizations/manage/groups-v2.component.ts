@@ -294,6 +294,9 @@ export class GroupsV2Component {
         this.filterRestored.set(true);
         return;
       }
+      if (sameSharedFolders(sharedFolders, stored.sharedFolders)) {
+        return;
+      }
       void this.tableState.update(organizationId, { sharedFolders: [...sharedFolders] });
     });
   }
