@@ -68,6 +68,7 @@ import {
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -96,7 +97,6 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -387,7 +387,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationInviteService,
       RouterService,
       AccountCryptographicStateService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
       UnlockService,
     ],
   }),

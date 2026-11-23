@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Настолно приложение",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Настолно приложение $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Неправилно сдвояване на приложението",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Уеб сайтът е добавен"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Добавяне на уеб сайт или приложение"
-  },
-  "app": {
-    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Изтриване на уеб сайт"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Аз"
   },
-  "myItems": {
-    "message": "Моите елементи"
-  },
   "myItemsV2": {
     "message": "Моите елементи"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 елемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Изчистване на всичко"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Внасянето е успешно"
+  },
+  "importConfirmationBody": {
+    "message": "Внесохте успешно $AMOUNT$ елемента в Битуорден.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Внесохте успешно 1 елемент в Битуорден."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Съвет:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забравяйте да изтриете $FILENAME$. Файлът съдържа чувствителни данни и може да не е шифрован.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забравяйте да изтриете файла за внасяне. Той съдържа чувствителни данни и може да не е шифрован."
+  },
+  "importingTitle": {
+    "message": "Внасяне"
+  },
+  "importingDescription": {
+    "message": "Този процес може да отнеме няколко минути."
   },
   "dataExportSuccess": {
     "message": "Данните са изнесени успешно"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Благодарим Ви, че се регистрирахте в Битуорден и избрахте плана $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Благодарим Ви, че се регистрирахте в Управителя на пароли на Битуорден и избрахте плана $PLAN$!",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "След като Вашият $TRIAL_LENGTH$-дневен безплатен пробен период на плана $PLAN$ изтече, той ще бъде превърнат в платен абонамент след $TRIAL_LENGTH$ дни.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Изпратихме Ви е-писмо за потвърждение до е-пощата на екипа Ви, на адрес: "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Вашият пробен период включва Разширеното управление."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Новата организация е готова!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Организацията е обновена."
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Колекция № $ID$ е създадена.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Добавена е споделена папка $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Наистина ли искате да изтриете завинаги това Изпращане?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Наистина ли искате да изтриете това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Дата на изтриване"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Включване на автоматичното попълване чрез настолното приложение по подразбиране за всички членове. Можете да зададете клавишна комбинация и да изберете дали членовете да трябва да потвърдят преди попълването. Тази функционалност е в състояние на бета-версия."
+  },
+  "keyboardShortcut": {
+    "message": "Клавишна комбинация"
+  },
+  "appAutofillShortcut": {
+    "message": "Клавишна комбинация за авт. попълване в приложение"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Членовете могат да променят тази клавишна комбинация по всяко време."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Използвайте стандартната клавишна комбинация на Битуорден: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Въведете своя собствена клавишна комбинация."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Използвайте Ctrl, Alt или Win и поне 1 буква."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Винаги да се пита преди попълване"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Когато се използва клавишната комбинация за настолното приложение, винаги да се изисква потвърждение от членовете."
+  },
+  "invalidShortcut": {
+    "message": "Неправилна комбинация"
   },
   "disableSend": {
     "message": "Без изпращане"
@@ -13043,7 +13108,7 @@
     "message": "Автоматично подновяване на пароли"
   },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Compliance-ready audit logs"
+    "message": "Журнали за одит, съобразени с изискванията за съответствие"
   },
   "privilegedControlsFeatureGovernanceDashboard": {
     "message": "Табло за управление"
@@ -13655,6 +13720,28 @@
   },
   "recoverAccount": {
     "message": "Възстановяване на профила"
+  },
+  "recover": {
+    "message": "Възстановяване",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Възстановяване на акаунта за $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Няма действия за $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
   },
   "recoverAccountWarning": {
     "message": "Когато нулирате паролата или двустепенното удостоверяване за този член, той ще бъде известен за промяната и ще бъде отписан."
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Подробности за потвърждението"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Благодарим Ви, че се регистрирахте в Управителя на пароли на Битуорден!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Изпратихме Ви е-писмо за потвърждение до е-пощата Ви, на адрес: "
@@ -16570,9 +16654,16 @@
     "message": "Изпращайте чувствителна информация сигурно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Нямате никакви Изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Споделяйте текстове или файлове сигурно с всеки. Вашата информация ще бъде шифрована от край до край."
   },
   "generatorNudgeTitle": {
     "message": "Създавайте пароли бързо"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Как да управлявам трезора си?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Прехвърлете елементите си към $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ вече изисква всички елементи на членовете да бъдат притежание на организацията. Личните Ви елементи ще бъдат преместени в папка с име „Моите елементи“, която само Вие ще можете да виждате.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
   },
   "openTransferItemsHelpArticle": {
     "message": "Отваряне на помощната информация относно прехвърлянето на данни"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Възникна грешка. Проверете въведените данни и опитайте отново."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Поддържа се само вписване с парола."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Поддържа се само вписване с парола. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Този акаунт от 1Password използва метод на вписване, който не се поддържа. Опитайте отново или използвайте друг начин за внасяне."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Въведете правилен адрес на е-поща или използвайте друг начин за внасяне."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Въведете правилен адрес за вписване."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Може да намерите това в своя Комплект за спешни случаи в 1Password."
   },
   "secretKeyIsRequired": {
     "message": "Секретният ключ е задължителен."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Въведете е-пощата, която използвате за вписване в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Въведете е-пощата, която използвате за вписване в 1Password. Поддържа се само вписване с парола."
+  },
   "secretKey": {
     "message": "Таен ключ"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Вписване с еднократно удостоверяване"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Превключете към страницата за еднократно удостоверяване, за да завършите внасянето в Битуорден."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Прехвърляне на ключа за шифроване"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Впишете се в 1Password и идете в чакащите вписвания, за да одобрите тази заявка."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Кодът не сработи. Проверете другото си устройство за нов."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Страницата за еднократно удостоверяване беше затворена преди да завършите вписването си. Опитайте отново, за да продължите внасянето."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Това устройство не беше одобрено на другото Ви устройство. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Твърде много неуспешни кодове за потвърждение. Опитайте отново или използвайте друг начин за внасяне."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Разделете домейните със запетая"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
   },
   "searchDriversLicense": {

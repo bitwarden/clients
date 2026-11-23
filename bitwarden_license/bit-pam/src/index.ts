@@ -92,6 +92,7 @@ export {
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
   pickDurationUnit,
+  maxRequestDurationSeconds,
   requestDurationOptions,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";

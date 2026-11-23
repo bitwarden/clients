@@ -4,6 +4,7 @@ import { Response } from "@bitwarden/cli/models/response";
 import { ServiceContainer } from "../../service-container";
 import { SmMachineAccountResponse } from "../models/sm-machine-account.response";
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
   parseSmId,
   parseSmRequest,
@@ -48,6 +49,14 @@ export class MachineAccountEditCommand {
       );
       if (existing.organizationId !== org.organizationId) {
         return smNotFoundResponse("machine account");
+      }
+      const readOnly = checkSmReadOnlyProperties(
+        parsed.request,
+        "machine account",
+        new SmMachineAccountResponse(existing),
+      );
+      if (readOnly) {
+        return readOnly;
       }
 
       const view = new ServiceAccountView();
