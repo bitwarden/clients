@@ -223,7 +223,11 @@
       [class.tw-cursor-pointer]="canManage && organization"
       (click)="canManage && organization && edit(row, organization, memberTab.Details)"
     >
-      {{ row.type | userType }}
+      <span
+        class="tw-rounded focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+        tabindex="0"
+        >{{ row.type | userType }}</span
+      >
     </bit-cell>
   </bit-column>
 
