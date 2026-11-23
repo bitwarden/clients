@@ -156,5 +156,67 @@ describe("MachineAccountEditCommand", () => {
       );
       expect(serviceAccountService.update).not.toHaveBeenCalled();
     });
+
+    it.each([true, false])(
+      "rejects decryptionError %p when it differs from the machine account's and saves nothing",
+      async (decryptionError) => {
+        serviceAccountService.getByServiceAccountId.mockResolvedValue(
+          makeMachineAccount({ decryptionError: !decryptionError }),
+        );
+
+        const response = await command.run(
+          smOrg,
+          machineAccountId,
+          encodeSmRequest({ organizationId: null, name: "Machine account name", decryptionError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptionError` cannot be edited on a machine account. Remove this property from the request.",
+        );
+        expect(serviceAccountService.update).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe("unknown properties", () => {
+    beforeEach(() => {
+      serviceAccountService.getByServiceAccountId.mockResolvedValue(makeMachineAccount());
+      serviceAccountService.update.mockResolvedValue(
+        makeMachineAccount({ name: "Machine account name" }),
+      );
+    });
+
+    it.each([true, false])(
+      "rejects decryptError %p added to the template and saves nothing",
+      async (decryptError) => {
+        const response = await command.run(
+          smOrg,
+          machineAccountId,
+          encodeSmRequest({ organizationId: null, name: "Machine account name", decryptError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptError` is not a machine account property. Remove this property from the request. Properties that can be edited on a machine account: `name`.",
+        );
+        expect(serviceAccountService.getByServiceAccountId).not.toHaveBeenCalled();
+        expect(serviceAccountService.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it("names every unknown property", async () => {
+      const response = await command.run(smOrg, machineAccountId, {
+        name: "Deploy",
+        Name: "Deploy",
+        enabled: false,
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`Name`, `enabled` are not machine account properties. Remove these properties from the request. Properties that can be edited on a machine account: `name`.",
+      );
+      expect(serviceAccountService.update).not.toHaveBeenCalled();
+    });
   });
 });
