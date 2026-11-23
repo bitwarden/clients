@@ -40,8 +40,8 @@ export class ElectronMainMessagingService implements MessageSender {
         icon: path.join(__dirname, "images/icon.png"),
       });
 
-      alert.addListener("click", () => {
-        void this.windowMain.ensureRenderer();
+      alert.addListener("click", async () => {
+        await this.windowMain.ensureRenderer();
       });
 
       alert.show();
