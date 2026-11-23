@@ -143,6 +143,53 @@ export const SM_READ_ONLY_PROPERTIES = [
   "accessToSecrets",
 ] as const;
 
+/**
+ * The properties each `edit` command changes. `organizationId` is also accepted (see
+ * `checkSmRequestOrganization`), as are the `SM_READ_ONLY_PROPERTIES`.
+ */
+export const SM_EDITABLE_PROPERTIES = {
+  project: ["name"],
+  "machine account": ["name"],
+  secret: ["key", "value", "note", "projectIds", "projects"],
+} as const;
+
+export type SmEditableEntity = keyof typeof SM_EDITABLE_PROPERTIES;
+
+/**
+ * Rejects a request body with properties the entity does not have, such as a misspelled one,
+ * so an edit is not saved with part of the request silently ignored. `null` and
+ * whitespace-only values count as absent, as in `checkSmReadOnlyProperties`.
+ */
+export function checkSmUnknownProperties(
+  request: Record<string, unknown>,
+  entity: SmEditableEntity,
+): Response | undefined {
+  const editable: readonly string[] = SM_EDITABLE_PROPERTIES[entity];
+  const readOnly: readonly string[] = SM_READ_ONLY_PROPERTIES;
+  const unknown = Object.keys(request).filter(
+    (property) =>
+      property !== "organizationId" &&
+      !editable.includes(property) &&
+      !readOnly.includes(property) &&
+      !isMissing(request[property]),
+  );
+  if (unknown.length === 0) {
+    return undefined;
+  }
+  const plural = unknown.length > 1;
+  return Response.badRequest(
+    unknown.map((property) => "`" + property + "`").join(", ") +
+      (plural ? " are not " + entity + " properties." : " is not a " + entity + " property.") +
+      " Remove " +
+      (plural ? "these properties" : "this property") +
+      " from the request. Properties that can be edited on a " +
+      entity +
+      ": " +
+      editable.map((property) => "`" + property + "`").join(", ") +
+      ".",
+  );
+}
+
 function isSameSmValue(supplied: unknown, current: unknown): boolean {
   if (supplied === current) {
     return true;

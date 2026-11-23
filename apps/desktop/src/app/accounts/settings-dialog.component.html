@@ -225,6 +225,7 @@
             bitCheckbox
             formControlName="enableSshAgent"
             (change)="saveSshAgent()"
+            data-testid="settings-ssh-agent-checkbox"
           />
           <bit-label>{{ "enableSshAgent" | i18n }}</bit-label>
           <bit-hint>{{ "enableSshAgentDesc" | i18n }}</bit-hint>
