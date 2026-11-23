@@ -42,6 +42,10 @@ import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-u
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  legacyPasswordGenerationServiceFactory,
+  PasswordGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
+import {
   BiometricStateService,
   BiometricsService,
   DefaultKdfConfigService,
@@ -105,6 +109,7 @@ export class MainServiceContainer {
   readonly cipherEncryptionService: DefaultCipherEncryptionService;
   readonly cipherSdkService: DefaultCipherSdkService;
   readonly cipherService: CipherServiceAbstraction;
+  readonly passwordGenerationService: PasswordGenerationServiceAbstraction;
   readonly folderService: FolderService;
   readonly stateEventRunnerService: DefaultStateEventRunnerService;
   readonly lockService: DefaultLockService;
@@ -361,6 +366,13 @@ export class MainServiceContainer {
       this.cipherEncryptionService,
       this.cipherSdkService,
     ) as CipherServiceAbstraction;
+
+    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
+      this.policyService,
+      this.accountService,
+      this.stateProvider,
+      this.sdkService,
+    );
 
     this.folderService = new FolderService(
       this.keyService,

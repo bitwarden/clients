@@ -12,8 +12,6 @@ import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
-  DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
-  DuckDuckGoEncstring,
   EncryptedString,
   EncryptionType,
   EncryptService,
@@ -22,16 +20,16 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
-import { DesktopAutofillSettingsService } from "../autofill/services/desktop-autofill-settings.service";
-import { DecryptedCommandData } from "../models/native-messaging/decrypted-command-data";
-import { EncryptedMessage } from "../models/native-messaging/encrypted-message";
-import { EncryptedMessageResponse } from "../models/native-messaging/encrypted-message-response";
-import { Message } from "../models/native-messaging/message";
-import { UnencryptedMessage } from "../models/native-messaging/unencrypted-message";
-import { UnencryptedMessageResponse } from "../models/native-messaging/unencrypted-message-response";
-
-import { EncryptedMessageHandlerService } from "./encrypted-message-handler.service";
+import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac, DuckDuckGoEncstring } from "..";
+import { VerifyNativeMessagingDialogComponent } from "../../app/components/verify-native-messaging-dialog.component";
+import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DecryptedCommandData } from "../../models/native-messaging/decrypted-command-data";
+import { EncryptedMessage } from "../../models/native-messaging/encrypted-message";
+import { EncryptedMessageResponse } from "../../models/native-messaging/encrypted-message-response";
+import { Message } from "../../models/native-messaging/message";
+import { UnencryptedMessage } from "../../models/native-messaging/unencrypted-message";
+import { UnencryptedMessageResponse } from "../../models/native-messaging/unencrypted-message-response";
+import { EncryptedMessageHandlerService } from "../main/encrypted-message-handler.service";
 
 const HashAlgorithmForAsymmetricEncryption = "sha1";
 

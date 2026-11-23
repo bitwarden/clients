@@ -202,6 +202,9 @@ import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/s
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
 import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
+import { EncryptedMessageHandlerService } from "../../duckduckgo/main/encrypted-message-handler.service";
+import { DuckDuckGoMessageHandlerService } from "../../duckduckgo/services/duckduckgo-message-handler.service";
+import { NativeMessagingService } from "../../duckduckgo/services/native-messaging.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { DesktopRendererKeyService } from "../../key-management/desktop-renderer-key.service";
@@ -232,9 +235,6 @@ import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
 import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
 import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
-import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
-import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
-import { NativeMessagingService } from "../../services/native-messaging.service";
 import { DesktopCipherService } from "../../vault/services/desktop-cipher.service";
 import { DesktopShareItemPresenter } from "../tools/share-item/desktop-share-item.presenter";
 

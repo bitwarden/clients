@@ -15,6 +15,8 @@ import {
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 
 // eslint-disable-next-line no-restricted-imports
+import { DDGSessionKey, encrypt, Padding } from "../../src/duckduckgo/protocol";
+// eslint-disable-next-line no-restricted-imports
 import { DecryptedCommandData } from "../../src/models/native-messaging/decrypted-command-data";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedMessage } from "../../src/models/native-messaging/encrypted-message";
@@ -33,6 +35,14 @@ import { UnencryptedMessageResponse } from "../../src/models/native-messaging/un
 
 import IPCService, { IPCOptions } from "./ipc.service";
 import * as config from "./variables";
+
+/**
+ * An encrypted message as DuckDuckGo puts it on the wire: `encryptedCommand` is the plain
+ * `2.<iv>|<data>|<mac>` string, not a serialized EncString.
+ */
+type EncryptedMessageOnWire = Omit<EncryptedMessage, keyof MessageCommon | "encryptedCommand"> & {
+  encryptedCommand: string;
+};
 
 type HandshakeResponse = {
   status: boolean;
@@ -167,7 +177,7 @@ export default class NativeMessageService {
   // Private message sending
 
   private async sendEncryptedMessage(
-    message: Omit<EncryptedMessage, keyof MessageCommon>,
+    message: EncryptedMessageOnWire,
     options: IPCOptions = {},
   ): Promise<EncryptedMessageResponse> {
     const result = await this.sendMessage(message, options);
@@ -183,8 +193,7 @@ export default class NativeMessageService {
   }
 
   private async sendMessage(
-    message:
-      Omit<UnencryptedMessage, keyof MessageCommon> | Omit<EncryptedMessage, keyof MessageCommon>,
+    message: Omit<UnencryptedMessage, keyof MessageCommon> | EncryptedMessageOnWire,
     options: IPCOptions,
   ): Promise<EncryptedMessageResponse | UnencryptedMessageResponse> {
     // Attempt to connect before sending any messages. If the connection has already
@@ -196,7 +205,7 @@ export default class NativeMessageService {
       messageId: randomUUID(),
       version: this.apiVersion,
     };
-    const fullMessage: UnencryptedMessage | EncryptedMessage = {
+    const fullMessage = {
       ...message,
       ...commonFields,
     };
@@ -215,15 +224,23 @@ export default class NativeMessageService {
   }
 
   // Data Encryption
+  /**
+   * Encrypts a command the way DuckDuckGo does: zero padding, and the encstring as a plain
+   * `2.<iv>|<data>|<mac>` string rather than a serialized EncString.
+   *
+   * ref: https://github.com/duckduckgo/apple-browsers/blob/04d678b447869c3a640714718a466b36407db8b6/macOS/DuckDuckGo/PasswordManager/Bitwarden/Services/BWEncryption.m#L123
+   */
   private async encryptCommandData(
     commandData: DecryptedCommandData,
     key: string,
-  ): Promise<EncString> {
-    const commandDataString = JSON.stringify(commandData);
-
+  ): Promise<string> {
     const sharedKey = await this.getSharedKeyForKey(key);
 
-    return this.encryptService.encryptString(commandDataString, sharedKey);
+    return encrypt(
+      JSON.stringify(commandData),
+      DDGSessionKey.fromBytes(sharedKey.toEncoded()),
+      Padding.Zero,
+    );
   }
 
   private async decryptResponsePayload(

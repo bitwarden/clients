@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -17,18 +15,18 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { DecryptedCommandData } from "../models/native-messaging/decrypted-command-data";
-import { CredentialCreatePayload } from "../models/native-messaging/encrypted-message-payloads/credential-create-payload";
-import { CredentialRetrievePayload } from "../models/native-messaging/encrypted-message-payloads/credential-retrieve-payload";
-import { CredentialUpdatePayload } from "../models/native-messaging/encrypted-message-payloads/credential-update-payload";
-import { PasswordGeneratePayload } from "../models/native-messaging/encrypted-message-payloads/password-generate-payload";
-import { AccountStatusResponse } from "../models/native-messaging/encrypted-message-responses/account-status-response";
-import { CipherResponse } from "../models/native-messaging/encrypted-message-responses/cipher-response";
-import { FailureStatusResponse } from "../models/native-messaging/encrypted-message-responses/failure-status-response";
-import { GenerateResponse } from "../models/native-messaging/encrypted-message-responses/generate-response";
-import { MessageResponseData } from "../models/native-messaging/encrypted-message-responses/message-response-data";
-import { SuccessStatusResponse } from "../models/native-messaging/encrypted-message-responses/success-status-response";
-import { UserStatusErrorResponse } from "../models/native-messaging/encrypted-message-responses/user-status-error-response";
+import { DecryptedCommandData } from "../../models/native-messaging/decrypted-command-data";
+import { CredentialCreatePayload } from "../../models/native-messaging/encrypted-message-payloads/credential-create-payload";
+import { CredentialRetrievePayload } from "../../models/native-messaging/encrypted-message-payloads/credential-retrieve-payload";
+import { CredentialUpdatePayload } from "../../models/native-messaging/encrypted-message-payloads/credential-update-payload";
+import { PasswordGeneratePayload } from "../../models/native-messaging/encrypted-message-payloads/password-generate-payload";
+import { AccountStatusResponse } from "../../models/native-messaging/encrypted-message-responses/account-status-response";
+import { CipherResponse } from "../../models/native-messaging/encrypted-message-responses/cipher-response";
+import { FailureStatusResponse } from "../../models/native-messaging/encrypted-message-responses/failure-status-response";
+import { GenerateResponse } from "../../models/native-messaging/encrypted-message-responses/generate-response";
+import { MessageResponseData } from "../../models/native-messaging/encrypted-message-responses/message-response-data";
+import { SuccessStatusResponse } from "../../models/native-messaging/encrypted-message-responses/success-status-response";
+import { UserStatusErrorResponse } from "../../models/native-messaging/encrypted-message-responses/user-status-error-response";
 
 export class EncryptedMessageHandlerService {
   constructor(
@@ -89,7 +87,7 @@ export class EncryptedMessageHandlerService {
     }
 
     return Promise.all(
-      Object.keys(accounts).map(async (userId: UserId) => {
+      (Object.keys(accounts) as UserId[]).map(async (userId) => {
         const authStatus = await this.authService.getAuthStatus(userId);
         const email = accounts[userId].email;
 

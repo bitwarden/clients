@@ -21,6 +21,7 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
+import { DDG_IPC_CHANNELS } from "../models/native-messaging/ddg-ipc-channels";
 import { isDev } from "../utils";
 
 import { RENDERER_READY_CHANNEL } from "./renderer-ready";
@@ -74,6 +75,12 @@ const nativeMessaging = {
       ipcRenderer.invoke("nativeMessaging.manifests", { create }),
     generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
       ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
+};
+
+const duckduckgo = {
+  verifyRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke(DDG_IPC_CHANNELS.VERIFY_REQUEST_RESPONSE, { requestId, accepted });
   },
 };
 
@@ -180,6 +187,7 @@ export default {
   clipboard,
   powermonitor,
   nativeMessaging,
+  duckduckgo,
   crypto,
   ephemeralStore,
   localhostCallbackService,

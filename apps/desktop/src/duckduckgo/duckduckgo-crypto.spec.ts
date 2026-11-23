@@ -1,9 +1,8 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import { Aes256CbcHmacKey, EncryptionType } from "@bitwarden/legacy-crypto";
 
-import { EncryptionType } from "../enums/encryption-type.enum";
-import { Aes256CbcHmacKey } from "../models/symmetric-crypto-key";
-
-import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "./dangerous_duckduckgo_crypto";
+import { DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac } from "./index";
 
 const KEY = new Uint8Array(32).fill(0); // 32 bytes key filled with 0x01
 const IV = new Uint8Array(16).fill(0); // 16 bytes IV filled with 0x00

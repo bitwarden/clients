@@ -54,6 +54,8 @@ import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotyp
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { NewMainSshAgentService } from "./autofill/main/new-main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { EncryptedMessageHandlerService } from "./duckduckgo/main/encrypted-message-handler.service";
+import { MainDuckDuckGoService } from "./duckduckgo/main/main-duckduckgo.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
@@ -124,6 +126,7 @@ export class Main {
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
   newSshAgentService: NewMainSshAgentService;
+  duckDuckGoService: MainDuckDuckGoService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
@@ -438,6 +441,25 @@ export class Main {
       this.windowMain,
     );
 
+    const encryptedMessageHandlerService = new EncryptedMessageHandlerService(
+      accountService,
+      this.serviceContainer.authService,
+      this.serviceContainer.cipherService,
+      this.policyService,
+      this.messagingService,
+      this.serviceContainer.passwordGenerationService,
+    );
+    this.duckDuckGoService = new MainDuckDuckGoService(
+      this.rendererTeardownFlag.isEnabled,
+      this.logService,
+      secureStorageService,
+      this.desktopAutofillSettingsService,
+      encryptedMessageHandlerService,
+      this.nativeMessagingMain,
+      this.windowMain,
+      this.messagingService,
+    );
+
     new EphemeralValueStorageService();
 
     this.ssoUrlService = new SsoUrlService();
@@ -468,6 +490,7 @@ export class Main {
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
       this.newSshAgentService.dispose();
+      this.duckDuckGoService.dispose();
       this.storageService.dispose();
     });
   }
@@ -565,6 +588,7 @@ export class Main {
 
         // Main owns the SSH agent; it signs with main's vault, with or without a renderer.
         this.newSshAgentService.init();
+        await this.duckDuckGoService.init();
 
         // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
         // A failure leaves that account locked rather than failing startup for the others. The
@@ -593,11 +617,6 @@ export class Main {
    * Services are read lazily: most are constructed after the tray.
    */
   private createRendererTeardown(): RendererTeardownMain {
-    let ddgEnabled = false;
-    this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
-      ddgEnabled = enabled;
-    });
-
     return new RendererTeardownMain(
       this.rendererTeardownFlag.isEnabled,
       [
@@ -613,7 +632,6 @@ export class Main {
           name: "autofill-provider",
           active: () => this.desktopAutofillMain.status === FeatureStatus.Active,
         },
-        { name: "duckduckgo", active: () => ddgEnabled },
         // Logout cleanup runs in the renderer, so main can only lock on timeout.
         { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
       ],

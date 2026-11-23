@@ -39,4 +39,3 @@ export type {
 } from "./types/key-types";
 
 export * from "./dangerous";
-export type { DuckDuckGoEncstring } from "./dangerous/dangerous_duckduckgo_crypto";

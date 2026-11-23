@@ -30,11 +30,12 @@ import { DesktopAutofillService } from "../../autofill/services/desktop-autofill
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
+import { DuckDuckGoDialogService } from "../../duckduckgo/services/duckduckgo-dialog.service";
+import { NativeMessagingService } from "../../duckduckgo/services/native-messaging.service";
 import { rendererTeardownEnabled } from "../../platform/renderer-teardown-flag";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { VersionService } from "../../platform/services/version.service";
-import { NativeMessagingService } from "../../services/native-messaging.service";
 
 import { UpdateRestartService } from "./update-restart.service";
 
@@ -57,6 +58,7 @@ export class InitService {
     private tokenService: TokenService,
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
+    private duckDuckGoDialogService: DuckDuckGoDialogService,
     private autofillService: DesktopAutofillService,
     private autotypeMvpService: DesktopAutotypeMvpService,
     private autotypeService: DesktopAutotypeService,
@@ -80,7 +82,8 @@ export class InitService {
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
-      this.nativeMessagingService.init();
+      await this.duckDuckGoDialogService.init();
+      await this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
       const accounts = await firstValueFrom(this.accountService.accounts$);

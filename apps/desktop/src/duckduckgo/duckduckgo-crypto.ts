@@ -1,8 +1,8 @@
 import * as forge from "node-forge";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-
-import { Aes256CbcHmacKey } from "../models/symmetric-crypto-key";
+// eslint-disable-next-line no-restricted-imports
+import { Aes256CbcHmacKey } from "@bitwarden/legacy-crypto";
 
 /**
  * Aes256CbcHmac, but without correct PKCS#7 padding. Forces us to guess padding
@@ -62,7 +62,7 @@ export function DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
 // ref: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
 // ref: https://paragonie.com/blog/2015/11/preventing-timing-attacks-on-string-comparison-with-double-hmac-strategy
 function compareConstantTime(a: Uint8Array, b: Uint8Array): boolean {
-  const rand = self.crypto.getRandomValues(new Uint8Array(32));
+  const rand = globalThis.crypto.getRandomValues(new Uint8Array(32));
 
   const hmac = forge.hmac.create();
   hmac.start("sha256", Utils.fromArrayToByteString(rand));
