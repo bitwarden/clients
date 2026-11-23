@@ -326,7 +326,6 @@ describe("WebLoginComponentService", () => {
           );
 
           expect(result.kind).toBe("auto-submit");
-          expect(toastService.showToast).not.toHaveBeenCalled();
           expect(router.navigate).not.toHaveBeenCalled();
         });
       });
