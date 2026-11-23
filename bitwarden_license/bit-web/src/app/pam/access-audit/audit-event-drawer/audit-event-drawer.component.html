@@ -179,6 +179,28 @@
         </dd>
       </div>
 
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "device" | i18n }}</dt>
+        <dd class="tw-m-0" data-testid="drawer-device">
+          @if (device; as device) {
+            {{ device }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditIpAddress" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-all" data-testid="drawer-ip-address">
+          @if (row.ipAddress) {
+            <span class="tw-font-mono tw-text-sm">{{ row.ipAddress }}</span>
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
       <div
         class="tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
         data-testid="drawer-trace"

@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { formatTimestamp } from "@bitwarden/bit-pam";
+import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -48,6 +49,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     targetSystemName: null,
     accessConnectorName: null,
     detail: "Approved for the incident window.",
+    ipAddress: "203.0.113.7",
+    deviceType: DeviceType.ChromeExtension,
     automated: false,
     inDoubt: false,
     requestId: REQUEST_ID,
@@ -97,6 +100,9 @@ describe("AuditEventDrawerComponent", () => {
             pamAuditColumnItem: "Item",
             pamAuditColumnDuration: "Duration",
             pamAuditColumnDetail: "Detail",
+            device: "Device",
+            extension: "Extension",
+            pamAuditIpAddress: "IP address",
             pamColumnWindow: "Window",
             pamAuditTargetSystem: "Target system",
             pamAuditAccessConnector: "Access connector",
@@ -187,6 +193,8 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("duration")).toBe("1 hour");
       expect(text("window")).toBe("Aug 18, 2026, 9:00 AM – Aug 18, 2026, 10:00 AM");
       expect(text("detail")).toBe("Approved for the incident window.");
+      expect(text("device")).toBe("Extension - Chrome");
+      expect(text("ip-address")).toBe("203.0.113.7");
       expect(text("request-id")).toBe("3a9d5f74");
       expect(text("lease-id")).toBe("b27e4c91");
       expect(text("rule")).toBe("Approval required");
@@ -294,6 +302,8 @@ describe("AuditEventDrawerComponent", () => {
       targetSystemName: null,
       accessConnectorName: null,
       detail: null,
+      ipAddress: null,
+      deviceType: null,
       requestId: null,
       leaseId: null,
       duration: null,
@@ -311,6 +321,8 @@ describe("AuditEventDrawerComponent", () => {
       "duration",
       "window",
       "detail",
+      "device",
+      "ip-address",
       "request-id",
       "lease-id",
       "rule",

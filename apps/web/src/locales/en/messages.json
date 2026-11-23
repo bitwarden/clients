@@ -18985,6 +18985,9 @@
   "pamAuditColumnDetail": {
     "message": "Detail"
   },
+  "pamAuditIpAddress": {
+    "message": "IP address"
+  },
   "pamAuditDurationExtendedTo": {
     "message": "Extended to $DATETIME$",
     "placeholders": {
