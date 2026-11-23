@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Файл"
   },
+  "item": {
+    "message": "Запис"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ відправлень",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 відправлення",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "У вас немає відправлень",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Безпечно обмінюйтеся текстом або файлами з будь-ким. Ваші дані будуть зашифровані за принципом «від кінця до кінця»."
+  },
+  "pendingDeletion": {
+    "message": "Очікується видалення"
+  },
   "allSends": {
     "message": "Усі відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5237,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Імпорт виконано успішно"
+  },
+  "importConfirmationBody": {
+    "message": "Ви успішно імпортували $AMOUNT$ записів у Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Ви успішно імпортували 1 запис у Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Порада:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забудьте видалити файл $FILENAME$. Він містить конфіденційні дані й може бути незашифрованим.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забудьте видалити файл імпорту. Він містить конфіденційні дані й може бути незашифрованим."
+  },
+  "importingTitle": {
+    "message": "Імпортування"
+  },
+  "importingDescription": {
+    "message": "Цей процес може зайняти кілька хвилин."
+  },
+  "importingItemsTitle": {
+    "message": "Імпорт $COUNT$ записів!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Імпорт 1 запису!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Відкриття розширення для браузера"
+  },
+  "openedExtensionTitle": {
+    "message": "Відкрито розширення браузера"
+  },
+  "somethingWentWrong": {
+    "message": "Щось пішло не так..."
+  },
+  "openingExtensionError": {
+    "message": "Виникли проблеми з відкриттям розширення браузера Bitwarden. Натисніть кнопку, щоб відкрити його зараз."
+  },
+  "openExtension": {
+    "message": "Відкрити розширення"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "У нас виникли проблеми з запуском розширення Bitwarden для браузера. Відкрийте іконку Bitwarden",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " з панелі інструментів.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Спробуйте знову"
   },
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "Сталася помилка. Перевірте свої облікові дані та спробуйте ще раз."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Підтримується лише вхід за допомогою пароля."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Підтримується лише вхід за допомогою пароля. Спробуйте ще раз або скористайтеся іншим способом імпорту."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Цей обліковий запис 1Password використовує спосіб входу, який не підтримується. Спробуйте ще раз або скористайтеся іншим способом імпорту."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Введіть дійсну адресу електронної пошти або скористайтеся іншим способом імпорту."
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Введіть дійсну адресу для входу."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Знайдіть це у своєму «екстреному наборі» 1Password."
   },
   "secretKeyIsRequired": {
     "message": "Необхідно ввести секретний ключ."
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "Введіть адресу електронної пошти, яку ви використовуєте для входу в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Введіть адресу електронної пошти, яку ви використовуєте для входу в 1Password. Підтримується лише вхід за допомогою пароля."
+  },
   "secretKey": {
     "message": "Секретний ключ"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Ваш обліковий запис захищений секретним ключем і паролем. Щоб продовжити, вам потрібно ввести їх обидва."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Увійти за допомогою SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Перейдіть на сторінку входу через SSO, щоб завершити імпорт у Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Передача ключа шифрування"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Увійдіть у 1Password і перейдіть до розділу «Очікують на підтвердження», щоб підтвердити цей запит."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Цей код не спрацював. Перевірте, чи немає нового коду на іншому пристрої."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Сторінка входу через SSO була закрита до того, як ви завершили вхід. Спробуйте ще раз, щоб продовжити імпорт."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Цей пристрій не було затверджено на вашому іншому пристрої. Спробуйте ще раз або скористайтеся іншим способом імпорту."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Занадто багато неправильних кодів підтвердження. Спробуйте ще раз або скористайтеся іншим способом імпорту."
   },
   "keeperEmail": {
     "message": "Е-пошта Keeper"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "Копіювати адресу"
   },
-  "myItems": {
-    "message": "Мої записи"
-  },
   "myItemsV2": {
     "message": "Мої записи"
   },
@@ -7080,7 +7205,7 @@
   },
   "desktopApp": {
     "message": "Настільний застосунок",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Настільний застосунок $COUNT$",
@@ -7092,6 +7217,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Неправильне сполучення застосунків",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Вебсайт додано"
   },
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Додати вебсайт або програму"
-  },
-  "app": {
-    "message": "Програма"
   },
   "deleteWebsite": {
     "message": "Видалити вебсайт"
@@ -8190,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "Як керувати своїм сховищем?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Перемістити записи до $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Передайте свої записи до $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ вимагає, щоб усіма записами володіла організація з міркувань безпеки та відповідності.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ тепер вимагає, щоб усі записи членів перебували у власності організації. Ваші особисті записи будуть переміщені до теки «Мої записи», яку бачите лише ви.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Натисніть \"Погодитись\", щоб передати право власності на ваші записи."
   },
   "openTransferItemsHelpArticle": {
     "message": "Відкрити статтю з довідки про перенесення записів"
@@ -8470,8 +8593,8 @@
     "message": "Термін дії цього відправлення автоматично завершиться у встановлену дату видалення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Ви не можете імпортувати записи в \"Мої записи\", які є частиною різних збірок"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Неможливо імпортувати записи до розділу «Мої записи», якщо вони входять до складу кількох збірок"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Не вдалося зберегти запис. Щоб зберігати записи, ви повинні бути підтвердженим учасником організації."
@@ -8892,6 +9015,9 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Для цього запису ввімкнено повторний запит головного пароля, тому автозаповнення запитів на вхід у браузері вимкнено. Збережіть запис, щоб застосувати цю зміну."
+  },
+  "vaultItem": {
+    "message": "Vault item"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Затверджений період доступу ще не розпочався."

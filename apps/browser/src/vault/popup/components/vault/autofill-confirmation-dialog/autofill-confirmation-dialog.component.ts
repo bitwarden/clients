@@ -12,6 +12,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isDesktopAppUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -93,7 +94,10 @@ export class AutofillConfirmationDialogComponent {
     this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
   );
 
-  readonly savedUrls = signal<LoginUriView[]>(this.params.savedUris ?? []);
+  // Desktop app URIs pair the login with an app, so they aren't saved websites
+  readonly savedUrls = computed<LoginUriView[]>(() =>
+    (this.params.savedUris ?? []).filter((uri) => !isDesktopAppUri(uri.uri)),
+  );
 
   readonly currentUrl = signal<string>(this.params.currentUrl);
 

@@ -5,7 +5,11 @@ import {
   AutotypePairingData,
   AutotypePairingPackagingType,
 } from "./autotype-pairing-data";
-import { DESKTOP_APP_URI_PREFIX, DesktopAutotypePairingUri } from "./desktop-autotype-pairing-uri";
+import {
+  DESKTOP_APP_URI_PREFIX,
+  DesktopAutotypePairingUri,
+  isDesktopAppUri,
+} from "./desktop-autotype-pairing-uri";
 
 function createPairingData(name = "Notepad"): AutotypePairingData {
   return {
@@ -36,6 +40,33 @@ function createUriString(params: Record<string, string>, base = "desktopapp://au
 describe("DESKTOP_APP_URI_PREFIX", () => {
   it("is the desktop app URI scheme", () => {
     expect(DESKTOP_APP_URI_PREFIX).toBe("desktopapp://");
+  });
+});
+
+describe("isDesktopAppUri", () => {
+  it.each([
+    new DesktopAutotypePairingUri("1.0.0", createPairingData()).toString(),
+    "desktopapp://",
+    "desktopapp://autotype?version=1.0.0&data=e30",
+    "DESKTOPAPP://autotype?version=1.0.0&data=e30",
+    "DesktopApp://autotype",
+    " desktopapp://autotype",
+    "desktopapp://autotype\n",
+  ])("returns true for the desktop app URI %p", (uri) => {
+    expect(isDesktopAppUri(uri)).toBe(true);
+  });
+
+  it.each([
+    "https://example.com",
+    "https://example.com/?next=desktopapp://autotype",
+    "desktopapp:autotype",
+    "androidapp://com.example.app",
+    "",
+    "   ",
+    null,
+    undefined,
+  ])("returns false for %p", (uri) => {
+    expect(isDesktopAppUri(uri)).toBe(false);
   });
 });
 
