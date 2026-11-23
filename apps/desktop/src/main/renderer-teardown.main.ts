@@ -20,14 +20,13 @@ export type RendererBlocker = {
  * feature that would break is a {@link RendererBlocker}; while any is active the renderer stays.
  *
  * ```
- *  hideToTray ─▶ tryTearDown() ─ blocked/flag off ─▶ false: caller hides the window
+ *  hideToTray ─▶ tryTearDown() ─ blocked ─▶ false: caller hides the window
  *                     │
  *                     └─ allowed ─▶ clear clipboard, destroy renderer ─▶ true
  * ```
  */
 export class RendererTeardownMain {
   constructor(
-    private readonly flagEnabled: boolean,
     private readonly blockers: RendererBlocker[],
     private readonly windowMain: WindowMain,
     private readonly clipboardMain: ClipboardMain,
@@ -51,10 +50,6 @@ export class RendererTeardownMain {
   }
 
   private allowed(): boolean {
-    if (!this.flagEnabled) {
-      return false;
-    }
-
     const blocker = this.blockers.find((b) => b.active());
     if (blocker != null) {
       this.logService.info(`[Renderer teardown] Keeping renderer, needed by ${blocker.name}`);

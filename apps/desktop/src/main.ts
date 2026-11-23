@@ -393,7 +393,7 @@ export class Main {
       this.desktopSettingsService,
       this.messagingService,
       this.biometricsService,
-      this.createRendererTeardown(storageBackend),
+      this.createRendererTeardown(),
     );
 
     this.sshAgentService = new MainSshAgentService(
@@ -570,14 +570,13 @@ export class Main {
    * Features below answer through the renderer until main owns them, so each keeps it alive.
    * Services are read lazily: most are constructed after the tray.
    */
-  private createRendererTeardown(storageBackend: CachedBackend): RendererTeardownMain {
+  private createRendererTeardown(): RendererTeardownMain {
     let ddgEnabled = false;
     this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
       ddgEnabled = enabled;
     });
 
     return new RendererTeardownMain(
-      cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
       [
         { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
         { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
