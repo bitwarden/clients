@@ -40,7 +40,7 @@ export class ConvertToKeyConnectorCommand {
     const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
     const keyConnectorUrl = organization.keyConnectorUrl;
     if (keyConnectorUrl == null) {
-      await this.logout();
+      await this.logoutService.logout(this.userId, "keyConnectorError");
       return Response.error(this.i18nService.t("youHaveBeenLoggedOut"));
     }
 

@@ -91,6 +91,21 @@ describe("ConvertToKeyConnectorCommand", () => {
       expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorRequiresInteraction");
     });
 
+    it("should logout and return error response if the organization has no key connector url", async () => {
+      process.env.BW_NOINTERACTION = "false";
+      keyConnectorService.getManagingOrganization.mockResolvedValue({
+        id: "test-organization-id",
+        name: "Test Organization",
+        keyConnectorUrl: undefined,
+      } as Organization);
+
+      const response = await command.run();
+
+      expect(response).toEqual(Response.error("You have been logged out."));
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
+      expect(keyConnectorService.migrateUser).not.toHaveBeenCalled();
+    });
+
     it("should logout and return error response if interaction answer is exit", async () => {
       process.env.BW_NOINTERACTION = "false";
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
