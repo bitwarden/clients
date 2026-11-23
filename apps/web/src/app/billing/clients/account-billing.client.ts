@@ -82,7 +82,7 @@ export class AccountBillingClient {
     request: UpgradePremiumToOrganizationRequest,
   ): Promise<string> => {
     const path = `${this.endpoint}/upgrade`;
-    return await this.apiService.send(
+    const response = await this.apiService.send(
       "POST",
       path,
       {
@@ -98,5 +98,10 @@ export class AccountBillingClient {
       true,
       true,
     );
+
+    // The endpoint returns an `UpgradePremiumToOrganizationResponseModel` object. It previously
+    // returned the organization ID as a bare string, so tolerate both shapes: a client running
+    // against an older server would otherwise resolve to "[object Object]".
+    return typeof response === "string" ? response : response?.organizationId;
   };
 }

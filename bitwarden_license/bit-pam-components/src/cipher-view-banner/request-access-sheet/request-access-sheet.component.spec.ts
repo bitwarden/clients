@@ -83,7 +83,7 @@ describe("RequestAccessSheetComponent", () => {
     expect(title).toContain("Github");
     const summary = query('[data-testid="request-sheet-summary"]')?.textContent;
     expect(summary).toContain("pamRequestToUse");
-    expect(summary).toContain("pamRequestAccessBannerMaxDurationAutomatic 1 day");
+    expect(summary).toContain("pamRequestAccessBannerMaxDurationInstantApproval 1 day");
   });
 
   it("offers Send request once the pre-check shapes the form", async () => {

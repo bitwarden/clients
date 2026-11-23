@@ -3,7 +3,7 @@
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
 export class DefaultLoginDecryptionOptionsService implements LoginDecryptionOptionsService {
-  handleCreateUserSuccess(): Promise<void | null> {
+  handleCreateUserSuccess(organizationInviteAccepted: boolean): Promise<void | null> {
     return null;
   }
 }

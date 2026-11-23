@@ -1,17 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import {
-  catchError,
-  combineLatest,
-  concat,
-  filter,
-  from,
-  merge,
-  Observable,
-  of,
-  switchMap,
-  take,
-} from "rxjs";
+import { catchError, combineLatest, concat, from, merge, Observable, of, switchMap } from "rxjs";
 
 import {
   AccessRefreshService,
@@ -19,6 +8,7 @@ import {
   AccessBadgeState,
   cipherAccessBadgeState,
   isGovernedCipher,
+  lapse$,
   liveActiveLease,
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
@@ -94,27 +84,28 @@ export class ItemDetailsStateBadgeComponent {
 
   /**
    * `state`'s badge, withheld while the lease is live on this clock. Keying on the SDK's `active`
-   * ranking instead would hide the pill for good when the server's clock trails. On lapse it
-   * re-reads in case the lease was extended, else lands on "Session ended".
+   * ranking instead would hide the pill for good when the server's clock trails. It re-reads
+   * whenever the state lapses; only the held lease itself ending, with no live lease in the fresh
+   * state, lands on "Session ended". A read that fails comes back as `null`, which says nothing
+   * about what was held, so the held state carries on being watched: `nextRereadMs` asks again
+   * within its grace period and otherwise falls back to the lease's own end.
    */
   private badgeWhileLeaseRuns$(
     state: CipherAccessStateView | null,
     read$: () => Observable<CipherAccessStateView | null>,
   ): Observable<AccessBadgeState | null> {
     const badge = cipherAccessBadgeState(state);
-    if (liveActiveLease(state, Date.now()) == null) {
-      return of(badge);
-    }
+    const lease = liveActiveLease(state, Date.now());
     return concat(
-      of(null),
-      this.ticker.ticks$.pipe(
-        filter((nowMs) => liveActiveLease(state, nowMs) == null),
-        take(1),
+      of(lease == null ? badge : null),
+      lapse$(state, this.ticker.ticks$).pipe(
         switchMap(read$),
         switchMap((fresh) =>
+          lease != null &&
+          liveActiveLease(state, Date.now()) == null &&
           liveActiveLease(fresh, Date.now()) == null
             ? of(badge)
-            : this.badgeWhileLeaseRuns$(fresh, read$),
+            : this.badgeWhileLeaseRuns$(fresh ?? state, read$),
         ),
       ),
     );

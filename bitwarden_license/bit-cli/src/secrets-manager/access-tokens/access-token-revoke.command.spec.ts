@@ -35,6 +35,12 @@ describe("AccessTokenRevokeCommand", () => {
     const response = await command.run(smOrg, machineAccountId, [tokenId1, tokenId2.toUpperCase()]);
 
     expect(response.success).toBe(true);
+    expect(response.data).toMatchObject({
+      data: [
+        { object: "sm-bulk-status", id: tokenId1, name: "CI" },
+        { object: "sm-bulk-status", id: tokenId2, name: "Deploy" },
+      ],
+    });
     expect(accessService.revokeAccessTokens).toHaveBeenCalledWith(machineAccountId, [
       tokenId1,
       tokenId2,

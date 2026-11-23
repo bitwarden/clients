@@ -4,11 +4,11 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 
@@ -30,7 +30,7 @@ interface Harness {
 }
 
 async function createComponent(): Promise<Harness> {
-  const organization = Object.assign(new Organization(), {
+  const organization = buildTestOrganization({
     id: ORG_ID,
     seats: 100,
     productTierType: ProductTierType.Enterprise,

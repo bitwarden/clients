@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Desktopová aplikácia",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktopová aplikácia $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Webová stránka pridaná"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Pridať webovú stránku alebo aplikáciu"
-  },
-  "app": {
-    "message": "Aplikácia"
   },
   "deleteWebsite": {
     "message": "Odstrániť webovú stránku"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Ja"
   },
-  "myItems": {
-    "message": "Moje položky"
-  },
   "myItemsV2": {
     "message": "Moje položky"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 položka",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Vyčistiť všetko"
@@ -2375,7 +2377,7 @@
     "message": "Vytvoriť účet"
   },
   "newToBitwarden": {
-    "message": "Ste noví na Bitwardene?"
+    "message": "Ste prvýkrát na Bitwardene?"
   },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "Dáta boli úspešne exportované"
@@ -4709,7 +4747,7 @@
     "message": "Neaktívne 2FA"
   },
   "inactive2faReportDesc": {
-    "message": "Two-step login adds a layer of protection to your accounts. Set up two-step login using Bitwarden authenticator for these accounts or use an alternative method."
+    "message": "Dvojstupňové prihlásenie poskytuje vašim účtom dodatočnú ochranu. Nastavte si pre tieto účty dvojstupňové prihlásenie pomocou autentifikátora Bitwarden alebo použite inú metódu."
   },
   "inactive2faFound": {
     "message": "Našli sa prihlásenia bez dvojstupňového overenia"
@@ -4884,7 +4922,7 @@
     "message": "Report o úniku dát"
   },
   "breachDesc": {
-    "message": "Breached accounts can expose your personal information. Secure breached accounts by enabling 2FA or creating a stronger password."
+    "message": "Napadnuté účty môžu odhaliť vaše osobné údaje. Zabezpečte napadnuté účty povolením dvojfaktorového overenia (2FA) alebo vytvorením silnejšieho hesla."
   },
   "breachCheckEmail": {
     "message": "Overte všetky emaily, ktoré používate."
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Ďakujeme vám, že ste si predplatili $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Ďakujeme vám, že ste si predplatili Bitwarden Secrets Manager predplatné $PLAN$!",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Vaša $PLAN$ $TRIAL_LENGTH$-dňová bezplatná skúšobná verzia bude po $TRIAL_LENGTH$ dňoch prevedená na platené predplatné.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Poslali sme potvrdzujúci e-mail na fakturačný e-mail vášho tímu na adresu "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Vaša skúšobná doba zahŕňa Privilegované Nastavenia."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Vaša nová organizácia je pripravená!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Vaša organizácia bola povýšená."
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Zbierka $ID$ vytvorená.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Pridaný zdieľaný priečinok $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Naozaj chcete natrvalo odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Naozaj chcete odstrániť tento Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Dátum vymazania"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Vo východzích nastaveniach zapnite všetkým členom automatické vypĺňanie pre desktop. Môžete nastaviť klávesovú skratku a vybrať či budú musieť členovia potvrdiť pred vyplnením. Táto funkcia je v beta verzii."
+  },
+  "keyboardShortcut": {
+    "message": "Klávesová skratka"
+  },
+  "appAutofillShortcut": {
+    "message": "Skratka automatického vypĺňania v aplikácii"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Členovia si môžu túto klávesovú skratku kedykoľvek zmeniť."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Použiť predvolenú skratku Bitwardenu: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Zadajte svoju vlastnú skratku."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Zahrňte Ctrl, Alt, alebo Windows a aspoň 1 písmeno."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Pred vyplnením sa vždy opýtať"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Pri použití klávesovej skratky na desktope, vždy zobraziť členom výzvu na potvrdenie."
+  },
+  "invalidShortcut": {
+    "message": "Neplatná klávesová skratka"
   },
   "disableSend": {
     "message": "Zakázať Send"
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "Obnoviť účet"
   },
+  "recover": {
+    "message": "Obnoviť",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Obnoviť konto pre $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Žiadne akcie pre $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "Ak obnovíte heslo alebo dvojstupňové prihlásenie tohto člena, bude o zmene informovaný a odhlásený."
   },
@@ -14348,9 +14435,6 @@
   "confirmationDetails": {
     "message": "Detaily potvrdenia"
   },
-  "smFreeTrialThankYou": {
-    "message": "Ďakujeme vám, že ste si predplatili Bitwarden Secrets Manager!"
-  },
   "smFreeTrialConfirmationEmail": {
     "message": "Poslali sme potvrdzujúci e-mail na adresu "
   },
@@ -14745,7 +14829,7 @@
     "message": "Machine account deleted"
   },
   "deleteMachineAccountsToast": {
-    "message": "Machine accounts deleted"
+    "message": "Strojové účty boli odstránené"
   },
   "searchMachineAccounts": {
     "message": "Search machine accounts",
@@ -16570,9 +16654,16 @@
     "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Nemáte žiadne Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Bezpečne zdieľajte súbory alebo text s kýmkoľvek. Vaše informácie budú kompletne šifrované."
   },
   "generatorNudgeTitle": {
     "message": "Rýchle vytváranie hesiel"
@@ -17134,10 +17225,10 @@
     "message": "Zobraziť predplatné pre firmy"
   },
   "updateEncryptionSettings": {
-    "message": "Update encryption settings"
+    "message": "Aktualizovať nastavenia šifrovania"
   },
   "updateYourEncryptionSettings": {
-    "message": "Update your encryption settings"
+    "message": "Aktualizujte nastavenie šifrovania"
   },
   "algorithm": {
     "message": "Algoritmus"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Ako môžem spravovať svoj trezor?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Prenos položiek do $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Presuňte svoje položky do $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "Organizácia $ORGANIZATION$ teraz vyžaduje, aby všetky položky členov boli vo vlastníctve organizácie. Vaše osobné položky sa presunú do priečinka s názvom Moje položky, ktorý uvidíte len vy.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
   },
   "openTransferItemsHelpArticle": {
     "message": "Otvoriť článok pomocníka o prenose položiek"
@@ -17825,7 +17913,7 @@
     "message": "Prepínajte medzi produktmi"
   },
   "coachmarkSwitchProductsDescription": {
-    "message": "Kliknutím zobrazte iné produkty Bitwarden ku ktorým mate prístup, alebo objavte nové produkty a predplatné."
+    "message": "Kliknutím zobrazte iné produkty Bitwarden ku ktorým máte prístup, alebo objavte nové produkty a predplatné."
   },
   "coachmarkVaultListTitle": {
     "message": "Všetky vaše trezory na jednom mieste"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Vyskytla sa chyba. Skontrolujte svoje prihlasovacie údaje a skúste to znova."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Podporované je iba prihlásenie pomocou hesla."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Zadajte platnú prihlasovaciu adresu."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Vyžaduje sa tajný kľúč."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Tajný kľúč"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Oddeľte domény čiarkou"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   },
   "searchDriversLicense": {

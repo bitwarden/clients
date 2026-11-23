@@ -9,7 +9,6 @@ import { OrganizationInformationComponent } from "../../admin-console/organizati
 import { SharedModule } from "../../shared";
 
 import { CompleteTrialInitiationComponent } from "./complete-trial-initiation/complete-trial-initiation.component";
-import { ConfirmationDetailsComponent } from "./confirmation-details.component";
 import { TrialBillingStepComponent } from "./trial-billing-step/trial-billing-step.component";
 import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.module";
 
@@ -23,7 +22,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     TrialBillingStepComponent,
     InputPasswordComponent,
   ],
-  declarations: [CompleteTrialInitiationComponent, ConfirmationDetailsComponent],
+  declarations: [CompleteTrialInitiationComponent],
   exports: [CompleteTrialInitiationComponent],
   providers: [TitleCasePipe],
 })

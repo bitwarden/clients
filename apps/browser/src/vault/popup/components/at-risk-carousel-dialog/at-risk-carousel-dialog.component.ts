@@ -1,5 +1,6 @@
 import { Component, inject, signal } from "@angular/core";
 
+import { DarkImageSourceDirective } from "@bitwarden/angular/directives/dark-image-source.directive";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DialogRef,
@@ -10,7 +11,7 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { DarkImageSourceDirective, VaultCarouselModule } from "@bitwarden/vault";
+import { VaultCarouselModule } from "@bitwarden/vault";
 
 export const AtRiskCarouselDialogResult = {
   Dismissed: "dismissed",
