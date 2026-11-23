@@ -69,6 +69,25 @@ describe("InlineMenuCipherList", () => {
       ).toEqual(["1", "2", "3"]);
     });
 
+    it("does not separate passkeys and passwords on the design-system path", () => {
+      const values = litValues(
+        InlineMenuCipherList({
+          ...baseProps,
+          ciphers: mockPasskeysAndPasswords,
+          showPasskeysLabels: true,
+          useCipherTypeIcon: true,
+        }),
+      );
+
+      expect(values[1] as unknown[]).toHaveLength(mockPasskeysAndPasswords.length);
+      expect(
+        (InlineMenuCipherItem as jest.Mock).mock.calls.map(([props]) => props.cipher.id),
+      ).toEqual(mockPasskeysAndPasswords.map((cipher) => cipher.id));
+      expect(InlineMenuCipherItem).toHaveBeenCalledWith(
+        expect.objectContaining({ useCipherTypeIcon: true }),
+      );
+    });
+
     it("does not render headings when only password ciphers are present", () => {
       const values = litValues(
         InlineMenuCipherList({

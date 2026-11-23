@@ -295,6 +295,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     FeatureFlag.LitInlineMenuComponents,
   );
 
+  useLitInlineMenuDesignSystem$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuDesignSystem,
+  );
+
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -895,6 +899,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       favorite: cipher.favorite,
       icon: buildCipherIcon(iconsServerUrl, cipher, showFavicons ?? false),
       accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
+      organizationId: cipher.organizationId || undefined,
     };
 
     if (cipher.type === CipherType.Login) {
@@ -2689,10 +2694,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const translationKeys = [
         "addNewCardItemAria",
         "addNewIdentityItemAria",
+        "addNewLogin",
         "addNewLoginItemAria",
+        "addToBitwarden",
         "addNewVaultItem",
         "authenticating",
         "cardNumberEndsWith",
+        "copyPassword",
         "fillCredentialsFor",
         "fillGeneratedPassword",
         "fillVerificationCode",
@@ -2716,6 +2724,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "totpSecondsSpanAria",
         "unlockAccount",
         "unlockAccountAria",
+        "unlockBitwarden",
+        "unlockBitwardenAria",
         "unlockYourAccountToViewAutofillSuggestions",
         "uppercaseAriaLabel",
         "username",
@@ -3589,6 +3599,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       extensionOrigin,
       useLitComponents: isInlineMenuListPort
         ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
+      useLitDesignSystem: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuDesignSystem$)
         : undefined,
     });
     if (port.sender) {

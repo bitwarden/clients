@@ -7,6 +7,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { ActionButton } from "../../../../content/components/buttons/action-button";
+import { Plus } from "../../../../content/components/icons";
 import {
   InlineMenuCipherList,
   InlineMenuPasswordGenerator,
@@ -38,6 +39,7 @@ jest.mock("../../../../content/components/icons", () => ({
   ExternalLink: jest.fn(),
   Key: jest.fn(),
   Refresh: jest.fn(),
+  BwiIcon: jest.fn(),
 }));
 
 describe("AutofillInlineMenuList", () => {
@@ -138,6 +140,79 @@ describe("AutofillInlineMenuList", () => {
         const [, promptHost] = jest.mocked(render).mock.calls[0];
         expect(promptHost).toBe(
           autofillInlineMenuList["inlineMenuListContainer"].firstElementChild,
+        );
+      });
+
+      it("uses the design-system action labels when useLitDesignSystem is enabled", async () => {
+        const translations = {
+          unlockYourAccountToViewAutofillSuggestions: "Unlock your account",
+          unlockBitwarden: "Unlock Bitwarden",
+          unlockBitwardenAria: "Unlock Bitwarden, opens in a new window",
+          addToBitwarden: "Add to Bitwarden",
+          opensInANewWindow: "opens in a new window",
+          addNewLogin: "Add new login",
+          addNewLoginItemAria: "Add new vault login item",
+          noItemsToShow: "No items to show",
+        };
+
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+            useLitDesignSystem: true,
+            translations,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            actionText: "Unlock Bitwarden",
+            icon: Plus,
+          }),
+        );
+
+        jest.mocked(InlineMenuPrompt).mockClear();
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+            useLitDesignSystem: true,
+            showSaveLoginMenu: true,
+            translations,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            actionText: "Add to Bitwarden",
+            icon: Plus,
+          }),
+        );
+
+        jest.mocked(InlineMenuPrompt).mockClear();
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+            useLitDesignSystem: true,
+            translations,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            actionText: "Add new login",
+            icon: Plus,
+          }),
         );
       });
 

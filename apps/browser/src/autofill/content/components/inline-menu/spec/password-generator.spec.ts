@@ -20,11 +20,15 @@ describe("InlineMenuPasswordGenerator", () => {
 
   const FILL_CLICK_SLOT = 4;
   const FILL_KEYUP_SLOT = 5;
-  const REFRESH_CLICK_SLOT = 14;
-  const REFRESH_KEYUP_SLOT = 15;
+  const REFRESH_CLICK_SLOT = 13;
+  const REFRESH_KEYUP_SLOT = 14;
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   /** Builds a `[data-password-generator-actions]` fixture with fill/refresh buttons, matching the real markup. */
@@ -40,6 +44,72 @@ describe("InlineMenuPasswordGenerator", () => {
     refresh.focus = jest.fn();
     return { actions, fill, refresh };
   }
+
+  function iconButton(attribute: string) {
+    const button = document.createElement("button");
+    button.setAttribute(attribute, "");
+    const icon = document.createElement("span");
+    icon.setAttribute("data-password-generator-icon", "");
+    const check = document.createElement("span");
+    check.setAttribute("data-password-generator-confirmed", "");
+    check.hidden = true;
+    button.append(icon, check);
+    return { button, icon, check };
+  }
+
+  it("confirms only the icon that was clicked, then restores it", () => {
+    jest.useFakeTimers();
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+    const refresh = iconButton("data-refresh-generated-password");
+    const copy = iconButton("data-copy-generated-password");
+    const event = new MouseEvent("click", { bubbles: true });
+    Object.defineProperty(event, "target", { value: refresh.icon });
+
+    litHandler(
+      litValues(InlineMenuPasswordGenerator({ ...baseProps, designSystem: true })),
+      REFRESH_CLICK_SLOT,
+    )(event);
+
+    expect(refresh.icon.hidden).toBe(true);
+    expect(refresh.check.hidden).toBe(false);
+    expect(copy.icon.hidden).toBe(false);
+    expect(copy.check.hidden).toBe(true);
+    expect(baseProps.handleRefreshPassword).toHaveBeenCalledTimes(1);
+
+    baseProps.handleRefreshPassword.mockClear();
+    const copyButton = iconButton("data-copy-generated-password");
+    const generateButton = iconButton("data-refresh-generated-password");
+    const copyEvent = new MouseEvent("click", { bubbles: true });
+    Object.defineProperty(copyEvent, "target", { value: copyButton.icon });
+    const copyTemplate = litValues(
+      InlineMenuPasswordGenerator({ ...baseProps, designSystem: true }),
+    )[16] as unknown[];
+
+    litHandler(copyTemplate, 2)(copyEvent);
+
+    expect(copyButton.icon.hidden).toBe(true);
+    expect(copyButton.check.hidden).toBe(false);
+    expect(generateButton.icon.hidden).toBe(false);
+    expect(generateButton.check.hidden).toBe(true);
+    expect(baseProps.handleRefreshPassword).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(2000);
+
+    expect(refresh.icon.hidden).toBe(false);
+    expect(refresh.check.hidden).toBe(true);
+    expect(copyButton.icon.hidden).toBe(false);
+    expect(copyButton.check.hidden).toBe(true);
+  });
+
+  it("omits the key icon on the design-system path", () => {
+    const values = litValues(
+      InlineMenuPasswordGenerator({ ...baseProps, designSystem: true }),
+    ).flat(Infinity);
+
+    expect(values.filter((value) => typeof value === "string").join("")).not.toContain(
+      "M15.75 9.5",
+    );
+  });
 
   describe("click handlers", () => {
     it("calls handleFillPassword when the event is trusted", () => {

@@ -193,6 +193,8 @@ export type InlineMenuCipherData = {
   type: CipherType;
   reprompt: CipherRepromptType;
   favorite: boolean;
+  /** Set when the cipher belongs to an organization. */
+  organizationId?: string;
   icon: CipherIconDetails;
   accountCreationFieldType?: string;
   login?: {

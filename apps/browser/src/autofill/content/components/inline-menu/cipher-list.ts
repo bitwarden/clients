@@ -37,14 +37,16 @@ export function InlineMenuCipherList({
   handleFillCipher,
   handleViewCipher,
   newItem,
+  useCipherTypeIcon = false,
   ...itemProps
 }: InlineMenuCipherListProps) {
   const showTotpUsername =
     ciphers.filter((cipher) => cipher.login?.totpField && cipher.login?.totp).length > 1;
   const withHeadings =
-    showPasskeysLabels ??
-    (ciphers.some((cipher) => !!cipher.login?.passkey) &&
-      ciphers.some((cipher) => !cipher.login?.passkey));
+    !useCipherTypeIcon &&
+    (showPasskeysLabels ??
+      (ciphers.some((cipher) => !!cipher.login?.passkey) &&
+        ciphers.some((cipher) => !cipher.login?.passkey)));
   const ordered = withHeadings ? partitionByPasskey(ciphers) : ciphers;
 
   return InlineMenuContainer({
@@ -55,6 +57,7 @@ export function InlineMenuCipherList({
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,
+            useCipherTypeIcon,
             theme,
             cipher,
             bordered: index < ordered.length - 1,

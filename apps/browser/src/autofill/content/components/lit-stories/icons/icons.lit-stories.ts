@@ -39,7 +39,7 @@ const Template = (
 `;
 
 const createIconStory = (
-  iconName: keyof typeof StaticIcons,
+  iconName: Exclude<keyof typeof StaticIcons, "BwiIcon">,
 ): StoryObj<Args & { disableSpin?: boolean }> => {
   const story = {
     render: (args) => Template(args, StaticIcons[iconName]),

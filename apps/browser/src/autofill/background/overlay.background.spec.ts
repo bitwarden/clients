@@ -480,6 +480,22 @@ describe("OverlayBackground", () => {
         );
       },
     );
+
+    it.each([true, false])(
+      "includes useLitDesignSystem as %s when LitInlineMenuDesignSystem is %s",
+      async (enabled) => {
+        overlayBackground.useLitInlineMenuDesignSystem$ = of(enabled);
+
+        await initOverlayElementPorts({ initList: true, initButton: false });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "initAutofillInlineMenuList",
+            useLitDesignSystem: enabled,
+          }),
+        );
+      },
+    );
   });
 
   describe("when enableFillAssist is turned off", () => {
