@@ -1,4 +1,5 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { expect, screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -64,6 +65,34 @@ export const Disabled: Story = {
   ...Default,
   args: {
     disabled: true,
+  },
+};
+
+export const DisableSearch: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field>
+        <bit-label>Rows per page</bit-label>
+        <bit-select disableSearch>
+          <bit-option [value]="10" label="10 rows"></bit-option>
+          <bit-option [value]="25" label="25 rows"></bit-option>
+          <bit-option [value]="50" label="50 rows"></bit-option>
+          <bit-option [value]="100" label="100 rows"></bit-option>
+        </bit-select>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("combobox", { name: "Rows per page" }));
+    await userEvent.keyboard("5");
+    await expect(await screen.findAllByRole("option")).toHaveLength(4);
+    await expect(await screen.findByRole("option", { name: "50 rows" })).toHaveClass(
+      "ng-option-marked",
+    );
   },
 };
 
