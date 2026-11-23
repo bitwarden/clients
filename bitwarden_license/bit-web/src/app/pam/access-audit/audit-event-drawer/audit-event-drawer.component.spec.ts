@@ -102,7 +102,7 @@ describe("AuditEventDrawerComponent", () => {
             pamAuditColumnDetail: "Detail",
             device: "Device",
             extension: "Extension",
-            pamAuditIpAddress: "IP address",
+            ipAddress: "IP Address",
             pamColumnWindow: "Window",
             pamAuditTargetSystem: "Target system",
             pamAuditAccessConnector: "Access connector",
