@@ -1,4 +1,4 @@
-import { concatMap, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -15,6 +15,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -23,8 +24,6 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -36,7 +35,6 @@ import {
   KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -59,7 +57,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
-    protected registerSdkService: RegisterSdkService,
+    protected ssoJitProvisionFinishService: SsoJitProvisionFinishService,
     protected unlockService: UnlockService,
   ) {}
 
@@ -115,7 +113,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   async initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     if (userId == null) {
       throw new Error("User ID is required.");
     }
@@ -126,45 +124,29 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       }
     }
 
-    const { newPasswordHint, orgSsoIdentifier, orgId, resetPasswordAutoEnroll, newPassword, salt } =
-      credentials;
-
-    const organizationKeys = await this.organizationApiService.getKeys(orgId);
+    const organizationKeys = await this.organizationApiService.getKeys(credentials.orgId);
     if (organizationKeys == null) {
       throw new Error("Organization keys response is null.");
     }
 
-    const registerResult = await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          return await ref.value
-            .auth()
-            .registration()
-            .post_keys_for_jit_password_registration({
-              org_id: asUuid<SdkOrganizationId>(orgId),
-              org_public_key: organizationKeys.publicKey,
-              master_password: newPassword,
-              master_password_hint: newPasswordHint,
-              salt: salt,
-              organization_sso_identifier: orgSsoIdentifier,
-              user_id: asUuid<SdkUserId>(userId),
-              reset_password_enroll: resetPasswordAutoEnroll,
-            });
-        }),
-      ),
-    );
+    const { registration: registerResult, organizationInviteAccepted } =
+      await this.ssoJitProvisionFinishService.finishPassword({
+        userId,
+        orgId: credentials.orgId,
+        orgPublicKey: organizationKeys.publicKey,
+        orgSsoIdentifier: credentials.orgSsoIdentifier,
+        newPassword: credentials.newPassword,
+        newPasswordHint: credentials.newPasswordHint,
+        salt: credentials.salt,
+        resetPasswordAutoEnroll: credentials.resetPasswordAutoEnroll,
+      });
 
     if (!("V2" in registerResult.account_cryptographic_state)) {
       throw new Error("Unexpected V2 account cryptographic state");
     }
 
     // Note: When SDK state management matures, the state writes and the unlock below should all be
-    // moved into post_keys_for_jit_password_registration
+    // moved into SsoJitProvisionFinishService.finishPassword
     // Set account cryptography state
     await this.accountCryptographicStateService.setAccountCryptographicState(
       registerResult.account_cryptographic_state,
@@ -190,6 +172,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       SymmetricCryptoKey.fromString(registerResult.user_key),
     );
+
+    return organizationInviteAccepted;
   }
 
   async setInitialPasswordTdeUserWithPermission(

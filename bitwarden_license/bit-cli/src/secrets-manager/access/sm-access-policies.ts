@@ -340,6 +340,61 @@ export class SmAccessPolicyStore {
     return resolveSmGrantee(grantee, candidates, state.target);
   }
 
+  /**
+   * Checks that each grantee not already on the target exists as the type the policy names, so a
+   * mislabeled `type` is reported instead of surfacing as a server "not found" error.
+   */
+  async checkNewGrantees(
+    state: SmAccessState,
+    policies: { type: SmGranteeType; id: string }[],
+  ): Promise<Response | undefined> {
+    const added = policies.filter(
+      (p) =>
+        !state.policies.some((c) => c.type === p.type && c.id.toLowerCase() === p.id.toLowerCase()),
+    );
+    if (added.length === 0) {
+      return undefined;
+    }
+
+    let potential: PotentialGranteeView[];
+    try {
+      potential = await this.getPotentialGrantees(state.organizationId, state.target);
+    } catch (e) {
+      return smErrorResponse(e, "organization");
+    }
+    const known = [
+      ...potential.map((g) => ({ type: toSmGranteeType(g.type), id: g.id.toLowerCase() })),
+      ...state.policies.map((c) => ({ type: c.type, id: c.id.toLowerCase() })),
+    ];
+    for (const policy of added) {
+      const id = policy.id.toLowerCase();
+      if (known.some((k) => k.type === policy.type && k.id === id)) {
+        continue;
+      }
+      const actual = known.find((k) => k.id === id && k.type !== policy.type);
+      return Response.badRequest(
+        actual
+          ? "`" +
+              policy.id +
+              "` is a " +
+              GranteeTypeLabels[actual.type] +
+              ", not a " +
+              GranteeTypeLabels[policy.type] +
+              ". Set the policy's `type` to `" +
+              actual.type +
+              "`."
+          : "No " +
+              GranteeTypeLabels[policy.type] +
+              " `" +
+              policy.id +
+              "` can be granted access to this " +
+              TargetLabels[state.target] +
+              ". Use `bw sm grantees list` to see the available grantees.",
+      );
+    }
+    return undefined;
+  }
+
   private async getOwner(
     organizationId: string,
     target: SmAccessTarget,

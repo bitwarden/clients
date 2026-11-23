@@ -13,7 +13,7 @@ describe("DefaultLoginDecryptionOptionsService", () => {
 
   describe("handleCreateUserSuccess()", () => {
     it("should return null", async () => {
-      const result = await service.handleCreateUserSuccess();
+      const result = await service.handleCreateUserSuccess(true);
 
       expect(result).toBeNull();
     });
