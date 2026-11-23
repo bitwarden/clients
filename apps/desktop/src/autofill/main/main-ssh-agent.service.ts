@@ -8,6 +8,8 @@ import { sshagent } from "@bitwarden/desktop-napi";
 
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 
+import { FeatureStatus } from "./feature-status";
+
 export class MainSshAgentService {
   // The napi callback requestSign() is awaited directly by the Rust agent,
   // so it must return a Promise that resolves with the user's decision.
@@ -72,8 +74,8 @@ export class MainSshAgentService {
   }
 
   /** Whether the agent is serving its socket. */
-  get running(): boolean {
-    return this.agentState?.isRunning() ?? false;
+  get status(): FeatureStatus {
+    return this.agentState?.isRunning() ? FeatureStatus.Active : FeatureStatus.Inactive;
   }
 
   // Starts the Agent.
