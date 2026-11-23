@@ -635,7 +635,7 @@ describe("Cipher Service", () => {
         const emitted: CipherListView[][] = [];
         const subscription = cipherService
           .cipherListViewsIncludingRestricted$(mockUserId)
-          .subscribe((views) => emitted.push(views));
+          .subscribe((views) => emitted.push(views as CipherListView[]));
         await new Promise((resolve) => setTimeout(resolve));
 
         const lastUsedDate = Date.now();

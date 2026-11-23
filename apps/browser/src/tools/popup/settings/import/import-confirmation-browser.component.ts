@@ -1,0 +1,106 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from "@angular/core";
+import { Router } from "@angular/router";
+
+import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { DeviceType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ActionsService } from "@bitwarden/common/platform/actions";
+import { SvgModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BrowserApi } from "../../../../platform/browser/browser-api";
+
+import { ImportConfirmationStateService } from "./import-confirmation-state.service";
+import {
+  ExtensionPhase,
+  ImportConfirmationStatesComponent,
+} from "./import-confirmation-states.component";
+
+const POPUP_POLL_ATTEMPTS = 5;
+const POPUP_POLL_INTERVAL_MS = 200;
+const MIN_OPENING_DURATION_MS = 1000;
+
+// Where opening the popup from a page can work. BrowserActionsService only handles Chrome,
+// DuckDuckGo, Firefox and Safari, and Firefox fails from a page
+// (libs/common/src/platform/actions/README.md), so a button could not help on the others.
+const POPUP_OPENABLE_DEVICES: ReadonlySet<DeviceType> = new Set([
+  DeviceType.ChromeExtension,
+  DeviceType.DuckDuckGoExtension,
+  DeviceType.SafariExtension,
+]);
+
+/** The page the import tab ends on. It brings the extension popup forward, which shows the result,
+ *  and offers a button, then the toolbar instructions, if that fails. */
+@Component({
+  templateUrl: "import-confirmation-browser.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [I18nPipe, ImportConfirmationStatesComponent, SvgModule],
+})
+export class ImportConfirmationBrowserComponent {
+  private readonly router = inject(Router);
+  private readonly confirmationState = inject(ImportConfirmationStateService);
+  private readonly actionsService = inject(ActionsService);
+  private readonly canOpenPopup = POPUP_OPENABLE_DEVICES.has(
+    inject(PlatformUtilsService).getDevice(),
+  );
+
+  protected readonly logo = BitwardenLogo;
+
+  // A refresh or deep link lands here with nothing to show.
+  protected readonly confirmation = this.confirmationState.current();
+
+  protected readonly phase = signal<ExtensionPhase>("opening");
+  protected readonly retrying = signal(false);
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.confirmationState.clear());
+
+    if (this.confirmation == null) {
+      void this.router.navigate(["/tabs/vault"]);
+      return;
+    }
+
+    void this.tryOpenExtension(this.canOpenPopup ? "button" : "toolbar", true);
+  }
+
+  protected async onOpenExtension(): Promise<void> {
+    this.retrying.set(true);
+    try {
+      await this.tryOpenExtension("toolbar", false);
+    } finally {
+      this.retrying.set(false);
+    }
+  }
+
+  // The next phase waits out MIN_OPENING_DURATION_MS so the card doesn't flash. The first attempt
+  // also opens the popup after it, so the popup's dialog and the celebration appear together.
+  private async tryOpenExtension(
+    onFailure: "button" | "toolbar",
+    openAfterMinimum: boolean,
+  ): Promise<void> {
+    const minimum = new Promise((resolve) => setTimeout(resolve, MIN_OPENING_DURATION_MS));
+    if (openAfterMinimum) {
+      await minimum;
+    }
+    const opened = await this.openPopup();
+    await minimum;
+    this.phase.set(opened ? "opened" : onFailure);
+  }
+
+  // openPopup() swallows its own failures, so success is confirmed by finding the popup.
+  private async openPopup(): Promise<boolean> {
+    await this.confirmationState.resetPopupHistory();
+    await this.actionsService.openPopup();
+    return this.popupOpened();
+  }
+
+  private async popupOpened(): Promise<boolean> {
+    for (let attempt = 0; attempt < POPUP_POLL_ATTEMPTS; attempt++) {
+      if (await BrowserApi.isPopupOpen()) {
+        return true;
+      }
+      await new Promise((resolve) => setTimeout(resolve, POPUP_POLL_INTERVAL_MS));
+    }
+    return false;
+  }
+}

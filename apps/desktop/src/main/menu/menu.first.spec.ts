@@ -29,7 +29,6 @@ function makeAccount(overrides: Partial<MenuAccount> = {}): MenuAccount {
     isLocked: false,
     isLockable: true,
     hasMasterPassword: true,
-    multiClientPasswordManagement: false,
     ...overrides,
   };
 }

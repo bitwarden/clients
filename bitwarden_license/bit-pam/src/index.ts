@@ -56,13 +56,19 @@ export { conflictingCollectionIds } from "./helpers/collection-conflicts";
 export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
+  badgesFromMyRequests,
+  listedBadgeFor,
+  nextRequestListChangeMs,
+} from "./helpers/request-list-badges";
+export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
-export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { lapse$, liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { isActionableRequest } from "./helpers/actionable-requests";
@@ -86,6 +92,7 @@ export {
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
   pickDurationUnit,
+  maxRequestDurationSeconds,
   requestDurationOptions,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";
