@@ -503,6 +503,9 @@ describe("WindowMain", () => {
 
       expect(recreated.show).toHaveBeenCalled();
       expect(recreated.focus).toHaveBeenCalled();
+      expect(app.focus).not.toHaveBeenCalled();
+
+      jest.runOnlyPendingTimers();
       expect(app.focus).toHaveBeenCalledWith({ steal: true });
     });
   });
