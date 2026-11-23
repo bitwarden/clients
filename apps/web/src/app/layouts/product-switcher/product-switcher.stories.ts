@@ -1,4 +1,11 @@
-import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  effect,
+  importProvidersFrom,
+  input,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, Observable, of } from "rxjs";
@@ -25,45 +32,44 @@ import { ProductSwitcherContentComponent } from "./product-switcher-content.comp
 import { ProductSwitcherComponent } from "./product-switcher.component";
 import { ProductSwitcherService } from "./shared/product-switcher.service";
 
+const mockOrgs$ = new BehaviorSubject<Organization[]>([]);
+const mockProviders$ = new BehaviorSubject<Provider[]>([]);
+
+class MockOrganizationService implements Partial<OrganizationService> {
+  organizations$(): Observable<Organization[]> {
+    return mockOrgs$.asObservable();
+  }
+}
+
+class MockProviderService implements Partial<ProviderService> {
+  providers$() {
+    return mockProviders$.asObservable();
+  }
+}
+
+/** Feeds the story's `mockOrgs` arg into the mock organization service. */
 @Directive({
   selector: "[mockOrgs]",
   standalone: false,
 })
-// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
-// eslint-disable-next-line @angular-eslint/directive-class-suffix
-class MockOrganizationService implements Partial<OrganizationService> {
-  private static _orgs = new BehaviorSubject<Organization[]>([]);
+class MockOrgsDirective {
+  readonly mockOrgs = input<Organization[]>([]);
 
-  organizations$(): Observable<Organization[]> {
-    return MockOrganizationService._orgs.asObservable();
-  }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  set mockOrgs(orgs: Organization[]) {
-    MockOrganizationService._orgs.next(orgs);
+  constructor() {
+    effect(() => mockOrgs$.next(this.mockOrgs()));
   }
 }
 
+/** Feeds the story's `mockProviders` arg into the mock provider service. */
 @Directive({
   selector: "[mockProviders]",
   standalone: false,
 })
-// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
-// eslint-disable-next-line @angular-eslint/directive-class-suffix
-class MockProviderService implements Partial<ProviderService> {
-  private static _providers = new BehaviorSubject<Provider[]>([]);
+class MockProvidersDirective {
+  readonly mockProviders = input<Provider[]>([]);
 
-  providers$() {
-    return MockProviderService._providers.asObservable();
-  }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  set mockProviders(providers: Provider[]) {
-    MockProviderService._providers.next(providers);
+  constructor() {
+    effect(() => mockProviders$.next(this.mockProviders()));
   }
 }
 
@@ -97,18 +103,16 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-layout",
   template: `<ng-content></ng-content>`,
   standalone: false,
 })
 class StoryLayoutComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "story-content",
   template: ``,
   standalone: false,
@@ -122,8 +126,8 @@ export default {
       declarations: [
         ProductSwitcherContentComponent,
         ProductSwitcherComponent,
-        MockOrganizationService,
-        MockProviderService,
+        MockOrgsDirective,
+        MockProvidersDirective,
         StoryLayoutComponent,
         StoryContentComponent,
       ],
@@ -201,7 +205,7 @@ export default {
 } as Meta<ProductSwitcherComponent>;
 
 type Story = StoryObj<
-  ProductSwitcherComponent & MockProviderService & MockOrganizationService & MockAccountService
+  ProductSwitcherComponent & MockProvidersDirective & MockOrgsDirective & MockAccountService
 >;
 
 const Template: Story = {
@@ -219,7 +223,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
+            <ng-container *ngTemplateOutlet="content.menu()?.templateRef()"></ng-container>
           </div>
         </div>
       </div>

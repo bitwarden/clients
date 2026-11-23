@@ -107,19 +107,10 @@ describe("CipherFormHTTPAuthenticationService", () => {
     });
   });
 
-  describe("resolveInitialHTTPAuthentication", () => {
-    it("keeps HTTP authentication on when reprompt is off", async () => {
-      expect(await service.resolveInitialHTTPAuthentication(true, false)).toBe(true);
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
+  describe("notifyHTTPAuthenticationTurnedOff", () => {
+    it("tells the user that HTTP authentication was turned off", async () => {
+      await service.notifyHTTPAuthenticationTurnedOff();
 
-    it("keeps HTTP authentication off when it is off", async () => {
-      expect(await service.resolveInitialHTTPAuthentication(false, true)).toBe(false);
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    });
-
-    it("turns HTTP authentication off and tells the user when reprompt is also on", async () => {
-      expect(await service.resolveInitialHTTPAuthentication(true, true)).toBe(false);
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           title: { key: "httpAuthenticationTurnedOffTitle" },

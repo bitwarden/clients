@@ -6,6 +6,7 @@ import {
   ElementRef,
   Injector,
   Signal,
+  afterRenderEffect,
   computed,
   contentChildren,
   effect,
@@ -23,6 +24,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
+import { ButtonGroupComponent, ButtonGroupOrientation } from "../../button-group";
 import { ChipGroupComponent, ChipGroupItem } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
@@ -36,6 +38,7 @@ import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  measureWidth,
   observedWidth,
 } from "../../overflow-list";
 import { focusAfterRender } from "../../utils/focus-after-render";
@@ -43,6 +46,9 @@ import { BREAKPOINTS } from "../../utils/responsive-utils";
 
 import { TableRowRange } from "./bit-table-paginator.component";
 import { BitTableV2Component } from "./table-v2.component";
+
+/** The narrowest the search gets before the `slot=end` buttons move to their own row. */
+const SEARCH_MIN_REM = 15;
 
 /**
  * Toolbar for `bit-table-v2`. Project a `<bit-search>` (its own slot), filter chips,
@@ -58,6 +64,7 @@ import { BitTableV2Component } from "./table-v2.component";
     BerryComponent,
     ChipGroupComponent,
     ButtonModule,
+    ButtonGroupComponent,
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
@@ -181,12 +188,18 @@ export class BitTableToolbarComponent {
   });
 
   /**
-   * Whether the filter row is collapsed to the single trigger + dialog. Always on a narrow
-   * toolbar; on a wide one, once the row stops fitting on one line. Gated on `ready()` so the
+   * The small-screen layout: a narrow toolbar, or one whose `slot=end` buttons have moved to
+   * their own row. Collapses the filters to the trigger and lets the search fill its row.
+   */
+  private readonly compact = computed(() => !this.wide() || !this.endInline());
+
+  /**
+   * Whether the filter row is collapsed to the single trigger + dialog. Always in the compact
+   * layout; otherwise, once the row stops fitting on one line. Gated on `ready()` so the
    * first paint doesn't flash the collapsed view.
    */
   protected readonly collapsed = computed(() => {
-    if (!this.wide()) {
+    if (this.compact()) {
       return true;
     }
     const list = this.overflowList();
@@ -198,7 +211,7 @@ export class BitTableToolbarComponent {
 
   /** On a wide toolbar the collapse decision isn't known until the chip row has been measured. */
   private readonly collapseSettled = computed(
-    () => !this.wide() || (this.overflowList()?.ready() ?? false),
+    () => this.compact() || (this.overflowList()?.ready() ?? false),
   );
 
   /** Whether the filter row shows a count: always with filters, otherwise only for a range label. */
@@ -281,18 +294,45 @@ export class BitTableToolbarComponent {
     "tw-flex",
     "tw-min-w-0",
     "tw-flex-1",
-    ...(this.wide() ? ["tw-max-w-[25rem]"] : []),
+    ...(this.compact() ? [] : ["tw-max-w-[25rem]"]),
   ]);
 
-  protected readonly endSlotClasses = computed(() => [
-    "tw-flex",
-    "tw-items-center",
-    "tw-gap-3",
-    "empty:tw-hidden",
-    ...(this.wide() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
-  ]);
+  private readonly searchRow = viewChild.required<ElementRef<HTMLElement>>("searchRow");
+  private readonly searchRowWidth = observedWidth(() => this.searchRow());
+  private readonly endGroup = viewChild(ButtonGroupComponent);
+
+  /** Whether the `slot=end` buttons fit beside the search rather than on their own row. */
+  protected readonly endInline = signal(true);
+
+  protected readonly endSlotClasses = computed(() =>
+    this.endInline() ? "tw-ms-auto" : "tw-w-full",
+  );
+
+  protected readonly endSlotOrientation = computed((): ButtonGroupOrientation =>
+    this.endInline() ? "horizontal" : "auto",
+  );
 
   constructor() {
+    // Compares against the buttons' natural width rather than where they currently wrap, so
+    // moving them to their own row can't change the outcome.
+    afterRenderEffect(() => {
+      const rowWidth = this.searchRowWidth();
+      const needed = this.endGroup()?.naturalWidth() ?? 0;
+      const trigger = this.showFilterTrigger() ? this.filterButton()?.nativeElement : undefined;
+      if (!this.wide()) {
+        this.endInline.set(false);
+        return;
+      }
+      if (rowWidth === 0 || needed === 0) {
+        this.endInline.set(true);
+        return;
+      }
+      const gap = parseFloat(getComputedStyle(this.searchRow().nativeElement).columnGap) || 0;
+      const rem = parseFloat(getComputedStyle(this.document.documentElement).fontSize) || 16;
+      const triggerWidth = trigger ? measureWidth(trigger) + gap : 0;
+      this.endInline.set(SEARCH_MIN_REM * rem + triggerWidth + gap + needed <= rowWidth);
+    });
+
     // Chips and the item count change width in place — a chip's label grows to
     // "Type: Login", the count gains a digit (and its width is what the row reserves
     // for the trigger). `bitOverflowList` only remeasures when the item set changes,

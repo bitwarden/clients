@@ -1,42 +1,28 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   InitializeJitPasswordCredentials,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
 } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
-import {
-  FakeUserDecryptionOptions as UserDecryptionOptions,
-  InternalUserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { FakeUserDecryptionOptions as InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
+import { SsoJitProvisionFinishService } from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DEFAULT_KDF_CONFIG,
-  EncryptService,
-  EncString,
-  LegacyCompatKeyService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
@@ -50,7 +36,6 @@ describe("WebSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
-  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -59,7 +44,7 @@ describe("WebSetInitialPasswordService", () => {
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
-  let registerSdkService: MockProxy<RegisterSdkService>;
+  let ssoJitProvisionFinishService: MockProxy<SsoJitProvisionFinishService>;
   let unlockService: MockProxy<UnlockService>;
 
   const stashedOrgInvite = new DirectOrganizationInvite({
@@ -79,7 +64,6 @@ describe("WebSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
-    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -88,7 +72,7 @@ describe("WebSetInitialPasswordService", () => {
     organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    registerSdkService = mock<RegisterSdkService>();
+    ssoJitProvisionFinishService = mock<SsoJitProvisionFinishService>();
     unlockService = mock<UnlockService>();
 
     sut = new WebSetInitialPasswordService(
@@ -97,7 +81,6 @@ describe("WebSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
-      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -106,174 +89,13 @@ describe("WebSetInitialPasswordService", () => {
       organizationInviteService,
       routerService,
       accountCryptographicStateService,
-      registerSdkService,
+      ssoJitProvisionFinishService,
       unlockService,
     );
   });
 
   it("should instantiate", () => {
     expect(sut).not.toBeFalsy();
-  });
-
-  /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   *
-   * When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
-   */
-  describe("setInitialPassword(...)", () => {
-    // Mock function parameters
-    let credentials: SetInitialPasswordCredentials;
-    let userType: SetInitialPasswordUserType;
-    let userId: UserId;
-
-    // Mock other function data
-    let userKey: UserKey;
-    let userKeyEncString: EncString;
-    let masterKeyEncryptedUserKey: [UserKey, EncString];
-
-    let keyPair: [string, EncString];
-    let keysRequest: KeysRequest;
-
-    let userDecryptionOptions: UserDecryptionOptions;
-    let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
-    let setPasswordRequest: SetPasswordRequest;
-
-    beforeEach(() => {
-      // Mock function parameters
-      credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
-        newPasswordHint: "newPasswordHint",
-        kdfConfig: DEFAULT_KDF_CONFIG,
-        orgSsoIdentifier: "orgSsoIdentifier",
-        orgId: "orgId",
-        resetPasswordAutoEnroll: false,
-        newPassword: "Test@Password123!",
-        salt: "user@example.com" as MasterPasswordSalt,
-      };
-      userId = "userId" as UserId;
-      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
-
-      // Mock other function data
-      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      userKeyEncString = new EncString("masterKeyEncryptedUserKey");
-      masterKeyEncryptedUserKey = [userKey, userKeyEncString];
-
-      keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
-
-      userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
-      userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
-      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-        userDecryptionOptionsSubject,
-      );
-
-      setPasswordRequest = new SetPasswordRequest(
-        credentials.newServerMasterKeyHash,
-        masterKeyEncryptedUserKey[1].encryptedString,
-        credentials.newPasswordHint,
-        credentials.orgSsoIdentifier,
-        keysRequest,
-        credentials.kdfConfig,
-      );
-    });
-
-    function setupMocks() {
-      // Mock makeMasterKeyEncryptedUserKey() values
-      keyService.userKey$.mockReturnValue(of(userKey));
-      legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue(
-        masterKeyEncryptedUserKey,
-      );
-
-      // Mock keyPair values
-      keyService.userPrivateKey$.mockReturnValue(of(null));
-      keyService.userPublicKey$.mockReturnValue(of(null));
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
-    }
-
-    describe("given the initial password was successfully set and an org invite is stashed", () => {
-      beforeEach(() => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
-      });
-
-      it("should call routerService.getAndClearLoginRedirectUrl()", async () => {
-        // Arrange
-        setupMocks();
-
-        // Act
-        await sut.setInitialPassword(credentials, userType, userId);
-
-        // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-        expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-      });
-
-      it("should call acceptOrganizationInviteService.clearOrganizationInvite()", async () => {
-        // Arrange
-        setupMocks();
-
-        // Act
-        await sut.setInitialPassword(credentials, userType, userId);
-
-        // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
-      });
-    });
-
-    describe("given the initial password was successfully set and no org invite is stashed", () => {
-      beforeEach(() => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-      });
-
-      it("should NOT clear the login redirect URL or the org invite", async () => {
-        // Arrange
-        setupMocks();
-
-        // Act
-        await sut.setInitialPassword(credentials, userType, userId);
-
-        // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
-        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
-      beforeEach(() => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
-      });
-
-      it("should NOT call routerService.getAndClearLoginRedirectUrl()", async () => {
-        // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
-        setupMocks();
-
-        // Act
-        const promise = sut.setInitialPassword(credentials, userType, userId);
-
-        // Assert
-        await expect(promise).rejects.toThrow();
-        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
-        expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
-      });
-
-      it("should NOT call acceptOrganizationInviteService.clearOrganizationInvite()", async () => {
-        // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
-        setupMocks();
-
-        // Act
-        const promise = sut.setInitialPassword(credentials, userType, userId);
-
-        // Assert
-        await expect(promise).rejects.toThrow();
-        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
-        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
-      });
-    });
   });
 
   describe("initializePasswordJitPasswordUserV2Encryption(...)", () => {
@@ -295,7 +117,7 @@ describe("WebSetInitialPasswordService", () => {
           Object.getPrototypeOf(Object.getPrototypeOf(sut)),
           "initializePasswordJitPasswordUserV2Encryption",
         )
-        .mockResolvedValue(undefined);
+        .mockResolvedValue(true);
     });
 
     afterEach(() => {
@@ -326,6 +148,58 @@ describe("WebSetInitialPasswordService", () => {
       expect(superSpy).toHaveBeenCalledWith(credentials, userId);
       expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should keep the open org invite and its login redirect URL when we tell the server not to accept the invite", async () => {
+      // Arrange
+      superSpy.mockResolvedValue(false);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "org-name",
+        }),
+      );
+
+      // Act
+      const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(result).toBe(false);
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should clear a stashed open invite for a different organization when the server accepts the invite", async () => {
+      // Arrange: the domain service accepts, because the open invite is for another organization.
+      superSpy.mockResolvedValue(true);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "other-org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "other-org-name",
+        }),
+      );
+
+      // Act
+      await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return true when the server accepts the invite", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(stashedOrgInvite);
+
+      // Act
+      const result = await sut.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
+
+      // Assert
+      expect(result).toBe(true);
     });
   });
 });

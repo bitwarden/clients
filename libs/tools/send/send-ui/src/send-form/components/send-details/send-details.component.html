@@ -115,15 +115,15 @@
               showToast
             ></button>
           } @else {
-            @if (editing()) {
+            @if (editing() && canRemoveAuth()) {
               <button
                 class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
                 type="button"
                 buttonType="dangerGhost"
                 bitIconButton="bwi-minus-circle"
                 size="small"
-                [label]="'removePassword' | i18n"
-                [bitAction]="removePassword"
+                [label]="removeAuthLabelKey() | i18n"
+                [bitAction]="removeAuth"
                 showToast
                 [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"
               ></button>

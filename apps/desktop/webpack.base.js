@@ -11,6 +11,15 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { EnvironmentPlugin, DefinePlugin } = require("webpack");
 const configurator = require(path.resolve(__dirname, "config/config"));
 
+// Desktop runs on a pinned Electron whose Chromium/V8 natively provides everything core-js
+// would polyfill here (explicit resource management, Uint8Array base64/hex, ...). Shared
+// libs such as libs/common still import core-js for the browser extension and web, so
+// replace every core-js module with a no-op instead of shipping the polyfills.
+const coreJsNoOpPlugin = new webpack.NormalModuleReplacementPlugin(
+  /^core-js(\/.*)?$/,
+  path.resolve(__dirname, "webpack/empty-module.js"),
+);
+
 module.exports.getEnv = function getEnv() {
   const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
   const ENV = process.env.ENV == null ? "development" : process.env.ENV;
@@ -112,7 +121,12 @@ module.exports.buildConfig = function buildConfig(params) {
     optimization: {
       minimize: false,
     },
-    output: getOutputConfig(NODE_ENV === "development"),
+    output: {
+      ...getOutputConfig(NODE_ENV === "development"),
+      // The renderer shares the output path and lazy-loads the same modules (e.g. the SDK
+      // .wasm), so equal chunk names would overwrite each other.
+      chunkFilename: "main/[name].js",
+    },
     devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
     module: {
       rules: [
@@ -138,6 +152,7 @@ module.exports.buildConfig = function buildConfig(params) {
       plugins: [new TsconfigPathsPlugin({ configFile: params.main.tsConfig })],
     },
     plugins: [
+      coreJsNoOpPlugin,
       new CopyWebpackPlugin({
         patterns: [
           path.resolve(__dirname, "src/package.json"),
@@ -176,6 +191,10 @@ module.exports.buildConfig = function buildConfig(params) {
                 },
               ]
             : []),
+          {
+            from: path.resolve(__dirname, "../../libs/angular/src/billing/images/premium"),
+            to: "images/premium",
+          },
           { from: path.resolve(__dirname, "src/locales"), to: "locales" },
         ],
       }),
@@ -227,6 +246,7 @@ module.exports.buildConfig = function buildConfig(params) {
       plugins: [new TsconfigPathsPlugin({ configFile: params.preload.tsConfig })],
     },
     plugins: [
+      coreJsNoOpPlugin,
       new DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
       }),
@@ -367,6 +387,7 @@ module.exports.buildConfig = function buildConfig(params) {
       plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
+      coreJsNoOpPlugin,
       new AngularWebpackPlugin({
         tsconfig: params.renderer.tsConfig,
         entryModule: params.renderer.entryModule,

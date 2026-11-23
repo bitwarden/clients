@@ -5,8 +5,9 @@ This folder holds the vault's route helpers, in two groups:
 - **Scope routing** — which vault a URL shows, and which `:vaultId` URLs are valid:
   [`vault-scope.guard.ts`](./vault-scope.guard.ts),
   [`organization-vault.guard.ts`](./organization-vault.guard.ts),
-  [`route-vault-scope.ts`](./route-vault-scope.ts), and
-  [`scoped-collection.ts`](./scoped-collection.ts).
+  [`route-vault-scope.ts`](./route-vault-scope.ts),
+  [`scoped-collection.ts`](./scoped-collection.ts), and
+  [`import-return.ts`](./import-return.ts).
 - **Filter state** — the subject of this document: record the filters each vault was last viewed
   with, restore them on the next visit, and rewrite URLs written before the filters moved into a
   namespace.
@@ -167,3 +168,4 @@ route as well as the flagged one, so no route decides the flag for it.
 | [`organization-vault.guard.ts`](./organization-vault.guard.ts)                     | Narrows the `:vaultId` routes to organization vaults         |
 | [`scoped-collection.ts`](./scoped-collection.ts)                                   | Reads the collection segment a vault route names             |
 | [`exact-path.ts`](./exact-path.ts)                                                 | `IsActiveMatchOptions` for an exact vault nav link match     |
+| [`import-return.ts`](./import-return.ts)                                           | Carries the page an import started from, and returns to it   |

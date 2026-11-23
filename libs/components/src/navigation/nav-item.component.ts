@@ -17,6 +17,7 @@ import { IconTileComponent } from "../icon-tile";
 import { TooltipDirective } from "../tooltip";
 
 import { NavBaseComponent } from "./nav-base.component";
+import { NavToggleScope } from "./nav-toggle-scope";
 import { SideNavService } from "./side-nav.service";
 
 /**
@@ -90,6 +91,12 @@ export class NavItemComponent extends NavBaseComponent {
 
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
+  private readonly toggleScope = inject(NavToggleScope, { optional: true });
+
+  /** Depth 2+ always reserves the start slot so rows indent beneath their parent's toggle. */
+  protected readonly reserveStartSlot = computed(
+    () => this.treeDepth() > 1 || !!this.toggleScope?.hasStartToggle(),
+  );
 
   /**
    * Is `true` if `to` matches the current route

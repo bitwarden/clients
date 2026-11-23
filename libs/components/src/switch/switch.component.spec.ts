@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   FormControl,
@@ -22,9 +22,8 @@ describe("SwitchComponent", () => {
   let switchComponent: SwitchComponent;
   let inputEl: HTMLInputElement;
 
-  // TODO: Fix this the next time the file is edited.
-  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "test-host",
     imports: [FormsModule, ReactiveFormsModule, FormControlModule, SwitchComponent],
     template: `
@@ -37,7 +36,7 @@ describe("SwitchComponent", () => {
     `,
   })
   class TestHostComponent {
-    formObj = new FormGroup({
+    readonly formObj = new FormGroup({
       switch: new FormControl(false),
     });
   }
@@ -88,20 +87,19 @@ describe("SwitchComponent", () => {
   });
 
   it("should update checked when selected input changes outside of a form", async () => {
-    // TODO: Fix this the next time the file is edited.
-    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     @Component({
+      changeDetection: ChangeDetectionStrategy.OnPush,
       selector: "test-selected-host",
       template: `
         <bit-form-control>
-          <bit-switch [selected]="checked"></bit-switch>
+          <bit-switch [selected]="checked()"></bit-switch>
           <bit-label>Element</bit-label>
         </bit-form-control>
       `,
       imports: [SwitchComponent, BitLabelComponent, FormControlModule],
     })
     class TestSelectedHostComponent {
-      checked = false;
+      readonly checked = signal(false);
     }
 
     const hostFixture = TestBed.createComponent(TestSelectedHostComponent);
@@ -111,11 +109,11 @@ describe("SwitchComponent", () => {
 
     expect(input.checked).toBe(false);
 
-    hostFixture.componentInstance.checked = true;
+    hostFixture.componentInstance.checked.set(true);
     hostFixture.detectChanges();
     expect(input.checked).toBe(true);
 
-    hostFixture.componentInstance.checked = false;
+    hostFixture.componentInstance.checked.set(false);
     hostFixture.detectChanges();
     expect(input.checked).toBe(false);
   });

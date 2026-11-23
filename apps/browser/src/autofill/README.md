@@ -19,6 +19,7 @@ production builds pay no cost.
 
 ## Table of Contents
 
+- [Principles](./principles.md)
 - **How to**
   - [Measure Content Script Performance](./content/performance.md)
 - **Design**

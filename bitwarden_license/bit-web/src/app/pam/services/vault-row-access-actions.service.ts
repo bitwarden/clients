@@ -10,6 +10,11 @@ import {
   switchMap,
 } from "rxjs";
 
+import { AccessRefreshService, AccessRequestSdkService, rereadOnLapse } from "@bitwarden/bit-pam";
+import {
+  AccessBadgeTickerService,
+  AccessRequestCancelService,
+} from "@bitwarden/bit-pam-components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -17,10 +22,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
-
-import { AccessRefreshService, AccessRequestSdkService } from "..";
-
-import { AccessRequestCancelService } from "./access-request-cancel.service";
 
 /** The one stream every ineligible cipher shares, so template reads stay referentially stable. */
 const NEVER_CANCELABLE$ = of(false);
@@ -37,6 +38,7 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
     private readonly accessRefreshService: AccessRefreshService,
     private readonly accessRequestCancelService: AccessRequestCancelService,
     private readonly configService: ConfigService,
+    private readonly ticker: AccessBadgeTickerService,
   ) {}
 
   cancelableRequest$(cipher: CipherViewLike): Observable<boolean> {
@@ -74,7 +76,8 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
         if (!enabled) {
           return of(false);
         }
-        return from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+        const read$ = () => from(this.accessRequestSdkService.getCipherAccessState(cipherId));
+        return rereadOnLapse(read$, this.ticker.ticks$).pipe(
           map((state) => state.pendingRequest != null || state.approvedRequest != null),
           // An unreadable state offers no menu entry rather than an error, like the vault-row
           // badge.

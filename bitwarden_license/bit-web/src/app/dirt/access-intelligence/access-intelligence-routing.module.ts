@@ -16,13 +16,11 @@ import {
   DefaultDrawerStateService,
   DefaultMemberCipherMappingService,
   DefaultReportGenerationService,
-  DefaultReportPersistenceService,
   DrawerStateService,
   FileReportPersistenceService,
   LegacyRiskInsightsEncryptionService,
   MemberCipherMappingService,
   ReportGenerationService,
-  ReportPersistenceFeatureFlagService,
   ReportPersistenceService,
 } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -163,16 +161,8 @@ const v2Providers = [
     deps: [ApiService],
   }),
   safeProvider({
-    provide: DefaultReportPersistenceService,
-    deps: [
-      RiskInsightsApiService,
-      AccessReportEncryptionService,
-      AccountServiceAbstraction,
-      LogService,
-    ],
-  }),
-  safeProvider({
-    provide: FileReportPersistenceService,
+    provide: ReportPersistenceService,
+    useClass: FileReportPersistenceService,
     deps: [
       AccessIntelligenceApiService,
       AccessReportEncryptionService,
@@ -180,11 +170,6 @@ const v2Providers = [
       LogService,
       FileUploadService,
     ],
-  }),
-  safeProvider({
-    provide: ReportPersistenceService,
-    useClass: ReportPersistenceFeatureFlagService,
-    deps: [FileReportPersistenceService, DefaultReportPersistenceService, ConfigService],
   }),
   safeProvider({
     provide: AccessIntelligenceDataService,

@@ -6,7 +6,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/user-core";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriptionPreviewService } from "@bitwarden/web-vault/app/billing/services/subscription-preview.service";
 
 @Injectable({ providedIn: "root" })
 export class PremiumSubscriptionRoutingService {
@@ -15,7 +15,7 @@ export class PremiumSubscriptionRoutingService {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
-    private accountBillingClient: AccountBillingClient,
+    private subscriptionPreviewService: SubscriptionPreviewService,
   ) {}
 
   getSubscriptionRoute$(): Observable<string | null> {
@@ -42,8 +42,7 @@ export class PremiumSubscriptionRoutingService {
     }
 
     const hasSubscription$ = this.ifAccountExistsCheck(() =>
-      from(this.accountBillingClient.getSubscription()).pipe(
-        map((subscription) => !!subscription),
+      from(this.subscriptionPreviewService.hasAccountSubscription()).pipe(
         catchError((error: unknown) => {
           this.logService.error("Failed to fetch subscription for routing", error);
           return of(false);

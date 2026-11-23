@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Skapa konto"
   },
+  "welcomeToBitwarden": {
+    "message": "Välkommen till Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Skapa ditt konto eller logga in"
+  },
   "newToBitwarden": {
     "message": "Ny på Bitwarden?"
   },
@@ -1608,6 +1614,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Välj valv",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Välj plats",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Välj ett valv"
+  },
+  "selectALocationTitle": {
+    "message": "Välj en plats"
+  },
+  "importDestinationDescription": {
+    "message": "Välj var de här posterna ska importeras."
+  },
+  "importMyItemsOption": {
+    "message": "Mina poster",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Endast synlig för dig"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Ägs av $ORGANIZATION$, men är endast synlig för dig",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Organisationsvalv"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Delat med en person"
+  },
+  "importFamilyVault": {
+    "message": "Familjevalv"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Flytta alla poster till en delad mapp i $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Flytta allt till en överordnad mapp. Den nästlade mappstrukturen behålls."
+  },
+  "importSharedFolderRequired": {
+    "message": "En delad mapp krävs."
+  },
+  "importIntoOrganization": {
+    "message": "Posterna importeras till $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Flytta alla poster till en delad mapp"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Det går inte att importera poster till $ORGANIZATION$ utan en delad mapp, och du hanterar ingen sådan där. Välj en annan plats.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importera $COUNT$ poster",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importera 1 post"
+  },
+  "importToOrganization": {
+    "message": "Importera till $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Dina data kan delas med medlemmar i den här organisationen."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ tillåter inte att du importerar $ITEM_TYPES$. Om de ingår i importen hoppas de över.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "inloggningar",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "säkra anteckningar",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "kort",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identiteter",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH-nycklar",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankkonton",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "körkort",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "pass",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Gå till Access Intelligence"
   },
   "importItems": {
     "message": "Importera objekt"
@@ -3652,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Fil"
   },
+  "item": {
+    "message": "Item"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
+  },
+  "pendingDeletion": {
+    "message": "Pending deletion"
+  },
   "allSends": {
     "message": "Alla Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3676,14 +3870,14 @@
     "message": "Kopiera Send-länk",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Ta bort lösenord"
+  "removeAuth": {
+    "message": "Ta bort lösenords- eller e-postverifiering"
   },
   "delete": {
     "message": "Radera"
   },
-  "removedPassword": {
-    "message": "Tog bort lösenord"
+  "removedAuth": {
+    "message": "Verifiering med lösenord eller e-post har tagits bort"
   },
   "deletedSend": {
     "message": "Send har raderats",
@@ -3696,8 +3890,28 @@
   "disabled": {
     "message": "Inaktiverad"
   },
-  "removePasswordConfirmation": {
-    "message": "Är du säker på att du vill ta bort lösenordet?"
+  "removeAuthConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på verifiering med lösenord eller e-post från detta Send?"
+  },
+  "removePassword": {
+    "message": "Ta bort lösenord"
+  },
+  "removeEmailVerification": {
+    "message": "Ta bort e-postverifiering"
+  },
+  "removedPassword": {
+    "message": "Tog bort lösenord"
+  },
+  "removedEmailVerification": {
+    "message": "E-postverifieringen har tagits bort"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Vill du verkligen ta bort lösenordskravet från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Vill du verkligen ta bort kravet på e-postverifiering från detta Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Radera Send",
@@ -5050,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
+  "importingItemsTitle": {
+    "message": "Importing $COUNT$ items!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Importing 1 item!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Opening the browser extension"
+  },
+  "openedExtensionTitle": {
+    "message": "Opened the browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Försök igen"
   },
@@ -5972,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "Ett fel inträffade. Kontrollera dina inloggningsuppgifter och försök igen."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Endast inloggning med lösenord stöds."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Endast inloggning med lösenord stöds. Försök igen eller använd en annan importmetod."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Ange en giltig e-postadress eller använd en annan importmetod."
@@ -5995,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Ange en giltig inloggningsadress."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Hemlig nyckel krävs."
@@ -6017,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "Ange e-postadressen som du använder för att logga in på 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Hemlig nyckel"
   },
@@ -6025,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Ditt konto skyddas med en hemlig nyckel och ett lösenord. Du behöver ange båda för att fortsätta."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper-e-post"
@@ -6544,8 +6859,8 @@
   "copyAddress": {
     "message": "Kopiera adress"
   },
-  "myItems": {
-    "message": "Mina objekt"
+  "myItemsV2": {
+    "message": "Mina poster"
   },
   "adminConsole": {
     "message": "Adminkonsol"
@@ -6888,18 +7203,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Skrivbordsapp",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Skrivbordsapp $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Webbplats tillagd"
@@ -6909,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Lägg till webbplats eller app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Radera webbplats"
@@ -7999,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "Hur hanterar jag mitt valv?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Överför objekt till $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8008,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ kräver att alla objekt ägs av organisationen av säkerhets- och efterlevnadsskäl.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klicka på acceptera för att överföra ägandet av dina objekt."
   },
   "openTransferItemsHelpArticle": {
     "message": "Öppna hjälpartikel om att överföra objekt"
@@ -8081,17 +8395,11 @@
   "sharedUnlock": {
     "message": "Delad upplåsning"
   },
-  "syncUnlockWithDesktop": {
-    "message": "Synkronisera upplåsning med skrivbordsappen"
+  "syncUnlockWithDesktop1": {
+    "message": "Synkronisera upplåsning med skrivbordsversionen"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "Bitwardens webbläsartillägg och skrivbordsapp låses och låses upp tillsammans."
-  },
-  "syncUnlockWithWeb": {
-    "message": "Synkronisera upplåsning med webbappen"
-  },
-  "syncUnlockWithWebDescription": {
-    "message": "Bitwardens webbläsartillägg och webbapp låses och låses upp tillsammans."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "Bitwardens webbläsartillägg och skrivbordsapp låses och låses upp tillsammans. Biometrisk inloggning används om den är tillgänglig."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Delad upplåsning är inte tillgänglig eftersom du valde att inte komma ihåg den här enheten. Logga in igen för att aktivera inställningen."
@@ -8285,8 +8593,8 @@
     "message": "Denna Send kommer automatiskt att upphöra vid det inställda raderingsdatumet",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Du kan inte importera objekt till Mina objekt som är en del av flera samlingar"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Det går inte att importera poster till Mina poster som ingår i flera samlingar."
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Det gick inte att spara objektet. Du måste vara bekräftad i organisationen för att spara objekt."
@@ -8707,5 +9015,432 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Återfrågan om huvudlösenord är aktiverad för det här objektet, så automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av. Spara objektet om du vill behålla ändringen."
+  },
+  "vaultItem": {
+    "message": "Vault item"
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Det godkända åtkomstfönstret har inte startat ännu."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Det godkända åtkomstfönstret har redan avslutats."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Den här begäran har inte godkänts ännu."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Den här begäran kan inte längre aktiveras."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Åtkomsten i den här begäran har redan använts och är inte längre aktiv."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Endast en användare kan ha aktiv åtkomst till den här posten åt gången. Försök igen när den aktuella åtkomsten har avslutats."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Åtkomst till den här posten tillåts inte från ditt nuvarande nätverk."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Åtkomst till den här posten tillåts inte vid den här tidpunkten."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Åtkomst till den här posten tillåts inte just nu."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Du har redan en godkänd begäran för den här posten."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Du har redan en väntande begäran för den här posten."
+  },
+  "pamLeaseExpires": {
+    "message": "Upphör $DATE$ kl. $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Upphör i dag kl. $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Starta åtkomst"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Åtkomsten har startat."
+  },
+  "pamStartLeaseError": {
+    "message": "Det gick inte att starta åtkomsten."
+  },
+  "pamEndLeaseButton": {
+    "message": "Avsluta åtkomst"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Avsluta åtkomst?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Detta återkallar genast din åtkomst. Åtgärden kan inte ångras."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Åtkomsten har avslutats."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Förläng åtkomsten"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Förläng åtkomsten"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Förlängningstid"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Orsak"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Åtkomsten har förlängts."
+  },
+  "pamExtendLeaseError": {
+    "message": "Det gick inte att förlänga åtkomsten."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Din åtkomst avslutades innan den kunde förlängas. Begäran finns i din historik."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilegierad"
+  },
+  "pamAccessBadgePending": {
+    "message": "Väntar på godkännande"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Otillgänglig"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Klar att använda"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Avslutas snart • $DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sessionen har avslutats"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Åtkomst aktiv • $DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Avslutas snart • $DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Åtkomstbegäran väntar på godkännande"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Skickades nyss"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Skickades $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privilegierade autentiseringsuppgifter"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Licens för Privileged Controls krävs",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Begär åtkomst"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Det går inte att begära",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Förläng åtkomsten",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1 min kvar",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Styrd åtkomst"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Används"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Avslutas snart"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Din åtkomst har avslutats"
+  },
+  "pamEndedBannerBody": {
+    "message": "Åtkomstperioden för den här autentiseringsuppgiften har löpt ut. Autentiseringsuppgiften byts nu när din åtkomst har avslutats."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Du kan inte begära åtkomst just nu"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Åtkomstregeln för den här autentiseringsuppgiften tillåter inte begäranden från ditt nuvarande nätverk eller vid den här tidpunkten."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Klar att använda"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Du kan komma åt den här autentiseringsuppgiften fram till kl. $TIME$ i dag.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Du kan komma åt den här autentiseringsuppgiften fram till kl. $TIME$ den $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Autentiseringsuppgifter maskeras tills åtkomst beviljas."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Du kan begära åtkomst"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Du behöver en licens för Privileged Controls för att använda den här posten",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Det går inte att begära åtkomst utan licens.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Be din administratör att aktivera din licens.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "En licens för Privileged Controls krävs. Be din administratör att aktivera din licens.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Åtkomst i upp till $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Åtkomst i upp till $DURATION$, omedelbart godkännande om du uppfyller villkoren",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Begär åtkomst"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Någon annan har åtkomst till den här posten just nu. Du kan begära åtkomst, men kan inte starta den förrän personen är klar."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Någon annan har åtkomst till den här posten just nu. Du kan begära åtkomst, men kan inte starta den förrän $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Avbryt begäran"
+  },
+  "pamKeepRequest": {
+    "message": "Behåll begäran"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Avbryt åtkomstbegäran"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Detta återkallar din begäran innan någon har fattat beslut om den. Du kan skicka en ny begäran när som helst."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Detta avstår från åtkomst som redan har godkänts. Du kan skicka en ny begäran, men den måste godkännas på nytt."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Begäran har avbrutits"
+  },
+  "pendingStateCancelError": {
+    "message": "Det gick inte att avbryta begäran."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Skicka begäran"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Hur länge behöver du åtkomst?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Du får en avisering när begäran har godkänts. Tiden börjar räknas ned först när du börjar använda den här autentiseringsuppgiften."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Information om begäran"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Startdatum"
+  },
+  "requestAccessModalStart": {
+    "message": "Starttid"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Slutdatum"
+  },
+  "requestAccessModalEnd": {
+    "message": "Sluttid"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Slutet måste infalla efter starten."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (nu)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Anpassad tid…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Anpassat slutdatum och anpassad sluttid…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Visa föreslagna starttider"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Tillbaka till föreslagna tider"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, till $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Begär åtkomst i $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Den begärda tidsperioden har redan avslutats. Välj ett senare datum eller en senare tid."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Tidsperioden får inte överstiga $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Varför behöver du åtkomst?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Varför behöver du åtkomst?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "t.ex. kvartalsgranskning, behöver köra några skrivskyddade frågor"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Synlig för den som godkänner och sparas i granskningsloggen."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Synlig för den som godkänner och sparas i granskningsloggen."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Det gick inte att begära åtkomst. Försök igen."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Du har redan aktiv åtkomst till den här posten."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Åtkomst har godkänts. Välj Starta åtkomst för att börja."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Åtkomst har begärts"
   }
 }

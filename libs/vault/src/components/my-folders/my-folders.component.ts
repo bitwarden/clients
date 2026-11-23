@@ -14,7 +14,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { combineLatest, lastValueFrom, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -37,7 +37,6 @@ import {
   IconButtonModule,
   IconTileComponent,
   LayoutFooterService,
-  LinkModule,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -46,9 +45,11 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { TableRowNameDirective } from "../../directives/table-row-name.directive";
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
 import { folderCommands } from "../../models/vault-scope";
 import { MyFolderActionsService } from "../../services/my-folder-actions.service";
+import { isRowActivationClick } from "../../utils/row-activation";
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
 import {
@@ -92,10 +93,10 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
     I18nPipe,
     IconButtonModule,
     IconTileComponent,
-    LinkModule,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
+    TableRowNameDirective,
     TooltipDirective,
   ],
 })
@@ -108,6 +109,7 @@ export class MyFoldersComponent {
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
@@ -133,6 +135,18 @@ export class MyFoldersComponent {
   protected readonly hasItems = computed(() => this.rows().length > 0);
 
   protected readonly folderCommands = folderCommands;
+
+  /**
+   * Makes a whole data cell a click target that opens the row's folder. Pointer-only — the keyboard
+   * and assistive-tech path stays the name link, and nothing here enters the accessibility tree.
+   */
+  protected onCellActivate(row: FolderTableRow, event: MouseEvent) {
+    if (!isRowActivationClick(event)) {
+      return;
+    }
+
+    void this.router.navigate(folderCommands(row.id));
+  }
 
   protected readonly search = computed(
     () => (this.tableRef()?.filterValues() as { search?: string } | undefined)?.search,

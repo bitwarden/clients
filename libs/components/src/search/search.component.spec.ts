@@ -210,14 +210,14 @@ describe("SearchComponent", () => {
         Array.from(badge.querySelectorAll("kbd")).map((key) => key.textContent?.trim()),
       );
 
-    it("hints ⌘/Ctrl+F while the field is empty", () => {
-      expect(hints()).toEqual([["Ctrl", "F"]]);
+    it("renders the ⌘/Ctrl+F and Esc hints while the field is empty", () => {
+      expect(hints()).toEqual([["Ctrl", "F"], ["Esc"]]);
     });
 
-    it("hints Esc once the field has text", async () => {
+    it("renders no hint once the field has text", async () => {
       await setText("secrets");
 
-      expect(hints()).toEqual([["Esc"]]);
+      expect(hints()).toEqual([]);
     });
 
     it.each([

@@ -1,43 +1,31 @@
-import { CommonModule } from "@angular/common";
-import { Component, ElementRef, HostBinding, input, Optional } from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input } from "@angular/core";
 
 import { FormControlComponent } from "./form-control.component";
 
 // Increments for each instance of this component
 let nextId = 0;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-label",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "label.component.html",
-  imports: [CommonModule],
+  imports: [NgTemplateOutlet],
   host: {
-    "[class]": "classList",
+    class: "tw-inline-flex tw-gap-1 tw-items-baseline tw-flex-row tw-min-w-0",
     "[id]": "id()",
+    "[title]": "title",
   },
 })
 export class BitLabelComponent {
-  constructor(
-    private elementRef: ElementRef<HTMLInputElement>,
-    @Optional() private parentFormControl: FormControlComponent,
-  ) {}
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly classList = [
-    "tw-inline-flex",
-    "tw-gap-1",
-    "tw-items-baseline",
-    "tw-flex-row",
-    "tw-min-w-0",
-  ];
+  protected readonly isInsideFormControl = !!inject(FormControlComponent, { optional: true });
 
-  @HostBinding("title") get title() {
+  // A getter, not a computed: it reads live projected textContent, which has no signal to track.
+  get title() {
     return this.elementRef.nativeElement.textContent?.trim() ?? "";
   }
 
   readonly id = input(`bit-label-${nextId++}`);
-
-  get isInsideFormControl() {
-    return !!this.parentFormControl;
-  }
 }

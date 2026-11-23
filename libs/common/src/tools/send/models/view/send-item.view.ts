@@ -4,8 +4,12 @@ import { View } from "../../../../models/view/view";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { CipherView } from "../../../../vault/models/view/cipher.view";
 
+import { SendItemMetadataView } from "./send-item-metadata.view";
+
 export class SendItemView implements View {
   data?: CipherView;
+  /** Unencrypted metadata carried alongside {@link data}; the SDK restores the item id from it. */
+  metadata?: SendItemMetadataView;
 
   static fromJSON(json: DeepJsonify<SendItemView>) {
     if (json == null) {
@@ -20,6 +24,7 @@ export class SendItemView implements View {
   static fromSdk(obj: SdkSendItemView): SendItemView {
     const view = new SendItemView();
     view.data = CipherView.fromSdkCipherView(obj?.data);
+    view.metadata = SendItemMetadataView.fromSdk(obj?.metadata);
     return view;
   }
 }

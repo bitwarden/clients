@@ -11,7 +11,6 @@
       [organizationName]="row.organizationName"
       [collectionName]="row.collectionName"
       [requesterName]="row.requester"
-      [requesterEmail]="row.requesterEmail"
       [duration]="row.duration"
       [relativeStart]="row.relativeStart"
       [exactWindow]="row.exactWindow"
@@ -51,7 +50,7 @@
       [disabled]="confirmDisabled()"
       id="pam-decide-dialog_button_confirm"
     >
-      {{ (approve() ? "pamInboxConfirmApproveButton" : "pamInboxConfirmDenyButton") | i18n }}
+      {{ (approve() ? "pamInboxApprove" : "pamInboxDeny") | i18n }}
     </button>
     <button
       type="button"
@@ -66,12 +65,12 @@
       <button
         type="button"
         bitButton
-        buttonType="dangerGhost"
+        buttonType="danger"
         class="tw-ms-auto"
         id="pam-decide-dialog_button_switch-to-deny"
         (click)="switchToDeny()"
       >
-        {{ "pamInboxConfirmDenyButton" | i18n }}
+        {{ "pamInboxDeny" | i18n }}
       </button>
     }
   </ng-container>

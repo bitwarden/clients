@@ -23,7 +23,6 @@ import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/sh
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -125,7 +124,6 @@ describe("AccountSecurityComponent", () => {
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
-        { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
         { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
@@ -183,9 +181,7 @@ describe("AccountSecurityComponent", () => {
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
     sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
-    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
     sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
-    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
     sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
     policyService.policiesByType$.mockReturnValue(of([null]));
@@ -551,7 +547,6 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(true);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(true);
       expect(
         fixture.nativeElement.textContent.includes(
           "sharedUnlockUnavailableUntrustedDevice-used-i18n",
@@ -569,7 +564,6 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
     });
   });
 

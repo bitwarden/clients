@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { RegistrationFinishService } from "@bitwarden/auth/angular";
+import { RegistrationFinishService } from "@bitwarden/angular/auth/registration";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
@@ -32,14 +32,20 @@ describe("CompleteTrialInitiationComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationBillingService: MockProxy<OrganizationBillingServiceAbstraction>;
   let mockAccountService: MockProxy<AccountService>;
+  let mockI18nService: MockProxy<I18nService>;
+  let mockToastService: MockProxy<ToastService>;
   let pamBillingSupport$: BehaviorSubject<boolean>;
-  let previewDrivenCart$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     mockRouter = mock<Router>();
     mockConfigService = mock<ConfigService>();
     mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
     mockAccountService = mock<AccountService>();
+    mockI18nService = mock<I18nService>();
+    mockToastService = mock<ToastService>();
+
+    // Echo the key back so toast assertions can match on the message key.
+    mockI18nService.t.mockImplementation((key) => key as string);
 
     mockActivatedRoute = {
       queryParams: new BehaviorSubject({}),
@@ -48,12 +54,10 @@ describe("CompleteTrialInitiationComponent", () => {
     // Mock activeAccount$ to return a valid user ID
     mockAccountService.activeAccount$ = of({ id: "user-id-123" } as any);
 
-    // Feature flags, controllable per test. PAM billing-support defaults off; the preview-cart
-    // flag defaults on, so tests that only toggle PAM see Privileged Controls follow PAM.
+    // PAM billing-support flag, controllable per test; defaults off.
     pamBillingSupport$ = new BehaviorSubject<boolean>(false);
-    previewDrivenCart$ = new BehaviorSubject<boolean>(true);
     mockConfigService.getFeatureFlag$.mockImplementation((key) =>
-      key === FeatureFlag.PamBillingSupport ? pamBillingSupport$ : previewDrivenCart$,
+      key === FeatureFlag.PamBillingSupport ? pamBillingSupport$ : of(false),
     );
 
     await TestBed.configureTestingModule({
@@ -64,13 +68,13 @@ describe("CompleteTrialInitiationComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: mockI18nService },
         { provide: RouterService, useValue: mock<RouterService>() },
         {
           provide: OrganizationBillingServiceAbstraction,
           useValue: mockOrganizationBillingService,
         },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: mockToastService },
         { provide: RegistrationFinishService, useValue: mock<RegistrationFinishService>() },
         { provide: ValidationService, useValue: mock<ValidationService>() },
         {
@@ -121,12 +125,12 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(component.trialLength).toBe(7);
     });
 
-    it("should default trialLength to 7 when not provided", async () => {
+    it("should default trialLength to 14 when not provided", async () => {
       mockActivatedRoute.queryParams.next({
         product: ProductType.PasswordManager,
         productTier: ProductTierType.Enterprise,
       });
-      expect(component.trialLength).toBe(7);
+      expect(component.trialLength).toBe(14);
     });
 
     it("should read salesAssistedToken from query params", async () => {
@@ -294,6 +298,52 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(createOnTrialSpy).not.toHaveBeenCalled();
       expect(conditionalCreateSpy).toHaveBeenCalled();
     });
+
+    it("navigates to the existing org and skips creation when the org already exists (Back then Next)", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      (component as any).organization = { organizationId: "org-id", planDescription: "" };
+      const createOnTrialSpy = jest
+        .spyOn(component, "createOrganizationOnTrial")
+        .mockResolvedValue(undefined);
+      const conditionalCreateSpy = jest
+        .spyOn(component as any, "conditionallyCreateOrganization")
+        .mockResolvedValue(undefined);
+
+      await component.orgNameEntrySubmit();
+
+      expect(createOnTrialSpy).not.toHaveBeenCalled();
+      expect(conditionalCreateSpy).not.toHaveBeenCalled();
+      expect(component.verticalStepper.next).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
+    });
+
+    it("creates the org once when resubmitted after a navigation failure", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+        trialLength: "7",
+        paymentOptional: "true",
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await component.orgNameEntrySubmit();
+      await component.orgNameEntrySubmit();
+
+      expect(
+        mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("createOrganizationOnTrial", () => {
@@ -306,7 +356,6 @@ describe("CompleteTrialInitiationComponent", () => {
         name: "Test Org",
         billingEmail: "test@example.com",
       });
-      component.verticalStepper = { next: jest.fn() } as any;
       mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
         id: "org-id",
         name: "Test Org",
@@ -357,6 +406,205 @@ describe("CompleteTrialInitiationComponent", () => {
 
       expect(passedInitiationPath()).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
     });
+
+    it("navigates to the organization vault for Password Manager", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
+    });
+
+    it("navigates to Secrets Manager for a Secrets Manager trial", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Enterprise,
+      });
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/sm", "org-id"]);
+    });
+
+    it("shows a single trial-started toast (org and trial created together)", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", title: "trialStarted" }),
+      );
+    });
+
+    it("keeps loading through navigation on success so the button can't be clicked twice", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(component.loading).toBe(true);
+    });
+
+    it("shows the organization-created toast for a free Secrets Manager org (not a trial)", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+        paymentOptional: "true",
+      });
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", title: "organizationCreated" }),
+      );
+    });
+
+    it("shows the error, stops loading and does not toast or navigate when the request is rejected", async () => {
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+      const error = new Error("Rejected");
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockRejectedValue(error);
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(component.loading).toBe(false);
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("orgInfoButtonLabel", () => {
+    it("is 'next' when a billing step follows (not payment-optional, not SM-free)", () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+
+      expect(component.orgInfoButtonLabel).toBe("next");
+    });
+
+    it("is 'startTrial' for a no-card trial (payment-optional with a trial length)", () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+        paymentOptional: "true",
+        trialLength: "7",
+      });
+
+      expect(component.orgInfoButtonLabel).toBe("startTrial");
+    });
+
+    it("is 'submit' for the free Secrets Manager org (terminal, no next step)", () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+        paymentOptional: "true",
+      });
+
+      expect(component.orgInfoButtonLabel).toBe("submit");
+    });
+  });
+
+  describe("createdOrganization (billing step completed)", () => {
+    beforeEach(() => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+        trialLength: "7",
+      });
+    });
+
+    it("navigates to the vault and shows a single trial-started toast", async () => {
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", title: "trialStarted" }),
+      );
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
+    });
+
+    it("shows the organization-created toast for a direct purchase (trialLength = 0)", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+        trialLength: "0",
+      });
+
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", title: "organizationCreated" }),
+      );
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/organizations", "org-id", "vault"]);
+    });
+
+    it("surfaces a navigation failure without throwing so the button stays usable", async () => {
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+      const error = new Error("Rejected");
+      mockRouter.navigate.mockRejectedValue(error);
+
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+    });
+
+    it("re-navigates to the existing org on retry without toasting again", async () => {
+      mockRouter.navigate.mockRejectedValueOnce(new Error("Rejected")).mockResolvedValue(true);
+
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+      await component.createdOrganization({ organizationId: "org-id", planDescription: "Annual" });
+
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("conditionallyCreateOrganization (free Secrets Manager organization)", () => {
+    it("creates the org, shows a single organization-created toast, and navigates to Secrets Manager", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.startFree.mockResolvedValue({ id: "sm-org-id" } as any);
+
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+
+      expect(mockOrganizationBillingService.startFree).toHaveBeenCalled();
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", title: "organizationCreated" }),
+      );
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/sm", "sm-org-id"]);
+    });
+
+    it("keeps loading through navigation on success so the button can't be clicked twice", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      mockOrganizationBillingService.startFree.mockResolvedValue({ id: "sm-org-id" } as any);
+
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+
+      expect(component.loading).toBe(true);
+    });
+
+    it("shows the error, stops loading and does not toast or navigate when creation is rejected", async () => {
+      mockActivatedRoute.queryParams.next({
+        product: ProductType.SecretsManager,
+        productTier: ProductTierType.Free,
+      });
+      component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
+      const validationService = TestBed.inject(ValidationService) as MockProxy<ValidationService>;
+      const error = new Error("Rejected");
+      mockOrganizationBillingService.startFree.mockRejectedValue(error);
+
+      await (component as any).conditionallyCreateOrganization("user-id-123" as UserId);
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(component.loading).toBe(false);
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
   });
 
   describe("Privileged Controls", () => {
@@ -376,20 +624,6 @@ describe("CompleteTrialInitiationComponent", () => {
         product: "0,2",
         productTier: ProductTierType.Enterprise,
       });
-      expect(component.product).toBe(ProductType.PasswordManager);
-      expect(component.includesPrivilegedControls).toBe(false);
-    });
-
-    it("excludes Privileged Controls when the preview-cart flag is off even if PAM is on", () => {
-      // Without the preview cart, pricing would come from the legacy endpoint that ignores PC,
-      // so PC must not be offered or charged.
-      previewDrivenCart$.next(false);
-      pamBillingSupport$.next(true);
-      mockActivatedRoute.queryParams.next({
-        product: "0,2",
-        productTier: ProductTierType.Enterprise,
-      });
-
       expect(component.product).toBe(ProductType.PasswordManager);
       expect(component.includesPrivilegedControls).toBe(false);
     });
@@ -432,7 +666,6 @@ describe("CompleteTrialInitiationComponent", () => {
         productTier: ProductTierType.Enterprise,
       });
       component.orgInfoFormGroup.patchValue({ name: "Test Org", billingEmail: "test@example.com" });
-      component.verticalStepper = { next: jest.fn() } as any;
       mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
         id: "org-id",
         name: "Test Org",
@@ -452,10 +685,148 @@ describe("CompleteTrialInitiationComponent", () => {
     });
   });
 
+  describe("Privileged Controls sold through sales", () => {
+    const selfServeParams = { product: "0,2", productTier: ProductTierType.Enterprise };
+    const salesInvitationParams = {
+      ...selfServeParams,
+      salesAssistedToken: "sales-assisted-token-123",
+      paymentOptional: "true",
+      trialLength: "14",
+    };
+
+    function arrangeOrganizationCreation(): void {
+      component.orgInfoFormGroup.patchValue({
+        name: "Test Org",
+        billingEmail: "test@example.com",
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+    }
+
+    describe("with the PAM-billing flag off", () => {
+      beforeEach(() => pamBillingSupport$.next(false));
+
+      it("leaves Privileged Controls out of a sales invitation and shows the sales callout", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("creates the organization from a sales invitation without Privileged Controls or the token", async () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+        arrangeOrganizationCreation();
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization.initiationPath).toBe(
+          InitiationPath.SalesAssistedTrialFromAdminPortal,
+        );
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).not.toHaveProperty("subscribeToPrivilegedControls");
+        expect(request.plan).not.toHaveProperty("pamSeats");
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("leaves Privileged Controls out of a self-serve link and shows the sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.trial.privilegedControls).toBeUndefined();
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("shows the sales callout on a direct-purchase self-serve link with no trial period", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, trialLength: "0" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("shows the sales callout when a sales invitation goes through the paid billing step", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, paymentOptional: "false" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+      });
+
+      it("leaves Privileged Controls out of a Secrets Manager sales invitation", () => {
+        mockActivatedRoute.queryParams.next({ ...salesInvitationParams, product: "1,2" });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("leaves Privileged Controls out of a non-Enterprise sales invitation", () => {
+        mockActivatedRoute.queryParams.next({
+          ...salesInvitationParams,
+          productTier: ProductTierType.Teams,
+        });
+
+        expect(component.includesPrivilegedControls).toBe(false);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("shows no sales callout when the link did not ask for Privileged Controls", () => {
+        mockActivatedRoute.queryParams.next({ ...selfServeParams, product: "0" });
+
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+    });
+
+    describe("with the PAM-billing flag on", () => {
+      beforeEach(() => pamBillingSupport$.next(true));
+
+      it("includes Privileged Controls from a self-serve link and shows no sales callout", () => {
+        mockActivatedRoute.queryParams.next(selfServeParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("includes Privileged Controls from a sales invitation", () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+
+        expect(component.includesPrivilegedControls).toBe(true);
+        expect(component.trial.privilegedControls).toEqual({ seats: 1 });
+        expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+      });
+
+      it("asks for Privileged Controls on the sales invitation's no-payment creation, without the token", async () => {
+        mockActivatedRoute.queryParams.next(salesInvitationParams);
+        arrangeOrganizationCreation();
+
+        await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+        const request =
+          mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0];
+        expect(request.organization).not.toHaveProperty("salesAssistedToken");
+        expect(request.plan).toEqual(
+          expect.objectContaining({ subscribeToPrivilegedControls: true, pamSeats: 1 }),
+        );
+      });
+    });
+
+    it("hides the sales callout once the PAM-billing flag turns on after the params arrive", () => {
+      pamBillingSupport$.next(false);
+      mockActivatedRoute.queryParams.next(salesInvitationParams);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(true);
+
+      pamBillingSupport$.next(true);
+
+      expect(component.includesPrivilegedControls).toBe(true);
+      expect(component.showPrivilegedControlsSalesCallout).toBe(false);
+    });
+  });
+
   describe("one-time param side effects", () => {
     it("shows the email-verified toast once when the PAM flag resolves after the params arrive", () => {
-      const toastService = TestBed.inject(ToastService) as MockProxy<ToastService>;
-
       // Cold config: the flag starts at its default (false), then resolves true once the server
       // config lands — the common marketing-link path where the vault was never loaded.
       mockActivatedRoute.queryParams.next({
@@ -465,7 +836,7 @@ describe("CompleteTrialInitiationComponent", () => {
       });
       pamBillingSupport$.next(true);
 
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
     });
 
     it("still enables Privileged Controls when the flag resolves after the params arrive", () => {

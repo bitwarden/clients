@@ -1,6 +1,6 @@
 import { inject, Injectable, isDevMode } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map, shareReplay, switchMap } from "rxjs";
+import { map, of, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -26,6 +26,8 @@ import {
 } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-access.token";
+import { REVEALABLE_CIPHERS, RevealableCiphers } from "../tokens/revealable-ciphers.token";
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
@@ -47,6 +49,7 @@ const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
   "attachments",
   "clone",
   "addToSharedFolder",
+  "shareViaLink",
   "archive",
   "unarchive",
   "restore",
@@ -54,13 +57,14 @@ const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Drops each contributed action whose ID matches a built-in ID or an earlier contributed ID.
+ * Drops each contributed action whose ID matches one of `builtInIds` or an earlier contributed ID.
  * Throws in dev mode instead.
  */
-function uniqueContributedActions(
+export function uniqueContributedActions(
   actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
+  builtInIds: ReadonlySet<string>,
 ): readonly VaultItemsTableRowAction<CipherViewLike>[] {
-  const seen = new Set(BUILT_IN_ACTION_IDS);
+  const seen = new Set(builtInIds);
   return actions.filter((action) => {
     if (seen.has(action.id)) {
       if (isDevMode()) {
@@ -92,8 +96,15 @@ export class CipherRowMenuService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
   private readonly revealedCipherService = inject(RevealedCipherService);
+  private readonly cipherShareAccess = inject<CipherShareAccess>(CIPHER_SHARE_ACCESS, {
+    optional: true,
+  });
+  private readonly revealableCiphers = inject<RevealableCiphers>(REVEALABLE_CIPHERS, {
+    optional: true,
+  });
   private readonly contributedActions = uniqueContributedActions(
     inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
+    BUILT_IN_ACTION_IDS,
   );
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
@@ -108,10 +119,21 @@ export class CipherRowMenuService {
     { initialValue: false },
   );
 
-  /** The active user's revealed ciphers. A revealed row offers edit and attachments. */
+  /** The active user's revealed ciphers. A revealed row offers edit, attachments, delete and restore. */
   private readonly revealed = toSignal(
     this.userId$.pipe(switchMap((userId) => this.revealedCipherService.revealed$(userId))),
     { initialValue: new Map() as ReadonlyMap<CipherId, CipherView> },
+  );
+
+  /**
+   * The ciphers the active user may reveal now. A revealable row offers what a revealed one does,
+   * so the menu does not wait for the item to be opened; the action reveals when it runs.
+   */
+  private readonly revealable = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) => this.revealableCiphers?.revealable$(userId) ?? of(new Set<CipherId>())),
+    ),
+    { initialValue: new Set() as ReadonlySet<CipherId> },
   );
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
@@ -176,6 +198,13 @@ export class CipherRowMenuService {
         show: (item) => this.showAssignToCollections(item, collections),
       },
       {
+        id: "shareViaLink",
+        label: this.i18nService.t("shareViaLink"),
+        icon: "bwi-share-link",
+        run: (item) => void this.cipherShareAccess?.share(item),
+        show: (item) => this.cipherShareAccess?.canShare(item) ?? false,
+      },
+      {
         id: "archive",
         label: this.i18nService.t("archiveVerb"),
         icon: "bwi-archive",
@@ -237,7 +266,11 @@ export class CipherRowMenuService {
   }
 
   private allows(cipher: CipherViewLike, action: RestrictedCipherAction): boolean {
-    const revealedView = cipher.id == null ? undefined : this.revealed().get(cipher.id as CipherId);
+    const cipherId = cipher.id as CipherId | undefined;
+    const revealedView = cipherId == null ? undefined : this.revealed().get(cipherId);
+    if (revealedView == null && cipherId != null && this.revealable().has(cipherId)) {
+      return RestrictedCipherPolicy.allowsOnReveal(cipher, action);
+    }
     return RestrictedCipherPolicy.allows(cipher, action, revealedView);
   }
 

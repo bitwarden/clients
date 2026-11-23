@@ -4,6 +4,7 @@ import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
 
 import { NavGroupComponent } from "./nav-group.component";
+import { NavToggleScope } from "./nav-toggle-scope";
 import { SideNavService } from "./side-nav.service";
 
 let nextId = 0;
@@ -17,6 +18,7 @@ let nextId = 0;
   selector: "bit-nav-section",
   templateUrl: "./nav-section.component.html",
   imports: [IconComponent],
+  providers: [NavToggleScope],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavSectionComponent {

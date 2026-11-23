@@ -18,6 +18,7 @@ import {
   CollectionAdminView,
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -48,6 +49,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
@@ -57,6 +59,18 @@ import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 const organizations = [...new Array(3).keys()].map(createOrganization);
 const groups = [...Array(3).keys()].map(createGroupView);
@@ -74,6 +88,7 @@ export default {
     moduleMetadata({
       imports: [VaultItemsModule, RouterModule, LayoutComponent],
       providers: [
+        { provide: LogService, useFactory: () => new ConsoleLogService(true) },
         {
           provide: EnvironmentService,
           useValue: {
@@ -434,10 +449,10 @@ function createGroupView(i: number): GroupView {
 }
 
 function createOrganization(i: number): Organization {
-  const organization = new Organization();
-  organization.id = `organization-${i}` as OrganizationId;
-  organization.name = `Organization ${i}`;
-  organization.type = OrganizationUserType.Owner;
-  organization.permissions = new PermissionsApi();
-  return organization;
+  return buildTestOrganization({
+    id: `organization-${i}` as OrganizationId,
+    name: `Organization ${i}`,
+    type: OrganizationUserType.Owner,
+    permissions: new PermissionsApi(),
+  });
 }

@@ -28,6 +28,7 @@ export interface OpenOrgInviteLinkData {
  */
 export class OpenOrganizationInvite {
   readonly kind = OrgInviteKind.Open;
+  // TODO: PM-47347 - Type organizationId as OrganizationId. Validate it with isId() in fromLinkDataAndStatus before the cast.
   organizationId: string;
   inviteLinkCode: string;
   inviteKey: string;
@@ -75,5 +76,10 @@ export class OpenOrganizationInvite {
       return null;
     }
     return new OpenOrganizationInvite(json);
+  }
+
+  /** Whether this invite is for the organization. Compares IDs case-insensitively. */
+  isForOrganization(organizationId: string): boolean {
+    return this.organizationId.toLowerCase() === organizationId.toLowerCase();
   }
 }

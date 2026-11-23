@@ -1,6 +1,6 @@
 import { booleanAttribute, computed, Directive, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { debounce, interval } from "rxjs";
+import { debounce, interval, of } from "rxjs";
 
 import { ButtonType } from "./button-like.abstraction";
 
@@ -164,6 +164,31 @@ export const getButtonColorStyles = ({
       "aria-expanded:tw-text-fg-success-strong",
       "focus-visible:tw-text-fg-success-strong",
     ],
+    accentPrimary: [
+      "tw-border-border-accent-primary-strong",
+      "tw-bg-bg-accent-primary-strong",
+      "hover:tw-bg-bg-accent-primary-stronger",
+      "hover:tw-border-border-accent-primary-stronger",
+      "aria-expanded:tw-bg-bg-accent-primary-stronger",
+      "aria-expanded:tw-border-border-accent-primary-stronger",
+      "focus-visible:tw-bg-bg-accent-primary-stronger",
+      "focus-visible:tw-border-border-accent-primary-stronger",
+    ],
+    accentPrimaryOutline: [
+      "tw-border-border-accent-primary",
+      "tw-text-fg-accent-primary",
+      "hover:tw-border-border-accent-primary-strong",
+      "hover:tw-text-fg-accent-primary-strong",
+      "aria-expanded:tw-border-border-accent-primary-strong",
+      "aria-expanded:tw-text-fg-accent-primary-strong",
+      "focus-visible:tw-text-fg-accent-primary-strong",
+    ],
+    accentPrimaryGhost: [
+      "tw-text-fg-accent-primary",
+      "hover:tw-text-fg-accent-primary-strong",
+      "aria-expanded:tw-text-fg-accent-primary-strong",
+      "focus-visible:tw-text-fg-accent-primary-strong",
+    ],
     contrast: [
       "tw-text-fg-heading",
       "tw-bg-bg-primary",
@@ -326,6 +351,12 @@ export class BaseButtonDirective {
 
   readonly loading = model<boolean>(false);
 
+  /**
+   * Shows the spinner as soon as `loading` starts, skipping the debounce. For actions that block
+   * the main thread, e.g. a key derivation, where waiting for the debounce delays the action.
+   */
+  readonly instantSpinner = input(false, { transform: booleanAttribute });
+
   readonly disabled = model<boolean>(false);
 
   readonly disabledAttr = computed(() => {
@@ -349,7 +380,11 @@ export class BaseButtonDirective {
    */
   readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(
-      debounce((isLoading) => interval(isLoading ? BUTTON_SPINNER_DELAY_MS : 0)),
+      debounce((isLoading) =>
+        isLoading && this.instantSpinner()
+          ? of(true)
+          : interval(isLoading ? BUTTON_SPINNER_DELAY_MS : 0),
+      ),
     ),
   );
 

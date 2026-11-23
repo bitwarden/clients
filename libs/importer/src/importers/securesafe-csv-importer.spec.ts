@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -58,7 +61,7 @@ describe("SecureSafe CSV Importer", () => {
 
   CipherData.forEach((data) => {
     it(data.title, async () => {
-      const importer = new SecureSafeCsvImporter();
+      const importer = new SecureSafeCsvImporter(mock<LogService>());
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toBeGreaterThan(0);

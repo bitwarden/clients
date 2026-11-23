@@ -10,6 +10,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 
@@ -29,13 +30,14 @@ function makePolicy(data: Record<string, unknown> | null): Policy {
 }
 
 describe("SendPolicyService", () => {
+  let service: SendPolicyService;
+
   const policyServiceMock = mock<PolicyService>();
   const configServiceMock = mock<ConfigService>();
   const organizationServiceMock = mock<OrganizationService>();
 
-  function setup(flagEnabled: boolean): SendPolicyService {
-    configServiceMock.getFeatureFlag$.mockReturnValue(of(flagEnabled));
-    TestBed.configureTestingModule({
+  beforeEach(() => {
+    const testBed = TestBed.configureTestingModule({
       providers: [
         { provide: PolicyService, useValue: policyServiceMock },
         { provide: ConfigService, useValue: configServiceMock },
@@ -44,175 +46,162 @@ describe("SendPolicyService", () => {
         SendPolicyService,
       ],
     });
-    return TestBed.inject(SendPolicyService);
-  }
+    service = testBed.inject(SendPolicyService);
+  });
 
   afterEach(() => {
     jest.resetAllMocks();
   });
 
+  it("should be created", () => {
+    expect(service).toBeTruthy();
+  });
+
   describe("disableSend$", () => {
-    describe("when the SendControls flag is enabled", () => {
-      it("emits true when SendControls policy has disableSend: true", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableSend: true })]));
-        policyServiceMock.policyAppliesToUser$
-          .calledWith(PolicyType.DisableSend, userId)
-          .mockReturnValue(of(false));
+    it("emits true when SendControls policy has disableSend: true", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ disableSend: true })]));
+      policyServiceMock.policyAppliesToUser$
+        .calledWith(PolicyType.DisableSend, userId)
+        .mockReturnValue(of(false));
 
-        expect(await firstValueFrom(setup(true).disableSend$)).toBe(true);
-      });
-
-      it("emits false when SendControls policy has disableSend: false and no legacy policy", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableSend: false })]));
-        policyServiceMock.policyAppliesToUser$
-          .calledWith(PolicyType.DisableSend, userId)
-          .mockReturnValue(of(false));
-
-        expect(await firstValueFrom(setup(true).disableSend$)).toBe(false);
-      });
-
-      it("emits false when policy data is null and no legacy policy", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy(null)]));
-        policyServiceMock.policyAppliesToUser$
-          .calledWith(PolicyType.DisableSend, userId)
-          .mockReturnValue(of(false));
-
-        expect(await firstValueFrom(setup(true).disableSend$)).toBe(false);
-      });
-
-      it("emits true when legacy DisableSend applies even if SendControls does not", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([]));
-        policyServiceMock.policyAppliesToUser$
-          .calledWith(PolicyType.DisableSend, userId)
-          .mockReturnValue(of(true));
-
-        expect(await firstValueFrom(setup(true).disableSend$)).toBe(true);
-      });
+      expect(await firstValueFrom(service.disableSend$)).toBe(true);
     });
 
-    describe("when the SendControls flag is disabled", () => {
-      it("reads from DisableSend rather than SendControls", async () => {
-        policyServiceMock.policyAppliesToUser$
-          .calledWith(PolicyType.DisableSend, userId)
-          .mockReturnValue(of(true));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableSend: false })]));
+    it("emits false when SendControls policy has disableSend: false and no legacy policy", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ disableSend: false })]));
+      policyServiceMock.policyAppliesToUser$
+        .calledWith(PolicyType.DisableSend, userId)
+        .mockReturnValue(of(false));
 
-        expect(await firstValueFrom(setup(false).disableSend$)).toBe(true);
-      });
+      expect(await firstValueFrom(service.disableSend$)).toBe(false);
+    });
+
+    it("emits false when policy data is null and no legacy policy", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy(null)]));
+      policyServiceMock.policyAppliesToUser$
+        .calledWith(PolicyType.DisableSend, userId)
+        .mockReturnValue(of(false));
+
+      expect(await firstValueFrom(service.disableSend$)).toBe(false);
+    });
+
+    it("emits true when legacy DisableSend applies even if SendControls does not", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([]));
+      policyServiceMock.policyAppliesToUser$
+        .calledWith(PolicyType.DisableSend, userId)
+        .mockReturnValue(of(true));
+
+      expect(await firstValueFrom(service.disableSend$)).toBe(true);
+    });
+  });
+
+  describe("sendAuthRequired$", () => {
+    it.each([
+      [WhoCanAccessType.PasswordProtected, true],
+      [WhoCanAccessType.SpecificPeople, true],
+      [WhoCanAccessType.Any, false],
+    ])("emits %s → %s", async (whoCanAccess, expected) => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ whoCanAccess })]));
+
+      expect(await firstValueFrom(service.sendAuthRequired$)).toBe(expected);
+    });
+
+    it("emits false when no Send Controls policy sets who can access", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([]));
+
+      expect(await firstValueFrom(service.sendAuthRequired$)).toBe(false);
     });
   });
 
   describe("disableHideEmail$", () => {
-    describe("when the SendControls flag is enabled", () => {
-      it("emits true when SendControls policy has disableHideEmail: true", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableHideEmail: true })]));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendOptions, userId)
-          .mockReturnValue(of([]));
+    it("emits true when SendControls policy has disableHideEmail: true", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ disableHideEmail: true })]));
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendOptions, userId)
+        .mockReturnValue(of([]));
 
-        expect(await firstValueFrom(setup(true).disableHideEmail$)).toBe(true);
-      });
-
-      it("emits false when SendControls policy has disableHideEmail: false and no legacy policy", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableHideEmail: false })]));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendOptions, userId)
-          .mockReturnValue(of([]));
-
-        expect(await firstValueFrom(setup(true).disableHideEmail$)).toBe(false);
-      });
-
-      it("emits false when policy data is null and no legacy policy", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy(null)]));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendOptions, userId)
-          .mockReturnValue(of([]));
-
-        expect(await firstValueFrom(setup(true).disableHideEmail$)).toBe(false);
-      });
-
-      it("emits true when legacy SendOptions applies even if SendControls does not", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([]));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendOptions, userId)
-          .mockReturnValue(of([makePolicy({ disableHideEmail: true })]));
-
-        expect(await firstValueFrom(setup(true).disableHideEmail$)).toBe(true);
-      });
+      expect(await firstValueFrom(service.disableHideEmail$)).toBe(true);
     });
 
-    describe("when the SendControls flag is disabled", () => {
-      it("reads from SendOptions rather than SendControls", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendOptions, userId)
-          .mockReturnValue(of([makePolicy({ disableHideEmail: true })]));
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ disableHideEmail: false })]));
+    it("emits false when SendControls policy has disableHideEmail: false and no legacy policy", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ disableHideEmail: false })]));
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendOptions, userId)
+        .mockReturnValue(of([]));
 
-        expect(await firstValueFrom(setup(false).disableHideEmail$)).toBe(true);
-      });
+      expect(await firstValueFrom(service.disableHideEmail$)).toBe(false);
+    });
+
+    it("emits false when policy data is null and no legacy policy", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy(null)]));
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendOptions, userId)
+        .mockReturnValue(of([]));
+
+      expect(await firstValueFrom(service.disableHideEmail$)).toBe(false);
+    });
+
+    it("emits true when legacy SendOptions applies even if SendControls does not", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([]));
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendOptions, userId)
+        .mockReturnValue(of([makePolicy({ disableHideEmail: true })]));
+
+      expect(await firstValueFrom(service.disableHideEmail$)).toBe(true);
     });
   });
 
   describe("allowedSendTypes$", () => {
-    describe("when the SendControls flag is enabled", () => {
-      it("emits the types restricted by policy", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({ allowedSendTypes: [SendType.Text] })]));
+    it("emits the types restricted by policy", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ allowedSendTypes: [SendType.Text] })]));
 
-        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([SendType.Text]);
-      });
-
-      it("defaults to all Send types when no restrict-type policy applies", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([]));
-
-        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
-          SendType.Text,
-          SendType.File,
-        ]);
-      });
-
-      it("defaults to all Send types when the policy does not specify allowedSendTypes", async () => {
-        policyServiceMock.policiesByType$
-          .calledWith(PolicyType.SendControls, userId)
-          .mockReturnValue(of([makePolicy({})]));
-
-        expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
-          SendType.Text,
-          SendType.File,
-        ]);
-      });
+      expect(await firstValueFrom(service.allowedSendTypes$)).toEqual([SendType.Text]);
     });
 
-    describe("when the SendControls flag is disabled", () => {
-      it("emits all Send types", async () => {
-        expect(await firstValueFrom(setup(false).allowedSendTypes$)).toEqual([
-          SendType.Text,
-          SendType.File,
-        ]);
-      });
+    it("defaults to all Send types when no restrict-type policy applies", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([]));
+
+      expect(await firstValueFrom(service.allowedSendTypes$)).toEqual([
+        SendType.Text,
+        SendType.File,
+        SendType.Item,
+      ]);
+    });
+
+    it("defaults to all Send types when the policy does not specify allowedSendTypes", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({})]));
+
+      expect(await firstValueFrom(service.allowedSendTypes$)).toEqual([
+        SendType.Text,
+        SendType.File,
+        SendType.Item,
+      ]);
     });
   });
 });

@@ -14,7 +14,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /** Starter templates on the empty state; the parent maps each key to a create-form prefill. */
-export type TargetSystemTemplateKey = "manual" | "entra" | "custom-script";
+export type TargetSystemTemplateKey = "manual" | "entra" | "active-directory" | "custom-script";
 
 type TargetSystemTemplate = {
   key: TargetSystemTemplateKey;
@@ -35,6 +35,12 @@ const TEMPLATES: TargetSystemTemplate[] = [
     icon: "bwi-globe",
     titleKey: "pamTargetSystemTypeEntra",
     summaryKey: "pamTargetSystemTemplateEntraSummary",
+  },
+  {
+    key: "active-directory",
+    icon: "bwi-business",
+    titleKey: "pamTargetSystemTypeActiveDirectory",
+    summaryKey: "pamTargetSystemTemplateActiveDirectorySummary",
   },
   {
     key: "custom-script",

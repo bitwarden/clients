@@ -3,7 +3,11 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
-export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export {
+  CipherRowMenuHandlers,
+  CipherRowMenuService,
+  uniqueContributedActions,
+} from "./services/cipher-row-menu.service";
 export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export { PinnedSharedFoldersService } from "./services/pinned-shared-folders.service";
@@ -19,7 +23,6 @@ export {
 } from "./services/vault-copy-buttons.service";
 export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
-export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
 
 export * from "./cipher-view";
@@ -158,7 +161,6 @@ export {
   PENDING_FILTER_ID,
   PRIVILEGED_FILTER_ID,
   READY_FILTER_ID,
-  UNAVAILABLE_FILTER_ID,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";
@@ -173,6 +175,8 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export { CIPHER_SHARE_ACCESS, CipherShareAccess } from "./tokens/cipher-share-access.token";
+export { REVEALABLE_CIPHERS, RevealableCiphers } from "./tokens/revealable-ciphers.token";
 export {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
@@ -190,7 +194,8 @@ export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
-export { MY_ITEMS_ROUTE_DATA } from "./routing/scoped-collection";
+export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
+export { importStartedFrom, vaultCommandsAfterImport } from "./routing/import-return";
 export { routeVaultScope } from "./routing/route-vault-scope";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
@@ -204,6 +209,8 @@ export {
   matchesSharedFolder,
   matchesFolder,
   idString,
+  sharedFolderValues,
+  folderValues,
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";

@@ -28,3 +28,39 @@ export const unencryptedExportWithCipherKey = JSON.stringify({
     },
   ],
 });
+
+/** Builds an unencrypted export login item with the given HTTP authentication setting. */
+const unencryptedLoginItem = (
+  id: string,
+  httpAuthenticationEnabled?: boolean,
+): Record<string, unknown> => ({
+  passwordHistory: [],
+  revisionDate: "2026-11-06T16:55:07.333Z",
+  creationDate: "2026-11-06T16:55:07.333Z",
+  id,
+  type: 1,
+  reprompt: 0,
+  name: "login",
+  notes: null,
+  favorite: false,
+  fields: [],
+  login: {
+    uris: [{ uri: "https://example.com", match: 1 }],
+    username: "username",
+    password: "password",
+    totp: null,
+    ...(httpAuthenticationEnabled === undefined ? {} : { httpAuthenticationEnabled }),
+  },
+  collectionIds: null,
+});
+
+// Three logins: HTTP authentication on, off, and absent (as in exports from clients that predate the setting).
+export const unencryptedExportWithHTTPAuthentication = JSON.stringify({
+  encrypted: false,
+  folders: [],
+  items: [
+    unencryptedLoginItem("4f2a6d1e-7c3b-4e8a-9d5f-1a2b3c4d5e6f", true),
+    unencryptedLoginItem("5a3b7e2f-8d4c-4f9b-ae6a-2b3c4d5e6f70", false),
+    unencryptedLoginItem("6b4c8f3a-9e5d-4a0c-bf7b-3c4d5e6f7081"),
+  ],
+});

@@ -3,14 +3,12 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import {
-  InputPasswordFlow,
-  PasswordInputResult,
-  RegistrationFinishService,
-} from "@bitwarden/auth/angular";
+import { RegistrationFinishService } from "@bitwarden/angular/auth/registration";
+import { InputPasswordFlow, PasswordInputResult } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
+import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -70,16 +68,30 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when both the PAM-billing and preview-cart flags are on. */
-  private privilegedControlsAvailable = false;
+  /**
+   * True when customers can add Privileged Controls to a trial themselves: the PAM-billing support flag is on.
+   * With it off, no trial sign-up includes Privileged Controls.
+   */
+  private privilegedControlsSelfServe = false;
 
-  /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
+  /** True when the trial includes Privileged Controls: the link asked for it and self-serve is on. */
   includesPrivilegedControls = false;
 
+  /** True when the link asked for Privileged Controls but it is not included. The callout points to sales. */
+  showPrivilegedControlsSalesCallout = false;
+
   orgInfoSubLabel = "";
-  orgId = "";
-  orgLabel = "";
-  billingSubLabel = "";
+
+  /** The org created during this flow; the single source for orgId, the billing sub-label, and the billing-step input. */
+  protected organization: OrganizationCreatedEvent | undefined;
+
+  get orgId(): string {
+    return this.organization?.organizationId ?? "";
+  }
+
+  get billingSubLabel(): string {
+    return this.organization?.planDescription ?? "";
+  }
 
   /** User's email address associated with the trial */
   email = "";
@@ -100,8 +112,6 @@ export class CompleteTrialInitiationComponent {
     billingEmail: [""],
   });
 
-  protected readonly ProductType = ProductType;
-
   constructor(
     protected router: Router,
     private route: ActivatedRoute,
@@ -121,16 +131,14 @@ export class CompleteTrialInitiationComponent {
       this.applyParams(this.params);
     });
 
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-    ])
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PamBillingSupport)
       .pipe(takeUntilDestroyed())
-      .subscribe(([pamBillingSupport, previewDrivenCart]) => {
-        this.privilegedControlsAvailable = pamBillingSupport && previewDrivenCart;
-        this.includesPrivilegedControls = this.params
-          ? this.shouldIncludePrivilegedControls(this.params)
-          : false;
+      .subscribe((pamBillingSupport) => {
+        this.privilegedControlsSelfServe = pamBillingSupport;
+        if (this.params) {
+          this.applyPrivilegedControls(this.params);
+        }
       });
 
     this.orgInfoFormGroup.controls.name.valueChanges
@@ -156,14 +164,13 @@ export class CompleteTrialInitiationComponent {
     this.salesAssistedToken = params.salesAssistedToken;
     this.product = params.product;
 
-    this.includesPrivilegedControls = this.shouldIncludePrivilegedControls(params);
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
+    this.applyPrivilegedControls(params);
 
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
       this.productTier = params.productTier;
-      this.orgLabel = this.planTypeDisplay;
     }
 
     // Coming from an email for sponsoring a families organization: after logging in,
@@ -194,26 +201,61 @@ export class CompleteTrialInitiationComponent {
   }
 
   async orgNameEntrySubmit(): Promise<void> {
+    // The org may already exist (a retry after a navigation failure); just navigate to it.
+    if (this.orgId !== "") {
+      await this.navigateToExistingOrganization();
+      return;
+    }
+
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    /** Skip payment if paymentOptional from URL and trialLength > 0 */
-    if (this.paymentOptional && this.trialLength > 0) {
+    if (this.startsWithoutPayment(this.paymentOptional, this.trialLength)) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
     }
   }
 
-  /** Update local details from organization created event */
-  createdOrganization(event: OrganizationCreatedEvent) {
-    this.orgId = event.organizationId;
-    this.billingSubLabel = event.planDescription;
-    this.verticalStepper.next();
-  }
+  /** Handles the billing step's output: shows the success toast and navigates once the org is created. */
+  createdOrganization = async (event: OrganizationCreatedEvent): Promise<void> => {
+    if (this.orgId === "") {
+      this.organization = event;
+      this.trialLength > 0
+        ? this.showCompletionToast("trialStarted", "trialActive")
+        : this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    }
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+    }
+  };
 
-  /** create an organization on trial without payment method */
+  /**
+   * Create an organization on trial without a payment method.
+   */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
+    try {
+      const response = await this.purchaseTrialWithoutPayment(activeUserId);
+
+      this.organization = {
+        organizationId: response.id,
+        planDescription: response.name.toString(),
+      };
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+      return;
+    }
+
+    this.isSecretsManagerFree
+      ? this.showCompletionToast("organizationCreated", "organizationReadyToGo")
+      : this.showCompletionToast("trialStarted", "trialActive");
+    await this.navigateToExistingOrganization();
+  }
+
+  private async purchaseTrialWithoutPayment(activeUserId: UserId): Promise<OrganizationResponse> {
     const trialInitiationPath: InitiationPath = this.salesAssistedToken
       ? InitiationPath.SalesAssistedTrialFromAdminPortal
       : this.product === ProductType.SecretsManager
@@ -250,7 +292,7 @@ export class CompleteTrialInitiationComponent {
       initiationPath: trialInitiationPath,
     };
 
-    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
+    return await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod(
       {
         organization,
         plan,
@@ -258,16 +300,38 @@ export class CompleteTrialInitiationComponent {
       activeUserId,
       this.trialLength,
     );
-
-    this.orgId = response?.id;
-    this.billingSubLabel = response.name.toString();
-    this.loading = false;
-    this.verticalStepper.next();
   }
 
   /** Move the user to the previous step */
   previousStep() {
     this.verticalStepper.previous();
+  }
+
+  private async navigateToExistingOrganization(): Promise<void> {
+    this.loading = true;
+    try {
+      await this.navigateToOrganization();
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+    }
+  }
+
+  /** Navigate to the organization's vault (Secrets Manager for an SM trial). */
+  private navigateToOrganization(): Promise<boolean> {
+    const commands =
+      this.product === ProductType.SecretsManager
+        ? ["/sm", this.orgId]
+        : ["/organizations", this.orgId, "vault"];
+    return this.router.navigate(commands);
+  }
+
+  private showCompletionToast(titleKey: string, messageKey: string): void {
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t(titleKey),
+      message: this.i18nService.t(messageKey),
+    });
   }
 
   getPlanType() {
@@ -289,19 +353,6 @@ export class CompleteTrialInitiationComponent {
     return this.product === ProductType.SecretsManager && this.productTier === ProductTierType.Free;
   }
 
-  get planTypeDisplay() {
-    switch (this.productTier) {
-      case ProductTierType.Teams:
-        return "Teams";
-      case ProductTierType.Enterprise:
-        return "Enterprise";
-      case ProductTierType.Families:
-        return "Families";
-      default:
-        return "";
-    }
-  }
-
   get planInfoLabel() {
     switch (this.productTier) {
       case ProductTierType.Teams:
@@ -319,6 +370,20 @@ export class CompleteTrialInitiationComponent {
     return !this.paymentOptional && !this.isSecretsManagerFree;
   }
 
+  /**
+   * Label for the button on the organization-info step: "Next" when a billing step follows,
+   * otherwise the terminal action ("Start trial" for a no-card trial, "Submit" for the free SM org).
+   */
+  get orgInfoButtonLabel(): string {
+    if (this.isSecretsManagerFree) {
+      return "submit";
+    }
+    if (this.paymentOptional && this.trialLength > 0) {
+      return "startTrial";
+    }
+    return "next";
+  }
+
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
     if (!this.isSecretsManagerFree) {
@@ -326,27 +391,36 @@ export class CompleteTrialInitiationComponent {
       return;
     }
 
-    const response = await this.organizationBillingService.startFree(
-      {
-        organization: {
-          name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
-          billingEmail:
-            this.orgInfoFormGroup.value.billingEmail == null
-              ? ""
-              : this.orgInfoFormGroup.value.billingEmail,
-          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+    this.loading = true;
+    try {
+      const response = await this.organizationBillingService.startFree(
+        {
+          organization: {
+            name: this.orgInfoFormGroup.value.name == null ? "" : this.orgInfoFormGroup.value.name,
+            billingEmail:
+              this.orgInfoFormGroup.value.billingEmail == null
+                ? ""
+                : this.orgInfoFormGroup.value.billingEmail,
+            initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+          },
+          plan: {
+            type: 0,
+            subscribeToSecretsManager: true,
+            isFromSecretsManagerTrial: true,
+          },
         },
-        plan: {
-          type: 0,
-          subscribeToSecretsManager: true,
-          isFromSecretsManagerTrial: true,
-        },
-      },
-      activeUserId,
-    );
+        activeUserId,
+      );
 
-    this.orgId = response.id;
-    this.verticalStepper.next();
+      this.organization = { organizationId: response.id, planDescription: "" };
+    } catch (e: unknown) {
+      this.validationService.showError(e);
+      this.loading = false;
+      return;
+    }
+
+    this.showCompletionToast("organizationCreated", "organizationReadyToGo");
+    await this.navigateToExistingOrganization();
   }
 
   /**
@@ -422,13 +496,22 @@ export class CompleteTrialInitiationComponent {
       });
   }
 
-  private shouldIncludePrivilegedControls(params: TrialInitiationParams): boolean {
-    return (
-      this.privilegedControlsAvailable &&
+  /**
+   * Whether the organization is created without a payment method: the link allows it and there is a trial
+   * period. Step visibility is decided separately by showBillingStep.
+   */
+  private startsWithoutPayment(paymentOptional: boolean, trialLength: number): boolean {
+    return paymentOptional && trialLength > 0;
+  }
+
+  private applyPrivilegedControls(params: TrialInitiationParams): void {
+    const requested =
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
-      params.privilegedControlsRequested
-    );
+      params.privilegedControlsRequested;
+
+    this.includesPrivilegedControls = requested && this.privilegedControlsSelfServe;
+    this.showPrivilegedControlsSalesCallout = requested && !this.includesPrivilegedControls;
   }
 
   get trial(): Trial {

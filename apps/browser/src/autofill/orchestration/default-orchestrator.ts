@@ -20,7 +20,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { withLatestReady } from "@bitwarden/common/tools/rx";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -36,6 +35,7 @@ import {
   AutofillService,
   PageDetail,
 } from "../services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 
 import { AutofillOrchestrator } from "./abstractions";
@@ -150,12 +150,12 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   constructor(
     private lifecycleService: AutofillLifecycleService,
     private autofillService: AutofillService,
-    private cipherService: CipherService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private updateOverlayCiphers: () => Promise<void>,
     private logService: LogService,
+    private fillCipherPolicy: FillCipherPolicy,
     /** Injected wall-clock source (epoch ms), overridable so time-dependent selection is testable. */
     private now: () => number = () => Date.now(),
   ) {}
@@ -500,10 +500,10 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     reason: FillReason,
   ): Promise<CipherView | undefined> {
     if (reason === FillReason.userCommand) {
-      return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
+      return this.fillCipherPolicy.nextCipherForUrl(tabUrl, activeUserId);
     }
     const isAutomatic = reason === FillReason.automatic;
-    const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+    const lastLaunchedCipher = await this.fillCipherPolicy.lastLaunchedForUrl(
       tabUrl,
       activeUserId,
       isAutomatic,
@@ -516,8 +516,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    const cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, isAutomatic);
-    return cipher ?? undefined;
+    return this.fillCipherPolicy.lastUsedForUrl(tabUrl, activeUserId, isAutomatic);
   }
 
   /** Selects the next card or identity cipher and the cache key its rotation index advances under. */
@@ -528,8 +527,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     const cacheKey = cipherType === CipherType.Card ? "cardCiphers" : "identityCiphers";
     const cipher =
       cipherType === CipherType.Card
-        ? await this.cipherService.getNextCardCipher(activeUserId)
-        : await this.cipherService.getNextIdentityCipher(activeUserId);
+        ? await this.fillCipherPolicy.nextCardCipher(activeUserId)
+        : await this.fillCipherPolicy.nextIdentityCipher(activeUserId);
     return cipher ? { cipher, cacheKey } : undefined;
   }
 
@@ -609,11 +608,11 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
 
   /**
    * Advances the rotation cursor for a URL (or card/identity cache key) so the *next* fill for it
-   * offers the next matching cipher. `updateLastUsedIndexForUrl` is that cursor — a way to cycle
+   * offers the next matching cipher. `advanceRotation` is that cursor — a way to cycle
    * through the ciphers that fit a page across repeated fills — not a record that a cipher was used.
    */
   private cycleFillableCipher(key: string): void {
-    this.cipherService.updateLastUsedIndexForUrl(key);
+    this.fillCipherPolicy.advanceRotation(key);
   }
 
   private activeUserId(): Promise<UserId | null> {

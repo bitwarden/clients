@@ -2,25 +2,20 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import type { AccessRequestView } from "@bitwarden/bit-pam";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DAY, HOUR, MINUTE, fromNow, startClockAtStoryNow, STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessRequestView } from "../../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../../approvals/approval-row";
 import {
-  DAY,
-  HOUR,
-  MINUTE,
   accessRequest,
   decision,
-  fromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
-  startClockAtStoryNow,
-  STORY_NOW,
   storyNames,
 } from "../../testing/story-fixtures";
 

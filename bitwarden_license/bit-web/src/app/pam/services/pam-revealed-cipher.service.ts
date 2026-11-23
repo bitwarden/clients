@@ -6,6 +6,7 @@ import {
   defer,
   distinctUntilChanged,
   EMPTY,
+  filter,
   firstValueFrom,
   from,
   ignoreElements,
@@ -18,19 +19,26 @@ import {
   tap,
 } from "rxjs";
 
+import {
+  AccessRefreshService,
+  AccessRequestSdkService,
+  liveActiveLease,
+  rereadOnLapse,
+  AccessLeaseSdkService,
+} from "@bitwarden/bit-pam";
+import type { CipherAccessStateView } from "@bitwarden/bit-pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NotificationType } from "@bitwarden/common/enums";
+import { SyncCipherNotification } from "@bitwarden/common/models/response/notification.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
-
-import { AccessRefreshService, AccessRequestSdkService, liveActiveLease, rereadOnLapse } from "..";
-import type { CipherAccessStateView } from "../abstractions/access-lease";
-import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 /** A revealed view and the end of the lease it was revealed under, in ms. */
 type Entry = { view: CipherView; endsAt: number };
@@ -45,6 +53,11 @@ export class PamRevealedCipherService implements RevealedCipherService {
     ReadonlyMap<UserId, ReadonlyMap<CipherId, Entry>>
   >(new Map());
 
+  private readonly holding$ = this.entries$.pipe(
+    map((all) => [...all.values()].some((entries) => entries.size > 0)),
+    distinctUntilChanged(),
+  );
+
   /** Bumped on every clear, so a reveal that resolves after a lock is not stored. */
   private readonly generations = new Map<UserId, number>();
 
@@ -58,10 +71,11 @@ export class PamRevealedCipherService implements RevealedCipherService {
     private readonly accessLeaseSdkService: AccessLeaseSdkService,
     private readonly accountService: AccountService,
     authService: AuthService,
+    serverNotificationsService: ServerNotificationsService,
     private readonly ngZone: NgZone,
     private readonly logService: LogService,
   ) {
-    // A root singleton, so neither subscription ends. Users missing from the record are logged out.
+    // A root singleton, so no subscription ends. Users missing from the record are logged out.
     authService.authStatuses$.subscribe((statuses) => {
       this.statuses = statuses;
       // Includes users with no views yet, so a reveal still in flight across a lock is not stored.
@@ -79,13 +93,27 @@ export class PamRevealedCipherService implements RevealedCipherService {
 
     // Nothing announces a lease running out, so the shared clock drops lapsed views, but only
     // while there are any.
-    this.entries$
-      .pipe(
-        map((all) => [...all.values()].some((entries) => entries.size > 0)),
-        distinctUntilChanged(),
-        switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)),
-      )
+    this.holding$
+      .pipe(switchMap((holding) => (holding ? this.ticker.ticks$ : EMPTY)))
       .subscribe((nowMs) => this.dropLapsed(nowMs));
+
+    // Core sync keeps the stored restricted copy on an edit push, so a held view is read again here.
+    this.holding$
+      .pipe(
+        switchMap((holding) => (holding ? serverNotificationsService.notifications$ : EMPTY)),
+        filter(([notification]) => notification.type === NotificationType.SyncCipherUpdate),
+        map(([notification, userId]) => ({
+          userId,
+          cipherId: (notification.payload as SyncCipherNotification).id as CipherId,
+        })),
+        filter(({ userId, cipherId }) => this.entries$.value.get(userId)?.has(cipherId) ?? false),
+        concatMap(({ userId, cipherId }) =>
+          this.ngZone
+            .run(() => this.refresh(userId, cipherId))
+            .catch((error: unknown) => this.logService.error(error)),
+        ),
+      )
+      .subscribe();
   }
 
   revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {

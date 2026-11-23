@@ -94,6 +94,7 @@ import {
   SideNavService,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
+import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -135,6 +136,7 @@ import {
   FilterFunction,
   folderNameForScope,
   hasMultipleVaults,
+  importStartedFrom,
   MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
@@ -537,6 +539,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
   );
   protected ciphers: C[] = [];
+  /** Every allowed item, unfiltered by the page, for the card grid's item counts. */
+  protected allCiphers: CipherViewLike[] = [];
   protected isEmpty: boolean;
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
     map((queryParams) => queryParams.search),
@@ -841,12 +845,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             collections$,
             this.vfo1Foundation$,
             this.vaultScope$,
+            allowedCiphers$,
           ]),
         ),
         takeUntil(this.destroy$),
       )
       .subscribe(
-        ([allCollections, allOrganizations, ciphers, collections, vfo1Foundation, scope]) => {
+        ([
+          allCollections,
+          allOrganizations,
+          ciphers,
+          collections,
+          vfo1Foundation,
+          scope,
+          allowedCiphers,
+        ]) => {
           this.allCollections = allCollections;
           this.allOrganizations = allOrganizations;
           this.scopedCollections = vfo1Foundation
@@ -859,6 +872,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
           this.ciphers = ciphers;
+          this.allCiphers = allowedCiphers;
           this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           const initialLoad = this.performingInitialLoad;
@@ -1029,9 +1043,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       cipher.id as CipherId,
       cipher.type,
     );
-    if (await this.openDialog("form", formConfig)) {
-      this.cipher.set(cipher);
-    }
+    await this.openDialog("form", formConfig);
   }
 
   async shareCipher(cipher: CipherView) {
@@ -1224,20 +1236,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   protected async openImport(): Promise<void> {
-    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
-      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
-      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
-      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
-      await this.router.navigate(["/import"]);
-      return;
-    }
-
     let defaultOrganizationId;
     let defaultCollectionId;
+    let startedFrom;
 
     const vfo1Enabled = this.vfo1Foundation();
     const scope = this.vaultScope();
     if (vfo1Enabled) {
+      startedFrom = importStartedFrom(scope, this.vaultNav());
       defaultOrganizationId =
         scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
       defaultCollectionId =
@@ -1246,6 +1252,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         isGuid(scope.collectionId)
           ? scope.collectionId
           : undefined;
+    }
+
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      const queryParams = importQueryParamsForVault(
+        defaultOrganizationId,
+        defaultCollectionId,
+        startedFrom,
+      );
+      await (queryParams == null
+        ? this.router.navigate(["/import"])
+        : this.router.navigate(["/import"], { queryParams }));
+      return;
     }
 
     this.dialogService.open(ImportDesktopComponent, {
@@ -1290,6 +1308,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       mode,
       formConfig,
       restore: this.restore,
+      cipherSaved: (cipher) => this.cipher.set(cipher),
     });
     this.activeDrawerRef = drawerRef;
     drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {

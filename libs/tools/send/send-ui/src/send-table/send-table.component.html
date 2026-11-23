@@ -20,6 +20,9 @@
               @if (s.type == sendType.Text) {
                 <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
               }
+              @if (s.type == sendType.Item && itemIcon(s); as icon) {
+                <bit-icon [name]="icon" class="bwi-lg tw-text-muted" />
+              }
             </span>
             <button type="button" bitLink>
               {{ s.name }}
@@ -98,10 +101,12 @@
               <bit-icon name="bwi-clone" fixedWidth />
               {{ "copySendLink" | i18n }}
             </button>
-            @if (s.password && !disableSend()) {
-              <button type="button" bitMenuItem (click)="onRemovePassword(s)">
+            @if (
+              s.authType !== authType.None && !s.disabled && !disableSend() && !sendAuthRequired()
+            ) {
+              <button type="button" bitMenuItem (click)="onRemoveAuth(s)">
                 <bit-icon name="bwi-close" fixedWidth />
-                {{ "removePassword" | i18n }}
+                {{ removeSendAuthI18nKeys(s.authType).label | i18n }}
               </button>
             }
             <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">

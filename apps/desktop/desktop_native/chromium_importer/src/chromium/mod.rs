@@ -10,6 +10,7 @@ use dirs;
 use hex::decode;
 use itertools::Itertools;
 use rusqlite::{params, Connection};
+use tracing::warn;
 
 mod platform;
 
@@ -231,6 +232,13 @@ pub(crate) trait CryptoService: Send {
     async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
 }
 
+/// Everything up to the final decryption worked, but the value does not decrypt with the browser's
+/// current key. The browser leaves such values behind when it replaces a key it can no longer read
+/// (e.g. after a Windows password reset) and hides them from its own password manager.
+#[derive(Debug, thiserror::Error)]
+#[error("Decryption failed: {0}")]
+pub(crate) struct WrongKeyError(pub(crate) String);
+
 #[derive(serde::Deserialize, Clone)]
 pub(crate) struct LocalState {
     profile: AllProfiles,
@@ -414,17 +422,29 @@ async fn decrypt_logins(
     crypto_service: &mut Box<dyn CryptoService>,
 ) -> Vec<LoginImportResult> {
     let mut results = Vec::with_capacity(encrypted_logins.len());
+    let mut skipped = 0;
     for encrypted_login in encrypted_logins {
-        let result = decrypt_login(encrypted_login, crypto_service).await;
-        results.push(result);
+        match decrypt_login(encrypted_login, crypto_service).await {
+            Some(result) => results.push(result),
+            None => skipped += 1,
+        }
     }
+
+    if skipped > 0 {
+        warn!(
+            "Skipped {} logins that do not decrypt with the browser's current key",
+            skipped
+        );
+    }
+
     results
 }
 
+/// Returns `None` for a login whose password fails with `WrongKeyError`.
 async fn decrypt_login(
     encrypted_login: EncryptedLogin,
     crypto_service: &mut Box<dyn CryptoService>,
-) -> LoginImportResult {
+) -> Option<LoginImportResult> {
     let maybe_password = crypto_service
         .decrypt_to_string(&encrypted_login.encrypted_password)
         .await;
@@ -435,18 +455,19 @@ async fn decrypt_login(
                 .await
                 .unwrap_or_default();
 
-            LoginImportResult::Success(Login {
+            Some(LoginImportResult::Success(Login {
                 url: encrypted_login.url,
                 username: encrypted_login.username,
                 password,
                 note,
-            })
+            }))
         }
-        Err(e) => LoginImportResult::Failure(LoginImportFailure {
+        Err(e) if e.is::<WrongKeyError>() => None,
+        Err(e) => Some(LoginImportResult::Failure(LoginImportFailure {
             url: encrypted_login.url,
             username: encrypted_login.username,
             error: e.to_string(),
-        }),
+        })),
     }
 }
 
@@ -600,5 +621,63 @@ mod tests {
                 "expected rejection for {profile_id:?}"
             );
         }
+    }
+
+    /// Decrypts "<version>ok:<password>"; "<version>stale" fails with the wrong key and anything
+    /// else fails with another error.
+    struct FakeCryptoService;
+
+    #[async_trait]
+    impl CryptoService for FakeCryptoService {
+        async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
+            let text = std::str::from_utf8(encrypted)?;
+            let (_, rest) = text.split_at(3.min(text.len()));
+            if let Some(password) = rest.strip_prefix("ok:") {
+                Ok(password.to_string())
+            } else if rest == "stale" {
+                Err(WrongKeyError("aead::Error".to_string()).into())
+            } else {
+                Err(anyhow!("Unsupported version"))
+            }
+        }
+    }
+
+    async fn import(passwords: &[&str]) -> (Vec<String>, Vec<String>) {
+        let logins = passwords
+            .iter()
+            .map(|p| EncryptedLogin {
+                url: "https://example.com".to_string(),
+                username: "user".to_string(),
+                encrypted_password: p.as_bytes().to_vec(),
+                encrypted_note: Vec::new(),
+            })
+            .collect();
+        let mut crypto_service: Box<dyn CryptoService> = Box::new(FakeCryptoService);
+
+        let mut imported = Vec::new();
+        let mut failed = Vec::new();
+        for result in decrypt_logins(logins, &mut crypto_service).await {
+            match result {
+                LoginImportResult::Success(l) => imported.push(l.password),
+                LoginImportResult::Failure(f) => failed.push(f.error),
+            }
+        }
+        (imported, failed)
+    }
+
+    #[tokio::test]
+    async fn skips_logins_that_fail_with_the_wrong_key() {
+        let (imported, failed) = import(&["v20stale", "v20ok:secret", "v20stale"]).await;
+
+        assert_eq!(imported, vec!["secret"]);
+        assert!(failed.is_empty());
+    }
+
+    #[tokio::test]
+    async fn keeps_other_failures() {
+        let (imported, failed) = import(&["v20ok:secret", "v30data", "v20stale"]).await;
+
+        assert_eq!(imported, vec!["secret"]);
+        assert_eq!(failed, vec!["Unsupported version"]);
     }
 }

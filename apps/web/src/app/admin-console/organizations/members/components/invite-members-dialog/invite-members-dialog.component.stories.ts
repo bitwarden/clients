@@ -75,7 +75,7 @@ const mockLogService = {
 };
 
 const mockServerSettingsService = {
-  isEmailVerificationDisabled$: of(false),
+  isOpenInviteLinkEmailVerificationDisabled$: of(false),
 };
 
 const mockDialogRef = {

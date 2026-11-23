@@ -3,8 +3,9 @@
   [tableDef]="table"
   [displayedColumns]="visibleColumns()"
   stateKey="vaultItems"
-  [filter]="filter"
+  [filter]="filter()"
   [filters]="initialFilterValues()"
+  [optionValues]="optionValues"
   [loading]="loading()"
   [selection]="selection"
   [trackBy]="trackByCipherId"
@@ -14,7 +15,11 @@
   (selectedChange)="selectedChange.emit($event)"
 >
   <bit-table-toolbar>
-    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+    <bit-search
+      class="tw-flex-1"
+      [placeholder]="'search' | i18n"
+      [useKeyShortcuts]="true"
+    ></bit-search>
 
     <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->
     <ng-content select="[slot=toolbar]" slot="end"></ng-content>
@@ -146,8 +151,7 @@
         @if (itemAction()) {
           <button
             type="button"
-            bitLink
-            class="tw-truncate tw-text-start"
+            vaultTableRowName
             [title]="'editItemWithName' | i18n: row.name"
             (click)="itemAction()!(row)"
           >
