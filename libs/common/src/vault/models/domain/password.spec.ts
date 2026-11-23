@@ -32,7 +32,7 @@ describe("Password", () => {
     const password = new Password(data);
 
     expect(password).toEqual({
-      password: { encryptedString: "encPassword", encryptionType: 0 },
+      password: { encryptedString: "encPassword" },
       lastUsedDate: new Date("2022-01-31T12:00:00.000Z"),
     });
   });

@@ -29,8 +29,6 @@ describe("RiskInsightsApiService", () => {
   const mockReportId = "report-1";
   const mockKey = "encryption-key-1";
 
-  const mockReportKey = makeEncString("test-key");
-
   const mockReportEnc = makeEncString(JSON.stringify(mockReportData));
   const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
   const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
@@ -53,10 +51,10 @@ describe("RiskInsightsApiService", () => {
     data: {
       organizationId: orgId,
       creationDate: new Date().toISOString(),
-      reportData: mockReportEnc.decryptedValue ?? "",
-      summaryData: mockReportEnc.decryptedValue ?? "",
-      applicationData: mockReportEnc.decryptedValue ?? "",
-      contentEncryptionKey: mockReportKey.decryptedValue ?? "",
+      reportData: "",
+      summaryData: "",
+      applicationData: "",
+      contentEncryptionKey: "",
       metrics: mockMetrics.toRiskInsightsMetricsData(),
     },
   };

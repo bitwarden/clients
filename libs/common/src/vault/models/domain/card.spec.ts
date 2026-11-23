@@ -44,12 +44,12 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: { encryptedString: "encHolder", encryptionType: 0 },
-      brand: { encryptedString: "encBrand", encryptionType: 0 },
-      number: { encryptedString: "encNumber", encryptionType: 0 },
-      expMonth: { encryptedString: "encMonth", encryptionType: 0 },
-      expYear: { encryptedString: "encYear", encryptionType: 0 },
-      code: { encryptedString: "encCode", encryptionType: 0 },
+      cardholderName: { encryptedString: "encHolder" },
+      brand: { encryptedString: "encBrand" },
+      number: { encryptedString: "encNumber" },
+      expMonth: { encryptedString: "encMonth" },
+      expYear: { encryptedString: "encYear" },
+      code: { encryptedString: "encCode" },
     });
   });
 

@@ -47,8 +47,8 @@ describe("Attachment", () => {
       id: "id",
       url: "url",
       sizeName: "1.1 KB",
-      fileName: { encryptedString: "fileName", encryptionType: 0 },
-      key: { encryptedString: "key", encryptionType: 0 },
+      fileName: { encryptedString: "fileName" },
+      key: { encryptedString: "key" },
     });
   });
 

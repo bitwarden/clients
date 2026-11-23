@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import {
@@ -14,16 +13,6 @@ export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
 export class EncString {
   encryptedString?: SdkEncString;
-  /** @deprecated */
-  encryptionType?: EncryptionType;
-  /** @deprecated */
-  decryptedValue?: string;
-  /** @deprecated */
-  data?: string;
-  /** @deprecated */
-  iv?: string;
-  /** @deprecated */
-  mac?: string;
 
   constructor(
     encryptedStringOrType: string | EncryptionType,
@@ -39,21 +28,6 @@ export class EncString {
     } else {
       this.initFromEncryptedString(encryptedStringOrType as string);
     }
-  }
-
-  /** @deprecated */
-  get ivBytes(): Uint8Array {
-    return this.iv == null ? null : Utils.fromB64ToArray(this.iv);
-  }
-
-  /** @deprecated */
-  get macBytes(): Uint8Array {
-    return this.mac == null ? null : Utils.fromB64ToArray(this.mac);
-  }
-
-  /** @deprecated */
-  get dataBytes(): Uint8Array {
-    return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
 
   toSdk(): SdkEncString {
@@ -84,49 +58,10 @@ export class EncString {
     if (mac != null) {
       this.encryptedString = (this.encryptedString + "|" + mac) as SdkEncString;
     }
-
-    this.encryptionType = encType;
-    this.data = data;
-    this.iv = iv;
-    this.mac = mac;
   }
 
   private initFromEncryptedString(encryptedString: string) {
     this.encryptedString = encryptedString as SdkEncString;
-    if (!this.encryptedString) {
-      return;
-    }
-
-    const { encType, encPieces } = EncString.parseEncryptedString(this.encryptedString);
-
-    this.encryptionType = encType;
-
-    if (encPieces.length !== EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType]) {
-      return;
-    }
-
-    switch (encType) {
-      case EncryptionType.AesCbc256_HmacSha256_B64:
-        this.iv = encPieces[0];
-        this.data = encPieces[1];
-        this.mac = encPieces[2];
-        break;
-      case EncryptionType.AesCbc256_B64:
-        this.iv = encPieces[0];
-        this.data = encPieces[1];
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-        this.data = encPieces[0];
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
-        this.data = encPieces[0];
-        this.mac = encPieces[1];
-        break;
-      default:
-        return;
-    }
   }
 
   private static parseEncryptedString(encryptedString: string): {
