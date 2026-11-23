@@ -91,6 +91,7 @@ export enum FeatureFlag {
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
+  PM47525_DesktopJsonFileStorage = "pm-47525-desktop-json-file-storage",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -195,6 +196,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
+  [FeatureFlag.PM47525_DesktopJsonFileStorage]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,

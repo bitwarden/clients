@@ -73,6 +73,8 @@ import { MainSdkService } from "./platform/main/main-sdk.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
+import { JsonFileBackend } from "./platform/main/storage/json-file-backend";
+import { StorageBackend } from "./platform/main/storage/storage-backend";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -153,31 +155,37 @@ export class Main {
       });
     }
 
+    // Always read through JsonFileBackend, so a corrupt file is moved aside before electron-store
+    // parses it. The flag only picks which backend writes.
+    const jsonFileBackend = new JsonFileBackend(app.getPath("userData"));
+    const jsonFileStorageEnabled = cachedFlagEnabled(
+      jsonFileBackend,
+      FeatureFlag.PM47525_DesktopJsonFileStorage,
+    );
     // logService is created below, but flushes only run from timers after construction.
     const storageBackend = new CachedBackend(
-      new ElectronStoreBackend(app.getPath("userData")),
+      jsonFileStorageEnabled ? jsonFileBackend : new ElectronStoreBackend(app.getPath("userData")),
       (error) => this.logService.error("Failed to write the storage file, will retry", error),
     );
 
-    // Main has no ConfigService, so it reads the cached server configs straight from the store.
-    let flightRecorderEnabled = false;
-    try {
-      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
-        string,
-        { featureStates?: Record<string, unknown> }
-      >;
-      flightRecorderEnabled = Object.values(configs).some(
-        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
-      );
-    } catch {
-      // Ignore errors
-    }
+    const flightRecorderEnabled = cachedFlagEnabled(
+      storageBackend,
+      FeatureFlag.PM30935_FlightRecorderTsLogging,
+    );
     const flightRecorder = new FlightRecorderLogRecorder(
       SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
     flightRecorder.setEnabled(flightRecorderEnabled);
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
+    this.logService.info(`JSON file storage enabled: ${jsonFileStorageEnabled}`);
+    const corruptFileSize = jsonFileBackend.corruptFileSize;
+    if (corruptFileSize != null) {
+      // The parse error isn't logged, its message can include file contents.
+      this.logService.error(
+        `Storage file was not valid JSON (${corruptFileSize} bytes), moved it to data.json.corrupt and started empty`,
+      );
+    }
 
     this.storageService = new ElectronStorageService(storageBackend);
     this.memoryStorageService = new MemoryStorageService();
@@ -531,5 +539,21 @@ export class Main {
         app.disableHardwareAcceleration();
       }
     }
+  }
+}
+
+/**
+ * Whether any cached server config enables `flag`. Main has no ConfigService, so it reads the
+ * configs the renderer stored.
+ */
+function cachedFlagEnabled(storageBackend: StorageBackend, flag: FeatureFlag): boolean {
+  try {
+    const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+      string,
+      { featureStates?: Record<string, unknown> }
+    >;
+    return Object.values(configs).some((config) => config?.featureStates?.[flag] === true);
+  } catch {
+    return false;
   }
 }
