@@ -65,8 +65,6 @@ export class MessagingMain {
         this.main.trayMain.hideToTray();
         break;
       case "locked":
-        // The renderer performed a lock; clear main's copy of the user key so the session owner
-        // is locked too.
         if (message.userId != null) {
           await this.main.serviceContainer.stateEventRunnerService.handleEvent(
             "lock",

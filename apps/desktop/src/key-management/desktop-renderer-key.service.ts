@@ -1,6 +1,7 @@
 import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, Observable } from "rxjs";
 
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -58,11 +59,14 @@ export class DesktopRendererKeyService extends DefaultKeyService {
 
     this.messageListener
       .messages$(UNLOCK_COMPLETED)
-      .subscribe(({ userId, userKeyB64 }) =>
-        this.setKey(userId, SymmetricCryptoKey.fromString(userKeyB64) as UserKey),
+      .subscribe(
+        ({ userId, userKeyB64 }) =>
+          void this.setKey(userId, SymmetricCryptoKey.fromString(userKeyB64) as UserKey),
       );
-    this.messageListener.messages$(LOCKED).subscribe(({ userId }) => this.clearKey(userId));
-    this.messageListener.messages$(LOGGED_OUT).subscribe(({ userId }) => this.clearKey(userId));
+    this.messageListener.messages$(LOCKED).subscribe(({ userId }) => void this.clearKey(userId));
+    this.messageListener
+      .messages$(LOGGED_OUT)
+      .subscribe(({ userId }) => void this.clearKey(userId));
 
     void this.loadInitialUserKeys();
   }
@@ -88,16 +92,29 @@ export class DesktopRendererKeyService extends DefaultKeyService {
 
     const keys: Record<UserId, UserKey> = {};
     for (const [userId, seed] of Object.entries(unlocked)) {
-      keys[userId as UserId] = SymmetricCryptoKey.fromString(seed.userKeyB64) as UserKey;
+      const key = SymmetricCryptoKey.fromString(seed.userKeyB64) as UserKey;
+      keys[userId as UserId] = key;
+      await this.writeSdkUserKey(userId as UserId, key);
     }
     this.userKeys$.next(keys);
   }
 
-  private setKey(userId: UserId, key: UserKey): void {
+  private async setKey(userId: UserId, key: UserKey): Promise<void> {
     this.userKeys$.next({ ...this.userKeys$.value, [userId]: key });
+    await this.writeSdkUserKey(userId, key);
   }
 
-  private clearKey(userId: UserId): void {
+  private async clearKey(userId: UserId): Promise<void> {
     this.userKeys$.next({ ...this.userKeys$.value, [userId]: null });
+    await this.writeSdkUserKey(userId, null);
+  }
+
+  /**
+   * Keeps the SDK's own view of the user key (read through the default {@link JsWasmStateBridge},
+   * via {@link USER_KEY}) in sync with main's, instead of overriding the bridge to fetch it over
+   * IPC on every SDK read.
+   */
+  private async writeSdkUserKey(userId: UserId, key: UserKey | null): Promise<void> {
+    await this.stateProvider.setUserState(USER_KEY, key, userId);
   }
 }

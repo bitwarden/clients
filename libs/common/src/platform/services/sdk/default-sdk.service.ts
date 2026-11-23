@@ -119,7 +119,7 @@ export class DefaultSdkService implements SdkService {
     private accountCryptographyStateServiceProvider: () => AccountCryptographicStateService,
     private apiServiceProvider: () => ApiService,
     protected stateProvider: StateProvider,
-    private configServiceProvider: () => ConfigService,
+    protected configServiceProvider: () => ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
@@ -299,11 +299,18 @@ export class DefaultSdkService implements SdkService {
     return new JsWasmStateBridge(this.stateProvider, userId);
   }
 
+  /**
+   * Extension point for a platform running more than one client for the same user at once, e.g.
+   * desktop's main and renderer. Does nothing by default.
+   */
+  protected async onClientCreated(userId: UserId, client: PasswordManagerClient): Promise<void> {}
+
   private async initializeClient(userId: UserId, client: PasswordManagerClient) {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
     client.km_state_bridge().register_bridge_impl(this.createStateBridge(userId));
     await this.loadFeatureFlags(client);
+    await this.onClientCreated(userId, client);
   }
 
   private async initializeClientCrypto(
