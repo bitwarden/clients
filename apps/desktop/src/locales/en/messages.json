@@ -2005,17 +2005,8 @@
   "syncNow": {
     "message": "Sync now"
   },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
   "changeMasterPassword": {
     "message": "Change master password"
-  },
-  "continueToWebApp": {
-    "message": "Continue to web app?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
@@ -6323,9 +6314,6 @@
    "vulnerablePassword": {
     "message": "Vulnerable password."
   },
-  "changeNow": {
-    "message": "Change now"
-  },
   "missingPermissions": {
     "message": "You lack the necessary permissions to perform this action."
   },
@@ -6466,6 +6454,9 @@
   },
   "itemLower":{
     "message": "item"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower":{
     "message": "items"
@@ -7824,7 +7815,46 @@
       }
     }
   },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
+  },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

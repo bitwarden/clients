@@ -954,6 +954,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1 0.11.0",
+ "thiserror 2.0.17",
  "tokio",
  "tracing",
  "verifysign",

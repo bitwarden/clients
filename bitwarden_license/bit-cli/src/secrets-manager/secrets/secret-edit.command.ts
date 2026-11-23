@@ -6,7 +6,9 @@ import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import { ServiceContainer } from "../../service-container";
 import { SmSecretResponse } from "../models/sm-secret.response";
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   parseSmId,
   parseSmRequest,
   SmOrganization,
@@ -43,6 +45,10 @@ export class SecretEditCommand {
     if (orgMismatch) {
       return orgMismatch;
     }
+    const unknown = checkSmUnknownProperties(parsed.request, "secret");
+    if (unknown) {
+      return unknown;
+    }
     const fields = readSmSecretRequest(parsed.request);
     if (fields.error) {
       return fields.error;
@@ -55,6 +61,14 @@ export class SecretEditCommand {
       }
       if (!existing.write) {
         return Response.noEditPermission();
+      }
+      const readOnly = checkSmReadOnlyProperties(
+        parsed.request,
+        "secret",
+        new SmSecretResponse(existing),
+      );
+      if (readOnly) {
+        return readOnly;
       }
       const undecryptable = (["key", "value", "note"] as const).filter(
         (property) =>

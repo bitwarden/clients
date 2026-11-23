@@ -130,6 +130,10 @@ export class SendComponent implements OnDestroy {
     { initialValue: false },
   );
 
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
   protected readonly listState = toSignal(
@@ -188,6 +192,9 @@ export class SendComponent implements OnDestroy {
         }
         if (st === SendType.File) {
           return { filter: SendFilterType.File, translationKey: "sendTypeFile" };
+        }
+        if (st === SendType.Item) {
+          return { filter: SendFilterType.Item, translationKey: "item" };
         }
         return [];
       }),
@@ -248,6 +255,10 @@ export class SendComponent implements OnDestroy {
         if (typeParam === SendFilterType.File && hasPremium) {
           toggleValue = SendFilterType.File;
           sendType = SendType.File;
+        }
+        if (typeParam === SendFilterType.Item && hasPremium) {
+          toggleValue = SendFilterType.Item;
+          sendType = SendType.Item;
         }
         this.selectedToggleValue = toggleValue;
         this.sendItemsFiltersService.filterForm.patchValue({ sendType });
@@ -374,7 +385,7 @@ export class SendComponent implements OnDestroy {
   }
 
   protected async onRemoveAuth(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+    if (this.disableSend() || this.sendAuthRequired() || send.disabled) {
       return;
     }
 

@@ -52,6 +52,12 @@ interface UriField {
   matchDetection: UriMatchStrategySetting;
 }
 
+/**
+ * The match strategy desktop app URIs are saved with. A website's URL is never a desktop app URI,
+ * so Exact has no applied meaning.
+ */
+const DESKTOP_APP_URI_MATCH_STRATEGY: UriMatchStrategySetting = UriMatchStrategy.Exact;
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -205,7 +211,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autotypeGaEnabled$
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.saveDesktopAppUrisWithNeverMatch());
+      .subscribe(() => this.saveDesktopAppUriMatchDetection());
 
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
@@ -213,14 +219,13 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   /**
-   * Adds a new desktop app URI requested by the user. Desktop app URIs are never matched against
-   * websites, so they use the Never match strategy, which keeps them out of website autofill.
+   * Adds a new desktop app URI requested by the user, with {@link DESKTOP_APP_URI_MATCH_STRATEGY}.
    */
   addDesktopAppUriFromUser() {
     this.addUri(
       {
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: UriMatchStrategy.Never,
+        matchDetection: DESKTOP_APP_URI_MATCH_STRATEGY,
       },
       true,
       true,
@@ -343,20 +348,20 @@ export class AutofillOptionsComponent implements OnInit {
 
   /**
    * Returns the match strategy a URI is saved with. While desktop apps are recognized, desktop app
-   * URIs are saved with the Never match strategy, including ones typed into a website row, because
-   * they load as desktop apps.
+   * URIs are saved with {@link DESKTOP_APP_URI_MATCH_STRATEGY}, including ones typed into a
+   * website row, because they load as desktop apps.
    */
   private savedMatchDetection(uri: UriField): UriMatchStrategySetting {
     return this.recognizeDesktopApps() && uri?.uri?.startsWith(DESKTOP_APP_URI_PREFIX)
-      ? UriMatchStrategy.Never
+      ? DESKTOP_APP_URI_MATCH_STRATEGY
       : uri?.matchDetection;
   }
 
   /**
-   * Saves the desktop app URIs already on the cipher with the Never match strategy, even when the
-   * user doesn't change the URIs.
+   * Saves the desktop app URIs already on the cipher with the match strategy from
+   * {@link savedMatchDetection}, even when the user doesn't change the URIs.
    */
-  private saveDesktopAppUrisWithNeverMatch() {
+  private saveDesktopAppUriMatchDetection() {
     const matchChanged = this.uriControls.some(
       (control) =>
         (this.savedMatchDetection(control.value) ?? null) !==

@@ -73,6 +73,14 @@ export class SendPolicyService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
+  /**
+   * Emits `true` when a Send Controls policy requires Sends to be protected by a password or
+   * email verification, so the user can't remove a Send's authentication.
+   */
+  readonly sendAuthRequired$: Observable<boolean> = this.whoCanAccess$.pipe(
+    map((whoCanAccess) => whoCanAccess != null && whoCanAccess !== WhoCanAccessType.Any),
+  );
+
   readonly allowedDomains$: Observable<string[] | null> = this.activeUserId$.pipe(
     switchMap((userId) =>
       this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
@@ -121,7 +129,9 @@ export class SendPolicyService {
             (p) => p.data.allowedSendTypes ?? [],
           );
           const restrictedTypes = [...new Set(allowedSendTypes)];
-          return restrictedTypes.length === 0 ? [SendType.Text, SendType.File] : restrictedTypes;
+          return restrictedTypes.length === 0
+            ? [SendType.Text, SendType.File, SendType.Item]
+            : restrictedTypes;
         }),
       ),
     ),

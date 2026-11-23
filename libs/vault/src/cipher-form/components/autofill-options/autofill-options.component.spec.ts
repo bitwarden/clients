@@ -304,14 +304,14 @@ describe("AutofillOptionsComponent", () => {
   });
 
   describe("addDesktopAppUriFromUser", () => {
-    it("adds a desktop app URI with the Never match strategy", () => {
+    it("adds a desktop app URI with the Exact match strategy", () => {
       fixture.detectChanges();
 
       component.addDesktopAppUriFromUser();
 
       expect(component.autofillOptionsForm.value.uris[1]).toEqual({
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: UriMatchStrategy.Never,
+        matchDetection: UriMatchStrategy.Exact,
       });
     });
   });
@@ -539,7 +539,7 @@ describe("AutofillOptionsComponent", () => {
       await localFixture.whenStable();
 
       expect(localComponent.addUri).toHaveBeenCalledWith(
-        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Never },
+        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Exact },
         true,
         true,
         DesktopAppRow.New,
@@ -585,7 +585,7 @@ describe("AutofillOptionsComponent", () => {
         true,
         createCipher(
           ["https://example.com", null],
-          [pairingUri, UriMatchStrategy.Never],
+          [pairingUri, UriMatchStrategy.Exact],
           ["DESKTOPAPP://autotype", null],
         ),
       );
@@ -651,7 +651,7 @@ describe("AutofillOptionsComponent", () => {
     it("keeps each row's type when the rows are reordered", () => {
       const localFixture = createComponent(
         true,
-        createCipher(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]),
+        createCipher(["https://example.com", null], [pairingUri, UriMatchStrategy.Exact]),
       );
 
       localFixture.componentInstance.onUriItemDrop({
@@ -688,14 +688,14 @@ describe("AutofillOptionsComponent", () => {
     });
 
     describe("saved match strategy", () => {
-      it("saves a desktop app URI typed into a website row with the Never match strategy", () => {
+      it("saves a desktop app URI typed into a website row with the Exact match strategy", () => {
         const localFixture = createComponent(true);
 
         localFixture.componentInstance.autofillOptionsForm.controls.uris
           .at(0)
           .setValue({ uri: pairingUri, matchDetection: null });
 
-        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: UriMatchStrategy.Never }]);
+        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: UriMatchStrategy.Exact }]);
       });
 
       it("saves a desktop app URI typed into a website row with its match strategy when the feature flag is off", () => {
@@ -717,7 +717,7 @@ describe("AutofillOptionsComponent", () => {
         expect(control.value.matchDetection).toBe(UriMatchStrategy.Host);
       });
 
-      it("saves the desktop app URIs on the cipher with the Never match strategy when the form opens", () => {
+      it("saves the desktop app URIs on the cipher with the Exact match strategy when the form opens", () => {
         createComponent(
           true,
           createCipher(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]),
@@ -725,7 +725,7 @@ describe("AutofillOptionsComponent", () => {
 
         expect(getSavedUris()).toEqual([
           { uri: "https://example.com", match: UriMatchStrategy.Exact },
-          { uri: pairingUri, match: UriMatchStrategy.Never },
+          { uri: pairingUri, match: UriMatchStrategy.Exact },
         ]);
       });
 
@@ -757,7 +757,7 @@ describe("AutofillOptionsComponent", () => {
           cipherFormContainer.patchCipher.mockClear();
         }
 
-        it("saves the desktop app URIs on the cipher with the Never match strategy", () => {
+        it("saves the desktop app URIs on the cipher with the Exact match strategy", () => {
           openForm(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]);
 
           gaFeatureFlag$.next(true);
@@ -765,12 +765,12 @@ describe("AutofillOptionsComponent", () => {
           expect(cipherFormContainer.patchCipher).toHaveBeenCalledTimes(1);
           expect(getSavedUris()).toEqual([
             { uri: "https://example.com", match: UriMatchStrategy.Exact },
-            { uri: pairingUri, match: UriMatchStrategy.Never },
+            { uri: pairingUri, match: UriMatchStrategy.Exact },
           ]);
         });
 
-        it("does not update the cipher when its desktop app URIs already use the Never match strategy", () => {
-          openForm(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]);
+        it("does not update the cipher when its desktop app URIs already use the Exact match strategy", () => {
+          openForm(["https://example.com", null], [pairingUri, UriMatchStrategy.Exact]);
 
           gaFeatureFlag$.next(true);
 

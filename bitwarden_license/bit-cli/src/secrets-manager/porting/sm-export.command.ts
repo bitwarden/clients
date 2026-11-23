@@ -1,3 +1,6 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import { firstValueFrom } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
@@ -39,6 +42,11 @@ export class SmExportCommand {
       return Response.error("Only organization owners and admins can export Secrets Manager data.");
     }
 
+    const outputError = this.validateOutput(options);
+    if (outputError) {
+      return outputError;
+    }
+
     const verificationError = await this.verifyMasterPassword(options);
     if (verificationError) {
       return verificationError;
@@ -61,13 +69,41 @@ export class SmExportCommand {
     }
 
     try {
-      const filePath = await CliUtils.saveFile(exportJson, options.output, exportFileName());
+      const filePath = await CliUtils.saveFile(
+        exportJson,
+        outputPath(options.output),
+        exportFileName(),
+      );
       const res = new MessageResponse("Saved " + filePath, null);
       res.raw = filePath;
       return Response.success(res);
     } catch (e) {
       return Response.error(String(e));
     }
+  }
+
+  /**
+   * Secrets Manager exports are always JSON, so reject output file names with any other extension.
+   * Directories (trailing separator) and extensionless names are allowed. Not applicable under
+   * `bw serve`, which never writes a file.
+   */
+  private validateOutput(options: SmExportOptions): Response | undefined {
+    if (process.env.BW_SERVE === "true" || Utils.isNullOrWhitespace(options.output)) {
+      return undefined;
+    }
+    if (options.output.endsWith("/") || options.output.endsWith(path.sep)) {
+      return undefined;
+    }
+    if (isExistingDirectory(options.output)) {
+      return undefined;
+    }
+    const extension = path.extname(options.output);
+    if (extension !== "" && extension.toLowerCase() !== ".json") {
+      return Response.badRequest(
+        `Unsupported output file extension "${extension}". Secrets Manager exports are JSON; use a ".json" file name or a directory.`,
+      );
+    }
+    return undefined;
   }
 
   /**
@@ -152,4 +188,24 @@ function exportFileName(): string {
     pad(now.getMinutes()) +
     pad(now.getSeconds());
   return "bitwarden_export_" + timestamp + ".json";
+}
+
+/**
+ * `CliUtils.saveFile` only treats the output as a directory when it ends with a path separator.
+ * Append one when the output is an existing directory so `--output ~/Downloads` works.
+ */
+function outputPath(output: string): string {
+  if (isExistingDirectory(output) && !output.endsWith(path.sep)) {
+    return output + path.sep;
+  }
+  return output;
+}
+
+function isExistingDirectory(output: string): boolean {
+  try {
+    return fs.statSync(path.resolve(output)).isDirectory();
+  } catch {
+    // Not an existing path: treat it as a file name.
+    return false;
+  }
 }
