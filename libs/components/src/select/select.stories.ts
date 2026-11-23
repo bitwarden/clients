@@ -1,5 +1,5 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
-import { expect, screen, userEvent, within } from "storybook/test";
+import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -87,12 +87,12 @@ export const DisableSearch: Story = {
   }),
   args: {},
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole("combobox", { name: "Rows per page" }));
+    const combobox = within(canvasElement).getByRole("combobox", { name: "Rows per page" });
+    await userEvent.click(combobox);
     await userEvent.keyboard("5");
-    await expect(await screen.findAllByRole("option")).toHaveLength(4);
-    await expect(await screen.findByRole("option", { name: "50 rows" })).toHaveClass(
-      "ng-option-marked",
-    );
+    const fifty = await screen.findByRole("option", { name: "50 rows" });
+    await waitFor(() => expect(combobox).toHaveAttribute("aria-activedescendant", fifty.id));
+    await expect(screen.getAllByRole("option")).toHaveLength(4);
   },
 };
 
