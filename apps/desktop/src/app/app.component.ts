@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
@@ -9,6 +9,7 @@ import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-de
 import { FingerprintDialogComponent } from "@bitwarden/angular/auth/fingerprint-dialog";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { PremiumCheckoutReturnService } from "@bitwarden/angular/billing/services/premium-checkout-return.service";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
@@ -28,7 +29,6 @@ import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/ac
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { DESKTOP_SSO_CALLBACK } from "@bitwarden/common/auth/sso-login";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -106,6 +106,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
+  private readonly premiumCheckoutReturnService = inject(PremiumCheckoutReturnService);
+
   constructor(
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
@@ -148,7 +150,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private accountDeletionDialogService: AccountDeletionDialogService,
-    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountSwitcherService: AccountSwitcherService,
   ) {
@@ -391,14 +392,11 @@ export class AppComponent implements OnInit, OnDestroy {
               const userId = await firstValueFrom(
                 getOptionalUserId(this.accountService.activeAccount$),
               );
-              if (
-                userId != null &&
-                (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId))
-              ) {
-                await this.syncService.fullSync(true);
+              if (userId != null) {
+                await this.premiumCheckoutReturnService.handleReturn(userId);
               }
             } catch (e) {
-              this.logService.error("Failed to sync after returning from premium checkout", e);
+              this.logService.error("Failed to handle the return from premium checkout", e);
             }
             break;
           }

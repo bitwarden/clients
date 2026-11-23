@@ -19,10 +19,4 @@ export abstract class PremiumCheckoutPendingService {
 
   /** Clears any pending checkout. */
   abstract clearCheckoutPending(userId: UserId): Promise<void>;
-
-  /**
-   * Reads and clears the pending checkout atomically; `null` when none is pending.
-   * Transitional: removed once PM-44278 moves its callers to get + clear.
-   */
-  abstract consumeCheckoutPending(userId: UserId): Promise<PremiumCheckoutPending | null>;
 }

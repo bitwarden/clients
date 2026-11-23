@@ -29,13 +29,4 @@ export class DefaultPremiumCheckoutPendingService implements PremiumCheckoutPend
   async clearCheckoutPending(userId: UserId): Promise<void> {
     await this.stateProvider.getUser(userId, PREMIUM_CHECKOUT_PENDING_KEY).update(() => null);
   }
-
-  async consumeCheckoutPending(userId: UserId): Promise<PremiumCheckoutPending | null> {
-    let pending: PremiumCheckoutPending | null = null;
-    await this.stateProvider.getUser(userId, PREMIUM_CHECKOUT_PENDING_KEY).update((current) => {
-      pending = current ?? null;
-      return null;
-    });
-    return pending;
-  }
 }

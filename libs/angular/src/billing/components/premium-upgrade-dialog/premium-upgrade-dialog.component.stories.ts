@@ -154,7 +154,6 @@ export default {
             markCheckoutLaunched: () => Promise.resolve(),
             getCheckoutPending: () => Promise.resolve(null),
             clearCheckoutPending: () => Promise.resolve(),
-            consumeCheckoutPending: () => Promise.resolve(null),
           },
         },
       ],
