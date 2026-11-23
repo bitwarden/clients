@@ -281,14 +281,17 @@ export class GroupsV2Component {
     });
 
     effect(() => {
-      const sharedFolders = this.tableRef()?.filterValues()?.collections;
+      const sharedFolders = this.tableRef()?.filterValues()?.collections ?? [];
       const organizationId = this.organizationId();
       const stored = this.storedTableState();
-      if (sharedFolders == null || organizationId == null || stored == null) {
+      if (organizationId == null || stored == null) {
         return;
       }
       if (!this.filterRestored()) {
-        if (!sameSharedFolders(sharedFolders, stored.sharedFolders)) {
+        if (
+          stored.sharedFolders != null &&
+          !sameSharedFolders(sharedFolders, stored.sharedFolders)
+        ) {
           return;
         }
         this.filterRestored.set(true);

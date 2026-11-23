@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -197,6 +197,65 @@ describe("GroupsV2Component", () => {
       await detectAndFlush();
 
       expect("collections" in (component as any).initialFilters()).toBe(false);
+    });
+  });
+
+  describe("persisting the shared folder filter", () => {
+    /**
+     * Replaces the `tableRef` viewChild signal with a fake, writable one exposing just enough
+     * surface for the persistence effect, so tests can drive filter changes without a real
+     * `bit-table-v2` (the spec stubs the template out entirely).
+     */
+    function fakeTableRef() {
+      const filterValues = signal<{ collections?: string[] } | undefined>(undefined);
+      (component as any).tableRef = signal({
+        filterValues,
+        selectionModel: () => ({ selected: (): unknown[] => [], deselect: () => {} }),
+      });
+      return (collections: string[]) => filterValues.set({ collections });
+    }
+
+    it("saves the first selection even when nothing was previously stored", async () => {
+      storedState$ = of({});
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        sharedFolders: ["col-eng"],
+      });
+    });
+
+    it("does not save while restoring a stored selection", async () => {
+      storedState$ = of({ sharedFolders: ["col-eng"] });
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).not.toHaveBeenCalled();
+    });
+
+    it("saves a later change once restored", async () => {
+      storedState$ = of({ sharedFolders: ["col-eng"] });
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      setFilterValues(["col-design"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        sharedFolders: ["col-design"],
+      });
     });
   });
 
