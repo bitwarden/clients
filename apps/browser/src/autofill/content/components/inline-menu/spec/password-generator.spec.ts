@@ -21,8 +21,9 @@ describe("InlineMenuPasswordGenerator", () => {
 
   const FILL_CLICK_SLOT = 4;
   const FILL_KEYUP_SLOT = 5;
-  const REFRESH_CLICK_SLOT = 13;
-  const REFRESH_KEYUP_SLOT = 14;
+  const REFRESH_CLICK_SLOT = 14;
+  const REFRESH_KEYUP_SLOT = 15;
+  const COPY_TEMPLATE_SLOT = 11;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,7 +85,7 @@ describe("InlineMenuPasswordGenerator", () => {
     Object.defineProperty(copyEvent, "target", { value: copyButton.icon });
     const copyTemplate = litValues(
       InlineMenuPasswordGenerator({ ...baseProps, designSystem: true }),
-    )[16] as unknown[];
+    )[COPY_TEMPLATE_SLOT] as unknown[];
 
     litHandler(copyTemplate, 2)(copyEvent);
 
@@ -227,20 +228,21 @@ describe("InlineMenuPasswordGenerator", () => {
       expect(actions.classList.contains("remove-outline")).toBe(false);
     });
 
-    it("moves focus from refresh to copy on ArrowRight", () => {
+    it("moves focus from fill to copy on ArrowRight", () => {
       jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
-      const { actions, refresh } = renderActionsDom();
+      const { actions, fill, refresh } = renderActionsDom();
       const copy = document.createElement("button");
       copy.setAttribute("data-copy-generated-password", "");
       copy.focus = jest.fn();
-      actions.append(copy);
+      actions.insertBefore(copy, refresh);
 
       litHandler(
         litValues(InlineMenuPasswordGenerator({ ...baseProps, designSystem: true })),
-        REFRESH_KEYUP_SLOT,
-      )(keyupEvent("ArrowRight", refresh));
+        FILL_KEYUP_SLOT,
+      )(keyupEvent("ArrowRight", fill));
 
       expect(copy.focus).toHaveBeenCalled();
+      expect(refresh.focus).not.toHaveBeenCalled();
     });
 
     it("ignores ArrowRight on the refresh button's keyup handler", () => {

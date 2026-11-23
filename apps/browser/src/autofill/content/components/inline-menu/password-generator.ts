@@ -100,6 +100,23 @@ export function InlineMenuPasswordGenerator({
               ${ColorizedPassword({ password, theme, i18n })}
             </div>
           </button>
+          ${
+            designSystem
+              ? html`
+                  <button
+                    type="button"
+                    data-copy-generated-password
+                    tabindex="-1"
+                    class=${cloneButtonStyles}
+                    aria-label=${i18n.copyPassword}
+                    @click=${onCopy}
+                    @keyup=${handleActionKeyUp}
+                  >
+                    ${confirmableIcon(Clone({ theme, color: iconColor }), cloneIconStyles, theme, iconColor)}
+                  </button>
+                `
+              : nothing
+          }
           <button
             type="button"
             data-refresh-generated-password
@@ -120,23 +137,6 @@ export function InlineMenuPasswordGenerator({
                 : Refresh({ theme, color: iconColor })
             }
           </button>
-          ${
-            designSystem
-              ? html`
-                  <button
-                    type="button"
-                    data-copy-generated-password
-                    tabindex="-1"
-                    class=${cloneButtonStyles}
-                    aria-label=${i18n.copyPassword}
-                    @click=${onCopy}
-                    @keyup=${handleActionKeyUp}
-                  >
-                    ${confirmableIcon(Clone({ theme, color: iconColor }), cloneIconStyles, theme, iconColor)}
-                  </button>
-                `
-              : nothing
-          }
         </div>
       </div>
     `,
@@ -344,7 +344,6 @@ const designRefreshButtonStyles = css`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  order: 2;
   width: 20px;
   height: 20px;
   margin: 0 0 0 ${spacing["2"]};
@@ -375,7 +374,6 @@ const cloneButtonStyles = css`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  order: 1;
   margin: 0;
   padding: 0;
   border: none;
