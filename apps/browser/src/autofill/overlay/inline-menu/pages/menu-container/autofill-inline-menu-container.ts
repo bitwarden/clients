@@ -19,6 +19,7 @@ const ALLOWED_BG_COMMANDS = new Set<string>([
   "checkAutofillInlineMenuButtonFocused",
   "checkInlineMenuButtonFocused",
   "fillAutofillInlineMenuCipher",
+  "copyGeneratedPassword",
   "fillGeneratedPassword",
   "redirectAutofillInlineMenuFocusOut",
   "refreshGeneratedPassword",

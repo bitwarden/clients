@@ -447,6 +447,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         handleFillPassword: () => this.postMessageToParent({ command: "fillGeneratedPassword" }),
         handleRefreshPassword: () =>
           this.postMessageToParent({ command: "refreshGeneratedPassword" }),
+        handleCopyPassword: () => this.postMessageToParent({ command: "copyGeneratedPassword" }),
       }),
     );
   }

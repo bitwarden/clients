@@ -172,7 +172,8 @@ export type OverlayPortCommand =
   | "updateColorScheme"
   | "unlockVault"
   | "refreshGeneratedPassword"
-  | "fillGeneratedPassword";
+  | "fillGeneratedPassword"
+  | "copyGeneratedPassword";
 
 export type OverlayPortMessage = {
   command: OverlayPortCommand;
@@ -308,6 +309,7 @@ export type InlineMenuListPortMessageHandlers = {
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
   refreshGeneratedPassword: () => Promise<void>;
   fillGeneratedPassword: ({ port }: PortConnectionParam) => Promise<void>;
+  copyGeneratedPassword: () => void;
   refreshOverlayCiphers: () => Promise<void>;
 };
 

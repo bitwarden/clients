@@ -86,7 +86,8 @@ export function InlineMenuCipherItem({
 
   const onFillKeyUp = (event: KeyboardEvent) => handleFillCipherKeyUp(event, onListEdgeReached);
   const onViewKeyUp = (event: KeyboardEvent) => handleViewCipherKeyUp(event, onListEdgeReached);
-  const showIconTile = useCipherTypeIcon && (isTotp || !uri);
+  const needsTypeIcon = isTotp || !uri;
+  const showIconTile = useCipherTypeIcon && needsTypeIcon;
   const tokens = themes[theme].designSystem;
   const iconColor = showIconTile ? tokens.tileForeground : themes[theme].primary["600"];
   const glyph = isTotp

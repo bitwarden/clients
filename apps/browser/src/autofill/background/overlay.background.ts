@@ -259,6 +259,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
+    copyGeneratedPassword: () => this.copyGeneratedPassword(),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
   };
 
@@ -2281,6 +2282,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
+  /** Copies the current generated password. No-ops when none has been generated. */
+  private copyGeneratedPassword() {
+    const password = this.credential$.value;
+    if (!password) {
+      return;
+    }
+
+    this.platformUtilsService.copyToClipboard(password);
+  }
+
   /**
    * Triggers a fill of the generated password into the current tab. Will trigger
    * a focus of the last focused field after filling the password.
@@ -2721,6 +2732,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "toggleBitwardenVaultOverlay",
         "totpCodeAria",
         "totpSecondsSpanAria",
+        "typePasskey",
         "unlockAccount",
         "unlockAccountAria",
         "unlockBitwarden",

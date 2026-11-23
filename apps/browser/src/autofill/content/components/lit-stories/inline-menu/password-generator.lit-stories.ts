@@ -19,6 +19,7 @@ export default {
     headingText: { control: "text" },
     handleFillPassword: { control: false },
     handleRefreshPassword: { control: false },
+    handleCopyPassword: { control: false },
     width: { control: "number", min: 160, max: 480, step: 8 },
   },
   args: {
@@ -28,6 +29,7 @@ export default {
     i18n: mockPasswordGeneratorI18n,
     handleFillPassword: () => alert("Fill generated password"),
     handleRefreshPassword: () => alert("Regenerate password"),
+    handleCopyPassword: () => alert("Copy password"),
     width: 280,
   },
 } as Meta<ComponentAndControls>;

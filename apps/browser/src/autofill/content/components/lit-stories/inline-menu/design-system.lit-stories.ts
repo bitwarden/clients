@@ -186,6 +186,7 @@ function passwordGeneratorSection(theme: Theme, width: number) {
       designSystem: true,
       handleFillPassword: handleAction,
       handleRefreshPassword: handleAction,
+      handleCopyPassword: handleAction,
     });
 
   return html`
@@ -199,6 +200,7 @@ function passwordGeneratorSection(theme: Theme, width: number) {
           i18n: mockPasswordGeneratorI18n,
           handleFillPassword: handleAction,
           handleRefreshPassword: handleAction,
+          handleCopyPassword: handleAction,
         })}
       </div>
       <div style="display: flex; flex-direction: column; gap: 24px; width: ${width}px;">

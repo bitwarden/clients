@@ -11,7 +11,6 @@ import { ColorizedPassword, ColorizedPasswordI18n } from "./colorized-password";
 import { InlineMenuContainer } from "./container";
 
 const ACTIONS_SELECTOR = "[data-password-generator-actions]";
-const FILL_SELECTOR = "[data-fill-generated-password]";
 const REFRESH_SELECTOR = "[data-refresh-generated-password]";
 const COPY_SELECTOR = "[data-copy-generated-password]";
 const ICON_SELECTOR = "[data-password-generator-icon]";
@@ -31,6 +30,7 @@ export type InlineMenuPasswordGeneratorProps = {
   i18n: InlineMenuPasswordGeneratorI18n;
   handleFillPassword: (e: Event) => void;
   handleRefreshPassword: (e: Event) => void;
+  handleCopyPassword: (e: Event) => void;
   /** Design-system layout: clone beside generate. A click confirms that icon only. */
   designSystem?: boolean;
 };
@@ -42,6 +42,7 @@ export function InlineMenuPasswordGenerator({
   i18n,
   handleFillPassword,
   handleRefreshPassword,
+  handleCopyPassword,
   designSystem = false,
 }: InlineMenuPasswordGeneratorProps) {
   const onFill = (event: Event) => {
@@ -63,6 +64,7 @@ export function InlineMenuPasswordGenerator({
 
   const onCopy = (event: Event) => {
     if (EventSecurity.isEventTrusted(event) && event.target instanceof Element) {
+      handleCopyPassword(event);
       showIconConfirmed(event.target.closest(COPY_SELECTOR));
     }
   };
@@ -105,7 +107,7 @@ export function InlineMenuPasswordGenerator({
             class=${designSystem ? designRefreshButtonStyles : refreshButtonStyles(theme)}
             aria-label=${i18n.regeneratePassword}
             @click=${onRefresh}
-            @keyup=${(event: KeyboardEvent) => handleActionKeyUp(event, "ArrowLeft")}
+            @keyup=${handleActionKeyUp}
           >
             ${
               designSystem
@@ -128,6 +130,7 @@ export function InlineMenuPasswordGenerator({
                     class=${cloneButtonStyles}
                     aria-label=${i18n.copyPassword}
                     @click=${onCopy}
+                    @keyup=${handleActionKeyUp}
                   >
                     ${confirmableIcon(Clone({ theme, color: iconColor }), cloneIconStyles, theme, iconColor)}
                   </button>
@@ -197,18 +200,28 @@ function isTrustedActionKey(
   );
 }
 
-function handleActionKeyUp(event: KeyboardEvent, arrowCode: "ArrowLeft" | "ArrowRight") {
-  if (!isTrustedActionKey(event, arrowCode)) {
+function handleActionKeyUp(event: KeyboardEvent, arrowCode?: "ArrowLeft" | "ArrowRight") {
+  const direction =
+    arrowCode ??
+    (event.code === "ArrowLeft" || event.code === "ArrowRight" ? event.code : undefined);
+  if (!direction || !isTrustedActionKey(event, direction)) {
     return;
   }
 
   const actions = event.target.closest(ACTIONS_SELECTOR);
-  const target =
-    actions?.querySelector<HTMLElement>(
-      arrowCode === "ArrowRight" ? REFRESH_SELECTOR : FILL_SELECTOR,
-    ) ?? null;
-  target?.focus();
-  actions?.classList.toggle("remove-outline", arrowCode === "ArrowRight");
+  const button = event.target.closest("button");
+  if (!actions || !button) {
+    return;
+  }
+
+  const buttons = [...actions.querySelectorAll<HTMLElement>("button")];
+  const next = buttons[buttons.indexOf(button) + (direction === "ArrowRight" ? 1 : -1)];
+  if (!next) {
+    return;
+  }
+
+  next.focus();
+  actions.classList.toggle("remove-outline", direction === "ArrowRight");
 }
 
 const containerStyles = css`

@@ -778,6 +778,26 @@ describe("AutofillInlineMenuList", () => {
         );
       });
 
+      it("copies the generated password from the Lit password generator", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleCopyPassword } = (InlineMenuPasswordGenerator as jest.Mock).mock.calls[0][0];
+        handleCopyPassword(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "copyGeneratedPassword", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+
       it("re-renders the Lit password generator when the password is updated", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({

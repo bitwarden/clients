@@ -4492,6 +4492,24 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("copyGeneratedPassword", () => {
+      it("copies the current generated password", () => {
+        overlayBackground["credential$"].next(generatedPassword);
+
+        sendPortMessage(listMessageConnectorSpy, { command: "copyGeneratedPassword", portKey });
+
+        expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(generatedPassword);
+      });
+
+      it("does not copy when no password has been generated", () => {
+        overlayBackground["credential$"].next("");
+
+        sendPortMessage(listMessageConnectorSpy, { command: "copyGeneratedPassword", portKey });
+
+        expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      });
+    });
+
     describe("fillGeneratedPassword", () => {
       const focusedFieldData = createFocusedFieldDataMock({
         inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
