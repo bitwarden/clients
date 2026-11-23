@@ -122,6 +122,8 @@ export class Main {
   ipcService: IpcService;
   /** Read-only: main must not write policy state, the renderer would not observe it. */
   policyService: PolicyService;
+  /** Set when another instance holds the single-instance lock. This process only quits. */
+  private secondInstance = false;
 
   constructor() {
     // Set paths for portable builds
@@ -142,6 +144,15 @@ export class Main {
       app.setPath("userData", appDataPath);
     }
     app.setPath("logs", path.join(app.getPath("userData"), "logs"));
+
+    // The lock lives in userData, so it's taken after the path is set, and before storage so a
+    // second instance never reads or writes data.json. Its argv reaches the running instance
+    // through `second-instance`.
+    if (!isMacAppStore() && !app.requestSingleInstanceLock()) {
+      this.secondInstance = true;
+      app.quit();
+      return;
+    }
 
     const args = process.argv.slice(1);
     const watch = args.some((val) => val === "--watch");
@@ -406,6 +417,9 @@ export class Main {
   }
 
   bootstrap() {
+    if (this.secondInstance) {
+      return;
+    }
     this.desktopCredentialStorageListener.init();
     this.mainBiometricsIpcListener.init();
     // Run migrations first, then other things

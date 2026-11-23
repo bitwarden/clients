@@ -10,7 +10,7 @@ import { StorageBackend } from "./storage-backend";
 
 const FILE_NAME = "data.json";
 const TEMP_PREFIX = `${FILE_NAME}.tmp-`;
-// Another instance can be mid-write, for example a second launch before it hits the single-instance lock.
+// Another process can be mid-write. Mac App Store builds skip the single-instance lock.
 const STALE_TEMP_MS = 60_000;
 const CORRUPT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 

@@ -112,7 +112,7 @@ describe("JsonFileBackend", () => {
       expect(fs.existsSync(stale)).toBe(false);
     });
 
-    it("should keep recent temporary files, which another instance may still be writing", () => {
+    it("should keep recent temporary files, which another process may still be writing", () => {
       const recent = path.join(dir, "data.json.tmp-123-bbbb");
       fs.writeFileSync(recent, "partial");
 

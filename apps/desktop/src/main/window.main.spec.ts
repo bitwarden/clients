@@ -123,7 +123,6 @@ describe("WindowMain", () => {
 
       // `on` never emits, so `ready` behaves as if it fired before `init()` was called.
       Object.assign(app, {
-        requestSingleInstanceLock: jest.fn().mockReturnValue(true),
         on: jest.fn(),
         whenReady: jest.fn().mockResolvedValue(undefined),
       });
