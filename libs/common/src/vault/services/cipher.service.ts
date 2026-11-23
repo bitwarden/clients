@@ -1186,14 +1186,15 @@ export class CipherService implements CipherServiceAbstraction {
 
     const state = this.encryptedCiphersState(userId);
     const stored = await firstValueFrom(state.state$);
-    const next = update({ ...stored });
-    if (stored != null && JSON.stringify(next) === JSON.stringify(stored)) {
+    // The snapshot only decides whether to skip; the write re-applies `update` to fresh storage so
+    // concurrent writes landing after this read are not overwritten.
+    if (stored != null && JSON.stringify(update({ ...stored })) === JSON.stringify(stored)) {
       return stored;
     }
 
     await this.clearCache(userId);
 
-    const updatedCiphers = await state.update(() => next);
+    const updatedCiphers = await state.update((current) => update({ ...(current ?? {}) }));
 
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data

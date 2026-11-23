@@ -1851,7 +1851,6 @@ describe("Cipher Service", () => {
     };
 
     it("writes and emits when nothing is stored yet, even for replace({})", async () => {
-      // No setEncryptedState: the fake starts with a null stored value
       const emissions: Array<Record<CipherId, CipherData>> = [];
       const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
       await tick();
@@ -1946,6 +1945,17 @@ describe("Cipher Service", () => {
       await cipherService.delete([idA, idB], userId);
 
       expect(fake().nextMock).toHaveBeenCalledWith({});
+    });
+
+    it("keeps a write that lands between the snapshot and the update", async () => {
+      const idC = "C" as CipherId;
+      jest.spyOn(cipherService, "clearCache").mockImplementation(async () => {
+        fake().nextState({ [idA]: make(idA), [idB]: make(idB), [idC]: make(idC) });
+      });
+
+      await cipherService.delete(idA, userId);
+
+      expect(fake().nextMock).toHaveBeenCalledWith({ [idB]: make(idB), [idC]: make(idC) });
     });
 
     it.each([["unknown"], [["unknown", "other"]]])(
