@@ -1,5 +1,3 @@
-import "core-js/proposals/explicit-resource-management";
-
 import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
 import { platformBrowser } from "@angular/platform-browser";
 

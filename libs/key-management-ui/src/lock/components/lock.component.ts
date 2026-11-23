@@ -553,6 +553,12 @@ export class LockComponent implements OnInit, OnDestroy {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("invalidPin"),
       });
+
+      // A full-length PIN was tried automatically; clear it so the next one can be typed right away.
+      const pinLength = await this.pinService.getPinLength(this.activeAccount.id);
+      if (pin.length === pinLength) {
+        this.formGroup.controls.pin.reset();
+      }
     }
   }
 
