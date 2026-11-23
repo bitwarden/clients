@@ -26,7 +26,6 @@ import { limitPerformanceMeasurements } from "@bitwarden/logging";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
-import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { VersionService } from "../../platform/services/version.service";
@@ -52,7 +51,6 @@ export class InitService {
     private accountService: AccountService,
     private tokenService: TokenService,
     private versionService: VersionService,
-    private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeMvpService: DesktopAutotypeMvpService,
     private autotypeService: DesktopAutotypeService,
@@ -72,7 +70,6 @@ export class InitService {
       limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.ipcService.init();
-      await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 

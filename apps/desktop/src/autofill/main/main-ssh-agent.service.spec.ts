@@ -24,6 +24,7 @@ import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 import { MainSshAgentService } from "./main-ssh-agent.service";
+import { SshAgentApprovalMain } from "./ssh-agent-approval.main";
 
 jest.mock("electron", () => ({
   ipcMain: {
@@ -66,6 +67,7 @@ describe("MainSshAgentService", () => {
   let desktopSettingsService: ReturnType<typeof mock<DesktopSettingsService>>;
   let i18nService: ReturnType<typeof mock<I18nService>>;
   let windowMain: ReturnType<typeof mock<WindowMain>>;
+  let approval: ReturnType<typeof mock<SshAgentApprovalMain>>;
 
   let activeAccount$: BehaviorSubject<unknown>;
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
@@ -92,6 +94,7 @@ describe("MainSshAgentService", () => {
     desktopSettingsService = mock<DesktopSettingsService>();
     i18nService = mock<I18nService>();
     windowMain = mock<WindowMain>();
+    approval = mock<SshAgentApprovalMain>();
 
     activeAccount$ = new BehaviorSubject<unknown>({ id: userId });
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
@@ -144,12 +147,12 @@ describe("MainSshAgentService", () => {
       desktopSettingsService,
       i18nService,
       windowMain,
+      approval,
     );
   });
 
   describe("constructor", () => {
-    it("registers the sign request response and activity log IPC handlers", () => {
-      expect(ipcHandlers.has(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)).toBe(true);
+    it("registers the activity log IPC handler", () => {
       expect(ipcHandlers.has(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG)).toBe(true);
     });
   });
@@ -283,42 +286,29 @@ describe("MainSshAgentService", () => {
       sshAgentPromptBehavior$.next(SshAgentPromptType.Never);
 
       expect(await capturedSignCb(null, signData())).toBe(true);
-      expect(messagingService.send).not.toHaveBeenCalled();
+      expect(approval.request).not.toHaveBeenCalled();
     });
 
-    it("prompts and resolves via the sign request response when Always", async () => {
+    it("asks the user and resolves with the answer when Always", async () => {
       sshAgentPromptBehavior$.next(SshAgentPromptType.Always);
+      approval.request.mockResolvedValue(true);
 
-      const signPromise = capturedSignCb(null, signData());
-      await flush();
+      expect(await capturedSignCb(null, signData({ aiAgent: "claude" }))).toBe(true);
 
-      expect(messagingService.send).toHaveBeenCalledWith(
-        SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST,
-        expect.objectContaining({
-          requestId: 1,
-          cipherName: "My Key",
-          application: "ssh",
-          isAgentForwarding: false,
-          namespace: "ssh",
-        }),
-      );
-
-      const responseHandler = ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!;
-      await responseHandler({}, { requestId: 1, accepted: true });
-
-      expect(await signPromise).toBe(true);
+      expect(approval.request).toHaveBeenCalledWith({
+        cipherName: "My Key",
+        application: "ssh",
+        isAgentForwarding: false,
+        namespace: "ssh",
+        aiAgent: "claude",
+      });
     });
 
-    it("resolves false when the renderer rejects", async () => {
+    it("resolves false when the user denies", async () => {
       sshAgentPromptBehavior$.next(SshAgentPromptType.Always);
+      approval.request.mockResolvedValue(false);
 
-      const signPromise = capturedSignCb(null, signData());
-      await flush();
-
-      const responseHandler = ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!;
-      await responseHandler({}, { requestId: 1, accepted: false });
-
-      expect(await signPromise).toBe(false);
+      expect(await capturedSignCb(null, signData())).toBe(false);
     });
 
     describe("RememberUntilLock", () => {
@@ -327,39 +317,30 @@ describe("MainSshAgentService", () => {
       });
 
       it("prompts on the first request and then approves the remembered host", async () => {
-        const first = capturedSignCb(null, signData());
-        await flush();
+        approval.request.mockResolvedValue(true);
 
-        const responseHandler = ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!;
-        await responseHandler({}, { requestId: 1, accepted: true });
+        expect(await capturedSignCb(null, signData())).toBe(true);
+        expect(await capturedSignCb(null, signData())).toBe(true);
 
-        expect(await first).toBe(true);
-        expect(messagingService.send).toHaveBeenCalledTimes(1);
-
-        const second = capturedSignCb(null, signData());
-        expect(await second).toBe(true);
-        expect(messagingService.send).toHaveBeenCalledTimes(1);
+        expect(approval.request).toHaveBeenCalledTimes(1);
       });
 
       it("prompts again for a different host", async () => {
-        const first = capturedSignCb(null, signData());
-        await flush();
-        await ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!(
-          {},
-          { requestId: 1, accepted: true },
-        );
-        await first;
+        approval.request.mockResolvedValue(true);
 
-        const other = capturedSignCb(null, signData({ hostFingerprint: "SHA256:def" }));
-        await flush();
+        await capturedSignCb(null, signData());
+        await capturedSignCb(null, signData({ hostFingerprint: "SHA256:def" }));
 
-        expect(messagingService.send).toHaveBeenCalledTimes(2);
-        // Silence the unresolved promise from the second request.
-        await ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!(
-          {},
-          { requestId: 2, accepted: false },
-        );
-        await other;
+        expect(approval.request).toHaveBeenCalledTimes(2);
+      });
+
+      it("does not remember a denied host", async () => {
+        approval.request.mockResolvedValue(false);
+
+        await capturedSignCb(null, signData());
+        await capturedSignCb(null, signData());
+
+        expect(approval.request).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -407,28 +388,18 @@ describe("MainSshAgentService", () => {
     });
 
     it("forgets remembered hosts when the vault locks", async () => {
-      const first = capturedSignCb(null, signData());
-      await flush();
-      await ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!(
-        {},
-        { requestId: 1, accepted: true },
-      );
-      await first;
-      expect(messagingService.send).toHaveBeenCalledTimes(1);
+      approval.request.mockResolvedValue(true);
+
+      await capturedSignCb(null, signData());
+      expect(approval.request).toHaveBeenCalledTimes(1);
 
       activeAccountStatus$.next(AuthenticationStatus.Locked);
       activeAccountStatus$.next(AuthenticationStatus.Unlocked);
       await flush();
 
-      const second = capturedSignCb(null, signData());
-      await flush();
+      await capturedSignCb(null, signData());
 
-      expect(messagingService.send).toHaveBeenCalledTimes(2);
-      await ipcHandlers.get(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE)!(
-        {},
-        { requestId: 2, accepted: false },
-      );
-      await second;
+      expect(approval.request).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -39,6 +39,7 @@ import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentActivity } from "../models/ssh-agent-activity";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
+import { SshAgentApprovalMain } from "./ssh-agent-approval.main";
 import {
   classifySshAgentStartError,
   createSshAgentNativeBridge,
@@ -67,18 +68,12 @@ type AuthorizationScope = (typeof AuthorizationScope)[keyof typeof Authorization
  *
  * The socket server, protocol parsing, and signing run in Rust (via napi). This service now also
  * provisions the agent's keys (decrypting vault SSH-key ciphers), owns the sign-authorization cache
- * and prompt-behavior decision, and — only when a prompt is genuinely needed — force-shows the
- * renderer and delegates the approval dialog to it over the `SIGN_REQUEST`/`SIGN_REQUEST_RESPONSE`
- * round-trip. The renderer is therefore a pure dialog host.
+ * and prompt-behavior decision, and — only when a prompt is genuinely needed — asks the user in a
+ * window of its own, so no renderer is involved.
  */
 export class MainSshAgentService {
   private static readonly UNLOCK_REQUEST_TIMEOUT = 60_000;
 
-  // The napi callback requestSign() is awaited directly by the Rust agent, so it must return a
-  // Promise that resolves with the user's decision. When a dialog is needed the renderer responds
-  // over IPC, so this map correlates each in-flight request id back to its waiting Promise.
-  private pendingRequests = new Map<number, (accepted: boolean) => void>();
-  private requestId = 0;
   private agentState: sshagent.SshAgentState;
   private authorizedHosts: Map<string, Set<string>> = new Map();
   private destroy$ = new Subject<void>();
@@ -96,6 +91,7 @@ export class MainSshAgentService {
     private desktopSettingsService: DesktopSettingsService,
     private i18nService: I18nService,
     private windowMain: WindowMain,
+    private approval: SshAgentApprovalMain,
   ) {
     this.registerIpcHandlers();
     registerSshAgentSetupIpcHandlers(
@@ -210,14 +206,6 @@ export class MainSshAgentService {
   }
 
   private registerIpcHandlers() {
-    ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE,
-      async (_, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
-        this.pendingRequests.get(requestId)?.(accepted);
-        this.pendingRequests.delete(requestId);
-      },
-    );
-
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.ACTIVITY_LOG, async () => [...this.activityLog]);
   }
 
@@ -356,24 +344,18 @@ export class MainSshAgentService {
       return true;
     }
 
-    const id = ++this.requestId;
-    return new Promise((resolve) => {
-      this.pendingRequests.set(id, (accepted) => {
-        if (accepted) {
-          this.storeAuthorizedHost(data.cipherId, isAgentForwarding, hostFingerprint);
-        }
-        resolve(accepted);
-      });
-      void this.windowMain.ensureRenderer();
-      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST, {
-        requestId: id,
-        cipherName: cipher.name,
-        application: application,
-        isAgentForwarding: isAgentForwarding,
-        namespace: data.signRequest.namespace,
-        aiAgent,
-      });
+    const accepted = await this.approval.request({
+      cipherName: cipher.name,
+      application,
+      isAgentForwarding,
+      namespace: data.signRequest.namespace,
+      aiAgent,
     });
+    if (accepted) {
+      this.storeAuthorizedHost(data.cipherId, isAgentForwarding, hostFingerprint);
+    }
+
+    return accepted;
   }
 
   private async waitForUnlock(): Promise<boolean> {

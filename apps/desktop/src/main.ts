@@ -53,6 +53,7 @@ import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.servi
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
+import { SshAgentApprovalMain } from "./autofill/main/ssh-agent-approval.main";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { BiometricsUnlockDriver } from "./key-management/biometrics/biometrics-unlock.driver";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -405,6 +406,7 @@ export class Main {
       this.desktopSettingsService,
       this.i18nService,
       this.windowMain,
+      new SshAgentApprovalMain(this.i18nService),
     );
 
     new EphemeralValueStorageService();
