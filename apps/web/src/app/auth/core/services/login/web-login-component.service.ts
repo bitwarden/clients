@@ -107,16 +107,10 @@ export class WebLoginComponentService
          * a stashed invite for a different org, or a stashed direct invite with an
          * email mismatch.
          */
-        if (await this.hasMatchingStashedOrgInvite(params)) {
-          return this.autoProgressToMpEntry(params);
-        }
-        await this.router.navigate([SsoLoginFailedRoute], {
-          queryParams: {
-            kind: SsoLoginFailedErrorKind.InviteAcceptanceRequired,
-            organizationName: params.organizationName,
-          },
-        });
-        return { kind: "redirected" };
+        return this.autoProgressOrRedirectToSsoLoginFailed(
+          params,
+          SsoLoginFailedErrorKind.InviteAcceptanceRequired,
+        );
       }
 
       case SsoRedirectErrorCode.OrgMembershipRequired: {
@@ -136,16 +130,10 @@ export class WebLoginComponentService
          * No match → navigate to the terminal error page. Covers: no invite stashed,
          * or a stashed invite for a different org.
          */
-        if (await this.hasMatchingStashedOrgInvite(params)) {
-          return this.autoProgressToMpEntry(params);
-        }
-        await this.router.navigate([SsoLoginFailedRoute], {
-          queryParams: {
-            kind: SsoLoginFailedErrorKind.OrgMembershipRequired,
-            organizationName: params.organizationName,
-          },
-        });
-        return { kind: "redirected" };
+        return this.autoProgressOrRedirectToSsoLoginFailed(
+          params,
+          SsoLoginFailedErrorKind.OrgMembershipRequired,
+        );
       }
 
       case SsoRedirectErrorCode.StagedOrgUserInviteAcceptanceRequired: {
@@ -162,21 +150,35 @@ export class WebLoginComponentService
          *
          * No match → navigate to the terminal error page.
          */
-        if (await this.hasMatchingStashedOrgInvite(params)) {
-          return this.autoProgressToMpEntry(params);
-        }
-        await this.router.navigate([SsoLoginFailedRoute], {
-          queryParams: {
-            kind: SsoLoginFailedErrorKind.StagedOrgUserDirectInviteSent,
-            organizationName: params.organizationName,
-          },
-        });
-        return { kind: "redirected" };
+        return this.autoProgressOrRedirectToSsoLoginFailed(
+          params,
+          SsoLoginFailedErrorKind.StagedOrgUserDirectInviteSent,
+        );
       }
 
       default:
         return { kind: "none" };
     }
+  }
+
+  /**
+   * Auto-progresses to MP entry when a stashed org invite matches the SSO redirect.
+   * Otherwise navigates to the terminal `/sso-login-failed` page, where `kind` selects
+   * the copy.
+   */
+  private async autoProgressOrRedirectToSsoLoginFailed(
+    params: Params,
+    kind: SsoLoginFailedErrorKind,
+  ): Promise<HandleQueryParamErrorsResult> {
+    if (await this.hasMatchingStashedOrgInvite(params)) {
+      return this.autoProgressToMpEntry(params);
+    }
+
+    await this.router.navigate([SsoLoginFailedRoute], {
+      queryParams: { kind, organizationName: params.organizationName },
+    });
+
+    return { kind: "redirected" };
   }
 
   /**
