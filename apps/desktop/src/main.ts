@@ -3,7 +3,7 @@
 import * as path from "path";
 
 import { app, BrowserWindow } from "electron";
-import { Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom, merge } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
@@ -20,7 +20,7 @@ import {
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
+import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -71,6 +71,7 @@ import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { fromIpcMainMessaging } from "./platform/main/from-ipc-main-messaging";
 import { MainSdkService } from "./platform/main/main-sdk.service";
 import { MainSecureStorageService } from "./platform/main/main-secure-storage.service";
 import { RendererTeardownFlagMain } from "./platform/main/renderer-teardown-flag.main";
@@ -128,6 +129,7 @@ export class Main {
   /** The single source of truth for whether the renderer may be destroyed. */
   rendererTeardownFlag: RendererTeardownFlagMain;
   serviceContainer: MainServiceContainer;
+  messageListener: MessageListener;
 
   constructor() {
     // Set paths for portable builds
@@ -302,6 +304,12 @@ export class Main {
       new SubjectMessageSender(messageSubject), // For local messages
       new ElectronMainMessagingService(this.windowMain, this.shell),
     );
+    this.messageListener = new MessageListener(
+      merge(
+        messageSubject.asObservable(), // For messages from the same context
+        fromIpcMainMessaging(), // For messages from the renderer
+      ),
+    );
 
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
@@ -371,6 +379,7 @@ export class Main {
       this.sharedUnlockSettingsService,
       this.shell,
       this.policyService,
+      this.messageListener,
     );
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);

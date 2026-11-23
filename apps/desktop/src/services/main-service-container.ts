@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { UserDecryptionOptionsService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
@@ -26,7 +24,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { DefaultTaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
@@ -36,6 +34,7 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
+import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
@@ -105,7 +104,7 @@ export class MainServiceContainer {
   readonly restrictedItemTypesService: RestrictedItemTypesService;
   readonly cipherEncryptionService: DefaultCipherEncryptionService;
   readonly cipherSdkService: DefaultCipherSdkService;
-  readonly cipherService: CipherService;
+  readonly cipherService: CipherServiceAbstraction;
   readonly folderService: FolderService;
   readonly stateEventRunnerService: DefaultStateEventRunnerService;
   readonly lockService: DefaultLockService;
@@ -140,6 +139,7 @@ export class MainServiceContainer {
     private readonly shell: SafeShell,
     /** Main's read-only policy service, shared rather than duplicated. */
     readonly policyService: PolicyService,
+    private readonly messageListener: MessageListener,
   ) {
     const logoutCallback = async () => await this.logout();
     const refreshAccessTokenErrorCallback = () => {
@@ -343,6 +343,8 @@ export class MainServiceContainer {
       this.cipherSdkService,
     );
 
+    // CipherService.cipherViews$ returns a nullable observable, narrower than the abstraction's
+    // non-null Observable<CipherView[]>; a pre-existing libs/common gap, not fixed here.
     this.cipherService = new CipherService(
       this.keyService,
       this.legacyCompatKeyService,
@@ -358,7 +360,7 @@ export class MainServiceContainer {
       this.logService,
       this.cipherEncryptionService,
       this.cipherSdkService,
-    );
+    ) as CipherServiceAbstraction;
 
     this.folderService = new FolderService(
       this.keyService,
@@ -419,6 +421,7 @@ export class MainServiceContainer {
       this.sdkService,
       this.autoUnlockService,
       this.messagingService,
+      this.messageListener,
     );
 
     this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
