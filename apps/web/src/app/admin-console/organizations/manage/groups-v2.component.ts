@@ -5,7 +5,6 @@ import {
   effect,
   inject,
   signal,
-  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -95,18 +94,12 @@ type GroupRow = {
 
 type GroupColumn = ColumnName<GroupRow, "actions">;
 
-const SORTABLE_COLUMNS: readonly GroupColumn[] = ["details", "collectionChips"];
-
-function sameCollections(a: readonly string[], b: readonly string[] | undefined): boolean {
+function sameSharedFolders(a: readonly string[], b: readonly string[] | undefined): boolean {
   const other = b ?? [];
   if (a.length !== other.length) {
     return false;
   }
   return a.every((id) => other.includes(id));
-}
-
-function isSortableColumn(value: string | undefined): value is GroupColumn {
-  return SORTABLE_COLUMNS.some((column) => column === value);
 }
 
 type GroupFilters = {
@@ -183,10 +176,10 @@ export class GroupsV2Component {
   );
 
   protected readonly initialFilters = computed<Partial<GroupFilters>>(() => {
-    const collections = this.storedTableState()?.collections;
+    const sharedFolders = this.storedTableState()?.sharedFolders;
     return {
       search: this.route.snapshot.queryParams.search ?? "",
-      ...(collections != null && { collections }),
+      ...(sharedFolders != null && { collections: sharedFolders }),
     };
   });
 
@@ -267,8 +260,6 @@ export class GroupsV2Component {
 
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
 
-  private readonly sortRestored = signal(false);
-
   private readonly filterRestored = signal(false);
 
   constructor() {
@@ -290,45 +281,20 @@ export class GroupsV2Component {
     });
 
     effect(() => {
-      const stored = this.storedTableState();
-      if (stored == null) {
-        return;
-      }
-      untracked(() => {
-        if (this.sortRestored()) {
-          return;
-        }
-        this.sortRestored.set(true);
-        if (isSortableColumn(stored.sortColumn)) {
-          this.sort.set({ column: stored.sortColumn, direction: stored.sortDirection ?? "asc" });
-        }
-      });
-    });
-
-    effect(() => {
-      const { column, direction } = this.sort();
-      const organizationId = this.organizationId();
-      if (!this.sortRestored() || organizationId == null) {
-        return;
-      }
-      void this.tableState.update(organizationId, { sortColumn: column, sortDirection: direction });
-    });
-
-    effect(() => {
-      const collections = this.tableRef()?.filterValues()?.collections;
+      const sharedFolders = this.tableRef()?.filterValues()?.collections;
       const organizationId = this.organizationId();
       const stored = this.storedTableState();
-      if (collections == null || organizationId == null || stored == null) {
+      if (sharedFolders == null || organizationId == null || stored == null) {
         return;
       }
       if (!this.filterRestored()) {
-        if (!sameCollections(collections, stored.collections)) {
+        if (!sameSharedFolders(sharedFolders, stored.sharedFolders)) {
           return;
         }
         this.filterRestored.set(true);
         return;
       }
-      void this.tableState.update(organizationId, { collections: [...collections] });
+      void this.tableState.update(organizationId, { sharedFolders: [...sharedFolders] });
     });
   }
 
