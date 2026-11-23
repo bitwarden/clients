@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,6 +21,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { PremiumUpgradeNudgeComponent } from "../components/premium-upgrade-nudge/premium-upgrade-nudge.component";
@@ -51,14 +52,15 @@ export class ExternalCheckoutPremiumUpgradeNudgeService implements PremiumUpgrad
     PremiumUpgradeNudgeComponent.open(this.dialogService, {
       data: {
         options,
-        upgrade: () => this.launchCheckout({ featureNameKey: options.checkoutFeatureNameKey }),
+        upgrade: () =>
+          this.launchCheckout(userId, { featureNameKey: options.checkoutFeatureNameKey }),
       },
       disableClose: this.platformUtilsService.getClientType() === ClientType.Browser,
     });
     return false;
   }
 
-  private async launchCheckout(context: PremiumCheckoutPending): Promise<void> {
+  private async launchCheckout(userId: UserId, context: PremiumCheckoutPending): Promise<void> {
     try {
       const environment = await firstValueFrom(this.environmentService.environment$);
       const checkoutFlagEnabled = await this.configService.getFeatureFlag(
@@ -68,9 +70,6 @@ export class ExternalCheckoutPremiumUpgradeNudgeService implements PremiumUpgrad
         FeatureFlag.DebugDisableSelfHostPremiumCheck,
       );
       const platform = this.resolveCheckoutPlatform();
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
 
       if (
         checkoutFlagEnabled &&
@@ -82,12 +81,10 @@ export class ExternalCheckoutPremiumUpgradeNudgeService implements PremiumUpgrad
         });
         this.platformUtilsService.launchUri(checkoutSessionUrl);
 
-        if (userId != null) {
-          try {
-            await this.premiumCheckoutPendingService.markCheckoutLaunched(userId, context);
-          } catch (error: unknown) {
-            this.logService.error("Failed to mark premium checkout as pending", error);
-          }
+        try {
+          await this.premiumCheckoutPendingService.markCheckoutLaunched(userId, context);
+        } catch (error: unknown) {
+          this.logService.error("Failed to mark premium checkout as pending", error);
         }
       } else {
         this.platformUtilsService.launchUri(

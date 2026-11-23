@@ -234,16 +234,6 @@ describe("ExternalCheckoutPremiumUpgradeNudgeService", () => {
         });
       });
 
-      it("launches checkout but skips marking when there is no active account at click time", async () => {
-        await service.hasPremiumOrShowUpgradeNudge(options);
-        activeAccount$.next(null);
-
-        await openedData().upgrade();
-
-        expect(platformUtilsService.launchUri).toHaveBeenCalledWith(checkoutSessionUrl);
-        expect(premiumCheckoutPendingService.markCheckoutLaunched).not.toHaveBeenCalled();
-      });
-
       it("resolves and logs without a toast when marking checkout launched fails", async () => {
         const error = new Error("state write failed");
         premiumCheckoutPendingService.markCheckoutLaunched.mockRejectedValue(error);
