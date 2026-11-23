@@ -396,7 +396,7 @@ export class Main {
     ).init();
 
     this.headlessVaultTimeout = new HeadlessVaultTimeoutMain(
-      this.windowMain,
+      cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
       this.serviceContainer.vaultTimeoutService,
       this.serviceContainer.vaultTimeoutSettingsService,
       accountService,
