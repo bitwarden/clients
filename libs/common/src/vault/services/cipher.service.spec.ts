@@ -1850,66 +1850,115 @@ describe("Cipher Service", () => {
       await tick();
     };
 
-    it("emits and calls updateEncryptedCipherState when current state is empty and replace({}) is called", async () => {
-      // Ensure empty state
-      await setEncryptedState({});
-
+    it("writes and emits when nothing is stored yet, even for replace({})", async () => {
+      // No setEncryptedState: the fake starts with a null stored value
       const emissions: Array<Record<CipherId, CipherData>> = [];
       const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
       await tick();
+      const clearCache = jest.spyOn(cipherService, "clearCache");
 
-      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
-
-      // Calling replace with empty object MUST still update to trigger init emissions
       await cipherService.replace({}, userId);
       await tick();
 
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(emissions.length).toBeGreaterThanOrEqual(TEST_BASELINE_EMISSIONS + 1);
+      expect(clearCache).toHaveBeenCalledTimes(1);
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextMock,
+      ).toHaveBeenCalledWith({});
+      expect(emissions.length).toBe(2);
 
       sub.unsubscribe();
     });
 
-    it("does NOT emit or call updateEncryptedCipherState when state is non-empty and identical", async () => {
+    it("skips the write and keeps the cache when an empty state is replaced with {}", async () => {
+      await setEncryptedState({});
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+      const fake = stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS);
+      fake.nextMock.mockClear();
+
+      await cipherService.replace({}, userId);
+
+      expect(clearCache).not.toHaveBeenCalled();
+      expect(fake.nextMock).not.toHaveBeenCalled();
+    });
+
+    it("does NOT emit, write or clear the cache when state is non-empty and identical", async () => {
       const A = makeCipher("A");
       await setEncryptedState({ [A.id as CipherId]: A });
 
       const emissions: Array<Record<CipherId, CipherData>> = [];
       const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
       await tick();
-
-      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
+      const clearCache = jest.spyOn(cipherService, "clearCache");
 
       // identical snapshot → short-circuit path
       await cipherService.replace({ [A.id as CipherId]: A }, userId);
       await tick();
 
-      expect(spy).not.toHaveBeenCalled();
+      expect(clearCache).not.toHaveBeenCalled();
       expect(emissions.length).toBe(TEST_BASELINE_EMISSIONS);
 
       sub.unsubscribe();
     });
 
-    it("emits and calls updateEncryptedCipherState when the provided state differs from current", async () => {
+    it("emits, writes and clears the cache when the provided state differs from current", async () => {
       const A = makeCipher("A");
       await setEncryptedState({ [A.id as CipherId]: A });
 
       const emissions: Array<Record<CipherId, CipherData>> = [];
       const sub = cipherService.ciphers$(userId).subscribe((v) => emissions.push(v));
       await tick();
-
-      const spy = jest.spyOn<any, any>(cipherService, "updateEncryptedCipherState");
+      const clearCache = jest.spyOn(cipherService, "clearCache");
 
       const B = makeCipher("B");
       await cipherService.replace({ [B.id as CipherId]: B }, userId);
       await tick();
 
-      expect(spy).toHaveBeenCalledTimes(1);
-
+      expect(clearCache).toHaveBeenCalledWith(userId);
       expect(emissions.length).toBeGreaterThanOrEqual(TEST_BASELINE_EMISSIONS + 1);
+      expect(await firstValueFrom(cipherService.ciphers$(userId))).toEqual({
+        [B.id as CipherId]: B,
+      });
 
       sub.unsubscribe();
     });
+  });
+
+  describe("delete", () => {
+    const idA = "A" as CipherId;
+    const idB = "B" as CipherId;
+    const make = (id: CipherId) => Object.assign(new CipherData(), { ...cipherData, id });
+    const fake = () => stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS);
+
+    beforeEach(() => {
+      fake().nextState({ [idA]: make(idA), [idB]: make(idB) });
+    });
+
+    it("removes a stored cipher and clears the cache for the given user", async () => {
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+
+      await cipherService.delete(idA, userId);
+
+      expect(clearCache).toHaveBeenCalledWith(userId);
+      expect(fake().nextMock).toHaveBeenCalledWith({ [idB]: make(idB) });
+    });
+
+    it("removes every stored cipher in an array of IDs", async () => {
+      await cipherService.delete([idA, idB], userId);
+
+      expect(fake().nextMock).toHaveBeenCalledWith({});
+    });
+
+    it.each([["unknown"], [["unknown", "other"]]])(
+      "skips the write and keeps the cache when no ID in %j is stored",
+      async (id) => {
+        const clearCache = jest.spyOn(cipherService, "clearCache");
+
+        await cipherService.delete(id, userId);
+
+        expect(clearCache).not.toHaveBeenCalled();
+        expect(fake().nextMock).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe("getAllDecrypted (SDK path) localData hydration", () => {
