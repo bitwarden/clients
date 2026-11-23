@@ -228,6 +228,25 @@ describe("InlineMenuPasswordGenerator", () => {
       expect(actions.classList.contains("remove-outline")).toBe(false);
     });
 
+    it("keeps the row outline removed when ArrowLeft moves from refresh to copy", () => {
+      jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+      const { actions, fill, refresh } = renderActionsDom();
+      const copy = document.createElement("button");
+      copy.setAttribute("data-copy-generated-password", "");
+      copy.focus = jest.fn();
+      actions.insertBefore(copy, refresh);
+      actions.classList.add("remove-outline");
+
+      litHandler(
+        litValues(InlineMenuPasswordGenerator({ ...baseProps, designSystem: true })),
+        REFRESH_KEYUP_SLOT,
+      )(keyupEvent("ArrowLeft", refresh));
+
+      expect(copy.focus).toHaveBeenCalled();
+      expect(fill.focus).not.toHaveBeenCalled();
+      expect(actions.classList.contains("remove-outline")).toBe(true);
+    });
+
     it("moves focus from fill to copy on ArrowRight", () => {
       jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
       const { actions, fill, refresh } = renderActionsDom();

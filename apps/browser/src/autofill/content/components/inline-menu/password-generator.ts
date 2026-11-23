@@ -221,7 +221,7 @@ function handleActionKeyUp(event: KeyboardEvent, arrowCode?: "ArrowLeft" | "Arro
   }
 
   next.focus();
-  actions.classList.toggle("remove-outline", direction === "ArrowRight");
+  actions.classList.toggle("remove-outline", !next.matches("[data-fill-generated-password]"));
 }
 
 const containerStyles = css`
