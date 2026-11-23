@@ -46,6 +46,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { FeatureActivity } from "./autofill/main/feature-activity";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -492,12 +493,19 @@ export class Main {
       cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
       [
         { name: "ssh-agent", active: () => this.sshAgentService.running },
-        { name: "autotype", active: () => this.mainDesktopAutotypeMvpService.active },
-        { name: "autotype-ga", active: () => this.mainDesktopAutotypeService.active },
-        { name: "autofill-provider", active: () => this.desktopAutofillMain.active },
+        {
+          name: "autotype",
+          active: () => this.mainDesktopAutotypeMvpService.active === FeatureActivity.Active,
+        },
+        {
+          name: "autotype-ga",
+          active: () => this.mainDesktopAutotypeService.active === FeatureActivity.Active,
+        },
+        {
+          name: "autofill-provider",
+          active: () => this.desktopAutofillMain.active === FeatureActivity.Active,
+        },
         { name: "duckduckgo", active: () => ddgEnabled },
-        // Browser biometrics, shared unlock and CLI unlock are answered by the renderer.
-        { name: "native-messaging", active: () => this.nativeMessagingMain.hasClients },
       ],
       this.windowMain,
       this.clipboardMain,
