@@ -22,7 +22,7 @@ export abstract class ApprovalSdkService {
 
   /**
    * One page of the ended requests on collections the caller manages and among their own, newest
-   * end first, with the total and the filter options.
+   * request first, with the total and the filter options.
    */
   abstract listHistory(query: AccessRequestHistoryQuery): Promise<AccessRequestHistoryPage>;
 

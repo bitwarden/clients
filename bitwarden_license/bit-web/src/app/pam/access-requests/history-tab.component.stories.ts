@@ -151,14 +151,17 @@ function historyServer(requests: () => Ended[]): Pick<ApprovalSdkService, "listH
   return {
     listHistory: (query: AccessRequestHistoryQuery) => {
       const all = requests();
-      const matching = all.filter(
-        ({ status, request }) =>
-          (query.statuses.length === 0 || query.statuses.includes(status)) &&
-          (query.collectionIds.length === 0 ||
-            query.collectionIds.map(uuidAsString).includes(uuidAsString(request.collectionId))) &&
-          (query.requesterIds.length === 0 ||
-            query.requesterIds.map(uuidAsString).includes(uuidAsString(request.requesterId))),
-      );
+      const matching = all.filter(({ status, request }) => {
+        const statusMatches = query.statuses.length === 0 || query.statuses.includes(status);
+        const collectionMatches =
+          query.collectionIds.length === 0 ||
+          query.collectionIds.map(uuidAsString).includes(uuidAsString(request.collectionId));
+        const requesterMatches =
+          query.requesterIds.length === 0 ||
+          query.requesterIds.map(uuidAsString).includes(uuidAsString(request.requesterId));
+
+        return statusMatches && collectionMatches && requesterMatches;
+      });
       const start = query.page * query.pageSize;
       return Promise.resolve({
         requests: matching.slice(start, start + query.pageSize).map(({ request }) => request),
