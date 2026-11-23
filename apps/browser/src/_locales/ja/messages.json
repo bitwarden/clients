@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "ファイル"
   },
+  "item": {
+    "message": "アイテム"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ 個の Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1個の Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Send がありません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "テキストやファイルを安全に誰とでも共有できます。あなたの情報はエンドツーエンドで暗号化されます。"
+  },
+  "pendingDeletion": {
+    "message": "削除の保留中"
+  },
   "allSends": {
     "message": "すべての Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5237,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "インポートしました"
+  },
+  "importConfirmationBody": {
+    "message": "$AMOUNT$ 個のアイテムを Bitwarden にインポートしました。",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "1 個のアイテムを Bitwarden にインポートしました。"
+  },
+  "importConfirmationTipLabel": {
+    "message": "ヒント："
+  },
+  "importDeleteFileTip": {
+    "message": "$FILENAME$ を削除してください。機密データが含まれており、暗号化されていない可能性があります。",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "インポートファイルを削除してください。機密データが含まれており、暗号化されていない可能性があります。"
+  },
+  "importingTitle": {
+    "message": "インポート中"
+  },
+  "importingDescription": {
+    "message": "このプロセスには数分かかることがあります。"
+  },
+  "importingItemsTitle": {
+    "message": "$COUNT$ 個のアイテムをインポート中！",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "1 個のアイテムをインポート中！"
+  },
+  "openingExtensionSubtitle": {
+    "message": "ブラウザー拡張機能を開いています"
+  },
+  "openedExtensionTitle": {
+    "message": "ブラウザー拡張機能を開きました"
+  },
+  "somethingWentWrong": {
+    "message": "問題が発生しました..."
+  },
+  "openingExtensionError": {
+    "message": "Bitwarden ブラウザー拡張機能を開く際に問題が発生しました。ボタンをクリックすると開きます。"
+  },
+  "openExtension": {
+    "message": "拡張機能を開く"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "Bitwarden ブラウザー拡張機能を開けませんでした。Bitwarden アイコンを ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " ツールバーから開いてください。",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "再試行"
   },
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "エラーが発生しました。資格情報を確認して再度お試しください。"
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "パスワードによるログインのみに対応しています。"
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "パスワードによるログインのみに対応しています。もう一度試すか、別のインポート方法を使用してください。"
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "この 1Password アカウントは非対応のサインイン方法を使用しています。もう一度試すか、別のインポート方法を使用してください。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "正しいメールアドレスを入力するか、別のインポート方法を使用してください。"
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "正しいサインインアドレスを入力してください。"
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "1Password Emergency Kit で確認してください。"
   },
   "secretKeyIsRequired": {
     "message": "秘密鍵が必要です。"
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "1Password にログインするために使用するメールアドレスを入力してください"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "1Password にログインするために使用するメールアドレスを入力してください。 パスワードでのみログインできます。"
+  },
   "secretKey": {
     "message": "秘密鍵"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "あなたのアカウントは秘密鍵とパスワードで保護されています。続行するには両方を入力する必要があります。"
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "SSO でログイン"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "SSO ログインページに切り替えると、Bitwarden へのインポートが完了します。"
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "暗号化キーの転送"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "1Password にログインし、このリクエストを認証するために保留中のサインインに移動します。"
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "コードが動作しませんでした。他のデバイスで新しいコードを確認してください。"
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "サインインが完了する前に SSO のサインインページが閉じられました。インポートを続けるには再度お試しください。"
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "このデバイスは他のデバイスで承認されませんでした。もう一度試すか、別のインポート方法を使用してください。"
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "認証コードの誤入力が多すぎます。もう一度試すか、別のインポート方法を使用してください。"
   },
   "keeperEmail": {
     "message": "Keeper メール"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "住所をコピー"
   },
-  "myItems": {
-    "message": "マイアイテム"
-  },
   "myItemsV2": {
     "message": "マイアイテム"
   },
@@ -7080,7 +7205,7 @@
   },
   "desktopApp": {
     "message": "デスクトップアプリ",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "デスクトップアプリ $COUNT$",
@@ -7092,6 +7217,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "不正なアプリペアリングです",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "ウェブサイトを追加しました"
   },
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "ウェブサイトまたはアプリを追加"
-  },
-  "app": {
-    "message": "アプリ"
   },
   "deleteWebsite": {
     "message": "ウェブサイトを削除"
@@ -8190,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "保管庫を管理するにはどうすればよいですか？"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "アイテムを $ORGANIZATION$ に転送",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "アイテムを $ORGANIZATION$ に転送する",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ は、セキュリティとコンプライアンスのためにすべてのアイテムを組織が所有することを必要としています。",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ は、すべてのメンバーアイテムを組織が所有することを要求しています。 あなたの個人的なアイテムは、あなただけが見られる「マイアイテム」というフォルダーに移動します。",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "転送を承認するボタンを押すとアイテムの所有権を譲渡します。"
   },
   "openTransferItemsHelpArticle": {
     "message": "アイテムの転送に関するヘルプ記事を開く"
@@ -8470,7 +8593,7 @@
     "message": "この Send は設定された削除日時に自動的に期限切れになります",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"
   },
   "cannotSaveItemNoConfirmedOrgs": {
@@ -8892,6 +9015,9 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "このアイテムにはマスターパスワードの再プロンプトが有効になっているため、ブラウザーのログインプロンプトの自動入力がオフになりました。この変更を維持するにはアイテムを保存してください。"
+  },
+  "vaultItem": {
+    "message": "保管庫のアイテム"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "承認されたアクセス期間はまだ開始されていません。"

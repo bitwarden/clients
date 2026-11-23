@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Masaüstü uygulaması",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Masaüstü uygulaması $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Web sitesi eklendi"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Web sitesi veya uygulama ekle"
-  },
-  "app": {
-    "message": "Uygulama"
   },
   "deleteWebsite": {
     "message": "Web sitesini sil"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Ben"
   },
-  "myItems": {
-    "message": "Kayıtlarım"
-  },
   "myItemsV2": {
     "message": "Kayıtlarım"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 kayıt",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Tümünü temizle"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "Veriler başarıyla dışa aktarıldı"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Bitwarden $PLAN$ aboneliğinizi başlattığınız teşekkür ederiz!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "$PLAN$ için Bitwarden Secrets Manager'a kaydolduğunuz için teşekkür ederiz!",
     "placeholders": {
@@ -5735,22 +5764,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "$TRIAL_LENGTH$ günlük ücretsiz $PLAN$ paketiniz $TRIAL_LENGTH$ gün sonra ücretli aboneliğe dönüştürülecektir.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Ekibinizin fatura e-postasına bir onay e-postası gönderdik: "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Deneme sürümünüz Privileged Controls'ü içerir."
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Yeni kuruluşunuz hazır!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Kuruluş yükseltildi"
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "$ID$ koleksiyonu oluşturuldu.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8964,6 +8992,10 @@
     "message": "Bu Send'i kalıcı olarak silmek istediğinizden emin misiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Are you sure you want to delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Silinme tarihi"
   },
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Masaüstü uygulamasında otomatik doldurmayı tüm üyeler için varsayılan olarak açın. Bir klavye kısayolu ayarlayabilir ve üyelerin doldurmadan önce onaylaması gerekip gerekmediğini seçebilirsiniz. Bu özellik beta aşamasındadır."
+  },
+  "keyboardShortcut": {
+    "message": "Klavye kısayolu"
+  },
+  "appAutofillShortcut": {
+    "message": "Uygulama otomatik doldurma kısayolu"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Üyeler bu klavye kısayolunu istedikleri zaman değiştirebilir."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Bitwarden varsayılan kısayolunu kullanın: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Kendi özel kısayolunuzu girin."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Ctrl, Alt veya Win ile en az 1 harf ekleyin."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Doldurmadan önce her zaman sor"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+  },
+  "invalidShortcut": {
+    "message": "Geçersiz kısayol"
   },
   "disableSend": {
     "message": "Send'i sil"
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "Hesabı kurtar"
   },
+  "recover": {
+    "message": "Kurtar",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "$NAME$ hesabını kurtar",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "$NAME$ için hiç işlem yok",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "Bu üyenin parolasını veya iki aşamalı girişini sıfırladığınızda değişiklik kendisine bildirilir ve oturumu kapatılır."
   },
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Onay ayrıntıları"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Bitwarden Secrets Manager'a kaydolduğunuz için teşekkür ederiz!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "E-posta adresinize bir onay e-postası gönderdik:"
@@ -16570,9 +16654,16 @@
     "message": "Hassas bilgileri güvenle paylaşın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "generatorNudgeTitle": {
     "message": "Hızlıca parola oluşturun"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Kasamı nasıl yönetebilirim?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Kayıtları $ORGANIZATION$ kuruluşuna aktar",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın."
   },
   "openTransferItemsHelpArticle": {
     "message": "Kayıt aktarımıyla ilgili yardım makalesini aç"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Bir hata oluştu. Kimlik bilgilerinizi kontrol edip yeniden deneyin."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Yalnızca parolayla giriş destekleniyor."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Yalnızca parolayla giriş destekleniyor. Yeniden deneyin veya farklı bir içe aktarma yöntemi kullanın."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Geçerli bir e-posta adresi girin veya farklı bir içe aktarma yöntemi kullanın."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Geçerli bir giriş adresi girin."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Gizli anahtar gereklidir."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "1Password'e giriş yapmak için kullandığınız e-posta adresini girin"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Gizli anahtar"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Hesabınız bir Gizli Anahtar ve parola ile korunuyor. Devam etmek için ikisini de girmeniz gerekecek."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper e-postası"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Etki alanlarını virgülle ayırın"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Birden fazla koleksiyonda bulunan kayıtları Kayıtlarım'a içe aktaramazsınız"
   },
   "searchDriversLicense": {

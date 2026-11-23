@@ -248,6 +248,52 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(c.showFullUrls()).toBe(true);
   });
 
+  describe("desktop app URIs", () => {
+    const pairingUri = "desktopapp://autotype?version=1.0.0&data=e30";
+
+    it("leaves desktop app URIs out of the saved URLs", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com",
+          savedUris: [
+            makeUri(pairingUri, UriMatchStrategy.Exact),
+            makeUri("https://one.example.com/a"),
+            makeUri("DESKTOPAPP://autotype", UriMatchStrategy.Never),
+          ],
+        },
+      });
+
+      expect(c.savedUrls().map((u) => u.uri)).toEqual(["https://one.example.com/a"]);
+      expect(c.formattedSavedUrls()).toEqual(["one.example.com"]);
+    });
+
+    it("does not show full URLs because of a desktop app URI's Exact match strategy", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com",
+          savedUris: [
+            makeUri("https://one.example.com/a"),
+            makeUri(pairingUri, UriMatchStrategy.Exact),
+          ],
+        },
+      });
+
+      expect(c.showFullUrls()).toBe(false);
+    });
+
+    it("treats a login whose only URI is a desktop app as having no saved website", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com",
+          savedUris: [makeUri(pairingUri, UriMatchStrategy.Exact)],
+        },
+      });
+
+      expect(c.savedUrls()).toEqual([]);
+      expect(c.dialogTitle()).toBe("loginHasNoSiteSaved");
+    });
+  });
+
   it("showFullUrls is true when any saved URI has RegularExpression match strategy", async () => {
     const mixedParams: AutofillConfirmationDialogParams = {
       currentUrl: "https://example.com",

@@ -111,6 +111,10 @@ import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstr
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import {
+  AccountDeletionService,
+  DefaultAccountDeletionService,
+} from "@bitwarden/common/auth/account-deletion";
+import {
   AccountSwitcherService,
   DefaultAccountSwitcherService,
 } from "@bitwarden/common/auth/account-switcher";
@@ -151,6 +155,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import {
   DefaultTwoFactorApiService,
   DefaultTwoFactorService,
@@ -810,18 +819,22 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AccountApiServiceAbstraction,
     useClass: AccountApiServiceImplementation,
+    deps: [ApiServiceAbstraction, LogService, EnvironmentService],
+  }),
+  safeProvider({
+    provide: AccountDeletionService,
+    useClass: DefaultAccountDeletionService,
     deps: [
-      ApiServiceAbstraction,
+      AccountApiServiceAbstraction,
       UserVerificationServiceAbstraction,
+      LogoutService,
       LogService,
-      InternalAccountService,
-      EnvironmentService,
     ],
   }),
   safeProvider({
     provide: InternalAccountService,
     useClass: AccountServiceImplementation,
-    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider, SingleUserStateProvider],
+    deps: [GlobalStateProvider, SingleUserStateProvider],
   }),
   safeProvider({
     provide: AccountServiceAbstraction,
@@ -1381,7 +1394,8 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       StateProvider,
       ConfigService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
+      SsoJitProvisionFinishApiService,
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
@@ -1883,7 +1897,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
       UnlockService,
     ],
   }),
@@ -2134,6 +2148,17 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
     deps: [PasswordPreloginApiService, SdkService, ConfigService, MasterPasswordServiceAbstraction],
+  }),
+  // TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
+  safeProvider({
+    provide: SsoJitProvisionFinishApiService,
+    useClass: SsoJitProvisionFinishApiService,
+    deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SsoJitProvisionFinishService,
+    useClass: DefaultSsoJitProvisionFinishService,
+    deps: [RegisterSdkService, ConfigService, GlobalStateProvider],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

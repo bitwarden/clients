@@ -19,7 +19,7 @@ const SmTemplates = {
   }),
   "sm-access-policies": () => ({
     organizationId: null as string | null,
-    policies: [{ type: "user", id: "00000000-0000-0000-0000-000000000000", permission: "read" }],
+    policies: [{ type: "user", id: "00000000-0000-0000-0000-000000000000" }],
   }),
 } as const;
 

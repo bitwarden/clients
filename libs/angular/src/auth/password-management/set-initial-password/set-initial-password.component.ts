@@ -248,12 +248,13 @@ export class SetInitialPasswordComponent implements OnInit {
         salt: passwordInputResult.salt,
       };
 
-      await this.setInitialPasswordService.initializePasswordJitPasswordUserV2Encryption(
-        credentials,
-        this.userId,
-      );
+      const organizationInviteAccepted =
+        await this.setInitialPasswordService.initializePasswordJitPasswordUserV2Encryption(
+          credentials,
+          this.userId,
+        );
 
-      this.showSuccessToastByUserType();
+      this.showSuccessToastByUserType(organizationInviteAccepted);
 
       this.submitting = false;
       await this.router.navigate(["vault"]);
@@ -339,7 +340,7 @@ export class SetInitialPasswordComponent implements OnInit {
     }
   }
 
-  private showSuccessToastByUserType() {
+  private showSuccessToastByUserType(organizationInviteAccepted = true) {
     if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       this.toastService.showToast({
         variant: "success",
@@ -347,11 +348,14 @@ export class SetInitialPasswordComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("inviteAccepted"),
-      });
+      // An open invite stays Invited, so the invite is not accepted yet.
+      if (organizationInviteAccepted) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("inviteAccepted"),
+        });
+      }
     } else {
       this.toastService.showToast({
         variant: "success",
