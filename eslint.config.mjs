@@ -288,7 +288,6 @@ export default tseslint.config(
     ignores: [
       "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
-      "apps/browser/src/autofill/orchestration/**/*.ts", // The orchestrator is the one caller of the fill methods below
       "apps/browser/src/platform/background.ts",
       "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
@@ -349,14 +348,24 @@ export default tseslint.config(
   },
   {
     files: ["apps/browser/src/autofill/**/background/**/*.ts"],
-    ignores: [
-      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
-      "apps/browser/src/**/*.spec.ts",
-    ],
+    ignores: ["apps/browser/src/**/*.spec.ts"],
     rules: {
       "no-restricted-syntax": [
         "error",
         doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+        ...fillCipherPolicySyntaxRules(),
+      ],
+    },
+  },
+  // The orchestrator is the one caller of `doAutoFill`, so this block repeats the entries of the
+  // non-background Autofill block above without `doAutoFillSyntaxRule`.
+  {
+    files: ["apps/browser/src/autofill/orchestration/default-orchestrator.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...safariAddListenerSyntaxRules(),
         unsafeAutofillTabWithCipherSyntaxRule(),
         ...fillCipherPolicySyntaxRules(),
       ],
