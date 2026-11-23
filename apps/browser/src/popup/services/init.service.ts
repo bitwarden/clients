@@ -14,11 +14,13 @@ import { limitPerformanceMeasurements } from "@bitwarden/logging";
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { PopupThemeService } from "../../platform/popup/shell/popup-theme.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
+  private themeService = inject(PopupThemeService);
   private automationDriver = inject(AutomationDriver);
 
   constructor(
@@ -46,6 +48,7 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+      this.themeService.init();
 
       this.automationDriver.attachToGlobal(self);
 

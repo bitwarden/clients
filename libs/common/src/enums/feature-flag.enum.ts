@@ -23,7 +23,6 @@ export enum FeatureFlag {
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM30806_SelfServiceChangeEmailCommand = "pm-30806-self-service-change-email-command",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
-  PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
@@ -171,7 +170,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM30806_SelfServiceChangeEmailCommand]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
-  [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
