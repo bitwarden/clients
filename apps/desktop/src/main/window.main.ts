@@ -369,14 +369,7 @@ export class WindowMain {
     if (this.win.isMinimized()) {
       this.win.restore();
     }
-    this.show();
-    this.win.focus();
-
-    if (isMac()) {
-      // With the dock hidden, show() and focus() do not raise the window above other apps.
-      // Steal focus a tick later, once macOS has processed the show; same-tick steals get dropped.
-      setTimeout(() => app.focus({ steal: true }));
-    }
+    this.showAndFocus(this.win);
   }
 
   private showWhenReady(win: BrowserWindow) {
@@ -384,13 +377,22 @@ export class WindowMain {
       if (win.isDestroyed()) {
         return;
       }
-
-      win.show();
-      win.focus();
-      if (isMac()) {
-        app.focus({ steal: true });
-      }
+      this.showAndFocus(win);
     });
+  }
+
+  private showAndFocus(win: BrowserWindow): void {
+    win.show();
+    win.focus();
+    if (isMac()) {
+      // Showing and focusing the window is not enough to raise it above other
+      // applications' windows when the app was hidden to the tray (its dock was
+      // hidden too). Steal focus to bring it to the foreground. Defer the steal
+      // to the next tick so macOS has processed the show()/restore() (and, on the
+      // restore-from-tray path, the dock show that precedes it) before we request
+      // activation; stealing in the same tick as show() is sometimes dropped.
+      setTimeout(() => app.focus({ steal: true }));
+    }
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
