@@ -227,4 +227,35 @@ describe("AccessSetCommand", () => {
     );
     expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
   });
+  it.each([
+    ["group", groupId, "Engineering"],
+    ["machineAccount", machineAccountId, "CI runner"],
+  ])("explains when the id of a %s is sent with type user", async (actual, id) => {
+    const response = await command.run(smOrg, "project", smTargetId, {
+      policies: [{ type: "user", id, permission: "read" }],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toBe(
+      "`" +
+        id +
+        "` is a " +
+        (actual === "group" ? "group" : "machine account") +
+        ", not a user. Set the policy's `type` to `" +
+        actual +
+        "`.",
+    );
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
+  });
+
+  it("rejects a grantee that does not exist", async () => {
+    const id = "00000000-0000-0000-0000-000000000000";
+    const response = await command.run(smOrg, "project", smTargetId, {
+      policies: [{ type: "user", id, permission: "read" }],
+    });
+
+    expect(response.success).toBe(false);
+    expect(response.message).toContain("No user `" + id + "` can be granted access");
+    expect(fixture.accessPolicyService.putProjectPeopleAccessPolicies).not.toHaveBeenCalled();
+  });
 });
