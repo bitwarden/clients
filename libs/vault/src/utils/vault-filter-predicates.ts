@@ -23,6 +23,23 @@ export const NO_FOLDER = "noFolder";
 export const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
+ * Set views of the multi-select chips' selected ids, built once per selection. A chip emits a
+ * new array on each change, and the table passes that same array for every row in a pass and
+ * through every other chip's option counts, so each row's lookup is O(1) rather than
+ * O(selected). Weakly keyed, so a replaced selection's set is collected with it.
+ */
+const selectionSets = new WeakMap<readonly string[], ReadonlySet<string>>();
+
+function selectionSet(selection: readonly string[]): ReadonlySet<string> {
+  let set = selectionSets.get(selection);
+  if (set == null) {
+    set = new Set(selection);
+    selectionSets.set(selection, set);
+  }
+  return set;
+}
+
+/**
  * Whether the cipher matches the given type filter.
  * `null` and `undefined` mean "no filter, match everything".
  */
@@ -65,10 +82,11 @@ export function matchesSharedFolder(
   if (!sharedFolder || sharedFolder.length === 0) {
     return true;
   }
+  const selected = selectionSet(sharedFolder);
   // A loop, not `map`: the table calls this for every row on each filter change.
   for (const id of cipher.collectionIds ?? []) {
     const collectionId = idString(id);
-    if (collectionId != null && sharedFolder.includes(collectionId)) {
+    if (collectionId != null && selected.has(collectionId)) {
       return true;
     }
   }
@@ -99,9 +117,7 @@ export function matchesFolder(cipher: CipherViewLike, folder: string[] | undefin
   if (!folder || folder.length === 0) {
     return true;
   }
-  return folder.some((value) =>
-    value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
-  );
+  return selectionSet(folder).has(cipher.folderId ? String(cipher.folderId) : NO_FOLDER);
 }
 
 /**
@@ -121,6 +137,15 @@ export function matchesMyItems(
   myItems: boolean | undefined,
   collectionId: string | undefined,
 ): boolean {
-  const sharedFolder = myItems && collectionId != null ? [collectionId] : undefined;
-  return matchesSharedFolder(cipher, sharedFolder);
+  if (!myItems || collectionId == null) {
+    return true;
+  }
+  // Compared directly rather than through `matchesSharedFolder`: a one-element selection built
+  // per call would never hit its set cache.
+  for (const id of cipher.collectionIds ?? []) {
+    if (idString(id) === collectionId) {
+      return true;
+    }
+  }
+  return false;
 }
