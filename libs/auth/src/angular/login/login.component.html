@@ -1,6 +1,8 @@
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
     <!-- Email Address input -->
+    <!-- Stays in the DOM while hidden so autofill can fill email and master password together.
+         Read-only during master password entry so autofill cannot replace the email shown in the page subtitle. -->
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
@@ -9,6 +11,7 @@
         formControlName="email"
         bitInput
         appAutofocus
+        [readonly]="loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY"
         data-testid="login-email-input"
         (input)="onEmailInput($event)"
         (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"

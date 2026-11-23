@@ -2005,17 +2005,8 @@
   "syncNow": {
     "message": "Sync now"
   },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
   "changeMasterPassword": {
     "message": "Change master password"
-  },
-  "continueToWebApp": {
-    "message": "Continue to web app?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
@@ -6464,6 +6455,9 @@
   "itemLower":{
     "message": "item"
   },
+  "itemUpper": {
+    "message": "Item"
+  },
   "itemsLower":{
     "message": "items"
   },
@@ -7895,5 +7889,13 @@
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }
