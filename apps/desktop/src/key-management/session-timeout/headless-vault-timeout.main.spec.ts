@@ -60,7 +60,7 @@ describe("HeadlessVaultTimeoutMain", () => {
       sut = buildSut(false);
       sut.init();
 
-      jest.advanceTimersByTime(10_000);
+      jest.advanceTimersByTime(1_000);
 
       expect(vaultTimeoutService.checkVaultTimeout).not.toHaveBeenCalled();
     });
@@ -69,7 +69,7 @@ describe("HeadlessVaultTimeoutMain", () => {
       sut = buildSut(true);
       sut.init();
 
-      jest.advanceTimersByTime(10_000);
+      jest.advanceTimersByTime(1_000);
 
       expect(vaultTimeoutService.checkVaultTimeout).toHaveBeenCalledTimes(1);
     });

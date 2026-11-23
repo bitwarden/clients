@@ -11,8 +11,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
-// Matches DefaultVaultTimeoutService's check interval.
-const CheckIntervalMs = 10 * 1000;
+// Finer-grained than DefaultVaultTimeoutService's 10s: without a renderer, nothing else notices
+// a timeout until this check runs, so a shorter interval keeps that lag small.
+const CheckIntervalMs = 1 * 1000;
 
 /**
  * Enforces vault timeout in main, so an unlocked vault still times out while the renderer is
