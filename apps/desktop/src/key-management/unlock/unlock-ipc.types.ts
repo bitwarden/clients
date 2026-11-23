@@ -9,7 +9,13 @@ export type UnlockCompletedMessage = {
   method: UnlockMethod;
 };
 
+/** An unlock main performed, announced to the renderer. */
 export const UNLOCK_COMPLETED = new CommandDefinition<UnlockCompletedMessage>("unlockCompleted");
+
+/** An unlock the renderer performed, announced to main. */
+export const RENDERER_UNLOCK_COMPLETED = new CommandDefinition<UnlockCompletedMessage>(
+  "rendererUnlockCompleted",
+);
 
 /** A user key for one user, in a form that survives the IPC boundary. */
 export type VaultState = {
