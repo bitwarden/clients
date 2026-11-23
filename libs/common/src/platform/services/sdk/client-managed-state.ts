@@ -25,9 +25,9 @@ export async function initializeClientManagedState(
     Mapper: new () => SdkRecordMapper<ClientType, SdkType>,
     optimisticWrite = false,
   ) => new RepositoryRecord(userId, stateProvider, new Mapper(), optimisticWrite);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- no persisted value is client-managed yet
-  const value = <ClientType, SdkType>(Mapper: new () => SdkValueMapper<ClientType, SdkType>) =>
-    new PersistedValueState(userId, stateProvider, new Mapper());
+  // Uncomment this helper when the first persisted value is added.
+  // const value = <ClientType, SdkType>(Mapper: new () => SdkValueMapper<ClientType, SdkType>) =>
+  //   new PersistedValueState(userId, stateProvider, new Mapper());
 
   // Register repositories here. Implement an `SdkRecordMapper` in the owning team's folder, then
   // pass its class to `repository(...)`. Its state must be a `Record<string, ClientType>` keyed
