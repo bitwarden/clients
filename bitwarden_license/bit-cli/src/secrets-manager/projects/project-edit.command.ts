@@ -6,6 +6,7 @@ import { SmProjectResponse } from "../models/sm-project.response";
 import {
   checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   parseSmId,
   parseSmRequest,
   readSmName,
@@ -32,6 +33,10 @@ export class ProjectEditCommand {
     );
     if (orgMismatch) {
       return orgMismatch;
+    }
+    const unknown = checkSmUnknownProperties(parsed.request, "project");
+    if (unknown) {
+      return unknown;
     }
     const name = readSmName(parsed.request);
     if (name.error) {
