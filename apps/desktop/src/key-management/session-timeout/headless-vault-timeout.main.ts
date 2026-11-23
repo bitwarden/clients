@@ -11,25 +11,20 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
-import { WindowMain } from "../../main/window.main";
-
 // Matches DefaultVaultTimeoutService's check interval.
 const CheckIntervalMs = 10 * 1000;
 
 /**
- * Enforces vault timeout in main while the renderer is destroyed.
- *
- * Main owns the unlocked session, but the renderer runs the timeout checks. Without a renderer,
- * an unlocked vault would never time out. Main takes over only while the renderer is gone: running
- * both would lock twice.
+ * Enforces vault timeout in main, so an unlocked vault still times out while the renderer is
+ * destroyed, or does not exist yet.
  *
  * Only locking runs here. Logout cleans up through the renderer, so accounts that log out on
  * timeout keep the renderer alive instead (see {@link logoutOnTimeout}).
  *
  * ```
  *  every 10s ──────────────┐
- *  sleep / lock / idle ────┼─▶ renderer destroyed? ─ yes ─▶ lock timed-out accounts
- *                          │                        no ──▶ renderer handles it
+ *  sleep / lock / idle ────┼─▶ flag enabled? ─ yes ─▶ lock timed-out accounts
+ *                          │                 no  ──▶ renderer handles it
  * ```
  */
 export class HeadlessVaultTimeoutMain {
@@ -38,7 +33,7 @@ export class HeadlessVaultTimeoutMain {
   private interval?: NodeJS.Timeout;
 
   constructor(
-    private readonly windowMain: WindowMain,
+    private readonly flagEnabled: boolean,
     private readonly vaultTimeoutService: VaultTimeoutService,
     private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly accountService: AccountService,
@@ -52,6 +47,10 @@ export class HeadlessVaultTimeoutMain {
   }
 
   init(): void {
+    if (!this.flagEnabled) {
+      return;
+    }
+
     // Cache whether any account logs out on timeout, so the guard can read it synchronously.
     this.subscription = this.accountService.accounts$
       .pipe(
@@ -73,10 +72,6 @@ export class HeadlessVaultTimeoutMain {
       });
 
     this.interval = setInterval(() => {
-      if (!this.windowMain.rendererDestroyed) {
-        return;
-      }
-
       this.vaultTimeoutService.checkVaultTimeout().catch((e) => {
         this.logService.error("[Headless vault timeout] Check failed", e);
       });
@@ -90,7 +85,7 @@ export class HeadlessVaultTimeoutMain {
 
   /** Locks every account whose timeout is the given system event, e.g. "onSleep". */
   async onSystemEvent(timeout: VaultTimeout): Promise<void> {
-    if (!this.windowMain.rendererDestroyed) {
+    if (!this.flagEnabled) {
       return;
     }
 

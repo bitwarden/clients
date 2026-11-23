@@ -12,28 +12,33 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
-jest.mock("../../main/window.main", () => ({ WindowMain: jest.fn() }));
-
-import { WindowMain } from "../../main/window.main";
-
 import { HeadlessVaultTimeoutMain } from "./headless-vault-timeout.main";
 
 const userA = "user-a" as UserId;
 const userB = "user-b" as UserId;
 
 describe("HeadlessVaultTimeoutMain", () => {
-  let windowMain: { rendererDestroyed: boolean };
   let vaultTimeoutService: MockProxy<VaultTimeoutService>;
   let settings: MockProxy<VaultTimeoutSettingsService>;
   let accountService: MockProxy<AccountService>;
   let lockService: MockProxy<LockService>;
   let accounts$: BehaviorSubject<Record<UserId, unknown>>;
+
+  const buildSut = (flagEnabled: boolean) =>
+    new HeadlessVaultTimeoutMain(
+      flagEnabled,
+      vaultTimeoutService,
+      settings,
+      accountService,
+      lockService,
+      mock<LogService>(),
+    );
+
   let sut: HeadlessVaultTimeoutMain;
 
   beforeEach(() => {
     jest.useFakeTimers();
 
-    windowMain = { rendererDestroyed: false };
     vaultTimeoutService = mock<VaultTimeoutService>();
     vaultTimeoutService.checkVaultTimeout.mockResolvedValue();
     settings = mock<VaultTimeoutSettingsService>();
@@ -43,15 +48,6 @@ describe("HeadlessVaultTimeoutMain", () => {
     accountService = mock<AccountService>();
     Object.assign(accountService, { accounts$ });
     lockService = mock<LockService>();
-
-    sut = new HeadlessVaultTimeoutMain(
-      windowMain as unknown as WindowMain,
-      vaultTimeoutService,
-      settings,
-      accountService,
-      lockService,
-      mock<LogService>(),
-    );
   });
 
   afterEach(() => {
@@ -60,7 +56,8 @@ describe("HeadlessVaultTimeoutMain", () => {
   });
 
   describe("interval check", () => {
-    it("leaves timeout checks to the renderer while it exists", () => {
+    it("does not check timeouts while the flag is disabled", () => {
+      sut = buildSut(false);
       sut.init();
 
       jest.advanceTimersByTime(10_000);
@@ -68,8 +65,8 @@ describe("HeadlessVaultTimeoutMain", () => {
       expect(vaultTimeoutService.checkVaultTimeout).not.toHaveBeenCalled();
     });
 
-    it("checks timeouts while the renderer is destroyed", () => {
-      windowMain.rendererDestroyed = true;
+    it("checks timeouts while the flag is enabled", () => {
+      sut = buildSut(true);
       sut.init();
 
       jest.advanceTimersByTime(10_000);
@@ -79,7 +76,15 @@ describe("HeadlessVaultTimeoutMain", () => {
   });
 
   describe("logoutOnTimeout", () => {
+    it("is false when the flag is disabled", () => {
+      sut = buildSut(false);
+      sut.init();
+
+      expect(sut.logoutOnTimeout).toBe(false);
+    });
+
     it("is false when every account locks on timeout", () => {
+      sut = buildSut(true);
       sut.init();
 
       expect(sut.logoutOnTimeout).toBe(false);
@@ -90,6 +95,7 @@ describe("HeadlessVaultTimeoutMain", () => {
         of(userId === userB ? VaultTimeoutAction.LogOut : VaultTimeoutAction.Lock),
       );
 
+      sut = buildSut(true);
       sut.init();
 
       expect(sut.logoutOnTimeout).toBe(true);
@@ -98,6 +104,7 @@ describe("HeadlessVaultTimeoutMain", () => {
     it("is false without accounts", () => {
       accounts$.next({});
 
+      sut = buildSut(true);
       sut.init();
 
       expect(sut.logoutOnTimeout).toBe(false);
@@ -111,14 +118,16 @@ describe("HeadlessVaultTimeoutMain", () => {
       );
     });
 
-    it("leaves system events to the renderer while it exists", async () => {
+    it("does nothing while the flag is disabled", async () => {
+      sut = buildSut(false);
+
       await sut.onSystemEvent(VaultTimeoutStringType.OnSleep);
 
       expect(lockService.lock).not.toHaveBeenCalled();
     });
 
     it("locks only accounts whose timeout matches the event", async () => {
-      windowMain.rendererDestroyed = true;
+      sut = buildSut(true);
 
       await sut.onSystemEvent(VaultTimeoutStringType.OnSleep);
 
@@ -127,7 +136,7 @@ describe("HeadlessVaultTimeoutMain", () => {
     });
 
     it("skips accounts whose timeout is suppressed by shared unlock", async () => {
-      windowMain.rendererDestroyed = true;
+      sut = buildSut(true);
       settings.isVaultTimeoutSuppressed.mockResolvedValue(true);
 
       await sut.onSystemEvent(VaultTimeoutStringType.OnSleep);
