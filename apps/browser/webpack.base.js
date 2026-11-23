@@ -233,6 +233,10 @@ module.exports.buildConfig = function buildConfig(params) {
             ]
           : []),
         { from: path.resolve(__dirname, "src/popup/images"), to: "popup/images" },
+        {
+          from: path.resolve(__dirname, "../../libs/angular/src/billing/images/premium"),
+          to: "popup/images/premium",
+        },
         { from: path.resolve(__dirname, "src/autofill/content/autofill.css"), to: "content" },
       ],
     }),
@@ -376,7 +380,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
           angular: {
@@ -388,7 +393,8 @@ module.exports.buildConfig = function buildConfig(params) {
             },
             name: "popup/vendor-angular",
             chunks: (chunk) => {
-              return chunk.name === "popup/main";
+              // The app is loaded after `load` as `popup/app` (see src/popup/main.ts).
+              return chunk.name === "popup/main" || chunk.name === "popup/app";
             },
           },
         },

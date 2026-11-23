@@ -130,6 +130,10 @@ export class SendComponent implements OnDestroy {
     { initialValue: false },
   );
 
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
   protected readonly listState = toSignal(
@@ -381,7 +385,7 @@ export class SendComponent implements OnDestroy {
   }
 
   protected async onRemoveAuth(send: SendView): Promise<void> {
-    if (this.disableSend()) {
+    if (this.disableSend() || this.sendAuthRequired() || send.disabled) {
       return;
     }
 

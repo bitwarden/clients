@@ -1,20 +1,30 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { BulkOperationStatus } from "@bitwarden/bit-sm";
+import {
+  BulkOperationStatus,
+  ProjectView,
+  SecretView,
+  ServiceAccountSecretsDetailsView,
+} from "@bitwarden/bit-sm";
 import { Response } from "@bitwarden/cli/models/response";
 import { CliUtils } from "@bitwarden/cli/utils";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
+import { SmMachineAccountResponse } from "./models/sm-machine-account.response";
+import { SmProjectResponse } from "./models/sm-project.response";
+import { SmSecretResponse } from "./models/sm-secret.response";
 import {
+  checkSmReadOnlyProperties,
   checkSmRequestOrganization,
   isInSmOrganization,
   parseSmId,
   parseSmIds,
   parseSmRequest,
   readSmName,
+  SM_READ_ONLY_PROPERTIES,
   validateSmOrganizationAccess,
   smBulkResponse,
   smErrorResponse,
@@ -119,6 +129,110 @@ describe("sm-command.utils", () => {
     it("rejects JSON that is not an object", async () => {
       const result = await parseSmRequest(encodeSmRequest(["a"]));
       expect(result.error?.message).toBe("The request data must be a JSON object.");
+    });
+  });
+
+  describe("checkSmReadOnlyProperties", () => {
+    const guid = "22222222-2222-2222-2222-222222222222";
+    const existing = {
+      object: "sm-project",
+      id: guid,
+      organizationId: smOrgId,
+      name: "Backend",
+      creationDate: "2024-01-01T00:00:00Z",
+      revisionDate: "2024-01-02T00:00:00Z",
+      read: true,
+      write: true,
+      decryptionError: false,
+    };
+
+    it("allows a request without read-only properties", () => {
+      expect(checkSmReadOnlyProperties({ name: "A" }, "project", existing)).toBeUndefined();
+    });
+
+    it("allows read-only values equal to the existing ones so get output can be piped into edit", () => {
+      expect(checkSmReadOnlyProperties({ ...existing, name: "A" }, "project", existing)).toBe(
+        undefined,
+      );
+    });
+
+    it("compares GUIDs case-insensitively", () => {
+      expect(
+        checkSmReadOnlyProperties({ id: guid.toUpperCase() }, "project", existing),
+      ).toBeUndefined();
+    });
+
+    it.each([
+      ["object", "sm-secret"],
+      ["id", "33333333-3333-3333-3333-333333333333"],
+      ["creationDate", "2026-11-17T04:22:34.0716668Z"],
+      ["revisionDate", "2026-11-17T04:22:34.0716668Z"],
+      ["read", false],
+      ["write", false],
+      ["write", "true"],
+      ["decryptionError", true],
+      ["accessToSecrets", 3],
+    ])("rejects a changed %s (%p)", (property, value) => {
+      expect(
+        checkSmReadOnlyProperties({ name: "A", [property]: value }, "project", existing)?.message,
+      ).toBe(
+        "`" + property + "` cannot be edited on a project. Remove this property from the request.",
+      );
+    });
+
+    it("rejects a read-only property the existing entity does not have", () => {
+      expect(
+        checkSmReadOnlyProperties({ read: true }, "machine account", { name: "CI" })?.message,
+      ).toBe(
+        "`read` cannot be edited on a machine account. Remove this property from the request.",
+      );
+    });
+
+    it("names multiple properties in the plural", () => {
+      expect(
+        checkSmReadOnlyProperties(
+          { id: "33333333-3333-3333-3333-333333333333", write: false, creationDate: "x" },
+          "project",
+          existing,
+        )?.message,
+      ).toBe(
+        "`id`, `creationDate`, `write` cannot be edited on a project. Remove these properties from the request.",
+      );
+    });
+
+    it("treats a false value as present and null or whitespace-only values as missing", () => {
+      expect(checkSmReadOnlyProperties({ read: false }, "project", existing)?.success).toBe(false);
+      expect(
+        checkSmReadOnlyProperties({ read: "  ", id: null }, "project", existing),
+      ).toBeUndefined();
+    });
+
+    it("leaves organizationId to checkSmRequestOrganization", () => {
+      expect(SM_READ_ONLY_PROPERTIES).not.toContain("organizationId");
+    });
+
+    // Every property an edit command's response prints must be either editable or read-only, so
+    // a new response property cannot silently become an ignored request property.
+    it.each([
+      ["project", new SmProjectResponse(new ProjectView()), ["organizationId", "name"]],
+      [
+        "machine account",
+        new SmMachineAccountResponse(
+          Object.assign(new ServiceAccountSecretsDetailsView(), { accessToSecrets: 1 }),
+        ),
+        ["organizationId", "name"],
+      ],
+      [
+        "secret",
+        new SmSecretResponse(new SecretView()),
+        ["organizationId", "key", "value", "note", "projects"],
+      ],
+    ])("covers every %s response property", (_entity, response, editable) => {
+      const readOnly: readonly string[] = SM_READ_ONLY_PROPERTIES;
+      const uncovered = Object.keys(response).filter(
+        (key) => !editable.includes(key) && !readOnly.includes(key),
+      );
+      expect(uncovered).toEqual([]);
     });
   });
 

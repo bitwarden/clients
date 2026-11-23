@@ -265,7 +265,7 @@
 
   /* Accent Foreground */
   --color-fg-accent-primary-soft: var(--color-teal-200);
-  --color-fg-accent-primary: var(--color-teal-400);
+  --color-fg-accent-primary: var(--color-teal-700);
   --color-fg-accent-primary-strong: var(--color-teal-800);
   --color-fg-accent-secondary-soft: var(--color-coral-200);
   --color-fg-accent-secondary: var(--color-coral-400);
@@ -323,6 +323,7 @@
   --color-bg-accent-primary-medium: var(--color-teal-100);
   --color-bg-accent-primary: var(--color-teal-400);
   --color-bg-accent-primary-strong: var(--color-teal-700);
+  --color-bg-accent-primary-stronger: var(--color-teal-800);
   --color-bg-accent-secondary-soft: var(--color-coral-050);
   --color-bg-accent-secondary-medium: var(--color-coral-100);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -439,7 +440,8 @@
 
   /* Accent Border */
   --color-border-accent-primary-soft: var(--color-teal-200);
-  --color-border-accent-primary: var(--color-teal-600);
+  --color-border-accent-primary: var(--color-teal-700);
+  --color-border-accent-primary-strong: var(--color-teal-800);
   --color-border-accent-secondary-soft: var(--color-coral-200);
   --color-border-accent-secondary: var(--color-coral-600);
   --color-border-accent-tertiary-soft: var(--color-purple-200);
@@ -580,7 +582,7 @@
   /* Accent Foreground */
   --color-fg-accent-primary-soft: var(--color-teal-400);
   --color-fg-accent-primary: var(--color-teal-300);
-  --color-fg-accent-primary-strong: var(--color-teal-100);
+  --color-fg-accent-primary-strong: var(--color-teal-200);
   --color-fg-accent-secondary-soft: var(--color-coral-500);
   --color-fg-accent-secondary: var(--color-coral-400);
   --color-fg-accent-secondary-strong: var(--color-coral-100);
@@ -634,7 +636,8 @@
   --color-bg-accent-primary-soft: var(--color-teal-950);
   --color-bg-accent-primary-medium: var(--color-teal-900);
   --color-bg-accent-primary: var(--color-teal-400);
-  --color-bg-accent-primary-strong: var(--color-teal-200);
+  --color-bg-accent-primary-strong: var(--color-teal-300);
+  --color-bg-accent-primary-stronger: var(--color-teal-200);
   --color-bg-accent-secondary-soft: var(--color-coral-950);
   --color-bg-accent-secondary-medium: var(--color-coral-900);
   --color-bg-accent-secondary: var(--color-coral-400);
@@ -749,6 +752,8 @@
 
   /* Accent Border */
   --color-border-accent-primary-soft: var(--color-teal-800);
+  --color-border-accent-primary: var(--color-teal-300);
+  --color-border-accent-primary-strong: var(--color-teal-200);
   --color-border-accent-secondary-soft: var(--color-coral-800);
   --color-border-accent-secondary: var(--color-coral-500);
   --color-border-accent-tertiary-soft: var(--color-purple-800);

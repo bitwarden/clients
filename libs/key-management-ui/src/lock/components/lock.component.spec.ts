@@ -217,6 +217,24 @@ describe("LockComponent", () => {
 
       expect(mockUnlockService.unlockWithPin).toHaveBeenCalledTimes(1);
     });
+
+    it("clears a wrong PIN that was tried automatically", async () => {
+      component.formGroup = new FormBuilder().group({ pin: ["1234"] });
+      mockUnlockService.unlockWithPin.mockRejectedValue(new Error("wrong PIN"));
+
+      await component["unlockViaPin"]();
+
+      expect(component.formGroup.controls.pin.value).toBeFalsy();
+    });
+
+    it("keeps a wrong PIN without the stored length, e.g. submitted by Enter", async () => {
+      component.formGroup = new FormBuilder().group({ pin: ["123"] });
+      mockUnlockService.unlockWithPin.mockRejectedValue(new Error("wrong PIN"));
+
+      await component["unlockViaPin"]();
+
+      expect(component.formGroup.controls.pin.value).toBe("123");
+    });
   });
 
   describe("unlocked$", () => {
