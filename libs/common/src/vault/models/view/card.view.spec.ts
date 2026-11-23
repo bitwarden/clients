@@ -57,4 +57,43 @@ describe("CardView", () => {
       expect(result.code).toBeUndefined();
     });
   });
+
+  describe("getCardBrandByPatterns", () => {
+    it.each([
+      "5085000000000000",
+      "5089990000000000",
+      "6069850000000000",
+      "6079840000000000",
+      "6080010000000000",
+      "6085000000000000",
+      "6521500000000000",
+      "6521 5000 0000 0000",
+      "6521-5700-0000-0000",
+      "6531490000000000",
+      "8172000000000000",
+      "8201990000000000",
+    ])("should detect RuPay for %s", (cardNumber) => {
+      expect(CardView.getCardBrandByPatterns(cardNumber)).toBe("RuPay");
+    });
+
+    it.each(["6011000000000004", "6500000000000000", "6521490000000000", "6531500000000000"])(
+      "should keep Discover detection for non-RuPay prefix %s",
+      (cardNumber) => {
+        expect(CardView.getCardBrandByPatterns(cardNumber)).toBe("Discover");
+      },
+    );
+
+    it.each([
+      "5084990000000000",
+      "5090000000000000",
+      "6069840000000000",
+      "6079850000000000",
+      "6080000000000000",
+      "6085010000000000",
+      "8171990000000000",
+      "8202000000000000",
+    ])("should not match RuPay for out-of-range prefix %s", (cardNumber) => {
+      expect(CardView.getCardBrandByPatterns(cardNumber)).toBeUndefined();
+    });
+  });
 });
