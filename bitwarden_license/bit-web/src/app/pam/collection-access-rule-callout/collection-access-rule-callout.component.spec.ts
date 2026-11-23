@@ -71,7 +71,9 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     logService = mock<LogService>();
     dialogRef = { close: jest.fn() };
     enabled$ = new BehaviorSubject<boolean>(true);
-    organizations$ = new BehaviorSubject([{ id: ORG_ID as string, canManageAccessRules: true }]);
+    organizations$ = new BehaviorSubject<{ id: string; canManageAccessRules: boolean }[]>([
+      { id: ORG_ID, canManageAccessRules: true },
+    ]);
     accessRuleSdkService.listAccessRules.mockResolvedValue([]);
 
     TestBed.configureTestingModule({
