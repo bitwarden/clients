@@ -578,9 +578,13 @@ export class FilterMenuComponent
     return visible;
   });
 
+  /** Whether a row is shown. A section with no options never is, searching or not. */
   protected rowVisible(row: FilterRow): boolean {
     const visible = this.visibleRows();
-    return visible === null || visible.has(row);
+    if (visible === null) {
+      return row.kind !== "section" || row.children().length > 0;
+    }
+    return visible.has(row);
   }
 
   /**

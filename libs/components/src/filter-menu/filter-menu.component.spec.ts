@@ -1138,3 +1138,69 @@ describe("FilterMenuComponent checked state", () => {
     expect(chip.sectionSelectedCount(citrus)).toBe(0);
   });
 });
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, FilterSectionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="fruit" placeholderText="Fruit" [multiple]="multiple()">
+      <bit-filter-option [value]="'apple'">Apple</bit-filter-option>
+      <bit-filter-section label="Still loading">
+        @for (name of loaded(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-section>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class EmptySectionHostComponent {
+  readonly multiple = signal(true);
+  readonly loaded = signal<string[]>([]);
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent empty sections", () => {
+  let fixture: ComponentFixture<EmptySectionHostComponent>;
+
+  const text = () => (fixture.nativeElement as HTMLElement).textContent;
+
+  const render = async (multiple: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [EmptySectionHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(EmptySectionHostComponent);
+    fixture.componentInstance.multiple.set(multiple);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+  };
+
+  it.each([
+    ["multi-select", true],
+    ["single-select", false],
+  ])(
+    "hides a section with no options on a %s chip, with no search running",
+    async (_, multiple) => {
+      await render(multiple);
+
+      expect(text()).toContain("Apple");
+      expect(text()).not.toContain("Still loading");
+    },
+  );
+
+  it("shows the section once it has an option", async () => {
+    await render(true);
+
+    fixture.componentInstance.loaded.set(["Pear"]);
+    fixture.detectChanges();
+
+    expect(text()).toContain("Still loading");
+    expect(text()).toContain("Pear");
+  });
+});
