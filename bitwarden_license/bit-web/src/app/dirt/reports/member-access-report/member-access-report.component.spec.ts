@@ -25,11 +25,10 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
-import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -53,26 +52,22 @@ import {
 // Imported only as a DI token to mock out — MemberActionsService injects it. No crypto runs here.
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
-import {
-  GroupApiService,
-  OrganizationUserView,
-} from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import { MemberDialogResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
 import { DeleteManagedMemberWarningService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services";
 
 import { MemberAccessReportComponent } from "./member-access-report.component";
 import { MemberAccessReportService } from "./services/member-access-report.service";
-import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
+import { MemberAccessReportView } from "./view/member-access-report.view";
 
 const ORGANIZATION_ID = "org-id" as OrganizationId;
 const ORGANIZATION_USER_ID = "org-user-id" as Guid;
 const USER_ID = "user-id" as UserId;
 
-function buildRow(): MemberAccessReportViewV2 {
+function buildRow(): MemberAccessReportView {
   return {
     name: "Test User",
     email: "test@example.com",
@@ -83,17 +78,6 @@ function buildRow(): MemberAccessReportViewV2 {
     userGuid: ORGANIZATION_USER_ID,
     usesKeyConnector: false,
     userIdFromOrgUser: USER_ID,
-    member: new OrganizationUserView({
-      id: ORGANIZATION_USER_ID,
-      userId: USER_ID,
-      email: "test@example.com",
-      type: OrganizationUserType.User,
-      revocationReason: RevocationReasonType.Unknown,
-      status: OrganizationUserStatusType.Confirmed,
-      permissions: new PermissionsApi(),
-      avatarColor: "#000000",
-      name: "Test User",
-    }),
   };
 }
 
@@ -107,9 +91,7 @@ function buildRow(): MemberAccessReportViewV2 {
  * resolves them for real. Scoping any of them to an NgModule or to a component's `providers`
  * again puts it outside the injector chain the dialog resolves against, and this test fails.
  */
-function environmentProviders(
-  { canManageUsers }: { canManageUsers: boolean } = { canManageUsers: true },
-): (Provider | EnvironmentProviders)[] {
+function environmentProviders({ canManageUsers = true } = {}): (Provider | EnvironmentProviders)[] {
   const accountService = mock<AccountService>();
   const account: Account = {
     id: USER_ID,
@@ -154,6 +136,9 @@ function environmentProviders(
   const i18nService = mock<I18nService>();
   i18nService.t.mockReturnValue("translated");
 
+  const userNamePipe = mock<UserNamePipe>();
+  userNamePipe.transform.mockReturnValue("Test User");
+
   const reportService = mock<MemberAccessReportService>();
   reportService.generateMemberAccessReportViewV2.mockResolvedValue([]);
 
@@ -180,6 +165,7 @@ function environmentProviders(
     { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
     { provide: ConfigService, useValue: configService },
     { provide: I18nService, useValue: i18nService },
+    { provide: UserNamePipe, useValue: userNamePipe },
     { provide: MemberAccessReportService, useValue: reportService },
     { provide: GroupApiService, useValue: mock<GroupApiService>() },
     { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
@@ -210,14 +196,14 @@ function environmentProviders(
 
 describe("MemberAccessReportComponent", () => {
   describe("edit", () => {
-    async function setup(options?: { canManageUsers: boolean }) {
+    it("opens EditMemberDialogComponent with every dialog dependency resolvable", async () => {
       await TestBed.configureTestingModule({
         imports: [MemberAccessReportComponent],
         // TestBed `providers` land in the environment injector — the same kind of injector the
         // dialog resolves against in the running app, since DialogService parents the dialog's
         // injector to the environment injector DialogService itself was created in. Nothing here
         // provides the dialog's own services; they have to come from root.
-        providers: environmentProviders(options),
+        providers: environmentProviders(),
       })
         // The dialog's own template drags in tab groups, access selectors and select boxes that are
         // irrelevant here. Its `inject()` calls — the DI surface under test — still all run.
@@ -232,29 +218,13 @@ describe("MemberAccessReportComponent", () => {
       const dialogService = fixture.debugElement.injector.get(DialogService);
       const open = jest.spyOn(dialogService, "open");
 
-      return { component, dialogService, open };
-    }
-
-    /**
-     * Starts `edit()`, which does not settle until the dialog closes, and waits for it to open the
-     * dialog. Fails if `edit()` rejects first, e.g. because a dialog dependency can't be resolved.
-     */
-    async function startEdit(
-      component: MemberAccessReportComponent,
-      row: MemberAccessReportViewV2,
-    ) {
-      let error: unknown;
-      component.edit(row).catch((e: unknown) => (error = e));
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(error).toBeUndefined();
-    }
-
-    afterEach(() => TestBed.inject(DialogService).closeAll());
-
-    it("opens EditMemberDialogComponent with every dialog dependency resolvable", async () => {
-      const { component, open } = await setup();
-
-      await startEdit(component, buildRow());
+      // `edit()` does not settle until the dialog closes. If a dialog dependency cannot be
+      // resolved, `EditMemberDialogComponent.open()` throws while `edit()` is still running
+      // synchronously, so the returned promise is already rejected by the time we race it.
+      const stillOpen = Symbol("dialog still open");
+      await expect(
+        Promise.race([component.edit(buildRow()), Promise.resolve(stillOpen)]),
+      ).resolves.toBe(stillOpen);
 
       expect(open).toHaveBeenCalledWith(EditMemberDialogComponent, expect.anything());
 
@@ -267,34 +237,36 @@ describe("MemberAccessReportComponent", () => {
       expect(dialogRef.cdkDialogRefBase.componentRef?.instance).toBeInstanceOf(
         EditMemberDialogComponent,
       );
+
+      dialogService.closeAll();
+    });
+  });
+
+  describe("member name", () => {
+    async function setup(canManageUsers: boolean) {
+      await TestBed.configureTestingModule({
+        imports: [MemberAccessReportComponent],
+        providers: [
+          ...environmentProviders({ canManageUsers }),
+          { provide: DialogService, useValue: mock<DialogService>() },
+        ],
+      })
+        .overrideComponent(MemberAccessReportComponent, { set: { template: "" } })
+        .compileComponents();
+
+      return TestBed.createComponent(MemberAccessReportComponent).componentInstance;
+    }
+
+    it("is clickable for admins who can manage users", async () => {
+      const component = await setup(true);
+
+      expect(component["canManageUsers"]()).toBe(true);
     });
 
-    it("opens the dialog with the report's member, editable for admins who can manage users", async () => {
-      const { component, open } = await setup({ canManageUsers: true });
-      const row = buildRow();
+    it("isn't clickable for admins who can't manage users, since the member dialog needs Manage users", async () => {
+      const component = await setup(false);
 
-      await startEdit(component, row);
-
-      expect(open).toHaveBeenCalledWith(
-        EditMemberDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({ member: row.member, readonly: false }),
-        }),
-      );
-    });
-
-    it("opens the dialog readonly for admins who can't manage users", async () => {
-      const { component, open } = await setup({ canManageUsers: false });
-      const row = buildRow();
-
-      await startEdit(component, row);
-
-      expect(open).toHaveBeenCalledWith(
-        EditMemberDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({ member: row.member, readonly: true }),
-        }),
-      );
+      expect(component["canManageUsers"]()).toBe(false);
     });
   });
 

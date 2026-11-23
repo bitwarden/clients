@@ -13,10 +13,8 @@ export class OrganizationUserAdminView {
   organizationId: OrganizationId;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
-  /** Only set when the member was provisioned by SCIM or Directory Connector. */
-  externalId?: string;
-  /** Only set when the member is linked to an SSO identity. */
-  ssoExternalId?: string;
+  externalId: string;
+  ssoExternalId: string;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
@@ -36,8 +34,8 @@ export class OrganizationUserAdminView {
     groups: string[];
     type: OrganizationUserType;
     status: OrganizationUserStatusType;
-    externalId?: string;
-    ssoExternalId?: string;
+    externalId: string;
+    ssoExternalId: string;
     permissions: PermissionsApi;
     accessSecretsManager: boolean;
     accessPam: boolean;

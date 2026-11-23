@@ -10,7 +10,6 @@ import {
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
-import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
@@ -26,13 +25,7 @@ import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
-import {
-  GroupApiService,
-  GroupView,
-  OrganizationUserAdminView,
-  UserAdminService,
-} from "../../../core";
-import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
 import { EditMemberDialogParams, MemberDialogTab } from "../member-dialog/member-dialog.types";
@@ -81,35 +74,16 @@ function mockUserDetails(
   });
 }
 
-function listMember(
-  overrides: Partial<
-    Pick<OrganizationUserView, "claimedByOrganization" | "hasMasterPassword">
-  > = {},
-): OrganizationUserView {
-  const member = new OrganizationUserView({
-    id: USER_ID,
-    userId: "other-account-id" as any,
-    email: "alice@example.com",
-    type: OrganizationUserType.User,
-    revocationReason: undefined as any,
-    status: OrganizationUserStatusType.Confirmed,
-    permissions: new PermissionsApi(),
-    avatarColor: "",
-    name: "Alice Smith",
-    claimedByOrganization: overrides.claimedByOrganization ?? false,
-  });
-  member.hasMasterPassword = overrides.hasMasterPassword ?? true;
-  return member;
-}
-
-function defaultParams(
-  overrides: Partial<EditMemberDialogParams> = {},
-  memberOverrides: Parameters<typeof listMember>[0] = {},
-): EditMemberDialogParams {
+function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMemberDialogParams {
   return {
+    kind: "Edit",
     organizationId: ORG_ID,
-    member: listMember(memberOverrides),
+    organizationUserId: USER_ID,
+    name: "Alice Smith",
+    email: "alice@example.com",
     createdDate: new Date("2026-01-16T10:02:00Z"),
+    usesKeyConnector: false,
+    claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
     initialTab: MemberDialogTab.Details,
     ...overrides,
@@ -134,11 +108,6 @@ const mockToastService = {
 
 const mockGroupApiService = {
   getAllDetails: () => Promise.resolve([]),
-  getAll: () =>
-    Promise.resolve([
-      new GroupView({ id: "grp-1", organizationId: ORG_ID, name: "Engineering" }),
-      new GroupView({ id: "grp-2", organizationId: ORG_ID, name: "Finance" }),
-    ]),
 };
 
 const mockUserAdminService = {
@@ -350,7 +319,7 @@ export const RevokedMember: Story = {
  */
 export const ClaimedByOrganization: Story = {
   render: makeRender(
-    defaultParams({}, { claimedByOrganization: true }),
+    defaultParams({ claimedByOrganization: true }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
     mockUserDetails({ claimedByOrganization: true }),
   ),
@@ -414,7 +383,7 @@ export const WithCustomPermissionsSharedFolderTerminology: Story = {
  */
 export const DetailsTabEditEmail: Story = {
   render: makeRender(
-    defaultParams({}, { claimedByOrganization: true, hasMasterPassword: false }),
+    defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
     mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
   ),
@@ -430,10 +399,11 @@ export const DetailsTabEditEmailError: Story = {
       providers: [
         {
           provide: DIALOG_DATA,
-          useValue: defaultParams(
-            { initialTab: MemberDialogTab.Details },
-            { claimedByOrganization: true, hasMasterPassword: false },
-          ),
+          useValue: defaultParams({
+            claimedByOrganization: true,
+            hasMasterPassword: false,
+            initialTab: MemberDialogTab.Details,
+          }),
         },
         {
           provide: OrganizationService,
@@ -474,124 +444,4 @@ export const DetailsTabEditEmailError: Story = {
     const submitButton = getByText(canvasElement, "Save");
     await userEvent.click(submitButton);
   },
-};
-
-// ─── Read only (an admin who can't manage users, like one who can only recover accounts) ───
-
-function access(id: string, readOnly = false): CollectionAccessSelectionView {
-  return new CollectionAccessSelectionView({ id, readOnly, hidePasswords: false, manage: false });
-}
-
-/**
- * Alice is a custom member in the Engineering group, assigned Marketing directly and Engineering
- * through the group.
- */
-function mockMember(): OrganizationUserView {
-  const member = new OrganizationUserView({
-    id: USER_ID,
-    userId: "other-account-id" as any,
-    email: "alice@example.com",
-    type: OrganizationUserType.Custom,
-    revocationReason: undefined as any,
-    status: OrganizationUserStatusType.Confirmed,
-    permissions: Object.assign(new PermissionsApi(), {
-      accessReports: true,
-      manageResetPassword: true,
-    }),
-    avatarColor: "",
-    name: "Alice Smith",
-  });
-  member.groups = ["grp-1"];
-  member.hasMasterPassword = true;
-  member.accessSecretsManager = true;
-  return member;
-}
-
-const readOnlyCollectionAdminService = {
-  collectionAdminViews$: () =>
-    of([
-      {
-        id: "col-1",
-        name: "Engineering",
-        canEditUserAccess: () => false,
-        users: [],
-        groups: [access("grp-1")],
-      },
-      {
-        id: "col-2",
-        name: "Marketing",
-        canEditUserAccess: () => false,
-        users: [access(USER_ID, true)],
-        groups: [],
-      },
-      {
-        id: "col-3",
-        name: "Finance",
-        canEditUserAccess: () => false,
-        users: [],
-        groups: [access("grp-2")],
-      },
-    ]),
-};
-
-function makeReadOnlyRender(initialTab: MemberDialogTab): Story["render"] {
-  const render = makeRender(
-    defaultParams({ readonly: true, member: mockMember(), initialTab }),
-    mockOrganization({
-      useGroups: true,
-      useSecretsManager: true,
-      useCustomPermissions: true,
-      productTierType: ProductTierType.Enterprise,
-      permissions: Object.assign(new PermissionsApi(), { manageResetPassword: true }),
-      canEditAnyCollection: false,
-      allowAdminAccessToAllCollectionItems: false,
-    }),
-  );
-  return (args, context) => {
-    const story = render!(args, context);
-    return {
-      ...story,
-      moduleMetadata: {
-        ...story.moduleMetadata,
-        providers: [
-          ...(story.moduleMetadata?.providers ?? []),
-          { provide: CollectionAdminService, useValue: readOnlyCollectionAdminService },
-          {
-            provide: UserAdminService,
-            useValue: {
-              get: () => Promise.reject(new Error("Read only reads the members list row")),
-            },
-          },
-        ],
-      },
-    };
-  };
-}
-
-/**
- * Details tab, read only: the role, custom permissions and Secrets Manager access are disabled,
- * and the footer has only Close — no Save, Remove or Revoke.
- */
-export const ReadOnlyDetailsTab: Story = {
-  name: "Read only: Details tab",
-  render: makeReadOnlyRender(MemberDialogTab.Details),
-};
-
-/**
- * Groups tab, read only: the member's groups are listed without the group picker or remove
- * buttons.
- */
-export const ReadOnlyGroupsTab: Story = {
-  name: "Read only: Groups tab",
-  render: makeReadOnlyRender(MemberDialogTab.Groups),
-};
-
-/**
- * Collections tab, read only: Marketing, assigned directly, and Engineering, through the
- * Engineering group, are listed with their permissions and no collection picker or remove
- * buttons. Finance, assigned only to a group the member isn't in, isn't listed.
- */
-export const ReadOnlyCollectionsTab: Story = {
-  name: "Read only: Collections tab",
-  render: makeReadOnlyRender(MemberDialogTab.Collections),
 };

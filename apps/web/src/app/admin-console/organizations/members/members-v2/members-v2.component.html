@@ -158,8 +158,7 @@
         [color]="row.avatarColor"
       ></bit-avatar>
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
-        <!-- Admins who can't manage users open the member dialog read-only. -->
-        @if (organization) {
+        @if (canManage && organization) {
           <button
             type="button"
             bitLink
@@ -252,7 +251,7 @@
     </bit-cell>
   </bit-column>
 
-  <!-- Options: only displayed when the admin has an action for some member -->
+  <!-- Options: only displayed for admins who can manage users or recover accounts -->
   <bit-column width="minmax(80px, 1fr)">
     <bit-header-cell>
       <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
