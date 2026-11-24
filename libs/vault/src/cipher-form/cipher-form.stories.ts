@@ -22,6 +22,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -171,6 +173,14 @@ export default {
         {
           provide: AvatarService,
           useValue: { getUserAvatarColor$: () => of("#175ddc") },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: { hasPremiumFromAnySource$: () => of(false) },
+        },
+        {
+          provide: PremiumUpgradeNudgeService,
+          useValue: { hasPremiumOrShowUpgradeNudge: () => Promise.resolve(false) },
         },
         {
           provide: CipherFormService,
@@ -462,4 +472,42 @@ export const OrganizationDataOwnershipEnabled: Story = {
       organizations: defaultConfig.organizations!,
     },
   },
+};
+
+/** Rollout flag on for a free user who has not dismissed the TOTP upgrade callout */
+const withTotpUpgradeCallout = moduleMetadata({
+  providers: [
+    {
+      provide: ConfigService,
+      useValue: {
+        getFeatureFlag: (flag: FeatureFlag) =>
+          Promise.resolve(flag === FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+        getFeatureFlag$: (flag: FeatureFlag) =>
+          new BehaviorSubject(flag === FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+      },
+    },
+    {
+      provide: NudgesService,
+      useValue: {
+        showNudge$: new BehaviorSubject({
+          hasBadgeDismissed: true,
+          hasSpotlightDismissed: true,
+        } as NudgeStatus),
+        showNudgeSpotlight$: () => new BehaviorSubject(true),
+        dismissNudge: () => Promise.resolve(),
+      },
+    },
+    {
+      provide: AccountService,
+      useValue: {
+        activeAccount$: new BehaviorSubject({ id: "user-id", email: "test@example.com" }),
+      },
+    },
+  ],
+});
+
+/** Adding a personal login as a free user, so the verification code section shows the upgrade callout */
+export const TotpUpgradeCallout: Story = {
+  ...Add,
+  decorators: [withTotpUpgradeCallout],
 };
