@@ -408,7 +408,10 @@ export class Main {
 
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
-    this.clipboardMain = new ClipboardMain();
+    this.clipboardMain = new ClipboardMain(
+      this.rendererTeardownFlag.isEnabled,
+      this.serviceContainer.autofillSettingsService,
+    );
     this.clipboardMain.init();
 
     this.trayMain = new TrayMain(
@@ -618,7 +621,6 @@ export class Main {
         { name: "logout-timeout-action", active: () => this.headlessVaultTimeout.logoutOnTimeout },
       ],
       this.windowMain,
-      this.clipboardMain,
       this.logService,
     );
   }

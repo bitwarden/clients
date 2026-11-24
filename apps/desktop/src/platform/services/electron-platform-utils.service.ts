@@ -128,11 +128,15 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     const clearing = options?.clearing === true;
     const clearMs = options?.clearMs ?? null;
 
+    // Both owners are told about the write; whichever one the flag puts in charge schedules the
+    // clear and the other ignores it. This method is synchronous, so it cannot read the flag and
+    // pick, and main scheduling it means the clear survives the renderer being destroyed.
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ipc.platform.clipboard.write({
       text: text,
       password: (options?.allowHistory ?? false) === false, // default to false
+      clearMs: clearMs,
     } satisfies ClipboardWriteMessage);
 
     if (!clearing) {
