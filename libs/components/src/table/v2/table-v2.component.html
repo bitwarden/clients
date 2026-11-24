@@ -240,7 +240,7 @@
       } @else if (isVirtualized()) {
         <!--
           Virtualized body: rows and group headers live in one viewport, positioned
-          by `TableVirtualScrollStrategy` from `itemHeights()` (so mixed row/header
+          by `VariableHeightVirtualScrollStrategy` from `itemHeights()` (so mixed row/header
           heights compose). CDK positions content absolutely (no in-flow height), so
           the viewport needs a bounded height: an explicit `viewportHeight` (capped
           at `height` rows), or `flex-1` to fill the host in `fill` mode.

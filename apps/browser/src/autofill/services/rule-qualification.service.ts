@@ -1,6 +1,7 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
 import { FormFieldElement } from "../types";
+import { sendExtensionMessage } from "../utils";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -25,6 +26,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     const domain = new URL(url).hostname;
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
+      this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
@@ -38,6 +40,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     const extras = await this.checkInScopeExtras(matchedRule, structural.inScopeForms);
     if (!extras.ok) {
+      this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass(
           structural.inScopeForms,
@@ -259,5 +262,64 @@ export class DefaultRuleQualificationService implements RuleQualificationService
       return false;
     }
     return !this.domElementVisibilityService.isElementHiddenByCss(element as HTMLElement);
+  }
+
+  /**
+   * Fires `runFillAssistHeuristicFallback` once per unique first-hop iframe
+   * named by the rule's `>>>` selectors. The background relay resolves each
+   * `iframeSrc` to a `frameId` and routes to that one frame.
+   *
+   * Pure DOM read of the rule's selector strings and parent-frame iframe
+   * elements. Does not invoke `resolveTargetedFields` or
+   * `buildAutofillFieldsData`, so `autofillFieldElements` and
+   * `autofillFieldsByOpid` remain untouched on this step.
+   *
+   * Shadow DOM `>>>` selectors whose first segment resolves to a custom
+   * element or shadow host are filtered out by the `HTMLIFrameElement`
+   * check. Only iframe boundaries produce a dispatch.
+   */
+  private dispatchIframeFallbacks(rule: FormContent[]): void {
+    for (const iframeSrc of this.deriveIframeFallbackTargets(rule)) {
+      void sendExtensionMessage("runFillAssistHeuristicFallback", { iframeSrc }).catch(
+        (error: unknown) => {
+          // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+          console.warn(
+            // Hostname only. URL paths and queries can carry OAuth state,
+            // session, or SSO tokens.
+            `[RuleQualificationService] Failed to dispatch fallback for iframe ${URL.canParse(iframeSrc) ? new URL(iframeSrc).hostname : "<unparseable>"}:`,
+            error,
+          );
+        },
+      );
+    }
+  }
+
+  /**
+   * Walks the rule's declared selectors for `>>>` entries that cross an
+   * iframe boundary and returns the set of unique iframe URLs. Uses the
+   * shared `findIframeCrossing`, which descends shadow roots until it reaches
+   * an iframe segment, so iframes nested behind a shadow host (e.g.
+   * `my-host >>> iframe#login >>> #user`) are included — matching what
+   * `tryRouteIframeCrossing` does on the hit path.
+   *
+   * Prefers the iframe's current `contentDocument.location.href` over its
+   * initial `.src` so same-origin iframes that have navigated via SPA stay
+   * aligned with the key `routeTargetedFieldsToFrame` uses. Deduped so a rule
+   * declaring the same iframe across multiple alternatives only fires one
+   * dispatch per child frame.
+   */
+  private deriveIframeFallbackTargets(rule: FormContent[]): Set<string> {
+    const targets = new Set<string>();
+    for (const selector of this.flattenDeclaredSelectors(rule)) {
+      const iframeElement = this.domQueryService.findIframeCrossing(selector)?.iframeElement;
+      if (!iframeElement) {
+        continue;
+      }
+      const iframeSrc = iframeElement.contentDocument?.location?.href || iframeElement.src;
+      if (iframeSrc) {
+        targets.add(iframeSrc);
+      }
+    }
+    return targets;
   }
 }

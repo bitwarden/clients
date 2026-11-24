@@ -1,4 +1,4 @@
-<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="default">
+<bit-dialog #dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="default">
   @if (activeFilter()) {
     <button
       bitDialogHeaderStart
@@ -13,7 +13,14 @@
   <div bitDialogContent>
     @if (activeFilter(); as filter) {
       <div [class]="optionListClasses">
-        <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+        <!-- The dialog's body does the scrolling here, so a virtualized list is told which
+             element to follow. -->
+        <ng-container
+          *ngTemplateOutlet="
+            filter.optionsTemplate()!;
+            context: { scrollElement: dialog.scrollElement(), cards: true }
+          "
+        ></ng-container>
       </div>
     } @else {
       <div class="tw-flex tw-flex-col tw-gap-2">

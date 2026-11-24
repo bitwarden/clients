@@ -1,33 +1,24 @@
 import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, NEVER, Observable, Subject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
-import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
-
-jest.mock("@bitwarden/common/platform/misc/flags", () => ({
-  ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
-  devFlagEnabled: jest.fn(),
-}));
-
-const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
+import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -51,10 +42,8 @@ describe("AdditionalOptionsSectionComponent", () => {
   let httpAuthenticationAvailable$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
-  let httpAuthenticationService: CipherFormHTTPAuthenticationService;
 
   const getInitialCipherView = jest.fn((): any => null);
-  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
@@ -63,14 +52,10 @@ describe("AdditionalOptionsSectionComponent", () => {
       getInitialCipherView,
       config: { mode: "edit", cipherType: CipherType.Login } as CipherFormConfig,
     });
-    cipherFormProvider.formStatusChange$ = formStatusChange$.asObservable();
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
     httpAuthenticationAvailable$ = new BehaviorSubject(true);
-    mockDevFlagEnabled.mockImplementation(
-      (flag: string) => flag === "httpAuthenticationCipherControls",
-    );
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.httpAuthenticationAvailable$ = httpAuthenticationAvailable$;
     dialogService = mock<DialogService>();
@@ -88,7 +73,6 @@ describe("AdditionalOptionsSectionComponent", () => {
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: DialogService, useValue: dialogService },
-        CipherFormHTTPAuthenticationService,
       ],
     })
       .overrideComponent(AdditionalOptionsSectionComponent, {
@@ -103,9 +87,6 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     fixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
     component = fixture.componentInstance;
-    httpAuthenticationService = fixture.debugElement.injector.get(
-      CipherFormHTTPAuthenticationService,
-    );
     fixture.detectChanges();
   });
 
@@ -165,6 +146,15 @@ describe("AdditionalOptionsSectionComponent", () => {
     });
   });
 
+  it("styles the add field button as a link", () => {
+    fixture.detectChanges();
+
+    const addFieldButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector("button[bitLink]");
+
+    expect(addFieldButton.className).toContain("tw-text-fg-brand");
+  });
+
   it("hides password reprompt checkbox when disabled", () => {
     passwordRepromptEnabled$.next(true);
     fixture.detectChanges();
@@ -185,7 +175,7 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     const flushPromises = () => fixture.whenStable();
 
-    it("shows the HTTP authentication setting for login items when HTTP authentication is available and the dev flag is on", () => {
+    it("shows the HTTP authentication setting for login items when HTTP authentication is available", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).not.toBeNull();
@@ -198,17 +188,6 @@ describe("AdditionalOptionsSectionComponent", () => {
       expect(getHTTPAuthenticationCheckbox()).toBeNull();
     });
 
-    it("hides the HTTP authentication setting when the cipher controls dev flag is off", () => {
-      mockDevFlagEnabled.mockReturnValue(false);
-      const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
-      localFixture.detectChanges();
-
-      expect(mockDevFlagEnabled).toHaveBeenCalledWith("httpAuthenticationCipherControls");
-      expect(
-        localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).toBeNull();
-    });
-
     it("hides the HTTP authentication setting for items other than logins", () => {
       cipherFormProvider.config.cipherType = CipherType.Card;
       const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
@@ -219,39 +198,119 @@ describe("AdditionalOptionsSectionComponent", () => {
       ).toBeNull();
     });
 
-    it("shows the HTTP authentication setting in the Safari extension", () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
-      platformUtilsService.isSafari.mockReturnValue(true);
+    it.each([
+      ["the Safari extension", ClientType.Browser, true],
+      ["the web vault", ClientType.Web, false],
+      ["the web vault opened in Safari", ClientType.Web, true],
+      ["the desktop app", ClientType.Desktop, false],
+      ["the CLI", ClientType.Cli, false],
+    ])("hides the HTTP authentication setting in %s", (_, clientType, isSafari) => {
+      platformUtilsService.getClientType.mockReturnValue(clientType);
+      platformUtilsService.isSafari.mockReturnValue(isSafari);
       const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
       localFixture.detectChanges();
 
       expect(
         localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).not.toBeNull();
+      ).toBeNull();
     });
 
-    it("shows the HTTP authentication setting in the web vault opened in Safari", () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Web);
-      platformUtilsService.isSafari.mockReturnValue(true);
-      const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
-      localFixture.detectChanges();
-
-      expect(
-        localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
-      ).not.toBeNull();
-    });
-
-    it("opens the HTTP authentication help article from the setting description", () => {
+    it("shows no hint under the setting", () => {
       fixture.detectChanges();
 
-      const link: HTMLAnchorElement = fixture.nativeElement.querySelector(
-        "#additional-options_link_http-authentication-help",
-      );
-      link.click();
+      expect(fixture.nativeElement.querySelector("bit-hint")).toBeNull();
+    });
 
-      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://bitwarden.com/help/basic-auth-autofill/",
-      );
+    describe("turning the setting on", () => {
+      const clickHTTPAuthenticationCheckbox = async () => {
+        fixture.detectChanges();
+        getHTTPAuthenticationCheckbox()!.click();
+        await flushPromises();
+      };
+
+      let openWarningDialog: jest.SpyInstance;
+
+      const warningDialogRef = (closed: Observable<boolean | undefined>) =>
+        ({ closed }) as DialogRef<boolean>;
+
+      /** Clicks the unchecked checkbox, then answers the warning as the user would, after the click. */
+      const clickAndRespondToWarning = async (result: boolean | undefined) => {
+        const closed$ = new Subject<boolean | undefined>();
+        openWarningDialog.mockReturnValueOnce(warningDialogRef(closed$.asObservable()));
+
+        await clickHTTPAuthenticationCheckbox();
+        closed$.next(result);
+        closed$.complete();
+        await flushPromises();
+      };
+
+      beforeEach(() => {
+        // A warning the user hasn't answered yet, so no test renders the real dialog.
+        openWarningDialog = jest
+          .spyOn(HTTPAuthenticationWarningDialogComponent, "open")
+          .mockReturnValue(warningDialogRef(NEVER));
+      });
+
+      afterEach(() => {
+        openWarningDialog.mockRestore();
+      });
+
+      it("shows the warning and leaves the setting off until the user responds", async () => {
+        await clickHTTPAuthenticationCheckbox();
+
+        expect(openWarningDialog).toHaveBeenCalledTimes(1);
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(false);
+      });
+
+      it("turns the setting on when the user confirms", async () => {
+        await clickAndRespondToWarning(true);
+
+        const { httpAuthentication } = component.additionalOptionsForm.controls;
+        expect(httpAuthentication.value).toBe(true);
+        expect(httpAuthentication.dirty).toBe(true);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(true);
+      });
+
+      it.each([
+        ["cancels", false],
+        ["dismisses the warning", undefined],
+      ])("leaves the setting off when the user %s", async (_, result) => {
+        await clickAndRespondToWarning(result);
+
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(getHTTPAuthenticationCheckbox()!.checked).toBe(false);
+      });
+
+      it("shows the warning every time the setting is turned on", async () => {
+        await clickAndRespondToWarning(true);
+        await clickHTTPAuthenticationCheckbox();
+        await clickAndRespondToWarning(true);
+
+        expect(openWarningDialog).toHaveBeenCalledTimes(2);
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(true);
+      });
+
+      it("turns the setting off without a warning", async () => {
+        component.additionalOptionsForm.controls.httpAuthentication.setValue(true);
+
+        await clickHTTPAuthenticationCheckbox();
+
+        expect(openWarningDialog).not.toHaveBeenCalled();
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+      });
+
+      it("does not show the warning when a stored setting is loaded", () => {
+        getInitialCipherView.mockReturnValueOnce({
+          reprompt: CipherRepromptType.None,
+          login: { httpAuthenticationEnabled: true },
+        } as CipherView);
+
+        component.ngOnInit();
+
+        expect(openWarningDialog).not.toHaveBeenCalled();
+        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(true);
+      });
     });
 
     describe("saving", () => {
@@ -316,131 +375,47 @@ describe("AdditionalOptionsSectionComponent", () => {
         expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       });
 
-      it("loads HTTP authentication off and tells the user when reprompt is also on", async () => {
+      it("loads both settings when HTTP authentication and reprompt are both on", () => {
         loadCipher(true, true);
-        await flushPromises();
 
         const { httpAuthentication, reprompt } = component.additionalOptionsForm.controls;
         expect(reprompt.value).toBe(true);
-        expect(httpAuthentication.value).toBe(false);
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-          expect.objectContaining({ title: { key: "httpAuthenticationTurnedOffTitle" } }),
-        );
-      });
-
-      it("turns HTTP authentication off without telling the user when the setting is hidden", async () => {
-        httpAuthenticationAvailable$.next(false);
-
-        loadCipher(true, true);
-        await flushPromises();
-
-        expect(component.additionalOptionsForm.controls.httpAuthentication.value).toBe(false);
+        expect(httpAuthentication.value).toBe(true);
         expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       });
     });
 
-    describe("reprompt exclusivity", () => {
-      it("does not ask to confirm turning on HTTP authentication when reprompt is off", () => {
-        component.additionalOptionsForm.controls.httpAuthentication.setValue(true);
+    describe("with master password reprompt and match detection", () => {
+      it("keeps reprompt on when HTTP authentication is turned on", () => {
+        const { httpAuthentication, reprompt } = component.additionalOptionsForm.controls;
+        reprompt.setValue(true);
 
+        httpAuthentication.setValue(true);
+
+        expect(reprompt.value).toBe(true);
         expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       });
 
-      it("turns reprompt off when the user confirms turning on HTTP authentication", async () => {
-        const { reprompt, httpAuthentication } = component.additionalOptionsForm.controls;
+      it("keeps HTTP authentication on when reprompt is turned on", () => {
+        const { httpAuthentication, reprompt } = component.additionalOptionsForm.controls;
+        httpAuthentication.setValue(true);
+
         reprompt.setValue(true);
 
-        httpAuthentication.setValue(true);
-        await flushPromises();
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-          expect.objectContaining({ title: { key: "turnOnHttpAuthenticationTitle" } }),
-        );
-        expect(reprompt.value).toBe(false);
         expect(httpAuthentication.value).toBe(true);
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       });
 
-      it("keeps HTTP authentication off when the user declines turning it on", async () => {
-        dialogService.openSimpleDialog.mockResolvedValue(false);
-        const { reprompt, httpAuthentication } = component.additionalOptionsForm.controls;
-        reprompt.setValue(true);
-
-        httpAuthentication.setValue(true);
-        await flushPromises();
-
-        expect(reprompt.value).toBe(true);
-        expect(httpAuthentication.value).toBe(false);
-      });
-
-      it("turns HTTP authentication off when the user confirms turning on reprompt", async () => {
-        const { reprompt, httpAuthentication } = component.additionalOptionsForm.controls;
-        httpAuthentication.setValue(true);
-
-        reprompt.setValue(true);
-        await flushPromises();
-
-        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-          expect.objectContaining({ title: { key: "turnOnPasswordRepromptTitle" } }),
-        );
-        expect(reprompt.value).toBe(true);
-        expect(httpAuthentication.value).toBe(false);
-      });
-
-      it("keeps reprompt off when the user declines turning it on", async () => {
-        dialogService.openSimpleDialog.mockResolvedValue(false);
-        const { reprompt, httpAuthentication } = component.additionalOptionsForm.controls;
-        httpAuthentication.setValue(true);
-
-        reprompt.setValue(true);
-        await flushPromises();
-
-        expect(reprompt.value).toBe(false);
-        expect(httpAuthentication.value).toBe(true);
-      });
-    });
-
-    describe("match strategy requirement", () => {
-      it("disables HTTP authentication and shows a note when a URI uses the default match strategy", () => {
-        httpAuthenticationService.updateUriMatchStrategies([UriMatchStrategy.Host, null]);
-        fixture.detectChanges();
-
-        expect(component.additionalOptionsForm.controls.httpAuthentication.disabled).toBe(true);
-        expect(component["httpAuthenticationBlockedByMatchStrategy"]()).toBe(true);
-      });
-
-      it("enables HTTP authentication when every URI has an explicit match strategy", () => {
-        httpAuthenticationService.updateUriMatchStrategies([null]);
-        httpAuthenticationService.updateUriMatchStrategies([
-          UriMatchStrategy.Host,
-          UriMatchStrategy.RegularExpression,
-        ]);
+      it("keeps the setting enabled whatever the match detection", () => {
         fixture.detectChanges();
 
         expect(component.additionalOptionsForm.controls.httpAuthentication.enabled).toBe(true);
-        expect(component["httpAuthenticationBlockedByMatchStrategy"]()).toBe(false);
       });
 
-      it("enables HTTP authentication when there are no URIs", () => {
-        httpAuthenticationService.updateUriMatchStrategies([]);
-
-        expect(component.additionalOptionsForm.controls.httpAuthentication.enabled).toBe(true);
-      });
-
-      it("keeps HTTP authentication disabled when the form is re-enabled while a URI uses the default", () => {
-        httpAuthenticationService.updateUriMatchStrategies([null]);
-
-        formStatusChange$.next("disabled");
-        formStatusChange$.next("enabled");
-
-        expect(component.additionalOptionsForm.controls.httpAuthentication.disabled).toBe(true);
-      });
-
-      it("keeps HTTP authentication disabled in partial-edit mode", () => {
+      it("disables the setting in partial-edit mode", () => {
         cipherFormProvider.config.mode = "partial-edit";
 
-        httpAuthenticationService.updateUriMatchStrategies([UriMatchStrategy.Host]);
-        formStatusChange$.next("enabled");
+        component.ngOnInit();
 
         expect(component.additionalOptionsForm.controls.httpAuthentication.disabled).toBe(true);
       });
