@@ -187,7 +187,7 @@ Reconciliation reads the reporting tab's lifecycle state (see [The tab lifecycle
 - **resolved** when its tab reaches hot. Resolved transitions leave the buffer as an opportunity for autofill to act on (see [`autofill.design.md`](../autofill.design.md)). A transition reported while its tab is already hot resolves at once.
 - **dropped** when its tab is warm, when its frame is lost, when it outlives its age bound, or when the buffer is cleared (below). Warm is deliberately a drop, not a buffer: a background window's active tab is out of scope for a page-load fill.
 
-A transition stays actionable for a bounded time from its report, a tuned value. One that outlives the bound is dropped wherever it is: buffered, restored after a restart, or resolved and waiting to fill. A page loaded long ago therefore never fills when its tab is finally viewed.
+A transition stays actionable for a bounded time from its report, a tuned value. One that outlives the bound is dropped wherever it is held: buffered, or restored after a restart. A resolved transition past its bound is refused by whatever acts on it. A page loaded long ago therefore never fills when its tab is finally viewed.
 
 The buffer follows the active account, and the scripts that report to it:
 
@@ -200,17 +200,20 @@ The buffer follows the active account, and the scripts that report to it:
 
 A **command** — a user-initiated fill targeting the tab (see [Event transitions](#event-transitions)) — _consumes_ a buffered transition instead of resolving it. The command carries its own fill, so a page-load opportunity for the same tab would trigger a redundant second fill. The command drives the tab to hot early, which drops the pending transition rather than surfacing it.
 
-### Retiring an opportunity
+### Releasing and expiring a resolved transition
 
-An opportunity stays live only while the conditions that resolved it hold. It is **retired** when any of the following occurs:
+A transition is released while its tab is hot, and the resolved transition carries a cancellation token that is cancelled when that release ends: when the tab leaves hot or is removed, and when a newer transition for the same frame resolves. The token belongs to the transition. Whatever acts on the opportunity reads it, and the transition buffer neither knows nor decides what it cancels. Passing the deadline does not cancel the token, and whatever acts on the transition refuses one that is past its deadline. A tab that leaves hot has not ended its lifecycle. It ends only the release of the transitions that its hot state gave.
 
-- its tab leaves hot;
-- a newer transition from the same frame resolves, superseding it;
+### Completing a lifecycle
+
+A frame's lifecycle lasts while the frame exists in an open tab and the active account has a session. It **completes** when any of the following occurs:
+
+- its tab is removed;
 - its frame is lost;
 - the active account locks or logs out;
 - the active account changes.
 
-Retirement is a single signal, whatever its cause. Once an opportunity is retired, nothing more is done on its behalf: execution in progress ends, and any pending re-attempt is abandoned (see [`orchestration/design.md`](../orchestration/design.md#each-opportunity-reaches-one-conclusion-on-its-own-merits)). A transition that was dropped never became an opportunity, so it needs no retirement.
+Completion is a single signal, whatever its cause. [`completion/model.md`](./completion/model.md) describes the model in full. See also [`orchestration/design.md`](../orchestration/design.md#cancellation), where the orchestrator cancels fills when the lifecycle of their target completes.
 
 ## The lifecycle protocol
 
@@ -250,7 +253,7 @@ Monitoring commands follow a tab's monitoring state: a `start monitors` reaches 
 | Tab leaves monitoring (cool-down → cold, warm → cold, or logout → frozen) | Every started `(tab, frame)` on it | `stop monitors`                                                           |
 | The extension logs out                                                    | Every connected `(tab, frame)`     | `disable autofiller` (the `stop monitors` is the frozen edge above)       |
 
-Among the protocol's triggers, the unlocked boundary participates only at injection time: it gates whether a fresh navigation gets an autofiller. Crossing it (a lock or an unlock) sends no command, because monitoring rides tab state and a lock does not change tab state. A lock still clears the buffer and retires opportunities (see [Buffering transitions](#buffering-transitions) and [Retiring an opportunity](#retiring-an-opportunity)).
+Among the protocol's triggers, the unlocked boundary participates only at injection time: it gates whether a fresh navigation gets an autofiller. Crossing it (a lock or an unlock) sends no command, because monitoring rides tab state and a lock does not change tab state. A lock still clears the buffer and completes every lifecycle (see [Buffering transitions](#buffering-transitions) and [Completing a lifecycle](#completing-a-lifecycle)).
 
 ## Disposal
 
