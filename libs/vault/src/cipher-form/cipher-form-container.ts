@@ -89,4 +89,10 @@ export abstract class CipherFormContainer {
    * This can be used for child forms to react to changes in the form status.
    */
   formStatusChange$: Observable<"enabled" | "disabled">;
+
+  /**
+   * Emits the organization that owns the cipher being built, and again whenever a child form changes it.
+   * `null` when the cipher belongs to the individual vault.
+   */
+  organizationId$: Observable<string | null>;
 }
