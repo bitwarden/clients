@@ -1394,7 +1394,8 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       StateProvider,
       ConfigService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
+      SsoJitProvisionFinishApiService,
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
@@ -1896,7 +1897,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
       UnlockService,
     ],
   }),
@@ -2157,7 +2158,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoJitProvisionFinishService,
     useClass: DefaultSsoJitProvisionFinishService,
-    deps: [RegisterSdkService, ConfigService, OrganizationInviteService],
+    deps: [RegisterSdkService, ConfigService, GlobalStateProvider],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

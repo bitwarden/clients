@@ -969,7 +969,40 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
-        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
+      );
+    });
+
+    it("caps an auto-approved rule with no maximum at the longest duration the picker offers", async () => {
+      // A rule with no maximum reports the server's one-year ceiling.
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          maxDurationSeconds: 365 * 86_400,
+          defaultDurationSeconds: 3600,
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDurationInstantApproval 1 day",
+      );
+    });
+
+    it("keeps the server's cap for an approver-gated rule with no maximum", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "human",
+          maxDurationSeconds: 365 * 86_400,
+          defaultDurationSeconds: 3600,
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDuration 365 days",
       );
     });
 

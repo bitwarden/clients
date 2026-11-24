@@ -10,7 +10,11 @@ import { AccessGetCommand } from "./access/access-get.command";
 import { AccessGrantCommand } from "./access/access-grant.command";
 import { AccessRevokeCommand } from "./access/access-revoke.command";
 import { AccessSetCommand } from "./access/access-set.command";
-import { SmAccessPermissions, SmAccessTargets } from "./access/sm-access-policies";
+import {
+  smAccessGranteeTypes,
+  SmAccessPermissions,
+  SmAccessTargets,
+} from "./access/sm-access-policies";
 import { AccessTokenCreateCommand } from "./access-tokens/access-token-create.command";
 import { AccessTokenListCommand } from "./access-tokens/access-token-list.command";
 import { AccessTokenRevokeCommand } from "./access-tokens/access-token-revoke.command";
@@ -174,7 +178,14 @@ export class SmProgram extends BaseProgram {
           .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
           .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
           .on("--help", () => {
-            writeLn("\n  Examples:");
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn(
+              "    Only `name` can be changed. Other properties printed by `get` are accepted",
+            );
+            writeLn("    only when unchanged; any other property is rejected.");
+            writeLn("");
+            writeLn("  Examples:");
             writeLn("");
             writeLn(
               '    echo \'{"name":"Backend"}\' | bw encode | bw sm project edit <projectId> --organizationid <organizationid>',
@@ -285,6 +296,8 @@ export class SmProgram extends BaseProgram {
             writeLn("\n  Notes:");
             writeLn("");
             writeLn("    `key` is required. `projectIds` may contain at most one project id.");
+            writeLn("    `projects` (a list of objects with an `id`, as secret responses return)");
+            writeLn("    is accepted instead of `projectIds`; do not send both.");
             writeLn("    Only organization admins can create a secret without a project.");
             writeLn("");
             writeLn("  Examples:");
@@ -313,8 +326,17 @@ export class SmProgram extends BaseProgram {
           .on("--help", () => {
             writeLn("\n  Notes:");
             writeLn("");
-            writeLn("    Only the `key`, `value`, `note`, and `projectIds` properties in the");
-            writeLn("    request are changed; missing properties keep their current values.");
+            writeLn(
+              "    Only the `key`, `value`, `note`, and project (`projectIds`, or `projects`",
+            );
+            writeLn(
+              "    with an `id` per project; not both) properties in the request are changed;",
+            );
+            writeLn("    missing properties keep their current values.");
+            writeLn(
+              "    Other properties printed by `get` are accepted only when unchanged; any other",
+            );
+            writeLn("    property is rejected.");
             writeLn("    Access to the secret is not changed.");
             writeLn("");
             writeLn("  Examples:");
@@ -495,7 +517,14 @@ export class SmProgram extends BaseProgram {
           .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
           .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
           .on("--help", () => {
-            writeLn("\n  Examples:");
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn(
+              "    Only `name` can be changed. Other properties printed by `get` are accepted",
+            );
+            writeLn("    only when unchanged; any other property is rejected.");
+            writeLn("");
+            writeLn("  Examples:");
             writeLn("");
             writeLn(
               '    echo \'{"name":"CI"}\' | bw encode | bw sm machine-account edit <machineAccountId> --organizationid <organizationid>',
@@ -820,17 +849,28 @@ export class SmProgram extends BaseProgram {
             writeLn("    Any existing policy not listed in `policies` is removed. Use `grant`");
             writeLn("    and `revoke` to change a single policy.");
             writeLn("");
-            writeLn("    Each policy's `permission` is optional. A policy without one keeps the");
-            writeLn("    permission its grantee already has, or gets read access if the grantee");
-            writeLn("    has no access yet.");
+            writeLn("    Each policy needs a `type` and an `id` of that type. Valid types:");
+            SmAccessTargets.forEach((target) =>
+              writeLn("      " + target + ": " + smAccessGranteeTypes(target).join(", ")),
+            );
+            writeLn("    The template's `type` of `user` is only a placeholder. Set `type` to");
+            writeLn("    match the `id`. `bw sm grantees list` shows each grantee's id and type.");
+            writeLn("");
+            writeLn("    Each policy's `permission` is optional: read or read-write. A policy");
+            writeLn("    without one keeps the permission its grantee already has, or gets read");
+            writeLn("    access if the grantee has no access yet. People can only be granted");
+            writeLn("    read-write access to a machine account.");
             writeLn("");
             writeLn("  Examples:");
             writeLn("");
             writeLn(
-              "    bw sm template sm-access-policies | jq '.policies[0].id=\"<id>\"' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>",
+              '    bw sm template sm-access-policies | jq \'.policies[0].type="user" | .policies[0].id="<userId>"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
             );
             writeLn(
-              '    bw sm template sm-access-policies | jq \'.policies[0].id="<id>" | .policies[0].permission="read-write"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
+              '    bw sm template sm-access-policies | jq \'.policies[0].type="group" | .policies[0].id="<groupId>"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
+            );
+            writeLn(
+              '    bw sm template sm-access-policies | jq \'.policies[0].type="machineAccount" | .policies[0].id="<machineAccountId>" | .policies[0].permission="read-write"\' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>',
             );
             writeLn("", true);
           })
@@ -1037,7 +1077,10 @@ export class SmProgram extends BaseProgram {
     return new Command("export")
       .description("Export an organization's Secrets Manager projects and secrets.")
       .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
-      .option("--output <output>", "Output directory or filename. Writes to stdout when omitted.")
+      .option(
+        "--output <output>",
+        "Output directory or .json filename. Writes to stdout when omitted.",
+      )
       .option("--passwordenv <passwordenv>", "Environment variable storing your master password")
       .option(
         "--passwordfile <passwordfile>",
@@ -1114,11 +1157,17 @@ export class SmProgram extends BaseProgram {
       .description("Get a JSON template for creating or editing a Secrets Manager object.")
       .argument("<object>", "The template object: " + SmTemplateObjects.join(", "))
       .on("--help", () => {
-        writeLn("\n  Examples:");
+        writeLn("\n  Notes:");
+        writeLn("");
+        writeLn("    Templates hold placeholder values. In `sm-access-policies`, set each");
+        writeLn("    policy's `type` to match its `id`. See `bw sm access set --help`.");
+        writeLn("");
+        writeLn("  Examples:");
         writeLn("");
         writeLn("    bw sm template sm-project");
         writeLn("    bw sm template sm-secret");
         writeLn("    bw sm template sm-machine-account");
+        writeLn("    bw sm template sm-access-policies");
         writeLn("", true);
       })
       .action(async (object: string) => {

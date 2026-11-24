@@ -650,11 +650,11 @@
     }
   },
   "desktopApp": {
-    "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "message": "Приложение для компьютеров",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
-    "message": "Desktop app $COUNT$",
+    "message": "Приложение для компьютера $COUNT$",
     "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -662,6 +662,10 @@
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Неверное сопряжение приложения",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Сайт добавлен"
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Добавить сайт или приложение"
-  },
-  "app": {
-    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Удалить сайт"
@@ -1803,9 +1804,6 @@
   "me": {
     "message": "Мое"
   },
-  "myItems": {
-    "message": "Мои элементы"
-  },
   "myItemsV2": {
     "message": "Мои элементы"
   },
@@ -1879,6 +1877,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 элемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Очистить все"
@@ -3488,6 +3490,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Импорт выполнен успешно"
+  },
+  "importConfirmationBody": {
+    "message": "Вы успешно импортировали $AMOUNT$ элементов в Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Вы успешно импортировали 1 элемент в Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Совет:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забудьте удалить $FILENAME$. В нем содержатся конфиденциальные данные, и он может быть незашифрованным.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забудьте удалить файл импорта. В нем содержатся конфиденциальные данные, и он может быть незашифрованным."
+  },
+  "importingTitle": {
+    "message": "Импорт"
+  },
+  "importingDescription": {
+    "message": "Этот процесс может занять несколько минут."
   },
   "dataExportSuccess": {
     "message": "Данные успешно экспортированы"
@@ -5718,15 +5756,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Спасибо, что подписались на Bitwarden для $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Спасибо, что подписались на менеджер секретов Bitwarden для $PLAN$!",
     "placeholders": {
@@ -5736,36 +5765,20 @@
       }
     }
   },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Ваша $TRIAL_LENGTH$-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через $TRIAL_LENGTH$ дней.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "Мы отправили письмо с подтверждением на адрес email для выставления счетов вашей команды "
-  },
   "trialIncludesPrivilegedControls": {
     "message": "Ваша пробная версия включает в себя привилегированное управление."
   },
   "trialPrivilegedControlsThroughSales": {
-    "message": "Функция привилегированного доступа доступна через команду продаж Bitwarden и не включена в этой организации."
+    "message": "Функция привилегированного управления доступна через команду продаж Bitwarden и не включена в этой организации."
   },
   "contactSales": {
     "message": "Связаться с командой продаж"
   },
   "privilegedControlsAddThroughSales": {
-    "message": "Функция привилегированного доступа доступна через команду продаж Bitwarden. Обратитесь в команду продаж, чтобы добавить ее в вашу организацию."
+    "message": "Функция привилегированного управления доступна через команду продаж Bitwarden. Обратитесь в команду продаж, чтобы добавить ее в вашу организацию."
   },
   "privilegedControlsChangeThroughSales": {
-    "message": "Чтобы изменить места привилегированного доступа, обратитесь в команду продаж."
+    "message": "Чтобы изменить места привилегированного управления, обратитесь в команду продаж."
   },
   "privilegedControlsSeatsInUse": {
     "message": "Используется $OCCUPIED$ мест из $TOTAL$",
@@ -5797,6 +5810,12 @@
   },
   "organizationReadyToGo": {
     "message": "Ваша новая организация готова к работе!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Организация обновлена"
@@ -6724,6 +6743,15 @@
   },
   "createdCollectionId": {
     "message": "Создана коллекция $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Добавлена общая папка $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7848,18 +7876,18 @@
     "message": "Установите лимит мест для вашей подписки на Менеджер секретов. По достижении этого лимита вы не сможете приглашать новых пользователей.Менеджер секретов"
   },
   "limitPrivilegedControlsSubscriptionDesc": {
-    "message": "Установите ограничение на количество пользователей для вашей подписки на привилегированный контроль. После достижения этого ограничения вы не сможете предоставлять участникам доступ к привилегированному контролю."
+    "message": "Установите ограничение на количество пользователей для вашей подписки на привилегированное управление. После достижения этого ограничения вы не сможете предоставлять участникам доступ к привилегированному управлению."
   },
   "removePrivilegedControls": {
-    "message": "Remove Privileged Controls",
+    "message": "Удалить привилегированное управление",
     "description": "Label of the danger button on the organization subscription page and title of its confirmation dialog, both for removing the Privileged Controls subscription. 'Privileged Controls' is a product name and should not be translated."
   },
   "removePrivilegedControlsConfirmation": {
-    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "message": "Все пользователи вашей организации потеряют доступ к привилегированному управлению. Вы действительно хотите продолжить?",
     "description": "Body of the warning dialog shown before the Privileged Controls subscription is removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsRemoved": {
-    "message": "Privileged Controls removed",
+    "message": "Привилегированное управление удалено",
     "description": "Success toast shown after the Privileged Controls subscription has been removed from the organization. 'Privileged Controls' is a product name and should not be translated."
   },
   "maximumSeatsCount": {
@@ -8964,6 +8992,10 @@
     "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Вы действительно хотите удалить эту Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Дата удаления"
   },
@@ -9486,7 +9518,7 @@
     }
   },
   "sentInviteReminderToUserId": {
-    "message": "Sent invite reminder to user $ID$.",
+    "message": "Отправлено напоминание о приглашении пользователю $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9495,7 +9527,7 @@
     }
   },
   "resentInviteToUserId": {
-    "message": "Resent invite to user $ID$.",
+    "message": "Повторно отправить приглашение пользователю $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9538,6 +9570,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Включите автозаполнение в приложении для компьютера по умолчанию для всех пользователей. Вы можете настроить сочетание клавиш и выбрать, нужно ли пользователям подтверждать ввод перед автозаполнением. Эта функция находится на стадии бета-тестирования."
+  },
+  "keyboardShortcut": {
+    "message": "Сочетание клавиш"
+  },
+  "appAutofillShortcut": {
+    "message": "Ярлык автозаполнения приложения"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Пользователи могут изменить это сочетание клавиш в любое время."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Используйте стандартное сочетание клавиш Bitwarden: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Введите собственное настраиваемое сочетание клавиш."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Включите клавиши Ctrl, Alt или Win и как минимум одну букву."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Всегда спрашивать перед заполнением"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "При входе по ярлыку на рабочем столе всегда отображать участникам запрос на подтверждение."
+  },
+  "invalidShortcut": {
+    "message": "Недопустимое сочетание клавиш"
   },
   "disableSend": {
     "message": "Отключить Send"
@@ -13030,37 +13095,37 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "message": "С помощью этого дополнения для менеджера паролей Bitwarden вы сможете быстро и легко защитить свои привилегированные и критически важные для бизнеса аккаунты.",
     "description": "'Bitwarden Password Manager' is a product name and should not be translated."
   },
   "privilegedControlsFeatureCredentialLeasing": {
-    "message": "Credential leasing"
+    "message": "Аренда учетных данных"
   },
   "privilegedControlsFeatureAccessRules": {
-    "message": "Advanced access rules"
+    "message": "Расширенные правила доступа"
   },
   "privilegedControlsFeatureRotation": {
-    "message": "Automated password rotation"
+    "message": "Автоматическая ротация паролей"
   },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Compliance-ready audit logs"
+    "message": "Журналы аудита, соответствующие требованиям регулирования"
   },
   "privilegedControlsFeatureGovernanceDashboard": {
-    "message": "Governance dashboard"
+    "message": "Панель управления"
   },
   "addPrivilegedControls": {
-    "message": "Add Privileged Controls",
+    "message": "Добавить привилегированное управление",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "seatLimit": {
-    "message": "Seat limit",
+    "message": "Лимит мест",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "whatsIncluded": {
-    "message": "What's included"
+    "message": "Что включено"
   },
   "pricePerMember": {
-    "message": "$COST$ per member",
+    "message": "$COST$ за пользователя",
     "placeholders": {
       "cost": {
         "content": "$1",
@@ -13069,7 +13134,7 @@
     }
   },
   "privilegedControlsSeatsAbovePasswordManagerSeats": {
-    "message": "Seats can't be more than your Password Manager seats ($COUNT$).",
+    "message": "Количество мест не может превышать количество мест в вашем менеджере паролей ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13079,7 +13144,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeats": {
-    "message": "Seat limit can't be more than your Password Manager seats ($COUNT$).",
+    "message": "Количество мест не может превышать количество мест в вашем менеджере паролей ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13089,7 +13154,7 @@
     }
   },
   "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit": {
-    "message": "Seat limit can't be more than your Password Manager seat limit ($COUNT$).",
+    "message": "Количество мест не может превышать лимит мест в вашем менеджере паролей ($COUNT$).",
     "description": "'Password Manager' is a product name and should not be translated.",
     "placeholders": {
       "count": {
@@ -13099,14 +13164,14 @@
     }
   },
   "privilegedControlsSeatLimitDesc": {
-    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you won't be able to give more members access to Privileged Controls.",
+    "message": "Установите ограничение на количество мест для вашей подписки на привилегированное управление. Как только этот лимит будет исчерпан, вы не сможете предоставить доступ к привилегированному управлению дополнительным пользователям.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsSeatLimitNotAboveSeats": {
-    "message": "Seat limit must be greater than the number of seats."
+    "message": "Ограничение по количеству мест должно быть больше, чем количество мест."
   },
   "privilegedControlsPurchased": {
-    "message": "Subscription updated. You now have Privileged Controls.",
+    "message": "Подписка обновлена. Теперь у вас есть привилегированное управление.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
@@ -13656,6 +13721,28 @@
   "recoverAccount": {
     "message": "Восстановить аккаунт"
   },
+  "recover": {
+    "message": "Восстановить",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Восстановить аккаунт для $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "Нет опций для $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "При сбросе пароля или отключении двухэтапной аутентификации для этого пользователя он получит уведомление об изменении и будет разлогинен."
   },
@@ -13861,7 +13948,7 @@
     "message": "Пригласить пользователей"
   },
   "secretsManagerPurchaseDesc": {
-    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
+    "message": "Предоставьте вашим инженерным и DevOps-командам возможность централизованно хранить, управлять и развертывать секретные данные на всех этапах жизненного цикла разработки программного обеспечения."
   },
   "unlimitedSecrets": {
     "message": "Неограниченные секреты"
@@ -13897,7 +13984,7 @@
     }
   },
   "addSecretsManager": {
-    "message": "Add Secrets Manager",
+    "message": "Добавить Менеджер секретов",
     "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
@@ -14347,9 +14434,6 @@
   },
   "confirmationDetails": {
     "message": "Детали подтверждения"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Спасибо, что подписались на менеджер секретов Bitwarden!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Мы отправили письмо с подтверждением на "
@@ -16570,9 +16654,16 @@
     "message": "Безопасная отправка конфиденциальной информации",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "У вас нет Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Безопасно делитесь текстовыми сообщениями или файлами с кем угодно. Ваша информация зашифрована сквозным шифрованием."
   },
   "generatorNudgeTitle": {
     "message": "Быстрое создание паролей"
@@ -17387,8 +17478,8 @@
   "howToManageMyVault": {
     "message": "Как я могу управлять своим хранилищем?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Перенести элементы в $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Перенести ваши элементы в $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17487,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ теперь требует, чтобы все элементы пользователя принадлежали организации. Ваши личные элементы будут перемещены в папку Мои элементы, доступную только вам.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
   },
   "openTransferItemsHelpArticle": {
     "message": "Открыть статью помощь по передаче элементов"
@@ -17913,11 +18001,11 @@
   "onePasswordCheckCredentials": {
     "message": "Произошла ошибка. Проверьте свои учетные данные и попробуйте еще раз."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Поддерживается только вход с использованием пароля."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Поддерживается только вход с использованием пароля. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "В этом аккаунте 1Password используется неподдерживаемый способ авторизации. Попробуйте еще раз или воспользуйтесь другим способом импорта."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Введите действительный адрес email или воспользуйтесь другим способом импорта."
@@ -17936,6 +18024,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Введите действительный адрес входа."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Вы найдете это в своем 1Password Emergency."
   },
   "secretKeyIsRequired": {
     "message": "Требуется секретный ключ."
@@ -17958,6 +18049,9 @@
   "onePasswordEmailHint": {
     "message": "Введите адрес email, который вы используете для авторизации в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Введите адрес email, который вы используете для входа в 1Password. Поддерживается авторизация только с помощью пароля."
+  },
   "secretKey": {
     "message": "Секретный ключ"
   },
@@ -17966,6 +18060,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Войти с помощью SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Перейдите на страницу входа через SSO, чтобы завершить импорт в Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Передача ключа шифрования"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Войдите в 1Password и перейдите в ожидающие входы, чтобы подтвердить этот запрос."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Этот код не сработал. Попробуйте ввести новый код на другом устройстве."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Страница входа через SSO была закрыта до того, как вы завершили авторизацию. Попробуйте еще раз, чтобы продолжить импорт."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Это устройство не было подтверждено на другом вашем устройстве. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Введено слишком много неверных кодов подтверждения. Попробуйте еще раз или воспользуйтесь другим способом импорта."
   },
   "keeperEmail": {
     "message": "Адрес email Keeper"
@@ -18425,7 +18543,7 @@
   "separateDomainsWithComma": {
     "message": "Разделять домены запятыми"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   },
   "searchDriversLicense": {
@@ -20396,10 +20514,10 @@
     "message": "Тип"
   },
   "pamTargetSystemManagedCredentialsColumn": {
-    "message": "Managed credentials"
+    "message": "Управляемые учетные данные"
   },
   "pamTargetSystemNone": {
-    "message": "None"
+    "message": "Нет"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Не поддерживается"
@@ -20423,7 +20541,7 @@
     "message": "Bitwarden автоматически ротирует секрет приложения Microsoft Entra ID."
   },
   "pamTargetSystemTemplateActiveDirectorySummary": {
-    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+    "message": "Bitwarden автоматически ротирует пароль доменного аккаунта на сервере Active Directory, который вы используете."
   },
   "pamTargetSystemTemplateCustomScriptSummaryConnector": {
     "message": "Bitwarden автоматически ротирует учетные данные, запуская ваш скрипт на зарегистрированном коннекторе доступа."
@@ -20456,10 +20574,10 @@
     "message": "Все активные коннекторы доступа уже привязаны к этой целевой системе."
   },
   "pamTargetSystemAssignConnectorsManualHint": {
-    "message": "Only for automatic rotation."
+    "message": "Только для автоматической ротации."
   },
   "pamTargetSystemDeleteBlockedHint": {
-    "message": "Remove its managed credentials first."
+    "message": "Сначала удалите его управляемые учетные данные."
   },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Коннекторы доступа могут быть назначены только целевым системам, настроенным на автоматическую ротацию."
@@ -20471,10 +20589,10 @@
     "message": "Нет активных коннекторов доступа для назначения. Зарегистрируйте один на вкладке коннектора доступа или активируйте существующий."
   },
   "pamTargetSystemDeactivateDialogTitle": {
-    "message": "Deactivate target system"
+    "message": "Деактивировать целевую систему"
   },
   "pamTargetSystemDeactivateDialogContent": {
-    "message": "No new rotations will start on this target system until you activate it. Rotations already in progress will finish, and pending ones are held."
+    "message": "Новые ротации в этой целевой системе не начнутся, пока вы ее не активируете. Уже запущенные ротации будут завершены, а ожидающие приостановлены."
   },
   "pamTargetSystemDeactivateConfirm": {
     "message": "Деактивировать"
@@ -20483,28 +20601,28 @@
     "message": "Целевая система деактивирована."
   },
   "pamTargetSystemDeactivateFailed": {
-    "message": "Couldn't deactivate. Try again."
+    "message": "Не удалось деактивировать. Попробуйте еще раз."
   },
   "pamTargetSystemActivateSuccess": {
     "message": "Целевая система активирована."
   },
   "pamTargetSystemActivateFailed": {
-    "message": "Couldn't activate. Try again."
+    "message": "Не удалось активировать. Попробуйте еще раз."
   },
   "pamTargetSystemDeleteDialogTitle": {
-    "message": "Delete target system"
+    "message": "Удалить целевую систему"
   },
   "pamTargetSystemDeleteDialogContent": {
-    "message": "This target system will be deleted."
+    "message": "Эта целевая система будет удалена."
   },
   "pamTargetSystemDeleteDialogContentDeactivateInstead": {
-    "message": "This target system will be deleted. To stop rotations but keep it, deactivate it instead."
+    "message": "Эта целевая система будет удалена. Чтобы приостановить ротацию, но сохранить систему, лучше деактивируйте ее."
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Целевая система удалена."
   },
   "pamTargetSystemDeleteFailed": {
-    "message": "Couldn't delete. Try again."
+    "message": "Не удалось удалить. Попробуйте еще раз."
   },
   "pamTargetSystemMethodAutomatic": {
     "message": "Автоматически"
@@ -20537,7 +20655,7 @@
     }
   },
   "pamTargetSystemRemoveConnector": {
-    "message": "Remove $NAME$",
+    "message": "Удалить $NAME$",
     "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
     "placeholders": {
       "name": {
@@ -20553,7 +20671,7 @@
     "message": "Неактивна"
   },
   "pamTargetSystemStatusNotConnected": {
-    "message": "Not connected"
+    "message": "Не подключена"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Настройка не завершена"
@@ -20598,16 +20716,16 @@
     "message": "Поддерживается"
   },
   "pamTargetSystemSessionTerminationUnsupportedHint": {
-    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+    "message": "Данная интеграция не может завершать уже открытые сеансы. Ротация учетных данных блокирует новые авторизации, но существующие сессии продолжают работать до истечения их срока действия."
   },
   "pamTargetSystemSessionTerminationRetainedHint": {
-    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
+    "message": "Эта целевая система зарегистрирована как поддерживающая завершение сессии, и управляемые учетные данные по-прежнему могут ее использовать. Сохранение в этом месте оставляет эту запись без изменений."
   },
   "pamTargetSystemCreated": {
     "message": "Целевая система создана."
   },
   "pamTargetSystemCreatedSuccess": {
-    "message": "Target system added."
+    "message": "Целевая система добавлена."
   },
   "pamTargetSystemSaved": {
     "message": "Целевая система сохранена."
@@ -20649,13 +20767,13 @@
     "message": "Зарегистрировать коннектор доступа"
   },
   "pamAccessConnectorsEmptyTitle": {
-    "message": "No access connectors yet"
+    "message": "Пока нет коннекторов доступа"
   },
   "pamAccessConnectorsEmptyDescription": {
-    "message": "Access connectors run inside your network and change passwords on your target systems. Register one to get started."
+    "message": "Коннекторы доступа работают внутри вашей сети и изменяют пароли на целевых системах. Зарегистрируйте один, чтобы начать."
   },
   "pamAccessConnectorTargetSystems": {
-    "message": "Target systems"
+    "message": "Целевые системы"
   },
   "pamAccessConnectorConnection": {
     "message": "Подключение"
@@ -20676,13 +20794,13 @@
     "message": "Активируйте этот коннектор доступа, чтобы назначить целевые системы."
   },
   "pamAccessConnectorEdit": {
-    "message": "Edit access connector"
+    "message": "Изменить коннектор доступа"
   },
   "pamAccessConnectorAssignTargetSystems": {
-    "message": "Assign target systems"
+    "message": "Назначить целевые системы"
   },
   "pamAccessConnectorDeleteAccessConnector": {
-    "message": "Удалить соединитель доступа"
+    "message": "Удалить коннектор доступа"
   },
   "pamAccessConnectorAssignTargetTitle": {
     "message": "Назначить целевую систему"
@@ -20733,55 +20851,55 @@
     "message": "Активировать"
   },
   "pamAccessConnectorDeactivateDialogTitle": {
-    "message": "Deactivate access connector"
+    "message": "Отключить коннектор доступа"
   },
   "pamAccessConnectorDeactivateDialogContent": {
-    "message": "This access connector won't take new rotations. Rotations in progress are released."
+    "message": "Этот коннектор доступа не принимает новые ротации. Текущие ротации будут отменены."
   },
   "pamAccessConnectorDeactivated": {
     "message": "Коннектор доступа деактивирован."
   },
   "pamAccessConnectorDeactivateFailed": {
-    "message": "Couldn't deactivate. Try again."
+    "message": "Не удалось деактивировать. Попробуйте еще раз."
   },
   "pamAccessConnectorActivated": {
     "message": "Коннектор доступа активирован."
   },
   "pamAccessConnectorDeleteDialogTitle": {
-    "message": "Delete access connector"
+    "message": "Удалить коннектор доступа"
   },
   "pamAccessConnectorDeleteDialogContent": {
-    "message": "Its token stops working, and rotations in progress are released. This can't be undone."
+    "message": "Его токен перестает действовать, а текущие ротации отменяются. Это действие нельзя отменить."
   },
   "pamAccessConnectorDeleted": {
     "message": "Коннектор доступа удален."
   },
   "pamAccessConnectorDeleteFailed": {
-    "message": "Couldn't delete. Try again."
+    "message": "Не удалось удалить. Попробуйте еще раз."
   },
   "pamAccessConnectorSaved": {
     "message": "Коннектор доступа сохранен."
   },
   "pamAccessConnectorSaveFailed": {
-    "message": "Access connector wasn't saved. Try again."
+    "message": "Не удалось сохранить коннектор доступа. Попробуйте еще раз."
   },
   "pamAccessConnectorSaveFailedCallout": {
-    "message": "Access connector wasn't saved. Check your connection, then select Save again."
+    "message": "Коннектор доступа не был сохранен. Проверьте соединение, затем выберите Сохранить снова."
   },
   "pamAccessConnectorRegisterTitle": {
     "message": "Зарегистрировать коннектор доступа"
   },
   "pamAccessConnectorRegisterDescription": {
-    "message": "You'll get a token to add to the access connector's configuration. It's shown only once."
+    "message": "Вы получите токен для добавления к конфигурации коннектора доступа. Он отображается только один раз."
   },
   "pamAccessConnectorNameRecognizableHint": {
-    "message": "Use a name your team will recognize, for example East datacenter."
+    "message": "Используйте название, которое будет понятно вашей команде, например East datacenter."
   },
   "pamAccessConnectorRegistered": {
     "message": "Коннектор доступа зарегистрирован."
   },
   "pamAccessConnectorRegisterFailed": {
-    "message": "Access connector wasn't registered. Try again."
+    "message": "Не удалось зарегистрировать коннектор доступа. Попробуйте еще раз."
   },
   "pamAccessConnectorDetailTitle": {
     "message": "Коннектор доступа"
@@ -20793,37 +20911,37 @@
     "message": "Конфигурация"
   },
   "pamAccessConnectorTabRotationHistory": {
-    "message": "Rotation history"
+    "message": "История ротации"
   },
   "pamAccessConnectorRotationHeading": {
-    "message": "Rotation"
+    "message": "Ротация"
   },
   "pamAccessConnectorTargetSystemsPlaceholder": {
-    "message": "Choose target systems"
+    "message": "Выберите целевые системы"
   },
   "pamAccessConnectorDisconnectedCallout": {
-    "message": "This access connector isn't connected, so it can't rotate passwords. Check that it's running on its machine and can reach Bitwarden."
+    "message": "Этот коннектор доступа не подключен, поэтому он не может ротировать пароли. Убедитесь, что он запущен на соответствующем компьютере и имеет доступ к Bitwarden."
   },
   "pamAccessConnectorNeverConnectedCallout": {
-    "message": "Finish setting up. Add the token and each target system's connection details to this access connector's configuration, then start it."
+    "message": "Завершите настройку. Добавьте токен и данные подключения каждой целевой системы в конфигурацию данного коннектора доступа, а затем запустите его."
   },
   "pamAccessConnectorTokenTitle": {
     "message": "Токен коннектора доступа"
   },
   "pamAccessConnectorTokenShownOnceWarning": {
-    "message": "Copy this token now, since you can't see it again after you close this."
+    "message": "Скопируйте этот токен сейчас, так как после закрытия этого окна вы больше не сможете его увидеть."
   },
   "pamAccessConnectorTokenConfigurationHint": {
-    "message": "Add it to the access connector's configuration to connect it."
+    "message": "Добавьте его в настройки коннектора доступа, чтобы подключить его."
   },
   "pamAccessConnectorTokenStored": {
-    "message": "I stored this token securely"
+    "message": "Я надежно сохранил этот токен"
   },
   "pamAccessConnectorTokenCopy": {
     "message": "Скопировать токен"
   },
   "pamTokenCopied": {
-    "message": "Token copied."
+    "message": "Токен скопирован."
   },
   "pamRotationConfigSearch": {
     "message": "Поиск управляемых учетных данных"
@@ -20832,22 +20950,22 @@
     "message": "Управляемые учетные данные не настроены"
   },
   "pamRotationConfigEmptyTitle": {
-    "message": "No managed credentials yet"
+    "message": "Пока нет управляемых учетных данных"
   },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Добавьте управляемые учетные данные, чтобы начать их автоматическую ротацию."
   },
   "pamRotationConfigEmptyDescription": {
-    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+    "message": "Управляемые учетные данные помогают вам изменять пароли в расписании или по окончании доступа."
   },
   "pamTargetSystemCredentialsEmptyDescription": {
-    "message": "Managed credentials on this target system show here."
+    "message": "Управляемые учетные данные в этой целевой системе отображаются здесь."
   },
   "pamRotationConfigEmptyStateGetStarted": {
-    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+    "message": "Управляемые учетные данные помогут вам изменять пароли по расписанию или после окончания доступа. Чтобы начать, добавьте коннектор доступа и целевую систему."
   },
   "pamRotationConfigAddAccessConnectorCta": {
-    "message": "Add access connector"
+    "message": "Добавить коннектор доступа"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Не удалось загрузить"
@@ -20883,34 +21001,34 @@
     "message": "Приостановлена"
   },
   "pamRotationConfigStatusFailed": {
-    "message": "Failed"
+    "message": "Неудачно"
   },
   "pamRotationConfigStatusNotConnected": {
-    "message": "Not connected"
+    "message": "Не подключен"
   },
   "pamRotationConfigStatusManualRotation": {
-    "message": "Manual rotation"
+    "message": "Ручная ротация"
   },
   "pamRotationConfigColumnAccount": {
-    "message": "Account"
+    "message": "Аккаунт"
   },
   "pamRotationFilterTrigger": {
-    "message": "Rotation trigger"
+    "message": "Триггер ротации"
   },
   "pamRotationTriggerSchedule": {
-    "message": "On a schedule"
+    "message": "По расписанию"
   },
   "pamRotationTriggerAccessEnd": {
-    "message": "When access ends"
+    "message": "Когда доступ заканчивается"
   },
   "pamRotationTriggerOnDemand": {
-    "message": "Only on demand"
+    "message": "Только по запросу"
   },
   "pamRotationNextInProgress": {
-    "message": "In progress"
+    "message": "Выполняется"
   },
   "pamRotationNextNone": {
-    "message": "None"
+    "message": "Нет"
   },
   "pamRotationRelativeMinutesAgo": {
     "message": "$COUNT$ мин. назад",
@@ -20988,22 +21106,22 @@
     }
   },
   "pamRotationDetailNone": {
-    "message": "None"
+    "message": "Нет"
   },
   "pamRotationDetailCalloutPaused": {
-    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+    "message": "Ротация приостановлена, поэтому эти учетные данные не будут обновляться ни в соответствии с графиком, ни по истечении срока доступа пользователя."
   },
   "pamRotationDetailCalloutRetrying": {
-    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+    "message": "Первая попытка завершилась неудачей, поэтому Bitwarden повторяет попытку. Никаких действий предпринимать не нужно, пока все попытки не закончатся неудачей."
   },
   "pamRotationDetailCalloutNoConnector": {
-    "message": "This target system has no access connector, so this credential can't rotate."
+    "message": "Эта целевая система не имеет коннектора доступа, поэтому учетные данные не могут ротироваться."
   },
   "pamRotationDetailCalloutDisconnected": {
-    "message": "The access connectors are disconnected, so this credential can't rotate."
+    "message": "Коннекторы доступа отключены, поэтому эти учетные данные не могут ротироваться."
   },
   "pamRotationDetailCalloutTimedOut": {
-    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "message": "Последняя ротация не завершилась вовремя. Выберите $ACTION$, чтобы повторить попытку.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -21012,7 +21130,7 @@
     }
   },
   "pamRotationDetailCalloutDue": {
-    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "message": "Срок действия этих учетных данных истек $AGE$ назад. Измените пароль, обновите запись в хранилище, а затем пометьте их как сротированные.",
     "placeholders": {
       "age": {
         "content": "$1",
@@ -21021,28 +21139,28 @@
     }
   },
   "pamRotationDetailViewConnectors": {
-    "message": "View access connectors"
+    "message": "Просмотр коннекторов доступа"
   },
   "pamRotationDetailConnectorsLabel": {
-    "message": "Access connectors for this target system"
+    "message": "Коннекторы доступа для этой целевой системы"
   },
   "pamRotationDetailConnectorsHint": {
-    "message": "Every credential on this target system uses these."
+    "message": "Все учетные данные в этой целевой системе используют именно их."
   },
   "pamRotationDetailUsernameHintEntra": {
-    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+    "message": "Логин аккаунта, например name@company.onmicrosoft.com."
   },
   "pamRotationDetailUsernameHintCustomScript": {
-    "message": "The value your script uses to identify the account, for example its username."
+    "message": "Значение, которое ваш скрипт использует для идентификации аккаунта, например, его имя пользователя."
   },
   "pamRotationDetailUsernameHintManual": {
-    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+    "message": "Имя пользователя аккаунта в целевой системе - для ваших записей. Bitwarden не использует его для ротации."
   },
   "pamRotationDetailUsernameHintDefault": {
-    "message": "The account's username on the target system, entered exactly as that system expects it."
+    "message": "Имя пользователя аккаунта в целевой системе, введенное в точном соответствии с требованиями этой системы."
   },
   "pamRotationDetailNextDue": {
-    "message": "Due $DATE$",
+    "message": "Истекает: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -21051,22 +21169,22 @@
     }
   },
   "pamRotationDetailDueSchedule": {
-    "message": "Due schedule"
+    "message": "Срок выполнения"
   },
   "pamRotationHistoryColumnRotationTrigger": {
-    "message": "Rotation trigger"
+    "message": "Триггер ротации"
   },
   "pamRotationHistoryRetrySucceeded": {
-    "message": "The first attempt failed; the retry succeeded."
+    "message": "Первая попытка не удалась; повторная попытка прошла успешно."
   },
   "pamRotationHistoryColumnRotationStarted": {
-    "message": "Rotation started"
+    "message": "Ротация запущена"
   },
   "pamRotationHistoryColumnFinalResult": {
-    "message": "Final result"
+    "message": "Конечный результат"
   },
   "pamRotationHistoryAttemptFailed": {
-    "message": "Attempt $NUMBER$ failed.",
+    "message": "Попытка $NUMBER$ завершилась сбоем.",
     "placeholders": {
       "number": {
         "content": "$1",
@@ -21075,64 +21193,64 @@
     }
   },
   "pamRotationHistoryNoConnectorPickedUp": {
-    "message": "No access connector picked up this rotation."
+    "message": "В этом цикле не был обнаружен ни один коннектор доступа."
   },
   "pamRotationHistorySessionsEnded": {
-    "message": "Sessions ended"
+    "message": "Сессия завершена"
   },
   "pamRotationHistorySessionsNotEnded": {
-    "message": "Couldn't end sessions"
+    "message": "Не удалось завершить сессии"
   },
   "pamRotationDetailsDrawerTitle": {
-    "message": "Rotation details"
+    "message": "Детали ротации"
   },
   "pamRotationAttemptResultFailed": {
-    "message": "Failed"
+    "message": "Неудачно"
   },
   "pamRotationAttemptResultSucceeded": {
-    "message": "Succeeded"
+    "message": "Успешно"
   },
   "pamRotationAttemptCauseTargetUnreachable": {
-    "message": "The target system didn't respond."
+    "message": "Целевая система не ответила."
   },
   "pamRotationConfigRotateNowInProgress": {
-    "message": "A rotation is in progress."
+    "message": "Ротация выполняется."
   },
   "pamRotationConfigRotateNowPaused": {
-    "message": "Resume rotation to rotate now."
+    "message": "Запустите ротацию, чтобы выполнить ротацию сейчас."
   },
   "pamRotationConfigRotateNowNotConnected": {
-    "message": "No access connector is connected"
+    "message": "Нет подключенных коннекторов доступа"
   },
   "pamRotationConfigRemoveLockedReason": {
-    "message": "Available when the rotation finishes."
+    "message": "Станет доступно по завершении ротации."
   },
   "pamRotationConfigEditSettings": {
-    "message": "Edit rotation settings"
+    "message": "Изменить настройки ротации"
   },
   "pamRotationConfigViewHistory": {
-    "message": "View rotation history"
+    "message": "Просмотр истории ротации"
   },
   "pamRotationConfigRotateNowStarted": {
-    "message": "Rotation started."
+    "message": "Ротация запущена"
   },
   "pamRotationConfigRotateNowFailed": {
-    "message": "Rotation didn't start. Try again."
+    "message": "Ротация не запустилась. Попробуйте еще раз."
   },
   "pamRotationConfigMarkedRotated": {
-    "message": "Marked as rotated."
+    "message": "Помечено как сротированное."
   },
   "pamRotationConfigMarkRotatedFailed": {
-    "message": "Couldn't mark as rotated. Try again."
+    "message": "Не удалось пометить как сротированное. Попробуйте еще раз."
   },
   "pamRotationConfigPauseWhileRotatingSuccess": {
-    "message": "Rotation paused. The rotation in progress will finish."
+    "message": "Ротация приостановлена. Текущая ротация будет доведена до конца."
   },
   "pamRotationConfigPauseContent": {
-    "message": "This credential won't rotate on its schedule or when someone's access ends. A rotation already in progress will finish."
+    "message": "Данные учетные данные не будут ротироваться ни в соответствии с графиком, ни по истечении срока доступа пользователя. Уже начавшаяся процедура ротации будет доведена до конца."
   },
   "pamRotationConfigMarkRotatedContent": {
-    "message": "Only do this after you've changed the password on the target system and updated the vault item."
+    "message": "Делайте это только после того, как вы измените пароль на целевой системе и обновите элемент хранилища."
   },
   "pamRotationSubtitleManage": {
     "message": "Управление ротацией учетных данных через целевые системы, используя коннекторы доступа, работающие внутри вашей сети."
@@ -21177,7 +21295,7 @@
     "message": "Ротация приостановлена."
   },
   "pamRotationConfigPauseFailed": {
-    "message": "Rotation wasn't paused. Try again."
+    "message": "Ротация не была приостановлена. Попробуйте еще раз."
   },
   "pamRotationConfigResumeRotation": {
     "message": "Возобновить ротацию"
@@ -21189,13 +21307,13 @@
     "message": "Удалить управляемые учетные данные"
   },
   "pamRotationConfigRemoveConfirmTitle": {
-    "message": "Remove from rotation"
+    "message": "Удалить из ротации"
   },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "Это приведет к отключению управления ротацией для этих учетных данных. Элемент останется в вашем хранилище, а история ротации сохранится в журнале аудита."
   },
   "pamRotationConfigRemoveConfirmContent": {
-    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
+    "message": "Эти учетные данные и их настройки будут удалены из Управляемых учетных данных. Элемент хранилища не изменится и его история остается в журнале аудита."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Невозможно удалить, пока идет ротация. Очищается по завершении текущего задания или по истечении времени ожидания."
@@ -21204,28 +21322,28 @@
     "message": "Управляемые учетные данные удалены."
   },
   "pamRotationConfigRemoveSuccess": {
-    "message": "Removed from rotation."
+    "message": "Удалено из ротации."
   },
   "pamRotationConfigRemoveFailed": {
-    "message": "Couldn't remove from rotation. Try again."
+    "message": "Не удалось удалить из ротации. Попробуйте еще раз."
   },
   "pamRotationConfigNeverRotated": {
     "message": "Никогда"
   },
   "pamRotationConfigHistoryEmptyTitle": {
-    "message": "No rotations yet"
+    "message": "Пока нет ротаций"
   },
   "pamRotationConfigAddEmptyCta": {
-    "message": "Add managed credential"
+    "message": "Добавить управляемые учетные данные"
   },
   "pamRotationConfigRotateNowConfirmContent": {
-    "message": "Rotating this credential will also sign out anyone still using the current password."
+    "message": "Ротация этих учетных данных также приведет к завершению сессий всех пользователей, которые по-прежнему используют текущий пароль."
   },
   "pamRotationConfigHistoryEmpty": {
     "message": "Пока что ротации не выполнялись."
   },
   "pamRotationConfigHistoryEmptyState": {
-    "message": "Rotations for this credential will show up here."
+    "message": "Ротации для этого учетных данных появятся здесь."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Сведения об учетных данных"
@@ -21300,7 +21418,7 @@
     "message": "Время истекло"
   },
   "pamRotationJobStatusRetrying": {
-    "message": "Retrying"
+    "message": "Повторная попытка"
   },
   "pamRotationJobStatusUnknown": {
     "message": "Неизвестно"
@@ -21354,7 +21472,7 @@
     "message": "Аккаунт соединителя доступа не имеет права изменять этот пароль. Предоставьте ему право сбросить пароль целевого аккаунта, а затем выполните повторную ротацию пароля."
   },
   "pamRotationFailureCauseInvalidCredentials": {
-    "message": "Целевая система отклонила запрос на вход, поданный соединителем. Проверьте учетные данные, которые соединитель использует для этой целевой системы, а затем повторите попытку."
+    "message": "Целевая система отклонила запрос на вход, поданный соединителем. Проверьте учетные данные, которые коннектор использует для этой целевой системы, а затем повторите попытку."
   },
   "pamRotationFailureCausePasswordRejected": {
     "message": "Целевая система отклонила новый пароль. Убедитесь, что политика паролей для этих учетных данных соответствует правилам целевой системы, а затем повторите ротацию."
@@ -21366,7 +21484,7 @@
     "message": "Целевая система отказалась внести изменение. Обычно это означает, что новый пароль не соответствует правилам установки паролей или что соединение с целевой системой не было зашифровано."
   },
   "pamRotationFailureCauseTargetUnreachable": {
-    "message": "Соединитель доступа не смог установить связь с целевой системой. Проверьте адрес целевой системы и убедитесь, что соединитель может установить с ней связь по сети, а затем повторите ротацию."
+    "message": "Коннектор доступа не смог установить связь с целевой системой. Проверьте адрес целевой системы и убедитесь, что коннектор может установить с ней связь по сети, а затем повторите ротацию."
   },
   "pamRotationHistoryCaption": {
     "message": "Задания на ротацию, сначала самые новые"
@@ -21521,7 +21639,7 @@
     "message": "Коннектор доступа"
   },
   "pamAccessConnectorTargetSystemCountSingular": {
-    "message": "$COUNT$ target system",
+    "message": "Целевых систем: $COUNT$",
     "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
@@ -21531,7 +21649,7 @@
     }
   },
   "pamAccessConnectorTargetSystemCount": {
-    "message": "$COUNT$ target systems",
+    "message": "Целевых систем: $COUNT$",
     "description": "Count of target systems assigned to an access connector, in the access connectors table.",
     "placeholders": {
       "count": {
@@ -21557,154 +21675,154 @@
     "message": "Не удалось загрузить соединители доступа для этой целевой системы."
   },
   "pamTargetSystemDeleteDialogAssignedConnectorsContent": {
-    "message": "This target system and its access connector assignments will be deleted."
+    "message": "Данная целевая система и назначенные к ней коннекторы доступа будут удалены."
   },
   "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead": {
-    "message": "This target system and its access connector assignments will be deleted. To stop rotations but keep it, deactivate it instead."
+    "message": "Данная целевая система и назначенные к ней коннекторы доступа будут удалены. Чтобы приостановить ротацию, но сохранить систему, деактивируйте ее."
   },
   "pamRotationConfigVaultItem": {
-    "message": "Vault item"
+    "message": "Элемент хранилища"
   },
   "pamRotationConfigCredentialName": {
-    "message": "Credential name"
+    "message": "Название учетных данных"
   },
   "pamRotationConfigCredentialPlaceholder": {
-    "message": "Select credential"
+    "message": "Выбрать учетные данные"
   },
   "pamRotationConfigCredentialHint": {
-    "message": "Credentials that are already in rotation aren't listed."
+    "message": "Учетные данные, которые уже находятся в ротации, не выведены."
   },
   "pamRotationConfigTargetSystemHint": {
-    "message": "The credential lives on the target system."
+    "message": "Учетные данные хранятся в целевой системе."
   },
   "pamRotationConfigTargetManual": {
-    "message": "Manual"
+    "message": "Вручную"
   },
   "pamRotationConfigTargetNoConnector": {
-    "message": "No connected access connector"
+    "message": "Нет подключенного коннектора доступа"
   },
   "pamRotationConfigCalloutTargetManual": {
-    "message": "This target system uses manual rotation. You'll change this credential's password yourself, then mark it as rotated."
+    "message": "Эта целевая система использует ручную ротацию. Вы смените пароль этого пользователя самостоятельно, а затем пометите его как сротированный."
   },
   "pamRotationConfigCalloutTargetNotConnected": {
-    "message": "This target system has no connected access connector, so this credential won't rotate yet. You can still save it."
+    "message": "У этой целевой системы нет подключенного коннектора доступа, поэтому эти учетные данные пока не будут ротироваться. Вы все равно можете их сохранить."
   },
   "pamRotationConfigAccountId": {
-    "message": "Account ID"
+    "message": "ID аккаунта"
   },
   "pamRotationConfigAccountIdPlaceholder": {
-    "message": "Enter an ID"
+    "message": "Введите ID"
   },
   "pamRotationConfigUsernameHint": {
-    "message": "The username on the target system, for example name@company.com."
+    "message": "Имя пользователя в целевой системе, например name@company.com."
   },
   "pamRotationConfigTriggersHeading": {
-    "message": "Rotation triggers"
+    "message": "Триггеры ротации"
   },
   "pamRotationConfigAfterRotationHeading": {
-    "message": "After rotation"
+    "message": "После ротации"
   },
   "pamRotationConfigScheduleLabel": {
     "message": "Расписание"
   },
   "pamRotationConfigRotateOnAccessEndHintAdd": {
-    "message": "Changes the password when someone's access ends, so the old password stops working."
+    "message": "Изменяет пароль по окончании срока доступа пользователя, в результате чего старый пароль перестает действовать."
   },
   "pamRotationConfigAutomaticOnly": {
-    "message": "Only available for automatic rotation."
+    "message": "Доступно только для автоматической ротации."
   },
   "pamRotationConfigEndSessions": {
-    "message": "End active sessions"
+    "message": "Завершить активные сессии"
   },
   "pamRotationConfigEndSessionsHint": {
-    "message": "Signs out anyone still using the old password after each rotation. If this fails, the rotation still counts."
+    "message": "После каждой ротации происходит завершение всех сессий пользователей, которые по-прежнему используют старый пароль. Если это не удается, ротация все равно считается выполненной."
   },
   "pamRotationConfigEndSessionsAvailableOnce": {
-    "message": "Available once you select a target system that supports it."
+    "message": "Станет доступно после выбора целевой системы, поддерживающей эту возможность."
   },
   "pamRotationConfigAddedSuccess": {
-    "message": "Managed credential added."
+    "message": "Управляемые учетные данные добавлены."
   },
   "pamTargetSystemAddedSuccess": {
-    "message": "Target system added."
+    "message": "Целевая система добавлена."
   },
   "pamTargetSystemNameHelp": {
-    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
+    "message": "Используйте название, которое будет понятно вашей команде, например Entra ID production. Оно будет отображаться при выборе любой целевой системы."
   },
   "pamTargetSystemMethodAutomaticDescription": {
-    "message": "An access connector changes passwords on this target system for you."
+    "message": "Коннектор доступа меняет пароли в этой целевой системе для вас."
   },
   "pamTargetSystemMethodManualDescription": {
-    "message": "You change passwords on this target system yourself, then mark them as rotated."
+    "message": "Вы сами меняете пароли в этой целевой системе и отмечаете их как сротированные."
   },
   "pamTargetSystemSystemTypeLabel": {
-    "message": "System type"
+    "message": "Тип системы"
   },
   "pamTargetSystemSystemTypeHint": {
-    "message": "Tells the access connector how to change passwords on this system."
+    "message": "Указывает коннектору доступа, как менять пароли в этой системе."
   },
   "pamTargetSystemEndingSessions": {
-    "message": "Ending sessions"
+    "message": "Завершение сессий"
   },
   "pamTargetSystemEndingSessionsEntraHint": {
-    "message": "Entra can sign out active sessions after rotation."
+    "message": "Entra может выйти из активных сессий после ротации."
   },
   "pamTargetSystemEndingSessionsCustomScriptHint": {
-    "message": "This system type can't sign out active sessions after rotation."
+    "message": "Этот тип системы может выйти из активных сессий после ротации."
   },
   "pamTargetSystemEndingSessionsUnsetHint": {
-    "message": "Shows once you choose a system type."
+    "message": "Показывает, когда вы выбираете тип системы."
   },
   "pamTargetSystemSystemTypePlaceholder": {
-    "message": "Select a system type"
+    "message": "Выберите тип системы"
   },
   "pamTargetSystemAccessConnectorsPlaceholder": {
-    "message": "Choose access connectors"
+    "message": "Выберите коннекторы доступа"
   },
   "pamTargetSystemAccessConnectors": {
-    "message": "Access connectors"
+    "message": "Коннекторы доступа"
   },
   "pamTargetSystemAccessConnectorFilter": {
-    "message": "Access connector"
+    "message": "Коннектор доступа"
   },
   "pamTargetSystemAccessConnectorsHint": {
-    "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
+    "message": "Выберите коннекторы доступа, которые могут ротировать пароли в этой целевой системе. Выберите несколько для резервирования."
   },
   "pamTargetSystemCalloutNoConnectorConnected": {
-    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+    "message": "Ни один из выбранных коннекторов доступа не подключен, поэтому эта целевая система пока не может ротировать. Вы можете сохранить ее."
   },
   "pamTargetSystemCalloutNoConnectorConnectedEditing": {
-    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+    "message": "Ни один из выбранных коннекторов доступа не подключен, поэтому эта целевая система пока не может ротировать."
   },
   "pamTargetSystemAutomaticRotationHeading": {
-    "message": "Automatic rotation"
+    "message": "Автоматическая ротация"
   },
   "pamTargetSystemTabConfiguration": {
-    "message": "Configuration"
+    "message": "Конфигурация"
   },
   "pamTargetSystemInactiveCallout": {
-    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+    "message": "Эта целевая система неактивна, поэтому в ней не запускаются новые циклы. Нажмите Активировать, чтобы возобновить их работу."
   },
   "pamTargetSystemCalloutNoneAssigned": {
-    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+    "message": "Нет назначенных коннекторов доступа, поэтому выберите по крайней мере один перед ротацией этой системы."
   },
   "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
-    "message": "This system type can sign out active sessions after rotation."
+    "message": "Этот тип системы может выйти из активных сессий после ротации."
   },
   "pamTargetSystemRemoveLastConnectorTitle": {
-    "message": "Remove last access connector"
+    "message": "Удалить последний коннектор доступа"
   },
   "pamTargetSystemRemoveLastConnectorConfirm": {
-    "message": "Remove access connector"
+    "message": "Удалить коннектор доступа"
   },
   "pamTargetSystemRemoveLastConnectorContentNone": {
-    "message": "This target system won't be able to rotate until another access connector is assigned."
+    "message": "Эта целевая система не сможет ротироваться до тех пор, пока не будет назначен другой коннектор доступа."
   },
   "pamTargetSystemRemoveLastConnectorContentOne": {
-    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+    "message": "1 управляемые учетные данные в этой целевой системе перестанут ротироваться, пока не будет назначен другой коннектор доступа."
   },
   "pamTargetSystemRemoveLastConnectorContent": {
-    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
+    "message": "$COUNT$ управляемых учетных данных в этой целевой системе перестанут ротироваться, пока не будет назначен другой коннектор доступа.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -21713,22 +21831,22 @@
     }
   },
   "pamTargetSystemCalloutNoConnectorsExist": {
-    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+    "message": "Коннекторы доступа пока не запущены. Они работают в вашей сети и сротируют пароли для данной целевой системы. Сохраните сейчас, затем добавьте один из вкладок коннекторов доступа."
   },
   "pamTargetSystemPolicyCharacters": {
-    "message": "Characters to include"
+    "message": "Символы, которые необходимо включить"
   },
   "pamTargetSystemPolicyUppercaseLetters": {
-    "message": "Uppercase letters"
+    "message": "Заглавные буквы"
   },
   "pamTargetSystemPolicyLowercaseLetters": {
-    "message": "Lowercase letters"
+    "message": "Строчные буквы"
   },
   "pamTargetSystemPolicyDigitsOption": {
-    "message": "Digits"
+    "message": "Цифры"
   },
   "pamTargetSystemPolicySymbolsOption": {
-    "message": "Symbols"
+    "message": "Символы"
   },
   "pamEventRequestedAccess": {
     "message": "Запрошен привилегированный доступ к элементу $ITEM$ (запрос $ID$).",
