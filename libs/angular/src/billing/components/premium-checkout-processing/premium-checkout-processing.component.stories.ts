@@ -18,7 +18,7 @@ const messages: Record<string, string> = {
     "We're confirming your payment. If it went through, Premium features like __$1__ will be available soon.",
   close: "Close",
   totpFeatureName: "TOTP verification codes",
-  fileSendFeatureName: "file Sends",
+  fileSendFeatureName: "file sends",
   attachmentsFeatureName: "attachments",
   archiveFeatureName: "archive",
   longFeatureName: "emergency access for trusted contacts and organization members",
