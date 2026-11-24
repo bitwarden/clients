@@ -290,11 +290,14 @@ export class SendService implements InternalSendServiceAbstraction {
   async delete(id: string | string[]): Promise<any> {
     const [userId, sends] = await this.stateProvider.getEncryptedSends();
     if (sends == null) {
+      await this.stateProvider.setDecryptedSends(null, userId);
       return;
     }
 
     if (typeof id === "string") {
       if (sends[id] == null) {
+        // The SDK may already have removed it from state; still drop the decrypted cache
+        await this.stateProvider.setDecryptedSends(null, userId);
         return;
       }
       delete sends[id];

@@ -533,6 +533,19 @@ describe("SendService", () => {
 
         expect(sends).toEqual([]);
       });
+
+      it("decrypts again after delete when the send is already gone from state", async () => {
+        // Fill the decrypted cache, then remove the send from encrypted state the way the
+        // SDK does before SendApiService calls sendService.delete
+        await sendService.getAllDecryptedFromState(mockUserId);
+        encryptedState.nextState({});
+
+        await sendService.delete("1");
+
+        const sends = await sendService.getAllDecryptedFromState(mockUserId);
+
+        expect(sends).toEqual([]);
+      });
     });
   });
 
