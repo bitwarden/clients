@@ -13,6 +13,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { ModalModeState } from "../platform/models/domain/window-state";
+import { RENDERER_READY_CHANNEL } from "../platform/renderer-ready";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 // window.main.ts registers a privileged scheme at module load time, which
@@ -21,7 +22,7 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 jest.mock("electron", () => ({
   app: {},
   BrowserWindow: jest.fn(),
-  ipcMain: { on: jest.fn() },
+  ipcMain: { on: jest.fn(), off: jest.fn() },
   nativeTheme: {},
   screen: {},
   session: {},
@@ -42,7 +43,19 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 import { isSnapStore } from "./platform-utils.main";
 import { isConfinedSnap, WindowMain } from "./window.main";
 
+/** Answers the renderer-ready signal at once, as a healthy renderer does. */
+const autoReady = (channel: string, handler: () => void) => {
+  if (channel === RENDERER_READY_CHANNEL) {
+    handler();
+  }
+  return ipcMain;
+};
+
 describe("WindowMain", () => {
+  beforeEach(() => {
+    jest.mocked(ipcMain.on).mockImplementation(autoReady);
+  });
+
   describe("isLocalBundleUrl", () => {
     let sut: WindowMain;
     // Access the private method under test without widening its visibility
@@ -509,6 +522,34 @@ describe("WindowMain", () => {
 
       expect(win.restore).toHaveBeenCalled();
       expect(win.show).toHaveBeenCalled();
+    });
+
+    it("waits for the recreated renderer to report that it is listening", async () => {
+      // webContents.send drops a message the renderer has not subscribed to yet, so a caller
+      // that sends as soon as ensureRenderer resolves must not be let go too early.
+      win.isDestroyed.mockReturnValue(true);
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = mock<BrowserWindow>();
+      });
+
+      let ready: (() => void) | undefined;
+      jest.mocked(ipcMain.on).mockImplementation((channel: string, handler: () => void) => {
+        if (channel === RENDERER_READY_CHANNEL) {
+          ready = handler;
+        }
+        return ipcMain;
+      });
+
+      let resolved = false;
+      const ensuring = sut.ensureRenderer().then(() => (resolved = true));
+      await Promise.resolve();
+
+      expect(resolved).toBe(false);
+
+      ready!();
+      await ensuring;
+
+      expect(resolved).toBe(true);
     });
 
     it("recreates a destroyed window and shows it once ready", async () => {

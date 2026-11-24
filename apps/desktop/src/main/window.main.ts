@@ -19,6 +19,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
+import { RENDERER_READY_CHANNEL } from "../platform/renderer-ready";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, DEV_ICON_FILE, isDev } from "../utils";
 
@@ -31,6 +32,9 @@ import {
   SNAP_MOUNT_DIRS,
 } from "./platform-utils.main";
 import { resolveProtocolPath } from "./protocol";
+
+/** How long a recreated renderer gets to report itself ready before main sends anyway. */
+const RENDERER_READY_TIMEOUT_MS = 10_000;
 
 // customFileOrigin = `${customFileScheme}://${customFileHost}`
 const customFileScheme = "bw-desktop-file";
@@ -373,8 +377,12 @@ export class WindowMain {
     await this.startup;
 
     if (this.win == null || this.win.isDestroyed()) {
+      const listening = this.rendererListening();
       await this.createWindow("full-app", false);
       this.showWhenReady(this.win);
+      // Creating the window is not enough: a caller that sends as soon as this resolves would
+      // have its message dropped by a renderer that has not attached its listener yet.
+      await listening;
       return;
     }
 
@@ -382,6 +390,29 @@ export class WindowMain {
       this.win.restore();
     }
     this.showAndFocus(this.win);
+  }
+
+  /**
+   * Resolves when the renderer reports that it is listening for messages from main.
+   *
+   * Resolves anyway after {@link RENDERER_READY_TIMEOUT_MS}: a renderer that never reports is
+   * already broken, and blocking every caller forever would make it worse.
+   */
+  private rendererListening(): Promise<void> {
+    return new Promise((resolve) => {
+      const done = () => {
+        clearTimeout(timer);
+        ipcMain.off(RENDERER_READY_CHANNEL, done);
+        resolve();
+      };
+
+      const timer = setTimeout(() => {
+        this.logService.warning("The renderer never reported itself ready; sending anyway.");
+        done();
+      }, RENDERER_READY_TIMEOUT_MS);
+
+      ipcMain.on(RENDERER_READY_CHANNEL, done);
+    });
   }
 
   private showWhenReady(win: BrowserWindow) {

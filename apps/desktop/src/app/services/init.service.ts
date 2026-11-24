@@ -126,6 +126,10 @@ export class InitService {
       await this.autofillService.init();
       await this.autotypeMvpService.init();
       await this.autotypeService.init();
+
+      // Last: main holds back messages to a renderer it has recreated until this arrives, and
+      // anything sent before the listeners above exist would be dropped.
+      ipc.platform.rendererReady();
     };
   }
 }
