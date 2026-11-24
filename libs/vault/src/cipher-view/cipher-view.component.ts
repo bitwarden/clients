@@ -143,6 +143,7 @@ export class CipherViewComponent {
    * such as a card shared with them through a Send)
    */
   readonly hideExpiredCardWarning = input<boolean>(false);
+  readonly allowPremiumUpgradeCallout = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,

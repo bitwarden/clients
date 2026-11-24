@@ -5,6 +5,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { NudgesService } from "@bitwarden/angular/vault";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,6 +17,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -273,6 +275,8 @@ describe("ViewComponent", () => {
           provide: ShareLinkService,
           useValue: { cipherCanBeShared$: () => of(false) },
         },
+        { provide: NudgesService, useValue: mock<NudgesService>() },
+        { provide: PremiumUpgradeNudgeService, useValue: mock<PremiumUpgradeNudgeService>() },
       ],
     })
       .overrideProvider(DialogService, {
@@ -556,6 +560,15 @@ describe("ViewComponent", () => {
       expect(collect).toHaveBeenCalledTimes(1);
     }));
   });
+
+  it("allows the TOTP upgrade callout in the item's login credentials", fakeAsync(() => {
+    component.cipher = mockCipher;
+    tick();
+    fixture.detectChanges();
+
+    const credentials = fixture.debugElement.query(By.css("app-login-credentials-view"));
+    expect(credentials.componentInstance.allowPremiumUpgradeCallout()).toBe(true);
+  }));
 
   describe("archive button", () => {
     it("shows the archive button when the user can archive and the cipher can be archived", fakeAsync(() => {

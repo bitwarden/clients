@@ -14,7 +14,7 @@ import {
   ViewChild,
   computed,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Observable, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -22,8 +22,11 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
@@ -38,6 +41,7 @@ import {
 } from "@bitwarden/components";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
+import { TotpUpgradeCalloutComponent } from "../../components/totp-upgrade-callout/totp-upgrade-callout.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
 type RiskBadge = {
@@ -100,6 +104,7 @@ type TotpCodeValues = {
     LinkModule,
     PremiumBadgeComponent,
     BadgeComponent,
+    TotpUpgradeCalloutComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
@@ -129,6 +134,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
    */
   readonly hasAnonymousPremium = input<boolean>(false);
   readonly hasAnonymousPremium$ = toObservable(this.hasAnonymousPremium);
+  readonly allowPremiumUpgradeCallout = input<boolean>(false);
 
   readonly activeUserId$ = toObservable(this.activeUserId);
 
@@ -146,12 +152,35 @@ export class LoginCredentialsViewComponent implements OnChanges {
   totpCodeCopyObj: TotpCodeValues;
 
   private datePipe = inject(DatePipe);
+  private readonly configService = inject(ConfigService);
+  private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+
+  protected readonly upgradePathsFlagOn = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+    { initialValue: false },
+  );
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private i18nService: I18nService,
     private eventCollectionService: EventCollectionService,
   ) {}
+
+  protected get isOrgOwned(): boolean {
+    return this.cipher.organizationId != null;
+  }
+
+  protected get showLoginCredentialsSection(): boolean {
+    if (!this.upgradePathsFlagOn()) {
+      return true;
+    }
+    const { username, password, fido2Credentials } = this.cipher.login;
+    return !!username || !!password || fido2Credentials?.length > 0;
+  }
+
+  protected get totpLabelKey(): string {
+    return this.upgradePathsFlagOn() ? "totpCode" : "verificationCodeTotp";
+  }
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -201,6 +230,10 @@ export class LoginCredentialsViewComponent implements OnChanges {
       false,
       this.cipher.organizationId,
     );
+  }
+
+  protected async promptForPremium() {
+    await this.premiumUpgradePromptService.promptForPremium(this.cipher.organizationId);
   }
 
   launchChangePasswordEvent(): void {
