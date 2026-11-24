@@ -11,22 +11,16 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  ButtonModule,
-  ItemModule,
-  SectionComponent,
-  SectionHeaderComponent,
-  TypographyModule,
-} from "@bitwarden/components";
+import { ItemModule, LinkModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { CipherUse, FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
@@ -44,15 +38,12 @@ import {
   templateUrl: "http-authentication.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ButtonModule,
+    I18nPipe,
+    IconComponent,
     ItemModule,
-    JslibModule,
-    PopupFooterComponent,
+    LinkModule,
     PopupHeaderComponent,
     PopupPageComponent,
-    SectionComponent,
-    SectionHeaderComponent,
-    TypographyModule,
   ],
 })
 export class HttpAuthenticationComponent {
@@ -61,7 +52,10 @@ export class HttpAuthenticationComponent {
   private readonly fillCipherPolicy = inject(FillCipherPolicy);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
 
-  private readonly loginButtons = viewChildren<ElementRef<HTMLButtonElement>>("loginButton");
+  // `bit-item-content` is a component, so the reference is read as the button element itself.
+  private readonly loginButtons = viewChildren("loginButton", {
+    read: ElementRef<HTMLButtonElement>,
+  });
 
   private readonly queryParameters$ = this.activatedRoute.queryParamMap.pipe(
     map((queryParamMap) => ({

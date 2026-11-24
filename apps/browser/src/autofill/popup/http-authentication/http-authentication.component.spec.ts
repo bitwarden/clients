@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -11,6 +12,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { ItemModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -94,7 +96,9 @@ describe("HttpAuthenticationComponent", () => {
       ],
     })
       .overrideComponent(HttpAuthenticationComponent, {
-        set: { imports: [I18nPipe], schemas: [NO_ERRORS_SCHEMA] },
+        // The login rows render the real `bit-item-content`, so the first-login focus is checked
+        // against the component the template actually uses.
+        set: { imports: [I18nPipe, ItemModule], schemas: [NO_ERRORS_SCHEMA] },
       })
       .compileComponents();
 
@@ -121,12 +125,22 @@ describe("HttpAuthenticationComponent", () => {
     );
   });
 
-  it("names the request's origin in the list label", () => {
-    const label: HTMLElement = fixture.nativeElement.querySelector(
-      "#http-authentication_heading_choose-login",
+  it("names the request's origin in the window title", () => {
+    const header = fixture.debugElement.query(By.css("popup-header"));
+
+    expect(header.properties.pageTitle.trim()).toBe(
+      "fillLoginPopUpPromptsLogInTo https://intranet.example.com",
+    );
+  });
+
+  it("names the request's origin in the list's accessible name", () => {
+    const list: HTMLElement = fixture.nativeElement.querySelector(
+      "#http-authentication_list_logins",
     );
 
-    expect(label.textContent).toContain("https://intranet.example.com");
+    expect(list.getAttribute("aria-label")?.trim()).toBe(
+      "fillLoginPopUpPromptsChooseLogin https://intranet.example.com",
+    );
   });
 
   it("focuses the first login when the window opens", () => {

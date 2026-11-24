@@ -1,4 +1,5 @@
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -10,6 +11,7 @@ export default {
   title: "Vault/Cipher Form/HTTP Authentication Warning Dialog",
   component: HTTPAuthenticationWarningDialogComponent,
   decorators: [
+    applicationConfig({ providers: [provideNoopAnimations()] }),
     moduleMetadata({
       imports: [HTTPAuthenticationWarningDialogComponent],
       providers: [
@@ -21,7 +23,7 @@ export default {
             new I18nMockService({
               fillLoginPopUpPromptsTitle: "Filling pop-up prompts",
               fillLoginPopUpPromptsWarning:
-                "Some websites ask for your login in a browser pop-up prompt. Be aware that malicious sites can trigger prompts without your knowledge, which may expose your credentials.",
+                "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
               learnMore: "Learn more",
               fillLoginPopUpPromptsHelpArticleSignpost:
                 "Learn more about filling pop-up prompts (opens in a new tab)",

@@ -8998,9 +8998,15 @@
     "message": "Learn more about filling pop-up prompts (opens in a new tab)",
     "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "fillLoginPopUpPromptsHeading": {
-    "message": "Log in with Bitwarden?",
-    "description": "Heading of the window that asks which login to use for a website's browser login pop-up prompt"
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
   "fillLoginPopUpPromptsChooseLogin": {
     "message": "Choose a login for $ORIGIN$",
