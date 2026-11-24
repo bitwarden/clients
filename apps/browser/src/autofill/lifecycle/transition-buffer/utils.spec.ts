@@ -25,6 +25,15 @@ describe("registerTransition", () => {
     ).toBe(undefined);
   });
 
+  it.each([0, -1, Number.NaN])("rejects a report whose age bound is %s", (maxAgeMs) => {
+    expect(
+      registerTransition(
+        { userId, tabId: 1, frameId: 0, documentId: "d" },
+        { now: 1_000, maxAgeMs },
+      ),
+    ).toBe(undefined);
+  });
+
   it("rejects a report without a tabId", () => {
     expect(
       registerTransition({ userId, tabId: undefined, frameId: 0, documentId: "d" }, options),

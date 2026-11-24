@@ -1,8 +1,11 @@
 import type { Observable } from "rxjs";
 
 import type { UserId } from "@bitwarden/common/types/guid";
+import type { StateProvider } from "@bitwarden/state";
 
-import type { TabEdge } from "../types";
+import type { AccountEvent, TabEdge } from "../types";
+
+import type { PageTransitionEventKind } from "./enums";
 
 /**
  * A reported transition, stamped by `registerTransition` and reconciled by a `TransitionBuffer`.
@@ -46,9 +49,6 @@ export type LiveFrame = Readonly<{
   documentId: string | undefined;
 }>;
 
-/** What a page-transition buffer does with a transition: surface a fill, drop it, or keep waiting. */
-export type BufferAction = "resolve" | "drop" | "keep";
-
 /**
  * A page transition as the page lifecycle reports it. None of it comes from the page: a reporting
  * frame contributes the *fact of* a transition and nothing else.
@@ -64,19 +64,51 @@ export type TransitionReport = Readonly<{
   documentId: string | undefined;
 }>;
 
-/** What {@link feedTransitionBuffer} reads. */
-export type BufferSources = {
-  /** Stamped reports, as from `registerTransition`. */
-  report$: Observable<BufferedTransitionReport>;
+/** The signals the transition buffer's controller reads. Every stream is subscribed once. */
+export type PageTransitionSignals = Readonly<{
+  /**
+   * Each transition a frame reports. The report carries no account: the account active when it
+   * arrives is assigned to it.
+   */
+  report$: Observable<Omit<TransitionReport, "userId">>;
+  /** The history of the accounts, as from `accountEvents$`. */
+  accountEvents$: Observable<AccountEvent>;
   /** Each state change the lifecycle machine reports, with its browser tab's id. */
   tabLifecycleChanged$: Observable<readonly [tabId: number, edge: TabEdge]>;
-  /** Each frame that no longer exists. Not tied to the lifecycle machine. */
-  frameLost$: Observable<Readonly<{ tabId: number; frameId: number | undefined }>>;
-  /**
-   * The id of each browser tab that is removed. The same source must end the tab's lifecycle
-   * machine, or a change arriving after the removal brings the tab's lifecycle state back.
-   */
+  /** The id of each browser tab that is removed. */
   tabRemoved$: Observable<number>;
-  /** Whether the buffer gathers. `false` clears it; it is disabled until this first emits. */
-  enabled$: Observable<boolean>;
-};
+  /** Each frame that no longer exists. Never a frame whose tab stopped monitoring. */
+  frameLost$: Observable<Readonly<{ tabId: number; frameId: number | undefined }>>;
+  /** Emits when the autofill scripts are about to be injected into every frame anew. */
+  scriptsReloading$: Observable<unknown>;
+}>;
+
+/** What a page-transition resolver is built from. None of it is a signal. */
+export type PageTransitionDependencies = Readonly<{
+  /** Where the buffer is stored. */
+  stateProvider: StateProvider;
+  /** Epoch ms: the clock that transitions are stamped and expired by. */
+  now: () => number;
+  /** How long a transition stays actionable, in milliseconds. Its latest value is read for each report. */
+  maxAgeMs$: Observable<number>;
+  /** Called when the buffer's storage fails, before the buffer continues in memory. */
+  onStorageFailure: (error: unknown) => void;
+}>;
+
+/** An event the controller applies, in the order it arrives. See `pageTransitionEvents$`. */
+export type PageTransitionEvent =
+  | Readonly<{
+      kind: typeof PageTransitionEventKind.Report;
+      report: Omit<TransitionReport, "userId">;
+    }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.Account; event: AccountEvent }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.MaxAge; ms: number }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.TabChanged; tabId: number; edge: TabEdge }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.TabRemoved; tabId: number }>
+  | Readonly<{
+      kind: typeof PageTransitionEventKind.FrameLost;
+      tabId: number;
+      frameId: number | undefined;
+    }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.ScriptsReloading }>
+  | Readonly<{ kind: typeof PageTransitionEventKind.Restored; report: BufferedTransitionReport }>;

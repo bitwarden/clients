@@ -5,7 +5,8 @@ import type { BufferedTransitionReport, LiveFrame, TransitionReport } from "./ty
  * Stamps a reported transition with the time it was reported and the deadline it expires at.
  *
  * Stamping fails closed: a report that belongs to no account (no `userId`), cannot be targeted
- * (no `tabId`), or cannot be validated later (no `documentId`, or an empty one) is rejected.
+ * (no `tabId`), or cannot be validated later (no `documentId`, or an empty one) is rejected, as is
+ * one whose age bound is not a positive number, which would be expired as it is stamped.
  *
  * @param report The facts of the transition.
  * @param options.now Epoch ms of stamping.
@@ -17,7 +18,7 @@ export function registerTransition(
   options: { now: number; maxAgeMs: number },
 ): BufferedTransitionReport | undefined {
   const { userId, tabId, frameId, documentId } = report;
-  if (!userId || tabId === undefined || !documentId) {
+  if (!userId || tabId === undefined || !documentId || !(options.maxAgeMs > 0)) {
     return undefined;
   }
 

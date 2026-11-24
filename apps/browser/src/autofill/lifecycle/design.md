@@ -189,10 +189,11 @@ Reconciliation reads the reporting tab's lifecycle state (see [The tab lifecycle
 
 A transition stays actionable for a bounded time from its report, a tuned value. One that outlives the bound is dropped wherever it is: buffered, restored after a restart, or resolved and waiting to fill. A page loaded long ago therefore never fills when its tab is finally viewed.
 
-The buffer follows the active account:
+The buffer follows the active account, and the scripts that report to it:
 
 - **When the active account logs out,** the buffer is cleared and admission ends; reports that arrive afterwards are not kept. Clearing at logout keeps one session from leaking into another. Admission resumes once the active account is a signed-in account again, whether by a login or by a switch.
 - **When the active account locks, or the active account changes,** the buffer is cleared and admission continues. The user's session with the vault has ended, so nothing buffered before it carries forward. A transition reported afterwards is still a fact about the page, so it is kept, and whether it fills is autofill's decision when the opportunity resolves (see [`autofill.design.md`](../autofill.design.md#autofill-on-page-load)).
+- **When the autofill scripts are reloaded,** the buffer is cleared and admission continues. The scripts that reported are replaced, and the scripts that replace them report afresh.
 
 > [!NOTE]
 > **Buffering tracks the path to hot**, independent of monitoring state. Cold and warm states track the difference: cold does not monitor but buffers (a _page loaded in the background_ waits for its first focus), while warm monitors but drops (_unfocused windows_ never fill).

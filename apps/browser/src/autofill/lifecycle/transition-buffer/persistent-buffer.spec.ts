@@ -5,9 +5,6 @@ import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spe
 import { UserId } from "@bitwarden/common/types/guid";
 import { GlobalState, KeyDefinition } from "@bitwarden/state";
 
-import { TabEdgeCause, TabState } from "../enums";
-import type { TabEdge } from "../types";
-
 import {
   BUFFERED_TRANSITIONS,
   PersistentTransitionBuffer,
@@ -28,13 +25,6 @@ function report(
 ): BufferedTransitionReport {
   return { userId, tabId, frameId, documentId, stampedAt, expiresAt };
 }
-
-const hot: TabEdge = {
-  from: TabState.WarmUp,
-  to: TabState.Hot,
-  cause: TabEdgeCause.Settle,
-  focused: true,
-};
 
 // the load resolves asynchronously, and writes complete asynchronously
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -92,24 +82,32 @@ describe("PersistentTransitionBuffer", () => {
       Object.fromEntries(reports.map((r) => [transitionKey(r), r] as const)),
     );
 
-  /** A buffer over `state`, enabled or disabled from the start. */
+  /**
+   * A buffer over `state`, enabled or disabled from the start. A transition it restores is buffered
+   * at once, as the controller does for a tab that buffers.
+   */
   function start(state: GlobalState<BufferedTransitions> = globalState(), enabled = true) {
     const resolved: BufferedTransitionReport[] = [];
+    const restored: BufferedTransitionReport[] = [];
     const errors: unknown[] = [];
     const buffer = new PersistentTransitionBuffer(state, () => now);
     buffer.resolved$.subscribe({
       next: (r) => resolved.push(r),
       error: (e: unknown) => errors.push(e),
     });
+    buffer.restored$.subscribe((r) => {
+      restored.push(r);
+      buffer.buffer(r);
+    });
     buffer.setEnabled(enabled);
-    return { buffer, resolved, errors };
+    return { buffer, resolved, restored, errors };
   }
 
   it("stores what the buffer holds", async () => {
     const { buffer } = start();
     const a = report(1, 0, "a");
 
-    buffer.report(a);
+    buffer.buffer(a);
     await settle();
 
     expect(await stored()).toEqual([a]);
@@ -118,38 +116,41 @@ describe("PersistentTransitionBuffer", () => {
   it("removes a report from storage when it resolves", async () => {
     const { buffer, resolved } = start();
     const a = report(1, 0, "a");
-    buffer.report(a);
+    buffer.buffer(a);
     await settle();
 
-    buffer.lifecycleChanged(1, hot);
+    buffer.resolve(1);
     await settle();
 
     expect(resolved).toEqual([a]);
     expect(await stored()).toEqual([]);
   });
 
-  it("does not store a report that resolves on arrival", async () => {
-    const { buffer, resolved } = start();
-    buffer.lifecycleChanged(1, hot);
-    const a = report(1, 0, "a");
+  describe("clear", () => {
+    it("empties storage, and the next write restores nothing from before it", async () => {
+      const { buffer } = start();
+      buffer.buffer(report(1, 0, "before"));
+      await settle();
 
-    buffer.report(a);
-    await settle();
+      buffer.clear();
+      const after = report(2, 0, "after");
+      buffer.buffer(after);
+      await settle();
 
-    expect(resolved).toEqual([a]);
-    expect(await stored()).toEqual([]);
+      expect(await stored()).toEqual([after]);
+    });
   });
 
   describe("setEnabled", () => {
     it("disabling empties storage, and the next write restores nothing from before it", async () => {
       const { buffer } = start();
-      buffer.report(report(1, 0, "before"));
+      buffer.buffer(report(1, 0, "before"));
       await settle();
 
       buffer.setEnabled(false);
       buffer.setEnabled(true);
       const after = report(2, 0, "after");
-      buffer.report(after);
+      buffer.buffer(after);
       await settle();
 
       expect(await stored()).toEqual([after]);
@@ -161,7 +162,7 @@ describe("PersistentTransitionBuffer", () => {
       buffer.setEnabled(true);
       const after = report(1, 0, "after");
 
-      buffer.report(after);
+      buffer.buffer(after);
       await settle();
 
       expect(await stored()).toEqual([after]);
@@ -170,7 +171,7 @@ describe("PersistentTransitionBuffer", () => {
     it("while disabled, nothing is stored", async () => {
       const { buffer } = start(globalState(), false);
 
-      buffer.report(report(1, 0, "a"));
+      buffer.buffer(report(1, 0, "a"));
       await settle();
 
       expect(await stored()).toEqual([]);
@@ -178,6 +179,32 @@ describe("PersistentTransitionBuffer", () => {
   });
 
   describe("restore", () => {
+    it("hands on the unexpired reports it finds, and does not buffer them itself", async () => {
+      const live = report(1, 0, "live", 2_000);
+      const stale = report(1, 1, "stale", 1_000);
+      await seed(live, stale);
+      const buffer = new PersistentTransitionBuffer(globalState(), () => now);
+      const restored: BufferedTransitionReport[] = [];
+      buffer.restored$.subscribe((r) => restored.push(r));
+
+      buffer.setEnabled(true);
+      await settle();
+      buffer.resolve(1);
+
+      expect(restored).toEqual([live]);
+      expect(await stored()).toEqual([]);
+    });
+
+    it("keeps a report it handed on in storage once the buffer is told to buffer it", async () => {
+      const live = report(1, 0, "live", 2_000);
+      await seed(live);
+
+      start();
+      await settle();
+
+      expect(await stored()).toEqual([live]);
+    });
+
     it("a buffer that starts enabled restores the unexpired reports it finds", async () => {
       const live = report(1, 0, "live", 2_000);
       const stale = report(1, 1, "stale", 1_000);
@@ -185,7 +212,7 @@ describe("PersistentTransitionBuffer", () => {
       const { buffer, resolved } = start();
       await settle();
 
-      buffer.lifecycleChanged(1, hot);
+      buffer.resolve(1);
 
       expect(resolved).toEqual([live]);
     });
@@ -198,24 +225,13 @@ describe("PersistentTransitionBuffer", () => {
       expect(await stored()).toEqual([]);
     });
 
-    it("a restore leaves a report that resolves at once out of storage", async () => {
-      const live = report(1, 0, "live", 2_000);
-      await seed(live);
-      const { buffer, resolved } = start();
-      buffer.lifecycleChanged(1, hot);
-      await settle();
-
-      expect(resolved).toEqual([live]);
-      expect(await stored()).toEqual([]);
-    });
-
     it("a buffer that starts disabled restores nothing, and empties storage", async () => {
       await seed(report(1, 0, "stored"));
       const { buffer, resolved } = start(globalState(), false);
       await settle();
 
       buffer.setEnabled(true);
-      buffer.lifecycleChanged(1, hot);
+      buffer.resolve(1);
       await settle();
 
       expect(resolved).toEqual([]);
@@ -240,7 +256,7 @@ describe("PersistentTransitionBuffer", () => {
 
     it("writes nothing until the stored record has been read", async () => {
       const { buffer } = start(state);
-      buffer.report(report(1, 0, "fresh"));
+      buffer.buffer(report(1, 0, "fresh"));
       await settle();
       // precondition: the write waits on the read
       expect(state.update).not.toHaveBeenCalled();
@@ -254,12 +270,12 @@ describe("PersistentTransitionBuffer", () => {
     it("a restored report read after a fresh one for its frame does not replace it", async () => {
       const { buffer, resolved } = start(state);
       const fresh = report(1, 0, "fresh", 10_000, 10);
-      buffer.report(fresh);
+      buffer.buffer(fresh);
 
       const older = report(1, 0, "older", 10_000, 1);
       loaded$.next({ [transitionKey(older)]: older });
       await settle();
-      buffer.lifecycleChanged(1, hot);
+      buffer.resolve(1);
 
       expect(resolved).toEqual([fresh]);
     });
@@ -267,7 +283,7 @@ describe("PersistentTransitionBuffer", () => {
     it("a restored report read after a fresh one for its frame is not stored over it", async () => {
       const { buffer } = start(state);
       const fresh = report(1, 0, "fresh", 10_000, 10);
-      buffer.report(fresh);
+      buffer.buffer(fresh);
 
       const older = report(1, 0, "older", 10_000, 1);
       loaded$.next({ [transitionKey(older)]: older });
@@ -279,7 +295,7 @@ describe("PersistentTransitionBuffer", () => {
     it("keeps restored reports for other frames alongside a fresh one", async () => {
       const { buffer } = start(state);
       const fresh = report(1, 0, "fresh", 10_000, 10);
-      buffer.report(fresh);
+      buffer.buffer(fresh);
 
       const other = report(2, 0, "other", 10_000, 1);
       loaded$.next({ [transitionKey(other)]: other });
@@ -297,7 +313,19 @@ describe("PersistentTransitionBuffer", () => {
       const before = report(1, 0, "before");
       loaded$.next({ [transitionKey(before)]: before });
       await settle();
-      buffer.lifecycleChanged(1, hot);
+      buffer.resolve(1);
+
+      expect(resolved).toEqual([]);
+    });
+
+    it("a clear that is not a disable, while the stored record is being read, discards it", async () => {
+      const { buffer, resolved } = start(state);
+      buffer.clear();
+
+      const before = report(1, 0, "before");
+      loaded$.next({ [transitionKey(before)]: before });
+      await settle();
+      buffer.resolve(1);
 
       expect(resolved).toEqual([]);
     });
@@ -309,7 +337,7 @@ describe("PersistentTransitionBuffer", () => {
       const before = report(1, 0, "before");
       loaded$.next({ [transitionKey(before)]: before });
       await settle();
-      buffer.lifecycleChanged(1, hot);
+      buffer.resolve(1);
 
       expect(resolved).toEqual([]);
     });
@@ -321,7 +349,7 @@ describe("PersistentTransitionBuffer", () => {
         .mockImplementationOnce(() => new Promise((resolve) => (finishFirst = () => resolve({}))));
       const { buffer } = start(state);
       loaded$.next({});
-      buffer.report(report(1, 0, "a"));
+      buffer.buffer(report(1, 0, "a"));
       await settle();
 
       buffer.setEnabled(false);
@@ -341,7 +369,7 @@ describe("PersistentTransitionBuffer", () => {
         const { buffer, errors } = start(state);
         loaded$.next({});
 
-        buffer.report(report(1, 0, "a"));
+        buffer.buffer(report(1, 0, "a"));
         await settle();
 
         expect(errors).toEqual([failure]);
@@ -351,10 +379,10 @@ describe("PersistentTransitionBuffer", () => {
         jest.mocked(state.update).mockRejectedValue(new Error("storage unavailable"));
         const { buffer } = start(state);
         loaded$.next({});
-        buffer.report(report(1, 0, "a"));
+        buffer.buffer(report(1, 0, "a"));
         await settle();
 
-        buffer.report(report(2, 0, "b"));
+        buffer.buffer(report(2, 0, "b"));
         buffer.setEnabled(false);
         await settle();
 
@@ -364,7 +392,7 @@ describe("PersistentTransitionBuffer", () => {
       it("a read that fails errors resolved$ and writes nothing", async () => {
         const failure = new Error("storage unavailable");
         const { buffer, errors } = start(state);
-        buffer.report(report(1, 0, "a"));
+        buffer.buffer(report(1, 0, "a"));
 
         loaded$.error(failure);
         await settle();
@@ -378,7 +406,7 @@ describe("PersistentTransitionBuffer", () => {
         jest.mocked(state.update).mockRejectedValue(failure);
         const { buffer, errors } = start(state);
         loaded$.next({});
-        buffer.report(report(1, 0, "a"));
+        buffer.buffer(report(1, 0, "a"));
         await settle();
 
         buffer[Symbol.dispose]();
@@ -405,7 +433,7 @@ describe("PersistentTransitionBuffer", () => {
       const update = jest.spyOn(globalState(), "update");
 
       buffer[Symbol.dispose]();
-      buffer.report(report(2, 0, "after"));
+      buffer.buffer(report(2, 0, "after"));
       await settle();
 
       expect(update).not.toHaveBeenCalled();

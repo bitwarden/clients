@@ -5,15 +5,14 @@ export {
   resolvePageTransition,
   retirePageTransition,
 } from "./actions";
-export { TransitionValidity } from "./enums";
-export { persistentTransitionBuffer$, transitionBuffer$ } from "./factories";
+export { BufferAction, TransitionValidity } from "./enums";
+export { pageTransitionResolver } from "./page-transitions.rx";
 export { resetTransitionBuffer } from "./persistent-buffer";
-export { bufferEnabled } from "./rx";
 export type {
-  BufferAction,
   BufferedTransitionReport,
-  BufferSources,
   LiveFrame,
+  PageTransitionDependencies,
+  PageTransitionSignals,
   TransitionReport,
 } from "./types";
 export { registerTransition, validateTransition } from "./utils";
