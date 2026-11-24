@@ -107,6 +107,7 @@ import {
   CollectionDialogAction,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
@@ -208,6 +209,7 @@ export class VaultNextComponent implements OnInit {
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly organizationWarningsService = inject(OrganizationWarningsService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -354,6 +356,18 @@ export class VaultNextComponent implements OnInit {
         cipherIds: ciphers.map((cipher) => cipher.id as CipherId),
       }),
     );
+
+  private readonly showInactiveSubscriptionDialog = this.userId$
+    .pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      filter((organizations) => organizations.length === 1),
+      map((organizations) => organizations[0]),
+      switchMap((organization) =>
+        this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+      ),
+      takeUntilDestroyed(),
+    )
+    .subscribe();
 
   /**
    * Every item in the account's active vaults. The banners and onboarding speak to the account as

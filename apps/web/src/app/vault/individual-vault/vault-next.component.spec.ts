@@ -71,6 +71,7 @@ import {
   CollectionDialogResult,
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
+import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
@@ -102,6 +103,7 @@ describe("VaultNextComponent", () => {
   let router: MockProxy<Router>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let webVaultPromptService: MockProxy<WebVaultPromptService>;
+  let organizationWarningsService: MockProxy<OrganizationWarningsService>;
   let coachmarkService: MockProxy<CoachmarkService>;
   let collectionService: MockProxy<CollectionService>;
   let collectionDialog: MockProxy<CollectionDialogRef>;
@@ -289,6 +291,10 @@ describe("VaultNextComponent", () => {
 
     const organizationService = mock<OrganizationService>();
     organizationService.memberOrganizations$.mockReturnValue(organizations$);
+    organizationService.organizations$.mockReturnValue(organizations$);
+
+    organizationWarningsService = mock<OrganizationWarningsService>();
+    organizationWarningsService.showInactiveSubscriptionDialog$.mockReturnValue(of(undefined));
 
     const policyService = mock<PolicyService>();
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
@@ -353,6 +359,7 @@ describe("VaultNextComponent", () => {
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: OrganizationWarningsService, useValue: organizationWarningsService },
         { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: Router, useValue: router },
@@ -406,6 +413,29 @@ describe("VaultNextComponent", () => {
   describe("onboarding prompts", () => {
     it("starts them once the page loads", () => {
       expect(webVaultPromptService.conditionallyPromptUser).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("inactive subscription dialog", () => {
+    const organization = buildOrganization(organizationId, "Acme corporation");
+    const otherOrganization = buildOrganization(otherOrganizationId, "Smith family");
+
+    it("shows for the only organization the account belongs to", () => {
+      organizations$.next([organization]);
+
+      expect(organizationWarningsService.showInactiveSubscriptionDialog$).toHaveBeenCalledWith(
+        organization,
+      );
+    });
+
+    it("does not show for an account with no organizations", () => {
+      expect(organizationWarningsService.showInactiveSubscriptionDialog$).not.toHaveBeenCalled();
+    });
+
+    it("does not show for an account with more than one organization", () => {
+      organizations$.next([organization, otherOrganization]);
+
+      expect(organizationWarningsService.showInactiveSubscriptionDialog$).not.toHaveBeenCalled();
     });
   });
 
