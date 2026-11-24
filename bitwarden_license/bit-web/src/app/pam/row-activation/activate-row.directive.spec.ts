@@ -124,10 +124,9 @@ describe("PamActivateRowDirective", () => {
     expect(host.activated()).toBe(0);
   });
 
-  it("does not activate when the click ends a drag-select inside the row", () => {
+  it("does not activate when the click ends a text selection", () => {
     jest.spyOn(window, "getSelection").mockReturnValue({
       isCollapsed: false,
-      anchorNode: byTestId("plain").firstChild,
       toString: () => "Requested by someone",
     } as unknown as Selection);
 
@@ -136,11 +135,10 @@ describe("PamActivateRowDirective", () => {
     expect(host.activated()).toBe(0);
   });
 
-  it("activates when the selection sits outside the row", () => {
+  it("activates when the selection is collapsed", () => {
     jest.spyOn(window, "getSelection").mockReturnValue({
-      isCollapsed: false,
-      anchorNode: byTestId("toolbar").firstChild,
-      toString: () => "Search",
+      isCollapsed: true,
+      toString: () => "",
     } as unknown as Selection);
 
     click(whitespaceOf("plain"));
