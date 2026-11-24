@@ -10,6 +10,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Signal,
   afterRenderEffect,
   computed,
   effect,
@@ -29,6 +30,7 @@ import { CheckboxModule } from "../checkbox";
 import { IconComponent } from "../icon";
 import {
   IconTileComponent,
+  IconTileOptions,
   IconTileVariant,
   resolveIconTileColor,
   resolveIconTileVariant,
@@ -96,10 +98,30 @@ const SIZER_ROWS = 3;
 /** Roughly how many characters of label one level of indent is as wide as. */
 const INDENT_AS_CHARACTERS = 4;
 
+/** What a row shows that comes from signals — its own, and the chip's selection and counts. */
+type FilterTreeRowState = {
+  expandable: boolean;
+  disabled: boolean;
+  label: string;
+  /** `null` for a section header, which isn't selectable. */
+  checked: "true" | "false" | "mixed" | null;
+  tile?: {
+    icon: IconTileOptions["icon"];
+    emphasis: NonNullable<IconTileOptions["emphasis"]>;
+    variant: IconTileVariant;
+    color: string | undefined;
+  };
+  /** An option's trailing count. */
+  count?: number;
+  /** A section header's berry. */
+  sectionSelectedCount?: number;
+};
+
 /**
  * Lets a viewport be scrolled by an element outside it, as `bitScrollLayout` does for a page.
- * CDK's own `cdkVirtualScrollingElement` isn't used: it adds size containment to the scrolling
- * element, which collapses one that takes its height from its content.
+ *
+ * Avoids: CDK's own `cdkVirtualScrollingElement`. It adds size containment to the scrolling
+ * element, which would collapse one that takes its height from its content.
  */
 class OuterScrollable extends CdkVirtualScrollable {
   constructor(element: HTMLElement) {
@@ -262,9 +284,10 @@ export class FilterTreeComponent {
   readonly scrollStrategy = new VariableHeightVirtualScrollStrategy(this.rowHeights);
 
   /**
-   * The viewport can't take its height from rows that are out of flow, so it is given the
-   * height of the whole list and left to shrink to whatever the menu allows. Scrolled from
-   * outside it isn't a scroll area at all, and CDK sizes it to the list.
+   * The viewport's height: that of the whole list, which the menu then shrinks to the space it
+   * has. `null` when something outside scrolls the tree, where CDK sizes the viewport itself.
+   *
+   * Avoids: a viewport with no height. Its rows are out of flow, so they would give it none.
    */
   protected readonly viewportHeight = computed(() =>
     this.scrollElement()
@@ -274,9 +297,10 @@ export class FilterTreeComponent {
   );
 
   /**
-   * In the menu the scroll area bleeds into the menu's padding, as the plain list's does, so
-   * the scrollbar reaches the popover's edge. The rows are absolutely positioned and ignore
-   * the viewport's own padding, so the inset goes on CDK's content wrapper instead.
+   * In the menu, extends the scroll area into the menu's padding, as the plain list does, so
+   * the scrollbar reaches the popover's edge. The rows' inset goes on CDK's content wrapper.
+   *
+   * Avoids: padding on the viewport itself, which its absolutely positioned rows would ignore.
    */
   protected readonly viewportClasses = computed(() =>
     this.scrollElement()
@@ -294,9 +318,11 @@ export class FilterTreeComponent {
   private readonly viewport = viewChild(CdkVirtualScrollViewport);
 
   /**
-   * The rows most likely to be the widest, by label length and indent. Approximate on purpose:
-   * the label is the only part of a row whose width isn't known without measuring every row.
-   * Held while searching, so the popover doesn't resize with each keystroke.
+   * The rows most likely to be the widest, picked by label length and indent. The pick is kept
+   * as it is while a search is running.
+   *
+   * Avoids: measuring every row to find the widest, which would mean rendering them all; and
+   * the popover resizing with each keystroke of a search.
    */
   protected readonly sizerNodes = linkedSignal<
     { nodes: readonly FilterTreeNode[]; searching: boolean },
@@ -319,8 +345,11 @@ export class FilterTreeComponent {
   });
 
   /**
-   * The most indented row, which is the one that least fits the popover. Every row is as wide
-   * as it needs, as in the plain list's grid, so deep rows scroll sideways with aligned counts.
+   * The most indented row. It is always drawn, hidden, inside the viewport, so every row there
+   * is as wide as this one needs and deep rows scroll sideways with their counts aligned.
+   *
+   * Avoids: the sideways scroll width following whichever rows are rendered, which would shift
+   * as deep rows scroll in and out.
    */
   protected readonly deepestNode = computed(() =>
     this.nodes().reduce<FilterTreeNode | undefined>(
@@ -333,22 +362,73 @@ export class FilterTreeComponent {
   protected readonly sizerIndex = -1;
 
   /**
-   * Angular calls a trackBy function with two arguments for each item: its position, and the item
-   * itself. Whatever the function returns is the item’s identity, which Angular uses to decide
-   * whether a rendered row can be kept or must be destroyed and rebuilt.
+   * Identifies each row of the virtualized list by its position, as the plain list's
+   * `track $index` does. Angular passes a trackBy function the position and then the item;
+   * this takes only the position, so the item is deliberately ignored. A row element is kept
+   * for as long as its position is rendered, and only its contents change.
    *
-   * Used by the virtualized list to ensure we track by index, not item. Tracking by item would
-   * re-create every rendered row each time the list scrolls, including the one that has focus, and
-   * would cause us to lose focus.
+   * Avoids: identifying rows by item. The items are rebuilt whenever the list changes, so that
+   * would destroy and re-create every rendered row on each change, including the row that has
+   * focus, and focus would be lost.
    */
   protected readonly trackByIndex = (index: number) => index;
 
   /** The rendered rows. A virtualized tree renders only those in or near view. */
   private readonly rows = viewChildren(FilterTreeRowDirective);
 
+  private readonly rowStates = new WeakMap<FilterRow, Signal<FilterTreeRowState>>();
+
   /**
-   * The row that last had focus, and where it was. Kept as the option rather than only its
-   * position, since rows opening or closing above it move it.
+   * Returns what a row shows. Each row's values are read inside a `computed` of that row's own,
+   * created on first use and kept for as long as the row exists. A `computed` has its own short
+   * list of the signals it depends on, so the cost of reading a row doesn't grow with the tree.
+   *
+   * Avoids: the template reading a row's signals directly. Every row is drawn in this
+   * component's one view, so those reads would all land on one long dependency list. When a
+   * view reads a signal it has already read, Angular walks that list to find it. A row reading
+   * its own signals twice would then cost in proportion to the rows before it, and drawing the
+   * whole tree in proportion to the square of its length.
+   */
+  protected rowState(node: FilterTreeNode): FilterTreeRowState {
+    const row = node.row;
+    let state = this.rowStates.get(row);
+    if (!state) {
+      state = computed(() => this.readRowState(row));
+      this.rowStates.set(row, state);
+    }
+    return state();
+  }
+
+  private readRowState(row: FilterRow): FilterTreeRowState {
+    const state: FilterTreeRowState = {
+      expandable: row.expandable(),
+      disabled: row.disabled(),
+      label: row.label(),
+      checked: this.owner.rowChecked(row),
+    };
+    if (row.kind === "section") {
+      state.sectionSelectedCount = this.owner.sectionSelectedCount(row as FilterSectionComponent);
+      return state;
+    }
+    const option = row as FilterOptionRow;
+    const tile = option.iconTile();
+    if (tile) {
+      state.tile = {
+        icon: tile.icon,
+        emphasis: tile.emphasis ?? "subtle",
+        variant: resolveIconTileVariant(tile, state.disabled),
+        color: resolveIconTileColor(tile, state.disabled),
+      };
+    }
+    state.count = this.owner.optionCounts().get(option);
+    return state;
+  }
+
+  /**
+   * The row that last had focus, held as the option itself along with its position.
+   *
+   * Avoids: holding only the position, which would point at a different option whenever rows
+   * open or close above it.
    */
   private readonly active = signal<{ row: FilterRow; index: number } | null>(null);
 
@@ -386,9 +466,11 @@ export class FilterTreeComponent {
   );
 
   /**
-   * Set while the active row is being scrolled into the rendered range to take focus. Held as
-   * a flag rather than a position: the key that asked for it may also open rows above the
-   * active one, which moves it.
+   * Set while the active row is being scrolled into the rendered range to take focus. The
+   * row's position is looked up when it is needed.
+   *
+   * Avoids: storing the position to focus. The key that asked for it may also open rows above
+   * the active one, which would leave a stored position pointing at a different row.
    */
   private readonly revealing = signal(false);
 
@@ -399,15 +481,16 @@ export class FilterTreeComponent {
   private readonly takingFocus = signal(false);
 
   constructor() {
-    // The strategy pulls heights lazily and CDK tells it when the row count changes. This
-    // covers heights changing with the count unchanged, which CDK can't observe.
+    // Tells the strategy when row heights change. CDK only tells it when the number of rows
+    // changes, so on its own it would miss heights changing while the count stays the same.
     effect(() => {
       this.rowHeights();
       this.scrollStrategy.refresh();
     });
 
-    // CDK re-measures only on window resize; this viewport also resizes as the list is
-    // searched and rows open and close.
+    // Re-measures the viewport whenever it, or the element scrolling it, changes size. CDK only
+    // re-measures when the window resizes, which would miss the list being searched and rows
+    // opening and closing.
     effect((onCleanup) => {
       const viewport = this.viewport();
       if (!viewport) {
@@ -437,17 +520,18 @@ export class FilterTreeComponent {
       }
 
       if (focused) {
-        // Row elements are reused by position, so rows opening above the focused one would
-        // leave focus on whichever option took its place.
+        // Moves focus to the active option's row if it is on a different one. Row elements are
+        // reused by position, so without this, rows opening above the focused one would leave
+        // focus on whichever option took its place.
         if (focused.index() !== index) {
           this.rowAt(index)?.focus();
         }
         return;
       }
 
-      // A row removed while focused drops focus to the document. `onRowBlur` catches that where
-      // the browser sends a blur for it; this covers one that doesn't. Either way the tree
-      // holds focus so the keyboard still works.
+      // Moves focus onto the tree when the focused row was removed and no blur event reported
+      // it. `onRowBlur` handles a browser that does send one. Without either, focus would be
+      // left on the document and the keyboard would stop working in the list.
       if (this.rowFocused() && document.activeElement === document.body) {
         untracked(() => this.focusTree());
         return;
@@ -469,10 +553,10 @@ export class FilterTreeComponent {
    * Keys from the W3C's tree view pattern. Typeahead is left off: it is optional there, and the
    * menu already has a search field.
    *
-   * CDK's `TreeKeyManager` isn't used. It needs an item object for every row, and it loses the
-   * active row unless those objects are kept across each change to the list, which takes more
-   * code than handling the keys directly. There are also a few bugs/workarounds required with CDK
-   * that we can avoid with this custom approach.
+   * Avoids: CDK's `TreeKeyManager`. It would need an item object for every row, and it loses
+   * the active row unless those objects are kept across each change to the list, which takes
+   * more code than handling the keys directly. It would also need workarounds for a few of its
+   * own behaviours, such as treating a row with no children as expandable.
    */
   protected onKeydown(event: KeyboardEvent): void {
     const nodes = this.nodes();
@@ -544,9 +628,12 @@ export class FilterTreeComponent {
   }
 
   /**
-   * A row scrolled out of the rendered range is removed while it has focus. The browser
-   * reports that as an ordinary blur to nowhere, sent while the row is still in the page, so
-   * the two can only be told apart once the removal has finished.
+   * Records that the row no longer has focus. If the blur came from the row being removed, as
+   * happens when it scrolls out of the rendered range, also moves focus onto the tree. That
+   * check runs a moment later, in a microtask.
+   *
+   * Avoids: checking at the time of the blur. The browser sends the blur while the row is still
+   * in the page, so a removal would look the same as focus leaving on purpose.
    */
   protected onRowBlur(event: FocusEvent): void {
     this.rowFocused.set(false);
@@ -601,8 +688,10 @@ export class FilterTreeComponent {
   }
 
   /**
-   * Puts a row at the top of the scroll area. Not the viewport's own `scrollToIndex`, which
-   * leaves out whatever sits above the list when something outside it does the scrolling.
+   * Puts a row at the top of the scroll area, allowing for anything that sits above the list.
+   *
+   * Avoids: the viewport's own `scrollToIndex`. When something outside the viewport does the
+   * scrolling, it leaves out whatever is above the list, so the row would land short.
    */
   private scrollToRow(index: number): void {
     const viewport = this.viewport();
@@ -625,23 +714,5 @@ export class FilterTreeComponent {
     const index = this.activeIndex();
     this.focusIndex(index);
     return index >= 0;
-  }
-
-  protected tileVariant(option: FilterOptionRow): IconTileVariant {
-    return resolveIconTileVariant(option.iconTile(), option.disabled());
-  }
-
-  protected tileColor(option: FilterOptionRow): string | undefined {
-    return resolveIconTileColor(option.iconTile(), option.disabled());
-  }
-
-  /** Narrows a row to a section for the template (else `null`). */
-  protected asSection(row: FilterRow): FilterSectionComponent | null {
-    return row.kind === "section" ? (row as FilterSectionComponent) : null;
-  }
-
-  /** Narrows a row to an option for the template (else `null`). */
-  protected asOption(row: FilterRow): FilterOptionRow | null {
-    return row.kind === "option" ? (row as FilterOptionRow) : null;
   }
 }
