@@ -173,6 +173,8 @@ describe("AccessAuditComponent", () => {
             pamAuditKindAccessExpired: "Access expired",
             pamAuditKindCredentialAccessed: "Credential accessed",
             pamAuditKindCredentialAccessDenied: "Credential access denied",
+            pamAuditKindCredentialUngated: "Controlled access bypassed",
+            pamAuditKindVaultExported: "Vault exported",
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindRuleUpdated: "Access rule updated",
             pamAuditKindRuleDeleted: "Access rule deleted",

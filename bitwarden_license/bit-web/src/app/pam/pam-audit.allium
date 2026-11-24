@@ -53,8 +53,11 @@
 --     See the open question.
 --   - A per-request timeline. The trail has no request filter and no per-request
 --     read exists.
---   - Org event log copies of the rotation and fleet kinds. They stay in the PAM
---     store only.
+--   - Org event log copies of the fleet kinds, and of the rotation kinds other than
+--     how a job ended (see the fan-out). They stay in the PAM store only.
+--   - Org event log copies of credential_ungated and vault_exported. The org event
+--     log has its own Cipher_UpdatedCollections and Organization_ClientExportedVault
+--     for the actions behind them.
 --
 -- Rotation and fleet kinds are listed here so the taxonomy is complete. Their
 -- behaviour belongs to the server's rotation-server.allium.
@@ -148,6 +151,19 @@ enum AccessAuditEventKind {
     credential_accessed |
     -- (DEFERRED) a blocked read: it changes no state and repeats.
     credential_access_denied |
+    -- (EMITTED) as an outcome alone, after a collection change leaves an item that
+    -- was gated with a path no enabled rule gates: a collection without one, or no
+    -- collection at all (pam.allium's re-filing bypass, PAM-203). Written by the
+    -- member and admin collection endpoints and the bulk add and remove, one event
+    -- per item. actor = whoever changed the collections, collection = the ungated
+    -- collection the change added, or none when it added several or left the item
+    -- in no collection. Gated here is organization-wide and ignores leases.
+    credential_ungated |
+    -- (EMITTED) as an outcome alone by the whole-vault export, when the export
+    -- carries at least one gated item (pam.allium VaultExportBypassesLeasing,
+    -- PAM-204). actor = the exporter; no item is named. A member's export of the
+    -- collections they manage leaves gated items out and writes nothing.
+    vault_exported |
 
     -- Rule administration ----------------------------------------------------
     -- (EMITTED) by the create-rule command, as a pair. actor = the editing admin.
@@ -315,11 +331,17 @@ config {
 -- the event into the organization event log. It is a lossy projection:
 --   - Only OUTCOMES cross over. The org event log has no phase or correlation, so
 --     an in-doubt attempt never appears there.
---   - Only twelve kinds have an org event log equivalent: request_submitted,
+--   - Only fifteen kinds have an org event log equivalent: request_submitted,
 --     request_approved, request_denied, request_cancelled, lease_activated,
 --     lease_activation_rejected, lease_extended, lease_revoked, lease_expired,
---     rule_created, rule_updated and rule_deleted. Rotation and fleet kinds are
---     recorded in the PAM store only.
+--     rule_created, rule_updated, rule_deleted, and the three that say how a
+--     rotation job ended. rotation_succeeded copies as Pam_Rotation_Succeeded;
+--     rotation_failed and rotation_job_timed_out both copy as Pam_Rotation_Failed,
+--     and only the PAM store keeps which it was and why.
+--   - The other rotation kinds are steps, several per job, and the fleet kinds have
+--     no subject column on the org event log. Both are recorded in the PAM store
+--     only.
+--   - credential_ungated and vault_exported are recorded in the PAM store only.
 --   - The copy keeps PAM's occurred_at, so both trails agree on when. It names the
 --     actor as the acting member and the requester as the subject member, and it
 --     carries the cipher and collection, so the event also files under the item's

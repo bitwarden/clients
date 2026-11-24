@@ -9,7 +9,6 @@ import {
   firstValueFrom,
   map,
   Observable,
-  of,
   pairwise,
   shareReplay,
   startWith,
@@ -136,12 +135,6 @@ export class AutofillComponent implements OnInit {
   protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.FillAssistTargetingRules,
   );
-  /** Safari cannot answer HTTP auth challenges from an extension, so the setting is never offered there. */
-  protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
-    this.platformUtilsService.isSafari()
-      ? of(false)
-      : this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
-
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
     defaultAutofill: new FormControl(),
@@ -161,7 +154,6 @@ export class AutofillComponent implements OnInit {
     honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
-    enableBasicAuthResponse: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
   });
@@ -389,21 +381,6 @@ export class AutofillComponent implements OnInit {
     this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
       emitEvent: false,
     });
-
-    const enableBasicAuthResponse = await firstValueFrom(
-      this.autofillSettingsService.enableBasicAuthResponse$,
-    );
-
-    this.additionalOptionsForm.controls.enableBasicAuthResponse.patchValue(
-      enableBasicAuthResponse,
-      { emitEvent: false },
-    );
-
-    this.additionalOptionsForm.controls.enableBasicAuthResponse.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        void this.autofillSettingsService.setEnableBasicAuthResponse(value);
-      });
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 

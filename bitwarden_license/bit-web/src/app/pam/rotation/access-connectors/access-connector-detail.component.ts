@@ -238,7 +238,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     const resolved = new Map<RotationConfigId, string>();
     for (const config of this.rotationConfigs()) {
       const name = names.get(config.cipherId);
-      if (name != null) {
+      if (name) {
         resolved.set(config.id, name);
       }
     }

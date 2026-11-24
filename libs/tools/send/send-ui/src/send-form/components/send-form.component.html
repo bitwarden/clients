@@ -15,7 +15,10 @@
     @let isItemTypeSend = sendFormService.sendFormConfig.sendType === SendType.Item;
     @if (isItemTypeSend) {
       <app-item-details-v2
-        [cipher]="sendFormService.originalSendView()?.data.data"
+        [cipher]="itemViews().cipher"
+        [folder]="itemViews().folder"
+        [organization]="itemViews().organization"
+        [collections]="itemViews().collections"
         [showEmptyDetails]="false"
       >
         @if (!sendDisabled()) {

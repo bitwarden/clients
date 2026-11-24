@@ -67,6 +67,7 @@
         [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
         [unsetLabel]="'all' | i18n"
         multiple
+        virtualized
         icon="bwi-shared-folder"
         [options]="groupCollectionsByOrg() ? [] : nestedCollectionOptions()"
       >
@@ -87,6 +88,7 @@
         key="folder"
         [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
         multiple
+        virtualized
         icon="bwi-folder"
         [options]="nestedFolderOptions()"
       ></bit-filter-menu>
