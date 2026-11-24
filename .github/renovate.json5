@@ -52,6 +52,14 @@
       depNameTemplate: "electron",
       datasourceTemplate: "npm",
     },
+    {
+      // Keep electronVersion in electron-builder.beta.json in sync with the electron package.
+      customType: "regex",
+      fileMatch: ["apps/desktop/electron-builder.beta\\.json$"],
+      matchStrings: ['"electronVersion":\\s*"(?<currentValue>[\\d.]+)"'],
+      depNameTemplate: "electron",
+      datasourceTemplate: "npm",
+    },
   ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================

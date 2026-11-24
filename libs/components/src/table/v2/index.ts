@@ -9,6 +9,7 @@ export { BitRowGroupComponent } from "./bit-row-group.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export { BitTablePaginatorComponent, type TableRowRange } from "./bit-table-paginator.component";
 export { type ColumnRef, type ColumnName, type ColumnRefs } from "./column";
+export { countOptions } from "./option-counts";
 export { type SortState, cycleSort } from "./sort-model";
 export { TableDef, defineTable } from "./table-def";
 export { TableSelectionModel, type TableSelectionConfig } from "./table-selection-model";

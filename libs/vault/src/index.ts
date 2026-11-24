@@ -3,7 +3,11 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
-export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export {
+  CipherRowMenuHandlers,
+  CipherRowMenuService,
+  uniqueContributedActions,
+} from "./services/cipher-row-menu.service";
 export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export { PinnedSharedFoldersService } from "./services/pinned-shared-folders.service";
@@ -206,6 +210,8 @@ export {
   matchesSharedFolder,
   matchesFolder,
   idString,
+  sharedFolderValues,
+  folderValues,
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";

@@ -11,6 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -31,6 +32,7 @@ describe("PasswordHistoryComponent", () => {
   const mockCipher = {} as unknown as Cipher;
 
   const back = jest.fn().mockResolvedValue(undefined);
+  const revealedCipherService = mock<RevealedCipherService>();
   const cipherView$ = jest
     .fn()
     .mockReturnValue(new BehaviorSubject<Cipher | undefined>(mockCipher));
@@ -45,6 +47,7 @@ describe("PasswordHistoryComponent", () => {
         { provide: WINDOW, useValue: window },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         {
           provide: CipherService,
           useValue: mock<CipherService>({
@@ -71,6 +74,18 @@ describe("PasswordHistoryComponent", () => {
     tick(100);
 
     expect(cipherView$).toHaveBeenCalledWith(mockUserId, mockCipherView.id);
+  }));
+
+  it("falls back to the revealed view of a restricted cipher", fakeAsync(() => {
+    const revealed = { id: mockCipherView.id, name: "revealed" } as CipherView;
+    cipherView$.mockReturnValueOnce(new BehaviorSubject<CipherView | undefined>(undefined));
+    revealedCipherService.get.mockReturnValueOnce(revealed);
+
+    params$.next({ cipherId: mockCipherView.id });
+    tick(100);
+
+    expect(revealedCipherService.get).toHaveBeenCalledWith(mockUserId, mockCipherView.id);
+    expect(fixture.componentInstance["cipher"]).toBe(revealed);
   }));
 
   it("navigates back when a cipherId is not in the params", () => {

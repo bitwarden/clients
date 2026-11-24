@@ -23,23 +23,31 @@
           {{ "autofillVerb" | i18n }}
         </button>
       }
-      <app-share-button
-        [cipher]="cipher"
-        class="tw-mt-4"
-        slot="button"
-        [skipPasswordPrompt]="true"
-      ></app-share-button>
+      @if (allows(RestrictedCipherAction.Share)) {
+        <app-share-button
+          [cipher]="cipher"
+          class="tw-mt-4"
+          slot="button"
+          [skipPasswordPrompt]="true"
+        ></app-share-button>
+      }
     </app-cipher-view>
   }
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
       @if (!cipher.isDeleted) {
-        <button buttonType="primary" type="button" bitButton (click)="editCipher()">
+        <button
+          buttonType="primary"
+          type="button"
+          bitButton
+          [disabled]="!canEdit()"
+          (click)="editCipher()"
+        >
           {{ "edit" | i18n }}
         </button>
       }
-      @if (cipher.isDeleted && cipher.permissions.restore) {
+      @if (canRestore()) {
         <button buttonType="primary" type="button" bitButton [bitAction]="restore">
           {{ "restore" | i18n }}
         </button>

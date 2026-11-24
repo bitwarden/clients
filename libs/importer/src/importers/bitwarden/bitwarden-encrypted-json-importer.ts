@@ -10,6 +10,7 @@ import {
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -40,8 +41,9 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
     protected i18nService: I18nService,
     private cipherService: CipherService,
     private accountService: AccountService,
+    logService: LogService,
   ) {
-    super();
+    super(logService);
   }
 
   async parse(data: string): Promise<ImportResult> {

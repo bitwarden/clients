@@ -144,7 +144,10 @@ import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platfor
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherFileUploadService } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -213,7 +216,9 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../../autofill/services/abstractions/fill-cipher-policy";
 import AutofillService from "../../autofill/services/autofill.service";
+import { DefaultFillCipherPolicy } from "../../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
@@ -258,6 +263,7 @@ import {
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
+import { ForegroundCipherService } from "../../vault/services/foreground-cipher.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -279,6 +285,27 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: CipherService,
+    useClass: ForegroundCipherService,
+    deps: [
+      MessageListener,
+      KeyService,
+      LegacyCompatKeyService,
+      DomainSettingsService,
+      ApiService,
+      I18nServiceAbstraction,
+      AutofillSettingsServiceAbstraction,
+      EncryptService,
+      CipherFileUploadService,
+      ConfigService,
+      StateProvider,
+      AccountServiceAbstraction,
+      LogService,
+      CipherEncryptionService,
+      CipherSdkService,
+    ],
+  }),
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
@@ -471,6 +498,11 @@ const safeProviders: SafeProvider[] = [
     provide: AutofillLifecycleService,
     useClass: NoopAutofillLifecycleService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: FillCipherPolicy,
+    useClass: DefaultFillCipherPolicy,
+    deps: [CipherService],
   }),
   safeProvider({
     provide: AutofillService,

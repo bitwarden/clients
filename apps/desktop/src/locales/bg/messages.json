@@ -971,12 +971,13 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (адрес)"
+  "desktopApp": {
+    "message": "Настолно приложение",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
   },
-  "appUriCount": {
-    "message": "Приложение (адрес) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настолно приложение $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2434,6 +2435,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 елемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Всички"
   },
@@ -3404,14 +3409,34 @@
   "disabled": {
     "message": "Изключено"
   },
+  "removeAuth": {
+    "message": "Премахване на паролата или проверката на е-пощата"
+  },
+  "removedAuth": {
+    "message": "Паролата или проверката на е-пощата е премахната"
+  },
+  "removeAuthConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола или проверка на е-пощата от това Изпращане?"
+  },
   "removePassword": {
     "message": "Премахване на паролата"
+  },
+  "removeEmailVerification": {
+    "message": "Премахване на проверката на е-пощата"
   },
   "removedPassword": {
     "message": "Паролата е премахната"
   },
-  "removePasswordConfirmation": {
-    "message": "Наистина ли искате да премахнете паролата?"
+  "removedEmailVerification": {
+    "message": "Проверката на е-пощата е премахната"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за проверка на е-пощата от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Достигнат е максималният брой достъпвания"
@@ -7352,7 +7377,7 @@
   "makeACopy": {
     "message": "Създаване на копие"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
   },
   "driversLicenseDetails": {

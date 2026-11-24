@@ -150,7 +150,7 @@ jobs:
       matrix:
         license_type:
           - include_bitwarden_license_folder: false
-            archive_name_prefix: ""
+            archive_name_prefix: "oss-"
             readable: "open source license"
           - include_bitwarden_license_folder: true
             archive_name_prefix: "bit-"
@@ -179,6 +179,8 @@ jobs:
           npm --version
 
       - name: Build sources for reviewers
+        env:
+          _ARCHIVE_NAME_PREFIX: ${{ matrix.license_type.archive_name_prefix }}
         run: |
           # Include hidden files in glob copy
           shopt -s dotglob
@@ -211,13 +213,13 @@ jobs:
           mkdir browser-source/libs
           cp -r libs/* browser-source/libs
 
-          zip -r browser-source.zip browser-source
+          zip -r "${_ARCHIVE_NAME_PREFIX}browser-source.zip" browser-source
 
       - name: Upload browser source
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source.zip
+          path: ${{ matrix.license_type.archive_name_prefix }}browser-source.zip
           if-no-files-found: error
 
 
@@ -235,9 +237,9 @@ jobs:
       matrix:
         license_type:
           - build_prefix: ""
-            artifact_prefix: ""
-            source_archive_name_prefix: ""
-            archive_name_prefix: ""
+            artifact_prefix: "oss-"
+            source_archive_name_prefix: "oss-"
+            archive_name_prefix: "oss-"
             npm_command_prefix: "dist:"
             npm_package_dev_prefix: "package:dev:"
             readable: "open source license"
@@ -309,9 +311,11 @@ jobs:
           name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
       - name: Unzip browser source artifact
+        env:
+          _SOURCE_ARCHIVE_NAME_PREFIX: ${{ matrix.license_type.source_archive_name_prefix }}
         run: |
-          unzip browser-source.zip
-          rm browser-source.zip
+          unzip "${_SOURCE_ARCHIVE_NAME_PREFIX}browser-source.zip"
+          rm "${_SOURCE_ARCHIVE_NAME_PREFIX}browser-source.zip"
 
       - name: NPM setup
         run: npm ci
@@ -424,8 +428,8 @@ jobs:
       matrix:
         license_type:
           - build_prefix: ""
-            artifact_prefix: ""
-            archive_name_prefix: ""
+            artifact_prefix: "oss-"
+            archive_name_prefix: "oss-"
             npm_command_prefix: "dist:"
             readable: "open source license"
             type: "oss"

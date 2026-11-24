@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  Signal,
-} from "@angular/core";
+import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
@@ -42,8 +35,9 @@ import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.
 
 import { WebLayoutModule } from "./web-layout.module";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush once routed pages no longer rely on Default CD
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-user-layout",
   templateUrl: "user-layout.component.html",
   imports: [

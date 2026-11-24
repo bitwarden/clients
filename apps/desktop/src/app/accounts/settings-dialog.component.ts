@@ -8,7 +8,10 @@ import { BehaviorSubject, EMPTY, firstValueFrom, from, fromEvent } from "rxjs";
 import { catchError, concatMap, map, switchMap, timeout } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { AutotypeShortcutComponent } from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
+import {
+  AutotypeShortcutComponent,
+  formatAutotypeShortcut,
+} from "@bitwarden/angular/desktop-native/components/autotype-shortcut.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -843,7 +846,7 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   private getFormattedAutotypeShortcutText(shortcut: string[]) {
-    return shortcut ? shortcut.join("+").replace("Super", "Win") : null;
+    return shortcut ? formatAutotypeShortcut(shortcut) : null;
   }
 
   static open(dialogService: DialogService) {

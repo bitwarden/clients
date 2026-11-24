@@ -5,13 +5,14 @@ import * as path from "path";
 
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
-import { NEVER, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
+import { ModalModeState } from "../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 // window.main.ts registers a privileged scheme at module load time, which
@@ -272,6 +273,7 @@ describe("WindowMain", () => {
 
   describe("createWindow", () => {
     let sut: WindowMain;
+    let modalMode$: BehaviorSubject<ModalModeState>;
 
     const fakeWindow = () =>
       Object.assign(new EventEmitter(), {
@@ -294,9 +296,11 @@ describe("WindowMain", () => {
       (global as any).BIT_ENVIRONMENT = "production";
 
       const desktopSettingsService = mock<DesktopSettingsService>();
+      modalMode$ = new BehaviorSubject<ModalModeState>({ isModalModeActive: false });
       Object.assign(desktopSettingsService, {
         alwaysOnTop$: of(false),
         preventScreenshots$: of(false),
+        modalMode$,
       });
 
       sut = new WindowMain(
@@ -346,6 +350,33 @@ describe("WindowMain", () => {
       expect(second.webContents.send).toHaveBeenCalledWith("messagingService", {
         command: "windowIsFocused",
         windowIsFocused: true,
+      });
+    });
+
+    it("tells the renderer when the user closes the window in modal mode", async () => {
+      const win = fakeWindow();
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => win as any);
+      await sut.createWindow();
+      modalMode$.next({ isModalModeActive: true });
+
+      win.emit("close");
+      await new Promise(process.nextTick);
+
+      expect(win.webContents.send).toHaveBeenCalledWith("messagingService", {
+        command: "modalWindowClosed",
+      });
+    });
+
+    it("does not tell the renderer when the user closes the window outside modal mode", async () => {
+      const win = fakeWindow();
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => win as any);
+      await sut.createWindow();
+
+      win.emit("close");
+      await new Promise(process.nextTick);
+
+      expect(win.webContents.send).not.toHaveBeenCalledWith("messagingService", {
+        command: "modalWindowClosed",
       });
     });
 

@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -68,7 +71,7 @@ describe("Chrome CSV Importer", () => {
     // and must resolve promptly without backtracking.
     const noAtUrl = "android://com.example.app.noemail";
     const csv = `name,url,username,password\n,${noAtUrl},user,pass`;
-    const importer = new ChromeCsvImporter();
+    const importer = new ChromeCsvImporter(mock<LogService>());
     const result = await importer.parse(csv);
     expect(result.ciphers[0].login.uris[0].uri).toBe(noAtUrl);
   });
@@ -76,7 +79,7 @@ describe("Chrome CSV Importer", () => {
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate);
-      const importer = new ChromeCsvImporter();
+      const importer = new ChromeCsvImporter(mock<LogService>());
       const result = await importer.parse(data.csv);
       expect(result != null).toBe(true);
       expect(result.ciphers.length).toBeGreaterThan(0);
