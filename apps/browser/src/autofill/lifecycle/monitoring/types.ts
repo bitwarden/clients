@@ -2,6 +2,8 @@ import type { Observable } from "rxjs";
 
 import type { TabEdge } from "../types";
 
+import type { MonitoringEventKind } from "./enums";
+
 /** A frame in a tab. */
 export type FrameRef = Readonly<{
   tab: chrome.tabs.Tab;
@@ -40,9 +42,13 @@ export type MonitoringControllerSources = Readonly<{
 
 /** An event the controller applies. See `monitoringEvents$`. */
 export type MonitoringEvent =
-  | Readonly<{ kind: "tabChanged"; tabId: number; edge: TabEdge }>
-  | Readonly<{ kind: "tabRemoved"; tabId: number }>
-  | Readonly<{ kind: "frameInjected"; tab: chrome.tabs.Tab; frameId: number | undefined }>
-  | Readonly<{ kind: "portConnected"; port: chrome.runtime.Port }>
-  | Readonly<{ kind: "portDisconnected"; port: chrome.runtime.Port }>
-  | Readonly<{ kind: "scriptsReloading" }>;
+  | Readonly<{ kind: typeof MonitoringEventKind.TabChanged; tabId: number; edge: TabEdge }>
+  | Readonly<{ kind: typeof MonitoringEventKind.TabRemoved; tabId: number }>
+  | Readonly<{
+      kind: typeof MonitoringEventKind.FrameInjected;
+      tab: chrome.tabs.Tab;
+      frameId: number | undefined;
+    }>
+  | Readonly<{ kind: typeof MonitoringEventKind.PortConnected; port: chrome.runtime.Port }>
+  | Readonly<{ kind: typeof MonitoringEventKind.PortDisconnected; port: chrome.runtime.Port }>
+  | Readonly<{ kind: typeof MonitoringEventKind.ScriptsReloading }>;

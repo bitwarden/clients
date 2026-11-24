@@ -120,7 +120,7 @@ describe("MonitoringController", () => {
       frameInjected$.next({ tab: tab1, frameId: 0 });
 
       expect(commands).toEqual([]);
-      expect(controller.isMonitoring(1, 0)).toBe(false);
+      expect(controller.isMonitoringFrame(1, 0)).toBe(false);
     });
 
     it("is started again when it is injected again, as a new document is", () => {
@@ -179,16 +179,16 @@ describe("MonitoringController", () => {
     });
   });
 
-  describe("isMonitoring", () => {
+  describe("isMonitoringFrame", () => {
     it("is true for a frame from its start until its stop", () => {
       frameInjected$.next({ tab: tab1, frameId: 0 });
-      expect(controller.isMonitoring(1, 0)).toBe(false);
+      expect(controller.isMonitoringFrame(1, 0)).toBe(false);
 
       tabChanged$.next([1, settles]);
-      expect(controller.isMonitoring(1, 0)).toBe(true);
+      expect(controller.isMonitoringFrame(1, 0)).toBe(true);
 
       tabChanged$.next([1, leaves]);
-      expect(controller.isMonitoring(1, 0)).toBe(false);
+      expect(controller.isMonitoringFrame(1, 0)).toBe(false);
     });
 
     it("keeps frames apart, a frame with no id from frame 0", () => {
@@ -199,17 +199,50 @@ describe("MonitoringController", () => {
 
       portDisconnected$.next(portFor(tab1, 0));
 
-      expect(controller.isMonitoring(1, undefined)).toBe(true);
+      expect(controller.isMonitoringFrame(1, undefined)).toBe(true);
     });
 
     it("is already true when a command is heard", () => {
       const heard: boolean[] = [];
-      controller.commands$.subscribe(() => heard.push(controller.isMonitoring(1, 0)));
+      controller.commands$.subscribe(() => heard.push(controller.isMonitoringFrame(1, 0)));
       frameInjected$.next({ tab: tab1, frameId: 0 });
 
       tabChanged$.next([1, settles]);
 
       expect(heard).toEqual([true]);
+    });
+  });
+
+  describe("isMonitoringTab", () => {
+    it("is true while any frame of the tab is monitoring", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      expect(controller.isMonitoringTab(1)).toBe(false);
+
+      tabChanged$.next([1, settles]);
+      expect(controller.isMonitoringTab(1)).toBe(true);
+
+      tabChanged$.next([1, leaves]);
+      expect(controller.isMonitoringTab(1)).toBe(false);
+    });
+
+    it("stays true while a frame monitors after another is lost", () => {
+      const lost = portFor(tab1, 0);
+      portConnected$.next(lost);
+      portConnected$.next(portFor(tab1, 5));
+      tabChanged$.next([1, settles]);
+
+      portDisconnected$.next(lost);
+
+      expect(controller.isMonitoringTab(1)).toBe(true);
+    });
+
+    it("is false for a tab with no frames, and does not read another tab's frames", () => {
+      frameInjected$.next({ tab: tab2, frameId: 0 });
+      tabChanged$.next([2, settles]);
+
+      expect(controller.isMonitoringTab(1)).toBe(false);
+      expect(controller.isMonitoringTab(2)).toBe(true);
     });
   });
 
@@ -266,7 +299,7 @@ describe("MonitoringController", () => {
       portConnected$.next(portFor(tab1, 0));
 
       expect(commands).toEqual([[1, 0, "start"]]);
-      expect(controller.isMonitoring(1, 0)).toBe(true);
+      expect(controller.isMonitoringFrame(1, 0)).toBe(true);
     });
 
     it("stops the new document when its tab stops", () => {
@@ -316,7 +349,7 @@ describe("MonitoringController", () => {
       expect(controller.frames()).toEqual([]);
     });
 
-    it("tells nothing to a frame that was lost while an earlier frame's command was heard", () => {
+    it("is applied after the change that caused it, so every frame the change reaches is started first", () => {
       frameInjected$.next({ tab: tab1, frameId: 0 });
       frameInjected$.next({ tab: tab1, frameId: 5 });
       controller.commands$.subscribe(({ frameId }) => {
@@ -327,8 +360,15 @@ describe("MonitoringController", () => {
 
       tabChanged$.next([1, settles]);
 
-      expect(commands).toEqual([[1, 0, "start"]]);
-      expect(controller.isMonitoring(1, 5)).toBe(false);
+      expect(commands).toEqual([
+        [1, 0, "start"],
+        [1, 5, "start"],
+      ]);
+      expect(lost).toEqual([
+        { tabId: 1, frameId: 0 },
+        { tabId: 1, frameId: 5 },
+      ]);
+      expect(controller.frames()).toEqual([]);
     });
 
     it("loses its frames and no others, and the tab no longer starts anything", () => {
@@ -349,7 +389,7 @@ describe("MonitoringController", () => {
   });
 
   describe("the scripts begin reloading", () => {
-    it("loses every frame, and disconnects the ports", () => {
+    it("forgets every frame and disconnects the ports, and reports no loss, as the frames still exist", () => {
       const first = portFor(tab1, 0);
       const second = portFor(tab2, 0);
       portConnected$.next(first);
@@ -359,10 +399,7 @@ describe("MonitoringController", () => {
 
       expect(first.disconnect).toHaveBeenCalled();
       expect(second.disconnect).toHaveBeenCalled();
-      expect(lost).toEqual([
-        { tabId: 1, frameId: 0 },
-        { tabId: 2, frameId: 0 },
-      ]);
+      expect(lost).toEqual([]);
       expect(controller.frames()).toEqual([]);
     });
 
@@ -387,7 +424,7 @@ describe("MonitoringController", () => {
 
       portDisconnected$.next(port);
 
-      expect(lost).toEqual([{ tabId: 1, frameId: 0 }]);
+      expect(lost).toEqual([]);
       expect(controller.frames().map(({ tab }) => tab.id)).toEqual([1]);
     });
 
@@ -419,6 +456,29 @@ describe("MonitoringController", () => {
 
     expect(errors).toEqual([new Error("browser")]);
     failing[Symbol.dispose]();
+  });
+
+  describe("an event caused by applying another", () => {
+    it("is applied after the event that caused it, so one tab's frames start together", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      // the first frame's start causes a frame to be injected
+      let injected = false;
+      controller.commands$.subscribe(({ frameId }) => {
+        if (frameId === 0 && !injected) {
+          injected = true;
+          frameInjected$.next({ tab: tab1, frameId: 9 });
+        }
+      });
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([
+        [1, 0, "start"],
+        [1, 5, "start"],
+        [1, 9, "start"],
+      ]);
+    });
   });
 
   it("reports nothing once disposed", () => {

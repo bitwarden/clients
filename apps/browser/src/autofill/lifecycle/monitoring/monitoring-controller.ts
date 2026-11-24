@@ -2,6 +2,7 @@ import { Observable, Subject, Subscription } from "rxjs";
 
 import type { TabEdge } from "../types";
 
+import { MonitoringEventKind } from "./enums";
 import { monitoringEvents$ } from "./monitoring-controller.rx";
 import type {
   FrameCommand,
@@ -39,8 +40,10 @@ type Frame = {
  * A removed tab stays removed. Scripts that finish injecting after their tab closed create no frame.
  *
  * The controller subscribes to its sources when it is constructed, and applies their events one at
- * a time ({@link monitoringEvents$}). It updates a frame's state before it reports the frame's
- * command or loss, so a listener sees that frame in its new state.
+ * a time, in the order they arrive, even when applying one causes another
+ * ({@link monitoringEvents$}). It updates a frame's state before it reports the frame's command or
+ * loss, so a listener of either reads {@link isMonitoringFrame} for that frame as it is after the
+ * event. See `patterns.md`, "The controller".
  */
 export class MonitoringController implements Disposable {
   private readonly tabs = new Map<number, Map<number, Frame>>();
@@ -48,6 +51,8 @@ export class MonitoringController implements Disposable {
   private readonly removedTabs = new Set<number>();
   private readonly ports = new Set<chrome.runtime.Port>();
   private readonly subscription: Subscription;
+  private readonly pending: MonitoringEvent[] = [];
+  private applying = false;
 
   private readonly commandIssued = new Subject<FrameCommand>();
   private readonly frameLostSubject = new Subject<FrameLost>();
@@ -56,8 +61,9 @@ export class MonitoringController implements Disposable {
   readonly commands$: Observable<FrameCommand> = this.commandIssued.asObservable();
 
   /**
-   * Each frame the controller stops tracking: its last port disconnected, its tab was removed, or
-   * the scripts began reloading. No stop command is issued for a lost frame.
+   * Each frame that no longer exists, or that no longer holds a connection: its last port
+   * disconnected, or its tab was removed. No stop command is issued for a lost frame. A reload of
+   * the scripts forgets every frame without reporting a loss, because the frames are still there.
    */
   readonly frameLost$: Observable<FrameLost> = this.frameLostSubject.asObservable();
 
@@ -68,14 +74,24 @@ export class MonitoringController implements Disposable {
    */
   constructor(sources: MonitoringControllerSources, onError: (error: unknown) => void) {
     this.subscription = monitoringEvents$(sources).subscribe({
-      next: (event) => this.apply(event),
+      next: (event) => this.enqueue(event),
       error: onError,
     });
   }
 
   /** Whether the frame has been told to start and not told to stop since. `false` for an unknown frame. */
-  isMonitoring(tabId: number, frameId: number | undefined): boolean {
+  isMonitoringFrame(tabId: number, frameId: number | undefined): boolean {
     return this.tabs.get(tabId)?.get(frameKey(frameId))?.monitoring ?? false;
+  }
+
+  /** Whether any frame of the tab is monitoring, as {@link isMonitoringFrame} defines it. */
+  isMonitoringTab(tabId: number): boolean {
+    for (const frame of this.tabs.get(tabId)?.values() ?? []) {
+      if (frame.monitoring) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Every known frame. */
@@ -91,23 +107,43 @@ export class MonitoringController implements Disposable {
     this.monitoringTabs.clear();
     this.removedTabs.clear();
     this.ports.clear();
+    this.pending.length = 0;
     this.commandIssued.complete();
     this.frameLostSubject.complete();
   }
 
+  /**
+   * Applies events one at a time. An event that arrives while another is being applied, because
+   * applying it caused one, waits its turn.
+   */
+  private enqueue(event: MonitoringEvent): void {
+    this.pending.push(event);
+    if (this.applying) {
+      return;
+    }
+    this.applying = true;
+    try {
+      for (let next = this.pending.shift(); next; next = this.pending.shift()) {
+        this.apply(next);
+      }
+    } finally {
+      this.applying = false;
+    }
+  }
+
   private apply(event: MonitoringEvent): void {
     switch (event.kind) {
-      case "tabChanged":
+      case MonitoringEventKind.TabChanged:
         return this.tabChanged(event.tabId, event.edge);
-      case "tabRemoved":
+      case MonitoringEventKind.TabRemoved:
         return this.tabRemoved(event.tabId);
-      case "frameInjected":
+      case MonitoringEventKind.FrameInjected:
         return this.frameInjected(event.tab, event.frameId);
-      case "portConnected":
+      case MonitoringEventKind.PortConnected:
         return this.portConnected(event.port);
-      case "portDisconnected":
+      case MonitoringEventKind.PortDisconnected:
         return this.portDisconnected(event.port);
-      case "scriptsReloading":
+      case MonitoringEventKind.ScriptsReloading:
         return this.forgetAllFrames();
     }
   }
@@ -200,17 +236,13 @@ export class MonitoringController implements Disposable {
   }
 
   /**
-   * Forgets every frame, reports each as lost, and disconnects every port. Sends no stop command.
-   * A tab in a monitoring state stays in it, so a frame injected afterwards is started.
+   * Forgets every frame and disconnects every port. Reports no loss and sends no stop command. A
+   * tab in a monitoring state stays in it, so a frame injected afterwards is started.
    */
   private forgetAllFrames(): void {
     const live = [...this.ports];
-    const lost = [...this.tabs].flatMap(([tabId, frames]) =>
-      [...frames.values()].map((frame): FrameLost => ({ tabId, frameId: frame.frameId })),
-    );
     this.ports.clear();
     this.tabs.clear();
-    lost.forEach((frame) => this.frameLostSubject.next(frame));
     live.forEach((port) => port.disconnect());
   }
 
@@ -231,10 +263,6 @@ export class MonitoringController implements Disposable {
   }
 
   private command(frame: Frame, command: "start" | "stop"): void {
-    // A listener of an earlier command can have removed this frame. A removed frame gets no command.
-    if (this.tabs.get(frame.tab.id)?.get(frameKey(frame.frameId)) !== frame) {
-      return;
-    }
     frame.monitoring = command === "start";
     this.commandIssued.next({ tab: frame.tab, frameId: frame.frameId, command });
   }
