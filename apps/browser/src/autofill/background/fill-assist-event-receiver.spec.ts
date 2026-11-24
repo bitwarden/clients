@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { tagAsExternalMessage } from "../spec/testing-utils";
+import { stampSender, tagAsExternalMessage } from "../spec/testing-utils";
 
 import { FillAssistEvent } from "./fill-assist-event";
 import { NoopFillAssistEventReceiver, isFillAssistEvent } from "./fill-assist-event-receiver";
@@ -53,8 +53,21 @@ describe("isFillAssistEvent", () => {
     ...overrides,
   });
 
-  it("accepts a tagged message with the full shape", () => {
-    expect(isFillAssistEvent(tagAsExternalMessage(buildMessage()))).toBe(true);
+  const contentScriptSender = { tab: { id: 7 }, frameId: 0 } as chrome.runtime.MessageSender;
+  const tagFromContentScript = (message: ReturnType<typeof buildMessage>) =>
+    tagAsExternalMessage(stampSender(message, contentScriptSender));
+
+  it("accepts a tagged message from a content script with the full shape", () => {
+    expect(isFillAssistEvent(tagFromContentScript(buildMessage()))).toBe(true);
+  });
+
+  it("rejects a tagged message from a sender without a tab (popup or options page)", () => {
+    const message = stampSender(buildMessage(), {} as chrome.runtime.MessageSender);
+    expect(isFillAssistEvent(tagAsExternalMessage(message))).toBe(false);
+  });
+
+  it("rejects a tagged message with no stamped sender", () => {
+    expect(isFillAssistEvent(tagAsExternalMessage(buildMessage()))).toBe(false);
   });
 
   it("rejects an untagged message with the full shape", () => {
@@ -62,23 +75,23 @@ describe("isFillAssistEvent", () => {
   });
 
   it("rejects a tagged message with an unknown name", () => {
-    expect(isFillAssistEvent(tagAsExternalMessage(buildMessage({ name: "other" })))).toBe(false);
+    expect(isFillAssistEvent(tagFromContentScript(buildMessage({ name: "other" })))).toBe(false);
   });
 
   it.each([null, undefined, 42, "not-an-object"])(
     "rejects a tagged message with a non-object payload (%p)",
     (payload) => {
-      expect(isFillAssistEvent(tagAsExternalMessage(buildMessage({ payload })))).toBe(false);
+      expect(isFillAssistEvent(tagFromContentScript(buildMessage({ payload })))).toBe(false);
     },
   );
 
   it.each(["domain", "ruleId"])("rejects when payload.%s is not a string", (key) => {
     const payload = { ...validPayload, [key]: 123 };
-    expect(isFillAssistEvent(tagAsExternalMessage(buildMessage({ payload })))).toBe(false);
+    expect(isFillAssistEvent(tagFromContentScript(buildMessage({ payload })))).toBe(false);
   });
 
   it("rejects a tagged message with an unknown missReason value", () => {
     const payload = { ...validPayload, missReason: "nonsense" };
-    expect(isFillAssistEvent(tagAsExternalMessage(buildMessage({ payload })))).toBe(false);
+    expect(isFillAssistEvent(tagFromContentScript(buildMessage({ payload })))).toBe(false);
   });
 });

@@ -40,7 +40,11 @@ import { AutofillLifecycleService } from "../autofill/services/abstractions/auto
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
-import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
+import {
+  crossContextBoundary,
+  stampSender,
+  tagAsExternalMessage,
+} from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -969,7 +973,11 @@ describe("RuntimeBackground fillAssistEmit", () => {
   });
 
   it("routes an externally-tagged message to the receiver with its event fields intact", async () => {
-    await runtimeBackground.processMessage(tagAsExternalMessage(message));
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(
+        stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+      ),
+    );
 
     expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(
       expect.objectContaining({ name: event.name, payload: event.payload }),
@@ -977,7 +985,9 @@ describe("RuntimeBackground fillAssistEmit", () => {
   });
 
   it("passes the original message through so the external tag survives for downstream consumers", async () => {
-    const taggedMessage = tagAsExternalMessage(message);
+    const taggedMessage = tagAsExternalMessage(
+      stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+    );
 
     await runtimeBackground.processMessage(taggedMessage);
 
@@ -990,6 +1000,14 @@ describe("RuntimeBackground fillAssistEmit", () => {
   // Intraprocess messages are not externally tagged. The handler sits on the
   // `allMessages$` ingest path, which emits both external and intraprocess
   // messages, so the external-tag check is the real discriminator here.
+  it("security: rejects a tagged message whose sender is not a tab", async () => {
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(stampSender(message, {} as chrome.runtime.MessageSender)),
+    );
+
+    expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
+  });
+
   it("security: rejects a message that was not tagged as external", async () => {
     await runtimeBackground.processMessage(message);
 

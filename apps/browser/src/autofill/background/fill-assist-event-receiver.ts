@@ -1,16 +1,26 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { isExternalMessage } from "@bitwarden/common/platform/messaging";
 
+import { getWebExtSender } from "../../platform/utils/web-ext-sender";
+
 import { FillAssistEvent, FillAssistEventName, FillAssistMissReason } from "./fill-assist-event";
 
 /**
- * Type guard for `FillAssistEvent`. Combines the external-tag check with a
- * full shape check so the narrowed type implies both that the message arrived
- * through the chrome.runtime ingest boundary and that its members match the
- * receiver's contract.
+ * Type guard for `FillAssistEvent`. Combines the external-tag check, a
+ * content-script sender check, and a full shape check so the narrowed type
+ * implies that the message arrived through the chrome.runtime ingest boundary
+ * from a tab, and that its members match the receiver's contract.
+ *
+ * The external tag alone only says the message crossed a context boundary; the
+ * popup and options page are tagged too. Only content scripts carry a
+ * `sender.tab`, read here from the browser-authoritative stamp applied at
+ * ingest.
  */
 export function isFillAssistEvent(msg: unknown): msg is FillAssistEvent {
   if (!isExternalMessage(msg)) {
+    return false;
+  }
+  if (typeof getWebExtSender(msg)?.tab?.id !== "number") {
     return false;
   }
   if (msg.name !== FillAssistEventName.QualificationFailed) {
