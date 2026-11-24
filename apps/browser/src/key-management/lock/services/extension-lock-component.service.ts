@@ -1,10 +1,8 @@
 import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -32,7 +30,6 @@ export class ExtensionLockComponentService implements LockComponentService {
     private readonly routerService: BrowserRouterService,
     private readonly webAuthnPrfUnlockService: WebAuthnPrfUnlockService,
     private readonly sharedUnlockSettingsService: SharedUnlockSettingsService,
-    private readonly configService: ConfigService,
   ) {}
 
   getPreviousUrl(): string | null {
@@ -62,21 +59,14 @@ export class ExtensionLockComponentService implements LockComponentService {
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       combineLatest([
-        this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
         this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
         this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
         // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
         this.biometricStateService.biometricUnlockEnabled$(userId),
       ]).pipe(
         switchMap(
-          async ([
-            sharedUnlockFeatureEnabled,
-            allowSharingWithDesktop,
-            unlockSharingDisabled,
-            biometricUnlockEnabled,
-          ]) =>
-            biometricUnlockEnabled ||
-            (sharedUnlockFeatureEnabled && allowSharingWithDesktop && !unlockSharingDisabled)
+          async ([allowSharingWithDesktop, unlockSharingDisabled, biometricUnlockEnabled]) =>
+            biometricUnlockEnabled || (allowSharingWithDesktop && !unlockSharingDisabled)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
         ),

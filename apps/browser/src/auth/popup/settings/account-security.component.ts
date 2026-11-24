@@ -28,11 +28,9 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -127,7 +125,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
-  protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
 
   // Native messaging with the desktop app is unavailable on Safari.
   protected readonly showSharedUnlockWithDesktop: boolean;
@@ -141,7 +138,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
-    private configService: ConfigService,
     private router: Router,
     private route: ActivatedRoute,
     private policyService: PolicyService,
@@ -165,9 +161,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   ) {
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
-    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.SharedUnlockPart2,
-    );
 
     this.showSharedUnlockWithDesktop = !this.platformUtilsService.isSafari();
   }

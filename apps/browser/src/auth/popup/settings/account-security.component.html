@@ -24,37 +24,8 @@
           <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
-          @if (!(sharedUnlockFeatureEnabled$ | async)) {
-            <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
-              <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
-              <bit-label for="biometric" class="tw-whitespace-normal">
-                {{ "unlockWithBiometrics" | i18n }}
-              </bit-label>
-            </bit-form-control>
-          }
-          @if (this.form.value.biometric && !(sharedUnlockFeatureEnabled$ | async)) {
-            <bit-form-control
-              class="tw-pl-5"
-              [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
-            >
-              <input
-                bitCheckbox
-                id="autoBiometricsPrompt"
-                type="checkbox"
-                formControlName="enableAutoBiometricsPrompt"
-              />
-              <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">
-                {{ "enableAutoBiometricsPrompt" | i18n }}
-              </bit-label>
-            </bit-form-control>
-          }
           @if ((pinEnabled$ | async) || this.form.value.pin) {
-            <bit-form-control
-              [disableMargin]="
-                !(this.form.value.pin && showMasterPasswordOnClientRestartOption) &&
-                !(sharedUnlockFeatureEnabled$ | async)
-              "
-            >
+            <bit-form-control>
               <input
                 bitCheckbox
                 id="pin"
@@ -68,10 +39,7 @@
             </bit-form-control>
           }
           @if (this.form.value.pin && showMasterPasswordOnClientRestartOption) {
-            <bit-form-control
-              class="tw-pl-5"
-              [disableMargin]="!(sharedUnlockFeatureEnabled$ | async)"
-            >
+            <bit-form-control class="tw-pl-5">
               <input
                 bitCheckbox
                 id="pinEphemeral"
@@ -83,29 +51,27 @@
               </bit-label>
             </bit-form-control>
           }
-          @if (sharedUnlockFeatureEnabled$ | async) {
-            @if (showSharedUnlockWithDesktop) {
-              <bit-form-control disableMargin>
-                <input
-                  bitCheckbox
-                  id="allowSharingUnlockStateWithDesktop"
-                  type="checkbox"
-                  formControlName="allowSharingUnlockStateWithDesktop"
-                  data-testid="account-security-desktop-sync-checkbox"
-                />
-                <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
-                  {{ "syncUnlockWithDesktop1" | i18n }}
-                </bit-label>
-                <bit-hint class="tw-text-sm">
-                  {{ "syncUnlockWithDesktopDescription1" | i18n }}
-                </bit-hint>
-              </bit-form-control>
-            }
-            @if (unlockSharingDisabled()) {
-              <bit-hint class="tw-mt-2 tw-text-sm">
-                {{ "sharedUnlockUnavailableUntrustedDevice" | i18n }}
+          @if (showSharedUnlockWithDesktop) {
+            <bit-form-control disableMargin>
+              <input
+                bitCheckbox
+                id="allowSharingUnlockStateWithDesktop"
+                type="checkbox"
+                formControlName="allowSharingUnlockStateWithDesktop"
+                data-testid="account-security-desktop-sync-checkbox"
+              />
+              <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
+                {{ "syncUnlockWithDesktop1" | i18n }}
+              </bit-label>
+              <bit-hint class="tw-text-sm">
+                {{ "syncUnlockWithDesktopDescription1" | i18n }}
               </bit-hint>
-            }
+            </bit-form-control>
+          }
+          @if (unlockSharingDisabled()) {
+            <bit-hint class="tw-mt-2 tw-text-sm">
+              {{ "sharedUnlockUnavailableUntrustedDevice" | i18n }}
+            </bit-hint>
           }
         </bit-card>
       </bit-section>

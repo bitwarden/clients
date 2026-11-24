@@ -1865,7 +1865,6 @@ export default class MainBackground {
       this.environmentService,
       this.sharedUnlockSettingsService,
       this.unlockService,
-      this.configService,
       this.stateProvider,
     );
 

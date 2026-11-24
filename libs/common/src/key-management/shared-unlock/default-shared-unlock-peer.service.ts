@@ -13,8 +13,6 @@ import { LockService, LockSource, UnlockMethod, UnlockService } from "@bitwarden
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { ClientType } from "../../enums";
-import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
@@ -49,7 +47,6 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private environmentService: EnvironmentService,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
     private unlockService: UnlockService,
-    private configService: ConfigService,
     private stateProvider: StateProvider,
   ) {}
 
@@ -184,12 +181,11 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
    */
   private destinations$(userId: UserId): Observable<SharedUnlockClient[]> {
     return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.SharedUnlockPart2),
       this.sharedUnlockSettingsService.unlockSharingDisabled$(userId),
       this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
     ]).pipe(
-      map(([featureEnabled, sharingDisabled, allowDesktop]) => {
-        if (!featureEnabled || sharingDisabled) {
+      map(([sharingDisabled, allowDesktop]) => {
+        if (sharingDisabled) {
           return NO_DESTINATIONS;
         }
 
