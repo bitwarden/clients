@@ -40,6 +40,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { LoginEmailService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { AutomationCapability, SystemEventsCapability } from "@bitwarden/automation-driver";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
@@ -223,6 +224,7 @@ import { DefaultFillCipherPolicy } from "../../autofill/services/default-fill-ci
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
+import { requestSystemLocked } from "../../background/idle.background.messages";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
@@ -976,6 +978,13 @@ const safeProviders: SafeProvider[] = [
     provide: SHARE_ITEM_PRESENTER,
     useExisting: BrowserShareItemPresenter,
     deps: [],
+  }),
+  // Extension-only automation capabilities.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () => new SystemEventsCapability(requestSystemLocked),
+    deps: [],
+    multi: true,
   }),
 ];
 
