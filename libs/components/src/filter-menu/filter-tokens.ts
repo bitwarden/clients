@@ -12,6 +12,7 @@ import { BitwardenIcon } from "../shared/icon";
 // Type-only: the components import this module for their tokens, so a value import
 // would close a cycle.
 import type { FilterOptionIconTile, FilterOptionNode } from "./filter-option.component";
+import type { FilterSectionComponent } from "./filter-section.component";
 
 /** What a chip exposes to a host bridge: a keyed, aggregated value. */
 export interface FilterControl {
@@ -275,15 +276,34 @@ export type FilterTreeNode = {
   groupEnd: boolean;
 };
 
-/** The parts of a tree row's behaviour only the chip can answer. */
+/** The parts of a tree row's behaviour only the tree that draws it can answer. */
 export interface FilterTreeHost {
   activateNode(node: FilterTreeNode): void;
   parentRow<T>(row: T): T | null;
   childRows<T>(row: T): T[];
 }
 
-/** Provided by `bit-filter-menu`; injected by its tree rows. */
+/** Provided by `bit-filter-menu`'s tree; injected by its rows. */
 export const FILTER_TREE_HOST = new InjectionToken<FilterTreeHost>("FilterTreeHost");
+
+/**
+ * The selection state and actions `bit-filter-menu` provides to the `bit-filter-tree` that
+ * renders its options. The menu holds the selected values; the tree only draws the rows, so
+ * it reads each row's checked state and count from here, and calls back when a row is activated.
+ */
+export interface FilterTreeOwner {
+  /** The count shown on each option row; an option with none is absent or `undefined`. */
+  readonly optionCounts: Signal<ReadonlyMap<FilterOptionRow, number | undefined>>;
+  /** A row's checked state, or `null` for a section header, which isn't selectable. */
+  nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null;
+  /** How many of a section's options are selected, nesting included. */
+  sectionSelectedCount(section: FilterSectionComponent): number;
+  /** Toggles an option, or expands a section header. */
+  activateNode(node: FilterTreeNode): void;
+}
+
+/** Provided by `bit-filter-menu`; injected by `bit-filter-tree`. */
+export const FILTER_TREE_OWNER = new InjectionToken<FilterTreeOwner>("FilterTreeOwner");
 
 /** Provided by `bit-filter-option` and `bit-filter-section`; injected by `bit-filter-menu`. */
 export const FILTER_ENTRY = new InjectionToken<FilterEntry>("FilterEntry");
