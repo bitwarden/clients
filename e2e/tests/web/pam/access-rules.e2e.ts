@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-
 import { expect } from "@playwright/test";
 
 import { logInToWebVault } from "../../../src/login";
@@ -7,41 +5,21 @@ import { test } from "../../../src/seeder/fixtures";
 import { Play } from "../../../src/seeder/play";
 import { OrganizationAccessRuleScene } from "../../../src/seeder/scenes/organization-access-rule.scene";
 import { OrganizationCollectionScene } from "../../../src/seeder/scenes/organization-collection.scene";
-import {
-  PlanType,
-  SingleOrganizationScene,
-} from "../../../src/seeder/scenes/single-organization.scene";
-import { seededAccount, SingleUserScene } from "../../../src/seeder/scenes/single-user.scene";
 import { AccessRulesPage } from "../../../src/web/pam/access-rules";
+import { seedPamOrganization } from "../../../src/web/pam/seed";
 
 const SHARED_FOLDER = "Production servers";
 const RULE = "Production break-glass";
 
-/**
- * An owner of an organization with PAM, holding one shared folder, logged in. The server must
- * have the `pm-37044-pam-v-0` flag on, since it gates the access rule endpoints.
- */
+/** The owner of an organization with PAM, holding one shared folder. */
 async function seedPamOwner(play: Play) {
-  const user = await play.scene(
-    new SingleUserScene({ email: "pam-owner@example.com", password: randomUUID() }),
-  );
-  const organization = await play.scene(
-    new SingleOrganizationScene({
-      ownerUserId: user.result.userId,
-      planType: PlanType.EnterpriseAnnually,
-      name: "PAM org",
-      domain: "pam.example.com",
-      seats: 5,
-      overrides: { usePam: true },
-    }),
-  );
-  const { organizationId, organizationKeyB64 } = organization.result;
+  const { owner, organizationId, organizationKeyB64 } = await seedPamOrganization(play);
   const sharedFolder = await play.scene(
     new OrganizationCollectionScene({ organizationId, organizationKeyB64, name: SHARED_FOLDER }),
   );
 
   return {
-    account: seededAccount(user),
+    account: owner,
     organizationId,
     sharedFolderId: sharedFolder.result.collectionId,
   };

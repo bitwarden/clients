@@ -12,6 +12,7 @@ import {
   TdeRegistrationResponse,
 } from "@bitwarden/sdk-internal";
 
+import { FakeGlobalStateProvider } from "../../../spec";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { MasterPasswordSalt } from "../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
@@ -19,7 +20,7 @@ import { RegisterSdkService } from "../../platform/abstractions/sdk/register-sdk
 import { Rc } from "../../platform/misc/reference-counting/rc";
 import { OrganizationId, UserId } from "../../types/guid";
 import { OpenOrganizationInvite } from "../organization-invite/models/open-organization-invite";
-import { OrganizationInviteService } from "../organization-invite/services/organization-invite.service";
+import { OPEN_ORGANIZATION_INVITE } from "../organization-invite/services/implementations/organization-invite.state";
 
 import { DefaultSsoJitProvisionFinishService } from "./default-sso-jit-provision-finish.service";
 import { SsoJitProvisionFinishKeyConnectorParams } from "./sso-jit-provision-finish-key-connector.params";
@@ -29,7 +30,7 @@ import { SsoJitProvisionFinishTrustedDeviceParams } from "./sso-jit-provision-fi
 describe("DefaultSsoJitProvisionFinishService", () => {
   let registerSdkService: MockProxy<RegisterSdkService>;
   let configService: MockProxy<ConfigService>;
-  let organizationInviteService: MockProxy<OrganizationInviteService>;
+  let globalStateProvider: FakeGlobalStateProvider;
 
   let sut: DefaultSsoJitProvisionFinishService;
 
@@ -79,18 +80,18 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     configService.getFeatureFlag.mockImplementation(async (flag) =>
       flag === FeatureFlag.InviteLinkAutoConfirm ? inviteLinkAutoConfirm : false,
     );
-    organizationInviteService.getOpenOrgInvite.mockResolvedValue(invite);
+    globalStateProvider.getFake(OPEN_ORGANIZATION_INVITE).stateSubject.next(invite);
   }
 
   beforeEach(() => {
     registerSdkService = mock<RegisterSdkService>();
     configService = mock<ConfigService>();
-    organizationInviteService = mock<OrganizationInviteService>();
+    globalStateProvider = new FakeGlobalStateProvider();
 
     sut = new DefaultSsoJitProvisionFinishService(
       registerSdkService,
       configService,
-      organizationInviteService,
+      globalStateProvider,
     );
 
     // Default: flag off, so the invite is accepted.
@@ -137,12 +138,16 @@ describe("DefaultSsoJitProvisionFinishService", () => {
     );
 
     it("should not read the stored invite when the flag is off", async () => {
+      // Arrange
+      arrangeInvite(false, openOrgInvite);
+      globalStateProvider.mock.get.mockClear();
+
       // Act
       await sut.shouldAcceptOrganizationInvite(orgId);
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.InviteLinkAutoConfirm);
-      expect(organizationInviteService.getOpenOrgInvite).not.toHaveBeenCalled();
+      expect(globalStateProvider.mock.get).not.toHaveBeenCalledWith(OPEN_ORGANIZATION_INVITE);
     });
   });
 

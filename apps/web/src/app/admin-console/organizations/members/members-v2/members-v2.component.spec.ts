@@ -8,7 +8,11 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -621,6 +625,33 @@ describe("MembersV2Component", () => {
 
     it("hides the Staged option without staged members", () => {
       expect(component.hasStagedMembers()).toBe(false);
+    });
+  });
+
+  describe("status tooltip", () => {
+    beforeEach(async () => {
+      await setup({}, []);
+    });
+
+    it("explains why a revoked member was revoked", () => {
+      expect(
+        component.statusTooltip(
+          member({
+            status: OrganizationUserStatusType.Revoked,
+            revocationReason: RevocationReasonType.TwoFactorPolicyNonCompliance,
+          }),
+        ),
+      ).toBe("revocationReasonTwoFactorNonCompliance");
+    });
+
+    it("falls back to the unknown reason when none is recorded", () => {
+      expect(component.statusTooltip(member({ status: OrganizationUserStatusType.Revoked }))).toBe(
+        "revocationReasonNotLogged",
+      );
+    });
+
+    it("has no tooltip for members who aren't revoked", () => {
+      expect(component.statusTooltip(member())).toBe("");
     });
   });
 

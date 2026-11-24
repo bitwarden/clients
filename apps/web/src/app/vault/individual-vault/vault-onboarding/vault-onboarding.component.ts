@@ -12,7 +12,6 @@ import {
 } from "@angular/core";
 import { Subject, takeUntil, Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -40,7 +39,6 @@ import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-o
 })
 export class VaultOnboardingComponent implements OnInit, OnDestroy {
   protected readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly apiService = inject(ApiService);
   private readonly vaultOnboardingService = inject(VaultOnboardingServiceAbstraction);
   private readonly accountService = inject(AccountService);
 
@@ -120,10 +118,11 @@ export class VaultOnboardingComponent implements OnInit, OnDestroy {
   }
 
   async checkCreationDate() {
-    const userProfile = await this.apiService.getProfile();
-    const profileCreationDate = new Date(userProfile.creationDate);
+    const userId = await firstValueFrom(this.activeId$);
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    const creationDate = accounts[userId]?.creationDate ?? new Date();
 
-    this.isNewAccount.set(this.onboardingReleaseDate < profileCreationDate);
+    this.isNewAccount.set(this.onboardingReleaseDate < creationDate);
 
     if (!this.isNewAccount()) {
       await this.hideOnboarding();

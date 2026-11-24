@@ -122,6 +122,11 @@ export class FilterDialogComponent {
     "[&_[data-filter-option-row]]:tw-border-solid",
     "[&_[data-filter-option-row]]:tw-border-border-base",
     "[&_[data-filter-option-list]>[data-filter-option-row]:last-child]:tw-border-b-0",
+    // Fixed heights, so the borders above are drawn inside a row rather than added to it, and a
+    // row is the same height here as in the popover. `!` because a section row matches both.
+    "[&_[data-filter-option-row]]:tw-box-border",
+    "[&_[data-filter-option-row]]:tw-h-12",
+    "[&_[data-filter-section-row]]:!tw-h-10",
     // Multi-select draws a card per group instead, so a section reads as an accordion
     // over its own options rather than a header inside one long list.
     "[&_[data-filter-card-list]_[data-filter-option-row]]:tw-border-x",
