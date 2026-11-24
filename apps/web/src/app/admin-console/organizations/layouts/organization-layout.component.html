@@ -33,22 +33,51 @@
       </bit-nav-item>
     }
 
+    @let needsConfirmation = needsConfirmation$ | async;
+    <!-- Berries are decorative: the nav item's aria-label carries the count for screen readers. -->
+    <ng-template #needsConfirmationBerry>
+      @if (needsConfirmation) {
+        <bit-berry
+          slot="end"
+          [value]="needsConfirmation.count"
+          [maxDigits]="2"
+          [bitTooltip]="needsConfirmation.tooltip"
+          aria-hidden="true"
+        />
+      }
+    </ng-template>
     <ng-container *ngIf="canShowMembersTab(organization)">
       <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">
-        <bit-nav-group icon="bwi-user" [text]="'members' | i18n" route="members">
+        <bit-nav-group
+          icon="bwi-user"
+          [text]="'members' | i18n"
+          [ariaLabel]="needsConfirmation?.ariaLabel"
+          route="members"
+        >
           <bit-nav-item
             [text]="'members' | i18n"
+            [ariaLabel]="needsConfirmation?.ariaLabel"
             route="members"
             [routerLinkActiveOptions]="{ exact: true }"
-          ></bit-nav-item>
+          >
+            <ng-container slot="end" *ngTemplateOutlet="needsConfirmationBerry"></ng-container>
+          </bit-nav-item>
           <bit-nav-item
             [text]="'sponsoredFamilies' | i18n"
             route="members/sponsored-families"
           ></bit-nav-item>
+          <ng-container slot="end" *ngTemplateOutlet="needsConfirmationBerry"></ng-container>
         </bit-nav-group>
       </ng-container>
       <ng-template #regularMembersItem>
-        <bit-nav-item icon="bwi-user" [text]="'members' | i18n" route="members"></bit-nav-item>
+        <bit-nav-item
+          icon="bwi-user"
+          [text]="'members' | i18n"
+          [ariaLabel]="needsConfirmation?.ariaLabel"
+          route="members"
+        >
+          <ng-container slot="end" *ngTemplateOutlet="needsConfirmationBerry"></ng-container>
+        </bit-nav-item>
       </ng-template>
     </ng-container>
 

@@ -12881,6 +12881,18 @@
   "needsConfirmation": {
     "message": "Needs confirmation"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Member role"
   },
