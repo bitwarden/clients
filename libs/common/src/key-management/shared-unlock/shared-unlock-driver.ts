@@ -2,7 +2,13 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { UserId, PeerLockState, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
+import {
+  UserId,
+  Endpoint,
+  PeerLockState,
+  SharedUnlockDriver,
+  SymmetricKey,
+} from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
@@ -74,6 +80,14 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
 
   async get_client_name(): Promise<string> {
     return this.platformUtilsService.getClientType();
+  }
+
+  /**
+   * The desktop app answers shared unlock on its renderer. It is moving to the main process, at
+   * which point this picks the endpoint from the version the desktop reports when discovered.
+   */
+  async get_desktop_endpoint(): Promise<Endpoint> {
+    return "DesktopRenderer";
   }
 
   async get_vault_url(user_id: UserId): Promise<string> {
