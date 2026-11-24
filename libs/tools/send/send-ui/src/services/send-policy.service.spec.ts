@@ -10,6 +10,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 
@@ -99,6 +100,28 @@ describe("SendPolicyService", () => {
         .mockReturnValue(of(true));
 
       expect(await firstValueFrom(service.disableSend$)).toBe(true);
+    });
+  });
+
+  describe("sendAuthRequired$", () => {
+    it.each([
+      [WhoCanAccessType.PasswordProtected, true],
+      [WhoCanAccessType.SpecificPeople, true],
+      [WhoCanAccessType.Any, false],
+    ])("emits %s → %s", async (whoCanAccess, expected) => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([makePolicy({ whoCanAccess })]));
+
+      expect(await firstValueFrom(service.sendAuthRequired$)).toBe(expected);
+    });
+
+    it("emits false when no Send Controls policy sets who can access", async () => {
+      policyServiceMock.policiesByType$
+        .calledWith(PolicyType.SendControls, userId)
+        .mockReturnValue(of([]));
+
+      expect(await firstValueFrom(service.sendAuthRequired$)).toBe(false);
     });
   });
 

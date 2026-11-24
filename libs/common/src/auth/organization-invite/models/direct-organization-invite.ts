@@ -38,6 +38,7 @@ export class DirectOrganizationInvite {
   initOrganization: boolean;
   orgSsoIdentifier?: string;
   orgUserHasExistingUser: boolean;
+  // TODO: PM-47347 - Type organizationId as OrganizationId. fromUrlParams validates it with isId(), so cast it there.
   organizationId: string;
   organizationName: string;
   organizationUserId: string;
@@ -108,5 +109,10 @@ export class DirectOrganizationInvite {
       return null;
     }
     return new DirectOrganizationInvite(json);
+  }
+
+  /** Whether this invite is for the organization. Compares IDs case-insensitively. */
+  isForOrganization(organizationId: string): boolean {
+    return this.organizationId.toLowerCase() === organizationId.toLowerCase();
   }
 }

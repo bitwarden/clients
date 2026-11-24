@@ -7,6 +7,7 @@ import { AutofillOverlayContentService } from "../services/abstractions/autofill
 import { DomElementVisibilityService } from "../services/abstractions/dom-element-visibility.service";
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
+import { DefaultFillAssistEventEmitter } from "../services/fill-assist-event-emitter";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import { DefaultRuleQualificationService } from "../services/rule-qualification.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
@@ -37,6 +38,10 @@ class AutofillInit implements AutofillInitInterface {
     applyTargetedFields: ({ message }) =>
       this.isMonitoring ? this.applyTargetedFields(message) : undefined,
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
+    runFillAssistHeuristicFallback: () =>
+      this.isMonitoring
+        ? this.collectAutofillContentService.handleRunFillAssistHeuristicFallback()
+        : undefined,
     startAutofillMonitors: () => this.startMonitoring(),
     stopAutofillMonitors: () => this.stopMonitoring(),
   };
@@ -71,6 +76,7 @@ class AutofillInit implements AutofillInitInterface {
         this.collectAutofillContentService,
         domQueryService,
         domElementVisibilityService,
+        new DefaultFillAssistEventEmitter(),
       ),
     );
     this.insertAutofillContentService = new InsertAutofillContentService(

@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-pam";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -19,6 +19,8 @@ describe("ItemDetailsStateBadgeComponent", () => {
   let enabled$: BehaviorSubject<boolean>;
   let accessChanged$: Subject<void>;
   let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let activeAccount$: BehaviorSubject<Account | null>;
+  let logService: { error: jest.Mock };
   let accessRequestSdkService: {
     getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
   };
@@ -59,6 +61,8 @@ describe("ItemDetailsStateBadgeComponent", () => {
     enabled$ = new BehaviorSubject<boolean>(true);
     accessChanged$ = new Subject<void>();
     revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: "user-1" } as Account);
+    logService = { error: jest.fn() };
     accessRequestSdkService = { getCipherAccessState: jest.fn() };
 
     TestBed.configureTestingModule({
@@ -70,8 +74,8 @@ describe("ItemDetailsStateBadgeComponent", () => {
           provide: AccessRefreshService,
           useValue: { accessChanged$: () => accessChanged$, notifyAccessChanged: () => {} },
         },
-        { provide: LogService, useValue: { error: jest.fn() } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: LogService, useValue: logService },
+        { provide: AccountService, useValue: { activeAccount$: activeAccount$ } },
         { provide: RevealedCipherService, useValue: { revealed$: () => revealed$ } },
         {
           provide: I18nService,
@@ -206,6 +210,34 @@ describe("ItemDetailsStateBadgeComponent", () => {
     ).not.toBeNull();
   });
 
+  it.each([
+    ["pendingRequest", "pending"],
+    ["approvedRequest", "ready"],
+  ] as const)(
+    "falls back to privileged the second a %s's window closes",
+    async (field, badgeState) => {
+      // The server drops the request once its window closes, but nothing announces it.
+      jest.useFakeTimers();
+      accessRequestSdkService.getCipherAccessState
+        .mockResolvedValueOnce({
+          badgeState,
+          [field]: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+        } as unknown as CipherAccessStateView)
+        .mockResolvedValueOnce({ badgeState: "privileged" } as unknown as CipherAccessStateView);
+
+      create(gatedCipher());
+      await jest.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+      expect(component["badge"]()?.kind).toBe(badgeState);
+
+      await jest.advanceTimersByTimeAsync(6_000);
+      fixture.detectChanges();
+
+      expect(component["badge"]()?.kind).toBe("privileged");
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+    },
+  );
+
   it("keeps the pill withheld past the original end of a lease extended elsewhere", async () => {
     jest.useFakeTimers();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue(
@@ -226,6 +258,53 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
   });
 
+  it("keeps the pill withheld when a request's window closes before a live lease ends", async () => {
+    // The early lapse is the request's, not the lease's, so it must not land on the lease badge
+    // even when the re-read fails.
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState
+      .mockResolvedValueOnce({
+        ...activeLeaseState(Date.now() + 90_000),
+        pendingRequest: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+      } as unknown as CipherAccessStateView)
+      .mockRejectedValue(new Error("offline"));
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+    expect(component["badge"]()).toBeNull();
+
+    await jest.advanceTimersByTimeAsync(6_000);
+    fixture.detectChanges();
+
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+    expect(component["badge"]()).toBeNull();
+  });
+
+  it("still ends the session when a re-read on an early request lapse fails", async () => {
+    // The failed re-read says nothing about the lease it held, so that lease stays watched and
+    // ending it still lands on "Session ended".
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState
+      .mockResolvedValueOnce({
+        ...activeLeaseState(Date.now() + 90_000),
+        pendingRequest: { leaseNotAfter: new Date(Date.now() + 5_000).toISOString() },
+      } as unknown as CipherAccessStateView)
+      .mockRejectedValue(new Error("offline"));
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+
+    await jest.advanceTimersByTimeAsync(91_000);
+    fixture.detectChanges();
+
+    expect(component["badge"]()?.kind).toBe("active");
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
+    ).not.toBeNull();
+  });
+
   it("shows the badge for a lease the server still reports past its window", async () => {
     // Suppressed on the window, not the `active` ranking, or a trailing server clock would hide
     // the pill for good.
@@ -240,6 +319,33 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(
       fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
     ).not.toBeNull();
+  });
+
+  it("renders nothing and reports no error for an anonymous viewer, such as Send access", async () => {
+    // Anonymous pages have no active account, so the badge must not read one.
+    activeAccount$.next(null);
+    const cipher = new CipherView();
+    cipher.id = "cipher-1";
+    cipher.partial = false;
+
+    expect(() => create(cipher)).not.toThrow();
+    await settle();
+
+    expect(component["badge"]()).toBeNull();
+    expect(logService.error).not.toHaveBeenCalled();
+    expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
+  });
+
+  it("reports no error for an anonymous viewer even when the cipher is gated", async () => {
+    activeAccount$.next(null);
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+      badgeState: "privileged",
+    } as unknown as CipherAccessStateView);
+
+    expect(() => create(gatedCipher())).not.toThrow();
+    await settle();
+
+    expect(logService.error).not.toHaveBeenCalled();
   });
 
   it("renders nothing when the access-state read fails", async () => {

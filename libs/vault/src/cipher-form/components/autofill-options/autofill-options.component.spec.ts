@@ -22,7 +22,6 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { CipherFormContainer } from "../../cipher-form-container";
-import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
 import { DesktopAppRow, UriOptionComponent } from "./uri-option.component";
@@ -45,7 +44,6 @@ describe("AutofillOptionsComponent", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let configService: MockProxy<ConfigService>;
-  let httpAuthenticationService: MockProxy<CipherFormHTTPAuthenticationService>;
   let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
   let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   const getInitialCipherView = jest.fn((): any => null);
@@ -70,9 +68,6 @@ describe("AutofillOptionsComponent", () => {
     autofillSettingsService.autofillOnPageLoadDefault$ = new BehaviorSubject(false);
     autofillSettingsService.autofillOnPageLoad$ = new BehaviorSubject(true);
 
-    httpAuthenticationService = mock<CipherFormHTTPAuthenticationService>();
-    httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(true);
-
     await TestBed.configureTestingModule({
       imports: [AutofillOptionsComponent],
       providers: [
@@ -86,7 +81,6 @@ describe("AutofillOptionsComponent", () => {
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ConfigService, useValue: configService },
-        { provide: CipherFormHTTPAuthenticationService, useValue: httpAuthenticationService },
       ],
     }).compileComponents();
 
@@ -309,93 +303,16 @@ describe("AutofillOptionsComponent", () => {
     expect(enable).toHaveBeenCalledWith({ emitEvent: false });
   });
 
-  describe("HTTP authentication", () => {
-    it("shares the URI match strategies when initialized from an existing cipher", () => {
-      getInitialCipherView.mockReturnValueOnce({
-        login: Object.assign(new LoginView(), {
-          uris: [
-            Object.assign(new LoginUriView(), {
-              uri: "https://example.com",
-              match: UriMatchStrategy.Host,
-            }),
-            Object.assign(new LoginUriView(), { uri: "https://example.org", match: null }),
-          ],
-        }),
-      });
-
-      fixture.detectChanges();
-
-      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
-        UriMatchStrategy.Host,
-        null,
-      ]);
-    });
-
-    it("shares the URI match strategies when the URIs change", () => {
-      fixture.detectChanges();
-
-      component.autofillOptionsForm.controls.uris.at(0).setValue({
-        uri: "https://example.com",
-        matchDetection: UriMatchStrategy.Exact,
-      });
-
-      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
-        UriMatchStrategy.Exact,
-      ]);
-    });
-
-    it("adds a URI requested by the user when the default match strategy is confirmed", async () => {
-      fixture.detectChanges();
-
-      await component.addUriFromUser({ uri: null, matchDetection: null });
-
-      expect(httpAuthenticationService.confirmDefaultMatchStrategy).toHaveBeenCalled();
-      expect(component.autofillOptionsForm.value.uris.length).toEqual(2);
-    });
-
-    it("does not add a URI requested by the user when the default match strategy is declined", async () => {
-      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
-      fixture.detectChanges();
-
-      await component.addUriFromUser({ uri: null, matchDetection: null });
-
-      expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
-    });
-
-    it("adds a desktop app URI requested by the user with the Never match strategy", () => {
+  describe("addDesktopAppUriFromUser", () => {
+    it("adds a desktop app URI with the Exact match strategy", () => {
       fixture.detectChanges();
 
       component.addDesktopAppUriFromUser();
 
       expect(component.autofillOptionsForm.value.uris[1]).toEqual({
         uri: DESKTOP_APP_URI_PREFIX,
-        matchDetection: UriMatchStrategy.Never,
-      });
-    });
-
-    it("adds a desktop app URI requested by the user without confirming the default match strategy", () => {
-      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
-      fixture.detectChanges();
-
-      component.addDesktopAppUriFromUser();
-
-      expect(httpAuthenticationService.confirmDefaultMatchStrategy).not.toHaveBeenCalled();
-      expect(component.autofillOptionsForm.value.uris.length).toEqual(2);
-    });
-
-    it("shares the Never match strategy of a desktop app URI as an explicit match strategy", () => {
-      fixture.detectChanges();
-      component.autofillOptionsForm.controls.uris.at(0).setValue({
-        uri: "https://example.com",
         matchDetection: UriMatchStrategy.Exact,
       });
-
-      component.addDesktopAppUriFromUser();
-
-      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
-        UriMatchStrategy.Exact,
-        UriMatchStrategy.Never,
-      ]);
     });
   });
 
@@ -622,7 +539,7 @@ describe("AutofillOptionsComponent", () => {
       await localFixture.whenStable();
 
       expect(localComponent.addUri).toHaveBeenCalledWith(
-        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Never },
+        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Exact },
         true,
         true,
         DesktopAppRow.New,
@@ -668,7 +585,7 @@ describe("AutofillOptionsComponent", () => {
         true,
         createCipher(
           ["https://example.com", null],
-          [pairingUri, UriMatchStrategy.Never],
+          [pairingUri, UriMatchStrategy.Exact],
           ["DESKTOPAPP://autotype", null],
         ),
       );
@@ -692,10 +609,10 @@ describe("AutofillOptionsComponent", () => {
       expect(getDesktopAppRows(localFixture)).toEqual([null, DesktopAppRow.New]);
     });
 
-    it("adds a website requested by the user as a website row", async () => {
+    it("adds a website requested by the user as a website row", () => {
       const localFixture = createComponent(true);
 
-      await localFixture.componentInstance.addUriFromUser({ uri: null, matchDetection: null });
+      localFixture.componentInstance.addUri({ uri: null, matchDetection: null }, true);
       localFixture.detectChanges();
 
       expect(getDesktopAppRows(localFixture)).toEqual([null, null]);
@@ -734,7 +651,7 @@ describe("AutofillOptionsComponent", () => {
     it("keeps each row's type when the rows are reordered", () => {
       const localFixture = createComponent(
         true,
-        createCipher(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]),
+        createCipher(["https://example.com", null], [pairingUri, UriMatchStrategy.Exact]),
       );
 
       localFixture.componentInstance.onUriItemDrop({
@@ -771,14 +688,14 @@ describe("AutofillOptionsComponent", () => {
     });
 
     describe("saved match strategy", () => {
-      it("saves a desktop app URI typed into a website row with the Never match strategy", () => {
+      it("saves a desktop app URI typed into a website row with the Exact match strategy", () => {
         const localFixture = createComponent(true);
 
         localFixture.componentInstance.autofillOptionsForm.controls.uris
           .at(0)
           .setValue({ uri: pairingUri, matchDetection: null });
 
-        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: UriMatchStrategy.Never }]);
+        expect(getSavedUris()).toEqual([{ uri: pairingUri, match: UriMatchStrategy.Exact }]);
       });
 
       it("saves a desktop app URI typed into a website row with its match strategy when the feature flag is off", () => {
@@ -798,12 +715,9 @@ describe("AutofillOptionsComponent", () => {
         control.setValue({ uri: pairingUri, matchDetection: UriMatchStrategy.Host });
 
         expect(control.value.matchDetection).toBe(UriMatchStrategy.Host);
-        expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
-          UriMatchStrategy.Host,
-        ]);
       });
 
-      it("saves the desktop app URIs on the cipher with the Never match strategy when the form opens", () => {
+      it("saves the desktop app URIs on the cipher with the Exact match strategy when the form opens", () => {
         createComponent(
           true,
           createCipher(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]),
@@ -811,7 +725,7 @@ describe("AutofillOptionsComponent", () => {
 
         expect(getSavedUris()).toEqual([
           { uri: "https://example.com", match: UriMatchStrategy.Exact },
-          { uri: pairingUri, match: UriMatchStrategy.Never },
+          { uri: pairingUri, match: UriMatchStrategy.Exact },
         ]);
       });
 
@@ -843,7 +757,7 @@ describe("AutofillOptionsComponent", () => {
           cipherFormContainer.patchCipher.mockClear();
         }
 
-        it("saves the desktop app URIs on the cipher with the Never match strategy", () => {
+        it("saves the desktop app URIs on the cipher with the Exact match strategy", () => {
           openForm(["https://example.com", UriMatchStrategy.Exact], [pairingUri, null]);
 
           gaFeatureFlag$.next(true);
@@ -851,12 +765,12 @@ describe("AutofillOptionsComponent", () => {
           expect(cipherFormContainer.patchCipher).toHaveBeenCalledTimes(1);
           expect(getSavedUris()).toEqual([
             { uri: "https://example.com", match: UriMatchStrategy.Exact },
-            { uri: pairingUri, match: UriMatchStrategy.Never },
+            { uri: pairingUri, match: UriMatchStrategy.Exact },
           ]);
         });
 
-        it("does not update the cipher when its desktop app URIs already use the Never match strategy", () => {
-          openForm(["https://example.com", null], [pairingUri, UriMatchStrategy.Never]);
+        it("does not update the cipher when its desktop app URIs already use the Exact match strategy", () => {
+          openForm(["https://example.com", null], [pairingUri, UriMatchStrategy.Exact]);
 
           gaFeatureFlag$.next(true);
 

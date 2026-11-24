@@ -1,12 +1,16 @@
 <bit-header [title]="titleText()" icon="bwi-desktop">
-  <pam-detail-breadcrumb
-    slot="breadcrumbs"
-    [route]="breadcrumbParentRoute"
-    [parentLabelKey]="breadcrumbParentKey"
-    [parentIcon]="breadcrumbParentIcon"
-    [step]="breadcrumbStep"
-    [current]="titleText()"
-  />
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="breadcrumbParentRoute" [icon]="breadcrumbParentIcon">{{
+      breadcrumbParentKey | i18n
+    }}</bit-breadcrumb>
+    @if (returnsToCredential) {
+      <bit-breadcrumb [route]="addCredentialRoute">{{
+        "pamRotationConfigCreateTitle" | i18n
+      }}</bit-breadcrumb>
+    }
+    <!-- The current URL, query string included, so the crumb reads as the active route. -->
+    <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{ titleText() }}</bit-breadcrumb>
+  </bit-breadcrumbs>
   @if (statusBadge(); as badge) {
     <span
       bitBadge

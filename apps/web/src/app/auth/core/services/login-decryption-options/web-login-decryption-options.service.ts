@@ -19,12 +19,20 @@ export class WebLoginDecryptionOptionsService
     super();
   }
 
-  override async handleCreateUserSuccess(): Promise<void> {
+  override async handleCreateUserSuccess(organizationInviteAccepted: boolean): Promise<void> {
     try {
-      // TDE org invites are accepted during admin recovery enrollment on the server, so clear the stashed
-      // invite and its accept URL redirect. Without a stashed invite, the redirect is an
-      // unrelated deep link which we don't want to clear.
-      if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+      // When we send `acceptOrganizationInvite: true` for the TDE org invite, clear the stashed
+      // invite and its accept URL redirect. Without a stashed invite, the redirect is an unrelated
+      // deep link which we don't want to clear.
+      //
+      // Exception: when we send `acceptOrganizationInvite: false`, the organization user stays
+      // Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
+      // user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow.
+      // `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this decision.
+      if (
+        organizationInviteAccepted &&
+        (await this.organizationInviteService.getOrganizationInvite()) != null
+      ) {
         await this.routerService.getAndClearLoginRedirectUrl();
         await this.organizationInviteService.clearOrganizationInvite();
       }

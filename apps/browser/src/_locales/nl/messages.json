@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Bestand"
   },
+  "item": {
+    "message": "Item"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Je hebt geen Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Tekst of bestanden veilig delenmet anderen. Je informatie zal end-to-end versleuteld worden."
+  },
+  "pendingDeletion": {
+    "message": "Wordt verwijderd"
+  },
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5237,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Importeren gelukt"
+  },
+  "importConfirmationBody": {
+    "message": "Je hebt $AMOUNT$ items met succes geïmporteerd in Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Je hebt 1item met succes geïmporteerd in Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Vergeet niet $FILENAME$ te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Vergeet je importbestand niet te verwijderen. Het bevat gevoelige gegevens en is mogelijk niet versleuteld."
+  },
+  "importingTitle": {
+    "message": "Importeren"
+  },
+  "importingDescription": {
+    "message": "Dit proces kan enkele minuten duren."
+  },
+  "importingItemsTitle": {
+    "message": "$COUNT$ items importeren!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "1 item importeren!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Browserextensie openen"
+  },
+  "openedExtensionTitle": {
+    "message": "Browserextensie geopend"
+  },
+  "somethingWentWrong": {
+    "message": "Er ging iets mis..."
+  },
+  "openingExtensionError": {
+    "message": "We konden de Bitwarden-browserextensie niet openen. Klik op de knop om deze nu te openen."
+  },
+  "openExtension": {
+    "message": "Extensie openen"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "We konden de Bitwarden-browserextensie niet openen. Open het Bitwarden-pictogram ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": "vanaf de werkbalk.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Opnieuw proberen"
   },
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Dit 1Password-account gebruikt een aanmeldmethode die niet wordt ondersteund. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Vul een geldig inlogadres in."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Vind dit in je 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Geheime sleutel is vereist."
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password. Alleen inloggen met het wachtwoord wordt ondersteund."
+  },
   "secretKey": {
     "message": "Geheime sleutel"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Je account is beveiligd met een geheime sleutel en wachtwoord. Je moet beide invoeren om door te gaan."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Inloggen met SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Ga naar de SSO-inlogpagina om het importeren in Bitwarden te voltooien."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Overdracht encryptiesleutel"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in bij 1Password en navigeer naar inlogverzoeken om dit verzoek te verifiëren."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Deze code werkte niet. Controleer je andere apparaat voor een nieuwe."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "De SSO-login pagina is gesloten voordat je klaar was met inloggen. Probeer het opnieuw om door te gaan met importeren."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Dit apparaat is niet goedgekeurd op je andere apparaat. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Te veel onjuiste verificatiecodes. Probeer het opnieuw of gebruik een andere importmethode."
   },
   "keeperEmail": {
     "message": "E-mailadres Keeper"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "Adres kopiëren"
   },
-  "myItems": {
-    "message": "Mijn items"
-  },
   "myItemsV2": {
     "message": "Mijn items"
   },
@@ -7080,7 +7205,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -7092,6 +7217,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Ongeldige app-pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website toegevoegd"
   },
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Add website or app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website verwijderen"
@@ -8190,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "Hoe beheer ik mijn kluis?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Items overdragen aan $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Je items overdragen aan $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ vereist nu dat alle leden-items eigendom zijn van de organisatie. Je persoonlijke items zullen worden verplaatst naar een map met de naam Mijn items die alleen jij kunt zien.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Help-artikel openen over de overdracht van items"
@@ -8470,7 +8593,7 @@
     "message": "Deze Send vervalt automatisch op de ingestelde verwijderingsdatum",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"
   },
   "cannotSaveItemNoConfirmedOrgs": {
@@ -8893,6 +9016,9 @@
   "httpAuthenticationTurnedOffNotice": {
     "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
   },
+  "vaultItem": {
+    "message": "Kluis-items"
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
   },
@@ -8903,25 +9029,25 @@
     "message": "This request has not been approved yet."
   },
   "pamStartLeaseErrorNoLongerActivatable": {
-    "message": "This request can no longer be activated."
+    "message": "Dit verzoek kan niet langer worden geactiveerd."
   },
   "pamStartLeaseErrorAlreadyUsed": {
-    "message": "This request's access has already been used and is no longer active."
+    "message": "De toegang van deze aanvraag is al gebruikt en is niet langer actief."
   },
   "pamStartLeaseErrorSingleActiveAccess": {
     "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
   },
   "pamStartLeaseErrorNetworkNotPermitted": {
-    "message": "Access to this item is not permitted from your current network."
+    "message": "Toegang tot dit item is niet toegestaan vanuit je huidige netwerk."
   },
   "pamStartLeaseErrorTimeNotPermitted": {
-    "message": "Access to this item is not permitted at this time."
+    "message": "Toegang tot dit item is op dit moment niet toegestaan."
   },
   "pamStartLeaseErrorNotPermitted": {
-    "message": "Access to this item is not permitted right now."
+    "message": "Toegang tot dit item is nu niet toegestaan."
   },
   "requestAccessModalAlreadyApproved": {
-    "message": "You already have an approved request for this item."
+    "message": "Je hebt al een goedgekeurd verzoek voor dit item."
   },
   "requestAccessModalAlreadyPending": {
     "message": "You already have a pending request for this item."
@@ -8991,7 +9117,7 @@
     "message": "Your access ended before it could be extended. The request is in your history."
   },
   "pamAccessBadgePrivileged": {
-    "message": "Privileged"
+    "message": "Geprivilegieerd"
   },
   "pamAccessBadgePending": {
     "message": "Pending approval"
@@ -9003,7 +9129,7 @@
     "message": "Ready to use"
   },
   "pamAccessBadgeTimeLeft": {
-    "message": "$DURATION$ left",
+    "message": "$DURATION$ over",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9012,7 +9138,7 @@
     }
   },
   "pamAccessBadgeEndingSoon": {
-    "message": "Ending soon • $DURATION$ left",
+    "message": "Eindigt binnenkort • $DURATION$ over",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9021,7 +9147,7 @@
     }
   },
   "pamAccessBadgeEnded": {
-    "message": "Session ended"
+    "message": "Sessie beëindigd"
   },
   "pamActiveLeaseBannerTitleV2": {
     "message": "Access active • $DURATION$ left",
@@ -9067,15 +9193,15 @@
     "message": "Request to use"
   },
   "pamUnavailableToRequest": {
-    "message": "Unavailable to request",
+    "message": "Niet beschikbaar voor aanvraag",
     "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
   },
   "pamExtendAccessMenuItem": {
-    "message": "Extend access",
+    "message": "Toegang verlengen",
     "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
   },
   "pamAccessBadgeLessThanMinuteLeft": {
-    "message": "<1m left",
+    "message": "< 1 m resterend",
     "description": "Badge for a vault item whose access ends in under a minute."
   },
   "controlledAccess": {
@@ -9183,22 +9309,22 @@
     "message": "Cancel request"
   },
   "pamKeepRequest": {
-    "message": "Keep request"
+    "message": "Aanvraag bewaren"
   },
   "pamCancelRequestTitle": {
-    "message": "Cancel access request"
+    "message": "Toegangsverzoek annuleren"
   },
   "pamCancelRequestPendingConfirm": {
-    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+    "message": "Dit trekt je aanvraag in voordat een goedkeurder er een besluit over heeft genomen. Je kunt op elk gewenst moment een nieuwe aanvraag indienen."
   },
   "pamCancelRequestApprovedConfirm": {
-    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+    "message": "Dit geeft reeds goedgekeurde toegang op. Je kunt een nieuw verzoek indienen, maar het zal opnieuw moeten worden goedgekeurd."
   },
   "pamCancelRequestCanceledToast": {
     "message": "Request canceled"
   },
   "pendingStateCancelError": {
-    "message": "Couldn't cancel the request."
+    "message": "Kon aanvraag niet annuleren."
   },
   "requestAccessModalSubmitV2": {
     "message": "Send request"
@@ -9309,7 +9435,7 @@
     "message": "Could not request access. Try again."
   },
   "requestAccessModalAlreadyActive": {
-    "message": "You already have active access to this item."
+    "message": "Je hebt al actieve toegang tot dit item."
   },
   "requestAccessModalApprovedSuccessV2": {
     "message": "Access approved. Select Start access to begin."
