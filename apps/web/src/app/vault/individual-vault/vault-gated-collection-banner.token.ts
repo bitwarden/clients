@@ -1,6 +1,5 @@
 import { InputSignal, Type } from "@angular/core";
 
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
@@ -8,8 +7,7 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
  * missing or mistyped input a build error rather than a value `NgComponentOutlet` silently drops.
  */
 export interface VaultGatedCollectionBanner {
-  readonly organizationId: InputSignal<OrganizationId | undefined>;
-  readonly collectionId: InputSignal<CollectionId | undefined>;
+  readonly collection: InputSignal<{ hasEnabledAccessRule?: boolean } | null | undefined>;
 }
 
 /**
