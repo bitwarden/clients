@@ -4,13 +4,13 @@ import { mock } from "jest-mock-extended";
 import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import { UserKey } from "../../../../types/key";
-import { AgentConnectionData } from "../data/agent-connection.data";
+import { ConnectedAppData } from "../data/connected-app.data";
 
-import { AgentConnection } from "./agent-connection";
+import { ConnectedApp } from "./connected-app";
 
-describe("AgentConnection", () => {
-  function data(): AgentConnectionData {
-    const d = new AgentConnectionData();
+describe("ConnectedApp", () => {
+  function data(): ConnectedAppData {
+    const d = new ConnectedAppData();
     d.id = "id-1";
     d.partnerClientId = "partner.acme";
     d.name = "Acme Bot";
@@ -22,7 +22,7 @@ describe("AgentConnection", () => {
   }
 
   it("constructs a domain model from data", () => {
-    const connection = new AgentConnection(data());
+    const connection = new ConnectedApp(data());
 
     expect(connection.id).toBe("id-1");
     expect(connection.partnerClientId).toBe("partner.acme");
@@ -34,21 +34,21 @@ describe("AgentConnection", () => {
     expect(connection.revoked).toBe(false);
   });
 
-  it("round-trips through toAgentConnectionData", () => {
-    const connection = new AgentConnection(data());
+  it("round-trips through toConnectedAppData", () => {
+    const connection = new ConnectedApp(data());
 
-    expect(connection.toAgentConnectionData()).toEqual(data());
+    expect(connection.toConnectedAppData()).toEqual(data());
   });
 
   it("reports revoked when a revoked date is present", () => {
     const d = data();
     d.revokedDate = "2024-02-01T00:00:00.000Z";
 
-    expect(new AgentConnection(d).revoked).toBe(true);
+    expect(new ConnectedApp(d).revoked).toBe(true);
   });
 
   it("decrypts the PSK with the user key", async () => {
-    const connection = new AgentConnection(data());
+    const connection = new ConnectedApp(data());
     const encryptService = mock<EncryptService>();
     const userKey = mock<UserKey>();
     encryptService.decryptString.mockResolvedValue("plaintext-psk");
@@ -62,10 +62,10 @@ describe("AgentConnection", () => {
   });
 
   it("deserializes from JSON", () => {
-    const connection = new AgentConnection(data());
+    const connection = new ConnectedApp(data());
     const json = JSON.parse(JSON.stringify(connection));
 
-    const restored = AgentConnection.fromJSON(json);
+    const restored = ConnectedApp.fromJSON(json);
 
     expect(restored).toEqual(connection);
   });

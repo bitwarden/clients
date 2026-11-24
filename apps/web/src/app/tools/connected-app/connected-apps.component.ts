@@ -2,9 +2,9 @@ import { Component } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AgentConnectionView } from "@bitwarden/common/tools/agent-connection/models/view/agent-connection.view";
-import { AgentConnectionApiService } from "@bitwarden/common/tools/agent-connection/services/agent-connection-api.service.abstraction";
-import { InternalAgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service.abstraction";
+import { ConnectedAppView } from "@bitwarden/common/tools/connected-app/models/view/connected-app.view";
+import { ConnectedAppApiService } from "@bitwarden/common/tools/connected-app/services/connected-app-api.service.abstraction";
+import { InternalConnectedAppService } from "@bitwarden/common/tools/connected-app/services/connected-app.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -19,21 +19,21 @@ import { SharedModule } from "../../shared";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   imports: [SharedModule, HeaderModule],
-  templateUrl: "agent-connections.component.html",
+  templateUrl: "connected-apps.component.html",
 })
-export class AgentConnectionsComponent {
-  protected connections$: Observable<AgentConnectionView[]> =
-    this.agentConnectionService.agentConnectionViews$;
+export class ConnectedAppsComponent {
+  protected connections$: Observable<ConnectedAppView[]> =
+    this.connectedAppService.connectedAppViews$;
 
   constructor(
-    private agentConnectionService: InternalAgentConnectionService,
-    private agentConnectionApiService: AgentConnectionApiService,
+    private connectedAppService: InternalConnectedAppService,
+    private connectedAppApiService: ConnectedAppApiService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
   ) {}
 
-  async revoke(connection: AgentConnectionView): Promise<void> {
+  async revoke(connection: ConnectedAppView): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "loginWithBitwardenRevokeTitle" },
       content: { key: "loginWithBitwardenRevokeConfirm", placeholders: [connection.name] },
@@ -44,8 +44,8 @@ export class AgentConnectionsComponent {
       return;
     }
 
-    await this.agentConnectionApiService.delete(connection.id);
-    await this.agentConnectionService.delete(connection.id);
+    await this.connectedAppApiService.delete(connection.id);
+    await this.connectedAppService.delete(connection.id);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("loginWithBitwardenRevoked"),

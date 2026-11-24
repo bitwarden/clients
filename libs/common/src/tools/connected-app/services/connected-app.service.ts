@@ -12,34 +12,33 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { AgentConnectionData } from "../models/data/agent-connection.data";
-import { AgentConnection } from "../models/domain/agent-connection";
-import { AgentConnectionWithIdRequest } from "../models/request/agent-connection-with-id.request";
-import { AgentConnectionView } from "../models/view/agent-connection.view";
+import { ConnectedAppData } from "../models/data/connected-app.data";
+import { ConnectedApp } from "../models/domain/connected-app";
+import { ConnectedAppWithIdRequest } from "../models/request/connected-app-with-id.request";
+import { ConnectedAppView } from "../models/view/connected-app.view";
 
-import { AgentConnectionStateProvider } from "./agent-connection-state.provider.abstraction";
-import { InternalAgentConnectionService as InternalAgentConnectionServiceAbstraction } from "./agent-connection.service.abstraction";
+import { ConnectedAppStateProvider } from "./connected-app-state.provider.abstraction";
+import { InternalConnectedAppService as InternalConnectedAppServiceAbstraction } from "./connected-app.service.abstraction";
 
-export class AgentConnectionService implements InternalAgentConnectionServiceAbstraction {
-  agentConnections$: Observable<AgentConnection[]> = this.stateProvider.encryptedState$.pipe(
-    map(([, record]) => Object.values(record ?? {}).map((data) => new AgentConnection(data))),
+export class ConnectedAppService implements InternalConnectedAppServiceAbstraction {
+  connectedApps$: Observable<ConnectedApp[]> = this.stateProvider.encryptedState$.pipe(
+    map(([, record]) => Object.values(record ?? {}).map((data) => new ConnectedApp(data))),
   );
 
-  agentConnectionViews$: Observable<AgentConnectionView[]> =
-    this.stateProvider.encryptedState$.pipe(
-      concatMap(([userId, record]) =>
-        this.decryptConnections(
-          Object.values(record ?? {}).map((data) => new AgentConnection(data)),
-          userId,
-        ),
+  connectedAppViews$: Observable<ConnectedAppView[]> = this.stateProvider.encryptedState$.pipe(
+    concatMap(([userId, record]) =>
+      this.decryptConnections(
+        Object.values(record ?? {}).map((data) => new ConnectedApp(data)),
+        userId,
       ),
-    );
+    ),
+  );
 
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
-    private stateProvider: AgentConnectionStateProvider,
+    private stateProvider: ConnectedAppStateProvider,
   ) {}
 
   async encrypt(
@@ -47,7 +46,7 @@ export class AgentConnectionService implements InternalAgentConnectionServiceAbs
     name: string,
     plaintextPsk: string,
     userId: UserId,
-  ): Promise<AgentConnection> {
+  ): Promise<ConnectedApp> {
     if (!userId) {
       throw new Error("User ID is required to encrypt an agent connection.");
     }
@@ -57,15 +56,15 @@ export class AgentConnectionService implements InternalAgentConnectionServiceAbs
       throw new Error("No user key found.");
     }
 
-    const connection = new AgentConnection();
+    const connection = new ConnectedApp();
     connection.partnerClientId = partnerClientId;
     connection.name = name;
     connection.key = await this.encryptService.encryptString(plaintextPsk, userKey);
     return connection;
   }
 
-  async upsert(connection: AgentConnectionData | AgentConnectionData[]): Promise<void> {
-    const [userId, current] = await this.stateProvider.getEncryptedAgentConnections();
+  async upsert(connection: ConnectedAppData | ConnectedAppData[]): Promise<void> {
+    const [userId, current] = await this.stateProvider.getEncryptedConnectedApps();
     const connections = current ?? {};
     if (Array.isArray(connection)) {
       connection.forEach((c) => (connections[c.id] = c));
@@ -76,7 +75,7 @@ export class AgentConnectionService implements InternalAgentConnectionServiceAbs
   }
 
   async delete(id: string | string[]): Promise<void> {
-    const [userId, connections] = await this.stateProvider.getEncryptedAgentConnections();
+    const [userId, connections] = await this.stateProvider.getEncryptedConnectedApps();
     if (connections == null) {
       return;
     }
@@ -86,15 +85,15 @@ export class AgentConnectionService implements InternalAgentConnectionServiceAbs
     await this.replace(connections, userId);
   }
 
-  async replace(connections: Record<string, AgentConnectionData>, userId: UserId): Promise<void> {
-    await this.stateProvider.setEncryptedAgentConnections(connections, userId);
+  async replace(connections: Record<string, ConnectedAppData>, userId: UserId): Promise<void> {
+    await this.stateProvider.setEncryptedConnectedApps(connections, userId);
   }
 
   async getRotatedData(
     originalUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ): Promise<AgentConnectionWithIdRequest[]> {
+  ): Promise<ConnectedAppWithIdRequest[]> {
     if (originalUserKey == null) {
       throw new Error("Original user key is required for rotation.");
     }
@@ -102,21 +101,21 @@ export class AgentConnectionService implements InternalAgentConnectionServiceAbs
       throw new Error("New user key is required for rotation.");
     }
 
-    const connections = await firstValueFrom(this.agentConnections$);
+    const connections = await firstValueFrom(this.connectedApps$);
     return await Promise.all(
       connections.map(async (connection) => {
         const psk = await this.encryptService.decryptString(connection.key, originalUserKey);
-        const rotated = new AgentConnection(connection.toAgentConnectionData());
+        const rotated = new ConnectedApp(connection.toConnectedAppData());
         rotated.key = await this.encryptService.encryptString(psk, newUserKey);
-        return new AgentConnectionWithIdRequest(rotated);
+        return new ConnectedAppWithIdRequest(rotated);
       }),
     );
   }
 
   private async decryptConnections(
-    connections: AgentConnection[],
+    connections: ConnectedApp[],
     userId: UserId,
-  ): Promise<AgentConnectionView[]> {
+  ): Promise<ConnectedAppView[]> {
     if (!userId || connections.length === 0) {
       return [];
     }

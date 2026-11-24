@@ -9,24 +9,24 @@ import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { AgentConnectionData } from "../models/data/agent-connection.data";
+import { ConnectedAppData } from "../models/data/connected-app.data";
 
-import { AgentConnectionStateProvider } from "./agent-connection-state.provider.abstraction";
-import { AgentConnectionService } from "./agent-connection.service";
+import { ConnectedAppStateProvider } from "./connected-app-state.provider.abstraction";
+import { ConnectedAppService } from "./connected-app.service";
 
-describe("AgentConnectionService", () => {
+describe("ConnectedAppService", () => {
   const userId = "user-1" as UserId;
   let keyService: ReturnType<typeof mock<KeyService>>;
   let encryptService: ReturnType<typeof mock<EncryptService>>;
   let i18nService: ReturnType<typeof mock<I18nService>>;
-  let stateProvider: ReturnType<typeof mock<AgentConnectionStateProvider>>;
-  let sut: AgentConnectionService;
+  let stateProvider: ReturnType<typeof mock<ConnectedAppStateProvider>>;
+  let sut: ConnectedAppService;
 
   const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const newUserKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as UserKey;
 
-  function data(id: string): AgentConnectionData {
-    const d = new AgentConnectionData();
+  function data(id: string): ConnectedAppData {
+    const d = new ConnectedAppData();
     d.id = id;
     d.partnerClientId = "partner.acme";
     d.name = "Acme Bot";
@@ -41,10 +41,10 @@ describe("AgentConnectionService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
-    stateProvider = mock<AgentConnectionStateProvider>();
+    stateProvider = mock<ConnectedAppStateProvider>();
     stateProvider.encryptedState$ = of([userId, {}]);
 
-    sut = new AgentConnectionService(keyService, encryptService, i18nService, stateProvider);
+    sut = new ConnectedAppService(keyService, encryptService, i18nService, stateProvider);
   });
 
   describe("encrypt", () => {
@@ -74,29 +74,29 @@ describe("AgentConnectionService", () => {
 
       await sut.replace(record, userId);
 
-      expect(stateProvider.setEncryptedAgentConnections).toHaveBeenCalledWith(record, userId);
+      expect(stateProvider.setEncryptedConnectedApps).toHaveBeenCalledWith(record, userId);
     });
 
     it("upsert merges into existing state", async () => {
-      stateProvider.getEncryptedAgentConnections.mockResolvedValue([userId, { a: data("a") }]);
+      stateProvider.getEncryptedConnectedApps.mockResolvedValue([userId, { a: data("a") }]);
 
       await sut.upsert(data("b"));
 
-      expect(stateProvider.setEncryptedAgentConnections).toHaveBeenCalledWith(
+      expect(stateProvider.setEncryptedConnectedApps).toHaveBeenCalledWith(
         expect.objectContaining({ a: expect.anything(), b: expect.anything() }),
         userId,
       );
     });
 
     it("delete removes the id from state", async () => {
-      stateProvider.getEncryptedAgentConnections.mockResolvedValue([
+      stateProvider.getEncryptedConnectedApps.mockResolvedValue([
         userId,
         { a: data("a"), b: data("b") },
       ]);
 
       await sut.delete("a");
 
-      const [written] = stateProvider.setEncryptedAgentConnections.mock.calls[0];
+      const [written] = stateProvider.setEncryptedConnectedApps.mock.calls[0];
       expect(written).not.toHaveProperty("a");
       expect(written).toHaveProperty("b");
     });
@@ -105,7 +105,7 @@ describe("AgentConnectionService", () => {
   describe("getRotatedData", () => {
     it("re-wraps each connection's PSK under the new user key", async () => {
       stateProvider.encryptedState$ = of([userId, { a: data("a") }]);
-      sut = new AgentConnectionService(keyService, encryptService, i18nService, stateProvider);
+      sut = new ConnectedAppService(keyService, encryptService, i18nService, stateProvider);
 
       encryptService.decryptString.mockResolvedValue("plaintext-psk");
       encryptService.encryptString.mockResolvedValue(new EncString("2.rewrapped|psk|mac"));

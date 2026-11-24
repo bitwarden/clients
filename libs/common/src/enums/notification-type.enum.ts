@@ -42,7 +42,7 @@ export enum NotificationType {
   RefreshApproverInbox = 28,
   RefreshAccessRequest = 29,
 
-  SyncAgentConnectionCreate = 30,
-  SyncAgentConnectionUpdate = 31,
-  SyncAgentConnectionDelete = 32,
+  SyncConnectedAppCreate = 30,
+  SyncConnectedAppUpdate = 31,
+  SyncConnectedAppDelete = 32,
 }

@@ -200,7 +200,7 @@ export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
   browser: "memory-large-object",
 });
 export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "memory");
-export const AGENT_CONNECTION_DISK = new StateDefinition("encryptedAgentConnection", "disk", {
+export const CONNECTED_APP_DISK = new StateDefinition("encryptedConnectedApp", "disk", {
   web: "memory",
 });
 

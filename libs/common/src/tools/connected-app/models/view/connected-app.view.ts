@@ -3,13 +3,13 @@
 import { Jsonify } from "type-fest";
 
 import { View } from "../../../../models/view/view";
-import { AgentConnection } from "../domain/agent-connection";
+import { ConnectedApp } from "../domain/connected-app";
 
 /**
- * Decrypted view of an {@link AgentConnection}. {@link psk} is the plaintext agent-access PSK and
+ * Decrypted view of an {@link ConnectedApp}. {@link psk} is the plaintext agent-access PSK and
  * is Protected Data — never log it or send it to the server.
  */
-export class AgentConnectionView implements View {
+export class ConnectedAppView implements View {
   id: string = null;
   partnerClientId: string = null;
   name: string = null;
@@ -18,7 +18,7 @@ export class AgentConnectionView implements View {
   revisionDate: Date = null;
   revokedDate: Date | null = null;
 
-  constructor(c?: AgentConnection) {
+  constructor(c?: ConnectedApp) {
     if (c == null) {
       return;
     }
@@ -35,12 +35,12 @@ export class AgentConnectionView implements View {
     return this.revokedDate != null;
   }
 
-  static fromJSON(obj: Jsonify<AgentConnectionView>): AgentConnectionView {
+  static fromJSON(obj: Jsonify<ConnectedAppView>): ConnectedAppView {
     if (obj == null) {
       return null;
     }
 
-    return Object.assign(new AgentConnectionView(), obj, {
+    return Object.assign(new ConnectedAppView(), obj, {
       creationDate: obj.creationDate == null ? null : new Date(obj.creationDate),
       revisionDate: obj.revisionDate == null ? null : new Date(obj.revisionDate),
       revokedDate: obj.revokedDate == null ? null : new Date(obj.revokedDate),

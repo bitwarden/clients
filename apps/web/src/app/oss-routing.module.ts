@@ -176,7 +176,7 @@ const routes: Routes = [
         path: "oauth/authorize",
         canActivate: [canAccessFeature(FeatureFlag.LoginWithBitwarden), deepLinkGuard(), authGuard],
         loadComponent: () =>
-          import("./tools/agent-connection/oauth-authorize.component").then(
+          import("./tools/connected-app/oauth-authorize.component").then(
             (m) => m.OAuthAuthorizeComponent,
           ),
         data: {
@@ -801,11 +801,11 @@ const routes: Routes = [
             loadChildren: () => SecurityRoutingModule,
           },
           {
-            path: "agent-connections",
+            path: "connected-apps",
             canActivate: [canAccessFeature(FeatureFlag.LoginWithBitwarden)],
             loadComponent: () =>
-              import("./tools/agent-connection/agent-connections.component").then(
-                (m) => m.AgentConnectionsComponent,
+              import("./tools/connected-app/connected-apps.component").then(
+                (m) => m.ConnectedAppsComponent,
               ),
             data: { titleId: "loginWithBitwardenConnections" } satisfies RouteDataProperties,
           },

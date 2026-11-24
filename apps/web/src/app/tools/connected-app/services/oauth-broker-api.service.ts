@@ -6,7 +6,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 
 /** The partner app + requested scopes for a pending authorize request, shown on the consent screen. */
 export interface AuthorizeContext {
-  /** The registered partner's OAuth client id (e.g. `partner.acme`) — bound to the AgentConnection. */
+  /** The registered partner's OAuth client id (e.g. `partner.acme`) — bound to the ConnectedApp. */
   clientId: string;
   clientName: string;
   scopes: string[];

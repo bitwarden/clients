@@ -271,9 +271,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncSendDelete:
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
-      case NotificationType.SyncAgentConnectionCreate:
-      case NotificationType.SyncAgentConnectionUpdate:
-      case NotificationType.SyncAgentConnectionDelete:
+      case NotificationType.SyncConnectedAppCreate:
+      case NotificationType.SyncConnectedAppUpdate:
+      case NotificationType.SyncConnectedAppDelete:
         // Agent connections have no targeted fetch path; a full sync re-pulls the encrypted PSKs
         // (and drops revoked ones). Inclusion is feature-flag gated inside the sync handler.
         await this.syncService.fullSync(true);

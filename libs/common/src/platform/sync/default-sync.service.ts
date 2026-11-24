@@ -39,9 +39,9 @@ import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { ProviderService } from "../../provider/abstractions/provider.service";
 import { ProviderData } from "../../provider/models/data/provider.data";
-import { AgentConnectionData } from "../../tools/agent-connection/models/data/agent-connection.data";
-import { AgentConnectionResponse } from "../../tools/agent-connection/models/response/agent-connection.response";
-import { InternalAgentConnectionService } from "../../tools/agent-connection/services/agent-connection.service.abstraction";
+import { ConnectedAppData } from "../../tools/connected-app/models/data/connected-app.data";
+import { ConnectedAppResponse } from "../../tools/connected-app/models/response/connected-app.response";
+import { InternalConnectedAppService } from "../../tools/connected-app/services/connected-app.service.abstraction";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
@@ -106,7 +106,7 @@ export class DefaultSyncService extends CoreSyncService {
     stateProvider: StateProvider,
     configService: ConfigService,
     sdkService: SdkService,
-    private agentConnectionService: InternalAgentConnectionService,
+    private connectedAppService: InternalConnectedAppService,
   ) {
     super(
       tokenService,
@@ -189,7 +189,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
       await this.retryPendingSendDeletions(response.profile.id);
-      await this.syncAgentConnections(response.agentConnections, response.profile.id);
+      await this.syncConnectedApps(response.connectedApps, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policiesNew, response.policies, response.profile.id);
       processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
@@ -435,18 +435,18 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.sendService.replace(sends, userId);
   }
 
-  private async syncAgentConnections(response: AgentConnectionResponse[], userId: UserId) {
+  private async syncConnectedApps(response: ConnectedAppResponse[], userId: UserId) {
     // Gated behind the feature flag so nothing is stored when the feature is off.
     const enabled = await this.configService.getFeatureFlag(FeatureFlag.LoginWithBitwarden);
     if (!enabled) {
       return;
     }
 
-    const connections: { [id: string]: AgentConnectionData } = {};
+    const connections: { [id: string]: ConnectedAppData } = {};
     (response ?? []).forEach((c) => {
-      connections[c.id] = new AgentConnectionData(c);
+      connections[c.id] = new ConnectedAppData(c);
     });
-    return await this.agentConnectionService.replace(connections, userId);
+    return await this.connectedAppService.replace(connections, userId);
   }
 
   private async syncSettings(response: DomainsResponse, userId: UserId) {

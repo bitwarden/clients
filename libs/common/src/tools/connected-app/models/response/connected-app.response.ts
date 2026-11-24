@@ -1,11 +1,11 @@
 import { BaseResponse } from "../../../../models/response/base.response";
 
 /**
- * API response for an {@link AgentConnection} returned by the server (sync and the
- * `/agent-connections` endpoints). `key` is the user-key-encrypted agent-access PSK; the server
+ * API response for an {@link ConnectedApp} returned by the server (sync and the
+ * `/connected-apps` endpoints). `key` is the user-key-encrypted agent-access PSK; the server
  * stores and relays it as ciphertext only and cannot decrypt it.
  */
-export class AgentConnectionResponse extends BaseResponse {
+export class ConnectedAppResponse extends BaseResponse {
   id: string;
   partnerClientId: string;
   name: string;

@@ -7,15 +7,15 @@ import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { UserKey } from "../../../../types/key";
-import { AgentConnectionData } from "../data/agent-connection.data";
-import { AgentConnectionView } from "../view/agent-connection.view";
+import { ConnectedAppData } from "../data/connected-app.data";
+import { ConnectedAppView } from "../view/connected-app.view";
 
 /**
  * Domain model for an agent connection. The agent-access PSK lives in {@link key} as an
  * {@link EncString} wrapped directly under the user key (no per-item key derivation, unlike
  * `Send`). Only the user's own clients can decrypt it; the server never sees plaintext.
  */
-export class AgentConnection extends Domain {
+export class ConnectedApp extends Domain {
   id: string;
   partnerClientId: string;
   name: string;
@@ -24,7 +24,7 @@ export class AgentConnection extends Domain {
   revisionDate: Date;
   revokedDate: Date | null;
 
-  constructor(obj?: AgentConnectionData) {
+  constructor(obj?: ConnectedAppData) {
     super();
     if (obj == null) {
       return;
@@ -43,15 +43,15 @@ export class AgentConnection extends Domain {
     return this.revokedDate != null;
   }
 
-  /** Decrypts the PSK with the user key, producing a {@link AgentConnectionView}. */
-  async decrypt(userKey: UserKey, encryptService: EncryptService): Promise<AgentConnectionView> {
-    const view = new AgentConnectionView(this);
+  /** Decrypts the PSK with the user key, producing a {@link ConnectedAppView}. */
+  async decrypt(userKey: UserKey, encryptService: EncryptService): Promise<ConnectedAppView> {
+    const view = new ConnectedAppView(this);
     view.psk = this.key != null ? await encryptService.decryptString(this.key, userKey) : null;
     return view;
   }
 
-  toAgentConnectionData(): AgentConnectionData {
-    const data = new AgentConnectionData();
+  toConnectedAppData(): ConnectedAppData {
+    const data = new ConnectedAppData();
     data.id = this.id;
     data.partnerClientId = this.partnerClientId;
     data.name = this.name;
@@ -62,12 +62,12 @@ export class AgentConnection extends Domain {
     return data;
   }
 
-  static fromJSON(obj: Jsonify<AgentConnection>): AgentConnection {
+  static fromJSON(obj: Jsonify<ConnectedApp>): ConnectedApp {
     if (obj == null) {
       return null;
     }
 
-    return Object.assign(new AgentConnection(), obj, {
+    return Object.assign(new ConnectedApp(), obj, {
       key: EncString.fromJSON(obj.key),
       creationDate: obj.creationDate == null ? null : new Date(obj.creationDate),
       revisionDate: obj.revisionDate == null ? null : new Date(obj.revisionDate),

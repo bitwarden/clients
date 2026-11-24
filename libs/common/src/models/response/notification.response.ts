@@ -50,10 +50,10 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncSendDelete:
         this.payload = new SyncSendNotification(payload);
         break;
-      case NotificationType.SyncAgentConnectionCreate:
-      case NotificationType.SyncAgentConnectionUpdate:
-      case NotificationType.SyncAgentConnectionDelete:
-        this.payload = new SyncAgentConnectionNotification(payload);
+      case NotificationType.SyncConnectedAppCreate:
+      case NotificationType.SyncConnectedAppUpdate:
+      case NotificationType.SyncConnectedAppDelete:
+        this.payload = new SyncConnectedAppNotification(payload);
         break;
       case NotificationType.AuthRequest:
       case NotificationType.AuthRequestResponse:
@@ -141,7 +141,7 @@ export class SyncSendNotification extends BaseResponse {
   }
 }
 
-export class SyncAgentConnectionNotification extends BaseResponse {
+export class SyncConnectedAppNotification extends BaseResponse {
   id: string;
   userId: string;
   revisionDate: Date;

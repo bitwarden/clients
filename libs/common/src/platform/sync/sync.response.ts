@@ -4,7 +4,7 @@ import { UserDecryptionResponse } from "../../key-management/models/response/use
 import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
-import { AgentConnectionResponse } from "../../tools/agent-connection/models/response/agent-connection.response";
+import { ConnectedAppResponse } from "../../tools/connected-app/models/response/connected-app.response";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
@@ -18,7 +18,7 @@ export class SyncResponse extends BaseResponse {
   policies?: PolicyResponse[] = [];
   policiesNew?: PolicyResponse[];
   sends: SendResponse[] = [];
-  agentConnections: AgentConnectionResponse[] = [];
+  connectedApps: ConnectedAppResponse[] = [];
   userDecryption?: UserDecryptionResponse;
 
   constructor(response: any) {
@@ -64,9 +64,9 @@ export class SyncResponse extends BaseResponse {
       this.sends = sends.map((s: any) => new SendResponse(s));
     }
 
-    const agentConnections = this.getResponseProperty("AgentConnections");
-    if (agentConnections != null) {
-      this.agentConnections = agentConnections.map((c: any) => new AgentConnectionResponse(c));
+    const connectedApps = this.getResponseProperty("ConnectedApps");
+    if (connectedApps != null) {
+      this.connectedApps = connectedApps.map((c: any) => new ConnectedAppResponse(c));
     }
 
     const userDecryption = this.getResponseProperty("UserDecryption");

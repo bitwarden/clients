@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AgentConnectionResponse } from "../response/agent-connection.response";
+import { ConnectedAppResponse } from "../response/connected-app.response";
 
 /**
- * The string-shaped, encrypted-at-rest representation of an {@link AgentConnection} stored in
- * `AGENT_CONNECTION_USER_ENCRYPTED` state. `key` holds the user-key-encrypted PSK as an
+ * The string-shaped, encrypted-at-rest representation of an {@link ConnectedApp} stored in
+ * `CONNECTED_APP_USER_ENCRYPTED` state. `key` holds the user-key-encrypted PSK as an
  * `encryptedString`.
  */
-export class AgentConnectionData {
+export class ConnectedAppData {
   id: string;
   partnerClientId: string;
   name: string;
@@ -16,7 +16,7 @@ export class AgentConnectionData {
   revisionDate: string;
   revokedDate: string | null;
 
-  constructor(response?: AgentConnectionResponse) {
+  constructor(response?: ConnectedAppResponse) {
     if (response == null) {
       return;
     }

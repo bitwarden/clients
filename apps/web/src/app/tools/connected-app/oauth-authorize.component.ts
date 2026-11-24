@@ -5,10 +5,10 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AgentAccessPskGenerator } from "@bitwarden/common/tools/agent-connection/abstractions/agent-access-psk-generator.abstraction";
-import { AgentConnectionRequest } from "@bitwarden/common/tools/agent-connection/models/request/agent-connection.request";
-import { AgentConnectionApiService } from "@bitwarden/common/tools/agent-connection/services/agent-connection-api.service.abstraction";
-import { AgentConnectionService } from "@bitwarden/common/tools/agent-connection/services/agent-connection.service.abstraction";
+import { AgentAccessPskGenerator } from "@bitwarden/common/tools/connected-app/abstractions/agent-access-psk-generator.abstraction";
+import { ConnectedAppRequest } from "@bitwarden/common/tools/connected-app/models/request/connected-app.request";
+import { ConnectedAppApiService } from "@bitwarden/common/tools/connected-app/services/connected-app-api.service.abstraction";
+import { ConnectedAppService } from "@bitwarden/common/tools/connected-app/services/connected-app.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../shared";
@@ -22,7 +22,7 @@ import { OAuthBrokerStateService } from "./services/oauth-broker-state.service";
  * authenticated (route guards) so the master-password-derived user key is available to wrap the PSK.
  *
  * On approval it: (1) generates the plaintext agent-access PSK, (2) wraps it under the user key and
- * stores the ciphertext via `POST /agent-connections`, (3) records consent via the API (which mints a
+ * stores the ciphertext via `POST /connected-apps`, (3) records consent via the API (which mints a
  * single-use token), and (4) navigates to Identity's consent callback, which grants consent and
  * resumes the authorize request — issuing the code to the registered `redirect_uri` (the completion
  * page). The plaintext PSK never leaves the client and is never sent to the Bitwarden server.
@@ -49,8 +49,8 @@ export class OAuthAuthorizeComponent implements OnInit {
     private brokerApiService: OAuthBrokerApiService,
     private brokerStateService: OAuthBrokerStateService,
     private pskGenerator: AgentAccessPskGenerator,
-    private agentConnectionService: AgentConnectionService,
-    private agentConnectionApiService: AgentConnectionApiService,
+    private connectedAppService: ConnectedAppService,
+    private connectedAppApiService: ConnectedAppApiService,
     private accountService: AccountService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -107,13 +107,13 @@ export class OAuthAuthorizeComponent implements OnInit {
       const psk = await this.pskGenerator.generate();
 
       // Store the user-key-encrypted PSK (ciphertext only) on the account, bound to the partner.
-      const connection = await this.agentConnectionService.encrypt(
+      const connection = await this.connectedAppService.encrypt(
         this.context.clientId,
         this.context.clientName,
         psk,
         userId,
       );
-      await this.agentConnectionApiService.post(new AgentConnectionRequest(connection));
+      await this.connectedAppApiService.post(new ConnectedAppRequest(connection));
 
       // Record consent via the API (mints a single-use token). No PSK is sent.
       const { token } = await this.brokerApiService.postConsent(this.returnUrl);

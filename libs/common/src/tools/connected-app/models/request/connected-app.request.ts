@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AgentConnection } from "../domain/agent-connection";
+import { ConnectedApp } from "../domain/connected-app";
 
 /**
  * Create request for an agent connection. `key` is the user-key-encrypted PSK
@@ -8,12 +8,12 @@ import { AgentConnection } from "../domain/agent-connection";
  * the server against the user's pending authorize/consent context — it is not trusted as a
  * free-form value.
  */
-export class AgentConnectionRequest {
+export class ConnectedAppRequest {
   partnerClientId: string;
   name: string;
   key: string;
 
-  constructor(connection: AgentConnection) {
+  constructor(connection: ConnectedApp) {
     this.partnerClientId = connection.partnerClientId;
     this.name = connection.name;
     this.key = connection.key?.encryptedString ?? null;
