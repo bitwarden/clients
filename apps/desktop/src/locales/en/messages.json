@@ -958,6 +958,24 @@
   "authenticatorKey": {
     "message": "Authenticator key"
   },
+  "authenticatorKeyDescription": {
+    "message": "Bitwarden stores authenticator keys, so they're safe even if your device is lost or stolen. With Premium, you get built-in TOTP code generation."
+  },
+  "deleteAuthenticatorKey": {
+    "message": "Delete authenticator key"
+  },
+  "deleteAuthenticatorKeyConfirmation": {
+    "message": "The authenticator key will be permanently deleted from your login item. Once it's deleted, TOTP codes will no longer generate."
+  },
+  "totpCode": {
+    "message": "TOTP code"
+  },
+  "totpCodeInactive": {
+    "message": "TOTP code is inactive until you add an authenticator key."
+  },
+  "upgradeToUnlockBuiltInTotpCodes": {
+    "message": "Upgrade to unlock built-in TOTP codes."
+  },
   "autofillOptions": {
     "message": "Autofill options"
   },
