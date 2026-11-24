@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { filter, Subject, throwError } from "rxjs";
+import { filter, Subject, switchMap, take, throwError } from "rxjs";
 
 import { createChromeTabMock } from "../../spec/autofill-mocks";
 import { TabEdgeCause, TabState } from "../enums";
@@ -243,6 +243,98 @@ describe("MonitoringController", () => {
 
       expect(controller.isMonitoringTab(1)).toBe(false);
       expect(controller.isMonitoringTab(2)).toBe(true);
+    });
+  });
+
+  describe("tabMonitoring$", () => {
+    const monitoringOf = (tabId: number) => {
+      const values: boolean[] = [];
+      const subscription = controller
+        .tabMonitoring$(tabId)
+        .subscribe((value) => values.push(value));
+      return { values, subscription };
+    };
+
+    it("emits the tab's current state when subscribed, then each change", () => {
+      tabChanged$.next([1, settles]);
+      const { values } = monitoringOf(1);
+
+      tabChanged$.next([1, leaves]);
+      tabChanged$.next([1, settles]);
+
+      expect(values).toEqual([true, false, true]);
+    });
+
+    // A tab with no frame has none that `isMonitoringTab` would find started.
+    it("follows the tab's state, not its frames, so a tab with no frame is monitoring", () => {
+      const { values } = monitoringOf(1);
+
+      tabChanged$.next([1, settles]);
+
+      expect(values).toEqual([false, true]);
+    });
+
+    it.each<[string, readonly [number, TabEdge]]>([
+      ["an edge that leaves the tab monitoring", [1, edge(TabState.Hot, TabState.CoolDown)]],
+      ["another tab's edge", [2, settles]],
+    ])("emits nothing for %s", (_, change) => {
+      tabChanged$.next([1, settles]);
+      const { values } = monitoringOf(1);
+
+      tabChanged$.next(change);
+
+      expect(values).toEqual([true]);
+    });
+
+    it("emits nothing when a tab that was not monitoring is removed", () => {
+      const { values } = monitoringOf(1);
+
+      tabRemoved$.next(1);
+
+      expect(values).toEqual([false]);
+    });
+
+    it("emits false to a subscriber of a tab that was removed", () => {
+      tabChanged$.next([1, settles]);
+      tabRemoved$.next(1);
+
+      expect(monitoringOf(1).values).toEqual([false]);
+    });
+
+    it("emits false when the tab is removed, and does not complete", () => {
+      tabChanged$.next([1, settles]);
+      let completed = false;
+      const values: boolean[] = [];
+      controller.tabMonitoring$(1).subscribe({
+        next: (value) => values.push(value),
+        complete: () => (completed = true),
+      });
+
+      tabRemoved$.next(1);
+
+      expect(values).toEqual([true, false]);
+      expect(completed).toBe(false);
+    });
+
+    it("is already updated when a frame's start command is heard", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      const seen: boolean[] = [];
+      controller.commands$
+        .pipe(switchMap(() => controller.tabMonitoring$(1).pipe(take(1))))
+        .subscribe((value) => seen.push(value));
+
+      tabChanged$.next([1, settles]);
+
+      expect(seen).toEqual([true]);
+    });
+
+    it("completes when the controller is disposed", () => {
+      let completed = false;
+      controller.tabMonitoring$(1).subscribe({ complete: () => (completed = true) });
+
+      controller[Symbol.dispose]();
+
+      expect(completed).toBe(true);
     });
   });
 

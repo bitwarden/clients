@@ -1,5 +1,16 @@
-import { Observable, Subject, Subscription } from "rxjs";
+import {
+  defer,
+  distinctUntilChanged,
+  filter,
+  map,
+  Observable,
+  startWith,
+  Subject,
+  Subscription,
+} from "rxjs";
 
+import type { IdentifiedTab } from "../../types";
+import { isIdentifiedTab } from "../../utils";
 import type { TabEdge } from "../types";
 
 import { MonitoringEventKind } from "./enums";
@@ -43,7 +54,8 @@ type Frame = {
  * a time, in the order they arrive, even when applying one causes another
  * ({@link monitoringEvents$}). It updates a frame's state before it reports the frame's command or
  * loss, so a listener of either reads {@link isMonitoringFrame} for that frame as it is after the
- * event. See `patterns.md`, "The controller".
+ * event. It updates a tab's state, and reports it on {@link tabMonitoring$}, before it commands the
+ * tab's frames. See `patterns.md`, "The controller".
  */
 export class MonitoringController implements Disposable {
   private readonly tabs = new Map<number, Map<number, Frame>>();
@@ -56,6 +68,8 @@ export class MonitoringController implements Disposable {
 
   private readonly commandIssued = new Subject<FrameCommand>();
   private readonly frameLostSubject = new Subject<FrameLost>();
+  /** The id of each tab that entered or left a monitoring state. Removal leaves one. */
+  private readonly tabMonitoringChanged = new Subject<number>();
 
   /** Each start or stop command, in the order issued. */
   readonly commands$: Observable<FrameCommand> = this.commandIssued.asObservable();
@@ -84,7 +98,7 @@ export class MonitoringController implements Disposable {
     return this.tabs.get(tabId)?.get(frameKey(frameId))?.monitoring ?? false;
   }
 
-  /** Whether any frame of the tab is monitoring, as {@link isMonitoringFrame} defines it. */
+  /** Whether any frame of the tab is has been told to start and not told to stop monitoring. */
   isMonitoringTab(tabId: number): boolean {
     for (const frame of this.tabs.get(tabId)?.values() ?? []) {
       if (frame.monitoring) {
@@ -92,6 +106,22 @@ export class MonitoringController implements Disposable {
       }
     }
     return false;
+  }
+
+  /**
+   * Whether the tab is in a monitoring state: its current value when subscribed, then each change. A
+   * removed tab is not in one. The tab's state decides it, not its frames, so a tab in a monitoring
+   * state is monitoring before any frame has started. Completes when the controller is disposed.
+   */
+  tabMonitoring$(tabId: number): Observable<boolean> {
+    return defer(() =>
+      this.tabMonitoringChanged.pipe(
+        filter((changed) => changed === tabId),
+        startWith(tabId),
+        map(() => this.monitoringTabs.has(tabId)),
+        distinctUntilChanged(),
+      ),
+    );
   }
 
   /** Every known frame. */
@@ -110,6 +140,7 @@ export class MonitoringController implements Disposable {
     this.pending.length = 0;
     this.commandIssued.complete();
     this.frameLostSubject.complete();
+    this.tabMonitoringChanged.complete();
   }
 
   /**
@@ -163,6 +194,7 @@ export class MonitoringController implements Disposable {
     } else {
       this.monitoringTabs.delete(tabId);
     }
+    this.tabMonitoringChanged.next(tabId);
     for (const frame of [...(this.tabs.get(tabId)?.values() ?? [])]) {
       if (change === "start" || frame.monitoring) {
         this.command(frame, change);
@@ -172,7 +204,9 @@ export class MonitoringController implements Disposable {
 
   /** Forgets the tab and its frames, and reports each frame as lost. */
   private tabRemoved(tabId: number): void {
-    this.monitoringTabs.delete(tabId);
+    if (this.monitoringTabs.delete(tabId)) {
+      this.tabMonitoringChanged.next(tabId);
+    }
     this.removedTabs.add(tabId);
     const frames = this.tabs.get(tabId);
     this.tabs.delete(tabId);
@@ -183,7 +217,7 @@ export class MonitoringController implements Disposable {
 
   /** Records the frame, and starts it if its tab is in a monitoring state. */
   private frameInjected(tab: chrome.tabs.Tab, frameId: number | undefined): void {
-    if (tab.id == null || this.removedTabs.has(tab.id)) {
+    if (!isIdentifiedTab(tab) || this.removedTabs.has(tab.id)) {
       return;
     }
     const frame = this.frame(tab, frameId);
@@ -203,7 +237,7 @@ export class MonitoringController implements Disposable {
   private portConnected(port: chrome.runtime.Port): void {
     this.ports.add(port);
     const tab = port.sender?.tab;
-    if (tab?.id == null || this.removedTabs.has(tab.id)) {
+    if (tab == null || !isIdentifiedTab(tab) || this.removedTabs.has(tab.id)) {
       return;
     }
     const frame = this.frame(tab, port.sender?.frameId);
@@ -246,7 +280,8 @@ export class MonitoringController implements Disposable {
     live.forEach((port) => port.disconnect());
   }
 
-  private frame(tab: chrome.tabs.Tab, frameId: number | undefined): Frame {
+  /** The tab's frame, recorded if it is not known yet. */
+  private frame(tab: IdentifiedTab, frameId: number | undefined): Frame {
     const tabId = tab.id;
     let frames = this.tabs.get(tabId);
     if (!frames) {
