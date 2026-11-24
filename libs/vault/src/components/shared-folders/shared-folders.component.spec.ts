@@ -327,7 +327,7 @@ describe("SharedFoldersComponent", () => {
     return found;
   }
 
-  describe("autofocusSearch", () => {
+  describe("search", () => {
     beforeEach(async () => {
       await setup();
     });
@@ -341,13 +341,7 @@ describe("SharedFoldersComponent", () => {
       await fixture.whenStable();
     }
 
-    it("does not focus the search by default", async () => {
-      await render();
-      expect(document.activeElement).not.toBe(searchInput());
-    });
-
-    it("focuses the search when set", async () => {
-      fixture.componentRef.setInput("autofocusSearch", true);
+    it("is focused on render", async () => {
       await render();
       expect(document.activeElement).toBe(searchInput());
     });

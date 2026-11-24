@@ -424,9 +424,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The user's own folder the current vault scope names. */
   readonly folderName = input<string>();
 
-  /** Focuses the search field when the table first renders. */
-  readonly autofocusSearch = input(false, { transform: booleanAttribute });
-
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 

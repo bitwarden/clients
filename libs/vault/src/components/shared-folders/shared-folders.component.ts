@@ -2,14 +2,12 @@ import { TemplatePortal } from "@angular/cdk/portal";
 import { NgComponentOutlet } from "@angular/common";
 import {
   afterNextRender,
-  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   effect,
   inject,
-  input,
   TemplateRef,
   TrackByFunction,
   untracked,
@@ -194,9 +192,6 @@ export type SharedFoldersTableFilters = {
   ],
 })
 export class SharedFoldersComponent {
-  /** Focuses the search field when the table first renders. */
-  readonly autofocusSearch = input(false, { transform: booleanAttribute });
-
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);

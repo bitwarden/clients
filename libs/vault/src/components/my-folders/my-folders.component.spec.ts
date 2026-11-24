@@ -164,7 +164,7 @@ describe("MyFoldersComponent", () => {
     fixture.detectChanges();
   });
 
-  describe("autofocusSearch", () => {
+  describe("search", () => {
     function searchInput(): HTMLInputElement {
       return fixture.debugElement.query(By.css("bit-search input")).nativeElement;
     }
@@ -174,13 +174,7 @@ describe("MyFoldersComponent", () => {
       await fixture.whenStable();
     }
 
-    it("does not focus the search by default", async () => {
-      await render();
-      expect(document.activeElement).not.toBe(searchInput());
-    });
-
-    it("focuses the search when set", async () => {
-      fixture.componentRef.setInput("autofocusSearch", true);
+    it("is focused on render", async () => {
       await render();
       expect(document.activeElement).toBe(searchInput());
     });
