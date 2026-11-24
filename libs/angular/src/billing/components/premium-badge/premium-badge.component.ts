@@ -4,10 +4,11 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeComponent, BitIconButtonComponent, ChipActionComponent } from "@bitwarden/components";
+import { BitIconButtonComponent, ChipActionComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { NotPremiumDirective } from "../../directives/not-premium.directive";
+import { PremiumPillComponent } from "../premium-pill";
 
 type ComponentMode = "premiumBadge" | "upgradeIcon" | "upgradeChip";
 
@@ -16,9 +17,7 @@ type ComponentMode = "premiumBadge" | "upgradeIcon" | "upgradeChip";
   template: `
     @switch (mode()) {
       @case ("premiumBadge") {
-        <span *appNotPremium bitBadge variant="primary" size="small" startIcon="bwi-premium">
-          {{ "premium" | i18n }}
-        </span>
+        <app-premium-pill *appNotPremium />
       }
       @case ("upgradeIcon") {
         <button
@@ -47,7 +46,7 @@ type ComponentMode = "premiumBadge" | "upgradeIcon" | "upgradeChip";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     I18nPipe,
-    BadgeComponent,
+    PremiumPillComponent,
     BitIconButtonComponent,
     ChipActionComponent,
     NotPremiumDirective,
