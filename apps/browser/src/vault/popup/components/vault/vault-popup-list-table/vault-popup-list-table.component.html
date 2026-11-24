@@ -239,7 +239,7 @@
           bitIconButton="bwi-refresh"
           type="button"
           size="small"
-          (click)="refreshCurrentTab()"
+          (click)="$event.stopPropagation(); refreshCurrentTab()"
           [label]="'refresh' | i18n"
         ></button>
       }
