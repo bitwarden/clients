@@ -33,7 +33,7 @@ function rule(overrides: Record<string, unknown> = {}): AccessRuleView {
  * Stubbed rather than run over a stubbed SDK, since the real per-org cache would carry one story's
  * rules into the next.
  */
-function withRules(rules: AccessRuleView[]) {
+function withRules(rules: AccessRuleView[], { canManageAccessRules = true } = {}) {
   return moduleMetadata({
     imports: [CollectionAccessRuleCalloutComponent],
     providers: [
@@ -42,7 +42,7 @@ function withRules(rules: AccessRuleView[]) {
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       {
         provide: OrganizationService,
-        useValue: { organizations$: () => of([{ id: ORG_ID, canManageAccessRules: true }]) },
+        useValue: { organizations$: () => of([{ id: ORG_ID, canManageAccessRules }]) },
       },
     ],
   });
@@ -65,8 +65,7 @@ export default {
     }),
   ],
   args: {
-    organizationId: ORG_ID,
-    collectionId: COLLECTION_ID,
+    collection: { id: COLLECTION_ID, organizationId: ORG_ID, hasEnabledAccessRule: true },
   },
 } as Meta<CollectionAccessRuleCalloutComponent>;
 
@@ -104,12 +103,20 @@ export const AllConditions: Story = {
   ],
 };
 
-/** A disabled rule gates nothing, so the callout doesn't render. */
-export const DisabledRuleHidden: Story = {
-  decorators: [withRules([rule({ enabled: false })])],
+/** A user who can't manage access rules learns the collection is gated, but not by which rule. */
+export const CannotManageAccessRules: Story = {
+  decorators: [withRules([rule()], { canManageAccessRules: false })],
 };
 
-/** The org has rules, but none target this collection. */
-export const NotGoverned: Story = {
+/** The server says the collection is gated, but the rule read names nothing for it. */
+export const NoRuleInRead: Story = {
   decorators: [withRules([rule({ collections: ["col-other"] })])],
+};
+
+/** No enabled rule governs the collection, so the callout doesn't render. */
+export const NotGoverned: Story = {
+  decorators: [withRules([rule()])],
+  args: {
+    collection: { id: COLLECTION_ID, organizationId: ORG_ID, hasEnabledAccessRule: false },
+  },
 };
