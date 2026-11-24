@@ -10,6 +10,9 @@ import { TransitionBuffer } from "./abstractions";
 import { TransitionBufferController } from "./transition-buffer-controller";
 import type { BufferedTransitionReport, PageTransitionSignals } from "./types";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const NOW = 1000;
 const MAX_AGE_MS = 5000;
 const user = "user-1" as UserId;
@@ -51,12 +54,18 @@ const stamped = (
   tabId,
   frameId,
   documentId,
+  url: urlOf(documentId),
   stampedAt: NOW,
   expiresAt: NOW + MAX_AGE_MS,
 });
 
 describe("TransitionBufferController", () => {
-  let report$: Subject<{ tabId: number; frameId: number | undefined; documentId: string }>;
+  let report$: Subject<{
+    tabId: number;
+    frameId: number | undefined;
+    documentId: string;
+    url: string | undefined;
+  }>;
   let accountEvents$: Subject<AccountEvent>;
   let tabLifecycleChanged$: Subject<readonly [number, TabEdge]>;
   let tabRemoved$: Subject<number>;
@@ -73,6 +82,7 @@ describe("TransitionBufferController", () => {
     tabId,
     frameId,
     documentId,
+    url: urlOf(documentId),
   });
 
   /** The accounts as the first observation describes them, with `id` signed in and active. */
@@ -182,8 +192,13 @@ describe("TransitionBufferController", () => {
     it("is dropped when it names no document or no tab", () => {
       observeAccounts();
 
-      report$.next({ tabId: 1, frameId: 0, documentId: "" });
-      report$.next({ tabId: undefined as unknown as number, frameId: 0, documentId: "a" });
+      report$.next({ tabId: 1, frameId: 0, documentId: "", url: urlOf("") });
+      report$.next({
+        tabId: undefined as unknown as number,
+        frameId: 0,
+        documentId: "a",
+        url: urlOf("a"),
+      });
 
       expect(buffer.buffer).not.toHaveBeenCalled();
     });

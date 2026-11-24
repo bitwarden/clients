@@ -11,6 +11,9 @@ import { pageTransitionResolver } from "./page-transitions.rx";
 import type { BufferedTransitions } from "./persistent-buffer";
 import type { BufferedTransitionReport, ResolvedTransitionReport } from "./types";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const MAX_AGE_MS = 5000;
 const user = "user-1" as UserId;
 const otherUser = "user-2" as UserId;
@@ -38,7 +41,12 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("pageTransitionResolver", () => {
   let now: number;
-  let report$: Subject<{ tabId: number; frameId: number | undefined; documentId: string }>;
+  let report$: Subject<{
+    tabId: number;
+    frameId: number | undefined;
+    documentId: string;
+    url: string | undefined;
+  }>;
   let accountEvents$: Subject<AccountEvent>;
   let tabLifecycleChanged$: Subject<readonly [number, TabEdge]>;
   let tabRemoved$: Subject<number>;
@@ -56,6 +64,7 @@ describe("pageTransitionResolver", () => {
     tabId,
     frameId,
     documentId,
+    url: urlOf(documentId),
   });
   const stamped = (
     tabId: number,
@@ -68,6 +77,7 @@ describe("pageTransitionResolver", () => {
     tabId,
     frameId,
     documentId,
+    url: urlOf(documentId),
     stampedAt,
     expiresAt: stampedAt + MAX_AGE_MS,
   });
@@ -84,6 +94,7 @@ describe("pageTransitionResolver", () => {
     tabId,
     frameId,
     documentId,
+    url: urlOf(documentId),
     expiresAt: stampedAt + MAX_AGE_MS,
     cancellation: expect.anything(),
   });

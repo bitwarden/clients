@@ -13,8 +13,9 @@ fill happens.
 
 - **Transition** — a fact about one document: the account that was active when it was reported, the
   tab and frame that reported it, the identity the browser assigned the document, the moment it was
-  reported, and the deadline after which it no longer matters. A transition identifies a document
-  without describing it. It carries nothing from the page.
+  reported, the URL its tab showed when it was reported, and the deadline after which it no longer
+  matters. A transition identifies a document, and describes its page only by its tab's URL. It
+  carries nothing from the page.
 - **Opportunity** — a transition that has resolved, as it leaves the module. It is a signal that this
   frame has reached a point where autofill _may_ act. It identifies the document, the account, the
   tab, and the frame, and it carries the deadline. It carries a cancellation token that is cancelled
@@ -74,8 +75,8 @@ fill happens.
     extension. If storage fails, the buffer continues in memory with the same behavior, and
     transitions that were waiting at the moment of failure are lost. Persistence is a degradable
     property.
-11. **The record is shared and opaque.** A stored record is shared across accounts and describes
-    documents without describing pages, so it discloses no browsing activity.
+11. **The record is shared and minimal.** A stored record is shared across accounts and describes
+    its page only by its tab's URL, which selects the credential.
 12. **An opportunity expires when its release ends.** It is released while its tab is hot, so it
     expires when its tab leaves hot, when its tab is removed, and when a newer transition for its
     frame resolves. The older opportunity expires before the newer one leaves the module.

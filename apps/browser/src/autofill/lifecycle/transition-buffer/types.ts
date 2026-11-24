@@ -10,8 +10,9 @@ import type { PageTransitionEventKind } from "./enums";
 
 /**
  * A reported transition, stamped by `registerTransition` and reconciled by a `TransitionBuffer`.
- * This is the persisted shape: it identifies a document without describing it, so a stored buffer
- * discloses no browsing activity. Do not add fields that describe the page (URL, title, origin).
+ * This is the persisted shape: it identifies a document, and describes its page only by its tab's
+ * URL, which selects the credential. Do not add other fields that describe the page, such as its
+ * title. It is stored in memory, never on disk.
  *
  * WARNING: These reports are shared across accounts. You must verify the active account
  * against a stored record's `userId` to avoid cross-account replays.
@@ -27,6 +28,8 @@ export type BufferedTransitionReport = Readonly<{
   frameId: number | undefined;
   /** Browser-assigned UUID of the reporting document. Opaque; carries no page content. */
   documentId: string;
+  /** The reporting tab's URL when the transition was reported. `undefined` when the browser gave none. */
+  url: string | undefined;
   /**
    * Epoch ms the report was stamped. Orders reports for a frame: an older report never replaces
    * a newer one, whatever order they are reported in. Wall-clock, so a clock stepping backwards can drop
@@ -53,6 +56,8 @@ export type ResolvedTransitionReport = Readonly<{
   frameId: number | undefined;
   /** Browser-assigned UUID of the reporting document. Opaque; carries no page content. */
   documentId: string;
+  /** The reporting tab's URL when the transition was reported. It selects the credential. */
+  url: string | undefined;
   /** Absolute epoch-ms deadline, exclusive: the transition is expired at `now >= expiresAt`. */
   expiresAt: number;
   /** Cancelled when the transition expires. The deadline does not cancel it. See `model.md`. */
@@ -71,7 +76,7 @@ export type LiveFrame = Readonly<{
 
 /**
  * A page transition as the page lifecycle reports it. None of it comes from the page: a reporting
- * frame contributes the *fact of* a transition and nothing else.
+ * frame contributes the *fact of* a transition and nothing else. The browser supplies the rest.
  */
 export type TransitionReport = Readonly<{
   /** The account active when the transition was reported, from the background's account state. */
@@ -82,6 +87,8 @@ export type TransitionReport = Readonly<{
   frameId: number | undefined;
   /** The reporting document's UUID, from `chrome.runtime.MessageSender`. */
   documentId: string | undefined;
+  /** The reporting tab's URL, from `chrome.runtime.MessageSender`'s tab. */
+  url: string | undefined;
 }>;
 
 /**

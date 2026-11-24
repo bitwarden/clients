@@ -8,6 +8,9 @@ import type { TabEdge } from "../types";
 import { resolvedTransitions } from "./resolved-transitions.rx";
 import type { BufferedTransitionReport, ResolvedTransitionReport } from "./types";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const user = "user-1" as UserId;
 
 const edge = (from: TabState, to: TabState, cause: TabEdgeCause): TabEdge => ({
@@ -27,6 +30,7 @@ const buffered = (
   tabId,
   frameId,
   documentId,
+  url: urlOf(documentId),
   stampedAt,
   expiresAt: stampedAt + 5000,
 });
@@ -59,7 +63,7 @@ describe("resolvedTransitions", () => {
     ]);
 
   describe("each transition", () => {
-    it("is handed on without the buffer's bookkeeping, and with a token that is not cancelled", () => {
+    it("is handed on with its tab's URL, without the buffer's bookkeeping, and with a token that is not cancelled", () => {
       resolved$.next(buffered(1, 0, "a"));
 
       expect(emitted).toEqual([
@@ -68,6 +72,7 @@ describe("resolvedTransitions", () => {
           tabId: 1,
           frameId: 0,
           documentId: "a",
+          url: urlOf("a"),
           expiresAt: 6000,
           cancellation: expect.anything(),
         },

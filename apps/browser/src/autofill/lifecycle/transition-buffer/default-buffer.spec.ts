@@ -5,6 +5,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DefaultTransitionBuffer } from "./default-buffer";
 import type { BufferedTransitionReport } from "./types";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const userId = "user-1" as UserId;
 
 function report(
@@ -14,7 +17,7 @@ function report(
   expiresAt = Number.MAX_SAFE_INTEGER,
   stampedAt = 0,
 ): BufferedTransitionReport {
-  return { userId, tabId, frameId, documentId, stampedAt, expiresAt };
+  return { userId, tabId, frameId, documentId, url: urlOf(documentId), stampedAt, expiresAt };
 }
 
 describe("DefaultTransitionBuffer", () => {

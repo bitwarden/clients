@@ -8,6 +8,9 @@ import type { BufferedTransitions } from "./persistent-buffer";
 import { ResilientTransitionBuffer } from "./resilient-buffer";
 import type { BufferedTransitionReport } from "./types";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const userId = "user-1" as UserId;
 const now = 1000;
 
@@ -17,6 +20,7 @@ function report(tabId: number, frameId: number | undefined, documentId: string) 
     tabId,
     frameId,
     documentId,
+    url: urlOf(documentId),
     stampedAt: 0,
     expiresAt: Number.MAX_SAFE_INTEGER,
   } satisfies BufferedTransitionReport;

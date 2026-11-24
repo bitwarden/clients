@@ -14,6 +14,9 @@ import type { BufferedTransitions } from "./persistent-buffer";
 import type { BufferedTransitionReport } from "./types";
 import { transitionKey } from "./utils";
 
+/** The URL of the tab whose document reported; distinct for each document. */
+const urlOf = (documentId: string) => `https://${documentId}.example/`;
+
 const userId = "user-1" as UserId;
 
 function report(
@@ -23,7 +26,7 @@ function report(
   expiresAt = 10_000,
   stampedAt = 0,
 ): BufferedTransitionReport {
-  return { userId, tabId, frameId, documentId, stampedAt, expiresAt };
+  return { userId, tabId, frameId, documentId, url: urlOf(documentId), stampedAt, expiresAt };
 }
 
 // the load resolves asynchronously, and writes complete asynchronously
@@ -43,11 +46,26 @@ describe("BUFFERED_TRANSITIONS", () => {
     expect(BUFFERED_TRANSITIONS.deserializer(JSON.parse(JSON.stringify(record)))).toEqual(record);
   });
 
+  it("keeps an entry whose tab had no URL", () => {
+    const withoutUrl: Record<string, unknown> = { ...report(1, 0, "a") };
+    delete withoutUrl.url;
+
+    expect(BUFFERED_TRANSITIONS.deserializer({ a: withoutUrl } as any)).toEqual({ a: withoutUrl });
+  });
+
   it("is an empty record when nothing is stored", () => {
     expect(BUFFERED_TRANSITIONS.deserializer(null as any)).toEqual({});
   });
 
-  const valid = { userId, tabId: 1, frameId: 0, documentId: "d", stampedAt: 0, expiresAt: 5 };
+  const valid = {
+    userId,
+    tabId: 1,
+    frameId: 0,
+    documentId: "d",
+    url: "https://d.example/",
+    stampedAt: 0,
+    expiresAt: 5,
+  };
   it.each([
     ["missing userId", { ...valid, userId: undefined }],
     ["empty userId", { ...valid, userId: "" }],
@@ -57,6 +75,7 @@ describe("BUFFERED_TRANSITIONS", () => {
     ["non-numeric expiresAt", { ...valid, expiresAt: "soon" }],
     ["null expiresAt", { ...valid, expiresAt: null }],
     ["missing tabId", { ...valid, tabId: undefined }],
+    ["non-string url", { ...valid, url: 5 }],
     ["not an object", "d"],
   ])("drops an entry with %s and keeps the rest", (_name, bad) => {
     const good = report(2, 0, "good");

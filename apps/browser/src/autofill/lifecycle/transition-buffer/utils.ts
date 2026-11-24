@@ -22,7 +22,7 @@ export function registerTransition(
   report: TransitionReport,
   options: { now: number; maxAgeMs: number },
 ): BufferedTransitionReport | undefined {
-  const { userId, tabId, frameId, documentId } = report;
+  const { userId, tabId, frameId, documentId, url } = report;
   if (!userId || tabId === undefined || !documentId || !(options.maxAgeMs > 0)) {
     return undefined;
   }
@@ -32,6 +32,7 @@ export function registerTransition(
     tabId,
     frameId,
     documentId,
+    url,
     stampedAt: options.now,
     expiresAt: options.now + options.maxAgeMs,
   };

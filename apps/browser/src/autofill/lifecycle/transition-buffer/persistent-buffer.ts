@@ -26,6 +26,7 @@ function isBufferedTransitionReport(value: unknown): value is BufferedTransition
     (entry.frameId === undefined || typeof entry.frameId === "number") &&
     typeof entry.documentId === "string" &&
     entry.documentId.length > 0 &&
+    (entry.url === undefined || typeof entry.url === "string") &&
     typeof entry.stampedAt === "number" &&
     Number.isFinite(entry.stampedAt) &&
     typeof entry.expiresAt === "number" &&

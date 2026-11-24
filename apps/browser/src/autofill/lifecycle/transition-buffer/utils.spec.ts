@@ -5,6 +5,7 @@ import type { BufferedTransitionReport } from "./types";
 import { registerTransition, transitionKey, validateTransition } from "./utils";
 
 const userId = "user-1" as UserId;
+const URL = "https://a.example/";
 
 function report(
   tabId: number,
@@ -13,7 +14,7 @@ function report(
   expiresAt = Number.MAX_SAFE_INTEGER,
   stampedAt = 0,
 ): BufferedTransitionReport {
-  return { userId, tabId, frameId, documentId, stampedAt, expiresAt };
+  return { userId, tabId, frameId, documentId, url: "https://a.example/", stampedAt, expiresAt };
 }
 
 describe("registerTransition", () => {
@@ -21,14 +22,17 @@ describe("registerTransition", () => {
 
   it("rejects a report without a userId", () => {
     expect(
-      registerTransition({ userId: undefined, tabId: 1, frameId: 0, documentId: "d" }, options),
+      registerTransition(
+        { userId: undefined, tabId: 1, frameId: 0, documentId: "d", url: URL },
+        options,
+      ),
     ).toBe(undefined);
   });
 
   it.each([0, -1, Number.NaN])("rejects a report whose age bound is %s", (maxAgeMs) => {
     expect(
       registerTransition(
-        { userId, tabId: 1, frameId: 0, documentId: "d" },
+        { userId, tabId: 1, frameId: 0, documentId: "d", url: URL },
         { now: 1_000, maxAgeMs },
       ),
     ).toBe(undefined);
@@ -36,42 +40,63 @@ describe("registerTransition", () => {
 
   it("rejects a report without a tabId", () => {
     expect(
-      registerTransition({ userId, tabId: undefined, frameId: 0, documentId: "d" }, options),
+      registerTransition(
+        { userId, tabId: undefined, frameId: 0, documentId: "d", url: URL },
+        options,
+      ),
     ).toBe(undefined);
   });
 
   it("rejects a report without a documentId", () => {
     expect(
-      registerTransition({ userId, tabId: 1, frameId: 0, documentId: undefined }, options),
+      registerTransition(
+        { userId, tabId: 1, frameId: 0, documentId: undefined, url: URL },
+        options,
+      ),
     ).toBe(undefined);
   });
 
   it("rejects a report with an empty documentId", () => {
-    expect(registerTransition({ userId, tabId: 1, frameId: 0, documentId: "" }, options)).toBe(
-      undefined,
-    );
+    expect(
+      registerTransition({ userId, tabId: 1, frameId: 0, documentId: "", url: URL }, options),
+    ).toBe(undefined);
   });
 
   it("stamps tab 0 and frame 0", () => {
-    expect(registerTransition({ userId, tabId: 0, frameId: 0, documentId: "d" }, options)).toEqual(
-      expect.objectContaining({ tabId: 0, frameId: 0 }),
-    );
+    expect(
+      registerTransition({ userId, tabId: 0, frameId: 0, documentId: "d", url: URL }, options),
+    ).toEqual(expect.objectContaining({ tabId: 0, frameId: 0 }));
   });
 
   it("stamps the admission time and an absolute deadline", () => {
-    expect(registerTransition({ userId, tabId: 1, frameId: 2, documentId: "d" }, options)).toEqual({
+    expect(
+      registerTransition({ userId, tabId: 1, frameId: 2, documentId: "d", url: URL }, options),
+    ).toEqual({
       userId,
       tabId: 1,
       frameId: 2,
       documentId: "d",
+      url: URL,
       stampedAt: 1_000,
       expiresAt: 1_500,
     });
   });
 
+  it("stamps a report whose tab has no URL, which selects no credential later", () => {
+    expect(
+      registerTransition(
+        { userId, tabId: 1, frameId: 0, documentId: "d", url: undefined },
+        options,
+      ),
+    ).toEqual(expect.objectContaining({ documentId: "d", url: undefined }));
+  });
+
   it("stamps a report from the top frame whose frameId is absent", () => {
     expect(
-      registerTransition({ userId, tabId: 1, frameId: undefined, documentId: "d" }, options),
+      registerTransition(
+        { userId, tabId: 1, frameId: undefined, documentId: "d", url: URL },
+        options,
+      ),
     ).toEqual(expect.objectContaining({ tabId: 1, frameId: undefined }));
   });
 });

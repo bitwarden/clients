@@ -48,7 +48,7 @@ export function resolvedTransitions(
       const subscription = new Subscription();
       subscription.add(
         resolved$.subscribe({
-          next: ({ userId, tabId, frameId, documentId, expiresAt, stampedAt }) => {
+          next: ({ userId, tabId, frameId, documentId, url, expiresAt, stampedAt }) => {
             const frames = live.get(tabId) ?? new Map<number, Live>();
             const latest = frames.get(frameKey(frameId));
             if (latest !== undefined && stampedAt < latest.stampedAt) {
@@ -64,6 +64,7 @@ export function resolvedTransitions(
               tabId,
               frameId,
               documentId,
+              url,
               expiresAt,
               cancellation: token,
             });
