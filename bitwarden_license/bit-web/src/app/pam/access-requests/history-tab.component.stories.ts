@@ -17,6 +17,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { DAY, HOUR, liveFromNow, startClockAtStoryNow } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -53,13 +54,16 @@ async function selectFilterOptions(
 }
 
 const derek = { human: { id: "approver-1", name: "derek.finnegan", email: "derek@example.com" } };
-const sam = { requesterId: "user-2", requesterName: "sam.okafor" };
+/** UUIDs, since the Requester filter converts its picks with `asUuid`. */
+const marcusId = "5d1b7a3e-8c2f-4e9a-b6d1-2f7c9e4a1b30";
+const samId = "a8e3c6f1-2b4d-4f7a-9c1e-6d5b3a2f8e17";
+const sam = { requesterId: samId, requesterName: "sam.okafor" };
 
 type Ended = { status: AccessRequestHistoryStatus; request: AccessRequestView };
 
 const ended = (status: AccessRequestHistoryStatus, overrides: Record<string, unknown>): Ended => ({
   status,
-  request: accessRequest({ requesterName: "marcus.chen", ...overrides }),
+  request: accessRequest({ requesterId: marcusId, requesterName: "marcus.chen", ...overrides }),
 });
 
 /**
@@ -124,7 +128,7 @@ function frameRequests(): Ended[] {
       decisions: [
         decision({ decider: derek, decidedAt: liveFromNow(-7 * DAY - HOUR) }),
         decision({
-          decider: { human: { id: "user-2", name: "sam.okafor", email: undefined } },
+          decider: { human: { id: samId, name: "sam.okafor", email: undefined } },
           verdict: "deny",
           decidedAt: liveFromNow(-7 * DAY),
         }),
@@ -217,6 +221,14 @@ export default {
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: DialogService,
+          useValue: {
+            open: () => ({ closed: of(undefined) }),
+            openSimpleDialog: () => Promise.resolve(false),
+          },
+        },
+        { provide: ToastService, useValue: { showToast: () => {} } },
       ],
     }),
   ],
