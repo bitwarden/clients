@@ -305,7 +305,6 @@ export default tseslint.config(
   {
     files: ["apps/browser/src/**/background/**/*.ts"],
     ignores: [
-      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
       "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
     rules: {
@@ -349,14 +348,24 @@ export default tseslint.config(
   },
   {
     files: ["apps/browser/src/autofill/**/background/**/*.ts"],
-    ignores: [
-      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
-      "apps/browser/src/**/*.spec.ts",
-    ],
+    ignores: ["apps/browser/src/**/*.spec.ts"],
     rules: {
       "no-restricted-syntax": [
         "error",
         doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+        ...fillCipherPolicySyntaxRules(),
+      ],
+    },
+  },
+  // The orchestrator is the one caller of `doAutoFill`, so this block repeats the entries of the
+  // non-background Autofill block above without `doAutoFillSyntaxRule`.
+  {
+    files: ["apps/browser/src/autofill/orchestration/default-orchestrator.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...safariAddListenerSyntaxRules(),
         unsafeAutofillTabWithCipherSyntaxRule(),
         ...fillCipherPolicySyntaxRules(),
       ],
@@ -433,15 +442,27 @@ export default tseslint.config(
     },
   },
   {
+    files: ["bitwarden_license/bit-sm/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@bitwarden/bit-sm",
+        "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
+      ]),
+    },
+  },
+  {
     files: ["apps/**/*.ts"],
     rules: {
       // Catches static imports
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
     },
   },
@@ -451,6 +472,7 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
@@ -471,6 +493,7 @@ export default tseslint.config(
         "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
@@ -486,10 +509,38 @@ export default tseslint.config(
       "no-restricted-imports": buildNoRestrictedImports([
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
+        "@bitwarden/bit-sm",
         "@bitwarden/bit-pam",
         "@bitwarden/bit-pam-components",
         "@bitwarden/bit-web/*",
+        "@bitwarden/bit-cli/*",
       ]),
+    },
+  },
+  // The browser popup's entry runs before Chrome shows the popup (see apps/browser/src/popup/main.ts),
+  // so these files may only import each other and the stylesheet. Any other import is parsed while
+  // the popup is still withheld, which brings back the blank popup this split exists to avoid.
+  {
+    files: [
+      "apps/browser/src/popup/main.ts",
+      "bitwarden_license/bit-browser/src/popup/main.ts",
+      "apps/browser/src/platform/popup/shell/popup-shell.ts",
+      "apps/browser/src/platform/browser/popup-view.ts",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              regex:
+                "^(?!(\\.\\./platform/popup/shell/popup-shell|@bitwarden/browser/platform/popup/shell/popup-shell|\\./scss|@bitwarden/browser/popup/scss|\\.\\./\\.\\./browser/popup-view)$)",
+              message:
+                "Runs before the popup is shown. Import app code from popup/bootstrap.ts instead.",
+            },
+          ],
+        },
+      ],
     },
   },
   {
@@ -768,6 +819,7 @@ export default tseslint.config(
     files: [
       "libs/**/*.ts",
       "bitwarden_license/bit-common/src/**/*.ts",
+      "bitwarden_license/bit-sm/src/**/*.ts",
       "bitwarden_license/bit-pam/src/**/*.ts",
       "bitwarden_license/bit-pam-components/src/**/*.ts",
     ],
@@ -973,7 +1025,7 @@ function doAutoFillSyntaxRule() {
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
     message:
-      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestrator.design.md for additional information.",
+      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestration/design.md for additional information.",
   };
 }
 
@@ -987,6 +1039,6 @@ function unsafeAutofillTabWithCipherSyntaxRule() {
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
     message:
-      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestration/design.md for additional information.",
   };
 }

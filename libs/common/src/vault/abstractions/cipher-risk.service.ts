@@ -4,6 +4,7 @@ import type {
   PasswordReuseMap,
 } from "@bitwarden/sdk-internal";
 
+import { RiskCategory } from "../../dirt/vault-health/models/risk-category";
 import { UserId, CipherId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -61,9 +62,22 @@ export abstract class CipherRiskService {
  * @returns true if the password is at risk, false otherwise
  */
 export function isPasswordAtRisk(risk: CipherRiskResult): boolean {
-  return (
-    (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) ||
-    (risk.reuse_count ?? 1) > 1 ||
-    risk.password_strength < 3
-  );
+  return getPasswordRiskCategory(risk) != null;
+}
+
+/**
+ * Returns the highest risk category for a password, or null when it is not at risk.
+ * Matches the vault health report's precedence: Exposed > Weak > Reused.
+ */
+export function getPasswordRiskCategory(risk: CipherRiskResult): RiskCategory | null {
+  if (risk.exposed_result.type === "Found" && risk.exposed_result.value > 0) {
+    return RiskCategory.Exposed;
+  }
+  if (risk.password_strength < 3) {
+    return RiskCategory.Weak;
+  }
+  if ((risk.reuse_count ?? 1) > 1) {
+    return RiskCategory.Reused;
+  }
+  return null;
 }

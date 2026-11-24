@@ -3,6 +3,7 @@ import {
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   extensionDurationOptions,
+  maxRequestDurationSeconds,
   pickDurationUnit,
   requestDurationOptions,
   snapToNearestAccessRuleDuration,
@@ -65,6 +66,30 @@ describe("snapToNearestAccessRuleDuration", () => {
   it("snaps an off-preset value to the nearest preset", () => {
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
+  });
+});
+
+describe("maxRequestDurationSeconds", () => {
+  const DAY = 24 * 60 * 60;
+
+  it("is the longest preset, not the one-year ceiling, for a rule with no maximum", () => {
+    expect(maxRequestDurationSeconds(365 * DAY, 60 * 60)).toBe(DAY);
+  });
+
+  it("is the rule's cap when it sits below the longest preset", () => {
+    expect(maxRequestDurationSeconds(4 * 60 * 60, 60 * 60)).toBe(4 * 60 * 60);
+  });
+
+  it("is the rule's cap when it sits between presets", () => {
+    expect(maxRequestDurationSeconds(45 * 60, 15 * 60)).toBe(45 * 60);
+  });
+
+  it("is the rule's cap when it is longer than every preset", () => {
+    expect(maxRequestDurationSeconds(7 * DAY, 60 * 60)).toBe(7 * DAY);
+  });
+
+  it("is a default longer than every preset, since the picker offers it", () => {
+    expect(maxRequestDurationSeconds(365 * DAY, 2 * DAY)).toBe(2 * DAY);
   });
 });
 

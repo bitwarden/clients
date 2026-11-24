@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "App para computador",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "App para computador $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Emparelhamento com a app inválido",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Site adicionado"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Adicionar site ou app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Eliminar site"
@@ -2434,6 +2436,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Tudo"
   },
@@ -3375,6 +3381,10 @@
   "custom": {
     "message": "Personalizado"
   },
+  "deleteSend": {
+    "message": "Eliminar Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Tem a certeza de que pretende eliminar este Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3414,34 @@
   "disabled": {
     "message": "Desativado"
   },
+  "removeAuth": {
+    "message": "Remover a verificação por palavra-passe ou e-mail"
+  },
+  "removedAuth": {
+    "message": "Verificação por palavra-passe ou e-mail removida"
+  },
+  "removeAuthConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe ou e-mail deste Send?"
+  },
   "removePassword": {
     "message": "Remover palavra-passe"
+  },
+  "removeEmailVerification": {
+    "message": "Remover a verificação por e-mail"
   },
   "removedPassword": {
     "message": "Palavra-passe removida"
   },
-  "removePasswordConfirmation": {
-    "message": "Tem a certeza de que pretende remover a palavra-passe?"
+  "removedEmailVerification": {
+    "message": "Verificação por e-mail removida"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por palavra-passe deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Tem a certeza de que pretende remover a obrigatoriedade de verificação por e-mail deste Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Número máximo de acessos atingido"
@@ -3438,7 +3468,7 @@
     "message": "Uma ou mais políticas da organização estão a afetar as suas opções do Send."
   },
   "emailVerificationRequired": {
-    "message": "Verificação de e-mail necessária"
+    "message": "Verificação por e-mail obrigatória"
   },
   "emailVerifiedV2": {
     "message": "E-mail verificado"
@@ -4153,7 +4183,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+    "message": "Foi recusada uma tentativa de início de sessão noutro dispositivo. Se foi uma tentativa sua, tente novamente iniciar sessão nesse dispositivo."
   },
   "webApp": {
     "message": "Aplicação web"
@@ -4595,6 +4625,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Importação concluída com sucesso"
+  },
+  "importConfirmationBody": {
+    "message": "Importou com sucesso $AMOUNT$ itens para o Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Importou com sucesso 1 item para o Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Dica:"
+  },
+  "importDeleteFileTip": {
+    "message": "Não se esqueça de eliminar o ficheiro $FILENAME$. Contém dados sensíveis e pode não estar encriptado.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Não se esqueça de eliminar o ficheiro de importação. Contém dados sensíveis e pode não estar encriptado."
+  },
+  "importingTitle": {
+    "message": "A importar"
+  },
+  "importingDescription": {
+    "message": "Este processo pode demorar alguns minutos."
   },
   "total": {
     "message": "Total"
@@ -5629,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Ocorreu um erro. Verifique as suas credenciais e tente novamente."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Só é possível iniciar sessão com palavra-passe."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Só é possível iniciar sessão com palavra-passe. Tente novamente ou utilize outro método de importação."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Esta conta do 1Password utiliza um método de início de sessão que não é suportado. Tente novamente ou utilize outro método de importação."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Introduza um endereço de e-mail válido ou utilize outro método de importação."
@@ -5652,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Introduza um endereço de início de sessão válido."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Encontre esta informação no seu Emergency Kit do 1Password."
   },
   "secretKeyIsRequired": {
     "message": "A chave secreta é obrigatória."
@@ -5674,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Introduza o endereço de e-mail que utiliza para iniciar sessão no 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Introduza o endereço de e-mail que utiliza para iniciar sessão no 1Password. Só é suportado o início de sessão com palavra-passe."
+  },
   "secretKey": {
     "message": "Chave secreta"
   },
@@ -5682,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Iniciar sessão com SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Aceda à página de início de sessão com SSO para concluir a importação para o Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Transferência da chave de encriptação"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Inicie sessão no 1Password e aceda a Inícios de sessão pendentes para verificar este pedido."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Esse código não funcionou. Verifique se recebeu um novo código no outro dispositivo."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "A página de início de sessão com SSO foi fechada antes de concluir o início de sessão. Tente novamente para continuar a importação."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Este dispositivo não foi aprovado no outro dispositivo. Tente novamente ou utilize outro método de importação."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Foram introduzidos demasiados códigos de verificação incorretos. Tente novamente ou utilize outro método de importação."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -5762,7 +5858,7 @@
     "message": "Método de dois fatores"
   },
   "emailVerification": {
-    "message": "Verificação de e-mail"
+    "message": "Verificação por e-mail"
   },
   "approvalEmailDesc": {
     "message": "Verifique o seu e-mail e introduza o código de verificação abaixo"
@@ -6055,7 +6151,7 @@
     "message": "Autorizar"
   },
   "deny": {
-    "message": "Rejeitar"
+    "message": "Recusar"
   },
   "sshkeyApprovalTitle": {
     "message": "Confirmar a utilização da chave SSH"
@@ -6261,12 +6357,19 @@
     "message": "Envie informações sensíveis com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Não tem Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Não foram apresentados resultados de pesquisa"
   },
   "sendsBodyNoItems": {
     "message": "Partilhe ficheiros e dados de forma segura com qualquer pessoa, em qualquer plataforma. As suas informações permanecerão encriptadas ponto a ponto, limitando a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Partilhe texto ou ficheiros em segurança com qualquer pessoa. As suas informações serão encriptadas ponto a ponto."
   },
   "sendsBodyNoSearchResults": {
     "message": "Limpe os filtros ou tente outro termo de pesquisa"
@@ -6357,6 +6460,9 @@
   },
   "itemLower": {
     "message": "item"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "itens"
@@ -6885,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Como posso gerir o meu cofre?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Transferir itens para $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfira os seus itens para $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ exige agora que todos os itens dos membros sejam propriedade da organização. Os seus itens pessoais serão movidos para uma pasta denominada Os meus itens, que só estará visível para si.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
   },
   "openTransferItemsHelpArticle": {
     "message": "Abrir artigo de ajuda sobre a transferência de itens"
@@ -7352,7 +7455,7 @@
   "makeACopy": {
     "message": "Fazer uma cópia"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
   "driversLicenseDetails": {
@@ -7758,5 +7861,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
+  },
+  "item": {
+    "message": "Item"
   }
 }

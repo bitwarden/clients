@@ -23,6 +23,10 @@ export type AuditExport = {
   detail: string;
   automated: boolean;
   incomplete: boolean;
+  /** The source IP address of the request that recorded the event; empty for a background job. */
+  ipAddress: string;
+  /** The client as the drawer names it; empty for a background job. */
+  device: string;
   requestId: string;
   /** The id support asks for; the table has no column for it. */
   leaseId: string;

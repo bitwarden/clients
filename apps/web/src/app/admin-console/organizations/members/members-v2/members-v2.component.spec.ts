@@ -8,7 +8,11 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,6 +31,7 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 
 import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
+import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
 import {
   MemberDialogManagerService,
@@ -268,6 +273,22 @@ describe("MembersV2Component", () => {
         OrganizationUserStatusType.Accepted,
         OrganizationUserStatusType.Confirmed,
         OrganizationUserStatusType.Revoked,
+      ]);
+    });
+
+    it("sorts by role in filter order", () => {
+      const rows = [
+        OrganizationUserType.Custom,
+        OrganizationUserType.Owner,
+        OrganizationUserType.Admin,
+        OrganizationUserType.User,
+      ].map((type) => member({ type }));
+
+      expect(rows.sort(component.sortByRole).map((r) => r.type)).toEqual([
+        OrganizationUserType.User,
+        OrganizationUserType.Admin,
+        OrganizationUserType.Owner,
+        OrganizationUserType.Custom,
       ]);
     });
 
@@ -584,6 +605,33 @@ describe("MembersV2Component", () => {
     });
   });
 
+  describe("status tooltip", () => {
+    beforeEach(async () => {
+      await setup({}, []);
+    });
+
+    it("explains why a revoked member was revoked", () => {
+      expect(
+        component.statusTooltip(
+          member({
+            status: OrganizationUserStatusType.Revoked,
+            revocationReason: RevocationReasonType.TwoFactorPolicyNonCompliance,
+          }),
+        ),
+      ).toBe("revocationReasonTwoFactorNonCompliance");
+    });
+
+    it("falls back to the unknown reason when none is recorded", () => {
+      expect(component.statusTooltip(member({ status: OrganizationUserStatusType.Revoked }))).toBe(
+        "revocationReasonNotLogged",
+      );
+    });
+
+    it("has no tooltip for members who aren't revoked", () => {
+      expect(component.statusTooltip(member())).toBe("");
+    });
+  });
+
   it("shows the Staged option with staged members", async () => {
     await setup({}, [member({ status: OrganizationUserStatusType.Staged })]);
 
@@ -876,6 +924,65 @@ describe("MembersV2Component", () => {
         organization,
         false,
       );
+    });
+  });
+
+  describe("read-only admin who can recover accounts", () => {
+    const enrolled = member({ id: "enrolled" as Guid, resetPasswordEnrolled: true });
+    const notEnrolled = member({ id: "not-enrolled" as Guid, resetPasswordEnrolled: false });
+    let organization: Organization;
+
+    beforeEach(async () => {
+      await setup(
+        { canManageUsers: false, canManageUsersPassword: true, useResetPassword: true },
+        [enrolled, notEnrolled],
+        {},
+        { resetPasswordPolicyEnabled: true },
+      );
+      organization = component.organization();
+      memberActionsService.allowResetPassword.mockImplementation(
+        (user) => user.resetPasswordEnrolled,
+      );
+      memberService.loadMembers.mockClear();
+    });
+
+    it("allows recovering a member who's enrolled in account recovery", () => {
+      expect(component.allowResetPassword(enrolled, organization)).toBe(true);
+      expect(memberActionsService.allowResetPassword).toHaveBeenCalledWith(
+        enrolled,
+        organization,
+        true,
+      );
+    });
+
+    it("doesn't allow recovering a member who isn't enrolled, so their row shows no action", () => {
+      expect(component.allowResetPassword(notEnrolled, organization)).toBe(false);
+    });
+
+    it("has no selection, so no checkbox column", () => {
+      expect(component.selection()).toBeUndefined();
+    });
+
+    it("opens the account recovery dialog and reloads when it succeeds", async () => {
+      memberDialogManager.openAccountRecoveryDialog.mockResolvedValue(
+        AccountRecoveryDialogResultType.Ok,
+      );
+
+      await component.resetPassword(enrolled, organization);
+
+      expect(memberDialogManager.openAccountRecoveryDialog).toHaveBeenCalledWith(
+        enrolled,
+        organization,
+      );
+      expect(memberService.loadMembers).toHaveBeenCalled();
+    });
+
+    it("doesn't reload when the account recovery dialog is dismissed", async () => {
+      memberDialogManager.openAccountRecoveryDialog.mockResolvedValue(undefined);
+
+      await component.resetPassword(enrolled, organization);
+
+      expect(memberService.loadMembers).not.toHaveBeenCalled();
     });
   });
 });

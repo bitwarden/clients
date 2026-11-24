@@ -1,6 +1,6 @@
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -8,6 +8,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { Fido2AuthenticatorErrorCode } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -75,6 +76,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let userVerificationService: MockProxy<DesktopFido2UserVerificationService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let messages$: Subject<{ command: string }>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let abortController: AbortController;
@@ -83,6 +85,12 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let deadlineController: AbortController;
 
   let session: DesktopFido2UserInterfaceSession;
+
+  /** Unlocks the vault the way the lock screen does: the status changes, then it reports the unlock. */
+  const unlockVault = () => {
+    activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+    messages$.next({ command: "unlocked" });
+  };
 
   // The desktop test environment runs on jest-environment-jsdom's bundled
   // jsdom@20, which predates the `AbortSignal.timeout`/`AbortSignal.any` statics
@@ -108,6 +116,8 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+
+    messages$ = new Subject();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
@@ -171,6 +181,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
       userVerificationService,
       passwordRepromptService,
       domainSettingsService,
+      new MessageListener(messages$),
     );
   });
 
@@ -479,15 +490,32 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
 
-    it("shows the lock UI, then navigates home once the vault unlocks", async () => {
+    it("shows the lock UI and stays on it once the vault unlocks", async () => {
       activeAccountStatus$.next(AuthenticationStatus.Locked);
 
       const result = session.ensureUnlockedVault();
       await tick();
-      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      unlockVault();
 
       await expect(result).resolves.toBeUndefined();
-      expect(router.navigate).toHaveBeenCalledWith(["/"]);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(["/lock", expect.anything()]);
+    });
+
+    it("waits for the lock screen to report the unlock before continuing", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      let settled = false;
+
+      const result = session.ensureUnlockedVault().finally(() => (settled = true));
+      await tick();
+      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+      await tick();
+
+      // Leaving the lock screen now would destroy it before it finishes the unlock.
+      expect(settled).toBe(false);
+
+      messages$.next({ command: "unlocked" });
+      await expect(result).resolves.toBeUndefined();
     });
 
     it("hides the UI and throws, logging cancellation, when aborted before unlock", async () => {
@@ -534,6 +562,40 @@ describe("DesktopFido2UserInterfaceSession", () => {
       expect(logService.warning).not.toHaveBeenCalledWith(
         "Request was cancelled before the vault was unlocked",
       );
+    });
+  });
+
+  describe("closing the window", () => {
+    const closeWindow = () => messages$.next({ command: "modalWindowClosed" });
+
+    it("cancels a ceremony waiting on the lock screen", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+
+      const result = session.ensureUnlockedVault();
+      await tick();
+      closeWindow();
+
+      await expect(result).rejects.toThrow("Could not retrieve vault unlock status");
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
+    });
+
+    it("does not cancel a ceremony that is not showing UI", async () => {
+      closeWindow();
+
+      expect(abortController.signal.aborted).toBe(false);
+    });
+
+    it("does not cancel once the ceremony has hidden its UI", async () => {
+      activeAccountStatus$.next(AuthenticationStatus.Locked);
+      const result = session.ensureUnlockedVault();
+      await tick();
+      unlockVault();
+      await result;
+      await session.hideUi();
+
+      closeWindow();
+
+      expect(abortController.signal.aborted).toBe(false);
     });
   });
 
@@ -850,7 +912,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         await expect(pickSingleCredential()).resolves.toEqual({
@@ -910,7 +972,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
         const unlocked = session.ensureUnlockedVault();
         await tick();
-        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        unlockVault();
         await unlocked;
 
         const result = session.confirmNewCredential(confirmNewCredentialParams);
