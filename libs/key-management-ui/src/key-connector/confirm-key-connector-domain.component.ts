@@ -3,6 +3,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -13,7 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
   BitActionDirective,
@@ -36,11 +37,19 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
   keyConnectorUrl!: string;
   keyConnectorHostName!: string;
   organizationName: string | undefined;
+  organizationSsoIdentifier!: string;
   userId!: UserId;
 
+  /**
+   * Runs after the conversion and before the navigation to the vault.
+   *
+   * @param organizationInviteAccepted Whether we told the server to accept the organization
+   *   invite. `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this decision.
+   */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() onBeforeNavigation: () => Promise<void> = async () => {};
+  @Input() onBeforeNavigation: (organizationInviteAccepted: boolean) => Promise<void> =
+    async () => {};
 
   constructor(
     private router: Router,
@@ -54,6 +63,7 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
     private i18nService: I18nService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private logoutService: LogoutService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -76,6 +86,7 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
       return;
     }
 
+    this.organizationSsoIdentifier = confirmation.organizationSsoIdentifier;
     this.organizationName = await this.getOrganizationName(confirmation.organizationSsoIdentifier);
 
     // PM-29133 Remove during cleanup.
@@ -91,7 +102,14 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
   }
 
   confirm = async () => {
-    await this.keyConnectorService.convertNewSsoUserToKeyConnector(this.userId);
+    const autoEnrollStatus = await this.organizationApiService.getAutoEnrollStatus(
+      this.organizationSsoIdentifier,
+    );
+    const organizationInviteAccepted =
+      await this.keyConnectorService.convertNewSsoUserToKeyConnector(
+        this.userId,
+        autoEnrollStatus.id as OrganizationId,
+      );
 
     if (this.organizationName) {
       this.toastService.showToast({
@@ -105,17 +123,20 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
         message: this.i18nService.t("domainVerified"),
       });
     }
-    // Server accepts a JIT provisioned org user if org user exists and is invited
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("inviteAccepted"),
-    });
+    // We tell the server not to accept an open invite for this organization, so the organization
+    // user stays Invited. Show the toast only when we told the server to accept the invite.
+    if (organizationInviteAccepted) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("inviteAccepted"),
+      });
+    }
 
     await this.syncService.fullSync(true);
 
     this.messagingService.send("loggedIn");
 
-    await this.onBeforeNavigation();
+    await this.onBeforeNavigation(organizationInviteAccepted);
 
     await this.router.navigate(["/"]);
   };

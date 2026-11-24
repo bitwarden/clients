@@ -3,6 +3,7 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogService, ToastModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -33,6 +34,8 @@ const POPULATED: AuditRow = {
   accessConnectorName: null,
   detail:
     "Approved ahead of the scheduled window after the on-call engineer confirmed the primary replica had not recovered, on the understanding that the credential would be surrendered as soon as failover completed.",
+  ipAddress: "2001:db8:85a3::8a2e:370:7334",
+  deviceType: DeviceType.ChromeBrowser,
   automated: false,
   inDoubt: false,
   requestId: "3a9d5f74-2c18-4c6b-9f0d-71b8e4a2c6d5",
@@ -61,6 +64,8 @@ const BARE: AuditRow = {
   targetSystemName: null,
   accessConnectorName: null,
   detail: null,
+  ipAddress: null,
+  deviceType: null,
   automated: true,
   inDoubt: true,
   requestId: null,

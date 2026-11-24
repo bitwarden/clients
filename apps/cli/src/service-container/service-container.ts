@@ -35,17 +35,14 @@ import {
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
 } from "@bitwarden/common/auth/login-via-auth-request";
-import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
-import {
-  AccountServiceImplementation,
-  getUserId,
-} from "@bitwarden/common/auth/services/account.service";
+import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -54,6 +51,11 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   DefaultTwoFactorService,
@@ -81,7 +83,6 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/servic
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -253,6 +254,9 @@ import {
   DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
+import { CliLogoutService } from "../auth/logout/cli-logout.service";
+import { createLogoutCallback } from "../auth/logout/create-logout-callback";
+import { DeferredLogoutService } from "../auth/logout/deferred-logout.service";
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
@@ -340,6 +344,8 @@ export class ServiceContainer {
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationService;
   pinService: PinServiceAbstraction;
   stateService: StateService;
@@ -394,6 +400,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  logoutService: LogoutService;
   unlockService: UnlockService;
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
@@ -418,7 +425,9 @@ export class ServiceContainer {
       p = path.join(process.env.HOME ?? "", ".config/Bitwarden CLI");
     }
 
-    const logoutCallback = async () => await this.logout();
+    // CliLogoutService depends on services that themselves need a LogoutService, so those
+    // services receive this deferred instance, which resolves this.logoutService at logout time.
+    const logoutService = new DeferredLogoutService(() => this.logoutService);
 
     this.platformUtilsService = new CliPlatformUtilsService(ClientType.Cli, packageJson);
     this.logService = new ConsoleLogService(
@@ -482,6 +491,7 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
+    const logoutCallback = createLogoutCallback(logoutService, this.accountService);
 
     const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
 
@@ -595,7 +605,6 @@ export class ServiceContainer {
       () => this.keyService,
       this.logService,
       this.ipcService,
-      () => this.configService,
     );
 
     this.keyService = new KeyService(
@@ -818,6 +827,15 @@ export class ServiceContainer {
       this.sendPasswordService,
     );
 
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+      this.registerSdkService,
+      this.configService,
+      this.globalStateProvider,
+    );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -829,7 +847,8 @@ export class ServiceContainer {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      this.registerSdkService,
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
@@ -1031,11 +1050,6 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(
-      this.messagingService,
-      this.logService,
-      this.sdkService,
-    );
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1179,6 +1193,20 @@ export class ServiceContainer {
       this.taskSchedulerService,
     );
 
+    this.logoutService = new CliLogoutService(
+      this.authService,
+      this.accountService,
+      this.eventUploadService,
+      this.keyService,
+      this.cipherService,
+      this.folderService,
+      this.stateEventRunnerService,
+      this.stateService,
+      this.tokenService,
+      this.logService,
+      this.sdkService,
+    );
+
     this.eventCollectionService = new EventCollectionService(
       this.cipherService,
       this.stateProvider,
@@ -1220,27 +1248,6 @@ export class ServiceContainer {
     );
   }
 
-  async logout() {
-    this.authService.logOut(() => {
-      /* Do nothing */
-    });
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await Promise.all([
-      this.eventUploadService.uploadEvents(userId as UserId),
-      this.keyService.clearKeys(userId),
-      this.cipherService.clear(userId),
-      this.folderService.clear(userId),
-    ]);
-
-    await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
-
-    await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearTokens(userId);
-    await this.accountService.clean(userId as UserId);
-    await this.accountService.switchAccount(null);
-    process.env.BW_SESSION = undefined;
-  }
-
   async init() {
     if (this.inited) {
       this.logService.warning("ServiceContainer.init called more than once");
@@ -1280,17 +1287,12 @@ export class ServiceContainer {
   }
 
   /**
-   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy. Skipped
-   * entirely when the flag is off, so an unflagged CLI never starts a proxy process.
+   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy.
    *
    * Desktop IPC is optional: commands that do not use desktop integration must continue
    * to work when the desktop app is unavailable or incompatible.
    */
   private async connectToDesktop(): Promise<void> {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC))) {
-      return;
-    }
-
     try {
       const desktopVersion = await this.ipcService.verifyDesktopConnection();
       this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);

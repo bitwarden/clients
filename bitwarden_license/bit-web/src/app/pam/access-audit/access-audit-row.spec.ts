@@ -1,4 +1,8 @@
+import { DeviceType } from "@bitwarden/common/enums";
+import { I18nMockService } from "@bitwarden/components";
+
 import {
+  auditDeviceLabel,
   auditPresetRange,
   auditRangeEnd,
   auditRangeStart,
@@ -225,6 +229,61 @@ describe("toAuditRow", () => {
     expect(result.duration).toBeNull();
     expect(result.exactWindow).toBeNull();
     expect(result.extendedUntil).toBeNull();
+  });
+
+  it("carries the source of the request that recorded an automatic approval", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.RequestApproved,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: true,
+      IpAddress: "10.0.0.5",
+      DeviceType: DeviceType.ChromeExtension,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
+
+    expect(result.ipAddress).toBe("10.0.0.5");
+    expect(result.deviceType).toBe(DeviceType.ChromeExtension);
+  });
+
+  it("carries no source for an event a background job recorded", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseExpired,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: true,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
+
+    expect(result.ipAddress).toBeNull();
+    expect(result.deviceType).toBeNull();
+  });
+});
+
+describe("auditDeviceLabel", () => {
+  const i18nService = new I18nMockService({
+    extension: "Extension",
+    webApp: "Web app",
+    server: "Server",
+    unknown: "Unknown",
+  });
+
+  it.each([
+    [DeviceType.ChromeExtension, "Extension - Chrome"],
+    [DeviceType.UnknownBrowser, "Web app - Unknown"],
+    [DeviceType.Server, "Server"],
+  ])("names device type %s as %s", (deviceType, expected) => {
+    expect(auditDeviceLabel(deviceType, i18nService)).toBe(expected);
+  });
+
+  it("names a device type this client does not know as unknown", () => {
+    expect(auditDeviceLabel(255 as DeviceType, i18nService)).toBe("Unknown");
+  });
+
+  it("returns null when the event recorded no device", () => {
+    expect(auditDeviceLabel(null, i18nService)).toBeNull();
   });
 });
 
