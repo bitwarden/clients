@@ -7,6 +7,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
+import { ExternalCheckoutPremiumUpgradeNudgeService } from "@bitwarden/angular/billing/services/external-checkout-premium-upgrade-nudge.service";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -29,7 +30,6 @@ import {
   AUTO_CONFIRM_NUDGE_SERVICE,
   AutoConfirmNudgeService,
 } from "@bitwarden/angular/vault";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   LoginComponentService,
   TwoFactorAuthComponentService,
@@ -78,6 +78,7 @@ import {
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs/abstractions/event-upload.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
@@ -917,6 +918,11 @@ const safeProviders: SafeProvider[] = [
     deps: [CipherService, ApiService, BillingAccountProfileStateService],
   }),
   safeProvider({
+    provide: PremiumUpgradeNudgeService,
+    useClass: ExternalCheckoutPremiumUpgradeNudgeService,
+    deps: [],
+  }),
+  safeProvider({
     provide: NewDeviceVerificationComponentService,
     useClass: ExtensionNewDeviceVerificationComponentService,
     deps: [],
@@ -939,7 +945,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AUTOFILL_NUDGE_SERVICE as SafeInjectionToken<BrowserAutofillNudgeService>,
     useClass: BrowserAutofillNudgeService,
-    deps: [StateProvider, VaultProfileService, LogService],
+    deps: [StateProvider, AccountService],
   }),
   safeProvider({
     provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,

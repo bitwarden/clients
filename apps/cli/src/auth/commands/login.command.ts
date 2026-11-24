@@ -14,6 +14,7 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     protected encryptedMigrator: EncryptedMigrator,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -377,7 +379,9 @@ export class LoginCommand {
         const command = new ConfirmKeyConnectorDomainCommand(
           response.userId,
           domainConfirmation.keyConnectorUrl,
+          domainConfirmation.organizationSsoIdentifier,
           this.keyConnectorService,
+          this.organizationApiService,
           this.logoutService,
           this.i18nService,
         );

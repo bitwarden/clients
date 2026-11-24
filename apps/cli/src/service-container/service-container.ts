@@ -51,6 +51,11 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import {
   DefaultTwoFactorService,
@@ -78,7 +83,6 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/servic
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -340,6 +344,8 @@ export class ServiceContainer {
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationService;
   pinService: PinServiceAbstraction;
   stateService: StateService;
@@ -599,7 +605,6 @@ export class ServiceContainer {
       () => this.keyService,
       this.logService,
       this.ipcService,
-      () => this.configService,
     );
 
     this.keyService = new KeyService(
@@ -822,6 +827,15 @@ export class ServiceContainer {
       this.sendPasswordService,
     );
 
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+      this.registerSdkService,
+      this.configService,
+      this.globalStateProvider,
+    );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
+    );
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
@@ -833,7 +847,8 @@ export class ServiceContainer {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      this.registerSdkService,
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
@@ -1272,17 +1287,12 @@ export class ServiceContainer {
   }
 
   /**
-   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy. Skipped
-   * entirely when the flag is off, so an unflagged CLI never starts a proxy process.
+   * Opens SDK IPC to the desktop app, which spawns its native-messaging proxy.
    *
    * Desktop IPC is optional: commands that do not use desktop integration must continue
    * to work when the desktop app is unavailable or incompatible.
    */
   private async connectToDesktop(): Promise<void> {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.BiometricsSDKIPC))) {
-      return;
-    }
-
     try {
       const desktopVersion = await this.ipcService.verifyDesktopConnection();
       this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);

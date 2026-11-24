@@ -130,7 +130,14 @@ describe("VaultHeaderComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         {
           provide: Vfo1TerminologyService,
-          useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
+          useValue: {
+            iconClass: (icon: string) => icon,
+            enabled: () => vfo1Enabled,
+            collectionQueryParams: (id: string | undefined) =>
+              vfo1Enabled
+                ? { sharedFolderId: id ?? null, collectionId: null }
+                : { collectionId: id ?? null, sharedFolderId: null },
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -207,6 +214,37 @@ describe("VaultHeaderComponent", () => {
     it("is false when collectionId equals All", () => {
       setInputs({ filter: { organizationId: orgId, collectionId: All } });
       expect((component as any).showBreadcrumbs()).toBe(false);
+    });
+  });
+
+  describe("showFullNestingBreadcrumbs", () => {
+    it("is false when the VFO1 flag is off, leaving the legacy breadcrumbs in place", () => {
+      setInputs({ filter: { organizationId: orgId, collectionId: "col-1" as any } });
+      expect((component as any).showFullNestingBreadcrumbs()).toBe(false);
+      expect((component as any).showBreadcrumbs()).toBe(true);
+    });
+
+    it("is true when the VFO1 flag is on and a collection is in view", () => {
+      vfo1Enabled = true;
+      setInputs({ filter: { organizationId: orgId, collectionId: "col-1" as any } });
+      expect((component as any).showFullNestingBreadcrumbs()).toBe(true);
+    });
+
+    it("is false when the VFO1 flag is on but no collection is in view", () => {
+      vfo1Enabled = true;
+      setInputs({ filter: { organizationId: orgId } });
+      expect((component as any).showFullNestingBreadcrumbs()).toBe(false);
+    });
+  });
+
+  describe("orgRootQueryParams", () => {
+    it("clears the shared folder param when the VFO1 flag is on", () => {
+      vfo1Enabled = true;
+      setInputs({});
+      expect((component as any).orgRootQueryParams()).toEqual({
+        collectionId: null,
+        sharedFolderId: null,
+      });
     });
   });
 

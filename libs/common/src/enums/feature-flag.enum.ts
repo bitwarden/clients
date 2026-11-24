@@ -57,7 +57,6 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
@@ -188,7 +187,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,

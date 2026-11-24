@@ -7,6 +7,7 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -104,6 +105,7 @@ describe("LoginCommand", () => {
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let encryptedMigrator: MockProxy<EncryptedMigrator>;
+  let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
 
   // Env var snapshot for save/restore
   const savedEnv: Record<string, string | undefined> = {};
@@ -139,6 +141,7 @@ describe("LoginCommand", () => {
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     encryptedMigrator = mock<EncryptedMigrator>();
+    organizationApiService = mock<OrganizationApiServiceAbstraction>();
 
     // Session key is generated via the SDK: SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key()).
     // Stub the SDK load gate and key generation so validatedParams() produces a deterministic session key.
@@ -183,6 +186,7 @@ describe("LoginCommand", () => {
       masterPasswordService,
       userDecryptionOptionsService,
       encryptedMigrator,
+      organizationApiService,
     );
   });
 

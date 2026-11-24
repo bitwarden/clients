@@ -20,7 +20,6 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -45,7 +44,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderService } from "@bitwarden/common/provider";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -104,13 +103,12 @@ import { VaultComponent } from "./vault.component";
 @Component({
   selector: "app-test-gated-collection-banner",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span data-testid="gated-collection-banner"
-    >{{ organizationId() }}/{{ collectionId() }}</span
-  >`,
+  template: `<span data-testid="gated-collection-banner">{{
+    collection()?.hasEnabledAccessRule
+  }}</span>`,
 })
 class TestGatedCollectionBannerComponent implements VaultGatedCollectionBanner {
-  readonly organizationId = input<OrganizationId | undefined>(undefined);
-  readonly collectionId = input<CollectionId | undefined>(undefined);
+  readonly collection = input<{ hasEnabledAccessRule?: boolean } | null | undefined>(undefined);
 }
 
 const TEST_CIPHER_ID = "test-cipher-id";
@@ -296,10 +294,6 @@ describe("VaultComponent", () => {
             organizations$: of([]),
             providers$: of([]),
           },
-        },
-        {
-          provide: VaultProfileService,
-          useValue: { getProfileCreationDate: jest.fn().mockResolvedValue(new Date()) },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -501,13 +495,14 @@ describe("VaultComponent", () => {
       fixture.detectChanges();
     }
 
-    it("mounts the host's banner with the selected collection's organization and id", () => {
+    it("mounts the host's banner with the selected collection", () => {
       // `canEdit`/`canDelete` are here only because the same node feeds `app-vault-header` too.
       selectCollection(
         new TreeNode(
           {
             id: "collection-1",
             organizationId: "org-1",
+            hasEnabledAccessRule: true,
             canEdit: () => false,
             canDelete: () => false,
           } as any,
@@ -515,7 +510,7 @@ describe("VaultComponent", () => {
         ),
       );
 
-      expect(banner()?.textContent).toBe("org-1/collection-1");
+      expect(banner()?.textContent).toBe("true");
     });
 
     it("mounts nothing while no single collection is the active filter", () => {
