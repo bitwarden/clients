@@ -16,7 +16,7 @@ export type AutomationWorkflow = (typeof AutomationWorkflow)[keyof typeof Automa
  * A background-validated automated-login workflow frame reporting readiness for its next
  * fill-and-submit step. Distinct from a raw page transition: it asserts an automation is
  * *progressing*, and carries the workflow identity (stamped by the validating background, never by
- * the frame). See `lifecycle.design.md`.
+ * the frame). See `lifecycle/design.md`.
  */
 export type AutomatedLoginStepReady = Readonly<{
   tab: chrome.tabs.Tab;
@@ -52,7 +52,7 @@ export type AutoSubmitInvalidated =
 
 /**
  * A page transition reconciled against monitoring — the *Resolved* state of the
- * buffering state machine (see `lifecycle.design.md`).
+ * buffering state machine (see `lifecycle/design.md`).
  */
 export type PageTransitionResolved = Readonly<{
   tab: chrome.tabs.Tab;
@@ -74,7 +74,7 @@ export type PageTransitionResolved = Readonly<{
  * Owns the autofill monitoring lifecycle in the extension. Tracks which
  * injected frames are live, commanding them to start and stop monitoring as
  * login state changes, and buffering page-transition reports until the frame
- * they target is monitoring. See `lifecycle.design.md` for the full design.
+ * they target is monitoring. See `lifecycle/design.md` for the full design.
  */
 export abstract class AutofillLifecycleService {
   /**
