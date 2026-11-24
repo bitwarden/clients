@@ -1,3 +1,5 @@
+import { TargetSource } from "../enums";
+
 import {
   CipherSource,
   FillEffectKind,
@@ -6,7 +8,6 @@ import {
   LoginChoice,
   PageSource,
   RepromptAction,
-  TargetSource,
 } from "./enums";
 import type { CommitPlan, FillPlan } from "./types";
 

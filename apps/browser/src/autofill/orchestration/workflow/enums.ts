@@ -11,20 +11,6 @@ export const FillRequestKind = Object.freeze({
 } as const);
 export type FillRequestKind = (typeof FillRequestKind)[keyof typeof FillRequestKind];
 
-/**
- * Where a fill's target comes from. `User` and `Policy` both take the tab the fill request carries;
- * they name who started the fill, for traceability.
- */
-export const TargetSource = Object.freeze({
-  /** The report the fill request carries. */
-  Reported: "reported",
-  /** The tab the fill request carries, for a fill the user started. */
-  User: "user",
-  /** The tab the fill request carries, for a fill a policy started. */
-  Policy: "policy",
-} as const);
-export type TargetSource = (typeof TargetSource)[keyof typeof TargetSource];
-
 /** Where a fill's page comes from. */
 export const PageSource = Object.freeze({
   /** The page collected from the target. */

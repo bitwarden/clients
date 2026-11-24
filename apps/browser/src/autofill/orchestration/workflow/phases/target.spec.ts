@@ -1,8 +1,8 @@
 import type { LiveFrame } from "../../../lifecycle/transition-buffer";
 import { NEVER_CANCEL } from "../../../utils/cancellation";
+import { TargetSource } from "../../enums";
 import { AUTOFILL_DENIED, AUTOFILL_INVALID } from "../../utils";
 import type { FillRequest, FillTarget } from "../context";
-import { TargetSource } from "../enums";
 import {
   fakeServices,
   FRAME_DOCUMENT,

@@ -1,10 +1,11 @@
+import { TargetSource } from "../enums";
+
 import {
   CipherSource,
   FillEffectKind,
   FillReattempt,
   FillRequestKind,
   RepromptAction,
-  TargetSource,
 } from "./enums";
 import * as plans from "./plans";
 import { commitAllowsInactiveTab, FillPlans } from "./plans";

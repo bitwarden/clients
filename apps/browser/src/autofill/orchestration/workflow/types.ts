@@ -3,6 +3,7 @@ import type { Observable } from "rxjs";
 import type { AutofillOutcome } from "../../enums/autofill-outcome.enum";
 import type { AutoFillOptions } from "../../services/abstractions/autofill.service";
 import type { CancellationToken } from "../../utils/cancellation";
+import type { TargetSource } from "../enums";
 import type { FillOccurred, FillResult } from "../types";
 
 import type {
@@ -23,7 +24,6 @@ import type {
   LoginChoice,
   PageSource,
   RepromptAction,
-  TargetSource,
 } from "./enums";
 import type { ActiveTabOptOut } from "./plans";
 

@@ -1,8 +1,9 @@
 import { TransitionValidity, validateTransition } from "../../../lifecycle/transition-buffer";
+import { TargetSource } from "../../enums";
 import type { FillResult } from "../../types";
 import { AUTOFILL_DENIED } from "../../utils";
 import type { FillRequest, FillTarget, ReportedDocument, Targeted } from "../context";
-import { FillRequestKind, TargetSource } from "../enums";
+import { FillRequestKind } from "../enums";
 import type { FillServices } from "../services";
 import type { FillPhase, TargetPlan } from "../types";
 

@@ -15,7 +15,6 @@ export {
   LoginChoice,
   PageSource,
   RepromptAction,
-  TargetSource,
 } from "./enums";
 export { fillWorkflow } from "./fill-workflow";
 export { FillPlans } from "./plans";

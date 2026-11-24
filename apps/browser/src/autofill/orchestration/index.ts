@@ -1,5 +1,6 @@
 export { AutofillOrchestrator } from "./abstractions";
 export { DefaultAutofillOrchestrator } from "./default-orchestrator";
+export { TargetSource } from "./enums";
 export type { FillCancelled, FillDenied, FillInvalid, FillOccurred, FillResult } from "./types";
 export {
   AUTOFILL_ABSENT,
