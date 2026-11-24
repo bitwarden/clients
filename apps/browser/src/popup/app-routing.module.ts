@@ -1,3 +1,4 @@
+import { HashLocationStrategy, LocationStrategy } from "@angular/common";
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
@@ -55,6 +56,7 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
+import { safeProvider } from "@bitwarden/ui-common";
 import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
@@ -84,6 +86,10 @@ import {
 import { PhishingWarningComponent } from "../dirt/phishing-detection/popup/phishing-warning.component";
 import { ProtectedByComponent } from "../dirt/phishing-detection/popup/protected-by-component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
+import {
+  needsSafariPopupLocationStrategy,
+  SafariPopupLocationStrategy,
+} from "../platform/popup/services/safari-popup-location-strategy";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { RouteCacheOptions } from "../platform/services/popup-view-cache-background.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
@@ -992,6 +998,16 @@ export class NoRouteReuseStrategy implements RouteReuseStrategy {
     }),
   ],
   exports: [RouterModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: NoRouteReuseStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: NoRouteReuseStrategy },
+    // Overrides the HashLocationStrategy that `useHash` registers, but only in the Safari popup.
+    safeProvider({
+      provide: LocationStrategy,
+      useClass: needsSafariPopupLocationStrategy(window)
+        ? SafariPopupLocationStrategy
+        : HashLocationStrategy,
+      useAngularDecorators: true,
+    }),
+  ],
 })
 export class AppRoutingModule {}
