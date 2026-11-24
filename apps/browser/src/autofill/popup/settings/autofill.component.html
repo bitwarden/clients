@@ -280,20 +280,18 @@
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
-          @if (fillAssistFeatureEnabled$ | async) {
-            <bit-form-control>
-              <input
-                formControlName="enableFillAssist"
-                bitCheckbox
-                id="fill-assist"
-                type="checkbox"
-              />
-              <bit-label for="fill-assist">
-                {{ "activateFillAssistV2" | i18n }}
-                <autofill-fill-assist-popover></autofill-fill-assist-popover>
-              </bit-label>
-            </bit-form-control>
-          }
+          <bit-form-control>
+            <input
+              formControlName="enableFillAssist"
+              bitCheckbox
+              id="fill-assist"
+              type="checkbox"
+            />
+            <bit-label for="fill-assist">
+              {{ "activateFillAssistV2" | i18n }}
+              <autofill-fill-assist-popover></autofill-fill-assist-popover>
+            </bit-label>
+          </bit-form-control>
           @if (bitwardenAutofillAttributesSettingsAreAvailable) {
             <bit-form-control>
               <input

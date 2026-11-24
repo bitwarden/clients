@@ -27,7 +27,6 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
   FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -124,7 +123,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,

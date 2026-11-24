@@ -133,9 +133,6 @@ export class AutofillComponent implements OnInit {
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;
-  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.FillAssistTargetingRules,
-  );
   /** Safari cannot answer HTTP auth challenges from an extension, so the setting is never offered there. */
   protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
     this.platformUtilsService.isSafari()
