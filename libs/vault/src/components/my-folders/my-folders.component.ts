@@ -1,5 +1,6 @@
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -10,6 +11,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -23,6 +25,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
+  AutofocusDirective,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -79,6 +82,7 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
+    AutofocusDirective,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
@@ -101,6 +105,9 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
   ],
 })
 export class MyFoldersComponent {
+  /** Focuses the search field when the table first renders. */
+  readonly autofocusSearch = input(false, { transform: booleanAttribute });
+
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly dialogService = inject(DialogService);

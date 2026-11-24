@@ -81,6 +81,12 @@ describe("VaultListTableComponent", () => {
     await setup();
   });
 
+  it("autofocuses the table search", () => {
+    fixture.detectChanges();
+    const table = fixture.debugElement.query(By.css("vault-items-table")).nativeElement;
+    expect(table.hasAttribute("autofocusSearch")).toBe(true);
+  });
+
   describe("itemAction", () => {
     it("emits a viewCipher event for any cipher", () => {
       const cipher = cipherView();

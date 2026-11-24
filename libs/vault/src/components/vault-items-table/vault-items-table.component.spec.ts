@@ -733,6 +733,28 @@ describe("VaultItemsTableComponent", () => {
    * asynchronously. These drive the real service through the search box rather than the predicate,
    * so what they assert is the behavior a client's own vault search has.
    */
+  describe("autofocusSearch", () => {
+    function searchInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css("bit-search input")).nativeElement;
+    }
+
+    async function render(): Promise<void> {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    it("does not focus the search by default", async () => {
+      await render();
+      expect(document.activeElement).not.toBe(searchInput());
+    });
+
+    it("focuses the search when set", async () => {
+      fixture.componentRef.setInput("autofocusSearch", true);
+      await render();
+      expect(document.activeElement).toBe(searchInput());
+    });
+  });
+
   describe("search", () => {
     /** A login carrying a URI and a username, the fields only `SearchService` reaches. */
     function loginCipher(overrides: Partial<CipherView> = {}): CipherView {
