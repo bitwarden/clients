@@ -12,7 +12,13 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+  StoryObj,
+} from "@storybook/angular";
 import { filter as rxFilter, map } from "rxjs";
 import { screen, userEvent, within } from "storybook/test";
 
@@ -37,7 +43,6 @@ import { mockLayoutI18n } from "../../layout/mocks";
 import { PopoverComponent, PopoverModule, PopoverRef, PopoverService } from "../../popover";
 import { SearchModule } from "../../search";
 import { SkeletonTextComponent } from "../../skeleton";
-import { positionFixedWrapperDecorator } from "../../stories/storybook-decorators";
 import { TypographyModule } from "../../typography";
 import { I18nMockService, StorybookGlobalStateProvider, StorybookStateProvider } from "../../utils";
 
@@ -1142,10 +1147,22 @@ class DemoBoundedWidthsTableComponent {
   protected readonly typeName = typeLabel;
 }
 
+/**
+ * A transform pins `position: fixed` children to the frame; 7rem is the preview's vertical padding.
+ * The inner element scrolls so the pinned bar stays put. `bit-layout` fills the frame.
+ */
+const tableFrameDecorator = componentWrapperDecorator(
+  (story) => /* HTML */ `
+    <div class="tw-scale-100 tw-h-[calc(100vh-7rem)]">
+      <div class="tw-relative tw-h-full tw-overflow-auto [&_bit-layout]:tw-h-full">${story}</div>
+    </div>
+  `,
+);
+
 export default {
   title: "Component Library/Table V2",
   decorators: [
-    positionFixedWrapperDecorator(undefined, { border: false }),
+    tableFrameDecorator,
     moduleMetadata({
       imports: [
         BitTableV2Component,
@@ -1202,7 +1219,7 @@ export default {
           useFactory: () =>
             new I18nMockService({
               ...mockLayoutI18n,
-              selected: "selected",
+              selectedLowercase: "selected",
               selectionCleared: "Selection cleared",
               clear: "Clear",
               bulkActionsBar: "Bulk actions",
@@ -2397,6 +2414,43 @@ export const Pagination: Story = {
       </bit-table-v2>
     `,
   }),
+};
+
+/**
+ * With a paginator, select-all takes only the current page. Selections on other pages are kept, so
+ * the bar's count is the total across pages.
+ */
+export const PaginatedSelection: Story = {
+  render: () => ({
+    props: {
+      table: paginatedTable,
+      selection: { multiple: true },
+      noop: () => {
+        /* story noop */
+      },
+    },
+    template: `
+      <bit-table-v2 [tableDef]="table" [selection]="selection">
+        <bit-bulk-actions-bar>
+          <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+          <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
+        </bit-bulk-actions-bar>
+        <bit-column>
+          <bit-header-cell>Id</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]"></bit-table-paginator>
+      </bit-table-v2>
+    `,
+  }),
+  play: async ({ canvas }) => {
+    const selectAll = await canvas.findByRole("checkbox", { name: "Select all rows" });
+    await userEvent.click(selectAll);
+  },
 };
 
 const rangeLabelTable = defineTable<DemoRow>(
