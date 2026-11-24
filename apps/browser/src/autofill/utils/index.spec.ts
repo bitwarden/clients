@@ -7,6 +7,7 @@ import {
   buildSvgDomElement,
   debounce,
   generateRandomCustomElementName,
+  isIdentifiedTab,
   isReadonlyOrDisabledFormFieldElement,
   isSubFramePositioningMessageData,
   sendExtensionMessage,
@@ -402,5 +403,16 @@ describe("isSubFramePositioningMessageData", () => {
     ],
   ])("returns false when subFrameData %s", (_label, subFrameData) => {
     expect(isSubFramePositioningMessageData({ subFrameData })).toBe(false);
+  });
+});
+
+describe("isIdentifiedTab", () => {
+  it.each<[string, boolean, chrome.tabs.Tab | undefined]>([
+    ["a tab with an id", true, { id: 4 } as chrome.tabs.Tab],
+    ["a tab with id 0", true, { id: 0 } as chrome.tabs.Tab],
+    ["a tab without an id", false, {} as chrome.tabs.Tab],
+    ["no tab", false, undefined],
+  ])("says whether the browser identified it, for %s: %p", (_, expected, tab) => {
+    expect(isIdentifiedTab(tab)).toBe(expected);
   });
 });

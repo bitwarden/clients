@@ -4,7 +4,21 @@ import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
 import type { SubFrameOffsetWindowMessageData } from "../services/abstractions/autofill-overlay-content.service";
-import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
+import type {
+  FillableFormFieldElement,
+  FormElementWithAttribute,
+  FormFieldElement,
+  IdentifiedTab,
+} from "../types";
+
+/**
+ * Whether the browser has given the tab an id.
+ *
+ * @param tab - The tab to check; `undefined` has no id.
+ */
+export function isIdentifiedTab(tab: chrome.tabs.Tab | undefined): tab is IdentifiedTab {
+  return tab?.id != null;
+}
 
 /**
  * Generates a random string of characters.
