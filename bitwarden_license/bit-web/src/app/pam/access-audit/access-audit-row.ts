@@ -1,4 +1,6 @@
 import { durationText, exactWindow } from "@bitwarden/bit-pam";
+import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import {
   AccessAuditEventKind,
@@ -34,6 +36,13 @@ export type AuditRow = {
   accessConnectorName: string | null;
   /** An approver comment or a revoke reason. */
   detail: string | null;
+  /**
+   * The source IP address of the request that recorded the event. On an automatic approval it is
+   * the requester's, the address an IP allowlist was checked against. Null for a background job.
+   */
+  ipAddress: string | null;
+  /** The client of the request that recorded the event; null for a background job. */
+  deviceType: DeviceType | null;
   /** True for a system event, such as an expiry or an automatic decision. */
   automated: boolean;
   /** Only the write-ahead attempt was recorded, so the action may not have completed. */
@@ -64,6 +73,8 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.LeaseExpired]: "pamAuditKindAccessExpired",
   [AccessAuditEventKind.CredentialAccessed]: "pamAuditKindCredentialAccessed",
   [AccessAuditEventKind.CredentialAccessDenied]: "pamAuditKindCredentialAccessDenied",
+  [AccessAuditEventKind.CredentialUngated]: "pamAuditKindCredentialUngated",
+  [AccessAuditEventKind.VaultExported]: "pamAuditKindVaultExported",
   [AccessAuditEventKind.RuleCreated]: "pamAuditKindRuleCreated",
   [AccessAuditEventKind.RuleUpdated]: "pamAuditKindRuleUpdated",
   [AccessAuditEventKind.RuleDeleted]: "pamAuditKindRuleDeleted",
@@ -179,6 +190,8 @@ export function toAuditRow(
     targetSystemName: event.targetSystemName,
     accessConnectorName: event.accessConnectorName,
     detail: event.detail,
+    ipAddress: event.ipAddress,
+    deviceType: event.deviceType,
     automated: event.automated,
     inDoubt: event.incomplete,
     requestId: event.requestId,
@@ -187,6 +200,26 @@ export function toAuditRow(
     exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow, locale),
     extendedUntil,
   };
+}
+
+/**
+ * The client as the organization event log names it, such as "Extension - Chrome". Null when the
+ * event recorded no device.
+ */
+export function auditDeviceLabel(
+  deviceType: DeviceType | null,
+  i18nService: Pick<I18nService, "t">,
+): string | null {
+  if (deviceType == null) {
+    return null;
+  }
+  const metadata = DeviceTypeMetadata[deviceType];
+  if (metadata == null) {
+    return i18nService.t("unknown");
+  }
+  const platform = metadata.platform === "Unknown" ? i18nService.t("unknown") : metadata.platform;
+  const category = i18nService.t(metadata.category);
+  return platform ? `${category} - ${platform}` : category;
 }
 
 /**

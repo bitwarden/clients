@@ -101,6 +101,9 @@ export class SelectComponent<T> implements ControlValueAccessor {
   readonly items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
+
+  /** Stops typing from filtering the options; typing jumps to the first matching option instead. */
+  readonly disableSearch = input(false, { transform: booleanAttribute });
   readonly closed = output();
 
   protected readonly selectedValue = signal<T | undefined | null>(undefined);

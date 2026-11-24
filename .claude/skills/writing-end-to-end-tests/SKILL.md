@@ -11,13 +11,14 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 - Client internals (feature flags, lock state, fake biometrics): `automationDriver(page, "<capability>")` in `e2e/src/automation-driver.ts`, backed by `libs/automation-driver`. Prefer it over poking app state through `page.evaluate`.
 - Setup (credentials, builds, local server): `e2e/README.md`.
 
-## Locators: test ids only
+## Locators
 
-- Locate with `page.getByTestId("...")`, backed by `data-testid` in the template.
-- No test id yet? Add one to the component template in the same change. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
-- For new locators: no CSS classes, DOM structure, `#id`, `formcontrolname` or visible text. Text and roles change with copy, i18n and layout.
-- Existing helpers predate this rule and still use CSS and role locators. Leave them alone unless you are adding the test id anyway.
-- Keep each test id in a named constant at the top of the helper or test.
+- Prefer a trivial role locator: one `getByRole` call that picks out the element on its own, with no `name` or a `name` taken from data the test seeded, e.g. `page.getByRole("dialog")` or `page.getByRole("link", { name: itemName })`. An `id` written in the template (`page.locator("#...")`) works too, but not a generated one like `bit-form-field-3`, which changes with render order.
+- Fall back to a test id when no trivial role locator works: it needs chaining or nesting (`.filter()`, scoping into a row, `.nth()`), the role matches more than one element, or only localized copy tells the elements apart. Add a `data-testid` to the component template in the same change and locate it with `page.getByTestId("...")`. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
+- For new locators: no CSS classes, DOM structure or `formcontrolname`. Existing helpers predate this rule; leave them alone unless you are already changing that locator.
+- Don't match localized copy: no `getByText` or `getByLabel`, and no role `name` taken from translated text, including button, checkbox and menu labels. Matching data the test seeded itself, such as a folder name, is fine.
+- Reach UI owned by another team (see `.github/CODEOWNERS`) through a trivial role locator, or that team's page helper (e.g. `LoginPage`) if one exists. Don't add test ids to their templates or depend on their DOM structure. If neither works, stop and ask rather than break one of these rules.
+- Keep each test id and `#id` in a named constant at the top of the helper or test.
 
 ## Writing tests
 
