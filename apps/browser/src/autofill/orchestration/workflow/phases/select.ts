@@ -17,9 +17,9 @@ import { invalid, REQUEST_MISMATCH } from "./results";
  */
 export const LOGIN_LAST_LAUNCHED_WINDOW_MS = 30000;
 
-// FIXME: `FillCipherPolicy` does not name its card and identity rotation keys, so these restate
-// `CipherService`'s private cache keys, and `advanceRotation` receives them as a `url`. A policy that
-// rotates differently would stop card and identity cycling silently. The policy should own these keys.
+// FIXME (PM-47593): `FillCipherPolicy` does not name its rotations, so these copy the cache keys
+// `CipherService` keeps in local variables. If either side's key changes, card and identity
+// cycling stops without an error.
 /**
  * The key of the card rotation: advancing it moves the card `nextCardCipher` offers next. It matches
  * the key `CipherService.getNextCardCipher` caches cards under.
