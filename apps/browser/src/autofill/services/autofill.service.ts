@@ -1481,12 +1481,32 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
         return CreditCardAutoFillConstants.CardAttributes.some((attr) => {
-          const val = f[attr as keyof AutofillField] as string;
-          return val && AutofillService.isFieldMatch(val, ["name", "nom"], ["name", "nom"]);
+          const value = f[attr];
+          return (
+            typeof value === "string" &&
+            AutofillService.isFieldMatch(
+              value,
+              CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames,
+              CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames,
+            )
+          );
         });
       });
 
-      if (nameFields.length === 1) {
+      // A first, middle or last name is only part of a name, so it is never the cardholder name.
+      // Same rule as the inline menu qualifier; these lists include the matching autocomplete values.
+      if (
+        nameFields.length === 1 &&
+        !fieldContainsKeyword(
+          nameFields[0],
+          [
+            ...IdentityAutoFillConstants.FirstnameFieldNames,
+            ...IdentityAutoFillConstants.MiddlenameFieldNames,
+            ...IdentityAutoFillConstants.LastnameFieldNames,
+          ],
+          KeywordMatchMode.MatchesToken,
+        )
+      ) {
         fillFields.cardholderName = nameFields[0];
       }
     }

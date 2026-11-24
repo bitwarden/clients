@@ -51,12 +51,12 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       ...CreditCardAutoFillConstants.CardBrandFieldNames,
     ]),
   ];
-  // Subset used for the form-level CC qualifier. "name" and "nom" are excluded because they appear
-  // as exact tokens in unrelated identity fields (e.g. labels "Name *", "Company Name") and are
-  // too generic to reliably distinguish a CC field from a first-name or company field. The
-  // specific cardholder-name check (isFieldForCardholderName) still uses the full list.
+  // Form-level CC qualifier keywords. isFieldForCardholderName still uses the full list.
   private creditCardFormFieldKeywords = this.creditCardFieldKeywords.filter(
-    (k) => k !== "name" && k !== "nom",
+    (k) => !CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames.includes(k),
+  );
+  private cardholderStructuralKeywords = new Set(
+    CreditCardAutoFillConstants.CardHolderFieldNames.map((k) => k.toLowerCase().replace(/-/g, "")),
   );
   private sshKeyPublicKeyFieldKeywords = [...SshKeyAutoFillConstants.PublicKeyFieldNames];
   private sshKeyAlgorithmKeywords = [...SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes];
@@ -248,7 +248,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return (
         this.isCardholderNameByStructuralAttributes(field) ||
         this.isLikelyCardholderByNameCount(field, pageDetails.fields) ||
-        fieldContainsKeyword(field, this.creditCardFormFieldKeywords, KeywordMatchMode.MatchesToken)
+        fieldContainsKeyword(field, this.creditCardFormFieldKeywords)
       );
     }
 
@@ -280,7 +280,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     return (
       this.isCardholderNameByStructuralAttributes(field) ||
       this.isLikelyCardholderByNameCount(field, fieldsFromSameForm) ||
-      fieldContainsKeyword(field, this.creditCardFormFieldKeywords, KeywordMatchMode.MatchesToken)
+      fieldContainsKeyword(field, this.creditCardFormFieldKeywords)
     );
   }
 
@@ -641,60 +641,36 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to check
    */
   private isCardholderNameByStructuralAttributes(field: AutofillField): boolean {
-    const normalizedKeywords = CreditCardAutoFillConstants.CardHolderFieldNames.map((k) =>
-      k.toLowerCase().replace(/-/g, ""),
-    );
-    // Exact keyword match against structural attributes. Strips all non-alphanumeric
-    // characters for consistency with how isFieldMatch normalises values.
-    const structuralAttributeValues = [
+    // Strips all non-alphanumerics, matching how isFieldMatch normalises values.
+    const [htmlName, htmlID, ...otherValues] = [
       field.htmlName,
       field.htmlID,
       field.htmlClass,
       field.placeholder,
       field.title,
       field.autoCompleteType,
-    ];
+    ].map((value) =>
+      typeof value === "string" ? value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "") : "",
+    );
 
-    for (const value of structuralAttributeValues) {
-      if (!value || typeof value !== "string") {
-        continue;
-      }
-      const normalized = value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "");
-      if (normalizedKeywords.includes(normalized)) {
-        return true;
-      }
+    if ([htmlName, htmlID, ...otherValues].some((v) => this.cardholderStructuralKeywords.has(v))) {
+      return true;
     }
 
-    // CamelCase identifiers like "nameOnCard" collapse to a single opaque token
-    // ("nameoncard") that contains no separator, so "name" is never a standalone
-    // token and the keyword sets above cannot match them. The compound substring
-    // check below catches this pattern while remaining safe against identity fields:
-    //   "nameoncard"  → has "name" ✓ AND "card" ✓ → qualifies
-    //   "firstname"   → has "name" ✓ but no "card" → does not qualify
-    // Restricted to htmlName/htmlID (not class or placeholder) to avoid matching
-    // class names that coincidentally contain both substrings.
-    for (const value of [field.htmlName, field.htmlID]) {
-      if (!value || typeof value !== "string") {
-        continue;
-      }
-      const normalized = value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "");
-      if (normalized.includes("name") && normalized.includes("card")) {
-        return true;
-      }
-    }
-
-    return false;
+    // CamelCase ids like "nameOnCard" are one opaque token, so check for both substrings.
+    // htmlName/htmlID only: class names can contain both by coincidence.
+    return [htmlName, htmlID].some((v) => v.includes("name") && v.includes("card"));
   }
 
   /**
-   * Returns true if this field is the sole field in `fieldsInScope` that carries "name" or "nom"
-   * as an exact token. When multiple fields share that token (e.g. a form with First Name, Last
-   * Name, and Company Name labels) the token is too ambiguous to signal cardholder name, so the
-   * method returns false and lets the caller fall through to other checks. When only one field in
-   * scope matches, it is almost certainly the cardholder name field.
+   * Returns true if this field is the sole field in `fieldsInScope` that contains "name" or "nom".
+   * When multiple fields contain it (e.g. a form with First Name, Last Name, and Company Name
+   * labels) it is too ambiguous to signal cardholder name, so the method returns false and lets
+   * the caller fall through to other checks. When only one field in scope matches, it is almost
+   * certainly the cardholder name field.
    *
-   * This handles label-sourced tokens: a label like "Name on card" splits on the space to produce
-   * "name" as an exact token even when htmlName is an opaque camelCase string like "nameOnCard".
+   * Matches within words (not whole tokens only), the same rule as the card fill fallback, so
+   * compound names like "fullName" or "holderName" still qualify as they did before this check.
    *
    * @param field - The candidate field
    * @param fieldsInScope - All fields to count against (page-level or form-scoped)
@@ -703,12 +679,20 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     field: AutofillField,
     fieldsInScope: AutofillField[],
   ): boolean {
-    const ambiguousNameKeywords = ["name", "nom"] as const;
-    if (!fieldContainsKeyword(field, ambiguousNameKeywords, KeywordMatchMode.MatchesToken)) {
+    const ambiguousNameKeywords = CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames;
+    if (!fieldContainsKeyword(field, ambiguousNameKeywords)) {
+      return false;
+    }
+    // A first, middle or last name is only part of a name, so it is never the cardholder name.
+    if (
+      this.isFieldForIdentityFirstName(field) ||
+      this.isFieldForIdentityMiddleName(field) ||
+      this.isFieldForIdentityLastName(field)
+    ) {
       return false;
     }
     const nameMatchingFields = fieldsInScope.filter((f) =>
-      fieldContainsKeyword(f, ambiguousNameKeywords, KeywordMatchMode.MatchesToken),
+      fieldContainsKeyword(f, ambiguousNameKeywords),
     );
     return nameMatchingFields.length === 1;
   }

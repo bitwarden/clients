@@ -1582,6 +1582,41 @@ describe("InlineMenuFieldQualificationService", () => {
             inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
           ).toBe(true);
         });
+
+        describe("matches card keywords within compound names, as before this change", () => {
+          let cardNumberField: AutofillField;
+          let cardCvvField: AutofillField;
+
+          beforeEach(() => {
+            cardNumberField = mock<AutofillField>({
+              autoCompleteType: "cc-number",
+              form: "validFormId",
+            });
+            cardCvvField = mock<AutofillField>({ autoCompleteType: "cc-csc", form: "validFormId" });
+          });
+
+          it("has a camelCase expiry htmlName like 'cardExpirationDate' with no label", () => {
+            const field = mock<AutofillField>({
+              htmlName: "cardExpirationDate",
+              placeholder: "MM / YY",
+              form: "validFormId",
+            });
+            pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("has htmlName='fullName' as the only name field in the form", () => {
+            const field = mock<AutofillField>({ htmlName: "fullName", form: "validFormId" });
+            pageDetails.fields = [field, cardNumberField, cardCvvField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForCreditCardForm(field, pageDetails),
+            ).toBe(true);
+          });
+        });
       });
     });
   });
