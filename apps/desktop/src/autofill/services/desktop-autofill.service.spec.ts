@@ -5,6 +5,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceType } from "@bitwarden/common/enums";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
@@ -17,6 +21,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 
 import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
 
@@ -328,6 +333,87 @@ describe("DesktopAutofillService", () => {
       } finally {
         delete (global as any).ipc;
       }
+    });
+  });
+
+  describe("syncing passwords to the OS", () => {
+    const pairingUri = "desktopapp://autotype?version=1.0.0&data=e30";
+
+    function loginCipher(id: string, ...uris: [string, UriMatchStrategySetting | null][]) {
+      return {
+        id,
+        type: CipherType.Login,
+        isDeleted: false,
+        login: {
+          username: "user",
+          password: "password",
+          uris: uris.map(([uri, match]) => Object.assign(new LoginUriView(), { uri, match })),
+        },
+      } as unknown as CipherView;
+    }
+
+    // Syncs the ciphers and returns the password credentials that reached the OS.
+    async function syncPasswordsFor(...ciphers: CipherView[]) {
+      const runCommand = jest
+        .fn()
+        .mockImplementation(async ({ command }) =>
+          command === "status"
+            ? { type: "success", value: { state: { enabled: true }, support: { password: true } } }
+            : { type: "success", value: { added: 0 } },
+        );
+      (global as any).ipc = { autofill: { desktopAutofill: { runCommand } } };
+
+      try {
+        await service.sync(ciphers);
+      } finally {
+        delete (global as any).ipc;
+      }
+
+      const syncCall = runCommand.mock.calls.find(([c]) => c.command === "sync");
+      return syncCall[0].params.credentials.map((c: { cipherId: string; uri: string }) => ({
+        cipherId: c.cipherId,
+        uri: c.uri,
+      }));
+    }
+
+    it("syncs a login with its first website URI", async () => {
+      await expect(
+        syncPasswordsFor(
+          loginCipher("login", ["https://example.com", null], ["https://example.org", null]),
+        ),
+      ).resolves.toEqual([{ cipherId: "login", uri: "https://example.com" }]);
+    });
+
+    it.each([UriMatchStrategy.Exact, UriMatchStrategy.Never, null])(
+      "syncs a login with its website URI instead of a desktop app URI with match strategy %p",
+      async (match) => {
+        await expect(
+          syncPasswordsFor(
+            loginCipher("login", [pairingUri, match], ["https://example.com", null]),
+          ),
+        ).resolves.toEqual([{ cipherId: "login", uri: "https://example.com" }]);
+      },
+    );
+
+    it.each([pairingUri, "DESKTOPAPP://autotype?version=1.0.0&data=e30", "desktopapp://"])(
+      "does not sync a login whose only URI is the desktop app URI %p",
+      async (uri) => {
+        await expect(
+          syncPasswordsFor(loginCipher("login", [uri, UriMatchStrategy.Exact])),
+        ).resolves.toEqual([]);
+      },
+    );
+
+    it("skips website URIs that use the Never match strategy", async () => {
+      await expect(
+        syncPasswordsFor(
+          loginCipher(
+            "login",
+            ["https://example.com", UriMatchStrategy.Never],
+            ["https://example.org", null],
+          ),
+        ),
+      ).resolves.toEqual([{ cipherId: "login", uri: "https://example.org" }]);
     });
   });
 

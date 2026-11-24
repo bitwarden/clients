@@ -28,7 +28,6 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
-import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
@@ -43,11 +42,11 @@ import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/defaul
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AUTOFILL_DENIED, AutofillOrchestrator } from "../autofill/orchestration";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
-import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
 import { getSubFrameUrlVariations } from "../autofill/utils/url-variations";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";

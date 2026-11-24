@@ -5,6 +5,15 @@ import { AutotypePairingData, isAutotypePairingData } from "./autotype-pairing-d
 /** The prefix of every login URI that pairs the login with a desktop app. */
 export const DESKTOP_APP_URI_PREFIX = "desktopapp://";
 
+/**
+ * Whether a login URI is a desktop app URI. Case and surrounding whitespace are ignored, so code
+ * that leaves desktop app URIs out also catches ones that weren't typed exactly. The cipher edit
+ * form only shows a URI as a desktop app when it starts with the exact, lowercase prefix.
+ */
+export function isDesktopAppUri(uri: string | null | undefined): boolean {
+  return uri?.trim().toLowerCase().startsWith(DESKTOP_APP_URI_PREFIX) ?? false;
+}
+
 // Everything before the query of a pairing URI. The scheme and host are matched as this exact
 // string rather than read from a parsed `URL`, because browsers don't all parse the host and path
 // of custom schemes per the URL spec (e.g. Firefox before 122 reports an empty host).

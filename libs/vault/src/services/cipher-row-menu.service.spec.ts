@@ -22,6 +22,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-access.token";
+import { REVEALABLE_CIPHERS, RevealableCiphers } from "../tokens/revealable-ciphers.token";
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
@@ -72,6 +73,8 @@ describe("CipherRowMenuService", () => {
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
   let revealedSubject: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let revealableSubject: BehaviorSubject<ReadonlySet<CipherId>>;
+  let revealableCiphers: MockProxy<RevealableCiphers>;
   let cipherShareAccess: MockProxy<CipherShareAccess>;
   let providers: Provider[];
 
@@ -91,6 +94,9 @@ describe("CipherRowMenuService", () => {
     cipherShareAccess.canShare.mockReturnValue(true);
     const revealedCipherService = mock<RevealedCipherService>();
     revealedCipherService.revealed$.mockReturnValue(revealedSubject.asObservable());
+    revealableSubject = new BehaviorSubject<ReadonlySet<CipherId>>(new Set());
+    revealableCiphers = mock<RevealableCiphers>();
+    revealableCiphers.revealable$.mockReturnValue(revealableSubject.asObservable());
     organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
     cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject.asObservable());
@@ -108,6 +114,7 @@ describe("CipherRowMenuService", () => {
       { provide: CipherActionService, useValue: mock<CipherActionService>() },
       { provide: RevealedCipherService, useValue: revealedCipherService },
       { provide: CIPHER_SHARE_ACCESS, useValue: cipherShareAccess },
+      { provide: REVEALABLE_CIPHERS, useValue: revealableCiphers },
     ];
     TestBed.configureTestingModule({ providers });
 
@@ -796,6 +803,74 @@ describe("CipherRowMenuService", () => {
           collections(),
         ),
       ).toBe(revealedAllowed.has(actionId));
+    });
+
+    describe("a row the user may reveal but has not revealed", () => {
+      const revealableAllowed = new Set([
+        ...allowed,
+        "edit",
+        "attachments",
+        "delete",
+        "permanentlyDelete",
+        "restore",
+      ]);
+
+      it("reads the revealable ciphers of the active user", () => {
+        expect(revealableCiphers.revealable$).toHaveBeenCalledWith(userId);
+      });
+
+      it.each(cases)("%s follows the revealed-cipher policy", (actionId, overrides) => {
+        revealableSubject.next(new Set(["leased-id" as CipherId]));
+
+        expect(
+          show(
+            actionId,
+            makeCipher({ ...overrides, id: "leased-id", partial: true }),
+            collections(),
+          ),
+        ).toBe(revealableAllowed.has(actionId));
+      });
+
+      it.each(cases)(
+        "%s follows the restricted-cipher policy for another row",
+        (actionId, overrides) => {
+          revealableSubject.next(new Set(["leased-id" as CipherId]));
+
+          expect(
+            show(
+              actionId,
+              makeCipher({ ...overrides, id: "other-id", partial: true }),
+              collections(),
+            ),
+          ).toBe(allowed.has(actionId));
+        },
+      );
+
+      it("hides the revealed actions again once the row is no longer revealable", () => {
+        const cipher = makeCipher({ id: "leased-id", partial: true });
+        revealableSubject.next(new Set(["leased-id" as CipherId]));
+        expect(show("edit", cipher)).toBe(true);
+
+        revealableSubject.next(new Set());
+
+        expect(show("edit", cipher)).toBe(false);
+      });
+
+      it("offers only the restricted actions when no implementation is provided", () => {
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          providers: providers.filter(
+            (p) => (p as { provide?: unknown }).provide !== REVEALABLE_CIPHERS,
+          ),
+        });
+        const withoutRevealable = TestBed.inject(CipherRowMenuService);
+
+        const action = withoutRevealable
+          .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+          .find((a) => a.id === "edit");
+
+        expect(action?.show?.(makeCipher({ id: "leased-id", partial: true }))).toBe(false);
+      });
     });
   });
 });

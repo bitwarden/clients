@@ -1,6 +1,5 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/legacy-crypto";
 
@@ -42,33 +41,6 @@ export type SetInitialPasswordUserType =
 export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
-
-/**
- * @deprecated along with `setInitialPassword()` deprecation
- */
-export interface SetInitialPasswordCredentials {
-  // ============================================================
-  // PM-42990 — ROLLBACK NOTE
-  // ============================================================
-  // SetInitialPasswordComponent sets newMasterKey and newServerMasterKeyHash.
-  // It sets them only because the set-password endpoint uses the old request shape.
-  //
-  // DELETE: Delete newMasterKey and newServerMasterKeyHash below. Delete the
-  // code in SetInitialPasswordComponent that sets them. Delete the matching
-  // assertions in DefaultSetInitialPasswordService.setInitialPassword(). See
-  // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
-  // refactor.
-  // ============================================================
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
-  newPasswordHint: string;
-  kdfConfig: KdfConfig;
-  orgSsoIdentifier: string;
-  orgId: string;
-  resetPasswordAutoEnroll: boolean;
-  newPassword: string;
-  salt: MasterPasswordSalt;
-}
 
 export interface SetInitialPasswordTdeUserWithPermissionCredentials {
   newPassword: string;
@@ -113,23 +85,6 @@ export interface InitializeJitPasswordCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
-   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
-   *
-   * Sets an initial password for an existing authed user who is either:
-   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
-   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
-   *
-   * @param credentials An object of the credentials needed to set the initial password
-   * @throws If any property on the `credentials` object is null or undefined, or if a
-   *         masterKeyEncryptedUserKey or newKeyPair could not be created.
-   */
-  abstract setInitialPassword: (
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) => Promise<void>;
-
-  /**
    * Sets an initial password for an existing authed TDE user who has been given the
    * Manage Account Recovery permission:
    * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
@@ -146,11 +101,13 @@ export abstract class SetInitialPasswordService {
    * Initializes a JIT-provisioned user's cryptographic state and enrolls them in master password unlock.
    * @param credentials The credentials needed to initialize the JIT password user
    * @param userId The account userId
+   * @returns Whether the server accepted the organization invite.
+   *   {@link SsoJitProvisionFinishService.shouldAcceptOrganizationInvite} makes this decision.
    */
   abstract initializePasswordJitPasswordUserV2Encryption(
     credentials: InitializeJitPasswordCredentials,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   /**
    * Sets an initial password for a user who logs in after their org offboarded from

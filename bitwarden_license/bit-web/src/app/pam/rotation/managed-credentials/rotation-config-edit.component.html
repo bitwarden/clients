@@ -1,11 +1,11 @@
 <bit-header [title]="titleText()" [icon]="headerIcon">
-  <pam-detail-breadcrumb
-    slot="breadcrumbs"
-    [route]="credentialsListRoute"
-    parentLabelKey="pamRotationTabManagedCredentials"
-    parentIcon="bwi-managed-credential"
-    [current]="titleText()"
-  />
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="credentialsListRoute" icon="bwi-managed-credential">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-breadcrumb>
+    <!-- The current URL, query string included, so the crumb reads as the active route. -->
+    <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{ titleText() }}</bit-breadcrumb>
+  </bit-breadcrumbs>
 
   @if (editing && detailStatus(); as status) {
     <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
@@ -285,6 +285,12 @@
                 [description]="option.description"
               ></bit-option>
             }
+            <bit-option
+              id="rotation-config-edit_option_new-target-system"
+              icon="bwi-plus"
+              [value]="addTargetSystemOption"
+              [label]="'pamTargetSystemCreateTitle' | i18n"
+            />
           </bit-select>
           <bit-hint>
             @if (!hasActiveTargetSystems()) {
@@ -304,18 +310,6 @@
             {{ "pamRotationConfigCalloutTargetNotConnected" | i18n }}
           </bit-callout>
         }
-
-        <div class="tw-mb-4">
-          <button
-            type="button"
-            bitLink
-            startIcon="bwi-plus"
-            id="rotation-config-edit_button_new-target-system"
-            (click)="createTargetSystem()"
-          >
-            {{ "pamTargetSystemCreateTitle" | i18n }}
-          </button>
-        </div>
 
         <bit-form-field disableMargin>
           <bit-label>{{ "pamRotationConfigAccountId" | i18n }}</bit-label>

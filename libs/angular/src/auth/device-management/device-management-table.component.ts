@@ -1,13 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from "@angular/core";
 
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,57 +35,46 @@ import { recentlyActiveSortFn } from "./utils/device-sort.utils";
     TableModule,
   ],
 })
-export class DeviceManagementTableComponent implements OnChanges, OnInit {
+export class DeviceManagementTableComponent implements OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() devices: DeviceDisplayData[] = [];
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // TODO: PM-34091 - Remove this input and simplify ngOnInit to always use the "recentlyActive" column.
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showRecentlyActive = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
 
   protected tableDataSource = new TableDataSource<DeviceDisplayData>();
-  protected columnConfig: {
+  protected readonly columnConfig: {
     name: string;
     title: string;
     headerClass: string;
     sortable: boolean;
     sortFn?: SortFn;
-  }[] = [];
+  }[] = [
+    {
+      name: "displayName",
+      title: this.i18nService.t("device"),
+      headerClass: "tw-w-1/3",
+      sortable: true,
+    },
+    {
+      name: "recentlyActiveText",
+      title: this.i18nService.t("recentlyActive"),
+      headerClass: "tw-w-1/3",
+      sortable: true,
+      // recentlyActiveText is a localized display string ("Today", "Yesterday", etc.) so
+      // alphabetical sorting is nonsensical. Sort by the underlying date value instead.
+      sortFn: recentlyActiveSortFn,
+    },
+    {
+      name: "firstLogin",
+      title: this.i18nService.t("firstLogin"),
+      headerClass: "tw-w-1/3",
+      sortable: true,
+    },
+  ];
 
   constructor(private i18nService: I18nService) {}
-
-  // TODO: PM-34091 - Collapse ngOnInit back to a static readonly columnConfig property once the
-  // showRecentlyActive flag is removed. The second column should always use "recentlyActiveText"
-  // and the "recentlyActive" i18n key. Remove OnInit from implements if no longer needed.
-  ngOnInit(): void {
-    this.columnConfig = [
-      {
-        name: "displayName",
-        title: this.i18nService.t("device"),
-        headerClass: "tw-w-1/3",
-        sortable: true,
-      },
-      {
-        name: this.showRecentlyActive ? "recentlyActiveText" : "loginStatus",
-        title: this.i18nService.t(this.showRecentlyActive ? "recentlyActive" : "loginStatus"),
-        headerClass: "tw-w-1/3",
-        sortable: true,
-        // recentlyActiveText is a localized display string ("Today", "Yesterday", etc.) so
-        // alphabetical sorting is nonsensical. Sort by the underlying date value instead.
-        sortFn: this.showRecentlyActive ? recentlyActiveSortFn : undefined,
-      },
-      {
-        name: "firstLogin",
-        title: this.i18nService.t("firstLogin"),
-        headerClass: "tw-w-1/3",
-        sortable: true,
-      },
-    ];
-  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.devices) {
