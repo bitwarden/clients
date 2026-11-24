@@ -4,7 +4,6 @@ import { CommonModule } from "@angular/common";
 import {
   afterNextRender,
   booleanAttribute,
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -36,9 +35,13 @@ import { LayoutFooterService } from "./layout-footer.service";
 import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// The drawer and footer portal outlets create component views inside this template, so OnPush
+// here skips any Default-CD content they host. See https://bitwarden.atlassian.net/browse/PM-47445:
+// on desktop the vault item drawer kept its loading spinner until the next UI event.
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-layout",
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "layout.component.html",
   imports: [
     CommonModule,

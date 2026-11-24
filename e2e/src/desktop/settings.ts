@@ -12,6 +12,9 @@ const SET_PIN_DIALOG = "set-pin-dialog";
 const SET_PIN_INPUT = "set-pin-input";
 const SET_PIN_ON_RESTART_CHECKBOX = "set-pin-require-master-password-checkbox";
 const SET_PIN_SUBMIT_BUTTON = "set-pin-submit-button";
+const SSH_AGENT_CHECKBOX = "settings-ssh-agent-checkbox";
+// The tab holding settings shared by every account ("appPreferences").
+const APP_SETTINGS_TAB = "App settings (all accounts)";
 
 /**
  * Turns on unlock with PIN from the settings dialog, leaving "lock with master password on
@@ -71,6 +74,12 @@ export class DesktopSettings {
 
     await expect(setPin).toBeHidden();
     await expect(this.dialog().getByTestId(PIN_CHECKBOX)).toBeChecked();
+  }
+
+  /** Starts the SSH agent, which then serves the vault's SSH keys on its socket. */
+  async enableSshAgent() {
+    await this.dialog().getByRole("tab", { name: APP_SETTINGS_TAB }).click();
+    await this.dialog().getByTestId(SSH_AGENT_CHECKBOX).check();
   }
 
   private dialog() {

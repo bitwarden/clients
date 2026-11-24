@@ -27,7 +27,12 @@ import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonMessageMap,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -85,6 +90,7 @@ import {
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
+import { MemberStatusBadgeComponent } from "./member-status-badge.component";
 import {
   AccountRecoveryFilter,
   matchesAccess,
@@ -129,6 +135,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     FilterMenuModule,
     HeaderModule,
     IconModule,
+    MemberStatusBadgeComponent,
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
@@ -596,6 +603,16 @@ export class MembersV2Component {
 
   protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {
     return STATUS_BADGES.find((badge) => badge.status === status);
+  }
+
+  /** Revoked members' badges explain why they were revoked, matching the v1 table. */
+  protected statusTooltip(member: OrganizationUserView): string {
+    if (member.status !== OrganizationUserStatusType.Revoked) {
+      return "";
+    }
+    return this.i18nService.t(
+      RevocationReasonMessageMap[member.revocationReason ?? RevocationReasonType.Unknown],
+    );
   }
 
   protected readonly sortByName = (a: OrganizationUserView, b: OrganizationUserView) =>
