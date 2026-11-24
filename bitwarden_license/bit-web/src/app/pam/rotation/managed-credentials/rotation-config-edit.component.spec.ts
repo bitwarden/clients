@@ -1404,6 +1404,32 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
+  it("still asks on the History tab when holding an edit", async () => {
+    const { component, fixture, dialogService } = setup({
+      configId: configId("cfg-1"),
+      tab: "history",
+    });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+    expect(component.unsavedChanges()).toBe(true);
+    await leaveThroughGuard(component);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
+  });
+
+  it("does not ask once an edit is reverted", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    const original = component.accountForm.controls.accountIdentity.value;
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+    expect(component.unsavedChanges()).toBe(true);
+    component.accountForm.controls.accountIdentity.setValue(original);
+
+    expect(component.unsavedChanges()).toBe(false);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
   it("asks about an abandoned new managed credential", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
@@ -1728,11 +1754,28 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       expect(component.titleText()).toBe("Splunk forwarder account");
     });
 
-    it("stays empty rather than showing the cipher id while the item is unresolved", async () => {
+    it("stays empty rather than showing the cipher id while loading", async () => {
+      const { component } = setup({ configId: configId("cfg-1"), ciphers: [] });
+      expect(component.titleText()).toBe("");
+    });
+  });
+
+  describe("a vault item the org list cannot name", () => {
+    it("falls back to the cipher id once loaded, so the title is never blank", async () => {
       const { component, fixture } = setup({ configId: configId("cfg-1"), ciphers: [] });
       await fixture.whenStable();
-      expect(component.titleText()).toBe("");
-      expect(component.titleText()).not.toContain(CIPHER_ID);
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
+      expect(component.titleText()).toBe(String(CIPHER_ID));
+    });
+
+    it("falls through an empty name", async () => {
+      const { component, fixture, orgCiphersService } = setup({
+        configId: configId("cfg-1"),
+        ciphers: [],
+      });
+      orgCiphersService.cipherNameById$.next(new Map([[CIPHER_ID, ""]]));
+      await fixture.whenStable();
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
     });
   });
 
