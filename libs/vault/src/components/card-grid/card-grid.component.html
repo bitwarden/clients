@@ -65,6 +65,9 @@
         @if (folder.nestedCount > 0) {
           <span slot="secondary">{{ nestedLabel(folder.nestedCount) }}</span>
         }
+        <span slot="end" bitTypography="helper" class="tw-text-muted tw-whitespace-nowrap">{{
+          itemLabel(folder.itemCount)
+        }}</span>
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>
     </bit-item>

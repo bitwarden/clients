@@ -108,4 +108,42 @@ describe("AccountBillingClient", () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("upgradePremiumToOrganization", () => {
+    const request = {
+      organizationName: "Acme",
+      organizationKey: "org-key",
+      collectionName: "collection-ct",
+      publicKey: "public-key",
+      encryptedPrivateKey: "encrypted-private-key",
+      planTier: 3,
+      cadence: "annually",
+      billingAddress: { country: "US", postalCode: "12345" },
+    } as any;
+
+    it("returns the organization ID from the response object", async () => {
+      mockApiService.send.mockResolvedValue({ organizationId: "org-id-123" });
+
+      const result = await sut.upgradePremiumToOrganization(request);
+
+      expect(result).toBe("org-id-123");
+    });
+
+    it("does not resolve to a stringified object when the server returns an object", async () => {
+      mockApiService.send.mockResolvedValue({ organizationId: "org-id-123" });
+
+      const result = await sut.upgradePremiumToOrganization(request);
+
+      expect(result).not.toBe("[object Object]");
+      expect(typeof result).toBe("string");
+    });
+
+    it("still returns the ID when an older server returns a bare string", async () => {
+      mockApiService.send.mockResolvedValue("org-id-456");
+
+      const result = await sut.upgradePremiumToOrganization(request);
+
+      expect(result).toBe("org-id-456");
+    });
+  });
 });

@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Δημιουργία λογαριασμού"
   },
+  "welcomeToBitwarden": {
+    "message": "Καλώς ορίσατε στο Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Δημιουργήστε τον λογαριασμό σας ή συνδεθείτε"
+  },
   "newToBitwarden": {
     "message": "Νέος/α στο Bitwarden;"
   },
@@ -501,7 +507,7 @@
     "message": "Ο κωδικός πρόσβασης δημιουργήθηκε"
   },
   "passphraseGenerated": {
-    "message": "Το συνθηματικό δημιουργήθηκε"
+    "message": "Η φράση πρόσβασης δημιουργήθηκε"
   },
   "usernameGenerated": {
     "message": "Το όνομα χρήστη δημιουργήθηκε"
@@ -561,7 +567,7 @@
     "message": "Δεν υπάρχουν στοιχεία στη «Θυρίδα μου»"
   },
   "noItemsInFolder": {
-    "message": "No items in $FOLDER_NAME$",
+    "message": "Δεν υπάρχουν στοιχεία στο «$FOLDER_NAME$»",
     "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
     "placeholders": {
       "folder_name": {
@@ -571,7 +577,7 @@
     }
   },
   "emptyFolderDescription": {
-    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "message": "Προσθέστε στοιχεία σε αυτόν τον φάκελο. Θα μπορείτε να έχετε γρήγορη πρόσβαση σε αυτά μέσω των φίλτρων θυρίδας.",
     "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
@@ -1252,10 +1258,10 @@
     "message": "Το στοιχείο μετακινήθηκε στον κάδο"
   },
   "deleteItemError": {
-    "message": "Couldn't delete the item."
+    "message": "Δεν ήταν δυνατή η διαγραφή του στοιχείου."
   },
   "restrictedItemChangeRefused": {
-    "message": "This item is restricted. Your change was not saved."
+    "message": "Αυτό το στοιχείο υπόκειται σε περιορισμούς. Η αλλαγή σας δεν αποθηκεύτηκε."
   },
   "overwritePassword": {
     "message": "Αντικατάσταση κωδικού πρόσβασης"
@@ -1610,24 +1616,24 @@
     }
   },
   "selectVault": {
-    "message": "Select vault",
+    "message": "Επιλογή θυρίδας",
     "description": "Progress label of the import step where the user picks which vault to import into."
   },
   "selectLocation": {
-    "message": "Select location",
+    "message": "Επιλογή τοποθεσίας",
     "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
   },
   "selectAVaultTitle": {
-    "message": "Select a vault"
+    "message": "Επιλογή θυρίδας"
   },
   "selectALocationTitle": {
-    "message": "Select a location"
+    "message": "Επιλογή τοποθεσίας"
   },
   "importDestinationDescription": {
-    "message": "Choose where to import these items."
+    "message": "Επιλέξτε πού θα εισαχθούν αυτά τα στοιχεία."
   },
   "importMyItemsOption": {
-    "message": "My items",
+    "message": "Τα στοιχεία μου",
     "description": "Card title for the user's own collection inside an organization that centralizes ownership."
   },
   "importVisibleOnlyToYou": {
@@ -1643,13 +1649,13 @@
     }
   },
   "importOrganizationVault": {
-    "message": "Organization vault"
+    "message": "Θυρίδα οργανισμού"
   },
   "importSharedWithOnePerson": {
     "message": "Shared with one person"
   },
   "importFamilyVault": {
-    "message": "Family vault"
+    "message": "Οικογενειακή θυρίδα"
   },
   "importMoveAllItemsIntoSharedFolderA": {
     "message": "Move all items into a $ORGANIZATION$ shared folder",
@@ -1675,7 +1681,7 @@
     "message": "Move everything to a parent folder, the nested folder structure will be maintained."
   },
   "importSharedFolderRequired": {
-    "message": "A shared folder is required."
+    "message": "Απαιτείται κοινόχρηστος φάκελος."
   },
   "importIntoOrganization": {
     "message": "Items will be imported into $ORGANIZATION$.",
@@ -1699,7 +1705,7 @@
     }
   },
   "importItemsCount": {
-    "message": "Import $COUNT$ items",
+    "message": "Εισαγωγή $COUNT$ στοιχείων",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1708,10 +1714,10 @@
     }
   },
   "importItemsSingular": {
-    "message": "Import 1 item"
+    "message": "Εισαγωγή 1 στοιχείου"
   },
   "importToOrganization": {
-    "message": "Import to $ORGANIZATION$",
+    "message": "Εισαγωγή στο $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1723,7 +1729,7 @@
     "message": "Your data may be shared with members of this organization."
   },
   "importItemTypesRestricted": {
-    "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
+    "message": "Ο οργανισμός $ORGANIZATION$ δεν σας επιτρέπει να εισάγετε $ITEM_TYPES$. Εάν περιλαμβάνονται στα στοιχεία προς εισαγωγή, θα παραλειφθούν.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1736,35 +1742,35 @@
     }
   },
   "importRestrictedTypeLogin": {
-    "message": "logins",
+    "message": "συνδέσεις",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSecureNote": {
-    "message": "secure notes",
+    "message": "ασφαλείς σημειώσεις",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeCard": {
-    "message": "cards",
+    "message": "κάρτες",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeIdentity": {
-    "message": "identities",
+    "message": "ταυτότητες",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeSshKey": {
-    "message": "SSH keys",
+    "message": "κλειδιά SSH",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeBankAccount": {
-    "message": "bank accounts",
+    "message": "τραπεζικούς λογαριασμούς",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypeDriversLicense": {
-    "message": "licenses",
+    "message": "άδειες οδήγησης",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "importRestrictedTypePassport": {
-    "message": "passports",
+    "message": "διαβατήρια",
     "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
   },
   "goToAccessIntelligence": {
@@ -1957,7 +1963,7 @@
     "message": "Επιλέξτε αρχείο"
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Αυτός ο τύπος αρχείου δεν είναι αποδεκτός για τη συγκεκριμένη προέλευση. Επιλέξτε ένα άλλο αρχείο"
   },
   "pasteContentRequired": {
     "message": "Paste the exported content"
@@ -1987,7 +1993,7 @@
     "message": "Μη διαθέσιμη λειτουργία"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Η παλαιού τύπου κρυπτογράφηση δεν υποστηρίζεται πλέον. Επικοινωνήστε με την υποστήριξη για να ανακτήσετε το λογαριασμό σας."
+    "message": "Η κρυπτογράφηση παλαιού τύπου δεν υποστηρίζεται πλέον. Επικοινωνήστε με την υποστήριξη για να ανακτήσετε τον λογαριασμό σας."
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -2114,7 +2120,7 @@
     "message": "Ταυτοποίηση WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Διάβασε το κλειδί ασφαλείας\n"
+    "message": "Ανάγνωση κλειδιού ασφαλείας"
   },
   "readingPasskeyLoading": {
     "message": "Ανάγνωση κλειδιού πρόσβασης..."
@@ -2326,7 +2332,7 @@
     "message": "Απενεργοποιήστε τις ενσωματωμένες ρυθμίσεις διαχείρισης κωδικών πρόσβασης του προγράμματος περιήγησής σας για να αποφύγετε τυχόν διενέξεις."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Επεξεργαστείτε τις ρυθμίσεις του περιηγητή."
+    "message": "Επεξεργαστείτε τις ρυθμίσεις του προγράμματος περιήγησης."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Ανενεργό",
@@ -3375,7 +3381,7 @@
     "message": "Προειδοποίηση: Αυτή είναι μια μη ασφαλή σελίδα HTTP και οποιαδήποτε πληροφορία υποβάλλετε μπορεί να γίνει ορατή και επεμβάσιμη από άλλους. Αυτή η σύνδεση αποθηκεύτηκε αρχικά σε μια ασφαλή (HTTPS) σελίδα."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Θέλετε ακόμα να συμπληρώσετε αυτή τη σύνδεση;"
+    "message": "Θέλετε ακόμα να συμπληρώσετε αυτήν τη σύνδεση;"
   },
   "autofillIframeWarning": {
     "message": "Η φόρμα φιλοξενείται από διαφορετικό τομέα (domain) από το λινκ (uri) της αποθηκευμένης σύνδεσης σας (login). Επιλέξτε OK για αυτόματη συμπλήρωση, ή Ακύρωση για να σταματήσετε."
@@ -3483,7 +3489,7 @@
     "message": "OK"
   },
   "errorRefreshingAccessToken": {
-    "message": "Σφάλμα Ανανέωσης Διακριτικού Πρόσβασης"
+    "message": "Σφάλμα ανανέωσης διακριτικού πρόσβασης"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Δε βρέθηκε κανένα διακριτικό ανανέωσης ή κλειδιά API. Παρακαλώ δοκιμάστε να αποσυνδεθείτε και να συνδεθείτε ξανά."
@@ -3813,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Αρχείο"
   },
+  "item": {
+    "message": "Item"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
+  },
+  "pendingDeletion": {
+    "message": "Pending deletion"
+  },
   "allSends": {
     "message": "Όλα τα Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3837,14 +3870,14 @@
     "message": "Αντιγραφή συνδέσμου Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Αφαίρεση κωδικού πρόσβασης"
+  "removeAuth": {
+    "message": "Κατάργηση κωδικού πρόσβασης ή επαλήθευσης email"
   },
   "delete": {
     "message": "Διαγραφή"
   },
-  "removedPassword": {
-    "message": "Ο κωδικός πρόσβασης αφαιρέθηκε"
+  "removedAuth": {
+    "message": "Ο κωδικός πρόσβασης ή η επαλήθευση email καταργήθηκε"
   },
   "deletedSend": {
     "message": "Το Send διαγράφηκε",
@@ -3857,8 +3890,28 @@
   "disabled": {
     "message": "Απενεργοποιημένο"
   },
-  "removePasswordConfirmation": {
-    "message": "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;"
+  "removeAuthConfirmation": {
+    "message": "Θέλετε σίγουρα να καταργήσετε την απαίτηση κωδικού πρόσβασης ή επαλήθευσης μέσω email για αυτό το Send;"
+  },
+  "removePassword": {
+    "message": "Αφαίρεση κωδικού πρόσβασης"
+  },
+  "removeEmailVerification": {
+    "message": "Κατάργηση επαλήθευσης email"
+  },
+  "removedPassword": {
+    "message": "Ο κωδικός πρόσβασης αφαιρέθηκε"
+  },
+  "removedEmailVerification": {
+    "message": "Η επαλήθευση μέσω email καταργήθηκε"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Θέλετε σίγουρα να καταργήσετε την απαίτηση κωδικού πρόσβασης για αυτό το Send;",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Θέλετε σίγουρα να καταργήσετε την απαίτηση επαλήθευσης μέσω email για αυτό το Send;",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Διαγραφή Send",
@@ -4468,11 +4521,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Εισαγάγετε ένα έγκυρο URL",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "Ανιχνεύθηκε μη ασφαλές URL",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -4480,7 +4533,7 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "Ορισμός ως έμπιστο URL",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
@@ -4916,7 +4969,7 @@
     "message": "Το αίτημά σας εστάλη στον διαχειριστή σας."
   },
   "troubleLoggingIn": {
-    "message": "Δεν μπορείτε να συνδεθείτε;"
+    "message": "Πρόβλημα σύνδεσης;"
   },
   "loginApproved": {
     "message": "Η σύνδεση εγκρίθηκε"
@@ -5211,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
+  "importingItemsTitle": {
+    "message": "Importing $COUNT$ items!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Importing 1 item!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Opening the browser extension"
+  },
+  "openedExtensionTitle": {
+    "message": "Opened the browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Προσπαθήστε ξανά"
   },
@@ -5500,7 +5624,7 @@
     "message": "Import manually instead"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Απευθείας εισαγωγή"
   },
   "fastest": {
     "message": "Fastest"
@@ -5509,14 +5633,14 @@
     "message": "Import your data"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Εισαγάγετε τα δεδομένα σας μέσα σε λίγα λεπτά"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Εισαγάγετε τα στοιχεία σας απευθείας από το",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "για να λάβετε όλα τα δεδομένα σας.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
@@ -5535,7 +5659,7 @@
     "message": "No browser profiles were found"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "Σύνδεση στο $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5559,7 +5683,7 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Θα ζητήσουμε τα στοιχεία σύνδεσής σας"
   },
   "importDataLoginInfoBody": {
     "message": "Στο επόμενο βήμα, συνδεθείτε στον λογαριασμό σας στο $VENDOR$.",
@@ -5601,7 +5725,7 @@
     "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Αποδεκτές μορφές: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -5996,28 +6120,28 @@
     "message": "Διεύθυνση email για το LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Απαιτείται διεύθυνση email."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Εισαγάγετε μια έγκυρη διεύθυνση email."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Απαιτείται κωδικός πρόσβασης."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Εισαγάγετε έναν έγκυρο κωδικό πρόσβασης"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Εισαγάγετε έναν έγκυρο κωδικό επαλήθευσης."
   },
   "lastPassLoginPasswordDesc": {
     "message": "Please enter your LastPass master password."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Εισαγάγετε τον κωδικό επαλήθευσης παρακάτω."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Αναμονή για έλεγχο ταυτότητας SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
     "message": "Once signed in, we’ll continue your import automatically."
@@ -6029,22 +6153,22 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Απαιτείται διεύθυνση email."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Εισαγάγετε μια έγκυρη διεύθυνση email."
   },
   "keeperLoginUnsupportedTwoFactor": {
     "message": "Unsupported two-factor method. Switch methods or import manually."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Μέθοδος έγκρισης συσκευής"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Εισαγάγετε έναν έγκυρο κωδικό επαλήθευσης."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Έγινε εκ νέου αποστολή κωδικού επαλήθευσης"
   },
   "keeperLoginPushSentDesc": {
     "message": "Keeper Push notification sent to approved device."
@@ -6077,10 +6201,10 @@
     "message": "We’ve sent an admin approval request to your admin."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Απαιτείται κωδικός πρόσβασης."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Εισαγάγετε έναν έγκυρο κωδικό πρόσβασης."
   },
   "lastPassMFARequired": {
     "message": "Απαιτείται πολυμερής ταυτοποίηση LastPass"
@@ -6122,7 +6246,7 @@
     "message": "Εισάγετε το YubiKey που σχετίζεται με τον λογαριασμό LastPass στη θύρα USB του υπολογιστή σας, και στη συνέχεια αγγίξτε το κουμπί του."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Δεν ήταν δυνατή η εισαγωγή $COUNT$ στοιχείων ή θυρίδων από το 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6133,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -6146,37 +6270,43 @@
     "message": "An error has occurred. Try again or use a different import method."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "Απαιτείται διεύθυνση email."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Εισαγάγετε μια έγκυρη διεύθυνση email."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "Απαιτείται διεύθυνση σύνδεσης."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Εισαγάγετε μια έγκυρη διεύθυνση σύνδεσης."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Απαιτείται μυστικό κλειδί."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Εισαγάγετε ένα έγκυρο μυστικό κλειδί."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Απαιτείται κωδικός πρόσβασης."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Εισαγάγετε έναν έγκυρο κωδικό επαλήθευσης."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Διεύθυνση σύνδεσης"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "Διεύθυνση email του 1Password"
   },
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
+  },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
   },
   "secretKey": {
     "message": "Μυστικό κλειδί"
@@ -6186,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Διεύθυνση email για το Keeper"
@@ -6705,11 +6859,8 @@
   "copyAddress": {
     "message": "Αντιγραφή διεύθυνσης"
   },
-  "myItems": {
-    "message": "Τα στοιχεία μου"
-  },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Τα στοιχεία μου"
   },
   "adminConsole": {
     "message": "Κονσόλα διαχειριστή"
@@ -7052,18 +7203,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "Εφαρμογή (URI)"
+  "desktopApp": {
+    "message": "Εφαρμογή υπολογιστή",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "Εφαρμογή (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Ο ιστότοπος προστέθηκε"
@@ -7073,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Προσθήκη ιστοτόπου ή εφαρμογής"
-  },
-  "app": {
-    "message": "Εφαρμογή"
   },
   "deleteWebsite": {
     "message": "Διαγραφή ιστοτόπου"
@@ -8163,8 +8316,8 @@
   "howToManageMyVault": {
     "message": "Πώς διαχειρίζομαι το θησαυροφυλάκιό μου;"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Μεταφορά στοιχείων στο $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8172,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "Ο οργανισμός $ORGANIZATION$ απαιτεί όλα τα στοιχεία να ανήκουν στον οργανισμό για ασφάλεια και συμμόρφωση.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Κάντε κλικ στο accept για να μεταφέρετε την κυριότητα των στοιχείων σας."
   },
   "openTransferItemsHelpArticle": {
     "message": "Άνοιγμα άρθρου βοήθειας για τη μεταφορά στοιχείων"
@@ -8443,8 +8593,8 @@
     "message": "Αυτό το Send θα λήξει αυτόματα στην καθορισμένη ημερομηνία διαγραφής",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Δεν μπορείτε να εισαγάγετε στοιχεία στα Στοιχεία μου που αποτελούν μέρος πολλαπλών συλλογών"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Δεν είναι δυνατή η αποθήκευση στοιχείου. Πρέπει να είστε επιβεβαιωμένος στον οργανισμό για να αποθηκεύετε στοιχεία."
@@ -8629,13 +8779,13 @@
     "message": "Αυτός ο κωδικός πρόσβασης έχει πρόσθετους κινδύνους:"
   },
   "excludeFromList": {
-    "message": "Exclude from list"
+    "message": "Εξαίρεση από τη λίστα"
   },
   "excludeFromListDesc": {
     "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
   },
   "excludeAnyway": {
-    "message": "Exclude anyway"
+    "message": "Εξαίρεση ούτως ή άλλως"
   },
   "reused": {
     "message": "Επαναχρησιμοποιημένος",
@@ -8758,7 +8908,7 @@
     "message": "Άγνωστο στοιχείο, ίσως χρειαστεί να ζητήσετε άδεια για πρόσβαση σε αυτό το στοιχείο."
   },
   "viewSharedItem": {
-    "message": "View shared item"
+    "message": "Προβολή κοινόχρηστου στοιχείου"
   },
   "copyShareLink": {
     "message": "Copy share link"
@@ -8783,7 +8933,7 @@
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ από $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -8865,5 +9015,432 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "vaultItem": {
+    "message": "Vault item"
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Η πρόσβαση σε αυτό το στοιχείο δεν επιτρέπεται από το τρέχον δίκτυό σας."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Η πρόσβαση σε αυτό το στοιχείο δεν επιτρέπεται αυτήν τη στιγμή."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Η πρόσβαση σε αυτό το στοιχείο δεν επιτρέπεται αυτήν τη στιγμή."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamLeaseExpires": {
+    "message": "Λήγει στις $DATE$ στις $TIME$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Λήγει σήμερα στις $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Έναρξη πρόσβασης"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamEndLeaseButton": {
+    "message": "Τερματισμός πρόσβασης"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Τερματισμός πρόσβασης;"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Παράταση πρόσβασης"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Παράταση πρόσβασης"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Διάρκεια παράτασης"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Αιτία"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Η πρόσβαση παρατάθηκε."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Έτοιμο προς χρήση"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Απομένουν $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Λήγει σύντομα • Απομένουν $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Η συνεδρία έληξε"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Ενεργή πρόσβαση • Απομένουν $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Υποβλήθηκε μόλις τώρα"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Submitted $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Privileged credentials"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls license needed",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Αίτημα για χρήση"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Unavailable to request",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Παράταση πρόσβασης",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "Απομένει <1 λεπτό",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Ελεγχόμενη πρόσβαση"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Σε χρήση"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Λήγει σύντομα"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Η πρόσβασή σας έχει λήξει"
+  },
+  "pamEndedBannerBody": {
+    "message": "The lease for this credential expired. This credential will be rotated now that your access has ended."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "You can't request access right now"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "This credential's access rule doesn't allow requests from your current network or at this time."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Έτοιμο προς χρήση"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "You can access this credential until $TIME$ today.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "You can access this credential until $TIME$ on $DATE$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Μπορείτε να ζητήσετε πρόσβαση"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "You need a Privileged Controls license to use this item",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Πρόσβαση για έως και $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Αίτημα πρόσβασης"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Ακύρωση αιτήματος"
+  },
+  "pamKeepRequest": {
+    "message": "Διατήρηση αιτήματος"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Ακύρωση αιτήματος πρόσβασης"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Το αίτημα ακυρώθηκε"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Αποστολή αιτήματος"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Πόσο καιρό τη χρειάζεστε;"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "You'll get a notification once approved. Your time only counts down once you start using this credential."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Λεπτομέρειες αιτήματος"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Ημερομηνία έναρξης"
+  },
+  "requestAccessModalStart": {
+    "message": "Ώρα έναρξης"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Ημερομηνία λήξης"
+  },
+  "requestAccessModalEnd": {
+    "message": "Ώρα λήξης"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Η λήξη πρέπει να είναι μετά την έναρξη."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (τώρα)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Προσαρμοσμένη ώρα…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Custom end date and time…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Εμφάνιση προτεινόμενων ωρών έναρξης"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Πίσω στις προτεινόμενες διάρκειες"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, μέχρι $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Γιατί τη χρειάζεστε;"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Γιατί τη χρειάζεστε;"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "e.g., Quarterly audit, need to run a few read-only queries"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Visible to your approver and saved to the audit log."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Δεν ήταν δυνατή η αίτηση πρόσβασης. Δοκιμάστε ξανά."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Έχετε ήδη ενεργή πρόσβαση σε αυτό το στοιχείο."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Η πρόσβαση εγκρίθηκε. Επιλέξτε «Έναρξη πρόσβασης» για να ξεκινήσετε."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Ζητήθηκε πρόσβαση"
   }
 }

@@ -21,6 +21,7 @@ export const LinkTypes = [
   "success",
   "warning",
   "danger",
+  "accent-primary",
 ] as const;
 
 export type LinkType = (typeof LinkTypes)[number];
@@ -64,6 +65,11 @@ const linkStyles: Record<LinkType, string[]> = {
     "hover:tw-text-fg-contrast-strong",
     "focus-visible:tw-text-fg-contrast-strong",
     "focus-visible:before:tw-ring-fg-contrast",
+  ],
+  "accent-primary": [
+    "tw-text-fg-accent-primary",
+    "hover:tw-text-fg-accent-primary-strong",
+    "focus-visible:tw-text-fg-accent-primary-strong",
   ],
 };
 

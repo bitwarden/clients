@@ -112,7 +112,14 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
 );
 
-export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
+/**
+ * The tab hosting a WebAuthn request, along with the URL of the frame within it that made the
+ * request. Anything scoped to the requesting site uses the frame URL, because a sub-frame's origin
+ * is not the tab's.
+ */
+export type BrowserFido2ParentWindowReference = chrome.tabs.Tab & {
+  requestFrameUrl: string | undefined;
+};
 
 /**
  * Browser implementation of the {@link Fido2UserInterfaceService}.
@@ -123,7 +130,7 @@ export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServi
 
   async newSession(
     fallbackSupported: boolean,
-    tab: chrome.tabs.Tab,
+    tab: BrowserFido2ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2UserInterfaceSession> {
     return await BrowserFido2UserInterfaceSession.create(
@@ -139,7 +146,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   static async create(
     authService: AuthService,
     fallbackSupported: boolean,
-    tab: chrome.tabs.Tab,
+    tab: BrowserFido2ParentWindowReference,
     abortController?: AbortController,
   ): Promise<BrowserFido2UserInterfaceSession> {
     return new BrowserFido2UserInterfaceSession(
@@ -182,7 +189,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private constructor(
     private readonly authService: AuthService,
     private readonly fallbackSupported: boolean,
-    private readonly tab: chrome.tabs.Tab,
+    private readonly tab: BrowserFido2ParentWindowReference,
     readonly abortController = new AbortController(),
     readonly sessionId = Utils.newGuid(),
   ) {
@@ -369,6 +376,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,
+      senderUrl: this.tab.requestFrameUrl,
     });
 
     this.windowClosed$

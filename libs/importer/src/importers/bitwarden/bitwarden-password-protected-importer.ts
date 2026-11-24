@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -38,8 +39,9 @@ export class BitwardenPasswordProtectedImporter
     private keyGenerationService: KeyGenerationService,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
+    logService: LogService,
   ) {
-    super(keyService, encryptService, i18nService, cipherService, accountService);
+    super(keyService, encryptService, i18nService, cipherService, accountService, logService);
   }
 
   async parse(data: string): Promise<ImportResult> {

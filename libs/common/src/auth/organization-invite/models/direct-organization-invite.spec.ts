@@ -183,4 +183,25 @@ describe("DirectOrganizationInvite", () => {
       expect(result).toMatchObject(json);
     });
   });
+
+  describe("isForOrganization", () => {
+    const orgId = "0a1b2c3d-0000-0000-0000-00000000000a";
+    const invite = new DirectOrganizationInvite({
+      email: "user@example.com",
+      initOrganization: false,
+      orgUserHasExistingUser: false,
+      organizationId: orgId,
+      organizationName: "organizationName",
+      organizationUserId: validUserId,
+      token: "token",
+    });
+
+    it.each([
+      ["the same ID", orgId, true],
+      ["the same ID in upper case", orgId.toUpperCase(), true],
+      ["a different ID", "0a1b2c3d-0000-0000-0000-00000000000b", false],
+    ])("returns the match result for %s", (_, organizationId, expected) => {
+      expect(invite.isForOrganization(organizationId)).toBe(expected);
+    });
+  });
 });

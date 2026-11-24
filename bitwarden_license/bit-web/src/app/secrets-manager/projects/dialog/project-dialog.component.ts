@@ -4,12 +4,10 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
+import { ProjectService, ProjectView } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
-
-import { ProjectView } from "../../models/view/project.view";
-import { ProjectService } from "../../projects/project.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums

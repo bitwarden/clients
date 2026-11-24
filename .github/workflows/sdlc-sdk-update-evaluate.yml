@@ -23,8 +23,9 @@ jobs:
       pull-requests: write # sticky comment
 
     env:
-      _BOT_NAME: "bw-ghapp[bot]"
       _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
+      _AGENT_ID: "209825114"
+      _AGENT_NAME: "claude[bot]"
 
     steps:
       - name: Skip if this bump was already evaluated
@@ -114,12 +115,14 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: npm ci
 
-      # Any commit the agent makes has to be bot-authored or the next bump run's author guard fails.
+      # Agent commits use their own identity so sdk-update.yml's author guard freezes the branch until
+      # the fix is reviewed and merged, the same way a human fix commit does. claude-code-action sets
+      # the same identity from bot_id/bot_name; this covers it continuing past a failed git setup.
       - name: Configure git identity
         if: steps.gate.outputs.skip == 'false'
         run: |
-          git config user.name "$_BOT_NAME"
-          git config user.email "$_BOT_EMAIL"
+          git config user.name "$_AGENT_NAME"
+          git config user.email "${_AGENT_ID}+${_AGENT_NAME}@users.noreply.github.com"
 
       - name: Run the baseline type check
         id: baseline
@@ -150,8 +153,8 @@ jobs:
         with:
           anthropic_api_key: ${{ steps.get-kv-secrets.outputs.ANTHROPIC-RESPONSE-API-KEY }}
           allowed_bots: "bw-ghapp"
-          bot_id: "178206702"
-          bot_name: "bw-ghapp[bot]"
+          bot_id: ${{ env._AGENT_ID }}
+          bot_name: ${{ env._AGENT_NAME }}
           track_progress: true
           use_sticky_comment: true
           plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"

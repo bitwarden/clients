@@ -139,6 +139,24 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
+    combineLatest([
+      this.autotypeKeyboardShortcutState.state$,
+      this.desktopAutotypeGaPolicyService.autotypeGaDefaultKeyboardShortcut$,
+    ])
+      .pipe(
+        concatMap(async ([keyboardShortcutState, policyKeyboardShortcut]) => {
+          try {
+            if (policyKeyboardShortcut != null && keyboardShortcutState == null) {
+              await this.setAutotypeKeyboardShortcutState(policyKeyboardShortcut);
+            }
+          } catch {
+            this.logService.error("Failed to set Autotype keyboard shortcut.");
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     // Listen for changes in keyboard shortcut settings
     this.autotypeKeyboardShortcut$
       .pipe(

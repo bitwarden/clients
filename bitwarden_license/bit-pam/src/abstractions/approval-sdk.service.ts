@@ -9,7 +9,17 @@ export abstract class ApprovalSdkService {
    */
   abstract listInbox(): Promise<AccessRequestView[]>;
 
-  /** The decided requests on collections the caller manages. */
+  /**
+   * The approved requests on collections the caller manages that can still give access: not
+   * started and inside their window, or behind a live lease, with that lease's extension. The
+   * ended ones are {@link listHistory}'s.
+   */
+  abstract listApproved(): Promise<AccessRequestView[]>;
+
+  /**
+   * The ended requests on collections the caller manages, newest first: denied, revoked, canceled,
+   * expired or session-ended. An approval still giving access is {@link listApproved}'s.
+   */
   abstract listHistory(): Promise<AccessRequestView[]>;
 
   /**
