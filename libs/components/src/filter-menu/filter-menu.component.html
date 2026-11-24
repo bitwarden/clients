@@ -2,9 +2,7 @@
   <button
     bit-chip-content
     [startIcon]="icon()"
-    [endIcon]="
-      committedActive() ? undefined : menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'
-    "
+    [endIcon]="active() ? undefined : menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
     type="button"
     class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent -tw-my-px"
     [class]="triggerPaddingClass()"
@@ -20,7 +18,7 @@
     <span class="tw-block tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
   </button>
   <bit-berry slot="end" [value]="committedCount()"></bit-berry>
-  @if (committedActive()) {
+  @if (active()) {
     <button
       bit-chip-dismiss-button
       slot="end"

@@ -219,17 +219,18 @@ describe("FilterMenuComponent selections", () => {
       expect(berryValue(host.multi())).toBe(0);
     });
 
-    it("does not take its active styling until the menu closes", () => {
+    it("takes its active styling straight away, while the berry holds until close", () => {
       openMenu();
       host.multi().toggle("login");
       fixture.detectChanges();
 
-      // The reported bug: the chip styled itself active on the first selection.
+      // Design wants the active colour immediately; only the count waits for the menu to close.
       expect(chipIsActive()).toBe(true);
-      expect(chipReadsActive()).toBe(false);
+      expect(chipReadsActive()).toBe(true);
+      expect(berryValue(host.multi())).toBe(0);
 
       closeMenu();
-      expect(chipReadsActive()).toBe(true);
+      expect(berryValue(host.multi())).toBe(1);
     });
 
     it("still updates immediately when the chip changes with the menu closed", () => {
@@ -778,9 +779,8 @@ describe("FilterMenuComponent host counts", () => {
 });
 
 /*
- * PAM-570 follow-up: a single-select chip shows its selection in the label, and picking an option
- * doesn't close the menu — so the label is the part most able to drift out of step with the rest
- * of the chip. It has to commit with everything else, not on its own.
+ * A single-select chip shows its selection in the label, and picking an option doesn't close the
+ * menu. Only the berry is held while the menu is open, so the label follows the selection live.
  */
 describe("FilterMenuComponent single-select label while the menu is open", () => {
   let fixture: ComponentFixture<UnsetLabelHostComponent>;
@@ -808,7 +808,7 @@ describe("FilterMenuComponent single-select label while the menu is open", () =>
 
   const label = () => triggerEl().textContent?.trim();
 
-  it("holds the committed label when the menu's All row clears the selection", () => {
+  it("reads the cleared state straight away when the menu's All row clears the selection", () => {
     host.single().setValue("login");
     fixture.detectChanges();
     expect(label()).toBe("Type: Login");
@@ -817,15 +817,11 @@ describe("FilterMenuComponent single-select label while the menu is open", () =>
     host.single().clear();
     fixture.detectChanges();
 
-    // Without committing the label as a unit this read "Type" — neither the old
-    // selection nor the new cleared state.
-    expect(label()).toBe("Type: Login");
-
-    toggleMenu();
+    // Never a bare "Type": the label and the active state move together.
     expect(label()).toBe("Type: All");
   });
 
-  it("holds the committed label while another option is picked", () => {
+  it("follows the selection straight away while another option is picked", () => {
     host.single().setValue("login");
     fixture.detectChanges();
 
@@ -834,9 +830,6 @@ describe("FilterMenuComponent single-select label while the menu is open", () =>
     fixture.detectChanges();
 
     expect(host.single().selections()).toEqual([{ value: "card", label: "Card" }]);
-    expect(label()).toBe("Type: Login");
-
-    toggleMenu();
     expect(label()).toBe("Type: Card");
   });
 
