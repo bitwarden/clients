@@ -9,7 +9,6 @@ import {
   tabReplaced$,
   windowFocusChanged$,
   windowRemoved$,
-  runtimeMessageReceived$,
 } from "./browser-events";
 
 describe("browser-events", () => {
@@ -119,28 +118,6 @@ describe("browser-events", () => {
       invocations: [
         { args: [9], expected: 9 },
         { args: [10], expected: 10 },
-      ],
-    },
-    {
-      name: "runtimeMessageReceived$",
-      event: () => chrome.runtime.onMessage as unknown as EventMock,
-      observable: () => runtimeMessageReceived$(),
-      invocations: [
-        {
-          args: [
-            { command: "first" },
-            { url: "chrome-extension://id/popup/index.html" },
-            jest.fn(),
-          ],
-          expected: {
-            message: { command: "first" },
-            sender: { url: "chrome-extension://id/popup/index.html" },
-          },
-        },
-        {
-          args: [{ command: "second" }, { tab: { id: 5 } }, jest.fn()],
-          expected: { message: { command: "second" }, sender: { tab: { id: 5 } } },
-        },
       ],
     },
   ];

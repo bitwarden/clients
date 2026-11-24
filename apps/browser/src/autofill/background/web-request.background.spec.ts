@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, defer, NEVER, of, Subject } from "rxjs";
+import { BehaviorSubject, defer, merge, NEVER, of, Subject } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -21,13 +22,15 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
+import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
+import { AutofillMessageCommand } from "../enums/autofill-message.enums";
 import { CipherUse } from "../services/abstractions/fill-cipher-policy";
 import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import { flushPromises } from "../spec/testing-utils";
 import {
   closeAllHttpAuthenticationPopouts,
   closeHttpAuthenticationPopout,
-  HttpAuthenticationPopoutMessage,
   openHttpAuthenticationPopout,
 } from "../utils/http-authentication-popout";
 
@@ -67,6 +70,9 @@ describe("WebRequestBackground", () => {
   let logService: ReturnType<typeof mock<LogService>>;
   let activeAccount$: BehaviorSubject<Account | null>;
   let httpAuthenticationAvailable$: BehaviorSubject<boolean>;
+  /** Messages sent within the background, which never cross a context boundary. */
+  let internalMessages$: Subject<Message<Record<string, unknown>>>;
+  let messageListener: MessageListener;
   let webRequest: {
     onAuthRequired: WebRequestEventMock;
     onCompleted: WebRequestEventMock;
@@ -84,6 +90,7 @@ describe("WebRequestBackground", () => {
       autofillSettingsService,
       eventCollectionService,
       logService,
+      messageListener,
     );
 
   const expectListenersRegistered = (timesRegistered: number) => {
@@ -119,6 +126,11 @@ describe("WebRequestBackground", () => {
     eventCollectionService = mock<EventCollectionService>();
     eventCollectionService.collect.mockResolvedValue(undefined);
     logService = mock<LogService>();
+
+    // Runtime messages go through the same ingest as the background's, which tags them as external
+    // and records the sender the browser reports.
+    internalMessages$ = new Subject<Message<Record<string, unknown>>>();
+    messageListener = new MessageListener(merge(fromChromeRuntimeMessaging(), internalMessages$));
 
     webRequest = {
       onAuthRequired: createWebRequestEventMock(),
@@ -355,15 +367,23 @@ describe("WebRequestBackground", () => {
     const getPopoutSenderUrl = (sessionId: string) =>
       `chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=autofill_HttpAuthenticationPopout_${sessionId}#/http-authentication`;
 
-    const sendRuntimeMessage = (message: unknown, senderUrl: string) => {
+    /** Delivers a runtime message as the browser would, with the sender the browser reports. */
+    const sendRuntimeMessage = (
+      message: unknown,
+      sender: chrome.runtime.MessageSender | string,
+    ) => {
       getActiveListeners(chrome.runtime.onMessage).forEach((listener) =>
-        listener(message, { url: senderUrl }, jest.fn()),
+        listener(message, typeof sender === "string" ? { url: sender } : sender, jest.fn()),
       );
     };
 
     const respondInPopout = (sessionId: string, cipherId?: string) => {
       sendRuntimeMessage(
-        { command: HttpAuthenticationPopoutMessage.SelectionResponse, sessionId, cipherId },
+        {
+          command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+          sessionId,
+          cipherId,
+        },
         getPopoutSenderUrl(sessionId),
       );
     };
@@ -762,9 +782,93 @@ describe("WebRequestBackground", () => {
         const { sessionId } = openedPopouts[0];
         sendRuntimeMessage(
           {
-            command: HttpAuthenticationPopoutMessage.SelectionResponse,
+            command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
             sessionId,
             cipherId: "cipher-id",
+          },
+          "https://attacker.example/",
+        );
+        respondInPopout(sessionId, undefined);
+        await response;
+
+        expectDeclinedWithoutRelease();
+      });
+
+      it("ignores a selection sent from within the background", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        const { sessionId } = openedPopouts[0];
+        internalMessages$.next({
+          command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+          sessionId,
+          cipherId: "cipher-id",
+        });
+        respondInPopout(sessionId, undefined);
+        await response;
+
+        expectDeclinedWithoutRelease();
+      });
+
+      it("ignores a selection that isn't tagged as external, even with the popout as its sender", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        const { sessionId } = openedPopouts[0];
+        internalMessages$.next(
+          stampWebExtSender(
+            {
+              command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+              sessionId,
+              cipherId: "cipher-id",
+            },
+            { url: getPopoutSenderUrl(sessionId) },
+          ),
+        );
+        respondInPopout(sessionId, undefined);
+        await response;
+
+        expectDeclinedWithoutRelease();
+      });
+
+      it("ignores a selection when the browser reports no sender URL", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        const { sessionId } = openedPopouts[0];
+        sendRuntimeMessage(
+          {
+            command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+            sessionId,
+            cipherId: "cipher-id",
+          },
+          {},
+        );
+        respondInPopout(sessionId, undefined);
+        await response;
+
+        expectDeclinedWithoutRelease();
+      });
+
+      it("ignores a popout sender claimed in the message body", async () => {
+        singleLogin();
+        respondFromPopout = () => "pending";
+
+        const response = startAuthRequired();
+        await waitForPopout();
+        const { sessionId } = openedPopouts[0];
+        sendRuntimeMessage(
+          {
+            command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+            sessionId,
+            cipherId: "cipher-id",
+            webExtSender: { url: getPopoutSenderUrl(sessionId) },
           },
           "https://attacker.example/",
         );

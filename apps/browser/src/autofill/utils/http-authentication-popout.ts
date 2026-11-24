@@ -1,19 +1,22 @@
+import { CommandDefinition } from "@bitwarden/common/platform/messaging";
+
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
-
-export const HttpAuthenticationPopoutMessage = Object.freeze({
-  SelectionResponse: "httpAuthenticationSelectionResponse",
-} as const);
+import { AutofillMessageCommand } from "../enums/autofill-message.enums";
 
 /**
  * Sent by the popout when the user resolves an HTTP authentication challenge. An absent
  * `cipherId` means the user declined, and the challenge is left to the browser's own prompt.
  */
 export type HttpAuthenticationSelectionResponse = {
-  command: typeof HttpAuthenticationPopoutMessage.SelectionResponse;
   sessionId: string;
   cipherId?: string;
 };
+
+export const HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND =
+  new CommandDefinition<HttpAuthenticationSelectionResponse>(
+    AutofillMessageCommand.httpAuthenticationSelectionResponse,
+  );
 
 export const HTTP_AUTHENTICATION_POPOUT_PATH = "popup/index.html#/http-authentication";
 
@@ -52,6 +55,10 @@ export function isHttpAuthenticationPopoutSender(
   );
 }
 
+/**
+ * Whether a message is a well-formed selection response. The command alone doesn't establish the
+ * payload's shape, because any extension context can send a message with that command.
+ */
 export function isHttpAuthenticationSelectionResponse(
   message: unknown,
 ): message is HttpAuthenticationSelectionResponse {
@@ -59,10 +66,10 @@ export function isHttpAuthenticationSelectionResponse(
     return false;
   }
 
-  const candidate = message as Partial<HttpAuthenticationSelectionResponse>;
+  const candidate = message as { command?: unknown } & Partial<HttpAuthenticationSelectionResponse>;
 
   return (
-    candidate.command === HttpAuthenticationPopoutMessage.SelectionResponse &&
+    candidate.command === HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND.command &&
     typeof candidate.sessionId === "string" &&
     (candidate.cipherId == null || typeof candidate.cipherId === "string")
   );

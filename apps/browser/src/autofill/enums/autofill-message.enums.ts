@@ -3,6 +3,7 @@ export const AutofillMessageCommand = {
   collectPageDetailsResponse: "collectPageDetailsResponse",
   pageTransitionDetected: "pageTransitionDetected",
   automatedLoginStepReady: "automatedLoginStepReady",
+  httpAuthenticationSelectionResponse: "httpAuthenticationSelectionResponse",
 } as const;
 
 export type AutofillMessageCommandType =

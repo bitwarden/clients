@@ -1,9 +1,9 @@
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import { AutofillMessageCommand } from "../enums/autofill-message.enums";
 
 import {
   closeAllHttpAuthenticationPopouts,
   closeHttpAuthenticationPopout,
-  HttpAuthenticationPopoutMessage,
   isHttpAuthenticationPopoutSender,
   isHttpAuthenticationSelectionResponse,
   openHttpAuthenticationPopout,
@@ -44,8 +44,14 @@ describe("http-authentication-popout", () => {
 
   describe("isHttpAuthenticationSelectionResponse", () => {
     it.each([
-      [{ command: HttpAuthenticationPopoutMessage.SelectionResponse, sessionId, cipherId: "id" }],
-      [{ command: HttpAuthenticationPopoutMessage.SelectionResponse, sessionId }],
+      [
+        {
+          command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+          sessionId,
+          cipherId: "id",
+        },
+      ],
+      [{ command: AutofillMessageCommand.httpAuthenticationSelectionResponse, sessionId }],
     ])("accepts a selection response %#", (message) => {
       expect(isHttpAuthenticationSelectionResponse(message)).toBe(true);
     });
@@ -54,8 +60,14 @@ describe("http-authentication-popout", () => {
       [null],
       ["message"],
       [{ command: "other", sessionId }],
-      [{ command: HttpAuthenticationPopoutMessage.SelectionResponse }],
-      [{ command: HttpAuthenticationPopoutMessage.SelectionResponse, sessionId, cipherId: 1 }],
+      [{ command: AutofillMessageCommand.httpAuthenticationSelectionResponse }],
+      [
+        {
+          command: AutofillMessageCommand.httpAuthenticationSelectionResponse,
+          sessionId,
+          cipherId: 1,
+        },
+      ],
     ])("rejects a malformed message %#", (message) => {
       expect(isHttpAuthenticationSelectionResponse(message)).toBe(false);
     });

@@ -1817,6 +1817,7 @@ export default class MainBackground {
         this.autofillSettingsService,
         this.eventCollectionService,
         this.logService,
+        this.messageListener,
       );
     }
 

@@ -25,16 +25,19 @@ import {
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { isExternalMessage, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { runtimeMessageReceived$, windowRemoved$ } from "../rx";
+import { getWebExtSender } from "../../platform/utils/web-ext-sender";
+import { windowRemoved$ } from "../rx";
 import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import {
   closeAllHttpAuthenticationPopouts,
   closeHttpAuthenticationPopout,
+  HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND,
   isHttpAuthenticationPopoutSender,
   isHttpAuthenticationSelectionResponse,
   openHttpAuthenticationPopout,
@@ -243,6 +246,7 @@ export default class WebRequestBackground {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private eventCollectionService: EventCollectionService,
     private logService: LogService,
+    private messageListener: MessageListener,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
     this.isSafari = platformUtilsService.isSafari();
@@ -498,18 +502,15 @@ export default class WebRequestBackground {
 
     const selection = firstValueFrom(
       merge(
-        runtimeMessageReceived$().pipe(
+        this.messageListener.messages$(HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND).pipe(
           filter(
-            ({ message, sender }) =>
+            (message) =>
+              isExternalMessage(message) &&
               isHttpAuthenticationSelectionResponse(message) &&
               message.sessionId === sessionId &&
-              isHttpAuthenticationPopoutSender(sender?.url, sessionId),
+              isHttpAuthenticationPopoutSender(getWebExtSender(message)?.url, sessionId),
           ),
-          map(({ message }) => {
-            const { cipherId } = message as { cipherId?: string };
-
-            return cipherId != null && offered.has(cipherId) ? cipherId : null;
-          }),
+          map(({ cipherId }) => (cipherId != null && offered.has(cipherId) ? cipherId : null)),
         ),
         windowRemoved$().pipe(
           filter((windowId) => popoutWindowId != null && windowId === popoutWindowId),

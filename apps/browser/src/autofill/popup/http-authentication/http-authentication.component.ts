@@ -25,7 +25,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { CipherUse, FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
 import {
-  HttpAuthenticationPopoutMessage,
+  HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND,
   HttpAuthenticationSelectionResponse,
 } from "../../utils/http-authentication-popout";
 
@@ -136,12 +136,15 @@ export class HttpAuthenticationComponent {
     const sessionId = this.queryParameters()?.sessionId;
 
     if (sessionId != null) {
-      const response: Omit<HttpAuthenticationSelectionResponse, "command"> = {
+      const response: HttpAuthenticationSelectionResponse = {
         sessionId,
         cipherId,
       };
 
-      await BrowserApi.sendMessage(HttpAuthenticationPopoutMessage.SelectionResponse, response);
+      await BrowserApi.sendMessage(
+        HTTP_AUTHENTICATION_SELECTION_RESPONSE_COMMAND.command,
+        response,
+      );
     }
 
     window.close();

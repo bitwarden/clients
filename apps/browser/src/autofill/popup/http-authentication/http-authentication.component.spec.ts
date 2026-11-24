@@ -17,8 +17,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
 import { CipherUse, FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
-import { HttpAuthenticationPopoutMessage } from "../../utils/http-authentication-popout";
 
 import { HttpAuthenticationComponent } from "./http-authentication.component";
 
@@ -151,10 +151,13 @@ describe("HttpAuthenticationComponent", () => {
     loginButtons()[0].click();
     await fixture.whenStable();
 
-    expect(sendMessage).toHaveBeenCalledWith(HttpAuthenticationPopoutMessage.SelectionResponse, {
-      sessionId,
-      cipherId: "first-id",
-    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      AutofillMessageCommand.httpAuthenticationSelectionResponse,
+      {
+        sessionId,
+        cipherId: "first-id",
+      },
+    );
     expect(closeWindow).toHaveBeenCalled();
   });
 
@@ -165,10 +168,13 @@ describe("HttpAuthenticationComponent", () => {
     await fixture.whenStable();
 
     expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
-    expect(sendMessage).toHaveBeenCalledWith(HttpAuthenticationPopoutMessage.SelectionResponse, {
-      sessionId,
-      cipherId: "second-id",
-    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      AutofillMessageCommand.httpAuthenticationSelectionResponse,
+      {
+        sessionId,
+        cipherId: "second-id",
+      },
+    );
   });
 
   it("returns to the list when the master password confirmation is cancelled", async () => {
@@ -197,10 +203,13 @@ describe("HttpAuthenticationComponent", () => {
     ).click();
     await fixture.whenStable();
 
-    expect(sendMessage).toHaveBeenCalledWith(HttpAuthenticationPopoutMessage.SelectionResponse, {
-      sessionId,
-      cipherId: undefined,
-    });
+    expect(sendMessage).toHaveBeenCalledWith(
+      AutofillMessageCommand.httpAuthenticationSelectionResponse,
+      {
+        sessionId,
+        cipherId: undefined,
+      },
+    );
     expect(closeWindow).toHaveBeenCalled();
   });
 });
