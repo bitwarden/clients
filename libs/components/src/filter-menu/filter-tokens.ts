@@ -276,16 +276,6 @@ export type FilterTreeNode = {
   groupEnd: boolean;
 };
 
-/** The parts of a tree row's behaviour only the tree that draws it can answer. */
-export interface FilterTreeHost {
-  activateNode(node: FilterTreeNode): void;
-  parentRow<T>(row: T): T | null;
-  childRows<T>(row: T): T[];
-}
-
-/** Provided by `bit-filter-menu`'s tree; injected by its rows. */
-export const FILTER_TREE_HOST = new InjectionToken<FilterTreeHost>("FilterTreeHost");
-
 /**
  * The selection state and actions `bit-filter-menu` provides to the `bit-filter-tree` that
  * renders its options. The menu holds the selected values; the tree only draws the rows, so
