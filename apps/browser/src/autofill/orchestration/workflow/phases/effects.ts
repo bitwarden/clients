@@ -4,12 +4,10 @@ import { FillEffectKind } from "../enums";
 import type { FillServices } from "../services";
 import type { FillEffect } from "../types";
 
-import { cycle } from "./rotation";
-
 /** The services the effects work with. */
 export type EffectServices = Pick<
   FillServices,
-  "accountService" | "cipherService" | "platformUtilsService" | "updateOverlayCiphers" | "now"
+  "accountService" | "fillCipherPolicy" | "platformUtilsService" | "updateOverlayCiphers" | "now"
 >;
 
 /**
@@ -26,13 +24,13 @@ export function fillEffect(
   kind: FillEffectKind,
   services: EffectServices,
 ): FillEffect<FillContext> {
-  const { accountService, cipherService, platformUtilsService, updateOverlayCiphers, now } =
+  const { accountService, fillCipherPolicy, platformUtilsService, updateOverlayCiphers, now } =
     services;
   switch (kind) {
     case FillEffectKind.Cycle:
       return async ({ selection }) => {
         if (selection.rotation) {
-          cycle(cipherService, selection.rotation);
+          fillCipherPolicy.advanceRotation(selection.rotation);
         }
       };
     case FillEffectKind.CopyTotp:

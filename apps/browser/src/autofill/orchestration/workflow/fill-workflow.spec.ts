@@ -55,10 +55,10 @@ const collected = [pageDetail(3, 1)];
 function arrange(pageDetails: PageDetail[] = collected): FakeServices {
   const f = fakeServices();
   f.autofillService.collectPageDetailsFromTab$.mockReturnValue(of(pageDetails));
-  f.cipherService.getNextCipherForUrl.mockResolvedValue(ciphers.next);
-  f.cipherService.getLastUsedForUrl.mockResolvedValue(ciphers.used);
-  f.cipherService.getNextCardCipher.mockResolvedValue(ciphers.card);
-  f.cipherService.getNextIdentityCipher.mockResolvedValue(ciphers.identity);
+  f.fillCipherPolicy.nextCipherForUrl.mockResolvedValue(ciphers.next);
+  f.fillCipherPolicy.lastUsedForUrl.mockResolvedValue(ciphers.used);
+  f.fillCipherPolicy.nextCardCipher.mockResolvedValue(ciphers.card);
+  f.fillCipherPolicy.nextIdentityCipher.mockResolvedValue(ciphers.identity);
   return f;
 }
 
@@ -178,9 +178,9 @@ describe("fillWorkflow", () => {
       });
       expect(f.accountService.setAccountActivity).toHaveBeenCalledWith(USER, expect.any(Date));
       if (effects.rotation) {
-        expect(f.cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(effects.rotation);
+        expect(f.fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(effects.rotation);
       } else {
-        expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+        expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
       }
       expect(f.platformUtilsService.copyToClipboard).toHaveBeenCalledTimes(effects.totp ? 1 : 0);
       expect(f.updateOverlayCiphers).toHaveBeenCalledTimes(effects.overlay ? 1 : 0);
@@ -210,13 +210,12 @@ describe("fillWorkflow", () => {
     expect(carried.autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
   });
 
-  // Each plan that asks the user denies a cipher that requires a reprompt, and cycles past it.
+  // Each user fill that asks the user denies a cipher that requires a reprompt, and cycles past it.
   it.each<[PlanName, string]>([
     ["command", URL],
     ["loginType", URL],
     ["card", CARD_ROTATION],
     ["identity", IDENTITY_ROTATION],
-    ["autoSubmit", URL],
   ])("asks the user for %s, denies, and cycles past the cipher", async (plan, rotation) => {
     const f = arrange();
     f.autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
@@ -224,7 +223,20 @@ describe("fillWorkflow", () => {
     const result = await run(plan, f, requestFor(plan));
 
     expect(result).toBe(AUTOFILL_DENIED);
-    expect(f.cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(rotation);
+    expect(f.fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(rotation);
+    expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
+  });
+
+  // An auto-submit step asks too, and leaves the rotation to user fills.
+  it("asks the user for autoSubmit, denies, and cycles nothing", async () => {
+    const f = arrange();
+    f.autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
+
+    const result = await run("autoSubmit", f, requestFor("autoSubmit"));
+
+    expect(result).toBe(AUTOFILL_DENIED);
+    expect(f.autofillService.isPasswordRepromptRequired).toHaveBeenCalled();
+    expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
     expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
   });
 
@@ -242,14 +254,14 @@ describe("fillWorkflow", () => {
         ciphers.requested,
         tab,
       );
-      expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+      expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
       expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
     },
   );
 
   it("never asks the user on an eager fill, and denies a login that requires a reprompt", async () => {
     const f = arrange();
-    f.cipherService.getLastUsedForUrl.mockResolvedValue(
+    f.fillCipherPolicy.lastUsedForUrl.mockResolvedValue(
       cipherOf("protected", { reprompt: CipherRepromptType.Password }),
     );
 

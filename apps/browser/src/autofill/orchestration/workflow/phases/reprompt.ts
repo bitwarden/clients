@@ -8,7 +8,6 @@ import type { FillPhase, NoAddition, RepromptPlan } from "../types";
 
 import { NO_CHECK } from "./checks";
 import { invalid } from "./results";
-import { cycle } from "./rotation";
 
 const UNCONFIRMED_REPROMPT =
   "a cipher that requires a reprompt was selected, but the user confirmed only the requested cipher";
@@ -16,7 +15,7 @@ const UNCONFIRMED_REPROMPT =
 /** The services the reprompt phases work with. */
 export type RepromptServices = Pick<
   FillServices,
-  "autofillService" | "cipherService" | "logService"
+  "autofillService" | "fillCipherPolicy" | "logService"
 >;
 
 /** The reprompt phase a plan's reprompt sub-plan calls for. */
@@ -39,13 +38,13 @@ export function repromptPhase(
  *
  * When this phase executes, it inspects the selected cipher to determine whether reprompt
  * is required. A required reprompt denies the fill, and the user's confirmation generates a new fill request. When
- * `cycleOnRefusal` is set, the denial cycles the rotation past the cipher. A cipher that requires no reprompt lets
+ * `cycleOnDenial` is set, the denial cycles the rotation past the cipher. A cipher that requires no reprompt lets
  * the fill continue.
  *
  * Checks: none.
  */
 export function askReprompt(
-  { autofillService, cipherService }: RepromptServices,
+  { autofillService, fillCipherPolicy }: RepromptServices,
   cycleOnDenial: boolean,
 ): FillPhase<FillContext, NoAddition> {
   return {
@@ -55,7 +54,7 @@ export function askReprompt(
         return {};
       }
       if (cycleOnDenial && selection.rotation) {
-        cycle(cipherService, selection.rotation);
+        fillCipherPolicy.advanceRotation(selection.rotation);
       }
       return AUTOFILL_DENIED;
     },

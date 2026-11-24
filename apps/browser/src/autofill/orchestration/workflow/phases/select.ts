@@ -1,7 +1,7 @@
 import type { UserId } from "@bitwarden/common/types/guid";
-import type { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import type { FillCipherPolicy } from "../../../services/abstractions/fill-cipher-policy";
 import { AUTOFILL_DENIED } from "../../utils";
 import type { SelectContext, Selected } from "../context";
 import { CipherSource, FillRequestKind, LoginChoice } from "../enums";
@@ -17,11 +17,17 @@ import { invalid, REQUEST_MISMATCH } from "./results";
  */
 export const LOGIN_LAST_LAUNCHED_WINDOW_MS = 30000;
 
-/** The rotation key card ciphers cycle under. It is the key `CipherService` caches cards under. */
+// FIXME: `FillCipherPolicy` does not name its card and identity rotation keys, so these restate
+// `CipherService`'s private cache keys, and `advanceRotation` receives them as a `url`. A policy that
+// rotates differently would stop card and identity cycling silently. The policy should own these keys.
+/**
+ * The key of the card rotation: advancing it moves the card `nextCardCipher` offers next. It matches
+ * the key `CipherService.getNextCardCipher` caches cards under.
+ */
 export const CARD_ROTATION = "cardCiphers";
 /**
- * The rotation key identity ciphers cycle under. It is the key `CipherService` caches identities
- * under.
+ * The key of the identity rotation: advancing it moves the identity `nextIdentityCipher` offers next.
+ * It matches the key `CipherService.getNextIdentityCipher` caches identities under.
  */
 export const IDENTITY_ROTATION = "identityCiphers";
 
@@ -30,7 +36,7 @@ const NO_TARGET_URL = "the target tab has no URL";
 /** The services the select phases work with. */
 export type SelectServices = Pick<
   FillServices,
-  "accountService" | "authService" | "cipherService" | "logService" | "now"
+  "accountService" | "authService" | "fillCipherPolicy" | "logService" | "now"
 >;
 
 /** The select phase a plan's select sub-plan calls for. */
@@ -66,7 +72,7 @@ export function selectLogin(
   services: SelectServices,
   choice: LoginChoice,
 ): FillPhase<SelectContext, Selected> {
-  const { cipherService, logService, now } = services;
+  const { fillCipherPolicy, logService, now } = services;
   return {
     check: async ({ target, userId }) =>
       target.url ? verifyAccount(userId, services) : invalid(logService, NO_TARGET_URL),
@@ -75,7 +81,7 @@ export function selectLogin(
       if (!target.url) {
         return AUTOFILL_DENIED;
       }
-      const cipher = await loginFor(cipherService, now, target.url, userId, choice);
+      const cipher = await loginFor(fillCipherPolicy, now, target.url, userId, choice);
       return cipher
         ? { selection: { cipher, source: CipherSource.Login, rotation: target.url } }
         : AUTOFILL_DENIED;
@@ -93,8 +99,8 @@ export function selectLogin(
  *  * The request's account is the active account, and unlocked (see `model.md`, invariant 12).
  */
 export function selectCard(services: SelectServices): FillPhase<SelectContext, Selected> {
-  return selectNext(services, CipherSource.Card, CARD_ROTATION, (ciphers, userId) =>
-    ciphers.getNextCardCipher(userId),
+  return selectNext(services, CipherSource.Card, CARD_ROTATION, (policy, userId) =>
+    policy.nextCardCipher(userId),
   );
 }
 
@@ -108,8 +114,8 @@ export function selectCard(services: SelectServices): FillPhase<SelectContext, S
  *  * The request's account is the active account, and unlocked (see `model.md`, invariant 12).
  */
 export function selectIdentity(services: SelectServices): FillPhase<SelectContext, Selected> {
-  return selectNext(services, CipherSource.Identity, IDENTITY_ROTATION, (ciphers, userId) =>
-    ciphers.getNextIdentityCipher(userId),
+  return selectNext(services, CipherSource.Identity, IDENTITY_ROTATION, (policy, userId) =>
+    policy.nextIdentityCipher(userId),
   );
 }
 
@@ -146,12 +152,12 @@ function selectNext(
   services: SelectServices,
   source: typeof CipherSource.Card | typeof CipherSource.Identity,
   rotation: string,
-  next: (ciphers: CipherService, userId: UserId) => Promise<CipherView | undefined | null>,
+  next: (policy: FillCipherPolicy, userId: UserId) => Promise<CipherView | undefined>,
 ): FillPhase<SelectContext, Selected> {
   return {
     check: async ({ userId }) => verifyAccount(userId, services),
     execute: async ({ userId }) => {
-      const cipher = await next(services.cipherService, userId);
+      const cipher = await next(services.fillCipherPolicy, userId);
       return cipher ? { selection: { cipher, source, rotation } } : AUTOFILL_DENIED;
     },
   };
@@ -159,20 +165,20 @@ function selectNext(
 
 /** The login `choice` selects for a URL, or `undefined` when there is none. */
 async function loginFor(
-  cipherService: CipherService,
+  policy: FillCipherPolicy,
   now: () => number,
   url: string,
   userId: UserId,
   choice: LoginChoice,
 ): Promise<CipherView | undefined> {
   if (choice === LoginChoice.Next) {
-    return (await cipherService.getNextCipherForUrl(url, userId)) ?? undefined;
+    return policy.nextCipherForUrl(url, userId);
   }
   const forEagerFill = choice === LoginChoice.ForEagerFill;
-  const launched = await cipherService.getLastLaunchedForUrl(url, userId, forEagerFill);
+  const launched = await policy.lastLaunchedForUrl(url, userId, forEagerFill);
   const lastLaunched = launched?.localData?.lastLaunched;
   if (launched && lastLaunched && now() - lastLaunched.valueOf() < LOGIN_LAST_LAUNCHED_WINDOW_MS) {
     return launched;
   }
-  return (await cipherService.getLastUsedForUrl(url, userId, forEagerFill)) ?? undefined;
+  return policy.lastUsedForUrl(url, userId, forEagerFill);
 }

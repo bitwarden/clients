@@ -7,12 +7,12 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import type { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import type { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import type { UserId } from "@bitwarden/common/types/guid";
-import type { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillOutcome } from "../../enums/autofill-outcome.enum";
 import type { LiveFrame } from "../../lifecycle/transition-buffer";
 import type { AutofillService, PageDetail } from "../../services/abstractions/autofill.service";
+import type { FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
 
 import type { FillContext, FillRequest, FillTarget } from "./context";
 import { CipherSource, FillRequestKind } from "./enums";
@@ -165,7 +165,7 @@ export function fakeServices() {
   autofillService.collectPageDetailsFromTab$.mockReturnValue(collected$);
   autofillService.doAutoFill.mockResolvedValue(FILLED);
   autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
-  const cipherService = mock<CipherService>();
+  const fillCipherPolicy = mock<FillCipherPolicy>();
   const logService = mock<LogService>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const updateOverlayCiphers = jest.fn(async (): Promise<void> => undefined);
@@ -176,7 +176,7 @@ export function fakeServices() {
     accountService,
     authService,
     autofillService,
-    cipherService,
+    fillCipherPolicy,
     logService,
     platformUtilsService,
     updateOverlayCiphers,
@@ -193,7 +193,7 @@ export function fakeServices() {
     accountService,
     authService,
     autofillService,
-    cipherService,
+    fillCipherPolicy,
     logService,
     platformUtilsService,
     updateOverlayCiphers,

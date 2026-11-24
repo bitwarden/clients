@@ -87,9 +87,7 @@ const REQUESTED_CIPHER_FLAGS: CommitFlags = Object.freeze({
 const ASK_AND_CYCLE = { action: RepromptAction.Ask, cycleOnDenial: true } as const;
 
 /**
- * A reprompt that asks the user for the cipher the user chose. A chosen cipher belongs to no
- * rotation, so there is nothing to cycle. Its caller asks before it requests the fill; this enforces
- * the reprompt should the caller not.
+ * A reprompt that asks the user, and cycles nothing.
  */
 const ASK = { action: RepromptAction.Ask, cycleOnDenial: false } as const;
 
@@ -185,7 +183,7 @@ export const FillPlans = Object.freeze({
     target: { source: TargetSource.Policy },
     read: { source: PageSource.Collect },
     select: { source: CipherSource.Login, choice: LoginChoice.Recent },
-    reprompt: ASK_AND_CYCLE,
+    reprompt: ASK,
     commit: {
       flags: Object.freeze({
         fillNewPassword: true,

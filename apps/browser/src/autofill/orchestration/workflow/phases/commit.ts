@@ -52,6 +52,9 @@ export function commitPhase(plan: CommitPlan, services: CommitServices): FillCom
         context.kind === FillRequestKind.Cipher || context.kind === FillRequestKind.Page
           ? context.options
           : undefined;
+      // The commit phase is the one place a fill reaches the page; every fill request arrives here
+      // through the orchestrator.
+      // eslint-disable-next-line no-restricted-syntax
       return autofillService.doAutoFill({
         ...flags,
         ...callerOptions,

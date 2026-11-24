@@ -4,11 +4,11 @@ import type { AccountService } from "@bitwarden/common/auth/abstractions/account
 import type { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import type { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import type { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import type { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { defaultTimings, type AutofillTimings } from "../../lifecycle";
 import type { LiveFrame } from "../../lifecycle/transition-buffer";
 import type { AutofillService } from "../../services/abstractions/autofill.service";
+import type { FillCipherPolicy } from "../../services/abstractions/fill-cipher-policy";
 
 /**
  * The browser, as a fill reads it. No read rejects: a tab or frame that is gone, and a window with no
@@ -35,7 +35,8 @@ export type FillServices = Readonly<{
   accountService: AccountService;
   authService: AuthService;
   autofillService: AutofillService;
-  cipherService: CipherService;
+  /** The ciphers a fill may select, and their rotations. */
+  fillCipherPolicy: FillCipherPolicy;
   logService: LogService;
   platformUtilsService: PlatformUtilsService;
   /** Refreshes the inline menu's ciphers. */

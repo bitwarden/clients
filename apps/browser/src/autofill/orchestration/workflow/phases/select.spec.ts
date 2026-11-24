@@ -1,7 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import type { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import type { FillCipherPolicy } from "../../../services/abstractions/fill-cipher-policy";
 import { NEVER_CANCEL } from "../../../utils/cancellation";
 import { AUTOFILL_DENIED, AUTOFILL_INVALID } from "../../utils";
 import type { SelectContext } from "../context";
@@ -62,16 +62,16 @@ describe.each<[string, (f: FakeServices) => FillPhase<SelectContext, object>]>([
 });
 
 describe("selectPhase", () => {
-  it.each<[string, Parameters<typeof selectPhase>[0], keyof CipherService]>([
-    ["a login", { source: CipherSource.Login, choice: LoginChoice.Next }, "getNextCipherForUrl"],
-    ["a card", { source: CipherSource.Card }, "getNextCardCipher"],
-    ["an identity", { source: CipherSource.Identity }, "getNextIdentityCipher"],
+  it.each<[string, Parameters<typeof selectPhase>[0], keyof FillCipherPolicy]>([
+    ["a login", { source: CipherSource.Login, choice: LoginChoice.Next }, "nextCipherForUrl"],
+    ["a card", { source: CipherSource.Card }, "nextCardCipher"],
+    ["an identity", { source: CipherSource.Identity }, "nextIdentityCipher"],
   ])("builds the selection of %s", async (_, plan, read) => {
     const f = fakeServices();
 
     await selectPhase(plan, f.services).execute(context, NEVER_CANCEL);
 
-    expect(f.cipherService[read]).toHaveBeenCalled();
+    expect(f.fillCipherPolicy[read]).toHaveBeenCalled();
   });
 
   it("builds the selection of the cipher the request carries", async () => {
@@ -103,14 +103,14 @@ describe("selectLogin", () => {
   it("takes the next login in the URL's rotation for the request's account", async () => {
     const f = fakeServices();
     const next = cipherOf("next");
-    f.cipherService.getNextCipherForUrl.mockResolvedValue(next);
+    f.fillCipherPolicy.nextCipherForUrl.mockResolvedValue(next);
 
     const result = await selectLogin(f.services, LoginChoice.Next).execute(context, NEVER_CANCEL);
 
     expect(result).toEqual({
       selection: { cipher: next, source: CipherSource.Login, rotation: URL },
     });
-    expect(f.cipherService.getNextCipherForUrl).toHaveBeenCalledWith(URL, USER);
+    expect(f.fillCipherPolicy.nextCipherForUrl).toHaveBeenCalledWith(URL, USER);
   });
 
   it.each<[LoginChoice, string, boolean]>([
@@ -123,15 +123,15 @@ describe("selectLogin", () => {
       const launched = cipherOf("launched", {
         lastLaunched: NOW - LOGIN_LAST_LAUNCHED_WINDOW_MS + 1,
       });
-      f.cipherService.getLastLaunchedForUrl.mockResolvedValue(launched);
-      f.cipherService.getLastUsedForUrl.mockResolvedValue(cipherOf("used"));
+      f.fillCipherPolicy.lastLaunchedForUrl.mockResolvedValue(launched);
+      f.fillCipherPolicy.lastUsedForUrl.mockResolvedValue(cipherOf("used"));
 
       const result = await selectLogin(f.services, choice).execute(context, NEVER_CANCEL);
 
       expect(result).toEqual({
         selection: { cipher: launched, source: CipherSource.Login, rotation: URL },
       });
-      expect(f.cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(URL, USER, forEagerFill);
+      expect(f.fillCipherPolicy.lastLaunchedForUrl).toHaveBeenCalledWith(URL, USER, forEagerFill);
     },
   );
 
@@ -163,15 +163,15 @@ describe("selectLogin", () => {
     async (choice, _, forEagerFill, launched) => {
       const f = fakeServices();
       const used = cipherOf("used");
-      f.cipherService.getLastLaunchedForUrl.mockResolvedValue(launched as CipherView);
-      f.cipherService.getLastUsedForUrl.mockResolvedValue(used);
+      f.fillCipherPolicy.lastLaunchedForUrl.mockResolvedValue(launched as CipherView);
+      f.fillCipherPolicy.lastUsedForUrl.mockResolvedValue(used);
 
       const result = await selectLogin(f.services, choice).execute(context, NEVER_CANCEL);
 
       expect(result).toEqual({
         selection: { cipher: used, source: CipherSource.Login, rotation: URL },
       });
-      expect(f.cipherService.getLastUsedForUrl).toHaveBeenCalledWith(URL, USER, forEagerFill);
+      expect(f.fillCipherPolicy.lastUsedForUrl).toHaveBeenCalledWith(URL, USER, forEagerFill);
     },
   );
 
@@ -188,13 +188,13 @@ describe("selectLogin", () => {
 });
 
 describe.each<
-  [string, typeof selectCard, "getNextCardCipher" | "getNextIdentityCipher", CipherSource, string]
+  [string, typeof selectCard, "nextCardCipher" | "nextIdentityCipher", CipherSource, string]
 >([
-  ["selectCard", selectCard, "getNextCardCipher", CipherSource.Card, CARD_ROTATION],
+  ["selectCard", selectCard, "nextCardCipher", CipherSource.Card, CARD_ROTATION],
   [
     "selectIdentity",
     selectIdentity,
-    "getNextIdentityCipher",
+    "nextIdentityCipher",
     CipherSource.Identity,
     IDENTITY_ROTATION,
   ],
@@ -202,12 +202,12 @@ describe.each<
   it("takes the next cipher in the request's account's rotation", async () => {
     const f = fakeServices();
     const chosen = cipherOf("chosen");
-    f.cipherService[next].mockResolvedValue(chosen);
+    f.fillCipherPolicy[next].mockResolvedValue(chosen);
 
     const result = await select(f.services).execute(context, NEVER_CANCEL);
 
     expect(result).toEqual({ selection: { cipher: chosen, source, rotation } });
-    expect(f.cipherService[next]).toHaveBeenCalledWith(USER);
+    expect(f.fillCipherPolicy[next]).toHaveBeenCalledWith(USER);
   });
 
   it("denies the fill when there is no cipher", async () => {

@@ -40,8 +40,9 @@ export const LoginChoice = Object.freeze({
   /** A login launched recently, else the last one used. */
   Recent: "recent",
   /**
-   * As {@link LoginChoice.Recent}, among the logins allowed to fill eagerly: those whose
-   * autofill-on-page-load setting allows it.
+   * As {@link LoginChoice.Recent}, filtered to logins that allow eager fills.
+   *
+   * See: `model.md`, "Concepts" for more information.
    */
   ForEagerFill: "forEagerFill",
 } as const);

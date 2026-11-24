@@ -23,7 +23,7 @@ describe("fillEffect", () => {
 
       await fillEffect(FillEffectKind.Cycle, f.services)(rotated, FILLED);
 
-      expect(f.cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(URL);
+      expect(f.fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(URL);
     });
 
     it("cycles nothing for a cipher the request carries", async () => {
@@ -31,7 +31,7 @@ describe("fillEffect", () => {
 
       await fillEffect(FillEffectKind.Cycle, f.services)(requested, FILLED);
 
-      expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+      expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
     });
   });
 

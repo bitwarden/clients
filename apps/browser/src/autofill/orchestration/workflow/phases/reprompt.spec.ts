@@ -31,7 +31,7 @@ describe("repromptPhase", () => {
     const result = await phase.execute(selectionOf(CipherRepromptType.Password), NEVER_CANCEL);
 
     expect(result).toBe(AUTOFILL_DENIED);
-    expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
   });
 
   it("builds the refusing reprompt", async () => {
@@ -78,7 +78,7 @@ describe("askReprompt", () => {
       expect.objectContaining({ reprompt: CipherRepromptType.None }),
       tab,
     );
-    expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
   });
 
   it("denies the fill, and cycles past the cipher, when the user is asked and it cycles on refusal", async () => {
@@ -91,7 +91,7 @@ describe("askReprompt", () => {
     );
 
     expect(result).toBe(AUTOFILL_DENIED);
-    expect(f.cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(URL);
+    expect(f.fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(URL);
   });
 
   it("denies the fill, and cycles nothing, when the user is asked and it does not cycle", async () => {
@@ -104,7 +104,7 @@ describe("askReprompt", () => {
     );
 
     expect(result).toBe(AUTOFILL_DENIED);
-    expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
   });
 
   it("cycles nothing for a cipher without a rotation", async () => {
@@ -117,7 +117,7 @@ describe("askReprompt", () => {
     );
 
     expect(result).toBe(AUTOFILL_DENIED);
-    expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    expect(f.fillCipherPolicy.advanceRotation).not.toHaveBeenCalled();
   });
 });
 

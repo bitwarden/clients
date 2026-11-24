@@ -32,6 +32,8 @@ cancelled. It knows nothing of the systems a phase works with.
   phase, the effects, and whether an absent fill is re-attempted. A plan is written for one entry
   point, so it states the actions that entry point's fill calls for.
 - **Sub-plan** — the part of a plan that decides one phase: its variant, and the actions it takes.
+- **Eager fill** — a fill triggered automatically. These are also known as "page load" fills; the
+  workflow avoids this term due to ambiguity with a page's `onload` event.
 
 ## Terminology
 
