@@ -153,7 +153,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the only countdown there and has to carry the warning itself. A new countdown must read this
   constant, not restate five minutes.
 - `collection-access-rule-callout/`, the callout flagging a gated collection inside the collection
-  edit dialog. Only users who can manage access rules see the governing rules named and linked.
+  edit dialog. Like the sidebar lock and the banner, gating comes from the collection's
+  server-derived `hasEnabledAccessRule`, not from the rule read. Only users who can manage access
+  rules see the governing rules named and linked.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
