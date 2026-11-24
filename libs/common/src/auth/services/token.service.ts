@@ -8,6 +8,7 @@ import {
   EncryptedString,
   EncryptService,
   EncString,
+  isSerializedEncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -510,7 +511,7 @@ export class TokenService implements TokenServiceAbstraction {
       try {
         accessTokenKey = await this.getAccessTokenKey(userId);
       } catch (error) {
-        if (EncString.isSerializedEncString(accessTokenDisk)) {
+        if (isSerializedEncString(accessTokenDisk)) {
           this.logService.error(
             "Access token key retrieval failed. Unable to decrypt encrypted access token. Logging user out.",
             error,
@@ -528,7 +529,7 @@ export class TokenService implements TokenServiceAbstraction {
       }
 
       if (!accessTokenKey) {
-        if (EncString.isSerializedEncString(accessTokenDisk)) {
+        if (isSerializedEncString(accessTokenDisk)) {
           // The access token is encrypted but we don't have the key to decrypt it for
           // whatever reason so we have to log the user out.
           this.logService.error(

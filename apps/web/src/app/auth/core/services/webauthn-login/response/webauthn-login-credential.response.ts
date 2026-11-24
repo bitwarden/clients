@@ -3,7 +3,7 @@
 import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString, isSerializedEncString } from "@bitwarden/legacy-crypto";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../../enums/webauthn-login-credential-prf-status.enum";
 
@@ -27,10 +27,10 @@ export class WebauthnLoginCredentialResponse extends BaseResponse {
   }
 
   getRotateableKeyset(): RotateableKeySet {
-    if (!EncString.isSerializedEncString(this.encryptedUserKey)) {
+    if (!isSerializedEncString(this.encryptedUserKey)) {
       throw new Error("Invalid encrypted user key");
     }
-    if (!EncString.isSerializedEncString(this.encryptedPublicKey)) {
+    if (!isSerializedEncString(this.encryptedPublicKey)) {
       throw new Error("Invalid encrypted public key");
     }
 

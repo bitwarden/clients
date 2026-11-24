@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString, isSerializedEncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -51,7 +51,7 @@ export class CipherExport {
     // Only overwrite an existing view.key when the export JSON explicitly carries one.
     // Leaving it absent (e.g. after CLI redaction) preserves the already-decrypted key
     // that the bw-edit path fetches before calling toView(), preventing silent key loss.
-    if (req.key != null && !EncString.isSerializedEncString(req.key)) {
+    if (req.key != null && !isSerializedEncString(req.key)) {
       view.key = SymmetricCryptoKey.fromString(req.key);
     }
 
