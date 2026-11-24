@@ -1,5 +1,7 @@
 import { expect, Locator, Page } from "@playwright/test";
 
+import { confirmSimpleDialog } from "./simple-dialog";
+
 const EMPTY_STATE = "access-rules-empty-state";
 const EMPTY_STATE_CREATE_BUTTON = "#access-rules-empty-state_button_create";
 const NAME_LINK = "access-rules-name-link";
@@ -63,24 +65,12 @@ export class AccessRulesPage {
 
   async deactivate(name: string) {
     await this.row(name).getByTestId(ROW_OPTIONS_BUTTON).click();
-    await this.page.getByTestId(DEACTIVATE_MENU_ITEM).click();
-    await this.confirm();
+    await confirmSimpleDialog(this.page, () => this.page.getByTestId(DEACTIVATE_MENU_ITEM).click());
   }
 
   async delete(name: string) {
     await this.row(name).getByTestId(ROW_OPTIONS_BUTTON).click();
-    await this.page.getByTestId(DELETE_MENU_ITEM).click();
-    await this.confirm();
-  }
-
-  /**
-   * Accepts the confirmation dialog. It is the component library's simple dialog, which carries no
-   * test ids; its accept button is its first, the one it focuses on open.
-   */
-  private async confirm() {
-    const dialog = this.page.getByRole("dialog");
-    await dialog.getByRole("button").first().click();
-    await expect(dialog).toBeHidden();
+    await confirmSimpleDialog(this.page, () => this.page.getByTestId(DELETE_MENU_ITEM).click());
   }
 }
 
