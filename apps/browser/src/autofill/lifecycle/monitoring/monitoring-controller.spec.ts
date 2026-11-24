@@ -1,0 +1,432 @@
+import { mock } from "jest-mock-extended";
+import { filter, Subject, throwError } from "rxjs";
+
+import { createChromeTabMock } from "../../spec/autofill-mocks";
+import { TabEdgeCause, TabState } from "../enums";
+import type { TabEdge } from "../types";
+
+import { MonitoringController } from "./monitoring-controller";
+import type { FrameCommand, FrameLost } from "./types";
+
+const edge = (from: TabState, to: TabState): TabEdge => ({
+  from,
+  to,
+  cause: TabEdgeCause.Settle,
+  focused: true,
+});
+const settles = edge(TabState.WarmUp, TabState.Hot);
+const leaves = edge(TabState.CoolDown, TabState.Cold);
+
+const tab1 = createChromeTabMock({ id: 1 });
+const tab2 = createChromeTabMock({ id: 2 });
+
+const portFor = (tab: chrome.tabs.Tab, frameId: number | undefined) =>
+  mock<chrome.runtime.Port>({ sender: { tab, frameId } });
+
+describe("MonitoringController", () => {
+  let controller: MonitoringController;
+  let tabChanged$: Subject<readonly [number, TabEdge]>;
+  let tabRemoved$: Subject<number>;
+  let frameInjected$: Subject<{ tab: chrome.tabs.Tab; frameId: number | undefined }>;
+  let portConnected$: Subject<chrome.runtime.Port>;
+  let portDisconnected$: Subject<chrome.runtime.Port>;
+  let scriptsReloading$: Subject<void>;
+  let errors: unknown[];
+  let commands: Array<[tabId: number | undefined, frameId: number | undefined, string]>;
+  let lost: FrameLost[];
+
+  beforeEach(() => {
+    tabChanged$ = new Subject();
+    tabRemoved$ = new Subject();
+    frameInjected$ = new Subject();
+    portConnected$ = new Subject();
+    portDisconnected$ = new Subject();
+    scriptsReloading$ = new Subject();
+    errors = [];
+    controller = new MonitoringController(
+      {
+        tabLifecycleChanged$: tabChanged$,
+        tabRemoved$,
+        frameInjected$,
+        portConnected$,
+        portDisconnected$: (port) => portDisconnected$.pipe(filter((p) => p === port)),
+        scriptsReloading$,
+      },
+      (error) => errors.push(error),
+    );
+    commands = [];
+    lost = [];
+    controller.commands$.subscribe(({ tab, frameId, command }: FrameCommand) =>
+      commands.push([tab.id, frameId, command]),
+    );
+    controller.frameLost$.subscribe((frame) => lost.push(frame));
+  });
+
+  afterEach(() => controller[Symbol.dispose]());
+
+  describe("a tab starts monitoring", () => {
+    it("starts each frame of the tab, and no frame of another tab", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      frameInjected$.next({ tab: tab2, frameId: 0 });
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([
+        [1, 0, "start"],
+        [1, 5, "start"],
+      ]);
+    });
+
+    it("starts a frame that is known only by its port", () => {
+      portConnected$.next(portFor(tab1, 0));
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+    });
+
+    it("starts a frame once, though its bootstrap and autofiller each hold a port", () => {
+      portConnected$.next(portFor(tab1, 0));
+      portConnected$.next(portFor(tab1, 0));
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+    });
+
+    it("starts a frame injected after the tab began, so the order of the two does not matter", () => {
+      tabChanged$.next([1, settles]);
+
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+    });
+
+    it("says nothing for an edge that leaves the tab monitoring", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      tabChanged$.next([1, settles]);
+      commands.length = 0;
+
+      tabChanged$.next([1, edge(TabState.Hot, TabState.CoolDown)]);
+      tabChanged$.next([1, edge(TabState.CoolDown, TabState.Hot)]);
+
+      expect(commands).toEqual([]);
+    });
+  });
+
+  describe("a frame is injected", () => {
+    it("is not started while its tab does not monitor", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      expect(commands).toEqual([]);
+      expect(controller.isMonitoring(1, 0)).toBe(false);
+    });
+
+    it("is started again when it is injected again, as a new document is", () => {
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      expect(commands).toEqual([
+        [1, 0, "start"],
+        [1, 0, "start"],
+      ]);
+    });
+  });
+
+  describe("a tab stops monitoring", () => {
+    it("stops each frame that was started", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      tabChanged$.next([1, settles]);
+      commands.length = 0;
+
+      tabChanged$.next([1, leaves]);
+
+      expect(commands).toEqual([
+        [1, 0, "stop"],
+        [1, 5, "stop"],
+      ]);
+    });
+
+    it("stops a frame that has no port, which a stop addressed to ports would miss", () => {
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      commands.length = 0;
+
+      tabChanged$.next([1, leaves]);
+
+      expect(commands).toEqual([[1, 0, "stop"]]);
+    });
+
+    it("does not stop a frame that was never started", () => {
+      portConnected$.next(portFor(tab1, 0));
+
+      tabChanged$.next([1, edge(TabState.Warm, TabState.Cold)]);
+
+      expect(commands).toEqual([]);
+    });
+
+    it("does not start a frame injected afterwards", () => {
+      tabChanged$.next([1, settles]);
+      tabChanged$.next([1, leaves]);
+
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      expect(commands).toEqual([]);
+    });
+  });
+
+  describe("isMonitoring", () => {
+    it("is true for a frame from its start until its stop", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      expect(controller.isMonitoring(1, 0)).toBe(false);
+
+      tabChanged$.next([1, settles]);
+      expect(controller.isMonitoring(1, 0)).toBe(true);
+
+      tabChanged$.next([1, leaves]);
+      expect(controller.isMonitoring(1, 0)).toBe(false);
+    });
+
+    it("keeps frames apart, a frame with no id from frame 0", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: undefined });
+      tabChanged$.next([1, settles]);
+      portConnected$.next(portFor(tab1, 0));
+
+      portDisconnected$.next(portFor(tab1, 0));
+
+      expect(controller.isMonitoring(1, undefined)).toBe(true);
+    });
+
+    it("is already true when a command is heard", () => {
+      const heard: boolean[] = [];
+      controller.commands$.subscribe(() => heard.push(controller.isMonitoring(1, 0)));
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      tabChanged$.next([1, settles]);
+
+      expect(heard).toEqual([true]);
+    });
+  });
+
+  describe("a port disconnects", () => {
+    it("loses the frame with its last port, and not before", () => {
+      const bootstrap = portFor(tab1, 0);
+      const autofiller = portFor(tab1, 0);
+      portConnected$.next(bootstrap);
+      portConnected$.next(autofiller);
+
+      portDisconnected$.next(bootstrap);
+      expect(lost).toEqual([]);
+
+      portDisconnected$.next(autofiller);
+      expect(lost).toEqual([{ tabId: 1, frameId: 0 }]);
+    });
+
+    it("does not start the lost frame again with its tab", () => {
+      const port = portFor(tab1, 0);
+      portConnected$.next(port);
+      portDisconnected$.next(port);
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([]);
+    });
+
+    it("keeps a frame that was injected and never held a port", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      portDisconnected$.next(portFor(tab1, 0));
+
+      expect(lost).toEqual([]);
+    });
+
+    it("ignores a port that reports no tab", () => {
+      const port = mock<chrome.runtime.Port>({ sender: {} });
+      portConnected$.next(port);
+
+      portDisconnected$.next(port);
+
+      expect(lost).toEqual([]);
+    });
+  });
+
+  describe("a frame's document is replaced", () => {
+    it("starts the new document when it connects after the old one's last port left", () => {
+      const oldDocument = portFor(tab1, 0);
+      portConnected$.next(oldDocument);
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      commands.length = 0;
+
+      portDisconnected$.next(oldDocument);
+      portConnected$.next(portFor(tab1, 0));
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+      expect(controller.isMonitoring(1, 0)).toBe(true);
+    });
+
+    it("stops the new document when its tab stops", () => {
+      const oldDocument = portFor(tab1, 0);
+      portConnected$.next(oldDocument);
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      portDisconnected$.next(oldDocument);
+      portConnected$.next(portFor(tab1, 0));
+      commands.length = 0;
+
+      tabChanged$.next([1, leaves]);
+
+      expect(commands).toEqual([[1, 0, "stop"]]);
+    });
+  });
+
+  describe("a port connects", () => {
+    it("starts a frame known only by its port when its tab already monitors", () => {
+      tabChanged$.next([1, settles]);
+
+      portConnected$.next(portFor(tab1, 0));
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+    });
+
+    it("does not start a frame that is already started", () => {
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      commands.length = 0;
+
+      portConnected$.next(portFor(tab1, 0));
+
+      expect(commands).toEqual([]);
+    });
+  });
+
+  describe("a tab is removed", () => {
+    it("knows no frame injected or connected afterwards, so a late injection leaves nothing", () => {
+      tabChanged$.next([1, settles]);
+      tabRemoved$.next(1);
+
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      portConnected$.next(portFor(tab1, 5));
+
+      expect(commands).toEqual([]);
+      expect(controller.frames()).toEqual([]);
+    });
+
+    it("tells nothing to a frame that was lost while an earlier frame's command was heard", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      controller.commands$.subscribe(({ frameId }) => {
+        if (frameId === 0) {
+          tabRemoved$.next(1);
+        }
+      });
+
+      tabChanged$.next([1, settles]);
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+      expect(controller.isMonitoring(1, 5)).toBe(false);
+    });
+
+    it("loses its frames and no others, and the tab no longer starts anything", () => {
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      frameInjected$.next({ tab: tab1, frameId: 5 });
+      frameInjected$.next({ tab: tab2, frameId: 0 });
+
+      tabRemoved$.next(1);
+      tabChanged$.next([1, settles]);
+
+      expect(lost).toEqual([
+        { tabId: 1, frameId: 0 },
+        { tabId: 1, frameId: 5 },
+      ]);
+      expect(controller.frames().map(({ tab }) => tab.id)).toEqual([2]);
+      expect(commands).toEqual([]);
+    });
+  });
+
+  describe("the scripts begin reloading", () => {
+    it("loses every frame, and disconnects the ports", () => {
+      const first = portFor(tab1, 0);
+      const second = portFor(tab2, 0);
+      portConnected$.next(first);
+      portConnected$.next(second);
+
+      scriptsReloading$.next();
+
+      expect(first.disconnect).toHaveBeenCalled();
+      expect(second.disconnect).toHaveBeenCalled();
+      expect(lost).toEqual([
+        { tabId: 1, frameId: 0 },
+        { tabId: 2, frameId: 0 },
+      ]);
+      expect(controller.frames()).toEqual([]);
+    });
+
+    it("leaves the tabs that monitor monitoring, so a frame injected afterwards starts", () => {
+      tabChanged$.next([1, settles]);
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+      scriptsReloading$.next();
+      commands.length = 0;
+
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      expect(commands).toEqual([[1, 0, "start"]]);
+    });
+  });
+
+  describe("a port", () => {
+    it("is not heard to disconnect once the scripts begin reloading, so its listener is released", () => {
+      const port = portFor(tab1, 0);
+      portConnected$.next(port);
+      scriptsReloading$.next();
+      frameInjected$.next({ tab: tab1, frameId: 0 });
+
+      portDisconnected$.next(port);
+
+      expect(lost).toEqual([{ tabId: 1, frameId: 0 }]);
+      expect(controller.frames().map(({ tab }) => tab.id)).toEqual([1]);
+    });
+
+    it("is heard to disconnect once, in the order it arrived", () => {
+      const port = portFor(tab1, 0);
+      portConnected$.next(port);
+
+      portDisconnected$.next(port);
+      portConnected$.next(portFor(tab1, 0));
+      portDisconnected$.next(port);
+
+      expect(lost).toEqual([{ tabId: 1, frameId: 0 }]);
+      expect(controller.frames()).toHaveLength(1);
+    });
+  });
+
+  it("holds the frames as they were when a source fails, and reports the failure", () => {
+    const failing = new MonitoringController(
+      {
+        tabLifecycleChanged$: new Subject<never>(),
+        tabRemoved$: throwError(() => new Error("browser")),
+        frameInjected$: new Subject<never>(),
+        portConnected$: new Subject<never>(),
+        portDisconnected$: () => new Subject<never>(),
+        scriptsReloading$: new Subject<never>(),
+      },
+      (error) => errors.push(error),
+    );
+
+    expect(errors).toEqual([new Error("browser")]);
+    failing[Symbol.dispose]();
+  });
+
+  it("reports nothing once disposed", () => {
+    frameInjected$.next({ tab: tab1, frameId: 0 });
+    controller[Symbol.dispose]();
+
+    tabChanged$.next([1, settles]);
+
+    expect(commands).toEqual([]);
+  });
+});

@@ -223,7 +223,7 @@ The first two are paired and symmetric; the third is asymmetric. All three comma
 
 ### Routing
 
-Knowing which frames are live (above) is what makes routing possible: each injected bootstrap and autofiller is a content script the module can address, from injection until extension context loss. A lifecycle command fans out to every live `(tab, frame)`.
+Knowing which frames are live (above) is what makes routing possible: each injected bootstrap and autofiller is a content script the module can address, from injection until extension context loss. A lifecycle command fans out to the `(tab, frame)` pairs the module has injected into in the tab it concerns, apart from the logout `disable autofiller`, which reaches every pair. A pair is known from its injection, not its connection, so a frame injected while its tab warms up starts when the tab settles, and a frame whose connection is late is still stopped when its tab stops.
 
 Frame liveness is in-memory background state, so it does not survive a Manifest V3 restart. On restart the background re-injects into every open tab, re-establishing both the connections it tracks and monitoring itself. That rebuild is on the critical path for the page-load fill: because a fill depends on monitoring, a transition reported after a restart cannot be honored until monitoring has been re-established for its frame.
 
@@ -242,12 +242,12 @@ The two are asymmetric — a tab inherits the settle delay on the way up and add
 
 Monitoring commands follow a tab's monitoring state: a `start monitors` reaches a frame only when its tab is monitoring (warm, hot, or cooling down), and a `stop monitors` when its tab leaves those states. Login and a Manifest V3 restart are not distinct triggers — they are the machine driving each window's active tab up to warm or hot, which fires the same "tab enters monitoring" edge. Only the logout `disable autofiller` fans out to every frame.
 
-| Trigger                                                                   | Target                                | Commands sent                                                       |
-| ------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------- |
-| Frame connects (freshly injected)                                         | One `(tab, frame)`                    | `start monitors` if its tab is already monitoring; otherwise none   |
-| Tab enters monitoring (settles to warm or hot from cold)                  | Every connected `(tab, frame)` on it  | `start monitors`                                                    |
-| Tab leaves monitoring (cool-down → cold, warm → cold, or logout → frozen) | Every monitoring `(tab, frame)` on it | `stop monitors`                                                     |
-| The extension logs out                                                    | Every connected `(tab, frame)`        | `disable autofiller` (the `stop monitors` is the frozen edge above) |
+| Trigger                                                                   | Target                             | Commands sent                                                             |
+| ------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| A frame's scripts are injected                                            | One `(tab, frame)`                 | `start monitors` if its tab is already monitoring; otherwise with its tab |
+| Tab enters monitoring (warm-up settles to warm or hot, or is commanded)   | Every known `(tab, frame)` on it   | `start monitors`                                                          |
+| Tab leaves monitoring (cool-down → cold, warm → cold, or logout → frozen) | Every started `(tab, frame)` on it | `stop monitors`                                                           |
+| The extension logs out                                                    | Every connected `(tab, frame)`     | `disable autofiller` (the `stop monitors` is the frozen edge above)       |
 
 Among the protocol's triggers, the unlocked boundary participates only at injection time: it gates whether a fresh navigation gets an autofiller. Crossing it (a lock or an unlock) sends no command, because monitoring rides tab state and a lock does not change tab state. A lock still clears the buffer and retires opportunities (see [Buffering transitions](#buffering-transitions) and [Retiring an opportunity](#retiring-an-opportunity)).
 

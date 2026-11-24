@@ -56,9 +56,12 @@ export class TabLifecycles implements Disposable {
   readonly latestEdges$ = this.latestEdgesChanged.asObservable();
 
   /**
-   * Emits once the browser's windows have been read and every window's active tab announced, or
-   * once that has failed. Neither starts until the accounts have been observed once. A tab the seed could not resolve has no state until the browser
-   * activates it.
+   * Emits once the first read of the browser's windows has finished, whether or not the read
+   * succeeded. Subscribers that arrive later receive it too. The read starts after the first
+   * observation of the accounts.
+   *
+   * When the read succeeds, each window's active tab has a state by then. When it fails, or does
+   * not name a tab, a tab has no recorded edge until the browser activates it.
    */
   readonly ready$ = this.seeded.asObservable();
 
