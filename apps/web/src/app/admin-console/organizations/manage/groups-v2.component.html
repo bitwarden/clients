@@ -26,7 +26,10 @@
       key="collections"
       [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
       multiple
-      [disabled]="hasNoGroups()"
+      [disabled]="hasNoCollections()"
+      [disabledTooltip]="
+        'addCollectionsToUseThisFilter' | vfo1I18n: 'addSharedFoldersToUseThisFilter'
+      "
       [options]="collectionFilterOptions()"
     ></bit-filter-menu>
     <button
