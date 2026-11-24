@@ -1,0 +1,85 @@
+name: PQC Vulnerability Scan
+# Qryptive scans your code for quantum-vulnerable cryptography (RSA, ECC, DES, etc).
+# The scan runs in this runner. With a Qryptive API key it sends Qryptive its findings,
+# including the source lines around each one; auto-fix also sends the files it fixes.
+# What leaves your environment: https://qryptive.ai/privacy/scanner
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      migration_mode:
+        description: "Fix migration mode for explicit repo-level fix"
+        required: false
+        default: pqc_only
+      fix_run_id:
+        description: "Platform fix-run correlation id (set by Qryptive dispatch)"
+        required: false
+        default: ""
+      scan_only:
+        description: "Suppress auto-fix for this dispatch (set by Qryptive Scan Now)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SETUP REQUIRED: Add your Qryptive API key as a GitHub repository secret named
+# PQC_API_KEY. Go to:
+#   Settings → Secrets and variables → Actions → New repository secret
+# Name: PQC_API_KEY
+# Value: your API key from https://app.qryptive.ai/integrations
+# ──────────────────────────────────────────────────────────────────────────────
+
+jobs:
+  pqc-scan:
+    name: PQC Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # full history so the action can diff PR base...HEAD
+
+      - name: PQC Vulnerability Scanner
+        uses: qryptive/pqc-scanner-action@v1
+        with:
+          pqc_api_key: ${{ secrets.PQC_API_KEY }}
+          fail_on_vulnerable: "false"
+          scan_scope: ${{ github.event_name == 'workflow_dispatch' && 'all' || 'all' }}
+          severity_threshold: medium
+          report_format: sarif
+          auto_fix: "false"
+          migration_mode: ${{ inputs.migration_mode || 'pqc_only' }}
+          fix_run_id: ${{ inputs.fix_run_id || '' }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload findings to Security tab
+        if: always() && hashFiles('pqc-results.sarif') != ''
+        continue-on-error: true   # telemetry upload must never fail a customer's build
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pqc-results.sarif
+          category: qryptive-pqc
+
+  notify-setup-complete:
+    name: Notify Qryptive setup complete
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      PQC_API_KEY: ${{ secrets.PQC_API_KEY }}
+    steps:
+      - name: Report workflow active
+        if: ${{ env.PQC_API_KEY != '' }}
+        run: |
+          curl -s -o /dev/null -X POST https://api.qryptive.ai/api/v1/integrations/github-action/repos/setup-complete \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${{ secrets.PQC_API_KEY }}" \
+            -d '{"repo": "${{ github.repository }}"}'
