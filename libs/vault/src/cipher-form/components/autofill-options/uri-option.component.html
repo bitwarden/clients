@@ -22,12 +22,25 @@
           data-testid="toggle-match-detection-button"
         ></button>
       }
-      @if (canRemove) {
+      @if (canRemove && !isAppUri) {
         <button
           type="button"
           bitIconButton="bwi-minus-circle"
           buttonType="dangerGhost"
           bitSuffix
+          [label]="'deleteWebsite' | i18n"
+          (click)="removeUri()"
+          data-testid="remove-uri-button"
+        ></button>
+      }
+      <!-- Desktop apps show the remove button beside the dropdown, not inside it -->
+      @if (canRemove && isAppUri) {
+        <button
+          type="button"
+          bitIconButton="bwi-minus-circle"
+          buttonType="dangerGhost"
+          size="small"
+          slot="inline-end"
           [label]="'deleteWebsite' | i18n"
           (click)="removeUri()"
           data-testid="remove-uri-button"
