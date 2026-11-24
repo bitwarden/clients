@@ -606,18 +606,23 @@ export class AppComponent implements OnInit, OnDestroy {
           userId != null &&
           !this.isAccountCleanUpInProgress(userId) // skip accounts that are being cleaned up
         ) {
-          const availableTimeoutActions = await firstValueFrom(
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
-          );
-
           const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+          // Logged out accounts stay in accounts$ without user decryption options.
+          const loggedOut = authStatus === AuthenticationStatus.LoggedOut;
+          const availableTimeoutActions = loggedOut
+            ? []
+            : await firstValueFrom(
+                this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
+              );
+
           accounts[userId] = {
             isAuthenticated: authStatus >= AuthenticationStatus.Locked,
             isLocked: authStatus === AuthenticationStatus.Locked,
             isLockable: availableTimeoutActions.includes(VaultTimeoutAction.Lock),
             email: stateAccounts[userId].email,
             userId: userId,
-            hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            hasMasterPassword:
+              !loggedOut && (await this.userVerificationService.hasMasterPassword(userId)),
             hasPremium: await firstValueFrom(
               this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
             ),

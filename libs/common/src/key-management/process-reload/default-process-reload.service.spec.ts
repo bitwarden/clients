@@ -37,6 +37,7 @@ describe("DefaultProcessReloadService", () => {
     accountService = mockAccountServiceWith(activeUserId);
     await accountService.addAccount(otherUserId, mockAccountInfoWith());
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
     pinService.isPinDecryptionAvailable.mockResolvedValue(true);
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       of(VaultTimeoutAction.Lock),
@@ -93,5 +94,41 @@ describe("DefaultProcessReloadService", () => {
     await sut.reloadProcess();
 
     expect(messagingService.send).not.toHaveBeenCalled();
+  });
+
+  describe("active account", () => {
+    let switchAccount: jest.SpyInstance;
+
+    beforeEach(() => {
+      switchAccount = jest.spyOn(accountService, "switchAccount");
+    });
+
+    it("switches to the next account when its timeout action is log out", async () => {
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
+        of(VaultTimeoutAction.LogOut),
+      );
+
+      await sut.reloadProcess();
+
+      expect(switchAccount).toHaveBeenCalled();
+      expect(messagingService.send).toHaveBeenCalledWith(RELOAD_MESSAGE);
+    });
+
+    it("stays active when its timeout action is lock", async () => {
+      await sut.reloadProcess();
+
+      expect(switchAccount).not.toHaveBeenCalled();
+      expect(messagingService.send).toHaveBeenCalledWith(RELOAD_MESSAGE);
+    });
+
+    it("switches away from a logged out account without reading its timeout action", async () => {
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+
+      await sut.reloadProcess();
+
+      expect(vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$).not.toHaveBeenCalled();
+      expect(switchAccount).toHaveBeenCalled();
+      expect(messagingService.send).toHaveBeenCalledWith(RELOAD_MESSAGE);
+    });
   });
 });
