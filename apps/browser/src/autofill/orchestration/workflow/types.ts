@@ -1,7 +1,7 @@
 import type { Observable } from "rxjs";
 
 import type { AutofillOutcome } from "../../enums/autofill-outcome.enum";
-import type { AutoFillOptions } from "../../services/abstractions/autofill.service";
+import type { AutoFillOptions } from "../../types";
 import type { CancellationToken } from "../../utils/cancellation";
 import type { TargetSource } from "../enums";
 import type { FillOccurred, FillResult } from "../types";
@@ -27,8 +27,14 @@ import type {
 } from "./enums";
 import type { ActiveTabOptOut } from "./plans";
 
-/** The flags a fill fills with: everything but the tab, the cipher, and the page. */
-export type FillFlags = Readonly<Omit<Partial<AutoFillOptions>, "cipher" | "pageDetails" | "tab">>;
+/**
+ * The options a fill fills with: everything but the tab, the cipher, and the page details. They include the
+ * options only a plan decides (`allowUntrustedIframe`, `autoSubmitLogin`), so they are unsafe in a
+ * caller's hands. Use them only inside the orchestration module; a caller's type is `FillOptions`.
+ */
+export type UnsafeFillOptions = Readonly<
+  Omit<Partial<AutoFillOptions>, "cipher" | "pageDetails" | "tab">
+>;
 
 /** How the target phase finds the target. */
 export type TargetPlan = Readonly<{ source: TargetSource }>;
@@ -62,7 +68,7 @@ export type CommitPlan = Readonly<{
    * The flags the commit fills with. Whether an untrusted iframe may be filled, and whether the fill
    * submits, come only from here, so every plan states both (see `model.md`, invariant 13).
    */
-  flags: FillFlags & Readonly<{ allowUntrustedIframe: boolean; autoSubmitLogin: boolean }>;
+  flags: UnsafeFillOptions & Readonly<{ allowUntrustedIframe: boolean; autoSubmitLogin: boolean }>;
 }> &
   ActiveTabOptOut;
 

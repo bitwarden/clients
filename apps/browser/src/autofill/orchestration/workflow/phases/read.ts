@@ -10,6 +10,7 @@ import {
   timer,
 } from "rxjs";
 
+import type AutofillField from "../../../models/autofill-field";
 import type { PageDetail } from "../../../services/abstractions/autofill.service";
 import type { CancellationToken } from "../../../utils/cancellation";
 import type { FillResult } from "../../types";
@@ -48,12 +49,14 @@ export function readPhase(
  * The read of a fill that collects its page.
  *
  * When this phase executes, it collects the details of the target's frame, or of every frame of its
- * tab once their answers settle, and keeps the frames that offer fields. A collect that ends without
- * an answer, or a page whose frames offer no fields, is absent.
+ * tab once their answers settle. It keeps only the fields the request allows, when it names them,
+ * then the frames that still offer fields. A collect that ends without an answer, or a page whose
+ * frames offer no fields, is absent.
  *
  * Checks:
- *  * The tab is monitoring. The check waits until it is; a monitoring state that ends first makes
- *    the fill invalid (see `model.md`, "A read waits for monitoring").
+ *  * The tab is monitoring. The check waits until it is (see `model.md`, "A read waits for
+ *    monitoring"); a monitoring stream that completes first, because its state is no longer known,
+ *    makes the fill invalid.
  *  * The tab holds the target's document, and for a reported target, the reporting frame holds the
  *    reported document within the report's deadline (see `model.md`, "The target").
  *
@@ -71,7 +74,8 @@ export function collectPage(
     );
   return {
     check: async ({ target }, cancellation) => checkReadable(target, services, cancellation),
-    execute: async ({ target }, cancellation) => {
+    execute: async (context, cancellation) => {
+      const { target } = context;
       const collected$ = autofillService.collectPageDetailsFromTab$(target.tab, target.frameId);
       // A frame answers once; only a tab's frames need to settle.
       const answer$ =
@@ -90,9 +94,24 @@ export function collectPage(
         case "ended":
           return AUTOFILL_ABSENT;
       }
-      const page = answer.pageDetails.filter(offersFields);
+      const fields = context.kind === FillRequestKind.Cipher ? context.fields : undefined;
+      const collected = fields
+        ? answer.pageDetails.map((detail) => restrictedTo(detail, fields))
+        : answer.pageDetails;
+      const page = collected.filter(offersFields);
       return page.length ? { page } : AUTOFILL_ABSENT;
     },
+  };
+}
+
+/** A frame's details with only the fields `fields` allows. The collected details are not changed. */
+function restrictedTo(detail: PageDetail, fields: (field: AutofillField) => boolean): PageDetail {
+  if (!detail.details?.fields) {
+    return detail;
+  }
+  return {
+    ...detail,
+    details: { ...detail.details, fields: detail.details.fields.filter(fields) },
   };
 }
 
@@ -104,8 +123,9 @@ export function collectPage(
  *
  * Checks:
  *  * The request carries page details.
- *  * The tab is monitoring. The check waits until it is; a monitoring state that ends first makes
- *    the fill invalid (see `model.md`, "A read waits for monitoring").
+ *  * The tab is monitoring. The check waits until it is (see `model.md`, "A read waits for
+ *    monitoring"); a monitoring stream that completes first, because its state is no longer known,
+ *    makes the fill invalid.
  *  * The tab holds the target's document, and for a reported target, the reporting frame holds the
  *    reported document within the report's deadline (see `model.md`, "The target").
  *
@@ -135,8 +155,8 @@ function offersFields({ details }: PageDetail): boolean {
 
 /**
  * Waits until the target's tab is monitoring, then verifies the target. The wait ends one of three
- * ways, and each decides the check: monitoring starts, the monitoring state ends first and the fill
- * is invalid, or the token is cancelled first and the fill is cancelled.
+ * ways, and each decides the check: monitoring starts, the monitoring stream completes first and the
+ * fill is invalid, or the token is cancelled first and the fill is cancelled.
  */
 async function checkReadable(
   target: FillTarget,

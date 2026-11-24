@@ -52,8 +52,9 @@ keeps it off a tab that was foreground when the fill began but is not when it la
 Verifying the target is foreground is the **default** for every fill, and exactly one path opts out:
 the popup's fill round-trip. When a popout window is focused there is no active content tab for the
 check to match, so it names its own target instead. Opting out of the foreground check does not opt
-out of attention altogether. Every other caller-supplied fill is supplied by active-tab controls, and
-thus stays foreground-verified.
+out of attention altogether: like every fill, it reads its target only once the tab is monitoring.
+Every other caller-supplied fill is supplied by active-tab controls, and thus stays
+foreground-verified.
 
 The opt-out is more than a convention. Two barriers keep it deliberate and contained. Only the
 orchestrator can request it; no other part of the extension can. And every use of the single
@@ -128,13 +129,16 @@ A page-load fill does not re-attempt once cancelled.
 ### Fills do not race
 
 The orchestrator collects the details it fills rather than acting on details gathered elsewhere, so a
-collect is always sequenced with the fill it feeds. Fills serialize at the granularity they target:
-a page-load fill per frame, so a newer opportunity for a frame already filling
+collect is always sequenced with the fill it feeds. The fills and collects that touch a tab are
+ordered by [leases](./lease/model.md). A fill holds an exclusive lease on the part of the tab it
+targets, from its target to its effects; a collect holds a shared one. A page-load fill targets its
+frame, so a newer opportunity for a frame already filling
 [cancels](../lifecycle/design.md#completing-an-opportunity) the one in flight and runs once its
-execution has ended; a user-initiated fill per tab, since it fills the whole tab in one pass.
-Sequencing collect-then-fill this way prevents two queued fills of the same scope from interleaving
-into a double fill or a fill of the wrong page. A fill that names its own cipher, and an auto-submit
-step, are not queued.
+execution has ended. A user-initiated fill targets the whole tab, since it fills the tab in one pass,
+and preempts the page-load fills in its way. A fill never waits in line behind a fill that does not
+rank below it; it is cancelled before it starts. This prevents two fills of the same scope from
+interleaving into a double fill or a fill of the wrong page. The inline menu's generated password is
+the one fill that brings page details gathered elsewhere.
 
 ### Recorded activity reflects a real fill
 

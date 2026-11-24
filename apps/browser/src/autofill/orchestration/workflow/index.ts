@@ -1,5 +1,5 @@
 export type {
-  CallerFlags,
+  FillOptions,
   FillContext,
   FillRequest,
   FillRequestOf,
@@ -22,7 +22,7 @@ export { defaultFillTimings } from "./services";
 export type { FillBrowser, FillServices, FillTimings } from "./services";
 export type {
   CommitPlan,
-  FillFlags,
+  UnsafeFillOptions,
   FillPlan,
   FillWorkflow,
   ReadPlan,

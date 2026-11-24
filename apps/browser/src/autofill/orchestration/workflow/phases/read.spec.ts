@@ -250,6 +250,64 @@ describe("collectPage's execute", () => {
     expect(result).toEqual({ page: [offering] });
   });
 
+  describe("a request that names which fields it may fill", () => {
+    /** A frame whose fields are named by `names`. */
+    const namedFields = (frameId: number, ...names: string[]): PageDetail =>
+      ({
+        frameId,
+        tab,
+        details: { fields: names.map((htmlName) => ({ htmlName })) },
+      }) as unknown as PageDetail;
+    const onlyPasswords = ({ htmlName }: { htmlName?: string }) => htmlName === "password";
+    const restrictedContext = (): ReadContext =>
+      ({ ...requests.cipher(), fields: onlyPasswords, target: frameTarget }) as ReadContext;
+
+    it("keeps only those fields, and leaves the collected details as they were", async () => {
+      const f = fakeServices();
+      const collected = namedFields(3, "username", "password");
+      f.autofillService.collectPageDetailsFromTab$.mockReturnValue(of([collected]));
+
+      const result = await collectPage(f.services).execute(restrictedContext(), NEVER_CANCEL);
+
+      expect(result).toEqual({ page: [namedFields(3, "password")] });
+      expect(collected).toEqual(namedFields(3, "username", "password"));
+    });
+
+    it("drops a frame left with none of those fields", async () => {
+      const f = fakeServices();
+      f.autofillService.collectPageDetailsFromTab$.mockReturnValue(
+        of([namedFields(3, "username"), namedFields(4, "password")]),
+      );
+
+      const result = await collectPage(f.services).execute(restrictedContext(), NEVER_CANCEL);
+
+      expect(result).toEqual({ page: [namedFields(4, "password")] });
+    });
+
+    it("is absent when no frame is left with those fields", async () => {
+      const f = fakeServices();
+      f.autofillService.collectPageDetailsFromTab$.mockReturnValue(
+        of([namedFields(3, "username")]),
+      );
+
+      const result = await collectPage(f.services).execute(restrictedContext(), NEVER_CANCEL);
+
+      expect(result).toBe(AUTOFILL_ABSENT);
+    });
+
+    it("drops a frame whose details list no fields", async () => {
+      const f = fakeServices();
+      const fieldless = { frameId: 3, tab, details: {} } as unknown as PageDetail;
+      f.autofillService.collectPageDetailsFromTab$.mockReturnValue(
+        of([fieldless, namedFields(4, "password")]),
+      );
+
+      const result = await collectPage(f.services).execute(restrictedContext(), NEVER_CANCEL);
+
+      expect(result).toEqual({ page: [namedFields(4, "password")] });
+    });
+  });
+
   it.each<[string, Observable<PageDetail[]>]>([
     ["no frame offers fields", of([pageDetail(3, 0)])],
     ["the collect ends without an answer", EMPTY],

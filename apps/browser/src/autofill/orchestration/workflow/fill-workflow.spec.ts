@@ -1,4 +1,4 @@
-import { of, Subject } from "rxjs";
+import { defer, of, Subject } from "rxjs";
 
 import type { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -84,7 +84,8 @@ const kindFor: Record<PlanName, FillRequestKind> = {
   autoSubmit: FillRequestKind.Tab,
   contextMenu: FillRequestKind.Cipher,
   popup: FillRequestKind.Cipher,
-  inlineMenu: FillRequestKind.Page,
+  inlineMenu: FillRequestKind.Cipher,
+  unsavedCipher: FillRequestKind.Page,
 };
 
 /** The request each plan's entry point makes. */
@@ -158,6 +159,7 @@ describe("fillWorkflow", () => {
     ["contextMenu", ciphers.requested, REQUESTED_CIPHER_FLAGS, { totp: false, overlay: false }],
     ["popup", ciphers.requested, REQUESTED_CIPHER_FLAGS, { totp: false, overlay: false }],
     ["inlineMenu", ciphers.requested, REQUESTED_CIPHER_FLAGS, { totp: false, overlay: false }],
+    ["unsavedCipher", ciphers.requested, REQUESTED_CIPHER_FLAGS, { totp: false, overlay: false }],
   ])(
     "fills for %s with its entry point's cipher, flags, and effects",
     async (plan, cipher, flags, effects) => {
@@ -198,12 +200,14 @@ describe("fillWorkflow", () => {
     );
   });
 
-  it("collects nothing for the inline menu", async () => {
-    const f = arrange();
+  it("collects every frame for the inline menu, and nothing for a page its request carries", async () => {
+    const menu = arrange();
+    await run("inlineMenu", menu, requestFor("inlineMenu"));
+    const carried = arrange();
+    await run("unsavedCipher", carried, requestFor("unsavedCipher"));
 
-    await run("inlineMenu", f, requestFor("inlineMenu"));
-
-    expect(f.autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+    expect(menu.autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(tab, undefined);
+    expect(carried.autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
   });
 
   // Each plan that asks the user denies a cipher that requires a reprompt, and cycles past it.
@@ -224,6 +228,25 @@ describe("fillWorkflow", () => {
     expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
   });
 
+  // A plan for a cipher the user chose asks too, should its caller not have, and cycles nothing.
+  it.each<PlanName>(["contextMenu", "inlineMenu"])(
+    "asks the user for %s, denies, and cycles nothing",
+    async (plan) => {
+      const f = arrange();
+      f.autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
+
+      const result = await run(plan, f, requestFor(plan));
+
+      expect(result).toBe(AUTOFILL_DENIED);
+      expect(f.autofillService.isPasswordRepromptRequired).toHaveBeenCalledWith(
+        ciphers.requested,
+        tab,
+      );
+      expect(f.cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+      expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
+    },
+  );
+
   it("never asks the user on an eager fill, and denies a login that requires a reprompt", async () => {
     const f = arrange();
     f.cipherService.getLastUsedForUrl.mockResolvedValue(
@@ -234,6 +257,17 @@ describe("fillWorkflow", () => {
 
     expect(result).toBe(AUTOFILL_DENIED);
     expect(f.autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
+  });
+
+  it("never asks the user for an unsaved cipher, and denies one that requires a reprompt", async () => {
+    const f = arrange();
+    const protectedCipher = cipherOf("protected", { reprompt: CipherRepromptType.Password });
+
+    const result = await run("unsavedCipher", f, requests.page(collected, protectedCipher));
+
+    expect(result).toBe(AUTOFILL_DENIED);
+    expect(f.autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
+    expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
   });
 
   // Every plan fills only for the request's account, active and unlocked.
@@ -293,15 +327,34 @@ describe("fillWorkflow", () => {
     expect(result).toBe(expected);
   });
 
-  it("never lets the inline menu's caller submit", async () => {
+  it("denies a fill whose tab was active when the page was collected, but not when it commits", async () => {
+    const f = arrange();
+    // The user switches tabs while the page is collected.
+    f.autofillService.collectPageDetailsFromTab$.mockReturnValue(
+      defer(() => {
+        f.activate(otherTab);
+        return of(collected);
+      }),
+    );
+
+    const result = await run("contextMenu", f, requestFor("contextMenu"));
+
+    expect(result).toBe(AUTOFILL_DENIED);
+    // The commit reads the active tab after the collect; that read denies the fill.
+    const [collectedAt] = f.autofillService.collectPageDetailsFromTab$.mock.invocationCallOrder;
+    expect(f.browser.activeTab.mock.invocationCallOrder.at(-1)).toBeGreaterThan(collectedAt);
+    expect(f.autofillService.doAutoFill).not.toHaveBeenCalled();
+  });
+
+  it("never lets the caller of a page its request carries submit", async () => {
     const f = arrange();
     const request = {
       ...requests.page(collected, ciphers.requested),
       // A caller's untyped flags may carry what only a plan decides.
-      flags: { focusedFieldOpid: "field", autoSubmitLogin: true },
+      options: { focusedFieldOpid: "field", autoSubmitLogin: true },
     } as unknown as FillRequest;
 
-    await run("inlineMenu", f, request);
+    await run("unsavedCipher", f, request);
 
     expect(f.autofillService.doAutoFill).toHaveBeenCalledWith(
       expect.objectContaining({ focusedFieldOpid: "field", autoSubmitLogin: false }),

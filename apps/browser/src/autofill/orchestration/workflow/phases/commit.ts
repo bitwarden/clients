@@ -48,13 +48,13 @@ export function commitPhase(plan: CommitPlan, services: CommitServices): FillCom
       return active?.id === context.target.tabId ? undefined : AUTOFILL_DENIED;
     },
     execute: (context) => {
-      const callerFlags =
+      const callerOptions =
         context.kind === FillRequestKind.Cipher || context.kind === FillRequestKind.Page
-          ? context.flags
+          ? context.options
           : undefined;
       return autofillService.doAutoFill({
         ...flags,
-        ...callerFlags,
+        ...callerOptions,
         allowUntrustedIframe: flags.allowUntrustedIframe,
         autoSubmitLogin: flags.autoSubmitLogin,
         tab: context.target.tab,

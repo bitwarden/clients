@@ -1,4 +1,7 @@
+import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
+import type { AutoFillOptions } from "../types";
 
 import type { FillResult } from "./types";
 import {
@@ -8,6 +11,7 @@ import {
   AUTOFILL_INVALID,
   didFillOccur,
   isFillResult,
+  omitProtectedOptions,
   shouldAutoCopyTotp,
 } from "./utils";
 
@@ -112,5 +116,35 @@ describe("isFillResult", () => {
     ["an object whose outcome is missing", { outcome: undefined }],
   ])("does not mistake %s for one", (_, value) => {
     expect(isFillResult(value)).toBe(false);
+  });
+});
+
+describe("omitProtectedOptions", () => {
+  const caller: Partial<AutoFillOptions> = {
+    tab: { id: 1 } as chrome.tabs.Tab,
+    cipher: {} as CipherView,
+    pageDetails: [],
+    allowUntrustedIframe: true,
+    autoSubmitLogin: true,
+    fillNewPassword: true,
+    focusedFieldOpid: "field-1",
+  };
+
+  it("keeps the options a caller may give, and leaves out the rest", () => {
+    expect(omitProtectedOptions(caller)).toEqual({
+      fillNewPassword: true,
+      focusedFieldOpid: "field-1",
+    });
+  });
+
+  it("freezes the options it returns, and leaves the caller's as they were", () => {
+    const options = omitProtectedOptions(caller);
+
+    expect(Object.isFrozen(options)).toBe(true);
+    expect(caller).toEqual(expect.objectContaining({ autoSubmitLogin: true, pageDetails: [] }));
+  });
+
+  it("is no options when the caller gives none", () => {
+    expect(omitProtectedOptions()).toEqual({});
   });
 });

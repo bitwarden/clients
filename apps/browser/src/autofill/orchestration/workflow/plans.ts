@@ -86,6 +86,13 @@ const REQUESTED_CIPHER_FLAGS: CommitFlags = Object.freeze({
 /** A reprompt that asks the user, and cycles past the cipher it denies. */
 const ASK_AND_CYCLE = { action: RepromptAction.Ask, cycleOnDenial: true } as const;
 
+/**
+ * A reprompt that asks the user for the cipher the user chose. A chosen cipher belongs to no
+ * rotation, so there is nothing to cycle. Its caller asks before it requests the fill; this enforces
+ * the reprompt should the caller not.
+ */
+const ASK = { action: RepromptAction.Ask, cycleOnDenial: false } as const;
+
 /** Freezes a plan and each of its sub-plans. */
 function frozen<Accepts extends FillRequestKind>(plan: FillPlan<Accepts>): FillPlan<Accepts> {
   for (const part of Object.values(plan)) {
@@ -197,7 +204,7 @@ export const FillPlans = Object.freeze({
     target: { source: TargetSource.User },
     read: { source: PageSource.Collect },
     select: { source: CipherSource.FillRequest },
-    reprompt: { action: RepromptAction.Confirmed },
+    reprompt: ASK,
     commit: { flags: REQUESTED_CIPHER_FLAGS },
     effects: new Set([FillEffectKind.RecordActivity]),
     reattempt: FillReattempt.None,
@@ -205,7 +212,8 @@ export const FillPlans = Object.freeze({
 
   /**
    * A fill of the cipher the user chose in the popup. The popup has focus, so its target is not the
-   * active tab; the extension initiates this fill.
+   * active tab; the extension initiates this fill. The popup confirms the reprompt before it requests
+   * the fill, and the reprompt that the other plans ask for re-enters here once the user confirms it.
    */
   popup: frozen({
     accepts: FillRequestKind.Cipher,
@@ -218,13 +226,33 @@ export const FillPlans = Object.freeze({
     reattempt: FillReattempt.None,
   }),
 
-  /** A fill of the cipher the user chose in the inline menu, into the page the menu read. */
+  /**
+   * A fill of the cipher the user chose in the inline menu. It collects its page under its own lease,
+   * and fills the fields its request allows. Its sub-plans are the context menu's; it is a plan of its
+   * own because it is an entry point of its own (see `model.md`, invariant 10).
+   */
   inlineMenu: frozen({
+    accepts: FillRequestKind.Cipher,
+    target: { source: TargetSource.User },
+    read: { source: PageSource.Collect },
+    select: { source: CipherSource.FillRequest },
+    reprompt: ASK,
+    commit: { flags: REQUESTED_CIPHER_FLAGS },
+    effects: new Set([FillEffectKind.RecordActivity]),
+    reattempt: FillReattempt.None,
+  }),
+
+  /**
+   * A fill of a cipher that is not saved in the vault, such as the inline menu's generated password,
+   * into the page details its request carries. It collects nothing. Such a cipher requires no
+   * reprompt, so one that does is refused.
+   */
+  unsavedCipher: frozen({
     accepts: FillRequestKind.Page,
     target: { source: TargetSource.User },
     read: { source: PageSource.FillRequest },
     select: { source: CipherSource.FillRequest },
-    reprompt: { action: RepromptAction.Confirmed },
+    reprompt: { action: RepromptAction.Refuse },
     commit: { flags: REQUESTED_CIPHER_FLAGS },
     effects: new Set([FillEffectKind.RecordActivity]),
     reattempt: FillReattempt.None,

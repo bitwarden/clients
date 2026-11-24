@@ -11,3 +11,4 @@ export {
   isFillResult,
   shouldAutoCopyTotp,
 } from "./utils";
+export type { FillOptions } from "./workflow";

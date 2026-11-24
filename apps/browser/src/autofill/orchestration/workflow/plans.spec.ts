@@ -62,6 +62,7 @@ describe("FillPlans", () => {
       contextMenu: TargetSource.User,
       popup: TargetSource.User,
       inlineMenu: TargetSource.User,
+      unsavedCipher: TargetSource.User,
     });
   });
 
@@ -81,16 +82,33 @@ describe("FillPlans", () => {
     expect(refusing).toEqual(["eager"]);
   });
 
-  it("confirms the reprompt for the plans that fill the requested cipher, and only those", () => {
+  it("confirms the reprompt only for the popup, where the user confirmed it", () => {
     const confirming = entries
       .filter(([, plan]) => plan.reprompt.action === RepromptAction.Confirmed)
       .map(([name]) => name);
-    const requested = entries
-      .filter(([, plan]) => plan.select.source === CipherSource.FillRequest)
+
+    expect(confirming).toEqual(["popup"]);
+  });
+
+  it("refuses a cipher that requires the reprompt for the plans that cannot ask", () => {
+    const refusing = entries
+      .filter(([, plan]) => plan.reprompt.action === RepromptAction.Refuse)
       .map(([name]) => name);
 
-    expect(confirming).toEqual(["contextMenu", "popup", "inlineMenu"]);
-    expect(requested).toEqual(confirming);
+    expect(refusing).toEqual(["eager", "unsavedCipher"]);
+  });
+
+  it("asks for the reprompt of a cipher the user chose, without cycling", () => {
+    const asking = entries
+      .filter(
+        ([, plan]) =>
+          plan.select.source === CipherSource.FillRequest &&
+          plan.reprompt.action === RepromptAction.Ask &&
+          !plan.reprompt.cycleOnDenial,
+      )
+      .map(([name]) => name);
+
+    expect(asking).toEqual(["contextMenu", "inlineMenu"]);
   });
 
   it.each<[keyof typeof FillPlans, FillRequestKind]>([
@@ -102,7 +120,8 @@ describe("FillPlans", () => {
     ["autoSubmit", FillRequestKind.Tab],
     ["contextMenu", FillRequestKind.Cipher],
     ["popup", FillRequestKind.Cipher],
-    ["inlineMenu", FillRequestKind.Page],
+    ["inlineMenu", FillRequestKind.Cipher],
+    ["unsavedCipher", FillRequestKind.Page],
   ])("%s accepts a %s request", (name, kind) => {
     expect(FillPlans[name].accepts).toBe(kind);
   });
@@ -128,6 +147,7 @@ describe("FillPlans", () => {
     ["contextMenu", [FillEffectKind.RecordActivity]],
     ["popup", [FillEffectKind.RecordActivity]],
     ["inlineMenu", [FillEffectKind.RecordActivity]],
+    ["unsavedCipher", [FillEffectKind.RecordActivity]],
   ])("gives %s the effects of its entry point", (name, effects) => {
     expect([...FillPlans[name].effects].sort()).toEqual([...effects].sort());
   });

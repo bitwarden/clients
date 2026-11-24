@@ -2,10 +2,11 @@ import type { UserId } from "@bitwarden/common/types/guid";
 import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import type { LiveFrame, ResolvedTransitionReport } from "../../lifecycle/transition-buffer";
+import type AutofillField from "../../models/autofill-field";
 import type { PageDetail } from "../../services/abstractions/autofill.service";
 
 import type { CipherSource, FillRequestKind } from "./enums";
-import type { FillFlags } from "./types";
+import type { UnsafeFillOptions } from "./types";
 
 /** The document a transition report names: the frame that reported, and the report's deadline. */
 export type ReportedDocument = Pick<
@@ -14,10 +15,14 @@ export type ReportedDocument = Pick<
 >;
 
 /**
- * The flags a fill's caller may give. They override the plan's flags, except those only a plan
- * decides: whether an untrusted iframe may be filled, and whether the fill submits.
+ * The options a fill's caller may give, such as the focused field. They override the plan's, except
+ * the options only a plan decides: whether an untrusted iframe may be filled, and whether the fill
+ * submits. This is the type for a caller of the orchestrator; `omitProtectedOptions` makes one from
+ * `AutoFillOptions`.
  */
-export type CallerFlags = Readonly<Omit<FillFlags, "allowUntrustedIframe" | "autoSubmitLogin">>;
+export type FillOptions = Readonly<
+  Omit<UnsafeFillOptions, "allowUntrustedIframe" | "autoSubmitLogin">
+>;
 
 /** A fill of a tab the request carries. */
 type RequestedTab = Readonly<{
@@ -52,13 +57,22 @@ export type FillRequest =
     }>
   | (RequestedTab & Readonly<{ kind: typeof FillRequestKind.Tab }>)
   | (RequestedTab &
-      Readonly<{ kind: typeof FillRequestKind.Cipher; cipher: CipherView; flags?: CallerFlags }>)
+      Readonly<{
+        kind: typeof FillRequestKind.Cipher;
+        cipher: CipherView;
+        options?: FillOptions;
+        /**
+         * Which of the collected page's fields the fill may fill; every field when absent. A frame
+         * with no field the predicate allows is dropped, and a page left with none reports no fill.
+         */
+        fields?: (field: AutofillField) => boolean;
+      }>)
   | (RequestedTab &
       Readonly<{
         kind: typeof FillRequestKind.Page;
         cipher: CipherView;
         pageDetails: PageDetail[];
-        flags?: CallerFlags;
+        options?: FillOptions;
       }>);
 
 /** The requests of the kinds `Kind` names. */

@@ -3,7 +3,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import type { PageDetail } from "../../../services/abstractions/autofill.service";
 import { NEVER_CANCEL } from "../../../utils/cancellation";
 import { AUTOFILL_DENIED, AUTOFILL_INVALID } from "../../utils";
-import type { CallerFlags, FillContext } from "../context";
+import type { FillOptions, FillContext } from "../context";
 import {
   cipherOf,
   contextOf,
@@ -27,9 +27,9 @@ const page = [pageDetail(0, 1)];
 const context = contextOf({ page, selection: { cipher, source: "login" } });
 const plan: CommitPlan = { flags: { allowUntrustedIframe: false, autoSubmitLogin: false } };
 
-/** A context whose request carries a cipher and `flags`. */
-function withCallerFlags(flags: CallerFlags): FillContext {
-  return { ...context, ...requests.cipher(cipher), flags } as FillContext;
+/** A context whose request carries a cipher and the caller's `options`. */
+function withFillOptions(options: FillOptions): FillContext {
+  return { ...context, ...requests.cipher(cipher), options } as FillContext;
 }
 
 describe("commitPhase", () => {
@@ -141,7 +141,7 @@ describe("commitPhase", () => {
       await commitPhase(
         { flags: { ...plan.flags, fillNewPassword: true, onlyEmptyFields: true } },
         f.services,
-      ).execute(withCallerFlags({ fillNewPassword: false, focusedFieldOpid: "field" }));
+      ).execute(withFillOptions({ fillNewPassword: false, focusedFieldOpid: "field" }));
 
       expect(f.autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -154,12 +154,12 @@ describe("commitPhase", () => {
 
     it("never lets the caller decide untrusted iframes or submission", async () => {
       const f = fakeServices();
-      const smuggled = { allowUntrustedIframe: true, autoSubmitLogin: true } as CallerFlags;
+      const smuggled = { allowUntrustedIframe: true, autoSubmitLogin: true } as FillOptions;
 
       await commitPhase(
         { flags: { allowUntrustedIframe: false, autoSubmitLogin: false } },
         f.services,
-      ).execute(withCallerFlags(smuggled));
+      ).execute(withFillOptions(smuggled));
 
       expect(f.autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ allowUntrustedIframe: false, autoSubmitLogin: false }),
@@ -173,7 +173,7 @@ describe("commitPhase", () => {
       await commitPhase(
         { flags: { ...plan.flags, ...smuggled } } as unknown as CommitPlan,
         f.services,
-      ).execute(withCallerFlags(smuggled as unknown as CallerFlags));
+      ).execute(withFillOptions(smuggled as unknown as FillOptions));
 
       expect(f.autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({ tab, cipher, pageDetails: page }),

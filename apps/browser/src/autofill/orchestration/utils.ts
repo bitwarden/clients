@@ -1,6 +1,8 @@
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
+import type { AutoFillOptions } from "../types";
 
 import type { FillCancelled, FillDenied, FillInvalid, FillOccurred, FillResult } from "./types";
+import type { FillOptions } from "./workflow/context";
 
 /**
  * Returned when autofill denies a fill request.
@@ -68,4 +70,26 @@ export function didFillOccur(result: FillResult): result is FillOccurred {
  */
 export function shouldAutoCopyTotp(result: FillResult): result is FillOccurred & { totp: string } {
   return didFillOccur(result) && result.canAutoCopyTotp === true && result.totp !== undefined;
+}
+
+/**
+ * The options a caller may give a fill, taken from `options`: everything but the parts a fill
+ * request carries separately (the tab, the cipher, the page details) and the options only a plan
+ * decides (`allowUntrustedIframe`, `autoSubmitLogin`). The result is frozen; no options give an
+ * empty one.
+ *
+ * Options that arrive by message, or from an untyped caller, are not type-checked, so the stripping
+ * happens at runtime. The commit phase applies the plan's own values for the plan-only options
+ * whatever a request carries; this keeps them out of the request too.
+ *
+ * @param options - The options a caller supplied, which may carry any of `AutoFillOptions`.
+ */
+export function omitProtectedOptions(options: Partial<AutoFillOptions> = {}): FillOptions {
+  const fillOptions = { ...options };
+  delete fillOptions.tab;
+  delete fillOptions.cipher;
+  delete fillOptions.pageDetails;
+  delete fillOptions.allowUntrustedIframe;
+  delete fillOptions.autoSubmitLogin;
+  return Object.freeze(fillOptions);
 }
