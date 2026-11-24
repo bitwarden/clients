@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
@@ -15,7 +18,7 @@ import { NetwrixPasswordSecureCsvImporter } from "./netwrix-passwordsecure-csv-i
 describe("Netwrix Password Secure CSV Importer", () => {
   let importer: NetwrixPasswordSecureCsvImporter;
   beforeEach(() => {
-    importer = new NetwrixPasswordSecureCsvImporter();
+    importer = new NetwrixPasswordSecureCsvImporter(mock<LogService>());
   });
 
   it("passing invalid data returns false", async () => {

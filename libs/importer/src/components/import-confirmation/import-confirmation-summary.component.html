@@ -1,0 +1,24 @@
+<p bitTypography="body1" class="tw-mb-0 tw-text-fg-body">
+  {{ bodyKey() | i18n: summary().total }}
+</p>
+
+@if (tip(); as tipText) {
+  <div class="[&_aside]:tw-mb-0">
+    <bit-callout type="info">
+      <strong class="tw-font-bold">{{ "importConfirmationTipLabel" | i18n }}</strong
+      >&ngsp;<span style="overflow-wrap: anywhere">{{ tipText }}</span>
+    </bit-callout>
+  </div>
+}
+
+<ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-2.5 tw-p-0">
+  @for (row of summary().rows; track row.labelKey) {
+    <li class="tw-flex tw-items-center tw-gap-2">
+      <span class="tw-flex tw-size-6 tw-shrink-0 tw-items-center tw-justify-center">
+        <i class="bwi bwi-{{ row.icon }} tw-text-2xl tw-text-fg-body-subtle" aria-hidden="true"></i>
+      </span>
+      <span class="tw-flex-1 tw-text-fg-body-subtle">{{ row.labelKey | i18n }}</span>
+      <span class="tw-font-medium">{{ row.count }}</span>
+    </li>
+  }
+</ul>

@@ -15,8 +15,6 @@ import {
   PasswordPreloginData,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
@@ -90,12 +88,13 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
     const { email, masterPassword, twoFactor, preFetchedPreloginData } = credentials;
 
+    // Clear unconditionally so the cache's lifetime matches the login attempt rather than
+    // its outcome. The service holds its entry with refCount: false and no expiry.
     const masterKey = await this.makePasswordPreloginMasterKey(
       masterPassword,
       email,
       preFetchedPreloginData,
-    );
-    this.passwordPreloginService.clearCache();
+    ).finally(() => this.passwordPreloginService.clearCache());
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
     const serverMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
@@ -144,60 +143,31 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
     return !response.key;
   }
 
+  /**
+   * The salt is decided entirely by PasswordPreloginService, under the single feature-flag read
+   * that produced the data. Re-reading the flag here let the fetch and the derivation disagree,
+   * which could hand a null salt to makeMasterKey.
+   */
   private async makePasswordPreloginMasterKey(
     masterPassword: string,
     email: string,
     preFetchedPreloginData?: PasswordPreloginData,
   ): Promise<MasterKey> {
-    const useSdkForPrelogin = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27060_PasswordPreloginFromSdk,
-    );
-
-    // if we have prefetched prelogin data, use it
-    if (preFetchedPreloginData) {
-      // If we are using the sdk to fetch the prelogin data, only then do we want to
-      // use the salt that is passed back from the prelogin response in building the master key.
-      // This gives us the ability to turn off the feature of using the returned salt from salt
-      // in the event of bad normalization occurring during the transition.
-      if (useSdkForPrelogin) {
-        return this.legacyCompatKeyService.makeMasterKey(
-          masterPassword,
-          preFetchedPreloginData.salt as MasterPasswordSalt,
-          preFetchedPreloginData.kdfConfig,
-        );
-      } else {
-        return this.legacyCompatKeyService.makeMasterKey(
-          masterPassword,
-          this.masterPasswordService.emailToSalt(email),
-          preFetchedPreloginData.kdfConfig,
-        );
-      }
-    }
-
-    // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
-    const preloginData = await firstValueFrom(this.passwordPreloginService.getPreloginData$(email));
+    // No prefetched data — fetch now. PasswordPreloginService validates the KDF config on both
+    // the API and SDK paths, so anything that arrives here is already prelogin-safe.
+    const preloginData =
+      preFetchedPreloginData ??
+      (await firstValueFrom(this.passwordPreloginService.getPreloginData$(email)));
 
     if (!preloginData) {
       throw new Error("KDF config is required");
     }
 
-    // If we are using the sdk to fetch the prelogin data, only then do we want to
-    // use the salt that is passed back from the prelogin response in building the master key.
-    // This gives us the ability to turn off the feature of using the returned salt from salt
-    // in the event of bad normalization occurring during the transition.
-    if (useSdkForPrelogin) {
-      return this.legacyCompatKeyService.makeMasterKey(
-        masterPassword,
-        preloginData.salt as MasterPasswordSalt,
-        preloginData.kdfConfig,
-      );
-    } else {
-      return this.legacyCompatKeyService.makeMasterKey(
-        masterPassword,
-        this.masterPasswordService.emailToSalt(email),
-        preloginData.kdfConfig,
-      );
-    }
+    return this.legacyCompatKeyService.makeMasterKey(
+      masterPassword,
+      preloginData.salt,
+      preloginData.kdfConfig,
+    );
   }
 
   private async evaluateMasterPasswordIfRequired(

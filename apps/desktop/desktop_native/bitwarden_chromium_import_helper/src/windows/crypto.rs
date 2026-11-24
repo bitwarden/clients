@@ -6,7 +6,7 @@ use chromium_importer::chromium::crypt_unprotect_data;
 use scopeguard::defer;
 use tracing::debug;
 use windows::{
-    core::w,
+    core::{w, PCWSTR},
     Win32::{
         Foundation::{CloseHandle, HANDLE},
         Security::Cryptography::{
@@ -133,8 +133,10 @@ pub(crate) fn decode_abe_key_blob(blob_data: &[u8]) -> Result<Vec<u8>> {
         1_u8 => decrypt_abe_key_blob_chrome_aes(key_blob),
         // Google Chrome v2 key encrypted with a hardcoded ChaCha20 key
         2_u8 => decrypt_abe_key_blob_chrome_chacha20(key_blob),
-        // Google Chrome v3 key encrypted with CNG APIs
-        3_u8 => decrypt_abe_key_blob_chrome_cng(key_blob),
+        3_u8 | 4_u8 => {
+            let (key_name, xor_key) = chrome_cng_parameters(version)?;
+            decrypt_abe_key_blob_chrome_cng(key_blob, key_name, &xor_key)
+        }
         v => Err(anyhow!("Unsupported ABE key blob version: {}", v)),
     }
 }
@@ -197,7 +199,32 @@ where
     Ok(decrypted)
 }
 
-fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
+fn chrome_cng_parameters(version: u8) -> Result<(PCWSTR, [u8; 32])> {
+    // Google Chrome flag 3 parameters, the CNG scheme used before flag 4 arrived in Chrome 157
+    const GOOGLE_XOR_KEY_V3: [u8; 32] = [
+        0xCC, 0xF8, 0xA1, 0xCE, 0xC5, 0x66, 0x05, 0xB8, 0x51, 0x75, 0x52, 0xBA, 0x1A, 0x2D, 0x06,
+        0x1C, 0x03, 0xA2, 0x9E, 0x90, 0x27, 0x4F, 0xB2, 0xFC, 0xF5, 0x9B, 0xA4, 0xB7, 0x5C, 0x39,
+        0x23, 0x90,
+    ];
+    // Google Chrome 157+ flag 4 parameters
+    const GOOGLE_XOR_KEY_V4: [u8; 32] = [
+        0x20, 0x8A, 0x6D, 0xA7, 0x11, 0x4A, 0x44, 0xE6, 0xB4, 0x63, 0x11, 0x4B, 0xD9, 0xDA, 0x39,
+        0x7E, 0x93, 0x9A, 0xDE, 0xFE, 0xDB, 0xF4, 0x58, 0x81, 0x17, 0x92, 0x6B, 0x0F, 0x2C, 0x50,
+        0x31, 0x58,
+    ];
+
+    match version {
+        3 => Ok((w!("Google Chromekey1"), GOOGLE_XOR_KEY_V3)),
+        4 => Ok((w!("Google Chromekey2"), GOOGLE_XOR_KEY_V4)),
+        v => Err(anyhow!("Unsupported ABE key blob version: {}", v)),
+    }
+}
+
+fn decrypt_abe_key_blob_chrome_cng(
+    blob: &[u8],
+    key_name: PCWSTR,
+    xor_key: &[u8; 32],
+) -> Result<Vec<u8>> {
     if blob.len() < 92 {
         return Err(anyhow!(
             "Corrupted ABE key blob: expected at least 92 bytes, got {} bytes",
@@ -209,30 +236,19 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     let iv: [u8; 12] = blob[32..32 + 12].try_into()?;
     let ciphertext: [u8; 48] = blob[44..44 + 48].try_into()?;
 
-    debug!(
-        "Google ABE v3 (CNG flavor) detected: {:?} {:?} {:?}",
-        encrypted_aes_key, iv, ciphertext
-    );
-
     // First, decrypt the AES key with CNG API
     let decrypted_aes_key: Vec<u8> = {
         let system_token = start_impersonating()?;
-        let decrypted = decrypt_with_cng(&encrypted_aes_key);
+        let decrypted = decrypt_with_cng(&encrypted_aes_key, key_name);
         debug!("Stopping SYSTEM impersonation");
         stop_impersonating(system_token)?;
         decrypted?
     };
 
-    const GOOGLE_XOR_KEY: [u8; 32] = [
-        0xCC, 0xF8, 0xA1, 0xCE, 0xC5, 0x66, 0x05, 0xB8, 0x51, 0x75, 0x52, 0xBA, 0x1A, 0x2D, 0x06,
-        0x1C, 0x03, 0xA2, 0x9E, 0x90, 0x27, 0x4F, 0xB2, 0xFC, 0xF5, 0x9B, 0xA4, 0xB7, 0x5C, 0x39,
-        0x23, 0x90,
-    ];
-
     // XOR the decrypted AES key with the hardcoded key
     let aes_key: Vec<u8> = decrypted_aes_key
         .into_iter()
-        .zip(GOOGLE_XOR_KEY)
+        .zip(xor_key)
         .map(|(a, b)| a ^ b)
         .collect();
 
@@ -245,7 +261,7 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     Ok(key)
 }
 
-fn decrypt_with_cng(ciphertext: &[u8]) -> Result<Vec<u8>> {
+fn decrypt_with_cng(ciphertext: &[u8], key_name: PCWSTR) -> Result<Vec<u8>> {
     // 1. Open the cryptographic provider
     let mut provider = NCRYPT_PROV_HANDLE::default();
     unsafe {
@@ -267,7 +283,7 @@ fn decrypt_with_cng(ciphertext: &[u8]) -> Result<Vec<u8>> {
         NCryptOpenKey(
             provider,
             &mut key,
-            w!("Google Chromekey1"),
+            key_name,
             CERT_KEY_SPEC::default(),
             NCRYPT_FLAGS::default(),
         )?;

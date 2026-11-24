@@ -87,6 +87,12 @@ url=http://localhost:5047
 `url` is optional. `E2E_SEEDER_USERNAME` and `E2E_SEEDER_PASSWORD` take precedence over the
 file, as a pair, and `E2E_SEEDER_URL` over `url`.
 
+Every seeded user logs in, and a local Identity rate-limits each IP, to 10 token requests and
+60 requests in all a minute. A run of more than a handful of seeded tests trips it, and login
+hangs on a 429. Turn IP rate limiting off for localhost: set
+`globalSettings:selfHosted` to true, or add `127.0.0.1` and `::1` to
+`IpRateLimitOptions:IpWhitelist`, on Identity.
+
 Data a test creates through the client, rather than seeds, is only deleted when the server
 tracks it too. Add `"testPlayIdTrackingEnabled": true` to `globalSettings` in the server's
 `dev/secrets.json`, rerun `dev/setup_secrets.ps1`, and restart Api and Identity. The SeederApi
@@ -110,6 +116,22 @@ deletes it; the SeederApi also deletes play data older than a day.
 Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
 `QueryTemplate` in `src/seeder/queries/`, named after the server's class and typed after its
 `Request` and result.
+
+## SSH agent
+
+`tests/desktop/ssh-agent.e2e.ts` drives the desktop SSH agent with OpenSSH's own `ssh`,
+`ssh-keygen` and `ssh-add` against a local `sshd`:
+
+```
+ssh ──agent socket──▶ desktop SSH agent ──approval dialog──▶ test authorizes
+ └──▶ sshd (127.0.0.1, random port) ──forwarded agent──▶ ssh (second hop)
+```
+
+The account needs an ED25519, an ECDSA and an RSA SSH key in its vault; each test uses the
+first of its type. It needs OpenSSH, server included. `sshd` runs unprivileged as you, so it
+only accepts logins as you, and its second hop runs in your login shell. It is looked up in
+`/usr/sbin`, Homebrew and `/usr/local/sbin`; `E2E_SSHD` overrides. The agent's socket is a
+temp path, never `~/.bitwarden-ssh-agent.sock`.
 
 ## CI
 

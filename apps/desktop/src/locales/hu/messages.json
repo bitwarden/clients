@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "Alkalmazás (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "Alkalmazás (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "A webhely hozzáadásra került."
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Webhely vagy alkalmazás hozzáadása"
-  },
-  "app": {
-    "message": "Alkalmazás"
   },
   "deleteWebsite": {
     "message": "Webhely törlése"
@@ -2434,6 +2436,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Összes"
   },
@@ -3375,6 +3381,10 @@
   "custom": {
     "message": "Egyedi"
   },
+  "deleteSend": {
+    "message": "Delete Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Biztosan törlésre kerüljön ez a küldés?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3414,34 @@
   "disabled": {
     "message": "Letiltva"
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "Jelszó eltávolítása"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "A jelszó eltávolításra került."
   },
-  "removePasswordConfirmation": {
-    "message": "Biztosan eltávolításra kerüljön ez a jelszó?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "A maximális hozzáférések száma elérésre került."
@@ -4596,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
   "total": {
     "message": "Összesen"
   },
@@ -5629,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Hiba történt. Ellenőrizzük a hitelesítő adatokat és próbáljuk újra."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Csak a jelszavas bejelentkezés támogatott."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
@@ -5652,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Adjunk meg egy érvényes bejelentkezési címet."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Titkos kulcs megadása kötelező."
@@ -5674,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Adjuk meg az 1Password bejelentkezéshez használt email címet."
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Titkos kulcs"
   },
@@ -5682,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "A fók titkos kulccsal és jelszóval van biztosítva. A folytatáshoz mindkettőt be kell írni."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper email cím"
@@ -6261,12 +6357,19 @@
     "message": "Érzékeny információt küldése biztonságosan",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Nincsenek visszakapott keresési eredmények."
   },
   "sendsBodyNoItems": {
     "message": "Fájlok vagy adatok megosztása biztonságosan bárkivel, bármilyen platformon. Az információk titkosítva maradnak a végpontokon, korlátozva a kitettséget.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "sendsBodyNoSearchResults": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
@@ -6357,6 +6460,9 @@
   },
   "itemLower": {
     "message": "elem"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "elem"
@@ -6885,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Hogyan kezeljem a széfet?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Elemek átvitele $ORGANIZATION$ szervezethez",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
   },
   "openTransferItemsHelpArticle": {
     "message": "Súgó cikk megnyitása az elemek átviteléről"
@@ -7352,8 +7455,8 @@
   "makeACopy": {
     "message": "Másolat létrehozása"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "Licensz részletek"
@@ -7758,5 +7861,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Ez az elemhez be van kapcsolva a mesterjelszó újra bekérése, így a böngésző bejelentkezési utasításainak automatikus kitöltése ki volt kapcsolva. Mentsük el az elemet a módosítás megtartásához."
+  },
+  "item": {
+    "message": "Item"
   }
 }

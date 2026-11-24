@@ -23,10 +23,7 @@ export enum FeatureFlag {
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM30806_SelfServiceChangeEmailCommand = "pm-30806-self-service-change-email-command",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
-  PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
-  // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
-  PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
@@ -59,12 +56,8 @@ export enum FeatureFlag {
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
-  EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
   ImportUpgrade = "pm-35053-import-upgrade",
@@ -100,6 +93,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  SmCli = "sm-2107-cli",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -175,10 +169,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM30806_SelfServiceChangeEmailCommand]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
-  [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
-  // TODO: PM-34091 - Remove this default value entry.
-  [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
   /* Billing */
@@ -195,11 +186,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
-  [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
-  [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
@@ -209,6 +196,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.SmCli]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,

@@ -68,4 +68,4 @@ jobs:
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           task: update-repository
-          data: '{"artifact_name": "${{ steps.upload.outputs.artifact_name }}", "target_branch": "main"}'
+          data: '{"artifact_name": "${{ steps.upload.outputs.artifact_name }}", "target_branch": "main", "pr_labels": "version update,desktop,t:misc"}'

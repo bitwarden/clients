@@ -1,11 +1,11 @@
 <bit-header [title]="titleText()" [icon]="headerIcon">
-  <pam-detail-breadcrumb
-    slot="breadcrumbs"
-    [route]="credentialsListRoute"
-    parentLabelKey="pamRotationTabManagedCredentials"
-    parentIcon="bwi-managed-credential"
-    [current]="titleText()"
-  />
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="credentialsListRoute" icon="bwi-managed-credential">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-breadcrumb>
+    <!-- The current URL, query string included, so the crumb reads as the active route. -->
+    <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{ titleText() }}</bit-breadcrumb>
+  </bit-breadcrumbs>
 
   @if (editing && detailStatus(); as status) {
     <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">

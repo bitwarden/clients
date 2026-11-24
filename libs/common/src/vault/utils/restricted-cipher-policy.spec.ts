@@ -64,6 +64,8 @@ describe("RestrictedCipherPolicy", () => {
       RestrictedCipherAction.UserFields,
       RestrictedCipherAction.Edit,
       RestrictedCipherAction.Attachments,
+      RestrictedCipherAction.Delete,
+      RestrictedCipherAction.Restore,
     ];
     const revealedBlocked = allActions.filter((a) => !revealedAllowed.includes(a));
     const revealedView = new CipherView();
@@ -89,5 +91,34 @@ describe("RestrictedCipherPolicy", () => {
         expect(RestrictedCipherPolicy.allows(new CipherView(), action, revealedView)).toBe(true);
       },
     );
+  });
+
+  describe("allowsOnReveal", () => {
+    const revealedAllowed: RestrictedCipherAction[] = [
+      RestrictedCipherAction.UserFields,
+      RestrictedCipherAction.Edit,
+      RestrictedCipherAction.Attachments,
+      RestrictedCipherAction.Delete,
+      RestrictedCipherAction.Restore,
+    ];
+    const revealedBlocked = allActions.filter((a) => !revealedAllowed.includes(a));
+
+    describe.each<[string, () => CipherLike]>([
+      ["restricted CipherView", restrictedCipherView],
+      ["restricted CipherListView", restrictedListView],
+      ["restricted Cipher", restrictedCipher],
+    ])("on a %s", (_, create) => {
+      it.each(revealedAllowed)("allows %s", (action) => {
+        expect(RestrictedCipherPolicy.allowsOnReveal(create(), action)).toBe(true);
+      });
+
+      it.each(revealedBlocked)("blocks %s", (action) => {
+        expect(RestrictedCipherPolicy.allowsOnReveal(create(), action)).toBe(false);
+      });
+    });
+
+    it.each(allActions)("allows %s on an unrestricted cipher", (action) => {
+      expect(RestrictedCipherPolicy.allowsOnReveal(new CipherView(), action)).toBe(true);
+    });
   });
 });

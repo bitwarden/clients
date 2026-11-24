@@ -2,72 +2,32 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { PasswordInputResult } from "@bitwarden/auth/angular";
-import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   DirectOrganizationInvite,
   OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  MasterPasswordUnlockData,
-  MasterPasswordSalt,
-  MasterPasswordAuthenticationHash,
-  MasterKeyWrappedUserKey,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DEFAULT_KDF_CONFIG,
-  EncString,
-  LegacyCompatKeyService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 
 describe("WebRegistrationFinishService", () => {
   let service: WebRegistrationFinishService;
 
-  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
-  let accountApiService: MockProxy<AccountApiService>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
-  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
-  let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
 
   // Reassigned inside sdkVariant.setupMocks; declared here so tests can read from it.
   let postKeysForUserPasswordRegistration: jest.Mock;
 
-  // Reassigned inside legacyVariant.setupMocks. The legacy-only test uses these to
-  // assert argument identity through the key-derivation pipeline (makeUserKey is
-  // called with the value returned by makeMasterKey; makeKeyPair with the value
-  // returned by makeUserKey).
-  let legacyMasterKey: MasterKey;
-  let legacyUserKey: UserKey;
-
   beforeEach(() => {
-    legacyCompatKeyService = mock<LegacyCompatKeyService>();
-    accountApiService = mock<AccountApiService>();
     organizationInviteService = mock<OrganizationInviteService>();
-    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
-    configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
 
-    service = new WebRegistrationFinishService(
-      legacyCompatKeyService,
-      accountApiService,
-      masterPasswordService,
-      configService,
-      sdkService,
-      organizationInviteService,
-    );
-
-    configService.getFeatureFlag.mockResolvedValue(false);
+    service = new WebRegistrationFinishService(sdkService, organizationInviteService);
   });
 
   it("instantiates", () => {
@@ -75,33 +35,23 @@ describe("WebRegistrationFinishService", () => {
   });
 
   // ============================================================================
-  // finishRegistration() — shared across the legacy and SDK flows.
-  //
-  // The service picks a path via the
-  // `EnableAccountEncryptionV2UserPasswordRegistration` feature flag:
-  //   - legacy (flag off): derives keys client-side, POSTs a camelCased
-  //     RegisterFinishRequest via accountApiService.registerFinish.
-  //   - SDK (flag on): delegates to post_keys_for_user_password_registration
-  //     with a snake_cased request.
-  //
-  // Behavior is functionally identical from the caller's perspective; the two
-  // flows only differ in transport + field-name casing. Shared behavior is
-  // exercised once via describe.each; flow-specific safeguards (key derivation,
-  // SDK availability, UUID validation) live in their own describes below.
+  // finishRegistration() — delegates to post_keys_for_user_password_registration
+  // with a snake_cased request. Request-shape behavior is exercised via
+  // describe.each; flow-specific safeguards (SDK availability, UUID validation)
+  // live in their own describes below.
   // ============================================================================
 
   interface FlowVariant {
     label: string;
     setupMocks: () => void;
-    // Request shape differs between flows (RegisterFinishRequest for legacy,
-    // UserMasterPasswordRegistrationRequest for SDK). Tests read fields by name
-    // via the `fields` map, so an untyped index accessor is intentional here.
+    // Tests read fields by name via the `fields` map, so an untyped index
+    // accessor is intentional here.
     getRequest: () => any;
     expectTransportNotCalled: () => void;
     directOrgInvite: DirectOrganizationInvite;
     emergencyAccessId: string;
     providerUserId: string;
-    // Field names on the outbound request (camelCase on legacy, snake_case on SDK).
+    // Field names on the outbound request.
     fields: {
       orgInviteToken: string;
       orgUserId: string;
@@ -114,81 +64,16 @@ describe("WebRegistrationFinishService", () => {
       emailVerificationToken: string;
       openOrgInvite: string;
     };
-    // Field names inside the openOrgInvite/open_org_invite nested object
-    // (camelCase on legacy, snake_case on SDK).
+    // Field names inside the open_org_invite nested object.
     openOrgInviteFields: {
       organizationId: string;
       code: string;
     };
   }
 
-  const legacyVariant: FlowVariant = {
-    label: "legacy flow",
-    setupMocks: () => {
-      legacyMasterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-      legacyUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      const userKeyEncString = new EncString("userKeyEncrypted");
-      const userKeyPair: [string, EncString] = ["publicKey", new EncString("privateKey")];
-      const salt = "salt" as MasterPasswordSalt;
-
-      legacyCompatKeyService.makeMasterKey.mockResolvedValue(legacyMasterKey);
-      legacyCompatKeyService.makeUserKey.mockResolvedValue([legacyUserKey, userKeyEncString]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue();
-
-      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
-        salt,
-        kdf: DEFAULT_KDF_CONFIG,
-        masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
-      });
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(
-        new MasterPasswordUnlockData(
-          salt,
-          DEFAULT_KDF_CONFIG,
-          "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
-        ),
-      );
-    },
-    getRequest: () => accountApiService.registerFinish.mock.calls[0][0] as RegisterFinishRequest,
-    expectTransportNotCalled: () => {
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
-    },
-    directOrgInvite: new DirectOrganizationInvite({
-      organizationId: "organizationId",
-      organizationUserId: "organizationUserId",
-      token: "orgInviteToken",
-      email: "email",
-      organizationName: "organizationName",
-      initOrganization: false,
-      orgUserHasExistingUser: false,
-    }),
-    emergencyAccessId: "emergencyAccessId",
-    providerUserId: "providerUserId",
-    fields: {
-      orgInviteToken: "orgInviteToken",
-      orgUserId: "organizationUserId",
-      orgSponsoredFreeFamilyPlanToken: "orgSponsoredFreeFamilyPlanToken",
-      acceptEmergencyAccessInviteToken: "acceptEmergencyAccessInviteToken",
-      acceptEmergencyAccessId: "acceptEmergencyAccessId",
-      providerInviteToken: "providerInviteToken",
-      providerUserId: "providerUserId",
-      salesAssistedToken: "salesAssistedToken",
-      emailVerificationToken: "emailVerificationToken",
-      openOrgInvite: "openOrgInvite",
-    },
-    openOrgInviteFields: {
-      organizationId: "organizationId",
-      code: "code",
-    },
-  };
-
   const sdkVariant: FlowVariant = {
     label: "SDK flow",
     setupMocks: () => {
-      configService.getFeatureFlag.mockImplementation((flag) =>
-        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
-      );
-
       postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
       const registrationClient = {
         post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
@@ -231,7 +116,7 @@ describe("WebRegistrationFinishService", () => {
     },
   };
 
-  describe.each([legacyVariant, sdkVariant])("finishRegistration() - $label", (variant) => {
+  describe.each([sdkVariant])("finishRegistration() - $label", (variant) => {
     const email = "test@email.com";
     const emailVerificationToken = "emailVerificationToken";
     const orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
@@ -539,54 +424,6 @@ describe("WebRegistrationFinishService", () => {
   // finishRegistration() — flow-specific safeguards.
   // ============================================================================
 
-  describe("finishRegistration() — legacy flow only", () => {
-    const email = "test@email.com";
-    const emailVerificationToken = "emailVerificationToken";
-    const passwordInputResult: PasswordInputResult = {
-      newPassword: "newPassword",
-      kdfConfig: DEFAULT_KDF_CONFIG,
-      newPasswordHint: "newPasswordHint",
-      salt: "salt" as MasterPasswordSalt,
-    };
-
-    beforeEach(() => {
-      legacyVariant.setupMocks();
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-    });
-
-    it("throws when the user key cannot be created", async () => {
-      legacyCompatKeyService.makeUserKey.mockResolvedValue([
-        null as unknown as UserKey,
-        null as unknown as EncString,
-      ]);
-
-      await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
-        "User key could not be created",
-      );
-    });
-
-    it("derives the master key + user key + key pair and posts a RegisterFinishRequest", async () => {
-      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
-
-      // Verifies the key-derivation pipeline wiring: each step consumes the output
-      // of the previous one (masterKey → makeUserKey → userKey → makeKeyPair).
-      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.newPassword,
-        passwordInputResult.salt,
-        passwordInputResult.kdfConfig,
-      );
-      expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(legacyMasterKey);
-      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(legacyUserKey);
-
-      const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequest;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-      expect(registerCall.masterPasswordAuthentication).toBeDefined();
-      expect(registerCall.masterPasswordUnlock).toBeDefined();
-      expect(registerCall).toMatchSnapshot();
-    });
-  });
-
   describe("finishRegistration() — SDK flow only", () => {
     const email = "test@email.com";
     const emailVerificationToken = "emailVerificationToken";
@@ -611,7 +448,7 @@ describe("WebRegistrationFinishService", () => {
       expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     });
 
-    it("delegates to the SDK's post_keys_for_user_password_registration and does not exercise the legacy path", async () => {
+    it("delegates to the SDK's post_keys_for_user_password_registration", async () => {
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
@@ -624,10 +461,6 @@ describe("WebRegistrationFinishService", () => {
           email_verification_token: emailVerificationToken,
         }),
       );
-      expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
-      expect(legacyCompatKeyService.makeUserKey).not.toHaveBeenCalled();
-      expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
-      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
       expect(sdkRequest).toMatchSnapshot();
     });
 
