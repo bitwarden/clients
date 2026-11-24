@@ -112,23 +112,27 @@ export class OAuthAuthorizeComponent implements OnInit {
       return;
     }
     this.submitting = true;
+    // Id of the connection once it has been persisted, so a later failure can roll it back.
+    let createdConnectionId: string | undefined;
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      // Generate the PSK only after consent; the plaintext stays client-side.
-      const psk = await this.pskGenerator.generate();
+      // Record consent first (mints a single-use token). This persists nothing, so an auth failure
+      // here cannot orphan a connection. No PSK is sent.
+      const { token } = await this.brokerApiService.postConsent(this.returnUrl);
 
-      // Store the user-key-encrypted PSK (ciphertext only) on the account, under the name the user chose.
+      // Generate the PSK (plaintext stays client-side) and store it user-key-encrypted (ciphertext
+      // only) under the name the user chose.
+      const psk = await this.pskGenerator.generate();
       const connection = await this.connectedAppService.encrypt(
         this.context.clientId,
         this.nameControl.value,
         psk,
         userId,
       );
-      await this.connectedAppApiService.post(new ConnectedAppRequest(connection));
-
-      // Record consent via the API (mints a single-use token). No PSK is sent.
-      const { token } = await this.brokerApiService.postConsent(this.returnUrl);
+      createdConnectionId = (
+        await this.connectedAppApiService.post(new ConnectedAppRequest(connection))
+      ).id;
 
       // Hand the plaintext PSK (and the agent's loopback, when the server provides it) to the
       // completion connector; survives the navigation via sessionStorage.
@@ -141,6 +145,15 @@ export class OAuthAuthorizeComponent implements OnInit {
         this.returnUrl,
       );
     } catch {
+      // Roll back a connection persisted before the flow failed, so a failed (or retried) approval
+      // cannot leave an orphaned or duplicate connection behind.
+      if (createdConnectionId != null) {
+        try {
+          await this.connectedAppApiService.delete(createdConnectionId);
+        } catch {
+          // Best-effort rollback; surface the original failure regardless.
+        }
+      }
       this.submitting = false;
       this.brokerStateService.clear(this.state);
       this.toastService.showToast({
