@@ -3,14 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
+  effect,
   inject,
   input,
-  OnInit,
   output,
-  signal,
+  untracked,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { take } from "rxjs";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -65,7 +64,7 @@ type GridItem = {
     TypographyModule,
   ],
 })
-export class AddItemGridComponent implements OnInit {
+export class AddItemGridComponent {
   readonly canCreateCipher = input(true);
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
@@ -78,14 +77,13 @@ export class AddItemGridComponent implements OnInit {
   });
 
   private readonly announcementService = inject(NewItemTypesAnnouncementService);
-  private readonly destroyRef = inject(DestroyRef);
 
   /** Types badged "New", held from first render since showing them marks the badges seen */
-  private readonly badgedTypes = signal<CipherType[]>([]);
+  private readonly badges = toSignal(this.announcementService.badges$.pipe(take(1)));
 
   readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
-    const badgedTypes = this.badgedTypes();
+    const badgedTypes = this.badges()?.types ?? [];
     const items: GridItem[] = this.canCreateCipher()
       ? DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
           if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
@@ -125,19 +123,14 @@ export class AddItemGridComponent implements OnInit {
 
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {}
-
-  ngOnInit(): void {
-    if (!this.canCreateCipher()) {
-      return;
-    }
-    this.announcementService.badgedTypes$
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((types) => {
-        this.badgedTypes.set(types);
-        if (types.length > 0) {
-          void this.announcementService.dismissBadges();
-        }
-      });
+  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {
+    effect(() => {
+      const badges = this.badges();
+      if (this.canCreateCipher() && badges != null && badges.types.length > 0) {
+        untracked(() => {
+          void this.announcementService.dismissBadges(badges.userId);
+        });
+      }
+    });
   }
 }

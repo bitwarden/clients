@@ -66,7 +66,7 @@ export class NewItemTypesCoachmarkComponent {
         return;
       }
       this.copy.set(pending);
-      void this.announcementService.dismissCoachmark();
+      void this.announcementService.dismissCoachmark(pending.userId);
     });
   }
 

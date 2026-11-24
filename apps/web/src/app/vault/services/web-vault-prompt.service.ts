@@ -73,7 +73,7 @@ export class WebVaultPromptService {
 
     const prompted = await this.promptUser(userId);
     const calloutShown = await firstValueFrom(this.tourCalloutService.show$(userId));
-    await this.newItemTypesAnnouncementService.release(prompted || calloutShown);
+    await this.newItemTypesAnnouncementService.release(userId, prompted || calloutShown);
   }
 
   /** Shows at most one prompt, returning whether one showed */

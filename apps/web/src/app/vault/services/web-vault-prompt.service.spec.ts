@@ -173,7 +173,7 @@ describe("WebVaultPromptService", () => {
     it("releases it for this session when no other prompt showed", async () => {
       await service.conditionallyPromptUser();
 
-      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(false);
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(mockUserId, false);
     });
 
     it("defers it when a prompt showed", async () => {
@@ -181,7 +181,7 @@ describe("WebVaultPromptService", () => {
 
       await service.conditionallyPromptUser();
 
-      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(mockUserId, true);
     });
 
     it("defers it when the extension prompt showed", async () => {
@@ -189,7 +189,7 @@ describe("WebVaultPromptService", () => {
 
       await service.conditionallyPromptUser();
 
-      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(mockUserId, true);
     });
 
     it("defers it while the redesign tour callout shows", async () => {
@@ -197,7 +197,7 @@ describe("WebVaultPromptService", () => {
 
       await service.conditionallyPromptUser();
 
-      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(true);
+      expect(releaseNewItemTypesCoachmark).toHaveBeenCalledWith(mockUserId, true);
     });
   });
 

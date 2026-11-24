@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, input, output } from "@angular/core";
+import { Component, computed, inject, input, output, viewChild } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
@@ -16,6 +16,7 @@ import {
   IconModule,
   MenuModule,
   PopoverModule,
+  PositionIdentifier,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -92,6 +93,24 @@ export class NewCipherMenuComponent {
       !this.coachmarkActive(),
   );
 
+  private readonly addItemCoachmark = viewChild.required(CoachmarkComponent);
+  private readonly newItemTypesCoachmark = viewChild.required(NewItemTypesCoachmarkComponent);
+
+  /** The tour's add item step takes the dialog button over from the new item types coachmark */
+  protected readonly activePopover = computed(() =>
+    this.coachmarkActive()
+      ? this.addItemCoachmark().popover()
+      : this.newItemTypesCoachmark().popover(),
+  );
+
+  protected readonly popoverOpen = computed(
+    () => this.coachmarkActive() || this.newItemTypesCoachmark().open(),
+  );
+
+  protected readonly popoverPosition = computed<PositionIdentifier | undefined>(() =>
+    this.coachmarkActive() ? this.coachmark.getStepPosition("addItem") : "below-end",
+  );
+
   constructor(
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
@@ -125,6 +144,10 @@ export class NewCipherMenuComponent {
    * If only collections can be created (no ciphers or folders), show "New Collection".
    * Otherwise, show "New".
    */
+  protected onPopoverOpenChange(open: boolean): void {
+    this.newItemTypesCoachmark().openChange(open);
+  }
+
   protected getButtonLabel(): string {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();

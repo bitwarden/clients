@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import {
   NewItemTypesAnnouncementService,
@@ -15,7 +16,9 @@ describe("NewItemTypesCoachmarkComponent", () => {
   let component: NewItemTypesCoachmarkComponent;
   let coachmarkCopy$: BehaviorSubject<NewItemTypesCoachmarkCopy | null>;
   const dismissCoachmark = jest.fn();
+  const userId = "user-id" as UserId;
   const copy: NewItemTypesCoachmarkCopy = {
+    userId,
     titleKey: "newItemTypesAvailable",
     descriptionKey: "addBankAccountsLicensesAndPassports",
   };
@@ -51,7 +54,7 @@ describe("NewItemTypesCoachmarkComponent", () => {
     fixture.detectChanges();
 
     expect(component.open()).toBe(true);
-    expect(dismissCoachmark).toHaveBeenCalledTimes(1);
+    expect(dismissCoachmark).toHaveBeenCalledWith(userId);
   });
 
   it("stays open after being marked seen", () => {

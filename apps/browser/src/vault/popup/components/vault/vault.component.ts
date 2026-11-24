@@ -535,6 +535,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
     const spotlightShown = await firstValueFrom(this.vaultSpotlightShown$());
     await this.newItemTypesAnnouncementService.release(
+      this.activeUserId,
       !onboardingWelcomeDismissed || showedImportResult || newExperienceShown || spotlightShown,
     );
   }

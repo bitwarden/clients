@@ -947,7 +947,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const calloutShown = await firstValueFrom(this.tourCalloutService.show$(activeUserId));
-    await this.newItemTypesAnnouncementService.release(newExperienceResult != null || calloutShown);
+    await this.newItemTypesAnnouncementService.release(
+      activeUserId,
+      newExperienceResult != null || calloutShown,
+    );
   }
 
   ngOnDestroy() {

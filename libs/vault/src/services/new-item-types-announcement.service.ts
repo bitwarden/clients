@@ -1,6 +1,6 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,8 +9,10 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { NUDGES_MEMORY, StateProvider, UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CoachmarkService } from "../components/coachmark/coachmark.service";
 
@@ -21,10 +23,17 @@ export const NEW_ITEM_TYPES: readonly CipherType[] = [
   CipherType.Passport,
 ];
 
-/** i18n keys for the coachmark title and description */
+/** i18n keys for the coachmark title and description, and the user it's shown to */
 export type NewItemTypesCoachmarkCopy = {
+  userId: UserId;
   titleKey: string;
   descriptionKey: string;
+};
+
+/** New item types to badge "New", and the user they're shown to */
+export type NewItemTypesBadges = {
+  userId: UserId;
+  types: CipherType[];
 };
 
 // Keyed by which new types are available, in NEW_ITEM_TYPES order, so each combination
@@ -38,6 +47,14 @@ const DESCRIPTION_KEYS: Record<string, string> = {
   "010": "addLicenses",
   "001": "addPassports",
 };
+
+// Set once the user's onboarding sequence has run, so the coachmark never races its prompts.
+// Clears on lock, since the sequence runs again on unlock.
+const RELEASED_THIS_SESSION = new UserKeyDefinition<boolean>(
+  NUDGES_MEMORY,
+  "newItemTypesCoachmarkReleased",
+  { deserializer: (released) => released, clearOn: ["lock", "logout"] },
+);
 
 // Memory state clears on lock, so a deferred coachmark gets its chance on the next unlock
 const SUPPRESSED_THIS_SESSION = new UserKeyDefinition<boolean>(
@@ -53,6 +70,7 @@ const SUPPRESSED_THIS_SESSION = new UserKeyDefinition<boolean>(
 @Injectable({ providedIn: "root" })
 export class NewItemTypesAnnouncementService {
   private readonly accountService = inject(AccountService);
+  private readonly cipherService = inject(CipherService);
   private readonly configService = inject(ConfigService);
   private readonly nudgesService = inject(NudgesService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
@@ -61,9 +79,6 @@ export class NewItemTypesAnnouncementService {
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  /** Set once the page's onboarding sequence has run, so the coachmark never races its prompts */
-  private readonly released = signal(false);
-  private readonly released$ = toObservable(this.released);
   private readonly tourRunning$ = toObservable(this.coachmarkService.isRunning);
 
   /** New item types the user can create: flag on, minus types an admin has restricted */
@@ -79,62 +94,78 @@ export class NewItemTypesAnnouncementService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
+  /**
+   * Available new types the user has no items of yet. Dismissals are per device, so this keeps
+   * a new client from announcing types the user already uses.
+   */
+  private unusedTypes$(userId: UserId): Observable<CipherType[]> {
+    return combineLatest([
+      this.availableTypes$,
+      this.cipherService.cipherListViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+    ]).pipe(
+      map(([types, ciphers]) => {
+        const usedTypes = new Set(ciphers.map((cipher) => CipherViewLikeUtils.getType(cipher)));
+        return types.filter((type) => !usedTypes.has(type));
+      }),
+    );
+  }
+
   /** Coachmark copy while it should show, otherwise `null` */
   readonly coachmarkCopy$: Observable<NewItemTypesCoachmarkCopy | null> = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
-        this.availableTypes$,
+        this.unusedTypes$(userId),
         this.nudgesService.showNudgeSpotlight$(NudgeType.NewItemTypesAnnouncement, userId),
         this.stateProvider.getUser(userId, SUPPRESSED_THIS_SESSION).state$,
-        this.released$,
+        this.stateProvider.getUser(userId, RELEASED_THIS_SESSION).state$,
         this.tourRunning$,
-      ]),
+      ]).pipe(
+        map(([types, pending, suppressed, released, tourRunning]) => {
+          if (types.length === 0 || !pending || suppressed || !released || tourRunning) {
+            return null;
+          }
+          return {
+            userId,
+            titleKey: types.length === 1 ? "newItemTypeAvailable" : "newItemTypesAvailable",
+            descriptionKey:
+              DESCRIPTION_KEYS[NEW_ITEM_TYPES.map((t) => +types.includes(t)).join("")],
+          };
+        }),
+      ),
     ),
-    map(([types, pending, suppressed, released, tourRunning]) => {
-      if (types.length === 0 || !pending || suppressed || !released || tourRunning) {
-        return null;
-      }
-      return {
-        titleKey: types.length === 1 ? "newItemTypeAvailable" : "newItemTypesAvailable",
-        descriptionKey: DESCRIPTION_KEYS[NEW_ITEM_TYPES.map((t) => +types.includes(t)).join("")],
-      };
-    }),
   );
 
-  /** New item types to badge in the choose-item list; empty once the badges were seen */
-  readonly badgedTypes$: Observable<CipherType[]> = this.userId$.pipe(
+  /** New item types to badge in the choose-item list; no types once the badges were seen */
+  readonly badges$: Observable<NewItemTypesBadges> = this.userId$.pipe(
     switchMap((userId) =>
-      this.nudgesService.showNudgeBadge$(NudgeType.NewItemTypesAnnouncement, userId),
+      this.nudgesService.showNudgeBadge$(NudgeType.NewItemTypesAnnouncement, userId).pipe(
+        switchMap((show) => (show ? this.unusedTypes$(userId) : of([]))),
+        map((types) => ({ userId, types })),
+      ),
     ),
-    switchMap((show) => (show ? this.availableTypes$ : of([]))),
   );
 
   /**
-   * Lets the coachmark show once the page's onboarding sequence has run.
+   * Lets the coachmark show for the user once the page's onboarding sequence has run.
    * @param otherMessagingShown whether onboarding, redesign or upsell messaging showed instead,
    * which defers the coachmark to the next session
    */
-  async release(otherMessagingShown: boolean): Promise<void> {
+  async release(userId: UserId, otherMessagingShown: boolean): Promise<void> {
     if (otherMessagingShown) {
-      const userId = await firstValueFrom(this.userId$);
       await this.stateProvider.getUser(userId, SUPPRESSED_THIS_SESSION).update(() => true);
     }
-    this.released.set(true);
+    await this.stateProvider.getUser(userId, RELEASED_THIS_SESSION).update(() => true);
   }
 
-  async dismissCoachmark(): Promise<void> {
-    await this.updateStatus({ hasSpotlightDismissed: true });
+  async dismissCoachmark(userId: UserId): Promise<void> {
+    await this.nudgesService.updateNudgeStatus(NudgeType.NewItemTypesAnnouncement, userId, {
+      hasSpotlightDismissed: true,
+    });
   }
 
-  async dismissBadges(): Promise<void> {
-    await this.updateStatus({ hasBadgeDismissed: true });
-  }
-
-  private async updateStatus(status: {
-    hasSpotlightDismissed?: boolean;
-    hasBadgeDismissed?: boolean;
-  }) {
-    const userId: UserId = await firstValueFrom(this.userId$);
-    await this.nudgesService.updateNudgeStatus(NudgeType.NewItemTypesAnnouncement, userId, status);
+  async dismissBadges(userId: UserId): Promise<void> {
+    await this.nudgesService.updateNudgeStatus(NudgeType.NewItemTypesAnnouncement, userId, {
+      hasBadgeDismissed: true,
+    });
   }
 }

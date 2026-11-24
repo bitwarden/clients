@@ -33,7 +33,7 @@ import { NewItemPageComponent } from "./new-item-page.component";
 
 const newItemTypesAnnouncementMock = {
   coachmarkCopy$: of(null),
-  badgedTypes$: of([]),
+  badges$: of({ userId: "user-id", types: [] }),
   release: jest.fn(),
   dismissCoachmark: jest.fn(),
   dismissBadges: jest.fn(),

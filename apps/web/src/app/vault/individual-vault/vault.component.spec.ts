@@ -178,7 +178,7 @@ describe("VaultComponent", () => {
         provideRouter([]),
         {
           provide: NewItemTypesAnnouncementService,
-          useValue: { coachmarkCopy$: of(null), badgedTypes$: of([]) },
+          useValue: { coachmarkCopy$: of(null), badges$: of({ userId: "user-id", types: [] }) },
         },
         // The coachmark tour opens the side nav for its nav-anchored steps, so CoachmarkService
         // resolves SideNavService, which reads its width from global state.

@@ -29,7 +29,7 @@ import { AppVaultFabComponent, FabNewItemInitialValues } from "./vault-fab.compo
 
 const newItemTypesAnnouncementMock = {
   coachmarkCopy$: of(null),
-  badgedTypes$: of([]),
+  badges$: of({ userId: "user-id", types: [] }),
   release: jest.fn(),
   dismissCoachmark: jest.fn(),
   dismissBadges: jest.fn(),
