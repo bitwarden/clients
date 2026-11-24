@@ -1,37 +1,31 @@
 import { Injectable, inject } from "@angular/core";
 import { Observable, combineLatest, from, of } from "rxjs";
-import { catchError, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
-import { VaultProfileService } from "../vault-profile.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable({ providedIn: "root" })
 export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
-  private vaultProfileService = inject(VaultProfileService);
-  private logService = inject(LogService);
+  private accountService = inject(AccountService);
   private pinService = inject(PinServiceAbstraction);
   private biometricStateService = inject(BiometricStateService);
   private policyService = inject(PolicyService);
   private organizationService = inject(OrganizationService);
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
-    const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
-      catchError(() => {
-        this.logService.error("Failed to load profile date:");
-        // Default to today to ensure the nudge is shown in case of an error
-        return of(new Date());
-      }),
+    const profileDate$ = this.accountService.accounts$.pipe(
+      map((accounts) => accounts[userId]?.creationDate ?? new Date()),
     );
 
     return combineLatest([

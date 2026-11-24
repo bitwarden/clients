@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@an
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -11,6 +11,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -24,7 +25,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { TaskService } from "@bitwarden/common/vault/tasks";
+import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
 
@@ -415,17 +416,43 @@ describe("CipherViewComponent", () => {
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("returns false for organization-owned ciphers", fakeAsync(() => {
-      const cipher = createLoginCipherView();
-      cipher.organizationId = "org-id";
+    describe("organization-owned ciphers", () => {
+      const renderOrgCipher = (tasks: Partial<SecurityTask>[]) => {
+        jest
+          .mocked(mockCipherService.ciphers$)
+          .mockReturnValue(of({ "cipher-id": { edit: true, viewPassword: true } } as any));
+        jest.mocked(mockTaskService.pendingTasks$).mockReturnValue(of(tasks as SecurityTask[]));
 
-      fixture.componentRef.setInput("cipher", cipher);
-      fixture.detectChanges();
-      tick();
+        const cipher = createLoginCipherView();
+        cipher.organizationId = "org-id";
+        fixture.componentRef.setInput("cipher", cipher);
+        fixture.detectChanges();
+        tick();
+      };
 
-      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
-      expect(component.passwordIsAtRisk()).toBe(false);
-    }));
+      it("skips the risk check without a pending change-password task", fakeAsync(() => {
+        renderOrgCipher([]);
+
+        expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
+        expect(component.passwordRiskCategory()).toBeNull();
+      }));
+
+      it("categorizes the password when a task is pending, regardless of premium", fakeAsync(() => {
+        hasPremiumFromAnySource$.next(false);
+        mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue({
+          password_strength: 4,
+          exposed_result: { type: "NotFound" },
+          reuse_count: 2,
+        });
+
+        renderOrgCipher([
+          { cipherId: "cipher-id", type: SecurityTaskType.UpdateAtRiskCredential } as any,
+        ]);
+
+        expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
+        expect(component.passwordRiskCategory()).toBe(RiskCategory.Reused);
+      }));
+    });
 
     it("returns false when user is not premium", fakeAsync(() => {
       hasPremiumFromAnySource$.next(false);
@@ -462,7 +489,35 @@ describe("CipherViewComponent", () => {
       // After async completes, should reflect the weak password
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(true);
+      expect(component.passwordRiskCategory()).toBe(RiskCategory.Weak);
     }));
+
+    it.each([
+      {
+        desc: "exposed over weak and reused",
+        result: {
+          password_strength: 1,
+          exposed_result: { type: "Found", value: 3 },
+          reuse_count: 2,
+        },
+        expected: RiskCategory.Exposed,
+      },
+      {
+        desc: "reused when only reused",
+        result: { password_strength: 4, exposed_result: { type: "NotFound" }, reuse_count: 2 },
+        expected: RiskCategory.Reused,
+      },
+    ])("sets the risk category to $desc", ({ result, expected }) => {
+      return fakeAsync(() => {
+        mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue(result);
+
+        fixture.componentRef.setInput("cipher", createLoginCipherView());
+        fixture.detectChanges();
+        tick();
+
+        expect(component.passwordRiskCategory()).toBe(expected);
+      })();
+    });
 
     it("returns false when password is strong and not exposed", fakeAsync(() => {
       // Setup mock to return safe password

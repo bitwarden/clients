@@ -2,6 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import {
   DirectOrganizationInvite,
+  OpenOrganizationInvite,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { RouterService } from "@bitwarden/web-vault/app/core";
@@ -36,7 +37,7 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
         }),
       );
 
-      await component.onBeforeNavigation();
+      await component.onBeforeNavigation(true);
 
       expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
@@ -45,10 +46,48 @@ describe("ConfirmKeyConnectorDomainComponent", () => {
     it("should NOT clear the redirect URL or the org invite when no org invite is stashed", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      await component.onBeforeNavigation();
+      await component.onBeforeNavigation(true);
 
       expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should keep the open org invite and its redirect URL when we send acceptOrganizationInvite: false", async () => {
+      // Arrange
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "org-name",
+        }),
+      );
+
+      // Act
+      await component.onBeforeNavigation(false);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
+    });
+
+    it("should clear a stashed open invite for a different organization when we send acceptOrganizationInvite: true", async () => {
+      // Arrange: we send acceptOrganizationInvite: true, because the open invite is for another organization.
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(
+        new OpenOrganizationInvite({
+          organizationId: "other-org-id",
+          inviteLinkCode: "invite-link-code",
+          inviteKey: "invite-key",
+          organizationName: "other-org-name",
+        }),
+      );
+
+      // Act
+      await component.onBeforeNavigation(true);
+
+      // Assert
+      expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
     });
   });
 });

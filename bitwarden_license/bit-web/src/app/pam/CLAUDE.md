@@ -169,8 +169,18 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `bit-pam/src/services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`bit-pam/src/services/approvals-sdk.service.ts`) covers the
-approver-facing surface (the pending inbox, the decided history, recording a
-decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+approver-facing surface (the pending inbox, the approvals still giving access, the ended
+history, recording a decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+
+**The decided requests come back from two reads, not one.** `listApproved()` is the approvals
+that can still give access (not started and inside their window, or behind a live lease, with
+that lease's extension); `listHistory()` is the ended ones (denied, revoked, canceled, expired,
+session-ended). `ApproverInboxService` holds them in separate subjects: the Approvals tab's
+`approverRows$` and `activeLeaseRows$` read the approved one, `historyRows$` the ended one, and
+`managedIds$` the union, since both are rows the approver may act on. Feeding the Approvals tab
+from the history read empties it, which is what the split replaced. `listHistory()` is paged
+server-side; this surface asks for page 0 at the maximum page size (100) and drops the page's
+`total`/`requesters`/`collectionIds`, because no tab pages or filters yet.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
 raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go
@@ -256,7 +266,7 @@ which spells out which happened and when; the row builders have no need for it, 
 ## Refresh model
 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
-Two services drive every refresh:
+Two services drive almost every refresh:
 
 - `AccessEventService`, the server's pushes for the active user, filtered to bare ticks:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
@@ -264,6 +274,11 @@ Two services drive every refresh:
 - `AccessRefreshService`, which merges `accessChanged$` with this client's own mutations and
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
+
+The one exception: `PamRevealedCipherService` listens for `SyncCipherUpdate` itself and reads a
+held view again. During a lease, core sync keeps the stored restricted copy on that push, so
+neither service above carries the edit. The extension's `PamLeaseRefreshService` does the same for
+its held copies.
 
 Page-level services reload on these streams. `MyAccessService` listens on
 `AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made

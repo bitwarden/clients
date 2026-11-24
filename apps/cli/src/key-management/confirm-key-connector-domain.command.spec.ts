@@ -1,8 +1,10 @@
 import { createPromptModule } from "inquirer";
 import { mock } from "jest-mock-extended";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationAutoEnrollStatusResponse } from "@bitwarden/common/admin-console/models/response/organization-auto-enroll-status.response";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -21,19 +23,31 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
 
   const userId = "test-user-id" as UserId;
   const keyConnectorUrl = "https://keyconnector.example.com";
+  const organizationSsoIdentifier = "org-sso-identifier";
+  const orgId = "test-org-id" as OrganizationId;
 
   const keyConnectorService = mock<KeyConnectorService>();
+  const organizationApiService = mock<OrganizationApiServiceAbstraction>();
   const logout = jest.fn();
   const i18nService = mock<I18nService>();
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     command = new ConfirmKeyConnectorDomainCommand(
       userId,
       keyConnectorUrl,
+      organizationSsoIdentifier,
       keyConnectorService,
+      organizationApiService,
       logout,
       i18nService,
     );
+
+    organizationApiService.getAutoEnrollStatus.mockResolvedValue(
+      new OrganizationAutoEnrollStatusResponse({ Id: orgId, ResetPasswordEnabled: false }),
+    );
+    keyConnectorService.convertNewSsoUserToKeyConnector.mockResolvedValue(true);
 
     i18nService.t.mockImplementation((key: string) => {
       switch (key) {
@@ -104,7 +118,13 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
 
       expect(response).not.toBeNull();
       expect(response.success).toEqual(true);
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(userId);
+      expect(organizationApiService.getAutoEnrollStatus).toHaveBeenCalledWith(
+        organizationSsoIdentifier,
+      );
+      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
+        userId,
+        orgId,
+      );
     });
 
     it("should logout and throw error if convert new sso user to key connector failed", async () => {
@@ -122,6 +142,26 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
       );
 
       await expect(command.run()).rejects.toThrow("Migration failed");
+      expect(logout).toHaveBeenCalled();
+    });
+
+    it("should logout and throw error if the organization id lookup failed", async () => {
+      // Arrange
+      process.env.BW_NOINTERACTION = "false";
+      (createPromptModule as jest.Mock).mockImplementation(() =>
+        jest.fn((prompt) => {
+          assertPrompt(prompt);
+          return Promise.resolve({ confirm: "confirmed" });
+        }),
+      );
+      organizationApiService.getAutoEnrollStatus.mockRejectedValue(new Error("Not found"));
+
+      // Act
+      const promise = command.run();
+
+      // Assert
+      await expect(promise).rejects.toThrow("Not found");
+      expect(keyConnectorService.convertNewSsoUserToKeyConnector).not.toHaveBeenCalled();
       expect(logout).toHaveBeenCalled();
     });
 
