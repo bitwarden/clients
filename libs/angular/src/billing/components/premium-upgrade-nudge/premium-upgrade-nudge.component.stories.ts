@@ -3,8 +3,6 @@ import { distinctUntilChanged, Observable, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { ClientType } from "@bitwarden/client-type";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PremiumUpgradeNudgeOptions } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -12,7 +10,6 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -248,12 +245,6 @@ export default {
       providers: [
         { provide: ThemeStateService, useValue: { selectedTheme$: storybookTheme$ } },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: of(ThemeTypes.Light) },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "123" }) } },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: () => of(false) },
-        },
       ],
     }),
   ],

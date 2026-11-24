@@ -5,8 +5,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PremiumUpgradeNudgeOptions } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
@@ -14,13 +12,11 @@ import {
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonComponent, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
@@ -99,12 +95,6 @@ describe("PremiumUpgradeNudgeComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
     const themeStateService = mock<ThemeStateService>();
     Object.defineProperty(themeStateService, "selectedTheme$", { value: selectedTheme$ });
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(true));
-    const accountService = mock<AccountService>();
-    accountService.activeAccount$ = of({ id: "user-1" } as Account);
-    const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
     pending = deferred();
     upgrade = jest.fn(() => pending.promise);
@@ -121,18 +111,10 @@ describe("PremiumUpgradeNudgeComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ThemeStateService, useValue: themeStateService },
         { provide: SYSTEM_THEME_OBSERVABLE, useValue: systemTheme$ },
-        { provide: ConfigService, useValue: configService },
-        { provide: AccountService, useValue: accountService },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: billingAccountProfileStateService,
-        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PremiumUpgradeNudgeComponent);
-    fixture.detectChanges();
-    await flush();
     fixture.detectChanges();
   };
 
@@ -162,14 +144,14 @@ describe("PremiumUpgradeNudgeComponent", () => {
 
     expect(query("[data-testid='bit-dialog-title']")?.textContent).toContain("nudgeTitle");
     expect(text()).toContain("nudgeDescription");
-    expect(query("app-premium-badge [bitBadge]")?.textContent?.trim()).toBe("premium");
+    expect(query("app-premium-pill [bitBadge]")?.textContent?.trim()).toBe("premium");
   });
 
-  it("renders the Premium badge when the app provides no PremiumUpgradePromptService", async () => {
+  it("renders the Premium pill directly, not through the premium badge", async () => {
     await setup();
 
-    expect(TestBed.inject(PremiumUpgradePromptService, null)).toBeNull();
-    expect(query("app-premium-badge [bitBadge]")).not.toBeNull();
+    expect(query("app-premium-pill")).not.toBeNull();
+    expect(query("app-premium-badge")).toBeNull();
   });
 
   describe("unlocked feature list", () => {
