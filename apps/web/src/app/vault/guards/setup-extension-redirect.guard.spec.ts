@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -21,20 +20,20 @@ describe("setupExtensionRedirectGuard", () => {
 
   const account = {
     id: "account-id",
+    creationDate: seventeenDaysAgo,
   } as unknown as Account;
 
   const activeAccount$ = new BehaviorSubject<Account | null>(account);
   const extensionInstalled$ = new BehaviorSubject<boolean>(false);
   const state$ = new BehaviorSubject<boolean>(false);
   const createUrlTree = jest.fn();
-  const getProfileCreationDate = jest.fn().mockResolvedValue(seventeenDaysAgo);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
 
   beforeEach(() => {
     Utils.isMobileBrowser = false;
 
-    getProfileCreationDate.mockClear();
+    activeAccount$.next(account);
     createUrlTree.mockClear();
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
@@ -44,10 +43,6 @@ describe("setupExtensionRedirectGuard", () => {
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: StateProvider, useValue: { getUser: () => ({ state$ }) } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$ } },
-        {
-          provide: VaultProfileService,
-          useValue: { getProfileCreationDate },
-        },
         {
           provide: ConfigService,
           useValue: { serverSettings$: serverSettings$.asObservable() },
@@ -68,13 +63,13 @@ describe("setupExtensionRedirectGuard", () => {
     const thirtyOneDaysAgo = new Date();
     thirtyOneDaysAgo.setDate(thirtyOneDaysAgo.getDate() - 31);
 
-    getProfileCreationDate.mockResolvedValueOnce(thirtyOneDaysAgo);
+    activeAccount$.next({ ...account, creationDate: thirtyOneDaysAgo } as Account);
 
     expect(await setupExtensionGuard()).toBe(true);
   });
 
-  it("returns `true` when the profile check fails", async () => {
-    getProfileCreationDate.mockRejectedValueOnce(new Error("Profile check failed"));
+  it("returns `true` when the account has no creation date", async () => {
+    activeAccount$.next({ ...account, creationDate: undefined } as Account);
 
     expect(await setupExtensionGuard()).toBe(true);
   });

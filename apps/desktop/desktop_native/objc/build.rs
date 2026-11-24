@@ -30,6 +30,7 @@ fn main() {
 
     builder
         .flag("-fobjc-arc") // Enable Auto Reference Counting (ARC)
+        .flag("-mmacosx-version-min=13.0")
         .compile("objc_code");
 
     // Link required frameworks

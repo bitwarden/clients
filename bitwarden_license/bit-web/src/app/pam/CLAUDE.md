@@ -169,8 +169,18 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `bit-pam/src/services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`bit-pam/src/services/approvals-sdk.service.ts`) covers the
-approver-facing surface (the pending inbox, the decided history, recording a
-decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+approver-facing surface (the pending inbox, the approvals still giving access, the ended
+history, recording a decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+
+**The decided requests come back from two reads, not one.** `listApproved()` is the approvals
+that can still give access (not started and inside their window, or behind a live lease, with
+that lease's extension); `listHistory()` is the ended ones (denied, revoked, canceled, expired,
+session-ended). `ApproverInboxService` holds them in separate subjects: the Approvals tab's
+`approverRows$` and `activeLeaseRows$` read the approved one, `historyRows$` the ended one, and
+`managedIds$` the union, since both are rows the approver may act on. Feeding the Approvals tab
+from the history read empties it, which is what the split replaced. `listHistory()` is paged
+server-side; this surface asks for page 0 at the maximum page size (100) and drops the page's
+`total`/`requesters`/`collectionIds`, because no tab pages or filters yet.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
 raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go

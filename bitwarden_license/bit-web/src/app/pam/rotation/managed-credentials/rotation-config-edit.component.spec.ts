@@ -1644,7 +1644,7 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
     expect(
       el.querySelector('[data-testid="rotation-config-edit-loading"] bit-skeleton'),
     ).not.toBeNull();
-    expect(el.querySelector("pam-detail-breadcrumb")).not.toBeNull();
+    expect(el.querySelector('bit-breadcrumbs[slot="breadcrumbs"]')).not.toBeNull();
   });
 
   it("keeps the placeholder itself out of the accessibility tree", () => {
@@ -2378,6 +2378,33 @@ describe("RotationConfigEditComponent: while a rotation job runs", () => {
     await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
     expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("RotationConfigEditComponent: breadcrumbs", () => {
+  async function render(): Promise<HTMLElement> {
+    const { fixture } = setup({ template: "real" });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it("slots a bit-breadcrumbs straight into the header, with no wrapper or extra content", async () => {
+    const el = await render();
+
+    const slotted = el.querySelectorAll('bit-header [slot="breadcrumbs"]');
+    expect(slotted).toHaveLength(1);
+    expect(slotted[0].tagName).toBe("BIT-BREADCRUMBS");
+  });
+
+  it("leads back to the managed credentials list from the page title", async () => {
+    const el = await render();
+
+    const crumbs = Array.from(el.querySelectorAll("bit-breadcrumbs [bitOverflowItem]")).map(
+      (crumb) => crumb.textContent?.trim(),
+    );
+    expect(crumbs).toEqual(["pamRotationTabManagedCredentials", "pamRotationConfigCreateTitle"]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-managed-credential")).not.toBeNull();
   });
 });
 
