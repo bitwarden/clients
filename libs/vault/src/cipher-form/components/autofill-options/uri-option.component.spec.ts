@@ -428,6 +428,40 @@ describe("UriOptionComponent", () => {
       expect(getRemoveButton()).toBeTruthy();
     });
 
+    it("hides the remove button for a desktop app row when canRemove is false", () => {
+      component.canRemove = false;
+
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
+
+      expect(getRemoveButton()).toBeFalsy();
+    });
+
+    it("shows the remove button of a desktop app row beside the dropdown, not inside it", () => {
+      component.canRemove = true;
+
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
+
+      expect(getRemoveButton().closest("[bitFieldContainer]")).toBeNull();
+    });
+
+    it("shows the remove button of a website row inside the text input", () => {
+      component.canRemove = true;
+
+      renderUri("https://example.com", true, null);
+
+      expect(getRemoveButton().closest("[bitFieldContainer]")).toBeTruthy();
+    });
+
+    it("emits remove when the remove button of a desktop app row is clicked", () => {
+      jest.spyOn(component.remove, "emit");
+      component.canRemove = true;
+      renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
+
+      getRemoveButton().click();
+
+      expect(component.remove.emit).toHaveBeenCalled();
+    });
+
     it("focuses the desktop app dropdown when focusing a desktop app row", () => {
       renderUri(DESKTOP_APP_URI_PREFIX, true, DesktopAppRow.New);
       const focusSpy = jest.spyOn(component["appSelect"]().select(), "focus");
