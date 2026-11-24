@@ -33,12 +33,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  Argon2KdfConfig,
-  EncryptedString,
-  EncryptService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -121,7 +117,7 @@ describe("SsoLoginStrategy", () => {
     });
     keyService.userEncryptedPrivateKey$
       .calledWith(userId)
-      .mockReturnValue(of(privateKey as EncryptedString));
+      .mockReturnValue(of(privateKey as EncString));
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
     const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
@@ -503,7 +499,7 @@ describe("SsoLoginStrategy", () => {
 
       expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(userId, {
         url: keyConnectorUrl,
-        keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
+        keyConnectorKeyWrappedUserKey: tokenResponse.key!,
       });
     });
 

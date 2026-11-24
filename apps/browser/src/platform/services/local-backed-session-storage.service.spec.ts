@@ -174,7 +174,7 @@ describe("LocalBackedSessionStorage", () => {
     });
 
     it("returns a decrypted value when one is stored in local storage", async () => {
-      localStorage.get.mockResolvedValue(encString.encryptedString);
+      localStorage.get.mockResolvedValue(encString);
       encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
 
       const result = await sut.get("test");
@@ -187,7 +187,7 @@ describe("LocalBackedSessionStorage", () => {
     it("returns the cached value when cache is populated during storage retrieval", async () => {
       localStorage.get.mockImplementation(<T>(): Promise<T> => {
         sut["cache"]["test"] = "cached-during-read";
-        return Promise.resolve(encString.encryptedString) as Promise<T>;
+        return Promise.resolve(encString) as Promise<T>;
       });
       encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted-from-storage"));
 
@@ -236,7 +236,7 @@ describe("LocalBackedSessionStorage", () => {
 
     it("returns true when the key is in local storage", async () => {
       const encString = makeEncString("encrypted");
-      localStorage.get.mockResolvedValue(encString.encryptedString);
+      localStorage.get.mockResolvedValue(encString);
       encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.has("test");
       expect(result).toBe(true);

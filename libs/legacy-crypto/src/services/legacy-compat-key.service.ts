@@ -12,14 +12,13 @@ import { OrgKey, UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types
 // Type-only: @bitwarden/key-management re-exports this package, so a value import would be circular.
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { KeyGenerationService } from "../abstractions/key-generation.service";
 import { LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction } from "../abstractions/legacy-compat-key.service";
 import { EncryptionType } from "../enums/encryption-type.enum";
-import { EncString } from "../models/enc-string";
 import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";

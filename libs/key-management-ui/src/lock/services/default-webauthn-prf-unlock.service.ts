@@ -11,8 +11,8 @@ import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-util
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
-import { WebAuthnPrfUnlockOption } from "@bitwarden/sdk-internal";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { WebAuthnPrfUnlockOption, EncString } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { WebAuthnPrfUnlockService } from "./webauthn-prf-unlock.service";
@@ -101,13 +101,13 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
 
     // Step 1: Decrypt PRF encrypted private key using the PRF key
     const privateKey = await this.encryptService.unwrapDecapsulationKey(
-      new EncString(prfOption.encryptedPrivateKey),
+      prfOption.encryptedPrivateKey as EncString,
       prfKey,
     );
 
     // Step 2: Use private key to decrypt user key
     const userKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(prfOption.encryptedUserKey),
+      prfOption.encryptedUserKey as string as EncString,
       privateKey,
     );
 

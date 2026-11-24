@@ -24,7 +24,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -145,7 +146,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
-      encryptedKey.encryptedString,
+      encryptedKey,
       undefined,
       await this.appIdService.getAppId(),
       approve,
@@ -171,7 +172,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     privateKey: Uint8Array,
   ): Promise<UserKey> {
     const decryptedUserKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(pubKeyEncryptedUserKey),
+      pubKeyEncryptedUserKey as EncString,
       privateKey,
     );
 

@@ -12,12 +12,8 @@ import {
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptService,
-  EncString,
-  KeyGenerationService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { StorageService } from "@bitwarden/storage-core";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -248,7 +244,7 @@ export class LocalBackedSessionStorageService
     }
 
     try {
-      const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
+      const valueJson = await this.encryptService.decryptString(local as EncString, encKey);
       return JSON.parse(valueJson);
     } catch {
       // error with decryption, value is lost, delete state and start over
@@ -265,7 +261,7 @@ export class LocalBackedSessionStorageService
 
     const valueJson = JSON.stringify(value);
     const encValue = await this.encryptService.encryptString(valueJson, await this.getSessionKey());
-    await this.localStorage.save(this.sessionStorageKey(key), encValue.encryptedString);
+    await this.localStorage.save(this.sessionStorageKey(key), encValue);
   }
 
   private async onMessageFromForeground(

@@ -348,7 +348,7 @@ describe("DefaultChangeEmailService", () => {
         keyService.userKey$.mockReturnValue(of(mockUserKey));
         legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue([
           mockUserKey,
-          { encryptedString: "encrypted-user-key" } as any,
+          "encrypted-user-key" as any,
         ]);
         apiService.send.mockResolvedValue(undefined);
 
@@ -520,7 +520,7 @@ describe("DefaultChangeEmailService", () => {
         keyService.userKey$.mockReturnValue(of(mockUserKey));
         legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue([
           mockUserKey,
-          { encryptedString: "encrypted-user-key" } as any,
+          "encrypted-user-key" as any,
         ]);
         apiService.send.mockResolvedValue(undefined);
 

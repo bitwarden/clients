@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncString, isSerializedEncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { isSerializedEncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -16,8 +17,6 @@ import { PassportExport } from "./passport.export";
 import { PasswordHistoryExport } from "./password-history.export";
 import { SecureNoteExport } from "./secure-note.export";
 import { SshKeyExport } from "./ssh-key.export";
-import { safeGetString } from "./utils";
-
 // Only blob ciphers carry a format version in `data`, e.g. `{"format_version":1,...}`.
 const BLOB_FORMAT_MARKER = '"format_version"';
 
@@ -122,7 +121,7 @@ export class CipherExport {
     }
     domain.favorite = req.favorite;
     domain.reprompt = req.reprompt ?? CipherRepromptType.None;
-    domain.key = req.key != null ? new EncString(req.key) : undefined;
+    domain.key = req.key != null ? (req.key as EncString) : undefined;
 
     CipherExport.contentToDomain(req, domain);
 
@@ -141,8 +140,8 @@ export class CipherExport {
       return;
     }
 
-    domain.name = req.name != null ? new EncString(req.name) : new EncString("");
-    domain.notes = req.notes != null ? new EncString(req.notes) : undefined;
+    domain.name = req.name != null ? (req.name as EncString) : ("" as EncString);
+    domain.notes = req.notes != null ? (req.notes as EncString) : undefined;
 
     if (req.fields != null) {
       domain.fields = req.fields.map((f) => FieldExport.toDomain(f));
@@ -229,13 +228,11 @@ export class CipherExport {
     this.reprompt = o.reprompt;
 
     // Blob ciphers seal the name in `data`; omit it from the export.
-    this.name = CipherExport.isBlob(o) ? undefined : (safeGetString(o.name) ?? "");
-    this.notes = safeGetString(o.notes);
+    this.name = CipherExport.isBlob(o) ? undefined : (o.name ?? "");
+    this.notes = o.notes ?? undefined;
     if ("key" in o) {
       this.key =
-        o.key instanceof SymmetricCryptoKey
-          ? o.key.toBase64()
-          : (o.key as EncString | undefined)?.encryptedString;
+        o.key instanceof SymmetricCryptoKey ? o.key.toBase64() : (o.key as EncString | undefined);
     }
 
     this.favorite = o.favorite;

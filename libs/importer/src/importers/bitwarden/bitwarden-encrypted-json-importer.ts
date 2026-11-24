@@ -16,7 +16,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 import {
   BitwardenEncryptedIndividualJsonExport,
@@ -89,7 +90,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
       result.errorMessage = this.i18nService.t("importEncKeyError");
       return result;
     }
-    const encKeyValidation = new EncString(data.encKeyValidation_DO_NOT_EDIT);
+    const encKeyValidation = data.encKeyValidation_DO_NOT_EDIT as EncString;
     try {
       await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
     } catch {
@@ -183,7 +184,7 @@ export class BitwardenEncryptedJsonImporter extends BitwardenJsonImporter implem
         c,
         new Collection({
           id: c.id,
-          name: new EncString(c.name),
+          name: c.name as EncString,
           organizationId: this.organizationId,
         }),
       );

@@ -65,7 +65,7 @@ const mockLegacyCompatKeyService = {
 };
 
 const mockEncryptService = {
-  encapsulateKeyUnsigned: () => Promise.resolve({ encryptedString: "2.encrypted-key-data==" }),
+  encapsulateKeyUnsigned: () => Promise.resolve("2.encrypted-key-data=="),
 };
 
 const mockOrganizationUserApiService = {

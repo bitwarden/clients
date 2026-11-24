@@ -7,7 +7,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { DialogService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";
@@ -140,7 +141,7 @@ describe("CipherStep", () => {
       const cipher = {
         id: "cipher-1",
         organizationId: null,
-        key: new EncString("2.key-iv|key-data|key-mac"),
+        key: "2.key-iv|key-data|key-mac" as EncString,
       } as Cipher;
 
       const workingData: RecoveryWorkingData = {
@@ -225,7 +226,7 @@ describe("CipherStep", () => {
 
     describe("name field check", () => {
       const userId = "user-id" as UserId;
-      const encryptedName = new EncString("2.name-iv|name-data|name-mac");
+      const encryptedName = "2.name-iv|name-data|name-mac" as EncString;
 
       const workingDataFor = (
         cipher: Cipher,
@@ -257,7 +258,7 @@ describe("CipherStep", () => {
         const workingData = workingDataFor({
           id: "cipher-1",
           organizationId: null,
-          name: new EncString("7.cose-data"),
+          name: "7.cose-data" as EncString,
         } as Cipher);
 
         const result = await cipherStep.runDiagnostics(workingData, logger);
@@ -311,7 +312,7 @@ describe("CipherStep", () => {
       });
 
       it("decrypts the name with the unwrapped cipher key when the cipher has one", async () => {
-        const cipherKey = new EncString("2.key-iv|key-data|key-mac");
+        const cipherKey = "2.key-iv|key-data|key-mac" as EncString;
         const unwrappedKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1));
         const workingData = workingDataFor({
           id: "cipher-1",
@@ -352,7 +353,7 @@ describe("CipherStep", () => {
           id: "cipher-1",
           organizationId: null,
           name: encryptedName,
-          key: new EncString("2.key-iv|key-data|key-mac"),
+          key: "2.key-iv|key-data|key-mac" as EncString,
         } as Cipher);
 
         encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("mac mismatch"));

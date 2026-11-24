@@ -11,12 +11,11 @@ import {
   EncArrayBuffer,
   EncryptionType,
   EncryptService,
-  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import {
   AccessReportSettingsData,
@@ -116,8 +115,8 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
     jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
     jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(contentEncryptionKey);
-    mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
-    mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
+    mockEncryptService.wrapSymmetricKey.mockResolvedValue(ENCRYPTED_KEY as EncString);
+    mockEncryptService.encryptString.mockResolvedValue(ENCRYPTED_TEXT as EncString);
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
     mockKeyService.orgKeys$.mockReturnValue(orgKey$);
 
@@ -143,11 +142,11 @@ describe("DefaultAccessReportEncryptionService", () => {
       wasLegacy: false,
     });
 
-    mockKey = new EncString("wrapped-key");
+    mockKey = "wrapped-key" as EncString;
     mockEncryptedData = {
-      encryptedReportData: new EncString("encrypted-reports"),
-      encryptedSummaryData: new EncString("encrypted-summary"),
-      encryptedApplicationData: new EncString("encrypted-applications"),
+      encryptedReportData: "encrypted-reports" as EncString,
+      encryptedSummaryData: "encrypted-summary" as EncString,
+      encryptedApplicationData: "encrypted-applications" as EncString,
     };
   });
 
@@ -192,10 +191,10 @@ describe("DefaultAccessReportEncryptionService", () => {
 
       expect(result).toEqual({
         organizationId: orgId,
-        encryptedReportData: new EncString(ENCRYPTED_TEXT),
-        encryptedSummaryData: new EncString(ENCRYPTED_TEXT),
-        encryptedApplicationData: new EncString(ENCRYPTED_TEXT),
-        contentEncryptionKey: new EncString(ENCRYPTED_KEY),
+        encryptedReportData: ENCRYPTED_TEXT as EncString,
+        encryptedSummaryData: ENCRYPTED_TEXT as EncString,
+        encryptedApplicationData: ENCRYPTED_TEXT as EncString,
+        contentEncryptionKey: ENCRYPTED_KEY as EncString,
       });
     });
 
@@ -227,7 +226,7 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw when encrypted strings are empty", async () => {
-      mockEncryptService.encryptString.mockResolvedValue(new EncString(""));
+      mockEncryptService.encryptString.mockResolvedValue("" as EncString);
 
       await expect(
         firstValueFrom(service.encryptReport$({ organizationId: orgId, userId }, mockV2Input)),
@@ -276,8 +275,8 @@ describe("DefaultAccessReportEncryptionService", () => {
     it("should throw when report blob is null", async () => {
       const encryptedDataWithNullReport: EncryptedReportData = {
         encryptedReportData: null as unknown as EncString,
-        encryptedSummaryData: new EncString("encrypted-summary"),
-        encryptedApplicationData: new EncString("encrypted-applications"),
+        encryptedSummaryData: "encrypted-summary" as EncString,
+        encryptedApplicationData: "encrypted-applications" as EncString,
       };
 
       await expect(
@@ -347,9 +346,9 @@ describe("DefaultAccessReportEncryptionService", () => {
 
     it("should throw when summary blob is null", async () => {
       const encryptedDataWithNullSummary: EncryptedReportData = {
-        encryptedReportData: new EncString("encrypted-reports"),
+        encryptedReportData: "encrypted-reports" as EncString,
         encryptedSummaryData: null as unknown as EncString,
-        encryptedApplicationData: new EncString("encrypted-applications"),
+        encryptedApplicationData: "encrypted-applications" as EncString,
       };
 
       await expect(
@@ -365,8 +364,8 @@ describe("DefaultAccessReportEncryptionService", () => {
 
     it("should return empty application array when application blob is null", async () => {
       const encryptedDataWithNullApps: EncryptedReportData = {
-        encryptedReportData: new EncString("encrypted-reports"),
-        encryptedSummaryData: new EncString("encrypted-summary"),
+        encryptedReportData: "encrypted-reports" as EncString,
+        encryptedSummaryData: "encrypted-summary" as EncString,
         encryptedApplicationData: null as unknown as EncString,
       };
 
@@ -392,7 +391,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       const result = await firstValueFrom(
         service.decryptSummary$(
           { organizationId: orgId, userId },
-          new EncString("encrypted-summary"),
+          "encrypted-summary" as EncString,
           mockKey,
         ),
       );
@@ -410,7 +409,7 @@ describe("DefaultAccessReportEncryptionService", () => {
         firstValueFrom(
           service.decryptSummary$(
             { organizationId: orgId, userId },
-            new EncString("encrypted-summary"),
+            "encrypted-summary" as EncString,
             mockKey,
           ),
         ),
@@ -426,7 +425,7 @@ describe("DefaultAccessReportEncryptionService", () => {
         firstValueFrom(
           service.decryptSummary$(
             { organizationId: orgId, userId },
-            new EncString("encrypted-summary"),
+            "encrypted-summary" as EncString,
             mockKey,
           ),
         ),
@@ -456,7 +455,7 @@ describe("DefaultAccessReportEncryptionService", () => {
         firstValueFrom(
           service.decryptSummary$(
             { organizationId: orgId, userId },
-            new EncString("encrypted-summary"),
+            "encrypted-summary" as EncString,
             mockKey,
           ),
         ),
@@ -493,10 +492,10 @@ describe("DefaultAccessReportEncryptionService", () => {
 
       expect(result.organizationId).toBe(orgId);
       expect(result.encryptedReportData).toBe(mockEncArrayBuffer);
-      expect(result.encryptedFileName).toBeInstanceOf(EncString);
-      expect(result.encryptedSummaryData).toBeInstanceOf(EncString);
-      expect(result.encryptedApplicationData).toBeInstanceOf(EncString);
-      expect(result.contentEncryptionKey).toBeInstanceOf(EncString);
+      expect(typeof result.encryptedFileName).toBe("string");
+      expect(typeof result.encryptedSummaryData).toBe("string");
+      expect(typeof result.encryptedApplicationData).toBe("string");
+      expect(typeof result.contentEncryptionKey).toBe("string");
     });
 
     it("should encode the serialized report as UTF-8 bytes for file encryption", async () => {
@@ -550,7 +549,7 @@ describe("DefaultAccessReportEncryptionService", () => {
     });
 
     it("should throw when encrypted strings are empty", async () => {
-      mockEncryptService.encryptString.mockResolvedValue(new EncString(""));
+      mockEncryptService.encryptString.mockResolvedValue("" as EncString);
 
       await expect(
         firstValueFrom(service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input)),
@@ -571,8 +570,8 @@ describe("DefaultAccessReportEncryptionService", () => {
         service.decryptReportFile$(
           { organizationId: orgId, userId },
           encArrayBuffer,
-          new EncString("encrypted-summary"),
-          new EncString("encrypted-applications"),
+          "encrypted-summary" as EncString,
+          "encrypted-applications" as EncString,
           mockKey,
         ),
       );
@@ -599,8 +598,8 @@ describe("DefaultAccessReportEncryptionService", () => {
           service.decryptReportFile$(
             { organizationId: orgId, userId },
             encArrayBuffer,
-            new EncString("encrypted-summary"),
-            new EncString("encrypted-applications"),
+            "encrypted-summary" as EncString,
+            "encrypted-applications" as EncString,
             mockKey,
           ),
         ),
@@ -617,8 +616,8 @@ describe("DefaultAccessReportEncryptionService", () => {
           service.decryptReportFile$(
             { organizationId: orgId, userId },
             encArrayBuffer,
-            new EncString("encrypted-summary"),
-            new EncString("encrypted-applications"),
+            "encrypted-summary" as EncString,
+            "encrypted-applications" as EncString,
             mockKey,
           ),
         ),
@@ -633,8 +632,8 @@ describe("DefaultAccessReportEncryptionService", () => {
           service.decryptReportFile$(
             { organizationId: orgId, userId },
             encArrayBuffer,
-            new EncString("encrypted-summary"),
-            new EncString("encrypted-applications"),
+            "encrypted-summary" as EncString,
+            "encrypted-applications" as EncString,
             mockKey,
           ),
         ),
@@ -651,8 +650,8 @@ describe("DefaultAccessReportEncryptionService", () => {
           service.decryptReportFile$(
             { organizationId: orgId, userId },
             encArrayBuffer,
-            new EncString("encrypted-summary"),
-            new EncString("encrypted-applications"),
+            "encrypted-summary" as EncString,
+            "encrypted-applications" as EncString,
             mockKey,
           ),
         ),

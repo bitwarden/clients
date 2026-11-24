@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   SingleUserState,
@@ -104,7 +103,7 @@ export class SecretState<
     encryptor: UserEncryptor,
     { id, secret, disclosed }: ClassifiedFormat<Id, Disclosed>,
   ) {
-    const encrypted = EncString.fromJSON(secret);
+    const encrypted = secret as EncString;
     const decrypted = await encryptor.decrypt(encrypted);
 
     const declassified = this.key.classifier.declassify(disclosed, decrypted);

@@ -2,8 +2,8 @@
 import type { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, OrgKey, ProviderKey } from "@bitwarden/common/types/key";
+import { EncString } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../models/enc-string";
 import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 

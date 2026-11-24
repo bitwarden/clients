@@ -57,7 +57,7 @@ describe.each([
       const domain = FolderWithIdExport.toDomain(f);
       const sdkFolder = {
         id: domain.id,
-        name: domain.name.encryptedString,
+        name: domain.name,
         revisionDate: expectedFolders[0].revisionDate,
       } as unknown as SdkFolder;
       return client.vault().folders().decrypt(sdkFolder);

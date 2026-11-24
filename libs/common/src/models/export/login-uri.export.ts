@@ -1,11 +1,8 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { LoginUri as LoginUriDomain } from "../../vault/models/domain/login-uri";
 import { LoginUriView } from "../../vault/models/view/login-uri.view";
-
-import { safeGetString } from "./utils";
 
 export class LoginUriExport {
   static template(): LoginUriExport {
@@ -21,8 +18,8 @@ export class LoginUriExport {
   }
 
   static toDomain(req: LoginUriExport, domain = new LoginUriDomain()) {
-    domain.uri = req.uri != null ? new EncString(req.uri) : undefined;
-    domain.uriChecksum = req.uriChecksum != null ? new EncString(req.uriChecksum) : undefined;
+    domain.uri = req.uri != null ? (req.uri as EncString) : undefined;
+    domain.uriChecksum = req.uriChecksum != null ? (req.uriChecksum as EncString) : undefined;
     domain.match = req.match;
     return domain;
   }
@@ -36,9 +33,9 @@ export class LoginUriExport {
       return;
     }
 
-    this.uri = safeGetString(o.uri);
+    this.uri = o.uri ?? undefined;
     if ("uriChecksum" in o) {
-      this.uriChecksum = o.uriChecksum?.encryptedString;
+      this.uriChecksum = o.uriChecksum;
     }
     this.match = o.match;
   }

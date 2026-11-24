@@ -3,8 +3,7 @@
 import { firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
@@ -48,7 +47,7 @@ export class UserKeyEncryptor extends UserEncryptor {
       ),
     );
 
-    return new EncString(encryptedString);
+    return encryptedString as EncString;
   }
 
   async decrypt<Secret>(secret: EncString): Promise<Jsonify<Secret>> {
@@ -61,7 +60,7 @@ export class UserKeyEncryptor extends UserEncryptor {
             throw new Error("SDK not available");
           }
           using ref = sdk.take();
-          return ref.value.crypto().decrypt_with_local_user_data_key(secret.encryptedString);
+          return ref.value.crypto().decrypt_with_local_user_data_key(secret);
         }),
       ),
     );

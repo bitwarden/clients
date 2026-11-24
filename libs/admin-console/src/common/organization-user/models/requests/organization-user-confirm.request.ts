@@ -1,7 +1,6 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserConfirmRequest {
-  key: EncryptedString | undefined;
-  defaultUserCollectionName: EncryptedString | undefined;
+  key: EncString | undefined;
+  defaultUserCollectionName: EncString | undefined;
 }

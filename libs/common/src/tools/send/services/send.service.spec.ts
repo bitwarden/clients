@@ -702,8 +702,8 @@ describe("SendService", () => {
 
       keyService.userKey$.mockReturnValue(of(userKey));
       legacyCompatKeyService.makeSendKey.mockResolvedValue(mockCryptoKey);
-      encryptService.encryptBytes.mockResolvedValue({ encryptedString: "encryptedKey" } as any);
-      encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
+      encryptService.encryptBytes.mockResolvedValue("encryptedKey" as any);
+      encryptService.encryptString.mockResolvedValue("encrypted" as any);
     });
 
     describe("email processing", () => {
@@ -802,8 +802,8 @@ describe("SendService", () => {
 
         expect(encryptService.encryptString).toHaveBeenCalledWith("Test Name", mockCryptoKey);
         expect(encryptService.encryptString).toHaveBeenCalledWith("Test Notes", mockCryptoKey);
-        expect(send.name).toEqual({ encryptedString: "encrypted" });
-        expect(send.notes).toEqual({ encryptedString: "encrypted" });
+        expect(send.name).toEqual("encrypted");
+        expect(send.notes).toEqual("encrypted");
       });
     });
   });

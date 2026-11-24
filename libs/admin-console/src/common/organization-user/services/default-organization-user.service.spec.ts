@@ -11,12 +11,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  CsprngArray,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   OrganizationUserConfirmRequest,
@@ -44,8 +40,8 @@ describe("DefaultOrganizationUserService", () => {
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
   const mockRandomBytes = new Uint8Array(64) as CsprngArray;
   const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-  const mockEncryptedKey = { encryptedString: "encrypted-key" } as EncString;
-  const mockEncryptedCollectionName = { encryptedString: "encrypted-collection-name" } as EncString;
+  const mockEncryptedKey = "encrypted-key" as EncString;
+  const mockEncryptedCollectionName = "encrypted-collection-name" as EncString;
   const mockDefaultCollectionName = "My Items";
 
   const setupCommonMocks = () => {
@@ -127,8 +123,8 @@ describe("DefaultOrganizationUserService", () => {
             mockOrganization.id,
             mockUserId,
             {
-              key: mockEncryptedKey.encryptedString,
-              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+              key: mockEncryptedKey,
+              defaultUserCollectionName: mockEncryptedCollectionName,
             } as OrganizationUserConfirmRequest,
           );
 
@@ -173,7 +169,7 @@ describe("DefaultOrganizationUserService", () => {
             mockOrganization.id,
             new OrganizationUserBulkConfirmRequest(
               mockUserIdsWithKeys,
-              mockEncryptedCollectionName.encryptedString,
+              mockEncryptedCollectionName,
             ),
           );
 
@@ -200,7 +196,7 @@ describe("DefaultOrganizationUserService", () => {
             mockOrgKey,
           );
           expect(request).toEqual({
-            defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+            defaultUserCollectionName: mockEncryptedCollectionName,
           });
           done();
         },
@@ -227,7 +223,7 @@ describe("DefaultOrganizationUserService", () => {
             mockOrganization.id,
             mockUserId,
             {
-              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+              defaultUserCollectionName: mockEncryptedCollectionName,
             },
           );
           done();
@@ -266,7 +262,7 @@ describe("DefaultOrganizationUserService", () => {
             mockOrganization.id,
             expect.objectContaining({
               ids: mockUserIds,
-              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+              defaultUserCollectionName: mockEncryptedCollectionName,
             }),
           );
           expect(response).toEqual(mockBulkResponse);
@@ -336,9 +332,7 @@ describe("DefaultOrganizationUserService", () => {
               mockDefaultCollectionName,
               mockOrgKey,
             );
-            expect(request.defaultUserCollectionName).toBe(
-              mockEncryptedCollectionName.encryptedString,
-            );
+            expect(request.defaultUserCollectionName).toBe(mockEncryptedCollectionName);
             expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
               org.id,
               mockUserId,

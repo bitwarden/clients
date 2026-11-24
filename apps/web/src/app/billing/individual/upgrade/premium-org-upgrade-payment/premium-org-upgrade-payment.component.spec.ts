@@ -20,9 +20,10 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CartSummaryComponent } from "@bitwarden/pricing";
+import { EncString } from "@bitwarden/sdk-internal";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { AccountBillingClient } from "../../../clients/account-billing.client";
@@ -195,13 +196,13 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           provide: KeyService,
           useValue: {
             makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]),
-            makeKeyPair: jest.fn().mockResolvedValue(["public-key", new EncString("private-key")]),
+            makeKeyPair: jest.fn().mockResolvedValue(["public-key", "private-key" as EncString]),
           },
         },
         {
           provide: EncryptService,
           useValue: {
-            encryptString: jest.fn().mockResolvedValue(new EncString("encrypted-collection")),
+            encryptString: jest.fn().mockResolvedValue("encrypted-collection" as EncString),
           },
         },
         {

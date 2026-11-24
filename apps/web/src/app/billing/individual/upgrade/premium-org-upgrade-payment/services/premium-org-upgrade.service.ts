@@ -19,11 +19,11 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Cart } from "@bitwarden/pricing";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { AccountBillingClient, SubscriberBillingClient } from "../../../../clients";
@@ -110,7 +110,7 @@ export class PremiumOrgUpgradeService {
       organizationKey: encryptionData.key,
       collectionName: encryptionData.collectionCt,
       publicKey: encryptionData.orgKeys[0],
-      encryptedPrivateKey: encryptionData.orgKeys[1].encryptedString as string,
+      encryptedPrivateKey: encryptionData.orgKeys[1] as string,
       planTier: productTier,
       cadence: SubscriptionCadenceIds.Annually,
       billingAddress,
@@ -175,13 +175,13 @@ export class PremiumOrgUpgradeService {
     activeUserId: UserId;
   }> {
     const orgKey = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
-    const key = orgKey[0].encryptedString as string;
+    const key = orgKey[0] as string;
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey[1],
     );
-    const collectionCt = collection.encryptedString as string;
+    const collectionCt = collection as string;
     const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgKey[1]);
 
     return {

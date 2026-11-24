@@ -3,8 +3,8 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { SendFile as SdkSendFile } from "@bitwarden/sdk-internal";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SendFile as SdkSendFile, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SendFileData } from "../data/send-file.data";
@@ -50,7 +50,7 @@ export class SendFile extends Domain {
     }
 
     return Object.assign(new SendFile(), obj, {
-      fileName: EncString.fromJSON(obj.fileName),
+      fileName: obj.fileName ?? null,
     });
   }
 
@@ -58,7 +58,7 @@ export class SendFile extends Domain {
   toSdk(): SdkSendFile {
     return {
       id: this.id ?? undefined,
-      fileName: this.fileName?.toSdk(),
+      fileName: this.fileName ?? undefined,
       size: this.size ?? undefined,
       sizeName: this.sizeName ?? undefined,
     };
@@ -72,7 +72,7 @@ export class SendFile extends Domain {
 
     return Object.assign(new SendFile(), {
       id: obj.id ?? null,
-      fileName: EncString.fromJSON(obj.fileName),
+      fileName: obj.fileName ?? null,
       size: obj.size ?? null,
       sizeName: obj.sizeName ?? null,
     });
@@ -82,7 +82,7 @@ export class SendFile extends Domain {
   toSendData(): SendFileData {
     return Object.assign(new SendFileData(), {
       id: this.id ?? null,
-      fileName: this.fileName?.toJSON() ?? null,
+      fileName: this.fileName ?? null,
       size: this.size ?? null,
       sizeName: this.sizeName ?? null,
     });

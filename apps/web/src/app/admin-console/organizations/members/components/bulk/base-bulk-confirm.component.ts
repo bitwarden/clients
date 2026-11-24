@@ -89,12 +89,12 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
 
         const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(key, publicKey);
 
-        if (encryptedKey.encryptedString == null) {
+        if (encryptedKey == null) {
           throw new Error("Key not found.");
         }
         userIdsWithKeys.push({
           id: user.id,
-          key: encryptedKey.encryptedString,
+          key: encryptedKey,
         });
       }
 

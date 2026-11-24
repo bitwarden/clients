@@ -2,9 +2,7 @@ import { Observable, map, throwError } from "rxjs";
 
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
-import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   DecryptedAccessReportData,
@@ -23,9 +21,9 @@ import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
 export class AccessReport extends Domain {
   id: string = "";
   organizationId: string = "";
-  reports: EncString = new EncString(""); // Reports + member registry
-  applications: EncString = new EncString("");
-  summary: EncString = new EncString("");
+  reports: EncString = "" as EncString; // Reports + member registry
+  applications: EncString = "" as EncString;
+  summary: EncString = "" as EncString;
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
@@ -37,11 +35,11 @@ export class AccessReport extends Domain {
     }
     this.id = obj.id;
     this.organizationId = obj.organizationId;
-    this.reports = conditionalEncString(obj.reports) ?? new EncString("");
-    this.applications = conditionalEncString(obj.applications) ?? new EncString("");
-    this.summary = conditionalEncString(obj.summary) ?? new EncString("");
+    this.reports = (obj.reports ?? "") as EncString;
+    this.applications = (obj.applications ?? "") as EncString;
+    this.summary = (obj.summary ?? "") as EncString;
     this.creationDate = new Date(obj.creationDate);
-    this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
+    this.contentEncryptionKey = (obj.contentEncryptionKey ?? undefined) as EncString | undefined;
   }
 
   /**
@@ -104,11 +102,11 @@ export class AccessReport extends Domain {
     const data = new AccessReportData();
     data.id = this.id;
     data.organizationId = this.organizationId;
-    data.reports = this.reports.encryptedString ?? "";
-    data.applications = this.applications.encryptedString ?? "";
-    data.summary = this.summary.encryptedString ?? "";
+    data.reports = this.reports ?? "";
+    data.applications = this.applications ?? "";
+    data.summary = this.summary ?? "";
     data.creationDate = this.creationDate.toISOString();
-    data.contentEncryptionKey = this.contentEncryptionKey?.encryptedString ?? "";
+    data.contentEncryptionKey = this.contentEncryptionKey ?? "";
     return data;
   }
 

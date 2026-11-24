@@ -1,8 +1,6 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Field as SdkField } from "@bitwarden/sdk-internal";
+import { Field as SdkField, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import {
@@ -11,7 +9,6 @@ import {
   normalizeFieldTypeForSdk,
   normalizeLinkedIdTypeForSdk,
 } from "../../enums";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { FieldData } from "../data/field.data";
 
 export class Field extends Domain {
@@ -28,8 +25,8 @@ export class Field extends Domain {
 
     this.type = obj.type;
     this.linkedId = obj.linkedId ?? undefined;
-    this.name = conditionalEncString(obj.name);
-    this.value = conditionalEncString(obj.value);
+    this.name = (obj.name ?? undefined) as EncString;
+    this.value = (obj.value ?? undefined) as EncString;
   }
 
   toFieldData(): FieldData {
@@ -56,8 +53,8 @@ export class Field extends Domain {
     const field = new Field();
     field.type = obj.type ?? FieldType.Text;
     field.linkedId = obj.linkedId ?? undefined;
-    field.name = encStringFrom(obj.name);
-    field.value = encStringFrom(obj.value);
+    field.name = obj.name ?? undefined;
+    field.value = obj.value ?? undefined;
 
     return field;
   }
@@ -69,8 +66,8 @@ export class Field extends Domain {
    */
   toSdkField(): SdkField {
     return {
-      name: this.name?.toSdk(),
-      value: this.value?.toSdk(),
+      name: this.name ?? undefined,
+      value: this.value ?? undefined,
       type: normalizeFieldTypeForSdk(this.type),
       linkedId: normalizeLinkedIdTypeForSdk(this.linkedId),
     };
@@ -86,8 +83,8 @@ export class Field extends Domain {
     }
 
     const field = new Field();
-    field.name = encStringFrom(obj.name);
-    field.value = encStringFrom(obj.value);
+    field.name = obj.name ?? undefined;
+    field.value = obj.value ?? undefined;
     field.type = obj.type;
     field.linkedId = obj.linkedId;
 

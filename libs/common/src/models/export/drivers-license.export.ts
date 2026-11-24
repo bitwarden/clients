@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { DriversLicense as DriversLicenseDomain } from "../../vault/models/domain/drivers-license";
 import { DriversLicenseView } from "../../vault/models/view/drivers-license.view";
-
-import { safeGetString } from "./utils";
 
 export class DriversLicenseExport {
   static template(): DriversLicenseExport {
@@ -46,19 +43,19 @@ export class DriversLicenseExport {
   }
 
   static toDomain(req: DriversLicenseExport, domain = new DriversLicenseDomain()) {
-    domain.firstName = req.firstName ? new EncString(req.firstName) : undefined;
-    domain.middleName = req.middleName ? new EncString(req.middleName) : undefined;
-    domain.lastName = req.lastName ? new EncString(req.lastName) : undefined;
-    domain.dateOfBirth = req.dateOfBirth ? new EncString(req.dateOfBirth) : undefined;
-    domain.licenseNumber = req.licenseNumber ? new EncString(req.licenseNumber) : undefined;
-    domain.issuingCountry = req.issuingCountry ? new EncString(req.issuingCountry) : undefined;
-    domain.issuingState = req.issuingState ? new EncString(req.issuingState) : undefined;
-    domain.issueDate = req.issueDate ? new EncString(req.issueDate) : undefined;
-    domain.expirationDate = req.expirationDate ? new EncString(req.expirationDate) : undefined;
+    domain.firstName = req.firstName ? (req.firstName as EncString) : undefined;
+    domain.middleName = req.middleName ? (req.middleName as EncString) : undefined;
+    domain.lastName = req.lastName ? (req.lastName as EncString) : undefined;
+    domain.dateOfBirth = req.dateOfBirth ? (req.dateOfBirth as EncString) : undefined;
+    domain.licenseNumber = req.licenseNumber ? (req.licenseNumber as EncString) : undefined;
+    domain.issuingCountry = req.issuingCountry ? (req.issuingCountry as EncString) : undefined;
+    domain.issuingState = req.issuingState ? (req.issuingState as EncString) : undefined;
+    domain.issueDate = req.issueDate ? (req.issueDate as EncString) : undefined;
+    domain.expirationDate = req.expirationDate ? (req.expirationDate as EncString) : undefined;
     domain.issuingAuthority = req.issuingAuthority
-      ? new EncString(req.issuingAuthority)
+      ? (req.issuingAuthority as EncString)
       : undefined;
-    domain.licenseClass = req.licenseClass ? new EncString(req.licenseClass) : undefined;
+    domain.licenseClass = req.licenseClass ? (req.licenseClass as EncString) : undefined;
     return domain;
   }
 
@@ -79,16 +76,16 @@ export class DriversLicenseExport {
       return;
     }
 
-    this.firstName = safeGetString(o.firstName);
-    this.middleName = safeGetString(o.middleName);
-    this.lastName = safeGetString(o.lastName);
-    this.dateOfBirth = safeGetString(o.dateOfBirth);
-    this.licenseNumber = safeGetString(o.licenseNumber);
-    this.issuingCountry = safeGetString(o.issuingCountry);
-    this.issuingState = safeGetString(o.issuingState);
-    this.issueDate = safeGetString(o.issueDate);
-    this.expirationDate = safeGetString(o.expirationDate);
-    this.issuingAuthority = safeGetString(o.issuingAuthority);
-    this.licenseClass = safeGetString(o.licenseClass);
+    this.firstName = o.firstName ?? undefined;
+    this.middleName = o.middleName ?? undefined;
+    this.lastName = o.lastName ?? undefined;
+    this.dateOfBirth = o.dateOfBirth ?? undefined;
+    this.licenseNumber = o.licenseNumber ?? undefined;
+    this.issuingCountry = o.issuingCountry ?? undefined;
+    this.issuingState = o.issuingState ?? undefined;
+    this.issueDate = o.issueDate ?? undefined;
+    this.expirationDate = o.expirationDate ?? undefined;
+    this.issuingAuthority = o.issuingAuthority ?? undefined;
+    this.licenseClass = o.licenseClass ?? undefined;
   }
 }

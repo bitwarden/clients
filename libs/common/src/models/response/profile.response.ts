@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { PrivateKeysResponseModel } from "../../key-management/keys/response/private-keys.response";
@@ -53,7 +52,7 @@ export class ProfileResponse extends BaseResponse {
 
     const key = this.getResponseProperty("Key");
     if (key) {
-      this.key = new EncString(key);
+      this.key = key as EncString;
     }
     // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
     if (this.getResponseProperty("AccountKeys") != null) {

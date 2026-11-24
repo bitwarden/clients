@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import {
@@ -37,10 +38,8 @@ export class FileUploadService implements FileUploadServiceAbstraction {
     try {
       switch (uploadData.fileUploadType) {
         case FileUploadType.Direct:
-          await this.bitwardenFileUploadService.upload(
-            fileName.encryptedString,
-            encryptedFileData,
-            (fd) => fileUploadMethods.postDirect(fd),
+          await this.bitwardenFileUploadService.upload(fileName, encryptedFileData, (fd) =>
+            fileUploadMethods.postDirect(fd),
           );
           break;
         case FileUploadType.Azure: {

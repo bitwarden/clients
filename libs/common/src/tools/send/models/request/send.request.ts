@@ -29,12 +29,12 @@ export class SendRequest {
   constructor(send: Send, fileLength?: number) {
     this.type = send.type;
     this.fileLength = fileLength;
-    this.name = send.name ? send.name.encryptedString : null;
-    this.notes = send.notes ? send.notes.encryptedString : null;
+    this.name = send.name ?? null;
+    this.notes = send.notes ?? null;
     this.maxAccessCount = send.maxAccessCount;
     this.expirationDate = send.expirationDate != null ? send.expirationDate.toISOString() : null;
     this.deletionDate = send.deletionDate != null ? send.deletionDate.toISOString() : null;
-    this.key = send.key != null ? send.key.encryptedString : null;
+    this.key = send.key ?? null;
     this.password = send.password;
     this.emails = send.emails;
     this.disabled = send.disabled;
@@ -44,12 +44,12 @@ export class SendRequest {
     switch (this.type) {
       case SendType.Text:
         this.text = new SendTextApi();
-        this.text.text = send.text.text != null ? send.text.text.encryptedString : null;
+        this.text.text = send.text.text ?? null;
         this.text.hidden = send.text.hidden;
         break;
       case SendType.File:
         this.file = new SendFileApi();
-        this.file.fileName = send.file.fileName != null ? send.file.fileName.encryptedString : null;
+        this.file.fileName = send.file.fileName ?? null;
         break;
       case SendType.Item: {
         if (send.data?.data == null) {
@@ -64,13 +64,10 @@ export class SendRequest {
         this.data.data = send.data.data;
         const metadata = new SendItemMetadataApi();
         metadata.itemId = send.data.metadata.itemId;
-        metadata.folderName =
-          send.data.metadata.folderName != null
-            ? send.data.metadata.folderName.encryptedString
-            : null;
+        metadata.folderName = send.data.metadata.folderName ?? null;
         metadata.collectionNames =
           send.data.metadata.collectionNames != null
-            ? send.data.metadata.collectionNames.map((cn) => cn.encryptedString)
+            ? send.data.metadata.collectionNames.map((cn) => cn)
             : null;
         metadata.organizationName = send.data.metadata.organizationName;
         metadata.creationDate = send.data.metadata.creationDate;

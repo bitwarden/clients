@@ -1,14 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   makeEncString,
   makeSymmetricCryptoKey,
   mockContainerService,
   mockEnc,
-  mockFromJson,
 } from "../../../../spec";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
@@ -30,7 +30,7 @@ describe("Folder", () => {
 
     expect(field).toEqual({
       id: "id",
-      name: { encryptedString: "encName" },
+      name: "encName",
       revisionDate: new Date("2022-01-31T12:00:00.000Z"),
     });
   });
@@ -61,22 +61,20 @@ describe("Folder", () => {
 
       expect(folder.id).toBe("id");
       expect(folder.revisionDate).toEqual(revisionDate);
-      expect(folder.name).toBeInstanceOf(EncString);
-      expect((folder.name as EncString).encryptedString).toBe("name");
+      expect(typeof folder.name).toBe("string");
+      expect(folder.name as EncString).toBe("name");
     });
 
     it("initializes empty properties when no FolderData is provided", () => {
       const folder = new Folder();
 
       expect(folder.id).toBe("");
-      expect(folder.name).toBeInstanceOf(EncString);
+      expect(typeof folder.name).toBe("string");
       expect(folder.revisionDate).toBeInstanceOf(Date);
     });
   });
 
   describe("fromJSON", () => {
-    jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
-
     it("initializes nested objects", () => {
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const actual = Folder.fromJSON({
@@ -87,7 +85,7 @@ describe("Folder", () => {
 
       expect(actual?.id).toBe("id");
       expect(actual?.revisionDate).toEqual(revisionDate);
-      expect(actual?.name).toBe("name_fromJSON");
+      expect(actual?.name).toBe("name");
     });
   });
 

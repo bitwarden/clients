@@ -1,8 +1,6 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
+import { Cipher as SdkCipher, EncString } from "@bitwarden/sdk-internal";
 
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -12,7 +10,6 @@ import {
   normalizeCipherRepromptTypeForSdk,
 } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData, fromSdkLocalData, toSdkLocalData } from "../data/local.data";
@@ -107,8 +104,8 @@ export class Cipher extends Domain {
     this.id = obj.id;
     this.organizationId = obj.organizationId;
     this.folderId = obj.folderId;
-    this.name = conditionalEncString(obj.name);
-    this.notes = conditionalEncString(obj.notes);
+    this.name = (obj.name ?? undefined) as EncString;
+    this.notes = (obj.notes ?? undefined) as EncString;
     this.type = obj.type;
     this.favorite = obj.favorite;
     this.organizationUseTotp = obj.organizationUseTotp;
@@ -122,7 +119,7 @@ export class Cipher extends Domain {
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
-    this.key = conditionalEncString(obj.key);
+    this.key = (obj.key ?? undefined) as EncString;
     this.data = obj.data;
     this.partialData = obj.partialData;
 
@@ -198,8 +195,8 @@ export class Cipher extends Domain {
     c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : undefined;
     c.reprompt = this.reprompt;
 
-    if (this.key != null && this.key.encryptedString != null) {
-      c.key = this.key.encryptedString;
+    if (this.key != null && this.key != null) {
+      c.key = this.key;
     }
 
     if (this.data != null) {
@@ -304,9 +301,9 @@ export class Cipher extends Domain {
     domain.revisionDate = new Date(obj.revisionDate);
     domain.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     domain.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
-    domain.name = encStringFrom(obj.name);
-    domain.notes = encStringFrom(obj.notes);
-    domain.key = encStringFrom(obj.key);
+    domain.name = obj.name ?? undefined;
+    domain.notes = obj.notes ?? undefined;
+    domain.key = obj.key ?? undefined;
     domain.data = obj.data;
     domain.attachments = obj.attachments
       ?.map((a: any) => Attachment.fromJSON(a))
@@ -377,9 +374,9 @@ export class Cipher extends Domain {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),
-      key: this.key?.toSdk(),
-      name: this.name?.toSdk(),
-      notes: this.notes?.toSdk(),
+      key: this.key ?? undefined,
+      name: this.name ?? undefined,
+      notes: this.notes ?? undefined,
       type: this.type,
       favorite: this.favorite,
       organizationUseTotp: this.organizationUseTotp,
@@ -478,9 +475,9 @@ export class Cipher extends Domain {
       : undefined;
     cipher.folderId = sdkCipher.folderId ? uuidAsString(sdkCipher.folderId) : undefined;
     cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidAsString) : [];
-    cipher.key = encStringFrom(sdkCipher.key);
-    cipher.name = encStringFrom(sdkCipher.name);
-    cipher.notes = encStringFrom(sdkCipher.notes);
+    cipher.key = sdkCipher.key ?? undefined;
+    cipher.name = sdkCipher.name ?? undefined;
+    cipher.notes = sdkCipher.notes ?? undefined;
     cipher.type = sdkCipher.type;
     cipher.favorite = sdkCipher.favorite;
     cipher.organizationUseTotp = sdkCipher.organizationUseTotp;

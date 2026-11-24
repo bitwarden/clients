@@ -1,16 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { mock, MockProxy } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
 import {
   EncryptionType,
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { PermissionsApi } from "../src/admin-console/models/api/permissions.api";
 import { OrganizationData } from "../src/admin-console/models/data/organization.data";
@@ -52,19 +52,18 @@ export function buildTestOrganization(
   return org;
 }
 
-/** An EncString mock carrying its plaintext, which {@link mockContainerService} "decrypts" to. */
-export type MockEncString = MockProxy<EncString> & { decryptedValue?: string };
+// An EncString is a string, so a mock cannot carry its plaintext as a property. The fake
+// encryption below keeps the plaintext in the value itself instead.
+const MOCK_ENC_PREFIX = "mockEnc:";
 
-export function mockEnc(s: string): MockEncString {
-  const mocked: MockEncString = mock<EncString>();
-  mocked.decryptedValue = s;
-
-  return mocked;
+/** An EncString carrying its plaintext, which {@link mockContainerService} "decrypts" back. */
+export function mockEnc(s: string): EncString {
+  return `${MOCK_ENC_PREFIX}${s}` as EncString;
 }
 
 export function makeEncString(data?: string) {
   data ??= Utils.newGuid();
-  return new EncString(`${EncryptionType.AesCbc256_HmacSha256_B64}.test|${data}|test`);
+  return `${EncryptionType.AesCbc256_HmacSha256_B64}.test|${data}|test` as EncString;
 }
 
 export function makeStaticByteArray(length: number, start = 0) {
@@ -110,7 +109,7 @@ export const mockContainerService = () => {
   const encryptService = mock<EncryptService>();
   const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   encryptService.decryptString.mockImplementation(async (encStr, _key) => {
-    return (encStr as MockEncString).decryptedValue;
+    return (encStr as string).slice(MOCK_ENC_PREFIX.length);
   });
   (window as any).bitwardenContainerService = new ContainerService(
     keyService,

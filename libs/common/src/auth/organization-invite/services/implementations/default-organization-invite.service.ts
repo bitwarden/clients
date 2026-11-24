@@ -705,19 +705,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       orgKey,
     );
 
-    if (
-      encryptedOrgKey.encryptedString == null ||
-      encryptedOrgPrivateKey.encryptedString == null ||
-      collection.encryptedString == null
-    ) {
+    if (encryptedOrgKey == null || encryptedOrgPrivateKey == null || collection == null) {
       throw new Error("Failed to encrypt organization init data.");
     }
 
     return new OrganizationUserAcceptInitRequest(
       invite.token,
-      encryptedOrgKey.encryptedString,
-      new OrganizationKeysRequest(orgPublicKey, encryptedOrgPrivateKey.encryptedString),
-      collection.encryptedString,
+      encryptedOrgKey,
+      new OrganizationKeysRequest(orgPublicKey, encryptedOrgPrivateKey),
+      collection,
     );
   }
 
@@ -762,11 +758,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         userKey,
         orgPublicKey,
       );
-      if (orgPublicKeyEncryptedUserKey.encryptedString == null) {
+      if (orgPublicKeyEncryptedUserKey == null) {
         throw new Error("Failed to encrypt user key for password reset enrollment.");
       }
 
-      request.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+      request.resetPasswordKey = orgPublicKeyEncryptedUserKey;
     }
     return request;
   }

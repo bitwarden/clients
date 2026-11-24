@@ -1,7 +1,8 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { FolderData } from "../data/folder.data";
@@ -9,7 +10,7 @@ import { FolderView } from "../view/folder.view";
 
 export class Folder extends Domain {
   id: string = "";
-  name: EncString = new EncString("");
+  name: EncString = "" as EncString;
   revisionDate: Date = new Date();
 
   constructor(obj?: FolderData) {
@@ -19,7 +20,7 @@ export class Folder extends Domain {
     }
 
     this.id = obj.id;
-    this.name = new EncString(obj.name);
+    this.name = obj.name as EncString;
     this.revisionDate = new Date(obj.revisionDate);
   }
 
@@ -52,7 +53,7 @@ export class Folder extends Domain {
 
     const folder = new Folder();
     folder.id = obj.id;
-    folder.name = EncString.fromJSON(obj.name);
+    folder.name = obj.name ?? null;
     folder.revisionDate = new Date(obj.revisionDate);
     return folder;
   }

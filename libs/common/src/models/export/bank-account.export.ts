@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BankAccount as BankAccountDomain } from "../../vault/models/domain/bank-account";
 import { BankAccountView } from "../../vault/models/view/bank-account.view";
-
-import { safeGetString } from "./utils";
 
 export class BankAccountExport {
   static template(): BankAccountExport {
@@ -44,17 +41,17 @@ export class BankAccountExport {
   }
 
   static toDomain(req: BankAccountExport, domain = new BankAccountDomain()) {
-    domain.bankName = req.bankName ? new EncString(req.bankName) : undefined;
-    domain.nameOnAccount = req.nameOnAccount ? new EncString(req.nameOnAccount) : undefined;
-    domain.accountType = req.accountType ? new EncString(req.accountType) : undefined;
-    domain.accountNumber = req.accountNumber ? new EncString(req.accountNumber) : undefined;
-    domain.routingNumber = req.routingNumber ? new EncString(req.routingNumber) : undefined;
-    domain.branchNumber = req.branchNumber ? new EncString(req.branchNumber) : undefined;
-    domain.pin = req.pin ? new EncString(req.pin) : undefined;
-    domain.swiftCode = req.swiftCode ? new EncString(req.swiftCode) : undefined;
-    domain.iban = req.iban ? new EncString(req.iban) : undefined;
+    domain.bankName = req.bankName ? (req.bankName as EncString) : undefined;
+    domain.nameOnAccount = req.nameOnAccount ? (req.nameOnAccount as EncString) : undefined;
+    domain.accountType = req.accountType ? (req.accountType as EncString) : undefined;
+    domain.accountNumber = req.accountNumber ? (req.accountNumber as EncString) : undefined;
+    domain.routingNumber = req.routingNumber ? (req.routingNumber as EncString) : undefined;
+    domain.branchNumber = req.branchNumber ? (req.branchNumber as EncString) : undefined;
+    domain.pin = req.pin ? (req.pin as EncString) : undefined;
+    domain.swiftCode = req.swiftCode ? (req.swiftCode as EncString) : undefined;
+    domain.iban = req.iban ? (req.iban as EncString) : undefined;
     domain.bankContactPhone = req.bankContactPhone
-      ? new EncString(req.bankContactPhone)
+      ? (req.bankContactPhone as EncString)
       : undefined;
     return domain;
   }
@@ -75,15 +72,15 @@ export class BankAccountExport {
       return;
     }
 
-    this.bankName = safeGetString(o.bankName);
-    this.nameOnAccount = safeGetString(o.nameOnAccount);
-    this.accountType = safeGetString(o.accountType);
-    this.accountNumber = safeGetString(o.accountNumber);
-    this.routingNumber = safeGetString(o.routingNumber);
-    this.branchNumber = safeGetString(o.branchNumber);
-    this.pin = safeGetString(o.pin);
-    this.swiftCode = safeGetString(o.swiftCode);
-    this.iban = safeGetString(o.iban);
-    this.bankContactPhone = safeGetString(o.bankContactPhone);
+    this.bankName = o.bankName ?? undefined;
+    this.nameOnAccount = o.nameOnAccount ?? undefined;
+    this.accountType = o.accountType ?? undefined;
+    this.accountNumber = o.accountNumber ?? undefined;
+    this.routingNumber = o.routingNumber ?? undefined;
+    this.branchNumber = o.branchNumber ?? undefined;
+    this.pin = o.pin ?? undefined;
+    this.swiftCode = o.swiftCode ?? undefined;
+    this.iban = o.iban ?? undefined;
+    this.bankContactPhone = o.bankContactPhone ?? undefined;
   }
 }

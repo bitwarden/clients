@@ -33,14 +33,12 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
-  EncryptedString,
   EncryptService,
-  EncString,
   KdfType,
   KeyGenerationService,
   PBKDF2KdfConfig,
 } from "@bitwarden/legacy-crypto";
-import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
+import { SdkRandomNumberClient, EncString } from "@bitwarden/sdk-internal";
 
 import {
   BitwardenJsonExport,
@@ -91,12 +89,12 @@ function generateCipherDomain(deleted: boolean) {
   return BuildTestObject(
     {
       id: GetUniqueString("id"),
-      notes: new EncString(GetUniqueString("notes")),
+      notes: GetUniqueString("notes") as EncString,
       type: CipherType.Login,
       login: BuildTestObject<Login>(
         {
-          username: new EncString(GetUniqueString("username")),
-          password: new EncString(GetUniqueString("password")),
+          username: GetUniqueString("username") as EncString,
+          password: GetUniqueString("password") as EncString,
         },
         Login,
       ),
@@ -121,7 +119,7 @@ function generateFolderView() {
 function generateFolder() {
   const actual = Folder.fromJSON({
     revisionDate: new Date("2022-08-04T01:06:40.441Z").toISOString(),
-    name: "name" as EncryptedString,
+    name: "name" as EncString,
     id: "id",
   });
   return actual;
@@ -158,7 +156,7 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
 
   const expected = folders.map((c) => ({
     id: c.id,
-    name: c.name?.encryptedString,
+    name: c.name,
   }));
 
   expect(actual.length).toBeGreaterThan(0);
@@ -220,7 +218,7 @@ describe("VaultExportService", () => {
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encryptString.mockResolvedValue("encrypted" as EncString);
     apiService.getAttachmentData.mockResolvedValue(attachmentResponse);
 
     exportService = new IndividualVaultExportService(
@@ -260,7 +258,7 @@ describe("VaultExportService", () => {
     blobCipher.name = undefined;
     blobCipher.login = undefined;
     blobCipher.data = sealedData;
-    blobCipher.key = new EncString("CIPHER_KEY");
+    blobCipher.key = "CIPHER_KEY" as EncString;
     cipherService.getAll.mockResolvedValue([blobCipher]);
 
     const actual = (await exportService.getExport(
@@ -631,18 +629,15 @@ describe("VaultExportService", () => {
     let exportedVault: ExportedVault;
     let exportString: string;
     let exportObject: any;
-    let mac: MockProxy<EncString>;
-    let data: MockProxy<EncString>;
+    let mac: EncString;
+    let data: EncString;
     const password = "password";
     const salt = "salt";
 
     describe("export json object", () => {
       beforeEach(async () => {
-        mac = mock<EncString>();
-        data = mock<EncString>();
-
-        mac.encryptedString = "mac" as EncryptedString;
-        data.encryptedString = "encData" as EncryptedString;
+        mac = "mac" as EncString;
+        data = "encData" as EncString;
 
         jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
@@ -678,7 +673,7 @@ describe("VaultExportService", () => {
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
 
-        expect(exportObject.encKeyValidation_DO_NOT_EDIT).toEqual(mac.encryptedString);
+        expect(exportObject.encKeyValidation_DO_NOT_EDIT).toEqual(mac);
       });
 
       it("has data property", async () => {
@@ -687,7 +682,7 @@ describe("VaultExportService", () => {
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
 
-        expect(exportObject.data).toEqual(data.encryptedString);
+        expect(exportObject.data).toEqual(data);
       });
 
       it("encrypts the data property", async () => {

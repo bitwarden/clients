@@ -9,8 +9,9 @@ import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeGlobalStateProvider } from "../../../../../spec";
@@ -213,15 +214,9 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("initializes an organization when given an invite where initOrganization is true", async () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
-      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        { encryptedString: "string" } as EncString,
-        mockOrgKey,
-      ]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
-        "orgPublicKey",
-        { encryptedString: "string" } as EncString,
-      ]);
-      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue(["string" as EncString, mockOrgKey]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["orgPublicKey", "string" as EncString]);
+      encryptService.encryptString.mockResolvedValue("string" as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
       const result = await sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl);
@@ -239,14 +234,11 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
       legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        { encryptedString: "string" } as EncString,
+        "string" as EncString,
         "orgPrivateKey" as unknown as OrgKey,
       ]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
-        "orgPublicKey",
-        { encryptedString: "string" } as EncString,
-      ]);
-      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["orgPublicKey", "string" as EncString]);
+      encryptService.encryptString.mockResolvedValue("string" as EncString);
       configService.getFeatureFlag.mockResolvedValue(false);
 
       await sut.validateAndAcceptDirectOrgInvite(
@@ -261,14 +253,11 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
       legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        { encryptedString: "string" } as EncString,
+        "string" as EncString,
         "orgPrivateKey" as unknown as OrgKey,
       ]);
-      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
-        "orgPublicKey",
-        { encryptedString: "string" } as EncString,
-      ]);
-      encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["orgPublicKey", "string" as EncString]);
+      encryptService.encryptString.mockResolvedValue("string" as EncString);
       configService.getFeatureFlag.mockResolvedValue(true);
 
       await sut.validateAndAcceptDirectOrgInvite(
@@ -442,9 +431,7 @@ describe("DefaultOrganizationInviteService", () => {
         }),
       );
       keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-        encryptedString: "encryptedString",
-      } as EncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue("encryptedString" as EncString);
 
       policyService.getResetPasswordPolicyOptions.mockReturnValue([
         {
@@ -473,20 +460,17 @@ describe("DefaultOrganizationInviteService", () => {
 
       beforeEach(() => {
         invite = createOrgInvite({ initOrganization: true });
-        legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-          { encryptedString: "string" } as EncString,
-          mockOrgKey,
-        ]);
+        legacyCompatKeyService.makeOrgKey.mockResolvedValue(["string" as EncString, mockOrgKey]);
         legacyCompatKeyService.makeKeyPair.mockResolvedValue([
           "orgPublicKey",
-          { encryptedString: "string" } as EncString,
+          "string" as EncString,
         ]);
-        encryptService.encryptString.mockResolvedValue({ encryptedString: "string" } as EncString);
+        encryptService.encryptString.mockResolvedValue("string" as EncString);
       });
 
       it("throws when the encrypted org key has a null encryptedString", async () => {
         legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-          { encryptedString: null } as unknown as EncString,
+          null as unknown as EncString,
           mockOrgKey,
         ]);
 
@@ -499,7 +483,7 @@ describe("DefaultOrganizationInviteService", () => {
       it("throws when the encrypted org private key has a null encryptedString", async () => {
         legacyCompatKeyService.makeKeyPair.mockResolvedValue([
           "orgPublicKey",
-          { encryptedString: null } as unknown as EncString,
+          null as unknown as EncString,
         ]);
 
         await expect(
@@ -509,9 +493,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
 
       it("throws when the encrypted default collection has a null encryptedString", async () => {
-        encryptService.encryptString.mockResolvedValue({
-          encryptedString: null,
-        } as unknown as EncString);
+        encryptService.encryptString.mockResolvedValue(null as unknown as EncString);
 
         await expect(
           sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),
@@ -538,9 +520,7 @@ describe("DefaultOrganizationInviteService", () => {
           new OrganizationKeysResponse({ privateKey: "privateKey", publicKey: "publicKey" }),
         );
         keyService.userKey$.mockReturnValue(new BehaviorSubject({ key: "userKey" } as any));
-        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-          encryptedString: "encryptedString",
-        } as EncString);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue("encryptedString" as EncString);
       });
 
       it("throws when organization keys cannot be fetched", async () => {
@@ -563,9 +543,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
 
       it("throws when the encapsulated user key has a null encryptedString", async () => {
-        encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-          encryptedString: null,
-        } as unknown as EncString);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(null as unknown as EncString);
 
         await expect(
           sut.validateAndAcceptDirectOrgInvite(invite, activeUserId, acceptOrgUrl),

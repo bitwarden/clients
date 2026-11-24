@@ -13,10 +13,10 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   CsprngArray,
   EncryptService,
-  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   mockSmActiveAccount,
@@ -61,7 +61,7 @@ describe("AccessTokenCreateCommand", () => {
       derivedKey,
     });
     encryptService.encryptString.mockImplementation(
-      async (plainValue: string) => new EncString("2.enc|" + plainValue),
+      async (plainValue: string) => ("2.enc|" + plainValue) as EncString,
     );
     apiService.send.mockResolvedValue({
       Id: accessTokenId,
@@ -120,7 +120,7 @@ describe("AccessTokenCreateCommand", () => {
       "POST",
       "/service-accounts/" + machineAccountId + "/access-tokens",
       expect.objectContaining({
-        name: new EncString("2.enc|CI"),
+        name: "2.enc|CI" as EncString,
         expireAt: new Date(expires),
       }),
       true,

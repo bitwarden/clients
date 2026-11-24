@@ -7,12 +7,8 @@ import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  CsprngArray,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   PasswordHealthReportApplicationsRequest,
@@ -68,7 +64,7 @@ describe("CriticalAppsService", () => {
       { id: "id2", organizationId: SomeOrganization, uri: "https://example.org" },
     ] as PasswordHealthReportApplicationsResponse[];
 
-    encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
+    encryptService.encryptString.mockResolvedValue("encryptedUrlName" as EncString);
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
     const orgKey$ = new BehaviorSubject(OrgRecords);
     keyService.orgKeys$.mockReturnValue(orgKey$);
@@ -109,7 +105,7 @@ describe("CriticalAppsService", () => {
       { id: "id1", organizationId: SomeOrganization, uri: "test" },
     ] as PasswordHealthReportApplicationsResponse[];
 
-    encryptService.encryptString.mockResolvedValue(new EncString("encryptedUrlName"));
+    encryptService.encryptString.mockResolvedValue("encryptedUrlName" as EncString);
     criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
     // mock org keys

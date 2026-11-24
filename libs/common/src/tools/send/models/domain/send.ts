@@ -3,13 +3,12 @@
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import {
   AuthType as SdkAuthType,
   Send as SdkSend,
   SendId as SdkSendId,
   SendType as SdkSendType,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
@@ -169,9 +168,9 @@ export class Send extends Domain {
     const deletionDate = obj.deletionDate == null ? null : new Date(obj.deletionDate);
 
     return Object.assign(new Send(), obj, {
-      key: EncString.fromJSON(obj.key),
-      name: EncString.fromJSON(obj.name),
-      notes: EncString.fromJSON(obj.notes),
+      key: obj.key ?? null,
+      name: obj.name ?? null,
+      notes: obj.notes ?? null,
       emails: obj.emails,
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
@@ -190,9 +189,9 @@ export class Send extends Domain {
     return {
       id: this.id ? asUuid<SdkSendId>(this.id) : undefined,
       accessId: this.accessId ?? undefined,
-      name: this.name?.toSdk(),
-      notes: this.notes?.toSdk(),
-      key: this.key?.toSdk(),
+      name: this.name ?? undefined,
+      notes: this.notes ?? undefined,
+      key: this.key ?? undefined,
       password: this.password ?? undefined,
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
@@ -219,9 +218,9 @@ export class Send extends Domain {
     const send = new Send();
     send.id = obj.id ? uuidAsString(obj.id) : null;
     send.accessId = obj.accessId ?? null;
-    send.name = EncString.fromJSON(obj.name);
-    send.notes = EncString.fromJSON(obj.notes);
-    send.key = EncString.fromJSON(obj.key);
+    send.name = obj.name ?? null;
+    send.notes = obj.notes ?? null;
+    send.key = obj.key ?? null;
     send.password = obj.password ?? null;
     send.type = SEND_TYPE_FROM_SDK[obj.type];
     send.maxAccessCount = obj.maxAccessCount ?? undefined;
@@ -248,9 +247,9 @@ export class Send extends Domain {
     data.id = this.id;
     data.accessId = this.accessId;
     data.type = this.type;
-    data.name = this.name?.toJSON() ?? null;
-    data.notes = this.notes?.toJSON() ?? null;
-    data.key = this.key?.toJSON() ?? null;
+    data.name = this.name ?? null;
+    data.notes = this.notes ?? null;
+    data.key = this.key ?? null;
     data.maxAccessCount = this.maxAccessCount;
     data.accessCount = this.accessCount;
     data.revisionDate = this.revisionDate?.toISOString() ?? null;

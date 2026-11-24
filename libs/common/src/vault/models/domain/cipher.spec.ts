@@ -1,14 +1,12 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
   CipherRepromptType as SdkCipherRepromptType,
   LoginLinkedIdType,
   Cipher as SdkCipher,
-  EncString as SdkEncString,
+  EncString as EncString,
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson } from "../../../../spec/utils";
@@ -36,7 +34,7 @@ describe("Cipher DTO", () => {
     expect(cipher.id).toEqual("");
     expect(cipher.organizationId).toBeUndefined();
     expect(cipher.folderId).toBeUndefined();
-    expect(cipher.name).toBeInstanceOf(EncString);
+    expect(typeof cipher.name).toBe("string");
     expect(cipher.notes).toBeUndefined();
     expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.favorite).toEqual(false);
@@ -140,8 +138,8 @@ describe("Cipher DTO", () => {
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
-        name: { encryptedString: "EncryptedString" },
-        notes: { encryptedString: "EncryptedString" },
+        name: "EncryptedString",
+        notes: "EncryptedString",
         type: 1,
         favorite: false,
         organizationUseTotp: true,
@@ -154,35 +152,35 @@ describe("Cipher DTO", () => {
         deletedDate: undefined,
         permissions: new CipherPermissionsApi(),
         reprompt: 0,
-        key: { encryptedString: "EncryptedString" },
+        key: "EncryptedString",
         archivedDate: undefined,
         login: {
           passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
           autofillOnPageLoad: false,
-          username: { encryptedString: "EncryptedString" },
-          password: { encryptedString: "EncryptedString" },
-          totp: { encryptedString: "EncryptedString" },
+          username: "EncryptedString",
+          password: "EncryptedString",
+          totp: "EncryptedString",
           uris: [
             {
               match: 0,
-              uri: { encryptedString: "EncryptedString" },
-              uriChecksum: { encryptedString: "EncryptedString" },
+              uri: "EncryptedString",
+              uriChecksum: "EncryptedString",
             },
           ],
         },
         attachments: [
           {
-            fileName: { encryptedString: "file" },
+            fileName: "file",
             id: "a1",
-            key: { encryptedString: "EncKey" },
+            key: "EncKey",
             size: "1100",
             sizeName: "1.1 KB",
             url: "url",
           },
           {
-            fileName: { encryptedString: "file" },
+            fileName: "file",
             id: "a2",
-            key: { encryptedString: "EncKey" },
+            key: "EncKey",
             size: "1100",
             sizeName: "1.1 KB",
             url: "url",
@@ -191,21 +189,21 @@ describe("Cipher DTO", () => {
         fields: [
           {
             linkedId: undefined,
-            name: { encryptedString: "EncryptedString" },
+            name: "EncryptedString",
             type: 0,
-            value: { encryptedString: "EncryptedString" },
+            value: "EncryptedString",
           },
           {
             linkedId: undefined,
-            name: { encryptedString: "EncryptedString" },
+            name: "EncryptedString",
             type: 1,
-            value: { encryptedString: "EncryptedString" },
+            value: "EncryptedString",
           },
         ],
         passwordHistory: [
           {
             lastUsedDate: new Date("2022-01-31T12:00:00.000Z"),
-            password: { encryptedString: "EncryptedString" },
+            password: "EncryptedString",
           },
         ],
       });
@@ -254,8 +252,8 @@ describe("Cipher DTO", () => {
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
-        name: { encryptedString: "EncryptedString" },
-        notes: { encryptedString: "EncryptedString" },
+        name: "EncryptedString",
+        notes: "EncryptedString",
         type: 2,
         favorite: false,
         organizationUseTotp: true,
@@ -271,7 +269,7 @@ describe("Cipher DTO", () => {
         attachments: undefined,
         fields: undefined,
         passwordHistory: undefined,
-        key: { encryptedString: "EncKey" },
+        key: "EncKey",
         permissions: new CipherPermissionsApi(),
         archivedDate: undefined,
       });
@@ -325,8 +323,8 @@ describe("Cipher DTO", () => {
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
-        name: { encryptedString: "EncryptedString" },
-        notes: { encryptedString: "EncryptedString" },
+        name: "EncryptedString",
+        notes: "EncryptedString",
         type: 3,
         favorite: false,
         organizationUseTotp: true,
@@ -339,17 +337,17 @@ describe("Cipher DTO", () => {
         deletedDate: undefined,
         reprompt: 0,
         card: {
-          cardholderName: { encryptedString: "EncryptedString" },
-          brand: { encryptedString: "EncryptedString" },
-          number: { encryptedString: "EncryptedString" },
-          expMonth: { encryptedString: "EncryptedString" },
-          expYear: { encryptedString: "EncryptedString" },
-          code: { encryptedString: "EncryptedString" },
+          cardholderName: "EncryptedString",
+          brand: "EncryptedString",
+          number: "EncryptedString",
+          expMonth: "EncryptedString",
+          expYear: "EncryptedString",
+          code: "EncryptedString",
         },
         attachments: undefined,
         fields: undefined,
         passwordHistory: undefined,
-        key: { encryptedString: "EncKey" },
+        key: "EncKey",
         permissions: new CipherPermissionsApi(),
         archivedDate: undefined,
       });
@@ -415,8 +413,8 @@ describe("Cipher DTO", () => {
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
-        name: { encryptedString: "EncryptedString" },
-        notes: { encryptedString: "EncryptedString" },
+        name: "EncryptedString",
+        notes: "EncryptedString",
         type: 4,
         favorite: false,
         organizationUseTotp: true,
@@ -430,29 +428,29 @@ describe("Cipher DTO", () => {
         reprompt: 0,
         archivedDate: undefined,
         identity: {
-          title: { encryptedString: "EncryptedString" },
-          firstName: { encryptedString: "EncryptedString" },
-          middleName: { encryptedString: "EncryptedString" },
-          lastName: { encryptedString: "EncryptedString" },
-          address1: { encryptedString: "EncryptedString" },
-          address2: { encryptedString: "EncryptedString" },
-          address3: { encryptedString: "EncryptedString" },
-          city: { encryptedString: "EncryptedString" },
-          state: { encryptedString: "EncryptedString" },
-          postalCode: { encryptedString: "EncryptedString" },
-          country: { encryptedString: "EncryptedString" },
-          company: { encryptedString: "EncryptedString" },
-          email: { encryptedString: "EncryptedString" },
-          phone: { encryptedString: "EncryptedString" },
-          ssn: { encryptedString: "EncryptedString" },
-          username: { encryptedString: "EncryptedString" },
-          passportNumber: { encryptedString: "EncryptedString" },
-          licenseNumber: { encryptedString: "EncryptedString" },
+          title: "EncryptedString",
+          firstName: "EncryptedString",
+          middleName: "EncryptedString",
+          lastName: "EncryptedString",
+          address1: "EncryptedString",
+          address2: "EncryptedString",
+          address3: "EncryptedString",
+          city: "EncryptedString",
+          state: "EncryptedString",
+          postalCode: "EncryptedString",
+          country: "EncryptedString",
+          company: "EncryptedString",
+          email: "EncryptedString",
+          phone: "EncryptedString",
+          ssn: "EncryptedString",
+          username: "EncryptedString",
+          passportNumber: "EncryptedString",
+          licenseNumber: "EncryptedString",
         },
         attachments: undefined,
         fields: undefined,
         passwordHistory: undefined,
-        key: { encryptedString: "EncKey" },
+        key: "EncKey",
         permissions: new CipherPermissionsApi(),
       });
     });
@@ -468,7 +466,6 @@ describe("Cipher DTO", () => {
       jest.spyOn(Attachment, "fromJSON").mockImplementation(mockFromJson);
       jest.spyOn(Field, "fromJSON").mockImplementation(mockFromJson);
       jest.spyOn(Password, "fromJSON").mockImplementation(mockFromJson);
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const deletedDate = new Date("2022-09-04T01:06:40.441Z");
@@ -485,8 +482,8 @@ describe("Cipher DTO", () => {
       } as Jsonify<Cipher>);
 
       expect(actual).toMatchObject({
-        name: "myName_fromJSON",
-        notes: "myNotes_fromJSON",
+        name: "myName",
+        notes: "myNotes",
         revisionDate: revisionDate,
         attachments: ["attachment1_fromJSON", "attachment2_fromJSON"],
         fields: ["field1_fromJSON", "field2_fromJSON"],
@@ -726,22 +723,22 @@ describe("Cipher DTO", () => {
         organizationId: "orgId" as any,
         folderId: "folderId" as any,
         collectionIds: [],
-        key: "EncryptedString" as SdkEncString,
-        name: "EncryptedString" as SdkEncString,
-        notes: "EncryptedString" as SdkEncString,
+        key: "EncryptedString" as EncString,
+        name: "EncryptedString" as EncString,
+        notes: "EncryptedString" as EncString,
         type: SdkCipherType.Login,
         login: {
-          username: "EncryptedString" as SdkEncString,
-          password: "EncryptedString" as SdkEncString,
+          username: "EncryptedString" as EncString,
+          password: "EncryptedString" as EncString,
           passwordRevisionDate: "2022-01-31T12:00:00.000Z",
           uris: [
             {
-              uri: "EncryptedString" as SdkEncString,
-              uriChecksum: "EncryptedString" as SdkEncString,
+              uri: "EncryptedString" as EncString,
+              uriChecksum: "EncryptedString" as EncString,
               match: UriMatchType.Domain,
             },
           ],
-          totp: "EncryptedString" as SdkEncString,
+          totp: "EncryptedString" as EncString,
           autofillOnPageLoad: false,
           fido2Credentials: undefined,
         },
@@ -769,35 +766,35 @@ describe("Cipher DTO", () => {
             url: "url",
             size: "1100",
             sizeName: "1.1 KB",
-            fileName: "file" as SdkEncString,
-            key: "EncKey" as SdkEncString,
+            fileName: "file" as EncString,
+            key: "EncKey" as EncString,
           },
           {
             id: "a2",
             url: "url",
             size: "1100",
             sizeName: "1.1 KB",
-            fileName: "file" as SdkEncString,
-            key: "EncKey" as SdkEncString,
+            fileName: "file" as EncString,
+            key: "EncKey" as EncString,
           },
         ],
         fields: [
           {
-            name: "EncryptedString" as SdkEncString,
-            value: "EncryptedString" as SdkEncString,
+            name: "EncryptedString" as EncString,
+            value: "EncryptedString" as EncString,
             type: FieldType.Linked,
             linkedId: LoginLinkedIdType.Username,
           },
           {
-            name: "EncryptedString" as SdkEncString,
-            value: "EncryptedString" as SdkEncString,
+            name: "EncryptedString" as EncString,
+            value: "EncryptedString" as EncString,
             type: FieldType.Linked,
             linkedId: LoginLinkedIdType.Password,
           },
         ],
         passwordHistory: [
           {
-            password: "EncryptedString" as SdkEncString,
+            password: "EncryptedString" as EncString,
             lastUsedDate: "2022-01-31T12:00:00.000Z",
           },
         ],
@@ -908,7 +905,7 @@ describe("Cipher DTO", () => {
       const cipher = new Cipher();
       cipher.id = "id";
       cipher.type = CipherType.Login;
-      cipher.name = new EncString("EncryptedString");
+      cipher.name = "EncryptedString" as EncString;
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
       cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
       cipher.data = blobPayload;
@@ -922,7 +919,7 @@ describe("Cipher DTO", () => {
       const cipher = new Cipher();
       cipher.id = "2afb03fd-0d8e-4c08-a316-18b2f0efa618";
       cipher.type = CipherType.Login;
-      cipher.name = new EncString("EncryptedString");
+      cipher.name = "EncryptedString" as EncString;
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
       cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
       cipher.data = blobPayload;
@@ -936,7 +933,7 @@ describe("Cipher DTO", () => {
       const sdkCipher = {
         id: "id" as any,
         collectionIds: [],
-        name: "EncryptedString" as SdkEncString,
+        name: "EncryptedString" as EncString,
         type: SdkCipherType.Login,
         favorite: false,
         reprompt: SdkCipherRepromptType.None,
@@ -957,7 +954,7 @@ describe("Cipher DTO", () => {
       const sdkCipher = {
         id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618" as any,
         collectionIds: [],
-        name: "EncryptedString" as SdkEncString,
+        name: "EncryptedString" as EncString,
         type: SdkCipherType.Login,
         favorite: false,
         reprompt: SdkCipherRepromptType.None,

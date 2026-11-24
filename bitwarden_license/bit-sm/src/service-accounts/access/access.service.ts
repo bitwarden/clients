@@ -14,10 +14,10 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   DECRYPT_ERROR,
   EncryptService,
-  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { AccessTokenRequest } from "../models/requests/access-token.request";
 import { RevokeAccessTokensRequest } from "../models/requests/revoke-access-tokens.request";
@@ -146,7 +146,7 @@ export class AccessService {
         const view = new AccessTokenView();
         view.id = s.id;
         try {
-          const encString = new EncString(s.name);
+          const encString = s.name as EncString;
           view.name = await this.encryptService.decryptString(encString, orgKey);
         } catch (error) {
           this.logService.error("Error decrypting access token name", error);

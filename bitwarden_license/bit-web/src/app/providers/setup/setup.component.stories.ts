@@ -75,7 +75,7 @@ export default {
         {
           provide: LegacyCompatKeyService,
           useValue: {
-            makeOrgKey: async () => [{ encryptedString: "encrypted-provider-key" }, {}],
+            makeOrgKey: async () => ["encrypted-provider-key", {}],
           },
         },
         { provide: SyncService, useValue: { fullSync: async () => true } },

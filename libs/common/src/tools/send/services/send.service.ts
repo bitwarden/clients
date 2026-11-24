@@ -9,11 +9,11 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   EncArrayBuffer,
   EncryptService,
-  EncString,
   KeyGenerationService,
   PBKDF2KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -188,7 +188,7 @@ export class SendService implements InternalSendServiceAbstraction {
                 return true;
               }
 
-              return oldSend[key].encryptedString === newSend[key].encryptedString;
+              return oldSend[key] === newSend[key];
             case "text":
               if (oldSend[key].text == null && newSend[key].text == null) {
                 return true;
@@ -199,7 +199,7 @@ export class SendService implements InternalSendServiceAbstraction {
               ) {
                 return false;
               }
-              return oldSend[key].text.encryptedString === newSend[key].text.encryptedString;
+              return oldSend[key].text === newSend[key].text;
             case "file":
               //Files are never updated so never will be changed.
               return true;

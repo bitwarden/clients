@@ -202,7 +202,7 @@ describe("UserApiLoginStrategy", () => {
 
     expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(userId, {
       url: keyConnectorUrl,
-      keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
+      keyConnectorKeyWrappedUserKey: tokenResponse.key!,
     });
   });
 

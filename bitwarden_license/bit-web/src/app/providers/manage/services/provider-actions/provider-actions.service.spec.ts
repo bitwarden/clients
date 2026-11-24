@@ -8,7 +8,8 @@ import { ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { ProviderActionsService } from "./provider-actions.service";
@@ -104,7 +105,7 @@ describe("ProviderActionsService", () => {
       const activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
       accountService.activeAccount$ = activeAccount$;
       keyService.providerKeys$.mockReturnValue(of({ [providerId]: { key: "mock" } as any }));
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue(new EncString("encrypted"));
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue("encrypted" as EncString);
       apiService.postProviderUserConfirm.mockResolvedValue(undefined);
 
       const result = await service.confirmProvider(mockProviderUser, providerId, publicKey);

@@ -88,13 +88,13 @@ describe("Send", () => {
       id: "id",
       accessId: "accessId",
       type: SendType.Text,
-      name: { encryptedString: "encName" },
-      notes: { encryptedString: "encNotes" },
+      name: "encName",
+      notes: "encNotes",
       text: {
-        text: { encryptedString: "encText" },
+        text: "encText",
         hidden: true,
       },
-      key: { encryptedString: "encKey" },
+      key: "encKey",
       maxAccessCount: null,
       accessCount: 10,
       revisionDate: new Date("2022-01-31T12:00:00.000Z"),
@@ -262,7 +262,8 @@ describe("Send", () => {
       const view = await send.decrypt(userId);
 
       expect(view.emails).toEqual([]);
-      expect(encryptService.decryptString).not.toHaveBeenCalledWith(expect.anything(), "cryptoKey");
+      // Only name and notes are decrypted; a null emails list adds no call.
+      expect(encryptService.decryptString).toHaveBeenCalledTimes(2);
     });
 
     it("should return empty array when emails is empty string", async () => {

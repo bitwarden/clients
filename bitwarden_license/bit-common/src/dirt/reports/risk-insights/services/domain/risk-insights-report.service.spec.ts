@@ -229,10 +229,10 @@ describe("RiskInsightsReportService", () => {
         id: "reportId",
         date: new Date(),
         organizationId: mockOrganizationId,
-        reportData: mockReportEnc.encryptedString,
-        summaryData: mockSummaryEnc.encryptedString,
-        applicationData: mockApplicationsEnc.encryptedString,
-        contentEncryptionKey: mockEncryptedKey.encryptedString,
+        reportData: mockReportEnc,
+        summaryData: mockSummaryEnc,
+        applicationData: mockApplicationsEnc,
+        contentEncryptionKey: mockEncryptedKey,
       });
 
       const decryptedResponse: DecryptedReportData = {
@@ -286,10 +286,10 @@ describe("RiskInsightsReportService", () => {
         id: "reportId",
         creationDate: new Date(),
         organizationId: organizationId as OrganizationId,
-        reportData: mockReportEnc.encryptedString,
-        summaryData: mockSummaryEnc.encryptedString,
-        applicationData: mockApplicationsEnc.encryptedString,
-        contentEncryptionKey: mockEncryptedKey.encryptedString,
+        reportData: mockReportEnc,
+        summaryData: mockSummaryEnc,
+        applicationData: mockApplicationsEnc,
+        contentEncryptionKey: mockEncryptedKey,
       });
 
       mockRiskInsightsApiService.getRiskInsightsReport$.mockReturnValue(of(mockResponse));

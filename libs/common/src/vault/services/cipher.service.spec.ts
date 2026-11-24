@@ -8,12 +8,11 @@ import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 import {
   EncArrayBuffer,
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, EncString } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -51,7 +50,7 @@ import { ENCRYPTED_CIPHERS, LOCAL_DATA_KEY } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
-  return Promise.resolve(new EncString(`${clearText} has been encrypted`));
+  return Promise.resolve(`${clearText} has been encrypted` as EncString);
 }
 const ENCRYPTED_BYTES = mock<EncArrayBuffer>();
 
@@ -120,7 +119,7 @@ describe("Cipher Service", () => {
 
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
-    encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+    encryptService.encryptString.mockReturnValue(Promise.resolve(ENCRYPTED_TEXT as EncString));
     keyService.orgKeys$.mockReturnValue(of({ [orgId]: makeSymmetricCryptoKey(32) as OrgKey }));
     keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey(64) as UserKey));
 
@@ -168,9 +167,9 @@ describe("Cipher Service", () => {
 
       legacyCompatKeyService.makeDataEncKey.mockResolvedValue([
         new SymmetricCryptoKey(new Uint8Array(32)),
-        new EncString("2.encryptedKey"),
+        "2.encryptedKey" as EncString,
       ] as any);
-      encryptService.encryptString.mockResolvedValue(new EncString("2.encryptedFileName"));
+      encryptService.encryptString.mockResolvedValue("2.encryptedFileName" as EncString);
       encryptService.encryptFileData.mockResolvedValue({ buffer: new Uint8Array(10) } as any);
 
       cipherSdkService.createAttachment.mockResolvedValue({
@@ -198,7 +197,7 @@ describe("Cipher Service", () => {
         "newatt",
         "https://example.com/upload",
         FileUploadType.Direct,
-        expect.any(EncString),
+        expect.any(String),
         expect.anything(),
         userId,
         false,
@@ -214,9 +213,9 @@ describe("Cipher Service", () => {
 
       legacyCompatKeyService.makeDataEncKey.mockResolvedValue([
         new SymmetricCryptoKey(new Uint8Array(32)),
-        new EncString("2.encryptedKey"),
+        "2.encryptedKey" as EncString,
       ] as any);
-      encryptService.encryptString.mockResolvedValue(new EncString("2.encryptedFileName"));
+      encryptService.encryptString.mockResolvedValue("2.encryptedFileName" as EncString);
       encryptService.encryptFileData.mockResolvedValue({ buffer: new Uint8Array(10) } as any);
 
       const sdkCipher = { id: testCipher.id } as any;
@@ -247,7 +246,7 @@ describe("Cipher Service", () => {
         "newatt",
         "https://example.com/upload",
         FileUploadType.Azure,
-        expect.any(EncString),
+        expect.any(String),
         expect.anything(),
         userId,
         true,
@@ -355,7 +354,7 @@ describe("Cipher Service", () => {
       );
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
       encryptService.encryptString.mockImplementation(encryptText);
-      encryptService.wrapSymmetricKey.mockResolvedValue(new EncString("Re-encrypted Cipher Key"));
+      encryptService.wrapSymmetricKey.mockResolvedValue("Re-encrypted Cipher Key" as EncString);
 
       jest.spyOn(cipherService as any, "getAutofillOnPageLoadDefault").mockResolvedValue(true);
 
@@ -416,7 +415,7 @@ describe("Cipher Service", () => {
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)),
       );
-      encryptedKey = new EncString("Re-encrypted Cipher Key");
+      encryptedKey = "Re-encrypted Cipher Key" as EncString;
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
 
       cipherEncryptionService.encryptCipherForRotation.mockImplementation((cipher: CipherView) =>

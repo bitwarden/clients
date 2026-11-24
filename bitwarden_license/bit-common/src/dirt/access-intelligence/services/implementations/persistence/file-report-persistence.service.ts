@@ -20,8 +20,9 @@ import {
 import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   AccessReportView,
@@ -80,9 +81,9 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               const metrics = view.toMetrics();
 
               const request: AccessReportCreateRequest = {
-                applicationData: encryptedData.encryptedApplicationData.encryptedString!,
-                summaryData: encryptedData.encryptedSummaryData.encryptedString!,
-                contentEncryptionKey: encryptedData.contentEncryptionKey.encryptedString!,
+                applicationData: encryptedData.encryptedApplicationData!,
+                summaryData: encryptedData.encryptedSummaryData!,
+                contentEncryptionKey: encryptedData.contentEncryptionKey!,
                 metrics: new AccessReportMetricsApi(metrics.toAccessReportMetricsData()),
                 fileSize: encryptedData.encryptedReportData.buffer.byteLength,
               };
@@ -229,9 +230,9 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                   this.riskInsightsEncryptionService.decryptReportFile$(
                     { organizationId, userId },
                     encArrayBuffer,
-                    new EncString(apiResponse.summary),
-                    new EncString(apiResponse.applications),
-                    new EncString(apiResponse.contentEncryptionKey),
+                    apiResponse.summary as EncString,
+                    apiResponse.applications as EncString,
+                    apiResponse.contentEncryptionKey as EncString,
                   ),
                 ),
                 map((decryptedData) => {
@@ -239,7 +240,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                   view.id = apiResponse.id as OrganizationReportId;
                   view.organizationId = organizationId;
                   view.creationDate = new Date(apiResponse.creationDate);
-                  view.contentEncryptionKey = new EncString(apiResponse.contentEncryptionKey);
+                  view.contentEncryptionKey = apiResponse.contentEncryptionKey as EncString;
                   view.reports = decryptedData.reportData.reports.map(
                     ApplicationHealthView.fromData,
                   );

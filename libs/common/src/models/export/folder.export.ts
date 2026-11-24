@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Folder as FolderDomain } from "../../vault/models/domain/folder";
 import { FolderView } from "../../vault/models/view/folder.view";
-
-import { safeGetString } from "./utils";
 
 export class FolderExport {
   name: string = "";
@@ -21,12 +18,12 @@ export class FolderExport {
   }
 
   static toDomain(req: FolderExport, domain = new FolderDomain()) {
-    domain.name = new EncString(req.name);
+    domain.name = req.name as EncString;
     return domain;
   }
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: FolderView | FolderDomain) {
-    this.name = safeGetString(o.name ?? "") ?? "";
+    this.name = o.name ?? "";
   }
 }

@@ -1,7 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { AdminAuthRequestUpdateRequest } from "./admin-auth-request-update.request";
 import { BulkDenyAuthRequestsRequest } from "./bulk-deny-auth-requests.request";
@@ -57,7 +56,7 @@ export class OrganizationAuthRequestApiService {
     await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/auth-requests/${requestId}`,
-      new AdminAuthRequestUpdateRequest(true, encryptedKey.encryptedString),
+      new AdminAuthRequestUpdateRequest(true, encryptedKey),
       true,
       false,
     );

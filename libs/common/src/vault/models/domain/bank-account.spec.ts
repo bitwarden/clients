@@ -21,16 +21,16 @@ describe("BankAccount", () => {
   beforeEach(() => {
     data = new BankAccountData(
       new BankAccountApi({
-        BankName: bankNameEnc.encryptedString,
-        NameOnAccount: nameOnAccountEnc.encryptedString,
-        AccountType: accountTypeEnc.encryptedString,
-        AccountNumber: accountNumberEnc.encryptedString,
-        RoutingNumber: routingNumberEnc.encryptedString,
-        BranchNumber: branchNumberEnc.encryptedString,
-        Pin: pinEnc.encryptedString,
-        SwiftCode: swiftCodeEnc.encryptedString,
-        Iban: ibanEnc.encryptedString,
-        BankContactPhone: bankContactPhoneEnc.encryptedString,
+        BankName: bankNameEnc,
+        NameOnAccount: nameOnAccountEnc,
+        AccountType: accountTypeEnc,
+        AccountNumber: accountNumberEnc,
+        RoutingNumber: routingNumberEnc,
+        BranchNumber: branchNumberEnc,
+        Pin: pinEnc,
+        SwiftCode: swiftCodeEnc,
+        Iban: ibanEnc,
+        BankContactPhone: bankContactPhoneEnc,
       }),
     );
 
@@ -130,16 +130,16 @@ describe("BankAccount", () => {
       const sdkBankAccount = bankAccount.toSdkBankAccount();
 
       expect(sdkBankAccount).toEqual({
-        bankName: bankNameEnc.encryptedString,
-        nameOnAccount: nameOnAccountEnc.encryptedString,
-        accountType: accountTypeEnc.encryptedString,
-        accountNumber: accountNumberEnc.encryptedString,
-        routingNumber: routingNumberEnc.encryptedString,
-        branchNumber: branchNumberEnc.encryptedString,
-        pin: pinEnc.encryptedString,
-        swiftCode: swiftCodeEnc.encryptedString,
-        iban: ibanEnc.encryptedString,
-        bankContactPhone: bankContactPhoneEnc.encryptedString,
+        bankName: bankNameEnc,
+        nameOnAccount: nameOnAccountEnc,
+        accountType: accountTypeEnc,
+        accountNumber: accountNumberEnc,
+        routingNumber: routingNumberEnc,
+        branchNumber: branchNumberEnc,
+        pin: pinEnc,
+        swiftCode: swiftCodeEnc,
+        iban: ibanEnc,
+        bankContactPhone: bankContactPhoneEnc,
       });
     });
   });

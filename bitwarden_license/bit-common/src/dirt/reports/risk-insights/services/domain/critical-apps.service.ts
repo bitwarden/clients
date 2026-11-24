@@ -19,7 +19,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   PasswordHealthReportApplicationsRequest,
@@ -114,7 +115,7 @@ export class CriticalAppsService {
     const updatedList = [...this.criticalAppsListSubject$.value];
     for (const responseItem of dbResponse) {
       const decryptedUrl = await this.encryptService.decryptString(
-        new EncString(responseItem.uri),
+        responseItem.uri as EncString,
         orgKey,
       );
       if (!updatedList.some((f) => f.uri === decryptedUrl)) {
@@ -197,7 +198,7 @@ export class CriticalAppsService {
         }
 
         const results = response.map(async (r: PasswordHealthReportApplicationsResponse) => {
-          const encrypted = new EncString(r.uri);
+          const encrypted = r.uri as EncString;
           const uri = await this.encryptService.decryptString(encrypted, key);
           return { id: r.id, organizationId: r.organizationId, uri: uri };
         });
@@ -232,7 +233,7 @@ export class CriticalAppsService {
       const encryptedUrlName = await this.encryptService.encryptString(url, key);
       return {
         organizationId: orgId,
-        url: encryptedUrlName?.encryptedString?.toString() ?? "",
+        url: encryptedUrlName?.toString() ?? "",
       } as PasswordHealthReportApplicationsRequest;
     });
 

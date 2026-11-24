@@ -24,13 +24,12 @@ import { UserKeyRotationKeyRecoveryProvider, KeyService } from "@bitwarden/key-m
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
-  EncryptedString,
   EncryptService,
-  EncString,
   KdfConfig,
   KdfType,
   PBKDF2KdfConfig,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 
@@ -74,7 +73,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString | undefined> {
+  ): Promise<EncString | undefined> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -98,7 +97,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     // RSA Encrypt user key with organization's public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    return encryptedKey.encryptedString;
+    return encryptedKey;
   }
 
   /**
@@ -223,12 +222,12 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     }
 
     const decPrivateKey = await this.encryptService.unwrapDecapsulationKey(
-      new EncString(response.encryptedPrivateKey),
+      response.encryptedPrivateKey as EncString,
       orgSymKey,
     );
 
     return (await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(response.resetPasswordKey),
+      response.resetPasswordKey as EncString,
       decPrivateKey,
     )) as UserKey;
   }

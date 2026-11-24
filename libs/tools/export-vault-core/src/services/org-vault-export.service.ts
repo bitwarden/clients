@@ -343,7 +343,7 @@ export class OrganizationVaultExportService
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,
-      encKeyValidation_DO_NOT_EDIT: encKeyValidation.encryptedString,
+      encKeyValidation_DO_NOT_EDIT: encKeyValidation,
       collections: [],
       items: [],
     };

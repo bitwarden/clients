@@ -17,8 +17,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   VaultNavItemType,
@@ -90,7 +89,7 @@ describe("vaultScopeGuard", () => {
     new Collection({
       id: id as CollectionId,
       organizationId: orgId,
-      name: new EncString("2.abc123|def456==|ghi789=="),
+      name: "2.abc123|def456==|ghi789==" as EncString,
     });
 
   /**

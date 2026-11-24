@@ -1,9 +1,6 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { AccessReportSummaryApi } from "../api/access-report-summary.api";
 import { AccessReportSummaryData } from "../data/access-report-summary.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessReportSummaryView } from "../view/access-report-summary.view";
@@ -29,16 +26,16 @@ export class AccessReportSummary extends Domain {
     }
 
     this.organizationId = obj.organizationId ?? "";
-    this.encryptedData = obj.encryptedData ? new EncString(obj.encryptedData) : undefined;
-    this.encryptionKey = obj.encryptionKey ? new EncString(obj.encryptionKey) : undefined;
+    this.encryptedData = obj.encryptedData ? (obj.encryptedData as EncString) : undefined;
+    this.encryptionKey = obj.encryptionKey ? (obj.encryptionKey as EncString) : undefined;
     this.date = obj.date ? new Date(obj.date) : new Date(0);
   }
 
   toData(): AccessReportSummaryData {
     const data = new AccessReportSummaryData();
     data.organizationId = this.organizationId;
-    data.encryptedData = this.encryptedData?.encryptedString ?? "";
-    data.encryptionKey = this.encryptionKey?.encryptedString ?? "";
+    data.encryptedData = this.encryptedData ?? "";
+    data.encryptionKey = this.encryptionKey ?? "";
     data.date = this.date.toISOString();
     return data;
   }

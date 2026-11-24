@@ -52,8 +52,8 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
 
     return combineLatest([encryptedKey$, encryptedCollectionName$]).pipe(
       map(([key, collectionName]) => ({
-        key: key.encryptedString,
-        defaultUserCollectionName: collectionName.encryptedString,
+        key: key,
+        defaultUserCollectionName: collectionName,
       })),
     );
   }
@@ -76,10 +76,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
   ): Observable<ListResponse<OrganizationUserBulkResponse>> {
     return this.getEncryptedDefaultCollectionName$(organization).pipe(
       switchMap((collectionName) => {
-        const request = new OrganizationUserBulkConfirmRequest(
-          userIdsWithKeys,
-          collectionName.encryptedString,
-        );
+        const request = new OrganizationUserBulkConfirmRequest(userIdsWithKeys, collectionName);
 
         return this.organizationUserApiService.postOrganizationUserBulkConfirm(
           organization.id,
@@ -91,7 +88,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
 
   buildRestoreUserRequest(organization: Organization): Observable<OrganizationUserRestoreRequest> {
     return this.getEncryptedDefaultCollectionName$(organization).pipe(
-      map((collectionName) => new OrganizationUserRestoreRequest(collectionName.encryptedString)),
+      map((collectionName) => new OrganizationUserRestoreRequest(collectionName)),
     );
   }
 
@@ -109,10 +106,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
   ): Observable<ListResponse<OrganizationUserBulkResponse>> {
     return this.getEncryptedDefaultCollectionName$(organization).pipe(
       switchMap((collectionName) => {
-        const request = new OrganizationUserBulkRestoreRequest(
-          userIds,
-          collectionName.encryptedString,
-        );
+        const request = new OrganizationUserBulkRestoreRequest(userIds, collectionName);
 
         return this.organizationUserApiService.restoreManyOrganizationUsers(
           organization.id,
@@ -141,7 +135,7 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
 
     return this.getEncryptedDefaultCollectionName$(organization).pipe(
       switchMap((collectionName) => {
-        request.defaultUserCollectionName = collectionName.encryptedString;
+        request.defaultUserCollectionName = collectionName;
         return from(
           this.organizationUserApiService.putOrganizationUser(organization.id, userId, request),
         );

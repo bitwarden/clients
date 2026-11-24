@@ -9,9 +9,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
 import {
@@ -117,7 +116,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       });
 
       const newId = "report-id-123" as OrganizationReportId;
-      const newKey = new EncString("new-key");
+      const newKey = "new-key" as EncString;
       reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: legacyReport, hadLegacyBlobs: true }),
       );
@@ -244,7 +243,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
-          contentEncryptionKey: new EncString(""),
+          contentEncryptionKey: "" as EncString,
         }),
       );
     });
@@ -492,7 +491,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
-          contentEncryptionKey: new EncString(""),
+          contentEncryptionKey: "" as EncString,
         }),
       );
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
@@ -573,7 +572,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
       reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
-        of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
+        of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: "" as EncString }),
       );
 
       await firstValueFrom(service.generateNewReport$(orgId));
@@ -611,7 +610,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
-          contentEncryptionKey: new EncString(""),
+          contentEncryptionKey: "" as EncString,
         }),
       );
     });
@@ -650,7 +649,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
-          contentEncryptionKey: new EncString(""),
+          contentEncryptionKey: "" as EncString,
         }),
       );
     });
@@ -707,7 +706,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
       reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
-        of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
+        of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: "" as EncString }),
       );
 
       await firstValueFrom(service.generateNewReport$(orgId));

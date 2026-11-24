@@ -15,10 +15,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebProviderService } from "./web-provider.service";
@@ -66,7 +66,7 @@ describe("WebProviderService", () => {
 
   describe("addOrganizationToProvider", () => {
     const organizationId = "org-789";
-    const encryptedOrgKey = new EncString("encrypted-org-key");
+    const encryptedOrgKey = "encrypted-org-key" as EncString;
     const mockOrgKeysById: Record<string, OrgKey> = {
       [organizationId]: mockOrgKey,
     };
@@ -84,7 +84,7 @@ describe("WebProviderService", () => {
       expect(keyService.providerKeys$).toHaveBeenCalledWith(activeUserId);
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockOrgKey, mockProviderKey);
       expect(providerApiService.addOrganizationToProvider).toHaveBeenCalledWith(providerId, {
-        key: encryptedOrgKey.encryptedString,
+        key: encryptedOrgKey,
         organizationId,
       });
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
@@ -122,7 +122,7 @@ describe("WebProviderService", () => {
     });
 
     it("throws and does not call the API if the encrypted organization key is missing", async () => {
-      encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString);
+      encryptService.wrapSymmetricKey.mockResolvedValue(undefined as unknown as EncString);
 
       await expect(
         sut.addOrganizationToProvider(providerId, organizationId, activeUserId),
@@ -138,14 +138,14 @@ describe("WebProviderService", () => {
     const planType = PlanType.EnterpriseAnnually;
     const seats = 10;
     const publicKey = "public-key";
-    const encryptedPrivateKey = new EncString("encrypted-private-key");
-    const encryptedProviderKey = new EncString("encrypted-provider-key");
-    const encryptedCollectionName = new EncString("encrypted-collection-name");
+    const encryptedPrivateKey = "encrypted-private-key" as EncString;
+    const encryptedProviderKey = "encrypted-provider-key" as EncString;
+    const encryptedCollectionName = "encrypted-collection-name" as EncString;
     const defaultCollectionTranslation = "Default Collection";
 
     beforeEach(() => {
       legacyCompatKeyService.makeOrgKey.mockResolvedValue([
-        new EncString("mockEncryptedKey"),
+        "mockEncryptedKey" as EncString,
         mockOrgKey,
       ]);
       legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
@@ -182,9 +182,9 @@ describe("WebProviderService", () => {
           ownerEmail,
           planType,
           seats,
-          key: encryptedProviderKey.encryptedString,
+          key: encryptedProviderKey,
           keyPair: expect.any(OrganizationKeysRequest),
-          collectionName: encryptedCollectionName.encryptedString,
+          collectionName: encryptedCollectionName,
         }),
       );
 
@@ -249,16 +249,21 @@ describe("WebProviderService", () => {
     it.each([
       {
         missing: "Encrypted provider key",
-        arrange: () => encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString),
+        arrange: () =>
+          encryptService.wrapSymmetricKey.mockResolvedValue(undefined as unknown as EncString),
       },
       {
         missing: "Encrypted private key",
         arrange: () =>
-          legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, {} as EncString]),
+          legacyCompatKeyService.makeKeyPair.mockResolvedValue([
+            publicKey,
+            undefined as unknown as EncString,
+          ]),
       },
       {
         missing: "Encrypted collection name",
-        arrange: () => encryptService.encryptString.mockResolvedValue({} as EncString),
+        arrange: () =>
+          encryptService.encryptString.mockResolvedValue(undefined as unknown as EncString),
       },
     ])(
       "throws and does not call the API if the $missing is missing",

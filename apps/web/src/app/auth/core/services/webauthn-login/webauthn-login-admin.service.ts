@@ -224,9 +224,9 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     request.token = credential.createOptions.token;
     request.name = name;
     request.supportsPrf = credential.supportsPrf;
-    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey.encryptedString;
-    request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
-    request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
+    request.encryptedUserKey = prfKeySet?.encapsulatedDownstreamKey;
+    request.encryptedPublicKey = prfKeySet?.encryptedPublicKey;
+    request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey;
     await this.apiService.saveCredential(request);
     this.refresh();
   }
@@ -262,9 +262,9 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     const request = new EnableCredentialEncryptionRequest();
     request.token = assertionOptions.token;
     request.deviceResponse = assertionOptions.deviceResponse;
-    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
-    request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
-    request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
+    request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey;
+    request.encryptedPublicKey = prfKeySet.encryptedPublicKey;
+    request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey;
     await this.apiService.updateCredential(request);
     this.refresh();
   }

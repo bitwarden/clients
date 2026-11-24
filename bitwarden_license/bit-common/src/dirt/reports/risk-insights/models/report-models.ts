@@ -3,8 +3,7 @@ import { Opaque } from "type-fest";
 import { CipherId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
 

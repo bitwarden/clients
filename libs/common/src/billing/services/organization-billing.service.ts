@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -165,12 +166,9 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     collectionName: string;
   } {
     return {
-      key: keys.encryptedKey.encryptedString,
-      keysRequest: new OrganizationKeysRequest(
-        keys.publicKey,
-        keys.encryptedPrivateKey.encryptedString,
-      ),
-      collectionName: keys.encryptedCollectionName.encryptedString,
+      key: keys.encryptedKey,
+      keysRequest: new OrganizationKeysRequest(keys.publicKey, keys.encryptedPrivateKey),
+      collectionName: keys.encryptedCollectionName,
     };
   }
 

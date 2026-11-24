@@ -3,8 +3,8 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { SendText as SdkSendText } from "@bitwarden/sdk-internal";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SendText as SdkSendText, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SendTextData } from "../data/send-text.data";
@@ -41,14 +41,14 @@ export class SendText extends Domain {
     }
 
     return Object.assign(new SendText(), obj, {
-      text: EncString.fromJSON(obj.text),
+      text: obj.text ?? null,
     });
   }
 
   /** Maps this domain `SendText` to the SDK `SendText` shape. */
   toSdk(): SdkSendText {
     return {
-      text: this.text?.toSdk(),
+      text: this.text ?? undefined,
       hidden: this.hidden,
     };
   }
@@ -60,7 +60,7 @@ export class SendText extends Domain {
     }
 
     return Object.assign(new SendText(), {
-      text: EncString.fromJSON(obj.text),
+      text: obj.text ?? null,
       hidden: obj.hidden,
     });
   }
@@ -68,7 +68,7 @@ export class SendText extends Domain {
   /** Serializes this domain `SendText` to its `SendTextData` (string-shaped) form. */
   toSendData(): SendTextData {
     return Object.assign(new SendTextData(), {
-      text: this.text?.toJSON() ?? null,
+      text: this.text ?? null,
       hidden: this.hidden,
     });
   }

@@ -4,14 +4,9 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptService,
-  EncString,
-  KeyGenerationService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import {
   createNewSummaryData,
@@ -122,10 +117,10 @@ export class LegacyRiskInsightsEncryptionService {
     );
 
     if (
-      !encryptedReportData.encryptedString ||
-      !encryptedSummaryData.encryptedString ||
-      !encryptedApplicationData.encryptedString ||
-      !wrappedEncryptionKey.encryptedString
+      !encryptedReportData ||
+      !encryptedSummaryData ||
+      !encryptedApplicationData ||
+      !wrappedEncryptionKey
     ) {
       this.logService.error(
         "[LegacyRiskInsightsEncryptionService] Encryption failed, encrypted strings are null",

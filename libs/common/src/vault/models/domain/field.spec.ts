@@ -1,14 +1,13 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 import {
   Field as SdkField,
   FieldType,
   LoginLinkedIdType,
   CardLinkedIdType,
   IdentityLinkedIdType,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
-import { mockContainerService, mockFromJson } from "../../../../spec";
+import { mockContainerService } from "../../../../spec";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
@@ -43,8 +42,8 @@ describe("Field", () => {
 
     expect(field).toEqual({
       type: FieldType.Text,
-      name: new EncString("encName"),
-      value: new EncString("encValue"),
+      name: "encName" as EncString,
+      value: "encValue" as EncString,
       linkedId: undefined,
     });
   });
@@ -56,16 +55,14 @@ describe("Field", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
-
       const actual = Field.fromJSON({
-        name: "myName" as EncryptedString,
-        value: "myValue" as EncryptedString,
+        name: "myName" as EncString,
+        value: "myValue" as EncString,
       });
 
       expect(actual).toEqual({
-        name: "myName_fromJSON",
-        value: "myValue_fromJSON",
+        name: "myName",
+        value: "myValue",
         type: FieldType.Text,
         linkedId: undefined,
       });

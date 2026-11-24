@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Passport as PassportDomain } from "../../vault/models/domain/passport";
 import { PassportView } from "../../vault/models/view/passport.view";
-
-import { safeGetString } from "./utils";
 
 export class PassportExport {
   static template(): PassportExport {
@@ -47,23 +44,23 @@ export class PassportExport {
   }
 
   static toDomain(req: PassportExport, domain = new PassportDomain()) {
-    domain.surname = req.surname ? new EncString(req.surname) : undefined;
-    domain.givenName = req.givenName ? new EncString(req.givenName) : undefined;
-    domain.dateOfBirth = req.dateOfBirth ? new EncString(req.dateOfBirth) : undefined;
-    domain.sex = req.sex ? new EncString(req.sex) : undefined;
-    domain.birthPlace = req.birthPlace ? new EncString(req.birthPlace) : undefined;
-    domain.nationality = req.nationality ? new EncString(req.nationality) : undefined;
-    domain.issuingCountry = req.issuingCountry ? new EncString(req.issuingCountry) : undefined;
-    domain.passportNumber = req.passportNumber ? new EncString(req.passportNumber) : undefined;
-    domain.passportType = req.passportType ? new EncString(req.passportType) : undefined;
+    domain.surname = req.surname ? (req.surname as EncString) : undefined;
+    domain.givenName = req.givenName ? (req.givenName as EncString) : undefined;
+    domain.dateOfBirth = req.dateOfBirth ? (req.dateOfBirth as EncString) : undefined;
+    domain.sex = req.sex ? (req.sex as EncString) : undefined;
+    domain.birthPlace = req.birthPlace ? (req.birthPlace as EncString) : undefined;
+    domain.nationality = req.nationality ? (req.nationality as EncString) : undefined;
+    domain.issuingCountry = req.issuingCountry ? (req.issuingCountry as EncString) : undefined;
+    domain.passportNumber = req.passportNumber ? (req.passportNumber as EncString) : undefined;
+    domain.passportType = req.passportType ? (req.passportType as EncString) : undefined;
     domain.nationalIdentificationNumber = req.nationalIdentificationNumber
-      ? new EncString(req.nationalIdentificationNumber)
+      ? (req.nationalIdentificationNumber as EncString)
       : undefined;
     domain.issuingAuthority = req.issuingAuthority
-      ? new EncString(req.issuingAuthority)
+      ? (req.issuingAuthority as EncString)
       : undefined;
-    domain.issueDate = req.issueDate ? new EncString(req.issueDate) : undefined;
-    domain.expirationDate = req.expirationDate ? new EncString(req.expirationDate) : undefined;
+    domain.issueDate = req.issueDate ? (req.issueDate as EncString) : undefined;
+    domain.expirationDate = req.expirationDate ? (req.expirationDate as EncString) : undefined;
     return domain;
   }
 
@@ -86,18 +83,18 @@ export class PassportExport {
       return;
     }
 
-    this.surname = safeGetString(o.surname);
-    this.givenName = safeGetString(o.givenName);
-    this.dateOfBirth = safeGetString(o.dateOfBirth);
-    this.sex = safeGetString(o.sex);
-    this.birthPlace = safeGetString(o.birthPlace);
-    this.nationality = safeGetString(o.nationality);
-    this.issuingCountry = safeGetString(o.issuingCountry);
-    this.passportNumber = safeGetString(o.passportNumber);
-    this.passportType = safeGetString(o.passportType);
-    this.nationalIdentificationNumber = safeGetString(o.nationalIdentificationNumber);
-    this.issuingAuthority = safeGetString(o.issuingAuthority);
-    this.issueDate = safeGetString(o.issueDate);
-    this.expirationDate = safeGetString(o.expirationDate);
+    this.surname = o.surname ?? undefined;
+    this.givenName = o.givenName ?? undefined;
+    this.dateOfBirth = o.dateOfBirth ?? undefined;
+    this.sex = o.sex ?? undefined;
+    this.birthPlace = o.birthPlace ?? undefined;
+    this.nationality = o.nationality ?? undefined;
+    this.issuingCountry = o.issuingCountry ?? undefined;
+    this.passportNumber = o.passportNumber ?? undefined;
+    this.passportType = o.passportType ?? undefined;
+    this.nationalIdentificationNumber = o.nationalIdentificationNumber ?? undefined;
+    this.issuingAuthority = o.issuingAuthority ?? undefined;
+    this.issueDate = o.issueDate ?? undefined;
+    this.expirationDate = o.expirationDate ?? undefined;
   }
 }

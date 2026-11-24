@@ -34,11 +34,11 @@ import {
   DEFAULT_KDF_CONFIG,
   EncryptionType,
   EncryptService,
-  EncString,
   KdfConfig,
   KdfType,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -115,7 +115,7 @@ describe("OrganizationUserResetPasswordService", () => {
       );
 
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-        new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey`),
+        `${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey` as EncString,
       );
     });
 
@@ -710,7 +710,7 @@ describe("OrganizationUserResetPasswordService", () => {
         }),
       );
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-        new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey`),
+        `${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey` as EncString,
       );
     });
 

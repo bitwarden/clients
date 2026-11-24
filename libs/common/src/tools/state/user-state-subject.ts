@@ -29,8 +29,7 @@ import {
   switchMap,
 } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Account } from "../../auth/abstractions/account.service";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
@@ -359,7 +358,7 @@ export class UserStateSubject<
 
         // decrypt classified data
         const { secret, disclosed } = input;
-        const encrypted = EncString.fromJSON(secret);
+        const encrypted = secret as EncString;
         const decryptedSecret = await encryptor.decrypt<Secret>(encrypted);
 
         // assemble into proper state

@@ -2,13 +2,8 @@
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  Argon2KdfConfig,
-  EncString,
-  KdfConfig,
-  KdfType,
-  PBKDF2KdfConfig,
-} from "@bitwarden/legacy-crypto";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
 import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
@@ -79,7 +74,7 @@ export class IdentityTokenResponse extends BaseResponse {
     }
     const key = this.getResponseProperty("Key");
     if (key) {
-      this.key = new EncString(key);
+      this.key = key as EncString;
     }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
 
@@ -141,7 +136,7 @@ export class IdentityTokenResponse extends BaseResponse {
 
     return {
       url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
-      keyConnectorKeyWrappedUserKey: this.key!.toSdk(),
+      keyConnectorKeyWrappedUserKey: this.key!,
     };
   }
 }

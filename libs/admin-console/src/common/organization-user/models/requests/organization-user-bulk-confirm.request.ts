@@ -1,4 +1,4 @@
-import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
+import { EncString as EncString } from "@bitwarden/sdk-internal";
 
 type OrganizationUserBulkRequestEntry = {
   id: string;
@@ -7,9 +7,9 @@ type OrganizationUserBulkRequestEntry = {
 
 export class OrganizationUserBulkConfirmRequest {
   keys: OrganizationUserBulkRequestEntry[];
-  defaultUserCollectionName: SdkEncString | undefined;
+  defaultUserCollectionName: EncString | undefined;
 
-  constructor(keys: OrganizationUserBulkRequestEntry[], defaultUserCollectionName?: SdkEncString) {
+  constructor(keys: OrganizationUserBulkRequestEntry[], defaultUserCollectionName?: EncString) {
     this.keys = keys;
     this.defaultUserCollectionName = defaultUserCollectionName;
   }

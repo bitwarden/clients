@@ -30,14 +30,13 @@ import {
   CryptoFunctionService,
   EncryptionType,
   EncryptService,
-  EncString,
   KdfConfig,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
   UnsignedPublicKey,
   WrappedPrivateKey,
 } from "@bitwarden/legacy-crypto";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
@@ -245,12 +244,13 @@ export class UserKeyRotationService {
     // Re-encrypt the private key with the new user key
     // Rotation of the private key is not supported yet
     const privateKey = await this.encryptService.unwrapDecapsulationKey(
-      new EncString(cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey),
+      cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey as EncString,
       cryptographicStateParameters.userKey,
     );
-    const newUserKeyWrappedPrivateKey = (
-      await this.encryptService.wrapDecapsulationKey(privateKey, newUserKey)
-    ).encryptedString! as string as WrappedPrivateKey;
+    const newUserKeyWrappedPrivateKey = (await this.encryptService.wrapDecapsulationKey(
+      privateKey,
+      newUserKey,
+    ))! as string as WrappedPrivateKey;
     const publicKey = (await this.cryptoFunctionService.rsaExtractPublicKey(
       privateKey,
     )) as UnsignedPublicKey;
@@ -272,14 +272,12 @@ export class UserKeyRotationService {
     newUnlockData: MasterPasswordAuthenticationAndUnlockData,
   ): Promise<MasterPasswordUnlockDataRequest> {
     // Decryption via stretched-masterkey-wrapped-userkey
-    const newMasterKeyEncryptedUserKey = new EncString(
-      PureCrypto.encrypt_user_key_with_master_password(
-        userKey.toEncoded(),
-        newUnlockData.masterPassword,
-        newUnlockData.masterKeySalt,
-        newUnlockData.masterKeyKdfConfig.toSdkConfig(),
-      ),
-    );
+    const newMasterKeyEncryptedUserKey = PureCrypto.encrypt_user_key_with_master_password(
+      userKey.toEncoded(),
+      newUnlockData.masterPassword,
+      newUnlockData.masterKeySalt,
+      newUnlockData.masterKeyKdfConfig.toSdkConfig(),
+    ) as EncString;
 
     const newMasterKeyAuthenticationHash = await this.makeServerMasterKeyAuthenticationHash(
       newUnlockData.masterPassword,
@@ -291,7 +289,7 @@ export class UserKeyRotationService {
       newUnlockData.masterKeyKdfConfig,
       newUnlockData.masterKeySalt,
       newMasterKeyAuthenticationHash,
-      newMasterKeyEncryptedUserKey.encryptedString!,
+      newMasterKeyEncryptedUserKey!,
       newUnlockData.masterPasswordHint,
     );
   }
@@ -520,15 +518,13 @@ export class UserKeyRotationService {
       );
     }
 
-    const currentUserKeyWrappedPrivateKey: WrappedPrivateKey = new EncString(
-      (await this.firstValueFromOrThrow(
-        this.keyService.userEncryptedPrivateKey$(user.id),
-        "Private key",
-      ))!,
-    ).encryptedString! as string as WrappedPrivateKey;
+    const currentUserKeyWrappedPrivateKey: WrappedPrivateKey = ((await this.firstValueFromOrThrow(
+      this.keyService.userEncryptedPrivateKey$(user.id),
+      "Private key",
+    ))! as EncString)! as string as WrappedPrivateKey;
     const publicKey = (await this.cryptoFunctionService.rsaExtractPublicKey(
       await this.encryptService.unwrapDecapsulationKey(
-        new EncString(currentUserKeyWrappedPrivateKey),
+        currentUserKeyWrappedPrivateKey as EncString,
         currentUserKey,
       ),
     )) as UnsignedPublicKey;

@@ -1,7 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-import { mockFromJson } from "../../../../spec";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
 
@@ -47,8 +45,8 @@ describe("Attachment", () => {
       id: "id",
       url: "url",
       sizeName: "1.1 KB",
-      fileName: { encryptedString: "fileName" },
-      key: { encryptedString: "key" },
+      fileName: "fileName",
+      key: "key",
     });
   });
 
@@ -59,16 +57,14 @@ describe("Attachment", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
-
       const actual = Attachment.fromJSON({
-        key: "myKey" as EncryptedString,
-        fileName: "myFileName" as EncryptedString,
+        key: "myKey" as EncString,
+        fileName: "myFileName" as EncString,
       });
 
       expect(actual).toEqual({
-        key: "myKey_fromJSON",
-        fileName: "myFileName_fromJSON",
+        key: "myKey",
+        fileName: "myFileName",
       });
       expect(actual).toBeInstanceOf(Attachment);
     });

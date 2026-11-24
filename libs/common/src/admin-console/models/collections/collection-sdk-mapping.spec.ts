@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-restricted-imports
-import { DECRYPT_ERROR, EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
-  EncString as SdkEncString,
+  EncString as EncString,
 } from "@bitwarden/sdk-internal";
 
 import { CollectionId, OrganizationId } from "../../../types/guid";
@@ -21,7 +21,7 @@ function sdkUuid(value: string): any {
 
 const collectionId = "bdc4ef23-1116-477e-ae73-247854af58cb" as CollectionId;
 const orgId = "c5e9654f-6cc5-44c4-8e09-3d323522668c" as OrganizationId;
-const encryptedName = "2.abc123|def456|ghi789" as SdkEncString;
+const encryptedName = "2.abc123|def456|ghi789" as EncString;
 
 function makeSdkCollection(overrides: Partial<SdkCollection> = {}): SdkCollection {
   return {
@@ -56,7 +56,7 @@ function makeCollection(overrides: Partial<Collection> = {}): Collection {
   const c = new Collection({
     id: collectionId,
     organizationId: orgId,
-    name: new EncString(encryptedName),
+    name: encryptedName as EncString,
   });
   return Object.assign(c, overrides);
 }
@@ -83,7 +83,7 @@ describe("Collection SDK mapping", () => {
       expect(result.defaultUserCollectionEmail).toBe("user@example.com");
       expect(result.type).toBe(CollectionTypes.DefaultUserCollection);
       expect(result.hasEnabledAccessRule).toBe(true);
-      expect(result.name).toBeInstanceOf(EncString);
+      expect(typeof result.name).toBe("string");
     });
 
     it("maps SharedCollection type correctly", () => {

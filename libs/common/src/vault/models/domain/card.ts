@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Card as SdkCard } from "@bitwarden/sdk-internal";
+import { Card as SdkCard, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { CardData } from "../data/card.data";
 
 export class Card extends Domain {
@@ -22,12 +19,12 @@ export class Card extends Domain {
       return;
     }
 
-    this.cardholderName = conditionalEncString(obj.cardholderName);
-    this.brand = conditionalEncString(obj.brand);
-    this.number = conditionalEncString(obj.number);
-    this.expMonth = conditionalEncString(obj.expMonth);
-    this.expYear = conditionalEncString(obj.expYear);
-    this.code = conditionalEncString(obj.code);
+    this.cardholderName = (obj.cardholderName ?? undefined) as EncString;
+    this.brand = (obj.brand ?? undefined) as EncString;
+    this.number = (obj.number ?? undefined) as EncString;
+    this.expMonth = (obj.expMonth ?? undefined) as EncString;
+    this.expYear = (obj.expYear ?? undefined) as EncString;
+    this.code = (obj.code ?? undefined) as EncString;
   }
 
   toCardData(): CardData {
@@ -49,12 +46,12 @@ export class Card extends Domain {
     }
 
     const card = new Card();
-    card.cardholderName = encStringFrom(obj.cardholderName);
-    card.brand = encStringFrom(obj.brand);
-    card.number = encStringFrom(obj.number);
-    card.expMonth = encStringFrom(obj.expMonth);
-    card.expYear = encStringFrom(obj.expYear);
-    card.code = encStringFrom(obj.code);
+    card.cardholderName = obj.cardholderName ?? undefined;
+    card.brand = obj.brand ?? undefined;
+    card.number = obj.number ?? undefined;
+    card.expMonth = obj.expMonth ?? undefined;
+    card.expYear = obj.expYear ?? undefined;
+    card.code = obj.code ?? undefined;
 
     return card;
   }
@@ -66,12 +63,12 @@ export class Card extends Domain {
    */
   toSdkCard(): SdkCard {
     return {
-      cardholderName: this.cardholderName?.toSdk(),
-      brand: this.brand?.toSdk(),
-      number: this.number?.toSdk(),
-      expMonth: this.expMonth?.toSdk(),
-      expYear: this.expYear?.toSdk(),
-      code: this.code?.toSdk(),
+      cardholderName: this.cardholderName ?? undefined,
+      brand: this.brand ?? undefined,
+      number: this.number ?? undefined,
+      expMonth: this.expMonth ?? undefined,
+      expYear: this.expYear ?? undefined,
+      code: this.code ?? undefined,
     };
   }
 
@@ -85,12 +82,12 @@ export class Card extends Domain {
     }
 
     const card = new Card();
-    card.cardholderName = encStringFrom(obj.cardholderName);
-    card.brand = encStringFrom(obj.brand);
-    card.number = encStringFrom(obj.number);
-    card.expMonth = encStringFrom(obj.expMonth);
-    card.expYear = encStringFrom(obj.expYear);
-    card.code = encStringFrom(obj.code);
+    card.cardholderName = obj.cardholderName ?? undefined;
+    card.brand = obj.brand ?? undefined;
+    card.number = obj.number ?? undefined;
+    card.expMonth = obj.expMonth ?? undefined;
+    card.expYear = obj.expYear ?? undefined;
+    card.code = obj.code ?? undefined;
 
     return card;
   }

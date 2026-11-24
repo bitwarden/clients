@@ -9,12 +9,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  CsprngArray,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportRequest } from "../models/requests/sm-import.request";
@@ -314,7 +310,5 @@ function toRequest(
   } as SecretsManagerImportRequest;
 }
 
-const mockEncryptedString = {
-  encryptedString: "mockEncryptedString",
-} as EncString;
+const mockEncryptedString = "mockEncryptedString" as EncString;
 const mockUnencryptedString = "mockUnEncryptedString";

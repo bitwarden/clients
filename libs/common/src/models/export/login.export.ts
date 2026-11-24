@@ -1,12 +1,10 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
 
 import { Fido2CredentialExport } from "./fido2-credential.export";
 import { LoginUriExport } from "./login-uri.export";
-import { safeGetString } from "./utils";
 
 export class LoginExport {
   static template(): LoginExport {
@@ -38,9 +36,9 @@ export class LoginExport {
     if (req.uris != null) {
       domain.uris = req.uris.map((u) => LoginUriExport.toDomain(u));
     }
-    domain.username = req.username != null ? new EncString(req.username) : undefined;
-    domain.password = req.password != null ? new EncString(req.password) : undefined;
-    domain.totp = req.totp != null ? new EncString(req.totp) : undefined;
+    domain.username = req.username != null ? (req.username as EncString) : undefined;
+    domain.password = req.password != null ? (req.password as EncString) : undefined;
+    domain.totp = req.totp != null ? (req.totp as EncString) : undefined;
     domain.httpAuthenticationEnabled = req.httpAuthenticationEnabled;
     if (req.fido2Credentials != null) {
       domain.fido2Credentials = req.fido2Credentials.map((f2) =>
@@ -72,9 +70,9 @@ export class LoginExport {
       this.fido2Credentials = o.fido2Credentials.map((key) => new Fido2CredentialExport(key));
     }
 
-    this.username = safeGetString(o.username);
-    this.password = safeGetString(o.password);
-    this.totp = safeGetString(o.totp);
+    this.username = o.username ?? undefined;
+    this.password = o.password ?? undefined;
+    this.totp = o.totp ?? undefined;
     this.httpAuthenticationEnabled = o.httpAuthenticationEnabled;
   }
 }

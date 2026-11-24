@@ -53,8 +53,8 @@ export class SendItem extends Domain {
       data: this.data,
       metadata: {
         itemId: asUuid(this.metadata.itemId),
-        folderName: this.metadata.folderName?.toSdk(),
-        collectionNames: this.metadata.collectionNames?.map((cn) => cn.toSdk()),
+        folderName: this.metadata.folderName ?? undefined,
+        collectionNames: this.metadata.collectionNames?.map((cn) => cn),
         organizationName: this.metadata.organizationName,
         creationDate: this.metadata.creationDate,
         revisionDate: this.metadata.revisionDate,

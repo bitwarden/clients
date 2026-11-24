@@ -20,7 +20,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
@@ -154,13 +155,13 @@ export class MemberAccessReportService {
     );
 
     const memberAccessReports = await this.reportApiService.getMemberAccessData(organizationId);
-    const collectionNames = memberAccessReports.map((item) => item.collectionName.encryptedString);
+    const collectionNames = memberAccessReports.map((item) => item.collectionName);
 
     const collectionNameMap = new Map(
       collectionNames.filter((col) => col !== null).map((col) => [col, ""]),
     );
     for await (const key of collectionNameMap.keys()) {
-      const encryptedCollectionName = new EncString(key);
+      const encryptedCollectionName = key as EncString;
       const collectionName = await this.encryptService.decryptString(
         encryptedCollectionName,
         organizationSymmetricKey,
@@ -169,7 +170,7 @@ export class MemberAccessReportService {
     }
 
     const exportItems = memberAccessReports.map((report) => {
-      const collectionName = collectionNameMap.get(report.collectionName.encryptedString);
+      const collectionName = collectionNameMap.get(report.collectionName);
       return {
         email: report.email,
         name: report.userName,

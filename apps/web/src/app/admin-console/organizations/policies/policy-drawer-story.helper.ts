@@ -128,7 +128,7 @@ export function policyDrawerMeta(
             // default user collection name) inject this, but providing it unconditionally is harmless
             // for every other policy.
             provide: EncryptService,
-            useValue: { encryptString: () => Promise.resolve({ encryptedString: "encrypted" }) },
+            useValue: { encryptString: () => Promise.resolve("encrypted") },
           },
           {
             // Only AutoConfirmPolicy's component injects these, but providing them

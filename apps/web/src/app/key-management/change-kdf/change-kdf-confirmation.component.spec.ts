@@ -44,7 +44,7 @@ describe("ChangeKdfConfirmationComponent", () => {
   const mockUnlockData = new MasterPasswordUnlockData(
     mockEmail as MasterPasswordSalt,
     kdfConfig,
-    mockWrappedUserKey.encryptedString as unknown as MasterKeyWrappedUserKey,
+    mockWrappedUserKey as unknown as MasterKeyWrappedUserKey,
   );
 
   // SDK reference chain: sdk.take() -> ref.value.user_crypto_management().change_kdf(...)

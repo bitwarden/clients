@@ -7,13 +7,13 @@ export class CollectionWithIdRequest extends BaseCollectionRequest {
   name: string;
 
   constructor(collection: Collection) {
-    if (collection == null || collection.name == null || collection.name.encryptedString == null) {
+    if (collection == null || collection.name == null || collection.name == null) {
       throw new Error("CollectionWithIdRequest must contain name.");
     }
     super({
       externalId: collection.externalId,
     });
-    this.name = collection.name.encryptedString;
+    this.name = collection.name;
     this.id = collection.id;
   }
 }

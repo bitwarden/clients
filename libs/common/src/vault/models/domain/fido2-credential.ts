@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
+import { Fido2Credential as SdkFido2Credential, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 export class Fido2Credential extends Domain {
@@ -30,18 +27,18 @@ export class Fido2Credential extends Domain {
       return;
     }
 
-    this.credentialId = new EncString(obj.credentialId);
-    this.keyType = new EncString(obj.keyType);
-    this.keyAlgorithm = new EncString(obj.keyAlgorithm);
-    this.keyCurve = new EncString(obj.keyCurve);
-    this.keyValue = new EncString(obj.keyValue);
-    this.rpId = new EncString(obj.rpId);
-    this.counter = new EncString(obj.counter);
-    this.discoverable = new EncString(obj.discoverable);
-    this.userHandle = conditionalEncString(obj.userHandle);
-    this.userName = conditionalEncString(obj.userName);
-    this.rpName = conditionalEncString(obj.rpName);
-    this.userDisplayName = conditionalEncString(obj.userDisplayName);
+    this.credentialId = obj.credentialId as EncString;
+    this.keyType = obj.keyType as EncString;
+    this.keyAlgorithm = obj.keyAlgorithm as EncString;
+    this.keyCurve = obj.keyCurve as EncString;
+    this.keyValue = obj.keyValue as EncString;
+    this.rpId = obj.rpId as EncString;
+    this.counter = obj.counter as EncString;
+    this.discoverable = obj.discoverable as EncString;
+    this.userHandle = (obj.userHandle ?? undefined) as EncString;
+    this.userName = (obj.userName ?? undefined) as EncString;
+    this.rpName = (obj.rpName ?? undefined) as EncString;
+    this.userDisplayName = (obj.userDisplayName ?? undefined) as EncString;
     this.creationDate = new Date(obj.creationDate);
   }
 
@@ -72,18 +69,18 @@ export class Fido2Credential extends Domain {
 
     const credential = new Fido2Credential();
 
-    credential.credentialId = EncString.fromJSON(obj.credentialId);
-    credential.keyType = EncString.fromJSON(obj.keyType);
-    credential.keyAlgorithm = EncString.fromJSON(obj.keyAlgorithm);
-    credential.keyCurve = EncString.fromJSON(obj.keyCurve);
-    credential.keyValue = EncString.fromJSON(obj.keyValue);
-    credential.rpId = EncString.fromJSON(obj.rpId);
-    credential.userHandle = encStringFrom(obj.userHandle);
-    credential.userName = encStringFrom(obj.userName);
-    credential.counter = EncString.fromJSON(obj.counter);
-    credential.rpName = encStringFrom(obj.rpName);
-    credential.userDisplayName = encStringFrom(obj.userDisplayName);
-    credential.discoverable = EncString.fromJSON(obj.discoverable);
+    credential.credentialId = obj.credentialId ?? null;
+    credential.keyType = obj.keyType ?? null;
+    credential.keyAlgorithm = obj.keyAlgorithm ?? null;
+    credential.keyCurve = obj.keyCurve ?? null;
+    credential.keyValue = obj.keyValue ?? null;
+    credential.rpId = obj.rpId ?? null;
+    credential.userHandle = obj.userHandle ?? undefined;
+    credential.userName = obj.userName ?? undefined;
+    credential.counter = obj.counter ?? null;
+    credential.rpName = obj.rpName ?? undefined;
+    credential.userDisplayName = obj.userDisplayName ?? undefined;
+    credential.discoverable = obj.discoverable ?? null;
     credential.creationDate = new Date(obj.creationDate);
 
     return credential;
@@ -96,18 +93,18 @@ export class Fido2Credential extends Domain {
    */
   toSdkFido2Credential(): SdkFido2Credential {
     return {
-      credentialId: this.credentialId?.toSdk(),
-      keyType: this.keyType.toSdk(),
-      keyAlgorithm: this.keyAlgorithm.toSdk(),
-      keyCurve: this.keyCurve.toSdk(),
-      keyValue: this.keyValue.toSdk(),
-      rpId: this.rpId.toSdk(),
-      userHandle: this.userHandle?.toSdk(),
-      userName: this.userName?.toSdk(),
-      counter: this.counter.toSdk(),
-      rpName: this.rpName?.toSdk(),
-      userDisplayName: this.userDisplayName?.toSdk(),
-      discoverable: this.discoverable?.toSdk(),
+      credentialId: this.credentialId ?? undefined,
+      keyType: this.keyType,
+      keyAlgorithm: this.keyAlgorithm,
+      keyCurve: this.keyCurve,
+      keyValue: this.keyValue,
+      rpId: this.rpId,
+      userHandle: this.userHandle ?? undefined,
+      userName: this.userName ?? undefined,
+      counter: this.counter,
+      rpName: this.rpName ?? undefined,
+      userDisplayName: this.userDisplayName ?? undefined,
+      discoverable: this.discoverable ?? undefined,
       creationDate: this.creationDate.toISOString(),
     };
   }
@@ -123,18 +120,18 @@ export class Fido2Credential extends Domain {
 
     const credential = new Fido2Credential();
 
-    credential.credentialId = EncString.fromJSON(obj.credentialId);
-    credential.keyType = EncString.fromJSON(obj.keyType);
-    credential.keyAlgorithm = EncString.fromJSON(obj.keyAlgorithm);
-    credential.keyCurve = EncString.fromJSON(obj.keyCurve);
-    credential.keyValue = EncString.fromJSON(obj.keyValue);
-    credential.rpId = EncString.fromJSON(obj.rpId);
-    credential.counter = EncString.fromJSON(obj.counter);
-    credential.userHandle = encStringFrom(obj.userHandle);
-    credential.userName = encStringFrom(obj.userName);
-    credential.rpName = encStringFrom(obj.rpName);
-    credential.userDisplayName = encStringFrom(obj.userDisplayName);
-    credential.discoverable = EncString.fromJSON(obj.discoverable);
+    credential.credentialId = obj.credentialId ?? null;
+    credential.keyType = obj.keyType ?? null;
+    credential.keyAlgorithm = obj.keyAlgorithm ?? null;
+    credential.keyCurve = obj.keyCurve ?? null;
+    credential.keyValue = obj.keyValue ?? null;
+    credential.rpId = obj.rpId ?? null;
+    credential.counter = obj.counter ?? null;
+    credential.userHandle = obj.userHandle ?? undefined;
+    credential.userName = obj.userName ?? undefined;
+    credential.rpName = obj.rpName ?? undefined;
+    credential.userDisplayName = obj.userDisplayName ?? undefined;
+    credential.discoverable = obj.discoverable ?? null;
     credential.creationDate = new Date(obj.creationDate);
 
     return credential;

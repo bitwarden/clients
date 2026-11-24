@@ -1,6 +1,5 @@
 import { OrganizationId } from "@bitwarden/common/types/guid";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   ApplicationHealthReportDetail,

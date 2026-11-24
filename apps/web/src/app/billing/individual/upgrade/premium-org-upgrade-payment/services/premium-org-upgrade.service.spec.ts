@@ -12,7 +12,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { AccountBillingClient } from "../../../../clients/account-billing.client";
 import { SubscriberBillingClient } from "../../../../clients/subscriber-billing.client";
@@ -74,15 +75,13 @@ describe("PremiumOrgUpgradeService", () => {
       fullSync: jest.fn().mockResolvedValue(undefined),
     } as any;
     legacyCompatKeyService = {
-      makeOrgKey: jest
-        .fn()
-        .mockResolvedValue([{ encryptedString: "org-key-encrypted" }, "org-key-decrypted"]),
+      makeOrgKey: jest.fn().mockResolvedValue(["org-key-encrypted", "org-key-decrypted"]),
       makeKeyPair: jest
         .fn()
-        .mockResolvedValue(["public-key", new EncString("private-key-encrypted")]),
+        .mockResolvedValue(["public-key", "private-key-encrypted" as EncString]),
     } as any;
     encryptService = {
-      encryptString: jest.fn().mockResolvedValue(new EncString("collection-encrypted")),
+      encryptString: jest.fn().mockResolvedValue("collection-encrypted" as EncString),
     } as any;
     i18nService = {
       t: jest.fn().mockReturnValue("Default Collection"),

@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
+import { Identity as SdkIdentity, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { IdentityData } from "../data/identity.data";
 
 export class Identity extends Domain {
@@ -34,24 +31,24 @@ export class Identity extends Domain {
       return;
     }
 
-    this.title = conditionalEncString(obj.title);
-    this.firstName = conditionalEncString(obj.firstName);
-    this.middleName = conditionalEncString(obj.middleName);
-    this.lastName = conditionalEncString(obj.lastName);
-    this.address1 = conditionalEncString(obj.address1);
-    this.address2 = conditionalEncString(obj.address2);
-    this.address3 = conditionalEncString(obj.address3);
-    this.city = conditionalEncString(obj.city);
-    this.state = conditionalEncString(obj.state);
-    this.postalCode = conditionalEncString(obj.postalCode);
-    this.country = conditionalEncString(obj.country);
-    this.company = conditionalEncString(obj.company);
-    this.email = conditionalEncString(obj.email);
-    this.phone = conditionalEncString(obj.phone);
-    this.ssn = conditionalEncString(obj.ssn);
-    this.username = conditionalEncString(obj.username);
-    this.passportNumber = conditionalEncString(obj.passportNumber);
-    this.licenseNumber = conditionalEncString(obj.licenseNumber);
+    this.title = (obj.title ?? undefined) as EncString;
+    this.firstName = (obj.firstName ?? undefined) as EncString;
+    this.middleName = (obj.middleName ?? undefined) as EncString;
+    this.lastName = (obj.lastName ?? undefined) as EncString;
+    this.address1 = (obj.address1 ?? undefined) as EncString;
+    this.address2 = (obj.address2 ?? undefined) as EncString;
+    this.address3 = (obj.address3 ?? undefined) as EncString;
+    this.city = (obj.city ?? undefined) as EncString;
+    this.state = (obj.state ?? undefined) as EncString;
+    this.postalCode = (obj.postalCode ?? undefined) as EncString;
+    this.country = (obj.country ?? undefined) as EncString;
+    this.company = (obj.company ?? undefined) as EncString;
+    this.email = (obj.email ?? undefined) as EncString;
+    this.phone = (obj.phone ?? undefined) as EncString;
+    this.ssn = (obj.ssn ?? undefined) as EncString;
+    this.username = (obj.username ?? undefined) as EncString;
+    this.passportNumber = (obj.passportNumber ?? undefined) as EncString;
+    this.licenseNumber = (obj.licenseNumber ?? undefined) as EncString;
   }
 
   toIdentityData(): IdentityData {
@@ -85,24 +82,24 @@ export class Identity extends Domain {
     }
 
     const identity = new Identity();
-    identity.title = encStringFrom(obj.title);
-    identity.firstName = encStringFrom(obj.firstName);
-    identity.middleName = encStringFrom(obj.middleName);
-    identity.lastName = encStringFrom(obj.lastName);
-    identity.address1 = encStringFrom(obj.address1);
-    identity.address2 = encStringFrom(obj.address2);
-    identity.address3 = encStringFrom(obj.address3);
-    identity.city = encStringFrom(obj.city);
-    identity.state = encStringFrom(obj.state);
-    identity.postalCode = encStringFrom(obj.postalCode);
-    identity.country = encStringFrom(obj.country);
-    identity.company = encStringFrom(obj.company);
-    identity.email = encStringFrom(obj.email);
-    identity.phone = encStringFrom(obj.phone);
-    identity.ssn = encStringFrom(obj.ssn);
-    identity.username = encStringFrom(obj.username);
-    identity.passportNumber = encStringFrom(obj.passportNumber);
-    identity.licenseNumber = encStringFrom(obj.licenseNumber);
+    identity.title = obj.title ?? undefined;
+    identity.firstName = obj.firstName ?? undefined;
+    identity.middleName = obj.middleName ?? undefined;
+    identity.lastName = obj.lastName ?? undefined;
+    identity.address1 = obj.address1 ?? undefined;
+    identity.address2 = obj.address2 ?? undefined;
+    identity.address3 = obj.address3 ?? undefined;
+    identity.city = obj.city ?? undefined;
+    identity.state = obj.state ?? undefined;
+    identity.postalCode = obj.postalCode ?? undefined;
+    identity.country = obj.country ?? undefined;
+    identity.company = obj.company ?? undefined;
+    identity.email = obj.email ?? undefined;
+    identity.phone = obj.phone ?? undefined;
+    identity.ssn = obj.ssn ?? undefined;
+    identity.username = obj.username ?? undefined;
+    identity.passportNumber = obj.passportNumber ?? undefined;
+    identity.licenseNumber = obj.licenseNumber ?? undefined;
 
     return identity;
   }
@@ -114,24 +111,24 @@ export class Identity extends Domain {
    */
   toSdkIdentity(): SdkIdentity {
     return {
-      title: this.title?.toSdk(),
-      firstName: this.firstName?.toSdk(),
-      middleName: this.middleName?.toSdk(),
-      lastName: this.lastName?.toSdk(),
-      address1: this.address1?.toSdk(),
-      address2: this.address2?.toSdk(),
-      address3: this.address3?.toSdk(),
-      city: this.city?.toSdk(),
-      state: this.state?.toSdk(),
-      postalCode: this.postalCode?.toSdk(),
-      country: this.country?.toSdk(),
-      company: this.company?.toSdk(),
-      email: this.email?.toSdk(),
-      phone: this.phone?.toSdk(),
-      ssn: this.ssn?.toSdk(),
-      username: this.username?.toSdk(),
-      passportNumber: this.passportNumber?.toSdk(),
-      licenseNumber: this.licenseNumber?.toSdk(),
+      title: this.title ?? undefined,
+      firstName: this.firstName ?? undefined,
+      middleName: this.middleName ?? undefined,
+      lastName: this.lastName ?? undefined,
+      address1: this.address1 ?? undefined,
+      address2: this.address2 ?? undefined,
+      address3: this.address3 ?? undefined,
+      city: this.city ?? undefined,
+      state: this.state ?? undefined,
+      postalCode: this.postalCode ?? undefined,
+      country: this.country ?? undefined,
+      company: this.company ?? undefined,
+      email: this.email ?? undefined,
+      phone: this.phone ?? undefined,
+      ssn: this.ssn ?? undefined,
+      username: this.username ?? undefined,
+      passportNumber: this.passportNumber ?? undefined,
+      licenseNumber: this.licenseNumber ?? undefined,
     };
   }
 
@@ -145,24 +142,24 @@ export class Identity extends Domain {
     }
 
     const identity = new Identity();
-    identity.title = encStringFrom(obj.title);
-    identity.firstName = encStringFrom(obj.firstName);
-    identity.middleName = encStringFrom(obj.middleName);
-    identity.lastName = encStringFrom(obj.lastName);
-    identity.address1 = encStringFrom(obj.address1);
-    identity.address2 = encStringFrom(obj.address2);
-    identity.address3 = encStringFrom(obj.address3);
-    identity.city = encStringFrom(obj.city);
-    identity.state = encStringFrom(obj.state);
-    identity.postalCode = encStringFrom(obj.postalCode);
-    identity.country = encStringFrom(obj.country);
-    identity.company = encStringFrom(obj.company);
-    identity.email = encStringFrom(obj.email);
-    identity.phone = encStringFrom(obj.phone);
-    identity.ssn = encStringFrom(obj.ssn);
-    identity.username = encStringFrom(obj.username);
-    identity.passportNumber = encStringFrom(obj.passportNumber);
-    identity.licenseNumber = encStringFrom(obj.licenseNumber);
+    identity.title = obj.title ?? undefined;
+    identity.firstName = obj.firstName ?? undefined;
+    identity.middleName = obj.middleName ?? undefined;
+    identity.lastName = obj.lastName ?? undefined;
+    identity.address1 = obj.address1 ?? undefined;
+    identity.address2 = obj.address2 ?? undefined;
+    identity.address3 = obj.address3 ?? undefined;
+    identity.city = obj.city ?? undefined;
+    identity.state = obj.state ?? undefined;
+    identity.postalCode = obj.postalCode ?? undefined;
+    identity.country = obj.country ?? undefined;
+    identity.company = obj.company ?? undefined;
+    identity.email = obj.email ?? undefined;
+    identity.phone = obj.phone ?? undefined;
+    identity.ssn = obj.ssn ?? undefined;
+    identity.username = obj.username ?? undefined;
+    identity.passportNumber = obj.passportNumber ?? undefined;
+    identity.licenseNumber = obj.licenseNumber ?? undefined;
 
     return identity;
   }

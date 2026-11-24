@@ -878,7 +878,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
       );
       const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey);
-      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
+      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1]);
     }
 
     await this.organizationApiService.upgrade(this.organizationId, request);

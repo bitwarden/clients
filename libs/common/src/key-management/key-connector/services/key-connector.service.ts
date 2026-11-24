@@ -275,9 +275,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       this.handleKeyConnectorError(e);
     }
 
-    const keys = new KeysRequest(pubKey, privKey.encryptedString);
+    const keys = new KeysRequest(pubKey, privKey);
     const setPasswordRequest = new SetKeyConnectorKeyRequest(
-      userKey[1].encryptedString,
+      userKey[1],
       kdfConfig,
       ssoOrganizationIdentifier,
       keys,
@@ -301,7 +301,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.accountCryptographicStateService.setAccountCryptographicState(
       {
         V1: {
-          private_key: privKey.encryptedString,
+          private_key: privKey,
         },
       },
       userId,

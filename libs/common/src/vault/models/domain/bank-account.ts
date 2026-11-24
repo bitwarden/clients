@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { BankAccount as SdkBankAccount } from "@bitwarden/sdk-internal";
+import { BankAccount as SdkBankAccount, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { BankAccountData } from "../data/bank-account.data";
 
 export class BankAccount extends Domain {
@@ -26,16 +23,16 @@ export class BankAccount extends Domain {
       return;
     }
 
-    this.bankName = conditionalEncString(obj.bankName);
-    this.nameOnAccount = conditionalEncString(obj.nameOnAccount);
-    this.accountType = conditionalEncString(obj.accountType);
-    this.accountNumber = conditionalEncString(obj.accountNumber);
-    this.routingNumber = conditionalEncString(obj.routingNumber);
-    this.branchNumber = conditionalEncString(obj.branchNumber);
-    this.pin = conditionalEncString(obj.pin);
-    this.swiftCode = conditionalEncString(obj.swiftCode);
-    this.iban = conditionalEncString(obj.iban);
-    this.bankContactPhone = conditionalEncString(obj.bankContactPhone);
+    this.bankName = (obj.bankName ?? undefined) as EncString;
+    this.nameOnAccount = (obj.nameOnAccount ?? undefined) as EncString;
+    this.accountType = (obj.accountType ?? undefined) as EncString;
+    this.accountNumber = (obj.accountNumber ?? undefined) as EncString;
+    this.routingNumber = (obj.routingNumber ?? undefined) as EncString;
+    this.branchNumber = (obj.branchNumber ?? undefined) as EncString;
+    this.pin = (obj.pin ?? undefined) as EncString;
+    this.swiftCode = (obj.swiftCode ?? undefined) as EncString;
+    this.iban = (obj.iban ?? undefined) as EncString;
+    this.bankContactPhone = (obj.bankContactPhone ?? undefined) as EncString;
   }
 
   toBankAccountData(): BankAccountData {
@@ -61,16 +58,16 @@ export class BankAccount extends Domain {
     }
 
     const bankAccount = new BankAccount();
-    bankAccount.bankName = encStringFrom(obj.bankName);
-    bankAccount.nameOnAccount = encStringFrom(obj.nameOnAccount);
-    bankAccount.accountType = encStringFrom(obj.accountType);
-    bankAccount.accountNumber = encStringFrom(obj.accountNumber);
-    bankAccount.routingNumber = encStringFrom(obj.routingNumber);
-    bankAccount.branchNumber = encStringFrom(obj.branchNumber);
-    bankAccount.pin = encStringFrom(obj.pin);
-    bankAccount.swiftCode = encStringFrom(obj.swiftCode);
-    bankAccount.iban = encStringFrom(obj.iban);
-    bankAccount.bankContactPhone = encStringFrom(obj.bankContactPhone);
+    bankAccount.bankName = obj.bankName ?? undefined;
+    bankAccount.nameOnAccount = obj.nameOnAccount ?? undefined;
+    bankAccount.accountType = obj.accountType ?? undefined;
+    bankAccount.accountNumber = obj.accountNumber ?? undefined;
+    bankAccount.routingNumber = obj.routingNumber ?? undefined;
+    bankAccount.branchNumber = obj.branchNumber ?? undefined;
+    bankAccount.pin = obj.pin ?? undefined;
+    bankAccount.swiftCode = obj.swiftCode ?? undefined;
+    bankAccount.iban = obj.iban ?? undefined;
+    bankAccount.bankContactPhone = obj.bankContactPhone ?? undefined;
 
     return bankAccount;
   }
@@ -80,16 +77,16 @@ export class BankAccount extends Domain {
    */
   toSdkBankAccount(): SdkBankAccount {
     return {
-      bankName: this.bankName?.toSdk(),
-      nameOnAccount: this.nameOnAccount?.toSdk(),
-      accountType: this.accountType?.toSdk(),
-      accountNumber: this.accountNumber?.toSdk(),
-      routingNumber: this.routingNumber?.toSdk(),
-      branchNumber: this.branchNumber?.toSdk(),
-      pin: this.pin?.toSdk(),
-      swiftCode: this.swiftCode?.toSdk(),
-      iban: this.iban?.toSdk(),
-      bankContactPhone: this.bankContactPhone?.toSdk(),
+      bankName: this.bankName ?? undefined,
+      nameOnAccount: this.nameOnAccount ?? undefined,
+      accountType: this.accountType ?? undefined,
+      accountNumber: this.accountNumber ?? undefined,
+      routingNumber: this.routingNumber ?? undefined,
+      branchNumber: this.branchNumber ?? undefined,
+      pin: this.pin ?? undefined,
+      swiftCode: this.swiftCode ?? undefined,
+      iban: this.iban ?? undefined,
+      bankContactPhone: this.bankContactPhone ?? undefined,
     };
   }
 
@@ -102,16 +99,16 @@ export class BankAccount extends Domain {
     }
 
     const bankAccount = new BankAccount();
-    bankAccount.bankName = encStringFrom(obj.bankName);
-    bankAccount.nameOnAccount = encStringFrom(obj.nameOnAccount);
-    bankAccount.accountType = encStringFrom(obj.accountType);
-    bankAccount.accountNumber = encStringFrom(obj.accountNumber);
-    bankAccount.routingNumber = encStringFrom(obj.routingNumber);
-    bankAccount.branchNumber = encStringFrom(obj.branchNumber);
-    bankAccount.pin = encStringFrom(obj.pin);
-    bankAccount.swiftCode = encStringFrom(obj.swiftCode);
-    bankAccount.iban = encStringFrom(obj.iban);
-    bankAccount.bankContactPhone = encStringFrom(obj.bankContactPhone);
+    bankAccount.bankName = obj.bankName ?? undefined;
+    bankAccount.nameOnAccount = obj.nameOnAccount ?? undefined;
+    bankAccount.accountType = obj.accountType ?? undefined;
+    bankAccount.accountNumber = obj.accountNumber ?? undefined;
+    bankAccount.routingNumber = obj.routingNumber ?? undefined;
+    bankAccount.branchNumber = obj.branchNumber ?? undefined;
+    bankAccount.pin = obj.pin ?? undefined;
+    bankAccount.swiftCode = obj.swiftCode ?? undefined;
+    bankAccount.iban = obj.iban ?? undefined;
+    bankAccount.bankContactPhone = obj.bankContactPhone ?? undefined;
 
     return bankAccount;
   }

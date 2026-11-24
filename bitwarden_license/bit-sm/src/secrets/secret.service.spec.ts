@@ -8,12 +8,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  CsprngArray,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretView } from "../models/view/secret.view";
@@ -65,9 +61,7 @@ describe("SecretService", () => {
       accountService,
     );
 
-    encryptService.encryptString.mockResolvedValue({
-      encryptedString: "mockEncryptedString",
-    } as EncString);
+    encryptService.encryptString.mockResolvedValue("mockEncryptedString" as EncString);
     encryptService.decryptString.mockResolvedValue(mockUnencryptedData);
   });
 

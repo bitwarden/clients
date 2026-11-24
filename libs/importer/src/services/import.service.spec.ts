@@ -30,7 +30,8 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
@@ -427,7 +428,7 @@ describe("ImportService", () => {
 
       const encryptedFolder = new Folder();
       encryptedFolder.id = "";
-      encryptedFolder.name = new EncString("2.encryptedName");
+      encryptedFolder.name = "2.encryptedName" as EncString;
       folderService.encrypt.mockResolvedValue(encryptedFolder);
 
       cipherService.encryptMany.mockResolvedValue([]);
@@ -451,7 +452,7 @@ describe("ImportService", () => {
 
       const encryptedFolder = new Folder();
       encryptedFolder.id = "folder-id-123";
-      encryptedFolder.name = new EncString("2.encryptedName");
+      encryptedFolder.name = "2.encryptedName" as EncString;
       folderService.encrypt.mockResolvedValue(encryptedFolder);
 
       cipherService.encryptMany.mockResolvedValue([]);

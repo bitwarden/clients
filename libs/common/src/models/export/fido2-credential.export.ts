@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
-
-import { safeGetString } from "./utils";
 
 /**
  * Represents format of Fido2 Credentials in JSON exports.
@@ -62,19 +59,19 @@ export class Fido2CredentialExport {
    * @returns Fido2Credential - The populated domain, or a new instance if none was provided.
    */
   static toDomain(req: Fido2CredentialExport, domain = new Fido2Credential()) {
-    domain.credentialId = new EncString(req.credentialId);
-    domain.keyType = new EncString(req.keyType);
-    domain.keyAlgorithm = new EncString(req.keyAlgorithm);
-    domain.keyCurve = new EncString(req.keyCurve);
-    domain.keyValue = new EncString(req.keyValue);
-    domain.rpId = new EncString(req.rpId);
-    domain.userHandle = req.userHandle != null ? new EncString(req.userHandle) : undefined;
-    domain.userName = req.userName != null ? new EncString(req.userName) : undefined;
-    domain.counter = new EncString(req.counter);
-    domain.rpName = req.rpName != null ? new EncString(req.rpName) : undefined;
+    domain.credentialId = req.credentialId as EncString;
+    domain.keyType = req.keyType as EncString;
+    domain.keyAlgorithm = req.keyAlgorithm as EncString;
+    domain.keyCurve = req.keyCurve as EncString;
+    domain.keyValue = req.keyValue as EncString;
+    domain.rpId = req.rpId as EncString;
+    domain.userHandle = req.userHandle != null ? (req.userHandle as EncString) : undefined;
+    domain.userName = req.userName != null ? (req.userName as EncString) : undefined;
+    domain.counter = req.counter as EncString;
+    domain.rpName = req.rpName != null ? (req.rpName as EncString) : undefined;
     domain.userDisplayName =
-      req.userDisplayName != null ? new EncString(req.userDisplayName) : undefined;
-    domain.discoverable = new EncString(req.discoverable);
+      req.userDisplayName != null ? (req.userDisplayName as EncString) : undefined;
+    domain.discoverable = req.discoverable as EncString;
     domain.creationDate = new Date(req.creationDate);
     return domain;
   }
@@ -103,21 +100,19 @@ export class Fido2CredentialExport {
       return;
     }
 
-    this.credentialId = safeGetString(o.credentialId) ?? "";
-    this.keyType = safeGetString(o.keyType) ?? "";
-    this.keyAlgorithm = safeGetString(o.keyAlgorithm) ?? "";
-    this.keyCurve = safeGetString(o.keyCurve) ?? "";
-    this.keyValue = safeGetString(o.keyValue) ?? "";
-    this.rpId = safeGetString(o.rpId) ?? "";
-    this.userHandle = safeGetString(o.userHandle);
-    this.userName = safeGetString(o.userName);
-    this.counter =
-      safeGetString(o instanceof Fido2CredentialView ? String(o.counter) : o.counter) ?? "";
-    this.rpName = safeGetString(o.rpName);
-    this.userDisplayName = safeGetString(o.userDisplayName);
+    this.credentialId = o.credentialId ?? "";
+    this.keyType = o.keyType ?? "";
+    this.keyAlgorithm = o.keyAlgorithm ?? "";
+    this.keyCurve = o.keyCurve ?? "";
+    this.keyValue = o.keyValue ?? "";
+    this.rpId = o.rpId ?? "";
+    this.userHandle = o.userHandle ?? undefined;
+    this.userName = o.userName ?? undefined;
+    this.counter = (o instanceof Fido2CredentialView ? String(o.counter) : o.counter) ?? "";
+    this.rpName = o.rpName ?? undefined;
+    this.userDisplayName = o.userDisplayName ?? undefined;
     this.discoverable =
-      safeGetString(o instanceof Fido2CredentialView ? String(o.discoverable) : o.discoverable) ??
-      "false";
+      (o instanceof Fido2CredentialView ? String(o.discoverable) : o.discoverable) ?? "false";
     this.creationDate = o.creationDate;
   }
 }

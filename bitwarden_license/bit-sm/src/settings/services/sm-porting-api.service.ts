@@ -9,12 +9,8 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportRequest } from "../models/requests/sm-import.request";
@@ -148,7 +144,7 @@ export class SecretsManagerPortingApiService {
         const project = new SecretsManagerExportProject();
         project.id = p.id;
         try {
-          project.name = await this.encryptService.decryptString(new EncString(p.name), orgKey);
+          project.name = await this.encryptService.decryptString(p.name as EncString, orgKey);
         } catch {
           project.name = DECRYPT_ERROR;
         }
@@ -161,9 +157,9 @@ export class SecretsManagerPortingApiService {
         const secret = new SecretsManagerExportSecret();
 
         const decryptionResults = await Promise.allSettled([
-          this.encryptService.decryptString(new EncString(s.key), orgKey),
-          this.encryptService.decryptString(new EncString(s.value), orgKey),
-          this.encryptService.decryptString(new EncString(s.note), orgKey),
+          this.encryptService.decryptString(s.key as EncString, orgKey),
+          this.encryptService.decryptString(s.value as EncString, orgKey),
+          this.encryptService.decryptString(s.note as EncString, orgKey),
         ]);
 
         secret.key =
@@ -177,9 +173,9 @@ export class SecretsManagerPortingApiService {
 
         try {
           const decryptionResults = await Promise.allSettled([
-            this.encryptService.decryptString(new EncString(s.key), orgKey),
-            this.encryptService.decryptString(new EncString(s.value), orgKey),
-            this.encryptService.decryptString(new EncString(s.note), orgKey),
+            this.encryptService.decryptString(s.key as EncString, orgKey),
+            this.encryptService.decryptString(s.value as EncString, orgKey),
+            this.encryptService.decryptString(s.note as EncString, orgKey),
           ]);
 
           secret.key =

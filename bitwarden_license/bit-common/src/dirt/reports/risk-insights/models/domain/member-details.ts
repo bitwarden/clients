@@ -1,9 +1,6 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MemberDetailsApi } from "../api/member-details.api";
 import { MemberDetailsData } from "../data/member-details.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MemberDetailsView } from "../view/member-details.view";
@@ -16,10 +13,10 @@ import { MemberDetailsView } from "../view/member-details.view";
  * - See {@link MemberDetailsView} from View Model
  */
 export class MemberDetails extends Domain {
-  userGuid: EncString = new EncString("");
-  userName: EncString = new EncString("");
-  email: EncString = new EncString("");
-  cipherId: EncString = new EncString("");
+  userGuid: EncString = "" as EncString;
+  userName: EncString = "" as EncString;
+  email: EncString = "" as EncString;
+  cipherId: EncString = "" as EncString;
 
   constructor(data?: MemberDetailsData) {
     super();
@@ -27,9 +24,9 @@ export class MemberDetails extends Domain {
       return;
     }
 
-    this.userGuid = new EncString(data.userGuid);
-    this.userName = new EncString(data.userName);
-    this.email = new EncString(data.email);
-    this.cipherId = new EncString(data.cipherId);
+    this.userGuid = data.userGuid as EncString;
+    this.userName = data.userName as EncString;
+    this.email = data.email as EncString;
+    this.cipherId = data.cipherId as EncString;
   }
 }

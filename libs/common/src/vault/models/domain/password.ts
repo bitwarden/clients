@@ -1,8 +1,6 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { PasswordHistory } from "@bitwarden/sdk-internal";
+import { PasswordHistory, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { PasswordHistoryData } from "../data/password-history.data";
@@ -17,7 +15,7 @@ export class Password extends Domain {
       return;
     }
 
-    this.password = new EncString(obj.password);
+    this.password = obj.password as EncString;
     this.lastUsedDate = new Date(obj.lastUsedDate);
   }
 
@@ -36,7 +34,7 @@ export class Password extends Domain {
     }
 
     const passwordHistory = new Password();
-    passwordHistory.password = EncString.fromJSON(obj.password);
+    passwordHistory.password = obj.password ?? null;
     passwordHistory.lastUsedDate = new Date(obj.lastUsedDate);
 
     return passwordHistory;
@@ -49,7 +47,7 @@ export class Password extends Domain {
    */
   toSdkPasswordHistory(): PasswordHistory {
     return {
-      password: this.password.toSdk(),
+      password: this.password,
       lastUsedDate: this.lastUsedDate.toISOString(),
     };
   }
@@ -64,7 +62,7 @@ export class Password extends Domain {
     }
 
     const passwordHistory = new Password();
-    passwordHistory.password = EncString.fromJSON(obj.password);
+    passwordHistory.password = obj.password ?? null;
     passwordHistory.lastUsedDate = new Date(obj.lastUsedDate);
 
     return passwordHistory;

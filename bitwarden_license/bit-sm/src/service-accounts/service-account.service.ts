@@ -10,12 +10,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BulkOperationStatus } from "../models/bulk-operation-status";
 import {
@@ -176,7 +172,7 @@ export class ServiceAccountService {
     if (serviceAccountResponse.name) {
       try {
         const name = await this.decryptField(
-          new EncString(serviceAccountResponse.name),
+          serviceAccountResponse.name as EncString,
           organizationKey,
         );
         serviceAccountView.name = name.value;
@@ -206,7 +202,7 @@ export class ServiceAccountService {
 
     if (response.name) {
       try {
-        const name = await this.decryptField(new EncString(response.name), organizationKey);
+        const name = await this.decryptField(response.name as EncString, organizationKey);
         view.name = name.value;
         view.decryptionError = name.error;
       } catch (error) {

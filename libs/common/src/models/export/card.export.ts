@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Card as CardDomain } from "../../vault/models/domain/card";
 import { CardView } from "../../vault/models/view/card.view";
-
-import { safeGetString } from "./utils";
 
 export class CardExport {
   static template(): CardExport {
@@ -30,12 +27,12 @@ export class CardExport {
 
   static toDomain(req: CardExport, domain = new CardDomain()) {
     domain.cardholderName =
-      req.cardholderName != null ? new EncString(req.cardholderName) : undefined;
-    domain.brand = req.brand != null ? new EncString(req.brand) : undefined;
-    domain.number = req.number != null ? new EncString(req.number) : undefined;
-    domain.expMonth = req.expMonth != null ? new EncString(req.expMonth) : undefined;
-    domain.expYear = req.expYear != null ? new EncString(req.expYear) : undefined;
-    domain.code = req.code != null ? new EncString(req.code) : undefined;
+      req.cardholderName != null ? (req.cardholderName as EncString) : undefined;
+    domain.brand = req.brand != null ? (req.brand as EncString) : undefined;
+    domain.number = req.number != null ? (req.number as EncString) : undefined;
+    domain.expMonth = req.expMonth != null ? (req.expMonth as EncString) : undefined;
+    domain.expYear = req.expYear != null ? (req.expYear as EncString) : undefined;
+    domain.code = req.code != null ? (req.code as EncString) : undefined;
     return domain;
   }
 
@@ -51,11 +48,11 @@ export class CardExport {
       return;
     }
 
-    this.cardholderName = safeGetString(o.cardholderName);
-    this.brand = safeGetString(o.brand);
-    this.number = safeGetString(o.number);
-    this.expMonth = safeGetString(o.expMonth);
-    this.expYear = safeGetString(o.expYear);
-    this.code = safeGetString(o.code);
+    this.cardholderName = o.cardholderName ?? undefined;
+    this.brand = o.brand ?? undefined;
+    this.number = o.number ?? undefined;
+    this.expMonth = o.expMonth ?? undefined;
+    this.expYear = o.expYear ?? undefined;
+    this.code = o.code ?? undefined;
   }
 }

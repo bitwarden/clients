@@ -132,10 +132,10 @@ export class OrganizationDataOwnershipPolicyComponent
     const defaultCollectionName = this.i18nService.t("myItemsV2");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
 
-    if (!encrypted.encryptedString) {
+    if (!encrypted) {
       throw new Error("Encryption error");
     }
 
-    return encrypted.encryptedString;
+    return encrypted;
   }
 }

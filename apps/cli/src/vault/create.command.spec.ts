@@ -40,7 +40,7 @@ describe("CreateCommand", () => {
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
   const orgUserId = "org-user-id";
   const mockOrgKey = { key: "mock-org-key" } as any;
-  const mockEncString = { encryptedString: "encrypted-name" } as any;
+  const mockEncString = "encrypted-name" as any;
 
   const activeAccount = {
     id: userId,
@@ -217,7 +217,7 @@ describe("CreateCommand", () => {
       expect(encryptService.encryptString).toHaveBeenCalledWith("My Collection", mockOrgKey);
       expect(apiService.postCollection).toHaveBeenCalledWith(
         validOrgId,
-        expect.objectContaining({ name: mockEncString.encryptedString }),
+        expect.objectContaining({ name: mockEncString }),
       );
     });
 
@@ -378,7 +378,7 @@ describe("CreateCommand", () => {
       expect(encryptService.encryptString).toHaveBeenCalledWith("My Collection", mockOrgKey);
       expect(apiService.postCollection).toHaveBeenCalledWith(
         validOrgId,
-        expect.objectContaining({ name: mockEncString.encryptedString }),
+        expect.objectContaining({ name: mockEncString }),
       );
     });
 

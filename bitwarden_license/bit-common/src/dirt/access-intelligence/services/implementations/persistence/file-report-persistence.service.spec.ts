@@ -460,9 +460,9 @@ describe("FileReportPersistenceService", () => {
       expect(mockEncryptionService.decryptReportFile$).toHaveBeenCalledWith(
         { organizationId, userId },
         encBuf,
-        expect.objectContaining({ encryptedString: apiResponse.summary }),
-        expect.objectContaining({ encryptedString: apiResponse.applications }),
-        expect.objectContaining({ encryptedString: apiResponse.contentEncryptionKey }),
+        apiResponse.summary,
+        apiResponse.applications,
+        apiResponse.contentEncryptionKey,
       );
     });
 

@@ -7,12 +7,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SecretVersionView } from "../models/view/secret-version.view";
 
@@ -85,7 +81,7 @@ export class SecretVersionService {
     }
 
     if (response.editorServiceAccountName) {
-      return await this.decryptField(new EncString(response.editorServiceAccountName), orgKey);
+      return await this.decryptField(response.editorServiceAccountName as EncString, orgKey);
     }
 
     return undefined;
@@ -95,7 +91,7 @@ export class SecretVersionService {
     response: SecretVersionResponse,
     orgKey: SymmetricCryptoKey,
   ): Promise<SecretVersionView> {
-    const value = await this.decryptField(new EncString(response.value), orgKey);
+    const value = await this.decryptField(response.value as EncString, orgKey);
     const authorName = await this.resolveEditorName(response, orgKey);
 
     return new SecretVersionView({

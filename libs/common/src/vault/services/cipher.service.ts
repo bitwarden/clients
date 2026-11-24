@@ -1056,8 +1056,8 @@ export class CipherService implements CipherServiceAbstraction {
     const created = await this.cipherSdkService.createAttachment(
       cipher.id as CipherId,
       {
-        key: attachmentKey[1].encryptedString,
-        fileName: encFileName.encryptedString,
+        key: attachmentKey[1],
+        fileName: encFileName,
         fileSize: encData.buffer.byteLength,
         lastKnownRevisionDate: cipher.revisionDate.toISOString(),
       },

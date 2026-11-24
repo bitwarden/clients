@@ -10,7 +10,8 @@ import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 describe("Collection", () => {
   let data: CollectionData;
@@ -36,7 +37,7 @@ describe("Collection", () => {
 
   it("Convert from partial", () => {
     const card = new Collection({
-      name: new EncString("name"),
+      name: "name" as EncString,
       organizationId: "orgId" as OrganizationId,
       id: "id" as CollectionId,
     });
@@ -58,7 +59,7 @@ describe("Collection", () => {
     expect(collection).toEqual({
       id: "id",
       organizationId: "orgId",
-      name: { encryptedString: "encName" },
+      name: "encName",
       externalId: "extId",
       readOnly: true,
       manage: true,
@@ -71,7 +72,7 @@ describe("Collection", () => {
 
   it("Decrypt", async () => {
     const collection = new Collection({
-      name: new EncString("encName"),
+      name: "encName" as EncString,
       organizationId: "orgId" as OrganizationId,
       id: "id" as CollectionId,
     });

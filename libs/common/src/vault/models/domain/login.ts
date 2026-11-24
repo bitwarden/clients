@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Login as SdkLogin } from "@bitwarden/sdk-internal";
+import { Login as SdkLogin, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginData } from "../data/login.data";
 
 import { Fido2Credential } from "./fido2-credential";
@@ -31,9 +28,9 @@ export class Login extends Domain {
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     this.autofillOnPageLoad = obj.autofillOnPageLoad;
     this.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
-    this.username = conditionalEncString(obj.username);
-    this.password = conditionalEncString(obj.password);
-    this.totp = conditionalEncString(obj.totp);
+    this.username = (obj.username ?? undefined) as EncString;
+    this.password = (obj.password ?? undefined) as EncString;
+    this.totp = (obj.totp ?? undefined) as EncString;
 
     if (obj.uris) {
       this.uris = obj.uris.map((u) => new LoginUri(u));
@@ -82,9 +79,9 @@ export class Login extends Domain {
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     login.autofillOnPageLoad = obj.autofillOnPageLoad;
     login.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
-    login.username = encStringFrom(obj.username);
-    login.password = encStringFrom(obj.password);
-    login.totp = encStringFrom(obj.totp);
+    login.username = obj.username ?? undefined;
+    login.password = obj.password ?? undefined;
+    login.totp = obj.totp ?? undefined;
     login.uris = obj.uris
       ?.map((uri: any) => LoginUri.fromJSON(uri))
       .filter((u): u is LoginUri => u != null);
@@ -104,10 +101,10 @@ export class Login extends Domain {
   toSdkLogin(): SdkLogin {
     return {
       uris: this.uris?.map((u) => u.toSdkLoginUri()),
-      username: this.username?.toSdk(),
-      password: this.password?.toSdk(),
+      username: this.username ?? undefined,
+      password: this.password ?? undefined,
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
-      totp: this.totp?.toSdk(),
+      totp: this.totp ?? undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       httpAuthenticationEnabled: this.httpAuthenticationEnabled ?? undefined,
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
@@ -128,9 +125,9 @@ export class Login extends Domain {
       obj.passwordRevisionDate != null ? new Date(obj.passwordRevisionDate) : undefined;
     login.autofillOnPageLoad = obj.autofillOnPageLoad;
     login.httpAuthenticationEnabled = obj.httpAuthenticationEnabled;
-    login.username = encStringFrom(obj.username);
-    login.password = encStringFrom(obj.password);
-    login.totp = encStringFrom(obj.totp);
+    login.username = obj.username ?? undefined;
+    login.password = obj.password ?? undefined;
+    login.totp = obj.totp ?? undefined;
     login.uris =
       obj.uris
         ?.filter((u) => u.uri != null)

@@ -1,10 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import {
   UnsignedSharedKey,
   WebAuthnPrfUnlockOption as SdkWebAuthnPrfUnlockOption,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { BaseResponse } from "../../../../models/response/base.response";
@@ -27,12 +26,12 @@ export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
 
     const encPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
     if (encPrivateKey) {
-      this.encryptedPrivateKey = new EncString(encPrivateKey);
+      this.encryptedPrivateKey = encPrivateKey as EncString;
     }
 
     const encUserKey = this.getResponseProperty("EncryptedUserKey");
     if (encUserKey) {
-      this.encryptedUserKey = new EncString(encUserKey);
+      this.encryptedUserKey = encUserKey as EncString;
     }
 
     this.credentialId = this.getResponseProperty("CredentialId");
@@ -51,8 +50,8 @@ export class WebAuthnPrfDecryptionOptionResponse extends BaseResponse {
     }
 
     return {
-      encryptedPrivateKey: this.encryptedPrivateKey.toSdk(),
-      encryptedUserKey: this.encryptedUserKey.toJSON() as UnsignedSharedKey,
+      encryptedPrivateKey: this.encryptedPrivateKey,
+      encryptedUserKey: this.encryptedUserKey as string as UnsignedSharedKey,
       credentialId: this.credentialId,
       transports: this.transports,
     };

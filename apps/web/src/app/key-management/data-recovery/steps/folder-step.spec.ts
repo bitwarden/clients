@@ -63,8 +63,8 @@ describe("FolderStep", () => {
     });
 
     it("returns true when all folders are decryptable", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
+      const folder2 = { id: "folder-2", name: "encrypted-name-2" };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -93,9 +93,9 @@ describe("FolderStep", () => {
     });
 
     it("returns false and records folders with no name", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
       const folder2 = { id: "folder-2", name: null as null };
-      const folder3 = { id: "folder-3", name: { encryptedString: null as null } };
+      const folder3 = { id: "folder-3", name: null as null };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -118,9 +118,9 @@ describe("FolderStep", () => {
     });
 
     it("returns false and records undecryptable folders", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
-      const folder3 = { id: "folder-3", name: { encryptedString: "encrypted-name-3" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
+      const folder2 = { id: "folder-2", name: "encrypted-name-2" };
+      const folder3 = { id: "folder-3", name: "encrypted-name-3" };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -154,8 +154,8 @@ describe("FolderStep", () => {
     });
 
     it("returns correct results when running diagnostics multiple times", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
+      const folder2 = { id: "folder-2", name: "encrypted-name-2" };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -199,8 +199,8 @@ describe("FolderStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [],
         folders: [
-          { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
-          { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
+          { id: "folder-1", name: "encrypted-name-1" },
+          { id: "folder-2", name: "encrypted-name-2" },
         ] as Folder[],
       };
 
@@ -220,8 +220,8 @@ describe("FolderStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [],
         folders: [
-          { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
-          { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
+          { id: "folder-1", name: "encrypted-name-1" },
+          { id: "folder-2", name: "encrypted-name-2" },
         ] as Folder[],
       };
 
@@ -245,8 +245,8 @@ describe("FolderStep", () => {
         isPrivateKeyCorrupt: false,
         ciphers: [],
         folders: [
-          { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
-          { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
+          { id: "folder-1", name: "encrypted-name-1" },
+          { id: "folder-2", name: "encrypted-name-2" },
         ] as Folder[],
       };
 
@@ -280,7 +280,7 @@ describe("FolderStep", () => {
     });
 
     it("throws error when userId is missing", async () => {
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
 
       const workingData: RecoveryWorkingData = {
         userId: "user-id" as UserId,
@@ -305,7 +305,7 @@ describe("FolderStep", () => {
 
     it("throws error when user cancels deletion", async () => {
       const userId = "user-id" as UserId;
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
 
       const workingData: RecoveryWorkingData = {
         userId,
@@ -334,8 +334,8 @@ describe("FolderStep", () => {
 
     it("deletes undecryptable folders when user confirms", async () => {
       const userId = "user-id" as UserId;
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
+      const folder2 = { id: "folder-2", name: "encrypted-name-2" };
 
       const workingData: RecoveryWorkingData = {
         userId,
@@ -367,9 +367,9 @@ describe("FolderStep", () => {
 
     it("continues deleting folders even if some deletions fail", async () => {
       const userId = "user-id" as UserId;
-      const folder1 = { id: "folder-1", name: { encryptedString: "encrypted-name-1" } };
-      const folder2 = { id: "folder-2", name: { encryptedString: "encrypted-name-2" } };
-      const folder3 = { id: "folder-3", name: { encryptedString: "encrypted-name-3" } };
+      const folder1 = { id: "folder-1", name: "encrypted-name-1" };
+      const folder2 = { id: "folder-2", name: "encrypted-name-2" };
+      const folder3 = { id: "folder-3", name: "encrypted-name-3" };
 
       const workingData: RecoveryWorkingData = {
         userId,

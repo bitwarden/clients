@@ -1,15 +1,12 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
+import { LoginUri as SdkLoginUri, EncString } from "@bitwarden/sdk-internal";
 
 import {
   normalizeUriMatchStrategyForSdk,
   UriMatchStrategySetting,
 } from "../../../models/domain/domain-service";
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
 
 export class LoginUri extends Domain {
@@ -23,8 +20,8 @@ export class LoginUri extends Domain {
       return;
     }
 
-    this.uri = conditionalEncString(obj.uri);
-    this.uriChecksum = conditionalEncString(obj.uriChecksum);
+    this.uri = (obj.uri ?? undefined) as EncString;
+    this.uriChecksum = (obj.uriChecksum ?? undefined) as EncString;
     this.match = obj.match ?? undefined;
   }
 
@@ -49,9 +46,9 @@ export class LoginUri extends Domain {
     }
 
     const loginUri = new LoginUri();
-    loginUri.uri = encStringFrom(obj.uri);
+    loginUri.uri = obj.uri ?? undefined;
     loginUri.match = obj.match ?? undefined;
-    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+    loginUri.uriChecksum = obj.uriChecksum ?? undefined;
 
     return loginUri;
   }
@@ -63,8 +60,8 @@ export class LoginUri extends Domain {
    */
   toSdkLoginUri(): SdkLoginUri {
     return {
-      uri: this.uri?.toSdk(),
-      uriChecksum: this.uriChecksum?.toSdk(),
+      uri: this.uri ?? undefined,
+      uriChecksum: this.uriChecksum ?? undefined,
       match: normalizeUriMatchStrategyForSdk(this.match),
     };
   }
@@ -75,8 +72,8 @@ export class LoginUri extends Domain {
     }
 
     const loginUri = new LoginUri();
-    loginUri.uri = encStringFrom(obj.uri);
-    loginUri.uriChecksum = encStringFrom(obj.uriChecksum);
+    loginUri.uri = obj.uri ?? undefined;
+    loginUri.uriChecksum = obj.uriChecksum ?? undefined;
     loginUri.match = obj.match;
 
     return loginUri;

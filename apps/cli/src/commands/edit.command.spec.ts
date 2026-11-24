@@ -47,7 +47,7 @@ describe("EditCommand", () => {
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
   const validCollectionId = "22222222-2222-2222-2222-222222222222";
   const mockOrgKey = { key: "mock-org-key" } as any;
-  const mockEncString = { encryptedString: "encrypted-name" } as any;
+  const mockEncString = "encrypted-name" as any;
 
   const activeAccount = {
     id: userId,
@@ -414,7 +414,7 @@ describe("EditCommand", () => {
       expect(apiService.putCollection).toHaveBeenCalledWith(
         validOrgId,
         validCollectionId,
-        expect.objectContaining({ name: mockEncString.encryptedString }),
+        expect.objectContaining({ name: mockEncString }),
       );
     });
 
@@ -606,7 +606,7 @@ describe("EditCommand", () => {
       expect(apiService.putCollection).toHaveBeenCalledWith(
         validOrgId,
         validCollectionId,
-        expect.objectContaining({ name: mockEncString.encryptedString }),
+        expect.objectContaining({ name: mockEncString }),
       );
     });
 

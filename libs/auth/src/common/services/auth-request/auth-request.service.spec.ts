@@ -17,10 +17,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestService } from "./auth-request.service";
@@ -98,9 +98,7 @@ describe("AuthRequestService", () => {
 
   describe("approveOrDenyAuthRequest", () => {
     beforeEach(() => {
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-        encryptedString: "ENCRYPTED_STRING",
-      } as EncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue("ENCRYPTED_STRING" as EncString);
       appIdService.getAppId.mockResolvedValue("APP_ID");
     });
     it("should throw if auth request is missing id or key", async () => {
@@ -185,7 +183,7 @@ describe("AuthRequestService", () => {
 
       // Assert
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(mockPubKeyEncryptedUserKey),
+        mockPubKeyEncryptedUserKey as EncString,
         mockPrivateKey,
       );
       expect(result).toEqual(mockDecryptedUserKey);

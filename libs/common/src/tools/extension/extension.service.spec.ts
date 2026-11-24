@@ -44,7 +44,7 @@ const SomeEncryptor: UserEncryptor = {
   },
 
   decrypt(secret) {
-    const tmp: any = JSON.parse(secret.encryptedString!);
+    const tmp: any = JSON.parse(secret!);
     return Promise.resolve({ foo: `decrypt(${tmp.foo})` } as any);
   },
 };

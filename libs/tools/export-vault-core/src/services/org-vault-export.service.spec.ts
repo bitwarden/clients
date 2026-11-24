@@ -14,12 +14,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptService,
-  EncString,
-  KeyGenerationService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { VaultExportApiService } from "./api/vault-export-api.service.abstraction";
 import { OrganizationVaultExportService } from "./org-vault-export.service";
@@ -89,7 +85,7 @@ describe("OrganizationVaultExportService", () => {
     );
 
     const encryptService = mock<EncryptService>();
-    encryptService.encryptString.mockResolvedValue(new EncString(ENC_NAME));
+    encryptService.encryptString.mockResolvedValue(ENC_NAME as EncString);
 
     const restrictedItemTypesService = mock<RestrictedItemTypesService>();
     Object.defineProperty(restrictedItemTypesService, "restricted$", { value: of([]) });

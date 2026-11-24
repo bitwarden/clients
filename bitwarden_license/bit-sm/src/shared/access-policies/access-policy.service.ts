@@ -10,12 +10,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   UserAccessPolicyView,
@@ -365,7 +361,7 @@ export class AccessPolicyService {
     if (response.grantedProjectName) {
       try {
         projectName = await this.encryptService.decryptString(
-          new EncString(response.grantedProjectName),
+          response.grantedProjectName as EncString,
           organizationKey,
         );
       } catch {
@@ -414,7 +410,7 @@ export class AccessPolicyService {
         let serviceAccountName: string | null = null;
         if (response.serviceAccountName) {
           try {
-            const encString = new EncString(response.serviceAccountName);
+            const encString = response.serviceAccountName as EncString;
             serviceAccountName = await this.encryptService.decryptString(encString, orgKey);
           } catch (error) {
             this.logService.error("Error decrypting service account name in access policy", error);
@@ -447,7 +443,7 @@ export class AccessPolicyService {
         if (r.type === "serviceAccount" || r.type === "project") {
           if (r.name) {
             try {
-              view.name = await this.encryptService.decryptString(new EncString(r.name), orgKey);
+              view.name = await this.encryptService.decryptString(r.name as EncString, orgKey);
             } catch {
               view.name = DECRYPT_ERROR;
             }

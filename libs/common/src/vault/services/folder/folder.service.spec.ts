@@ -5,8 +5,9 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -114,15 +115,13 @@ describe("Folder Service", () => {
     model.id = "2";
     model.name = "Test Folder";
 
-    encryptService.encryptString.mockResolvedValue(new EncString("ENC"));
+    encryptService.encryptString.mockResolvedValue("ENC" as EncString);
 
     const result = await folderService.encrypt(model, null as unknown as SymmetricCryptoKey);
 
     expect(result).toEqual({
       id: "2",
-      name: {
-        encryptedString: "ENC",
-      },
+      name: "ENC",
       revisionDate: expect.any(Date),
     });
   });
@@ -228,7 +227,7 @@ describe("Folder Service", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      encryptedKey = new EncString("Re-encrypted Folder");
+      encryptedKey = "Re-encrypted Folder" as EncString;
       encryptService.encryptString.mockResolvedValue(encryptedKey);
     });
 
@@ -258,7 +257,7 @@ describe("Folder Service", () => {
   function folderData(id: string) {
     const data = new FolderData({} as any);
     data.id = id;
-    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString!;
+    data.name = makeEncString("ENC_STRING_" + data.id)!;
 
     return data;
   }

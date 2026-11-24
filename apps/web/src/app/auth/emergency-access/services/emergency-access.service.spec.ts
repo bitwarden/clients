@@ -34,7 +34,6 @@ import {
   DEFAULT_KDF_CONFIG,
   EncryptionType,
   EncryptService,
-  EncString,
   KdfType,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
@@ -47,6 +46,7 @@ import {
   GranteeEmergencyAccess as SdkGranteeEmergencyAccess,
   GrantorEmergencyAccess as SdkGrantorEmergencyAccess,
   Policy as SdkPolicy,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
@@ -167,9 +167,8 @@ describe("EmergencyAccessService", () => {
 
         const publicKey = new Uint8Array(64);
 
-        const mockUserPublicKeyEncryptedUserKey = new EncString(
-          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserPublicKeyEncryptedUserKey`,
-        );
+        const mockUserPublicKeyEncryptedUserKey =
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserPublicKeyEncryptedUserKey` as EncString;
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
 
@@ -184,7 +183,7 @@ describe("EmergencyAccessService", () => {
 
         // Assert
         expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {
-          key: mockUserPublicKeyEncryptedUserKey.encryptedString,
+          key: mockUserPublicKeyEncryptedUserKey,
         });
       });
     });
@@ -551,7 +550,7 @@ describe("EmergencyAccessService", () => {
 
       encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
         return Promise.resolve(
-          new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.${"Encrypted: " + plainValue}`),
+          `${EncryptionType.Rsa2048_OaepSha1_B64}.${"Encrypted: " + plainValue}` as EncString,
         );
       });
     });

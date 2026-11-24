@@ -1,7 +1,8 @@
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { DECRYPT_ERROR, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { Utils } from "../../misc/utils";
@@ -44,7 +45,7 @@ export default class Domain {
       if (notEncList.indexOf(prop) > -1) {
         (domain as any)[prop] = objProp ? objProp : null;
       } else {
-        (domain as any)[prop] = objProp ? new EncString(objProp) : null;
+        (domain as any)[prop] = objProp ? (objProp as EncString) : null;
       }
     }
   }
@@ -65,7 +66,7 @@ export default class Domain {
       if (notEncStringList.indexOf(prop) > -1) {
         (dataObj as any)[prop] = objProp != null ? objProp : null;
       } else {
-        (dataObj as any)[prop] = objProp != null ? (objProp as EncString).encryptedString : null;
+        (dataObj as any)[prop] = objProp != null ? (objProp as EncString) : null;
       }
     }
   }

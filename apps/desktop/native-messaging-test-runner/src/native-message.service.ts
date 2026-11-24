@@ -6,13 +6,10 @@ import { randomUUID } from "crypto";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptServiceImplementation,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptServiceImplementation, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { EncString } from "@bitwarden/sdk-internal";
 
 // eslint-disable-next-line no-restricted-imports
 import { DecryptedCommandData } from "../../src/models/native-messaging/decrypted-command-data";

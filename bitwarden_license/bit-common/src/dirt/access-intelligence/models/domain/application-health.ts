@@ -1,9 +1,6 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ApplicationHealthApi } from "../api/application-health.api";
 import { ApplicationHealthData } from "../data/application-health.data";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ApplicationHealthView } from "../view/application-health.view";
@@ -19,9 +16,9 @@ import { ApplicationHealthView } from "../view/application-health.view";
  * - See {@link ApplicationHealthView} from View Model
  */
 export class ApplicationHealth extends Domain {
-  applicationName: EncString = new EncString("");
-  passwordCount: EncString = new EncString("");
-  atRiskPasswordCount: EncString = new EncString("");
+  applicationName: EncString = "" as EncString;
+  passwordCount: EncString = "" as EncString;
+  atRiskPasswordCount: EncString = "" as EncString;
 
   /**
    * Member references with at-risk status
@@ -37,21 +34,23 @@ export class ApplicationHealth extends Domain {
    */
   cipherRefs: Record<string, boolean> = {};
 
-  memberCount: EncString = new EncString("");
-  atRiskMemberCount: EncString = new EncString("");
+  memberCount: EncString = "" as EncString;
+  atRiskMemberCount: EncString = "" as EncString;
 
   constructor(obj?: ApplicationHealthData) {
     super();
     if (obj == null) {
       return;
     }
-    this.applicationName = new EncString(obj.applicationName);
-    this.passwordCount = new EncString(obj.passwordCount);
-    this.atRiskPasswordCount = new EncString(obj.atRiskPasswordCount);
+    this.applicationName = obj.applicationName as EncString;
+    // FIXME: the *Count fields are declared EncString but ApplicationHealthData holds
+    // numbers. The double cast preserves the pre-existing runtime behaviour.
+    this.passwordCount = obj.passwordCount as unknown as EncString;
+    this.atRiskPasswordCount = obj.atRiskPasswordCount as unknown as EncString;
     this.memberRefs = obj.memberRefs ?? {};
     this.cipherRefs = obj.cipherRefs ?? {};
-    this.memberCount = new EncString(obj.memberCount);
-    this.atRiskMemberCount = new EncString(obj.atRiskMemberCount);
+    this.memberCount = obj.memberCount as unknown as EncString;
+    this.atRiskMemberCount = obj.atRiskMemberCount as unknown as EncString;
   }
 
   // [TODO] Domain level methods

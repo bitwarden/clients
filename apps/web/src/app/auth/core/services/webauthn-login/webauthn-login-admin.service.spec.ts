@@ -17,8 +17,7 @@ import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../enums/webauthn-login-credential-prf-status.enum";
@@ -155,8 +154,8 @@ describe("WebauthnAdminService", () => {
       const assertedCredential = getDeviceResponse({ prfResult: true });
       credentials.get.mockResolvedValueOnce(assertedCredential);
 
-      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
-      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      const mockEncryptedPublicKey = "test_encryptedPublicKey" as EncString;
+      const mockEncryptedUserKey = "test_encryptedUserKey" as EncString;
       const mockedKeySet = new RotateableKeySet<PrfKey>(
         mockEncryptedUserKey,
         mockEncryptedPublicKey,
@@ -181,8 +180,8 @@ describe("WebauthnAdminService", () => {
         prfResult: createdCredential.getClientExtensionResults().prf.results.first,
       };
 
-      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
-      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      const mockEncryptedPublicKey = "test_encryptedPublicKey" as EncString;
+      const mockEncryptedUserKey = "test_encryptedUserKey" as EncString;
       const mockedKeySet = new RotateableKeySet<PrfKey>(
         mockEncryptedUserKey,
         mockEncryptedPublicKey,
@@ -201,9 +200,9 @@ describe("WebauthnAdminService", () => {
       // Arrange
       const response = new MockPublicKeyCredential();
       const prfKeySet = new RotateableKeySet<PrfKey>(
-        new EncString("test_encryptedUserKey"),
-        new EncString("test_encryptedPublicKey"),
-        new EncString("test_encryptedPrivateKey"),
+        "test_encryptedUserKey" as EncString,
+        "test_encryptedPublicKey" as EncString,
+        "test_encryptedPrivateKey" as EncString,
       );
 
       const assertionOptions: WebAuthnLoginCredentialAssertionView =
@@ -216,9 +215,9 @@ describe("WebauthnAdminService", () => {
       const request = new EnableCredentialEncryptionRequest();
       request.token = assertionOptions.token;
       request.deviceResponse = assertionOptions.deviceResponse;
-      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey.encryptedString;
-      request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
-      request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
+      request.encryptedUserKey = prfKeySet.encapsulatedDownstreamKey;
+      request.encryptedPublicKey = prfKeySet.encryptedPublicKey;
+      request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey;
 
       // Mock the necessary methods and services
       const createKeySetMock = jest
@@ -317,8 +316,8 @@ describe("WebauthnAdminService", () => {
     it("should call rotateKeySet with the correct parameters", async () => {
       const oldUserKey = makeSymmetricCryptoKey(64) as UserKey;
       const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
-      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
-      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      const mockEncryptedPublicKey = "test_encryptedPublicKey" as EncString;
+      const mockEncryptedUserKey = "test_encryptedUserKey" as EncString;
       jest.spyOn(apiService, "getCredentials").mockResolvedValue({
         data: [
           {
@@ -347,7 +346,7 @@ describe("WebauthnAdminService", () => {
         data: [
           {
             getRotateableKeyset: () =>
-              new RotateableKeySet<PrfKey>(new EncString("test_encryptedUserKey"), null),
+              new RotateableKeySet<PrfKey>("test_encryptedUserKey" as EncString, null),
             hasPrfKeyset: () => false,
           },
         ],
@@ -384,8 +383,8 @@ describe("WebauthnAdminService", () => {
         id: "test-credential-id-3",
         name: "Test Credential 3",
         prfStatus: WebauthnLoginCredentialPrfStatus.Enabled,
-        encryptedPublicKey: makeEncString("encryptedPublicKey").toJSON(),
-        encryptedUserKey: makeEncString("encryptedUserKey").toJSON(),
+        encryptedPublicKey: makeEncString("encryptedPublicKey"),
+        encryptedUserKey: makeEncString("encryptedUserKey"),
       });
 
       apiService.getCredentials.mockResolvedValue(

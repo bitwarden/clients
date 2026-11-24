@@ -20,12 +20,11 @@ import {
 } from "@bitwarden/common/types/key";
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { KeyGenerationService } from "../abstractions/key-generation.service";
-import { EncString } from "../models/enc-string";
 import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
@@ -239,7 +238,7 @@ describe("legacyCompatKeyService", () => {
   describe("makeOrgKey", () => {
     const mockUserPublicKey = new Uint8Array(64) as UserPublicKey;
     const shareKey = new SymmetricCryptoKey(new Uint8Array(64));
-    const mockEncapsulatedKey = new EncString("mockEncapsulatedKey");
+    const mockEncapsulatedKey = "mockEncapsulatedKey" as EncString;
 
     beforeEach(() => {
       keyService.userPublicKey$.mockReturnValue(new BehaviorSubject(mockUserPublicKey));

@@ -39,7 +39,6 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import {
   DEFAULT_KDF_CONFIG,
   EncryptService,
-  EncString,
   fromSdkKdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
@@ -47,6 +46,7 @@ import {
   JitMasterPasswordRegistrationResponse,
   SignedPublicKey,
   WrappedAccountCryptographicState,
+  EncString,
 } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -284,9 +284,9 @@ describe("DefaultSetInitialPasswordService", () => {
     const sdkRegistrationResult: JitMasterPasswordRegistrationResponse = {
       account_cryptographic_state: {
         V2: {
-          private_key: makeEncString().encryptedString!,
+          private_key: makeEncString()!,
           signed_public_key: "test-signed-public-key" as SignedPublicKey,
-          signing_key: makeEncString().encryptedString!,
+          signing_key: makeEncString()!,
           security_state: "test-security-state",
         },
       },
@@ -296,7 +296,7 @@ describe("DefaultSetInitialPasswordService", () => {
             iterations: 600000,
           },
         },
-        masterKeyWrappedUserKey: makeEncString().encryptedString!,
+        masterKeyWrappedUserKey: makeEncString()!,
         salt: "user@example.com" as unknown as MasterPasswordSalt,
       },
       user_key: makeSymmetricCryptoKey(64).keyB64,
@@ -681,13 +681,13 @@ describe("DefaultSetInitialPasswordService", () => {
           } as OrganizationKeysResponse;
           organizationApiService.getKeys.mockResolvedValue(organizationKeys);
 
-          orgPublicKeyEncryptedUserKey = new EncString("orgPublicKeyEncryptedUserKey");
+          orgPublicKeyEncryptedUserKey = "orgPublicKeyEncryptedUserKey" as EncString;
           encryptService.encapsulateKeyUnsigned.mockResolvedValue(orgPublicKeyEncryptedUserKey);
 
           enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
           enrollmentRequest.masterPasswordHash =
             authenticationData.masterPasswordAuthenticationHash;
-          enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString!;
+          enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey!;
         });
 
         it("should throw if organization keys are not found", async () => {
@@ -708,19 +708,6 @@ describe("DefaultSetInitialPasswordService", () => {
         it("should throw if orgPublicKeyEncryptedUserKey is not found", async () => {
           // Arrange
           encryptService.encapsulateKeyUnsigned.mockResolvedValue(null as unknown as EncString);
-
-          // Act
-          const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
-
-          // Assert
-          await expect(promise).rejects.toThrow(
-            "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
-          );
-        });
-
-        it("should throw if orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
-          // Arrange
-          orgPublicKeyEncryptedUserKey.encryptedString = null as unknown as any;
 
           // Act
           const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);

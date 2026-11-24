@@ -110,7 +110,7 @@ export class AddSponsorshipDialogComponent {
         planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
         friendlyName: email,
         isAdminInitiated,
-        notes: encryptedNotes.encryptedString,
+        notes: encryptedNotes,
       });
 
       this.toastService.showToast({

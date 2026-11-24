@@ -5,8 +5,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { EncryptedDataWithKey } from "../../models";
 import {
@@ -196,10 +195,10 @@ describe("RiskInsightsApiService", () => {
   it("updateRiskInsightsSummary$ should call apiService.send with correct parameters and return an Observable", async () => {
     const data: EncryptedDataWithKey = {
       organizationId: orgId,
-      contentEncryptionKey: new EncString(mockKey),
-      encryptedReportData: new EncString(JSON.stringify(mockReportData)),
-      encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
+      contentEncryptionKey: mockKey as EncString,
+      encryptedReportData: JSON.stringify(mockReportData) as EncString,
+      encryptedSummaryData: JSON.stringify(mockSummaryData) as EncString,
+      encryptedApplicationData: JSON.stringify(mockApplicationData) as EncString,
     };
 
     const reportId = "report123" as OrganizationReportId;
@@ -209,7 +208,7 @@ describe("RiskInsightsApiService", () => {
     const result = await firstValueFrom(
       service.updateRiskInsightsSummary$(reportId, orgId, {
         data: {
-          summaryData: data.encryptedSummaryData.encryptedString!,
+          summaryData: data.encryptedSummaryData!,
           metrics: mockMetrics.toRiskInsightsMetricsData(),
         },
       }),
@@ -219,7 +218,7 @@ describe("RiskInsightsApiService", () => {
       "PATCH",
       `/reports/organizations/${orgId.toString()}/data/summary/${reportId.toString()}`,
       {
-        summaryData: data.encryptedSummaryData.encryptedString!,
+        summaryData: data.encryptedSummaryData!,
         metrics: mockMetrics.toRiskInsightsMetricsData(),
         reportId,
         organizationId: orgId,
@@ -234,10 +233,10 @@ describe("RiskInsightsApiService", () => {
     const reportId = "report123" as OrganizationReportId;
     const mockResponse: EncryptedDataWithKey | null = {
       organizationId: orgId,
-      encryptedReportData: new EncString(JSON.stringify(mockReportData)),
-      encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
-      contentEncryptionKey: new EncString(mockKey),
+      encryptedReportData: JSON.stringify(mockReportData) as EncString,
+      encryptedSummaryData: JSON.stringify(mockSummaryData) as EncString,
+      encryptedApplicationData: JSON.stringify(mockApplicationData) as EncString,
+      contentEncryptionKey: mockKey as EncString,
     };
 
     mockApiService.send.mockResolvedValueOnce(mockResponse);
@@ -261,13 +260,13 @@ describe("RiskInsightsApiService", () => {
     mockApiService.send.mockResolvedValueOnce(undefined);
     const result = await firstValueFrom(
       service.updateRiskInsightsApplicationData$(reportId, orgId, {
-        data: { applicationData: mockApplication.encryptedString! },
+        data: { applicationData: mockApplication! },
       }),
     );
     expect(mockApiService.send).toHaveBeenCalledWith(
       "PATCH",
       `/reports/organizations/${orgId.toString()}/data/application/${reportId.toString()}`,
-      { applicationData: mockApplication.encryptedString!, id: reportId, organizationId: orgId },
+      { applicationData: mockApplication!, id: reportId, organizationId: orgId },
       true,
       true,
     );

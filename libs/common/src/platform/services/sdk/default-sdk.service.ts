@@ -21,8 +21,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { PerfTrackGroup } from "@bitwarden/logging";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
@@ -33,6 +31,7 @@ import {
   WrappedAccountCryptographicState,
   Kdf,
   V2UpgradeToken,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -337,7 +336,7 @@ export class DefaultSdkService implements SdkService {
     );
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v.toJSON() as UnsignedSharedKey]),
+        Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v as string as UnsignedSharedKey]),
       ),
     });
     orgCryptoMeasurement.finish([["Organizations", Object.keys(orgKeys).length]]);

@@ -6,9 +6,8 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { createNewSummaryData } from "../../helpers";

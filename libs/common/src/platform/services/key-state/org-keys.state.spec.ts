@@ -9,11 +9,11 @@ describe("encrypted org keys", () => {
     const encryptedOrgKeys = {
       "org-id-1": {
         type: "organization",
-        key: makeEncString().encryptedString,
+        key: makeEncString(),
       },
       "org-id-2": {
         type: "provider",
-        key: makeEncString().encryptedString,
+        key: makeEncString(),
         providerId: "provider-id-2",
       },
     };

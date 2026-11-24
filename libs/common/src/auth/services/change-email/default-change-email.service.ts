@@ -145,7 +145,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
         newMasterKey,
         userKey,
       );
-      const encryptedUserKey = newUserKey[1]?.encryptedString;
+      const encryptedUserKey = newUserKey[1];
       if (encryptedUserKey == null) {
         throw new Error("Missing Encrypted User Key");
       }

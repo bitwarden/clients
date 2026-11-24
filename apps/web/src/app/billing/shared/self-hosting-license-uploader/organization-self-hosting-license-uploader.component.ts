@@ -62,13 +62,13 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     await super.submit();
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const orgKey = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
-    const key = orgKey[0].encryptedString;
+    const key = orgKey[0];
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       orgKey[1],
     );
-    const collectionCt = collection.encryptedString;
+    const collectionCt = collection;
     const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgKey[1]);
 
     const fd = new FormData();
@@ -81,7 +81,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     await this.apiService.refreshIdentityToken();
 
     // Org Keys live outside of the OrganizationLicense - add the keys to the org here
-    const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
+    const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1]);
     await this.organizationApiService.updateKeys(orgId, request);
 
     await this.apiService.refreshIdentityToken();

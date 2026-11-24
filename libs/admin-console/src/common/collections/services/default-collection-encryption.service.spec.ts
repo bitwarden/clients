@@ -9,10 +9,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { DECRYPT_ERROR, EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { DefaultCollectionEncryptionService } from "./default-collection-encryption.service";
@@ -38,7 +39,7 @@ function makeCollection(overrides: Partial<Collection> = {}): Collection {
   const c = new Collection({
     id: collectionId,
     organizationId: orgId,
-    name: new EncString("2.abc123|def456==|ghi789=="),
+    name: "2.abc123|def456==|ghi789==" as EncString,
   });
   return Object.assign(c, overrides);
 }

@@ -7,14 +7,9 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  EncryptService,
-  EncString,
-  KeyGenerationService,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { EncryptedReportData, DecryptedReportData } from "../../models";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
@@ -61,17 +56,17 @@ describe("RiskInsightsEncryptionService", () => {
     });
     jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
     jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(contentEncryptionKey);
-    mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
-    mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
+    mockEncryptService.wrapSymmetricKey.mockResolvedValue(ENCRYPTED_KEY as EncString);
+    mockEncryptService.encryptString.mockResolvedValue(ENCRYPTED_TEXT as EncString);
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
     mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
     mockKeyService.orgKeys$.mockReturnValue(orgKey$);
 
-    mockKey = new EncString("wrapped-key");
+    mockKey = "wrapped-key" as EncString;
     mockEncryptedData = {
-      encryptedReportData: new EncString(JSON.stringify(mockReportData)),
-      encryptedSummaryData: new EncString(JSON.stringify(mockSummaryData)),
-      encryptedApplicationData: new EncString(JSON.stringify(mockApplicationData)),
+      encryptedReportData: JSON.stringify(mockReportData) as EncString,
+      encryptedSummaryData: JSON.stringify(mockSummaryData) as EncString,
+      encryptedApplicationData: JSON.stringify(mockApplicationData) as EncString,
     };
     mockDecryptedData = {
       reportData: mockReportData,
@@ -117,18 +112,18 @@ describe("RiskInsightsEncryptionService", () => {
       // Mocked encrypt returns ENCRYPTED_TEXT
       expect(result).toEqual({
         organizationId: orgId,
-        encryptedReportData: new EncString(ENCRYPTED_TEXT),
-        encryptedSummaryData: new EncString(ENCRYPTED_TEXT),
-        encryptedApplicationData: new EncString(ENCRYPTED_TEXT),
-        contentEncryptionKey: new EncString(ENCRYPTED_KEY),
+        encryptedReportData: ENCRYPTED_TEXT as EncString,
+        encryptedSummaryData: ENCRYPTED_TEXT as EncString,
+        encryptedApplicationData: ENCRYPTED_TEXT as EncString,
+        contentEncryptionKey: ENCRYPTED_KEY as EncString,
       });
     });
 
     it("should throw an error when encrypted text is null or empty", async () => {
       // arrange: setup our mocks
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
-      mockEncryptService.encryptString.mockResolvedValue(new EncString(""));
-      mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
+      mockEncryptService.encryptString.mockResolvedValue("" as EncString);
+      mockEncryptService.wrapSymmetricKey.mockResolvedValue(ENCRYPTED_KEY as EncString);
 
       // Act & Assert: call the method under test and expect rejection
       await expect(
@@ -139,8 +134,8 @@ describe("RiskInsightsEncryptionService", () => {
     it("should throw an error when encrypted key is null or empty", async () => {
       // arrange: setup our mocks
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
-      mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
-      mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(""));
+      mockEncryptService.encryptString.mockResolvedValue(ENCRYPTED_TEXT as EncString);
+      mockEncryptService.wrapSymmetricKey.mockResolvedValue("" as EncString);
 
       // Act & Assert: call the method under test and expect rejection
       await expect(

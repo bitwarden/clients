@@ -28,17 +28,14 @@ export class FolderStep implements RecoveryStep {
     this.decryptableFolderIds = [];
 
     for (const folder of workingData.folders) {
-      if (!folder.name?.encryptedString) {
+      if (!folder.name) {
         logger.record(`Folder ID ${folder.id} has no name`);
         this.undecryptableFolderIds.push(folder.id);
         continue;
       }
       try {
         await SdkLoadService.Ready;
-        PureCrypto.symmetric_decrypt_string(
-          folder.name.encryptedString,
-          workingData.userKey.toEncoded(),
-        );
+        PureCrypto.symmetric_decrypt_string(folder.name, workingData.userKey.toEncoded());
         this.decryptableFolderIds.push(folder.id);
       } catch {
         logger.record(`Folder name for folder ID ${folder.id} was undecryptable`);

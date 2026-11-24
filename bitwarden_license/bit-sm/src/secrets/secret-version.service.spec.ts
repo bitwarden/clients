@@ -8,12 +8,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  CsprngArray,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { CsprngArray, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SecretVersionService } from "./secret-version.service";
 
@@ -66,7 +62,7 @@ describe("SecretVersionService", () => {
 
     // Echo back a recognisable plaintext so assertions can tell decrypted fields apart.
     encryptService.decryptString.mockImplementation(
-      async (encString: EncString) => `decrypted(${encString.encryptedString})`,
+      async (encString: EncString) => `decrypted(${encString})`,
     );
   });
 
@@ -138,10 +134,7 @@ describe("SecretVersionService", () => {
     const history = await sut.getSecretVersions(SomeOrganization, "secret-id");
 
     expect(history.versions[0].authorName).toBe("decrypted(2.saname|iv|mac)");
-    expect(encryptService.decryptString).toHaveBeenCalledWith(
-      expect.objectContaining({ encryptedString: "2.saname|iv|mac" }),
-      SomeOrgKey,
-    );
+    expect(encryptService.decryptString).toHaveBeenCalledWith("2.saname|iv|mac", SomeOrgKey);
   });
 
   it("prefers the plaintext member name over decrypting a service account name", async () => {

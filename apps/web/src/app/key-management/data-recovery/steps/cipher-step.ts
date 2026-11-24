@@ -84,7 +84,7 @@ export class CipherStep implements RecoveryStep {
    * Null means that the check did not fail. A string value means the check failed.
    */
   private async checkNameDecrypts(cipher: Cipher, userKey: UserKey | null): Promise<string | null> {
-    const encryptedName = cipher.name?.encryptedString;
+    const encryptedName = cipher.name;
     if (
       userKey == null ||
       userKey.inner().type !== EncryptionType.AesCbc256_HmacSha256_B64 ||

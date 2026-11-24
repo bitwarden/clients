@@ -47,8 +47,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { EncString } from "@bitwarden/sdk-internal";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
@@ -901,10 +902,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }): Promise<string> {
     const request = new OrganizationCreateRequest(
       encryptionData.key,
-      new OrganizationKeysRequest(
-        encryptionData.orgKeys[0],
-        encryptionData.orgKeys[1].encryptedString as string,
-      ),
+      new OrganizationKeysRequest(encryptionData.orgKeys[0], encryptionData.orgKeys[1] as string),
       encryptionData.collectionCt,
     );
     request.name = this.formGroup.controls.name.value ?? "";

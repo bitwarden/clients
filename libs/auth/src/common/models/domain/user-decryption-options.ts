@@ -79,8 +79,8 @@ export class WebAuthnPrfUserDecryptionOption {
       return undefined;
     }
     const options = new WebAuthnPrfUserDecryptionOption();
-    options.encryptedPrivateKey = response.encryptedPrivateKey.encryptedString;
-    options.encryptedUserKey = response.encryptedUserKey.encryptedString;
+    options.encryptedPrivateKey = response.encryptedPrivateKey;
+    options.encryptedUserKey = response.encryptedUserKey;
     options.credentialId = response.credentialId;
     options.transports = response.transports || [];
     return options;

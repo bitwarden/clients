@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
+import { Attachment as SdkAttachment, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { AttachmentData } from "../data/attachment.data";
 
 export class Attachment extends Domain {
@@ -26,8 +23,8 @@ export class Attachment extends Domain {
     this.url = obj.url;
     this.size = obj.size;
     this.sizeName = obj.sizeName;
-    this.fileName = conditionalEncString(obj.fileName);
-    this.key = conditionalEncString(obj.key);
+    this.fileName = (obj.fileName ?? undefined) as EncString;
+    this.key = (obj.key ?? undefined) as EncString;
   }
 
   toAttachmentData(): AttachmentData {
@@ -60,8 +57,8 @@ export class Attachment extends Domain {
     attachment.url = obj.url;
     attachment.size = obj.size;
     attachment.sizeName = obj.sizeName;
-    attachment.key = encStringFrom(obj.key);
-    attachment.fileName = encStringFrom(obj.fileName);
+    attachment.key = obj.key ?? undefined;
+    attachment.fileName = obj.fileName ?? undefined;
 
     return attachment;
   }
@@ -77,8 +74,8 @@ export class Attachment extends Domain {
       url: this.url,
       size: this.size,
       sizeName: this.sizeName,
-      fileName: this.fileName?.toSdk(),
-      key: this.key?.toSdk(),
+      fileName: this.fileName ?? undefined,
+      key: this.key ?? undefined,
     };
   }
 
@@ -96,8 +93,8 @@ export class Attachment extends Domain {
     attachment.url = obj.url;
     attachment.size = obj.size;
     attachment.sizeName = obj.sizeName;
-    attachment.fileName = encStringFrom(obj.fileName);
-    attachment.key = encStringFrom(obj.key);
+    attachment.fileName = obj.fileName ?? undefined;
+    attachment.key = obj.key ?? undefined;
 
     return attachment;
   }

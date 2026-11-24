@@ -10,13 +10,12 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
-  EncString,
   KdfType,
   LegacyCompatKeyService,
   PBKDF2KdfConfig,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { KeyConnectorRegistrationResult, PureCrypto } from "@bitwarden/sdk-internal";
+import { KeyConnectorRegistrationResult, PureCrypto, EncString } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -588,7 +587,7 @@ describe("KeyConnectorService", () => {
       // Deliberately distinct from mockEmail so assertions prove the salt came from emailToSalt.
       const mockEmailSalt = "salt-for-test@example.com" as MasterPasswordSalt;
       const mockMasterKey = getMockMasterKey();
-      const mockKeyPair = ["mockPubKey", new EncString("mockEncryptedPrivKey")] as [
+      const mockKeyPair = ["mockPubKey", "mockEncryptedPrivKey" as EncString] as [
         string,
         EncString,
       ];
@@ -596,7 +595,7 @@ describe("KeyConnectorService", () => {
 
       beforeEach(() => {
         const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-        const encString = new EncString("mockEncryptedString");
+        const encString = "mockEncryptedString" as EncString;
         mockMakeUserKeyResult = [mockUserKey, encString] as [UserKey, EncString];
 
         Object.defineProperty(SdkLoadService, "Ready", {
@@ -655,10 +654,7 @@ describe("KeyConnectorService", () => {
           expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
-          ).toHaveBeenCalledWith(
-            { V1: { private_key: mockKeyPair[1].encryptedString } },
-            mockUserId,
-          );
+          ).toHaveBeenCalledWith({ V1: { private_key: mockKeyPair[1] } }, mockUserId);
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             mockUserId,
             mockUserKey,
@@ -672,10 +668,10 @@ describe("KeyConnectorService", () => {
           );
           expect(apiService.postSetKeyConnectorKey).toHaveBeenCalledWith(
             new SetKeyConnectorKeyRequest(
-              mockMakeUserKeyResult[1].encryptedString!,
+              mockMakeUserKeyResult[1]!,
               expectedKdfConfig,
               mockSsoOrgIdentifier,
-              new KeysRequest(mockKeyPair[0], mockKeyPair[1].encryptedString!),
+              new KeysRequest(mockKeyPair[0], mockKeyPair[1]!),
             ),
           );
           expect(ssoJitProvisionFinishApiService.postKeyConnector).not.toHaveBeenCalled();
@@ -715,10 +711,10 @@ describe("KeyConnectorService", () => {
           expect(ssoJitProvisionFinishApiService.postKeyConnector).toHaveBeenCalledWith(
             new SsoJitProvisionFinishSetKeyConnectorKeyRequest(
               new SetKeyConnectorKeyRequest(
-                mockMakeUserKeyResult[1].encryptedString!,
+                mockMakeUserKeyResult[1]!,
                 conversion.kdfConfig,
                 mockSsoOrgIdentifier,
-                new KeysRequest(mockKeyPair[0], mockKeyPair[1].encryptedString!),
+                new KeysRequest(mockKeyPair[0], mockKeyPair[1]!),
               ),
               organizationInviteAccepted,
             ),
@@ -727,10 +723,7 @@ describe("KeyConnectorService", () => {
           expect(ssoJitProvisionFinishService.finishKeyConnector).not.toHaveBeenCalled();
           expect(
             accountCryptographicStateService.setAccountCryptographicState,
-          ).toHaveBeenCalledWith(
-            { V1: { private_key: mockKeyPair[1].encryptedString } },
-            mockUserId,
-          );
+          ).toHaveBeenCalledWith({ V1: { private_key: mockKeyPair[1] } }, mockUserId);
           expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
             mockUserId,
             mockMakeUserKeyResult[0],

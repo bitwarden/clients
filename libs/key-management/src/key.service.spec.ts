@@ -42,14 +42,12 @@ import { UserKey, ProviderKey } from "@bitwarden/common/types/key";
 import {
   CryptoFunctionService,
   CsprngArray,
-  EncryptedString,
   EncryptService,
-  EncString,
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
-import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { WrappedAccountCryptographicState, EncString } from "@bitwarden/sdk-internal";
 
 import { CipherDecryptionKeys } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
@@ -233,11 +231,11 @@ describe("keyService", () => {
   describe("userPrivateKey$", () => {
     let mockUserKey: UserKey;
     let mockUserPrivateKey: Uint8Array;
-    let mockEncryptedPrivateKey: EncryptedString;
+    let mockEncryptedPrivateKey: EncString;
 
     beforeEach(() => {
       mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
-      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
+      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey")!;
       mockUserPrivateKey = makeStaticByteArray(10, 1);
       setUserKeyState(mockUserId, mockUserKey);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
@@ -251,7 +249,7 @@ describe("keyService", () => {
 
       expect(result).toEqual(mockUserPrivateKey);
       expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
-        new EncString(mockEncryptedPrivateKey),
+        mockEncryptedPrivateKey as EncString,
         mockUserKey,
       );
     });
@@ -338,7 +336,7 @@ describe("keyService", () => {
 
     // The ciphertext piece of an EncString: after the IV for AES types (0, 2), first for RSA.
     function dataBytes(encString: EncString): Uint8Array {
-      const [type, body] = encString.encryptedString!.split(".");
+      const [type, body] = encString!.split(".");
       const pieces = body.split("|");
       const aes = type === "0" || type === "2";
       return Utils.fromB64ToArray(aes ? pieces[1] : pieces[0]);
@@ -370,7 +368,7 @@ describe("keyService", () => {
       userKey: UserKey;
       encryptedPrivateKey: EncString;
       orgKeys: Record<string, EncryptedOrganizationKeyData>;
-      providerKeys: Record<string, EncryptedString>;
+      providerKeys: Record<string, EncString>;
     };
 
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
@@ -380,7 +378,7 @@ describe("keyService", () => {
 
       if ("encryptedPrivateKey" in keys) {
         accountStateSubject.next({
-          V1: { private_key: keys.encryptedPrivateKey!.encryptedString! },
+          V1: { private_key: keys.encryptedPrivateKey! },
         });
       }
 
@@ -419,7 +417,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key")! },
         },
       });
 
@@ -439,7 +437,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key")! },
         },
         providerKeys: {},
       });
@@ -461,15 +459,15 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key")! },
           [org2Id]: {
             type: "provider",
-            key: makeEncString("provider1Key").encryptedString!,
+            key: makeEncString("provider1Key")!,
             providerId: "provider1",
           },
         },
         providerKeys: {
-          provider1: makeEncString("provider1Key").encryptedString!,
+          provider1: makeEncString("provider1Key")!,
         },
       });
 
@@ -526,7 +524,7 @@ describe("keyService", () => {
       // User has their org keys set
       updateKeys({
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key")! },
         },
       });
 
@@ -587,7 +585,7 @@ describe("keyService", () => {
     it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
       // Every emission makes cipher consumers decrypt the whole vault.
       const orgKeys = {
-        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
+        [org1Id]: { type: "organization" as const, key: makeEncString("org1Key")! },
       };
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
@@ -617,7 +615,7 @@ describe("keyService", () => {
         encryptedPrivateKey: makeEncString("privateKey"),
         providerKeys: {},
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key")! },
         },
       });
 
@@ -629,7 +627,7 @@ describe("keyService", () => {
 
       updateKeys({
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1KeyB").encryptedString! },
+          [org1Id]: { type: "organization", key: makeEncString("org1KeyB")! },
         },
       });
       await new Promise(process.nextTick);
@@ -791,10 +789,10 @@ describe("keyService", () => {
       org2ProviderEncryptedKey = makeEncString("org2Key");
 
       stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS).nextState({
-        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString! },
+        [org1Id]: { type: "organization", key: org1EncryptedKey! },
         [org2Id]: {
           type: "provider",
-          key: org2ProviderEncryptedKey.encryptedString!,
+          key: org2ProviderEncryptedKey!,
           providerId: provider1Id,
         },
       });
@@ -865,20 +863,18 @@ describe("keyService", () => {
       org1EncryptedKey = makeEncString("org1Key");
       org2ProviderEncryptedKey = makeEncString("org2Key");
       reencryptedOrg2Key = makeEncString("reencryptedOrg2Key");
-      orgs = [
-        mock<ProfileOrganizationResponse>({ id: org1Id, key: org1EncryptedKey.encryptedString! }),
-      ];
+      orgs = [mock<ProfileOrganizationResponse>({ id: org1Id, key: org1EncryptedKey! })];
       providerOrgs = [
         mock<ProfileProviderOrganizationResponse>({
           id: org2Id,
-          key: org2ProviderEncryptedKey.encryptedString!,
+          key: org2ProviderEncryptedKey!,
           providerId: provider1Id,
         }),
       ];
 
       orgKeysState = stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS);
       orgKeysState.nextState({
-        [staleOrgId]: { type: "organization", key: makeEncString("staleKey").encryptedString! },
+        [staleOrgId]: { type: "organization", key: makeEncString("staleKey")! },
       });
 
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(makeStaticByteArray(64, 2));
@@ -902,11 +898,11 @@ describe("keyService", () => {
         orgKeysState.nextMock.mock.invocationCallOrder[0],
       );
       expect(orgKeysState.nextMock).toHaveBeenCalledWith({
-        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString },
+        [org1Id]: { type: "organization", key: org1EncryptedKey },
         [org2Id]: {
           type: "provider",
           providerId: provider1Id,
-          key: org2ProviderEncryptedKey.encryptedString,
+          key: org2ProviderEncryptedKey,
         },
       });
     });
@@ -919,8 +915,8 @@ describe("keyService", () => {
       await keyService.setOrgKeys(orgs, providerOrgs, mockUserId);
 
       expect(sdkService.setOrgKeys).toHaveBeenCalledWith(mockUserId, {
-        [org1Id]: org1EncryptedKey.toJSON(),
-        [org2Id]: reencryptedOrg2Key.toJSON(),
+        [org1Id]: org1EncryptedKey,
+        [org2Id]: reencryptedOrg2Key,
       });
       expect(encryptedOrgKeysSpy).not.toHaveBeenCalled();
     });
@@ -954,7 +950,7 @@ describe("keyService", () => {
 
     let userKey: UserKey;
     let accountCryptographicState: WrappedAccountCryptographicState;
-    let mockEncryptedPrivateKey: EncryptedString;
+    let mockEncryptedPrivateKey: EncString;
     let mockUserPrivateKey: Uint8Array;
     let mockProviderKeys: Record<ProviderId, ProviderKey>;
     let org1EncryptedKey: EncString;
@@ -962,7 +958,7 @@ describe("keyService", () => {
 
     beforeEach(() => {
       userKey = makeSymmetricCryptoKey<UserKey>(64, 7);
-      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
+      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey")!;
       accountCryptographicState = { V1: { private_key: mockEncryptedPrivateKey } };
       mockUserPrivateKey = makeStaticByteArray(64, 1);
       mockProviderKeys = { [provider1Id]: makeSymmetricCryptoKey<ProviderKey>(64, 0) };
@@ -972,10 +968,10 @@ describe("keyService", () => {
       // A locked account: the user key is only available in memory.
       setUserKeyState(mockUserId, null);
       stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS).nextState({
-        [org1Id]: { type: "organization", key: org1EncryptedKey.encryptedString! },
+        [org1Id]: { type: "organization", key: org1EncryptedKey! },
         [org2Id]: {
           type: "provider",
-          key: makeEncString("org2Key").encryptedString!,
+          key: makeEncString("org2Key")!,
           providerId: provider1Id,
         },
       });
@@ -1006,7 +1002,7 @@ describe("keyService", () => {
       await keyService.buildSdkUnlockData(mockUserId, userKey);
 
       expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
-        new EncString(mockEncryptedPrivateKey),
+        mockEncryptedPrivateKey as EncString,
         userKey,
       );
       expect((keyService as any).providerKeysHelper$).toHaveBeenCalledWith(
@@ -1026,8 +1022,8 @@ describe("keyService", () => {
           accountCryptographicState,
         },
         orgKeys: {
-          [org1Id]: org1EncryptedKey.toJSON(),
-          [org2Id]: reencryptedOrg2Key.toJSON(),
+          [org1Id]: org1EncryptedKey,
+          [org2Id]: reencryptedOrg2Key,
         },
       });
     });
@@ -1067,7 +1063,7 @@ describe("keyService", () => {
         {
           ["org1" as OrganizationId]: {
             type: "organization",
-            key: makeEncString("org1Key").encryptedString!,
+            key: makeEncString("org1Key")!,
           },
         },
         null,

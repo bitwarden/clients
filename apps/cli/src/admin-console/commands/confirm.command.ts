@@ -80,7 +80,7 @@ export class ConfirmCommand {
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
-      req.key = key.encryptedString;
+      req.key = key;
       req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
       await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
@@ -96,10 +96,10 @@ export class ConfirmCommand {
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
     const defaultCollectionName = this.i18nService.t("myItemsV2");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
-    if (encrypted.encryptedString == null) {
+    if (encrypted == null) {
       throw new Error("Failed to encrypt default user collection name.");
     }
-    return encrypted.encryptedString;
+    return encrypted;
   }
 
   private validateOrganizationUserStatus(orgUser: OrganizationUserDetailsResponse): void {

@@ -5,9 +5,13 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
-import { PasswordManagerClient, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import {
+  PasswordManagerClient,
+  WrappedAccountCryptographicState,
+  EncString,
+} from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -138,7 +142,7 @@ describe("DefaultSdkService", () => {
           .mockReturnValue(
             of({
               V1: {
-                private_key: "private-key" as EncryptedString,
+                private_key: "private-key" as EncString,
               },
             }),
           );

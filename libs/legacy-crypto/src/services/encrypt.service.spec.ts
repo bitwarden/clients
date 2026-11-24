@@ -4,12 +4,11 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { makeStaticByteArray } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { EncryptionType } from "../enums/encryption-type.enum";
 import { EncArrayBuffer } from "../models/enc-array-buffer";
-import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
@@ -132,7 +131,7 @@ describe("EncryptService", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const plainValue = "data";
       const result = await encryptService.encryptString(plainValue, key);
-      expect(result).toEqual(new EncString("encrypted_string"));
+      expect(result).toEqual("encrypted_string" as EncString);
       expect(PureCrypto.symmetric_encrypt_string).toHaveBeenCalledWith(plainValue, key.toEncoded());
     });
   });
@@ -142,7 +141,7 @@ describe("EncryptService", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
       const plainValue = makeStaticByteArray(16, 1);
       const result = await encryptService.encryptBytes(plainValue, key);
-      expect(result).toEqual(new EncString("encrypted_bytes"));
+      expect(result).toEqual("encrypted_bytes" as EncString);
       expect(PureCrypto.symmetric_encrypt_bytes).toHaveBeenCalledWith(plainValue, key.toEncoded());
     });
   });
@@ -163,20 +162,15 @@ describe("EncryptService", () => {
   describe("decryptString", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(
-        `${EncryptionType.AesCbc256_HmacSha256_B64}.encrypted_string`,
-      );
+      const encString = `${EncryptionType.AesCbc256_HmacSha256_B64}.encrypted_string` as EncString;
       const result = await encryptService.decryptString(encString, key);
       expect(result).toEqual("decrypted_string");
-      expect(PureCrypto.symmetric_decrypt_string).toHaveBeenCalledWith(
-        encString.encryptedString,
-        key.toEncoded(),
-      );
+      expect(PureCrypto.symmetric_decrypt_string).toHaveBeenCalledWith(encString, key.toEncoded());
     });
 
     it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_B64}.encrypted_string`);
+      const encString = `${EncryptionType.AesCbc256_B64}.encrypted_string` as EncString;
       await expect(encryptService.decryptString(encString, key)).rejects.toThrow(
         "Decryption of AesCbc256_B64 encrypted data is disabled.",
       );
@@ -186,18 +180,15 @@ describe("EncryptService", () => {
   describe("decryptBytes", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_HmacSha256_B64}.encrypted_bytes`);
+      const encString = `${EncryptionType.AesCbc256_HmacSha256_B64}.encrypted_bytes` as EncString;
       const result = await encryptService.decryptBytes(encString, key);
       expect(result).toEqual(new Uint8Array(3));
-      expect(PureCrypto.symmetric_decrypt_bytes).toHaveBeenCalledWith(
-        encString.encryptedString,
-        key.toEncoded(),
-      );
+      expect(PureCrypto.symmetric_decrypt_bytes).toHaveBeenCalledWith(encString, key.toEncoded());
     });
 
     it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_B64}.encrypted_bytes`);
+      const encString = `${EncryptionType.AesCbc256_B64}.encrypted_bytes` as EncString;
       await expect(encryptService.decryptBytes(encString, key)).rejects.toThrow(
         "Decryption of AesCbc256_B64 encrypted data is disabled.",
       );
@@ -233,19 +224,15 @@ describe("EncryptService", () => {
   describe("unwrapDecapsulationKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(
-        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_decapsulation_key`,
-      );
+      const encString =
+        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_decapsulation_key` as EncString;
       const result = await encryptService.unwrapDecapsulationKey(encString, key);
       expect(result).toEqual(new Uint8Array(4));
-      expect(PureCrypto.unwrap_decapsulation_key).toHaveBeenCalledWith(
-        encString.encryptedString,
-        key.toEncoded(),
-      );
+      expect(PureCrypto.unwrap_decapsulation_key).toHaveBeenCalledWith(encString, key.toEncoded());
     });
     it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_B64}.wrapped_decapsulation_key`);
+      const encString = `${EncryptionType.AesCbc256_B64}.wrapped_decapsulation_key` as EncString;
       await expect(encryptService.unwrapDecapsulationKey(encString, key)).rejects.toThrow(
         "Decryption of AesCbc256_B64 encrypted data is disabled.",
       );
@@ -257,7 +244,7 @@ describe("EncryptService", () => {
       );
     });
     it("throws if wrappingKey is null", () => {
-      const encString = new EncString("wrapped_decapsulation_key");
+      const encString = "wrapped_decapsulation_key" as EncString;
       return expect(encryptService.unwrapDecapsulationKey(encString, null)).rejects.toThrow(
         "No wrappingKey provided for unwrapping.",
       );
@@ -267,19 +254,15 @@ describe("EncryptService", () => {
   describe("unwrapEncapsulationKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(
-        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_encapsulation_key`,
-      );
+      const encString =
+        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_encapsulation_key` as EncString;
       const result = await encryptService.unwrapEncapsulationKey(encString, key);
       expect(result).toEqual(new Uint8Array(5));
-      expect(PureCrypto.unwrap_encapsulation_key).toHaveBeenCalledWith(
-        encString.encryptedString,
-        key.toEncoded(),
-      );
+      expect(PureCrypto.unwrap_encapsulation_key).toHaveBeenCalledWith(encString, key.toEncoded());
     });
     it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_B64}.wrapped_encapsulation_key`);
+      const encString = `${EncryptionType.AesCbc256_B64}.wrapped_encapsulation_key` as EncString;
       await expect(encryptService.unwrapEncapsulationKey(encString, key)).rejects.toThrow(
         "Decryption of AesCbc256_B64 encrypted data is disabled.",
       );
@@ -291,7 +274,7 @@ describe("EncryptService", () => {
       );
     });
     it("throws if wrappingKey is null", () => {
-      const encString = new EncString("wrapped_encapsulation_key");
+      const encString = "wrapped_encapsulation_key" as EncString;
       return expect(encryptService.unwrapEncapsulationKey(encString, null)).rejects.toThrow(
         "No wrappingKey provided for unwrapping.",
       );
@@ -301,19 +284,15 @@ describe("EncryptService", () => {
   describe("unwrapSymmetricKey", () => {
     it("is a proxy to PureCrypto", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(
-        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_symmetric_key`,
-      );
+      const encString =
+        `${EncryptionType.AesCbc256_HmacSha256_B64}.wrapped_symmetric_key` as EncString;
       const result = await encryptService.unwrapSymmetricKey(encString, key);
       expect(result).toEqual(new SymmetricCryptoKey(new Uint8Array(64)));
-      expect(PureCrypto.unwrap_symmetric_key).toHaveBeenCalledWith(
-        encString.encryptedString,
-        key.toEncoded(),
-      );
+      expect(PureCrypto.unwrap_symmetric_key).toHaveBeenCalledWith(encString, key.toEncoded());
     });
     it("throws if type is AesCbc256_B64", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      const encString = new EncString(`${EncryptionType.AesCbc256_B64}.wrapped_symmetric_key`);
+      const encString = `${EncryptionType.AesCbc256_B64}.wrapped_symmetric_key` as EncString;
       await expect(encryptService.unwrapSymmetricKey(encString, key)).rejects.toThrow(
         "Decryption of AesCbc256_B64 encrypted data is disabled.",
       );
@@ -325,7 +304,7 @@ describe("EncryptService", () => {
       );
     });
     it("throws if wrappingKey is null", () => {
-      const encString = new EncString("wrapped_symmetric_key");
+      const encString = "wrapped_symmetric_key" as EncString;
       return expect(encryptService.unwrapSymmetricKey(encString, null)).rejects.toThrow(
         "No wrappingKey provided for unwrapping.",
       );
@@ -341,7 +320,7 @@ describe("EncryptService", () => {
     const encString = makeEncString(encryptedData);
 
     function makeEncString(data: Uint8Array): EncString {
-      return new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.${Utils.fromBufferToB64(data)}`);
+      return `${EncryptionType.Rsa2048_OaepSha1_B64}.${Utils.fromBufferToB64(data)}` as EncString;
     }
 
     describe("encapsulateKeyUnsigned", () => {
@@ -359,7 +338,7 @@ describe("EncryptService", () => {
 
       it("encrypts data with provided key", async () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
-        expect(actual).toEqual(new EncString("encapsulated_key_unsigned"));
+        expect(actual).toEqual("encapsulated_key_unsigned" as EncString);
       });
     });
 

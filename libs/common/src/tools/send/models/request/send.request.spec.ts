@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
@@ -14,14 +13,14 @@ describe("SendRequest", () => {
     it("should set emails to null when Send.emails is null", () => {
       const send = new Send();
       send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.notes = new EncString("encryptedNotes");
-      send.key = new EncString("encryptedKey");
+      send.name = "encryptedName" as EncString;
+      send.notes = "encryptedNotes" as EncString;
+      send.key = "encryptedKey" as EncString;
       send.emails = null;
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
-      send.text.text = new EncString("text");
+      send.text.text = "text" as EncString;
       send.text.hidden = false;
 
       const request = new SendRequest(send);
@@ -33,13 +32,13 @@ describe("SendRequest", () => {
       const send = new Send();
       send.type = SendType.Text;
       send.name = null;
-      send.notes = new EncString("encryptedNotes");
-      send.key = new EncString("encryptedKey");
+      send.notes = "encryptedNotes" as EncString;
+      send.key = "encryptedKey" as EncString;
       send.emails = null;
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
-      send.text.text = new EncString("text");
+      send.text.text = "text" as EncString;
       send.text.hidden = false;
 
       const request = new SendRequest(send);
@@ -50,14 +49,14 @@ describe("SendRequest", () => {
     it("should handle notes being null", () => {
       const send = new Send();
       send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
+      send.name = "encryptedName" as EncString;
       send.notes = null;
-      send.key = new EncString("encryptedKey");
+      send.key = "encryptedKey" as EncString;
       send.emails = null;
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
-      send.text.text = new EncString("text");
+      send.text.text = "text" as EncString;
       send.text.hidden = false;
 
       const request = new SendRequest(send);
@@ -68,13 +67,13 @@ describe("SendRequest", () => {
     it("should include fileLength when provided for text send", () => {
       const send = new Send();
       send.type = SendType.Text;
-      send.name = new EncString("encryptedName");
-      send.key = new EncString("encryptedKey");
+      send.name = "encryptedName" as EncString;
+      send.key = "encryptedKey" as EncString;
       send.emails = null;
       send.disabled = false;
       send.hideEmail = false;
       send.text = new SendText();
-      send.text.text = new EncString("text");
+      send.text.text = "text" as EncString;
       send.text.hidden = false;
 
       const request = new SendRequest(send, 1024);
@@ -86,8 +85,8 @@ describe("SendRequest", () => {
       const sealedData = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
       const send = new Send();
       send.type = SendType.Item;
-      send.name = new EncString("encryptedName");
-      send.key = new EncString("encryptedKey");
+      send.name = "encryptedName" as EncString;
+      send.key = "encryptedKey" as EncString;
       send.data = new SendItem();
       send.data.data = sealedData;
       send.data.metadata = new SendItemMetadata({
@@ -103,8 +102,8 @@ describe("SendRequest", () => {
     it("should throw for an Item Send without metadata", () => {
       const send = new Send();
       send.type = SendType.Item;
-      send.name = new EncString("encryptedName");
-      send.key = new EncString("encryptedKey");
+      send.name = "encryptedName" as EncString;
+      send.key = "encryptedKey" as EncString;
       send.data = new SendItem();
       send.data.data = "sealed";
 

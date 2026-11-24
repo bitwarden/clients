@@ -5,13 +5,11 @@ import { Opaque } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
 import {
-  EncryptedString,
   EncryptService,
-  EncString,
   isSerializedEncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import {
   VaultTimeout,
@@ -369,9 +367,8 @@ export class TokenService implements TokenServiceAbstraction {
           // Save the encrypted access token to disk
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
-            .update((_) => encryptedAccessToken.encryptedString, {
-              shouldUpdate: (previousValue) =>
-                previousValue !== encryptedAccessToken.encryptedString,
+            .update((_) => encryptedAccessToken, {
+              shouldUpdate: (previousValue) => previousValue !== encryptedAccessToken,
             });
 
           // If we've successfully stored the encrypted access token to disk, we can return the decrypted access token
@@ -546,7 +543,7 @@ export class TokenService implements TokenServiceAbstraction {
       }
 
       try {
-        const encryptedAccessTokenEncString = new EncString(accessTokenDisk as EncryptedString);
+        const encryptedAccessTokenEncString = accessTokenDisk as EncString as EncString;
 
         const decryptedAccessToken = await this.decryptAccessToken(
           accessTokenKey,

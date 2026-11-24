@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BaseResponse } from "../../../../models/response/base.response";
 
@@ -34,10 +33,10 @@ export class TrustedDeviceUserDecryptionOptionResponse extends BaseResponse {
     this.isTdeOffboarding = this.getResponseProperty("IsTdeOffboarding");
 
     if (response.EncryptedPrivateKey) {
-      this.encryptedPrivateKey = new EncString(this.getResponseProperty("EncryptedPrivateKey"));
+      this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey") as EncString;
     }
     if (response.EncryptedUserKey) {
-      this.encryptedUserKey = new EncString(this.getResponseProperty("EncryptedUserKey"));
+      this.encryptedUserKey = this.getResponseProperty("EncryptedUserKey") as EncString;
     }
   }
 }

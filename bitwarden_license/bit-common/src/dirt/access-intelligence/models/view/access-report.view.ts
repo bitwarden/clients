@@ -2,11 +2,8 @@ import { View } from "@bitwarden/common/models/view/view";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { AccessReportApi } from "../api/access-report.api";
 import { AccessReportSettingsData } from "../data/access-report-settings.data";
 import { ApplicationHealthData } from "../data/application-health.data";
 import { MemberRegistryEntryData } from "../data/member-registry-entry.data";

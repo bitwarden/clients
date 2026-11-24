@@ -1,7 +1,6 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-import { mockContainerService, mockFromJson } from "../../../../spec";
+import { mockContainerService } from "../../../../spec";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 
@@ -21,7 +20,7 @@ describe("Password", () => {
     const password = new Password(data);
 
     expect(password).toBeInstanceOf(Password);
-    expect(password.password).toBeInstanceOf(EncString);
+    expect(password.password).toBeUndefined();
     expect(password.lastUsedDate).toBeInstanceOf(Date);
 
     expect(data.password).toBeUndefined();
@@ -32,7 +31,7 @@ describe("Password", () => {
     const password = new Password(data);
 
     expect(password).toEqual({
-      password: { encryptedString: "encPassword" },
+      password: "encPassword",
       lastUsedDate: new Date("2022-01-31T12:00:00.000Z"),
     });
   });
@@ -44,16 +43,15 @@ describe("Password", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
       const lastUsedDate = new Date("2022-01-31T12:00:00.000Z");
 
       const actual = Password.fromJSON({
-        password: "myPassword" as EncryptedString,
+        password: "myPassword" as EncString,
         lastUsedDate: lastUsedDate.toISOString(),
       });
 
       expect(actual).toEqual({
-        password: "myPassword_fromJSON",
+        password: "myPassword",
         lastUsedDate: lastUsedDate,
       });
       expect(actual).toBeInstanceOf(Password);
@@ -84,15 +82,15 @@ describe("Password", () => {
 
     it("creates Password from SDK object", () => {
       const sdkPasswordHistory = {
-        password: "2.encPassword|encryptedData" as EncryptedString,
+        password: "2.encPassword|encryptedData" as EncString,
         lastUsedDate: "2022-01-31T12:00:00.000Z",
       };
 
       const password = Password.fromSdkPasswordHistory(sdkPasswordHistory);
 
       expect(password).toBeInstanceOf(Password);
-      expect(password?.password).toBeInstanceOf(EncString);
-      expect(password?.password.encryptedString).toBe("2.encPassword|encryptedData");
+      expect(typeof password?.password).toBe("string");
+      expect(password?.password).toBe("2.encPassword|encryptedData");
       expect(password?.lastUsedDate).toEqual(new Date("2022-01-31T12:00:00.000Z"));
     });
 
@@ -108,14 +106,14 @@ describe("Password", () => {
 
     it("handles empty SDK object", () => {
       const sdkPasswordHistory = {
-        password: "" as EncryptedString,
+        password: "" as EncString,
         lastUsedDate: "",
       };
 
       const password = Password.fromSdkPasswordHistory(sdkPasswordHistory);
 
       expect(password).toBeInstanceOf(Password);
-      expect(password?.password).toBeInstanceOf(EncString);
+      expect(typeof password?.password).toBe("string");
       expect(password?.lastUsedDate).toBeInstanceOf(Date);
     });
   });

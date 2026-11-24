@@ -3,8 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Attachment } from "@bitwarden/common/vault/models/domain/attachment";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";
@@ -59,7 +58,7 @@ describe("AttachmentStep", () => {
     });
 
     it("returns true when every attachment has a key", async () => {
-      const withKey = attachment("attachment-1", new EncString("2.encrypted-key"));
+      const withKey = attachment("attachment-1", "2.encrypted-key" as EncString);
       const workingData = workingDataWith([cipher("cipher-1", null, [withKey])]);
 
       const result = await attachmentStep.runDiagnostics(workingData, logger);
@@ -106,7 +105,7 @@ describe("AttachmentStep", () => {
     it("logs one line per affected cipher and ignores ciphers that are not affected", async () => {
       const oldAttachment = attachment("attachment-1", undefined);
       const anotherOldAttachment = attachment("attachment-2", undefined);
-      const withKey = attachment("attachment-3", new EncString("2.encrypted-key"));
+      const withKey = attachment("attachment-3", "2.encrypted-key" as EncString);
       const workingData = workingDataWith([
         cipher("cipher-1", null, [oldAttachment, withKey]),
         cipher("cipher-2", null, [withKey]),

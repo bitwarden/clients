@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { ErrorResponse } from "../../../models/response/error.response";

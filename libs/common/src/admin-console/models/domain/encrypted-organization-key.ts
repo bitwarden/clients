@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { OrgKey, UserPrivateKey } from "../../../types/key";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
@@ -38,7 +39,7 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   }
 
   get encryptedOrganizationKey() {
-    return new EncString(this.key);
+    return this.key as EncString;
   }
 
   toData(): EncryptedOrganizationKeyData {
@@ -57,7 +58,7 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
 
   async decrypt(encryptService: EncryptService, providerKeys: Record<string, SymmetricCryptoKey>) {
     const decValue = await encryptService.unwrapSymmetricKey(
-      new EncString(this.key),
+      this.key as EncString,
       providerKeys[this.providerId],
     );
     if (decValue == null) {
@@ -67,7 +68,7 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
   }
 
   get encryptedOrganizationKey() {
-    return new EncString(this.key);
+    return this.key as EncString;
   }
 
   toData(): EncryptedOrganizationKeyData {

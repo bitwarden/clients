@@ -1,16 +1,14 @@
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { RiskInsightsData } from "../data/risk-insights.data";
 
 export class RiskInsights extends Domain {
   id: string = "";
   organizationId: string = "";
-  reports: EncString = new EncString("");
-  applications: EncString = new EncString("");
-  summary: EncString = new EncString("");
+  reports: EncString = "" as EncString;
+  applications: EncString = "" as EncString;
+  summary: EncString = "" as EncString;
   creationDate: Date;
   contentEncryptionKey?: EncString;
 
@@ -22,11 +20,11 @@ export class RiskInsights extends Domain {
     }
     this.id = obj.id;
     this.organizationId = obj.organizationId;
-    this.reports = conditionalEncString(obj.reports) ?? new EncString("");
-    this.applications = conditionalEncString(obj.applications) ?? new EncString("");
-    this.summary = conditionalEncString(obj.summary) ?? new EncString("");
+    this.reports = (obj.reports ?? "") as EncString;
+    this.applications = (obj.applications ?? "") as EncString;
+    this.summary = (obj.summary ?? "") as EncString;
     this.creationDate = new Date(obj.creationDate);
-    this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
+    this.contentEncryptionKey = (obj.contentEncryptionKey ?? undefined) as EncString | undefined;
 
     // Example usage when individual keys are encrypted instead of the entire object
     // this.summary = new RiskInsightsSummary(obj.summary);

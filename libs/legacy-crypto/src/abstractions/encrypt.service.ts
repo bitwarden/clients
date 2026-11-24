@@ -1,5 +1,6 @@
+import { EncString } from "@bitwarden/sdk-internal";
+
 import { EncArrayBuffer } from "../models/enc-array-buffer";
-import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
 export abstract class EncryptService {

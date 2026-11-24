@@ -18,10 +18,9 @@ import {
   CsprngArray,
   EncryptionType,
   EncryptService,
-  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
@@ -391,17 +390,14 @@ describe("deviceTrustService", () => {
           new Uint8Array(deviceRsaKeyLength),
         ];
 
-        mockDevicePublicKeyEncryptedUserKey = new EncString(
-          `${EncryptionType.Rsa2048_OaepSha1_B64}.mockDevicePublicKeyEncryptedUserKey`,
-        );
+        mockDevicePublicKeyEncryptedUserKey =
+          `${EncryptionType.Rsa2048_OaepSha1_B64}.mockDevicePublicKeyEncryptedUserKey` as EncString;
 
-        mockUserKeyEncryptedDevicePublicKey = new EncString(
-          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserKeyEncryptedDevicePublicKey`,
-        );
+        mockUserKeyEncryptedDevicePublicKey =
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserKeyEncryptedDevicePublicKey` as EncString;
 
-        mockDeviceKeyEncryptedDevicePrivateKey = new EncString(
-          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockDeviceKeyEncryptedDevicePrivateKey`,
-        );
+        mockDeviceKeyEncryptedDevicePrivateKey =
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockDeviceKeyEncryptedDevicePrivateKey` as EncString;
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
 
@@ -462,9 +458,9 @@ describe("deviceTrustService", () => {
         expect(devicesApiServiceUpdateTrustedDeviceKeysSpy).toHaveBeenCalledTimes(1);
         expect(devicesApiServiceUpdateTrustedDeviceKeysSpy).toHaveBeenCalledWith(
           mockDeviceId,
-          mockDevicePublicKeyEncryptedUserKey.encryptedString,
-          mockUserKeyEncryptedDevicePublicKey.encryptedString,
-          mockDeviceKeyEncryptedDevicePrivateKey.encryptedString,
+          mockDevicePublicKeyEncryptedUserKey,
+          mockUserKeyEncryptedDevicePublicKey,
+          mockDeviceKeyEncryptedDevicePrivateKey,
         );
 
         expect(response).toBeInstanceOf(DeviceResponse);
@@ -554,13 +550,11 @@ describe("deviceTrustService", () => {
         const mockUserKeyRandomBytes = new Uint8Array(userKeyBytesLength) as CsprngArray;
         mockUserKey = new SymmetricCryptoKey(mockUserKeyRandomBytes) as UserKey;
 
-        mockEncryptedDevicePrivateKey = new EncString(
-          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedDevicePrivateKey`,
-        );
+        mockEncryptedDevicePrivateKey =
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedDevicePrivateKey` as EncString;
 
-        mockEncryptedUserKey = new EncString(
-          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedUserKey`,
-        );
+        mockEncryptedUserKey =
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedUserKey` as EncString;
 
         jest.clearAllMocks();
       });
@@ -696,10 +690,8 @@ describe("deviceTrustService", () => {
           ),
         );
         encryptService.decryptBytes.mockResolvedValue(null);
-        encryptService.encryptString.mockResolvedValue(new EncString("test_encrypted_data"));
-        encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-          new EncString("test_encrypted_data"),
-        );
+        encryptService.encryptString.mockResolvedValue("test_encrypted_data" as EncString);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue("test_encrypted_data" as EncString);
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
           id: "id",
@@ -744,10 +736,8 @@ describe("deviceTrustService", () => {
           ),
         );
         encryptService.unwrapEncapsulationKey.mockResolvedValue(new Uint8Array(64));
-        encryptService.wrapEncapsulationKey.mockResolvedValue(new EncString("test_encrypted_data"));
-        encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-          new EncString("test_encrypted_data"),
-        );
+        encryptService.wrapEncapsulationKey.mockResolvedValue("test_encrypted_data" as EncString);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue("test_encrypted_data" as EncString);
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
           id: "",
@@ -822,8 +812,8 @@ describe("deviceTrustService", () => {
         });
 
         it("rotates current device keys and calls api service when the current device is trusted", async () => {
-          const currentEncryptedPublicKey = new EncString("2.cHVibGlj|cHVibGlj|cHVibGlj");
-          const currentEncryptedUserKey = new EncString("4.dXNlcg==");
+          const currentEncryptedPublicKey = "2.cHVibGlj|cHVibGlj|cHVibGlj" as EncString;
+          const currentEncryptedUserKey = "4.dXNlcg==" as EncString;
 
           const fakeOldUserKeyData = new Uint8Array(new Uint8Array(64));
           // Fill the first byte with something identifiable
@@ -848,8 +838,8 @@ describe("deviceTrustService", () => {
                 identifier: "test_device_identifier",
                 name: "Firefox",
                 type: DeviceType.FirefoxBrowser,
-                encryptedPublicKey: currentEncryptedPublicKey.encryptedString,
-                encryptedUserKey: currentEncryptedUserKey.encryptedString,
+                encryptedPublicKey: currentEncryptedPublicKey,
+                encryptedUserKey: currentEncryptedUserKey,
               }),
             );
           });
@@ -871,7 +861,7 @@ describe("deviceTrustService", () => {
             expect(new Uint8Array(data.toEncoded())[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
 
             expect(new Uint8Array(publicKey)[0]).toBe(FakeDecryptedPublicKeyMarker);
-            return Promise.resolve(new EncString("4.ZW5jcnlwdGVkdXNlcg=="));
+            return Promise.resolve("4.ZW5jcnlwdGVkdXNlcg==" as EncString);
           });
 
           // Mock the reencryption of the device public key with the new user key
@@ -881,7 +871,7 @@ describe("deviceTrustService", () => {
 
             expect(new Uint8Array(key.toEncoded())[0]).toBe(FakeNewUserKeyMarker);
             return Promise.resolve(
-              new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj"),
+              "2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj" as EncString,
             );
           });
 

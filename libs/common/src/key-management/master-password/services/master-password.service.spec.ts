@@ -114,7 +114,7 @@ describe("MasterPasswordService", () => {
         const unlockData = new MasterPasswordUnlockData(
           expectedSalt,
           new PBKDF2KdfConfig(600_000),
-          makeEncString().toSdk() as MasterKeyWrappedUserKey,
+          makeEncString() as MasterKeyWrappedUserKey,
         );
         stateProvider.singleUser
           .getFake(userId, MASTER_PASSWORD_UNLOCK_DATA)
@@ -295,7 +295,7 @@ describe("MasterPasswordService", () => {
     it.each([kdfPBKDF2, kdfArgon2])(
       "sets the master password unlock data kdf %o in the state",
       async (kdfConfig) => {
-        const masterKeyWrappedUserKey = makeEncString().toSdk() as MasterKeyWrappedUserKey;
+        const masterKeyWrappedUserKey = makeEncString() as MasterKeyWrappedUserKey;
         const masterPasswordUnlockData = new MasterPasswordUnlockData(
           salt,
           kdfConfig,
@@ -367,7 +367,7 @@ describe("MasterPasswordService", () => {
 
   describe("clearMasterPasswordUnlockData", () => {
     it("clears the master password unlock data from state", async () => {
-      const masterKeyWrappedUserKey = makeEncString().toSdk() as MasterKeyWrappedUserKey;
+      const masterKeyWrappedUserKey = makeEncString() as MasterKeyWrappedUserKey;
       const masterPasswordUnlockData = new MasterPasswordUnlockData(
         salt,
         kdfPBKDF2,

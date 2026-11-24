@@ -36,7 +36,7 @@ describe("MinimumKdfMigration", () => {
   const mockUnlockData = new MasterPasswordUnlockData(
     "test@bitwarden.com" as MasterPasswordSalt,
     new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.min),
-    mockWrappedUserKey.encryptedString as unknown as MasterKeyWrappedUserKey,
+    mockWrappedUserKey as unknown as MasterKeyWrappedUserKey,
   );
 
   // SDK reference chain: sdk.take() -> ref.value.user_crypto_management().change_kdf(...)

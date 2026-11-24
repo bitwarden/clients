@@ -30,7 +30,8 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
@@ -124,7 +125,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
         let decryptedNote = "";
         try {
           decryptedNote = await this.encryptService.decryptString(
-            new EncString(family.notes),
+            family.notes as EncString,
             orgKey,
           );
         } catch (e) {

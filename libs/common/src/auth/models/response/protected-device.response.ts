@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums";
 import { RotateableKeySet } from "../../../key-management/keys/models/rotateable-key-set";
@@ -18,10 +17,10 @@ export class ProtectedDeviceResponse extends BaseResponse {
     this.type = this.getResponseProperty("type");
     this.creationDate = new Date(this.getResponseProperty("creationDate"));
     if (response.encryptedUserKey) {
-      this.encryptedUserKey = new EncString(this.getResponseProperty("encryptedUserKey"));
+      this.encryptedUserKey = this.getResponseProperty("encryptedUserKey") as EncString;
     }
     if (response.encryptedPublicKey) {
-      this.encryptedPublicKey = new EncString(this.getResponseProperty("encryptedPublicKey"));
+      this.encryptedPublicKey = this.getResponseProperty("encryptedPublicKey") as EncString;
     }
   }
 

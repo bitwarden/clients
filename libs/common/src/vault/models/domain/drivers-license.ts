@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { DriversLicense as SdkDriversLicense } from "@bitwarden/sdk-internal";
+import { DriversLicense as SdkDriversLicense, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { DriversLicenseData } from "../data/drivers-license.data";
 
 export class DriversLicense extends Domain {
@@ -27,17 +24,17 @@ export class DriversLicense extends Domain {
       return;
     }
 
-    this.firstName = conditionalEncString(obj.firstName);
-    this.middleName = conditionalEncString(obj.middleName);
-    this.lastName = conditionalEncString(obj.lastName);
-    this.dateOfBirth = conditionalEncString(obj.dateOfBirth);
-    this.licenseNumber = conditionalEncString(obj.licenseNumber);
-    this.issuingCountry = conditionalEncString(obj.issuingCountry);
-    this.issuingState = conditionalEncString(obj.issuingState);
-    this.issueDate = conditionalEncString(obj.issueDate);
-    this.expirationDate = conditionalEncString(obj.expirationDate);
-    this.issuingAuthority = conditionalEncString(obj.issuingAuthority);
-    this.licenseClass = conditionalEncString(obj.licenseClass);
+    this.firstName = (obj.firstName ?? undefined) as EncString;
+    this.middleName = (obj.middleName ?? undefined) as EncString;
+    this.lastName = (obj.lastName ?? undefined) as EncString;
+    this.dateOfBirth = (obj.dateOfBirth ?? undefined) as EncString;
+    this.licenseNumber = (obj.licenseNumber ?? undefined) as EncString;
+    this.issuingCountry = (obj.issuingCountry ?? undefined) as EncString;
+    this.issuingState = (obj.issuingState ?? undefined) as EncString;
+    this.issueDate = (obj.issueDate ?? undefined) as EncString;
+    this.expirationDate = (obj.expirationDate ?? undefined) as EncString;
+    this.issuingAuthority = (obj.issuingAuthority ?? undefined) as EncString;
+    this.licenseClass = (obj.licenseClass ?? undefined) as EncString;
   }
 
   toDriversLicenseData(): DriversLicenseData {
@@ -64,34 +61,34 @@ export class DriversLicense extends Domain {
     }
 
     const driversLicense = new DriversLicense();
-    driversLicense.firstName = encStringFrom(obj.firstName);
-    driversLicense.middleName = encStringFrom(obj.middleName);
-    driversLicense.lastName = encStringFrom(obj.lastName);
-    driversLicense.dateOfBirth = encStringFrom(obj.dateOfBirth);
-    driversLicense.licenseNumber = encStringFrom(obj.licenseNumber);
-    driversLicense.issuingCountry = encStringFrom(obj.issuingCountry);
-    driversLicense.issuingState = encStringFrom(obj.issuingState);
-    driversLicense.issueDate = encStringFrom(obj.issueDate);
-    driversLicense.expirationDate = encStringFrom(obj.expirationDate);
-    driversLicense.issuingAuthority = encStringFrom(obj.issuingAuthority);
-    driversLicense.licenseClass = encStringFrom(obj.licenseClass);
+    driversLicense.firstName = obj.firstName ?? undefined;
+    driversLicense.middleName = obj.middleName ?? undefined;
+    driversLicense.lastName = obj.lastName ?? undefined;
+    driversLicense.dateOfBirth = obj.dateOfBirth ?? undefined;
+    driversLicense.licenseNumber = obj.licenseNumber ?? undefined;
+    driversLicense.issuingCountry = obj.issuingCountry ?? undefined;
+    driversLicense.issuingState = obj.issuingState ?? undefined;
+    driversLicense.issueDate = obj.issueDate ?? undefined;
+    driversLicense.expirationDate = obj.expirationDate ?? undefined;
+    driversLicense.issuingAuthority = obj.issuingAuthority ?? undefined;
+    driversLicense.licenseClass = obj.licenseClass ?? undefined;
 
     return driversLicense;
   }
 
   toSdkDriversLicense(): SdkDriversLicense {
     return {
-      firstName: this.firstName?.toSdk(),
-      middleName: this.middleName?.toSdk(),
-      lastName: this.lastName?.toSdk(),
-      dateOfBirth: this.dateOfBirth?.toSdk(),
-      licenseNumber: this.licenseNumber?.toSdk(),
-      issuingCountry: this.issuingCountry?.toSdk(),
-      issuingState: this.issuingState?.toSdk(),
-      issueDate: this.issueDate?.toSdk(),
-      expirationDate: this.expirationDate?.toSdk(),
-      issuingAuthority: this.issuingAuthority?.toSdk(),
-      licenseClass: this.licenseClass?.toSdk(),
+      firstName: this.firstName ?? undefined,
+      middleName: this.middleName ?? undefined,
+      lastName: this.lastName ?? undefined,
+      dateOfBirth: this.dateOfBirth ?? undefined,
+      licenseNumber: this.licenseNumber ?? undefined,
+      issuingCountry: this.issuingCountry ?? undefined,
+      issuingState: this.issuingState ?? undefined,
+      issueDate: this.issueDate ?? undefined,
+      expirationDate: this.expirationDate ?? undefined,
+      issuingAuthority: this.issuingAuthority ?? undefined,
+      licenseClass: this.licenseClass ?? undefined,
     };
   }
 
@@ -101,17 +98,17 @@ export class DriversLicense extends Domain {
     }
 
     const driversLicense = new DriversLicense();
-    driversLicense.firstName = encStringFrom(obj.firstName);
-    driversLicense.middleName = encStringFrom(obj.middleName);
-    driversLicense.lastName = encStringFrom(obj.lastName);
-    driversLicense.dateOfBirth = encStringFrom(obj.dateOfBirth);
-    driversLicense.licenseNumber = encStringFrom(obj.licenseNumber);
-    driversLicense.issuingCountry = encStringFrom(obj.issuingCountry);
-    driversLicense.issuingState = encStringFrom(obj.issuingState);
-    driversLicense.issueDate = encStringFrom(obj.issueDate);
-    driversLicense.expirationDate = encStringFrom(obj.expirationDate);
-    driversLicense.issuingAuthority = encStringFrom(obj.issuingAuthority);
-    driversLicense.licenseClass = encStringFrom(obj.licenseClass);
+    driversLicense.firstName = obj.firstName ?? undefined;
+    driversLicense.middleName = obj.middleName ?? undefined;
+    driversLicense.lastName = obj.lastName ?? undefined;
+    driversLicense.dateOfBirth = obj.dateOfBirth ?? undefined;
+    driversLicense.licenseNumber = obj.licenseNumber ?? undefined;
+    driversLicense.issuingCountry = obj.issuingCountry ?? undefined;
+    driversLicense.issuingState = obj.issuingState ?? undefined;
+    driversLicense.issueDate = obj.issueDate ?? undefined;
+    driversLicense.expirationDate = obj.expirationDate ?? undefined;
+    driversLicense.issuingAuthority = obj.issuingAuthority ?? undefined;
+    driversLicense.licenseClass = obj.licenseClass ?? undefined;
 
     return driversLicense;
   }

@@ -170,7 +170,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c));
       const organizationId = Utils.newGuid();
       const serviceAccountId = Utils.newGuid();
 
@@ -207,7 +207,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c));
       const organizationId = Utils.newGuid();
       const projectId = Utils.newGuid();
 

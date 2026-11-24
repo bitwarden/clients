@@ -1,8 +1,7 @@
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserUpdateRequest {
   type: OrganizationUserType;
@@ -11,7 +10,7 @@ export class OrganizationUserUpdateRequest {
   collections: SelectionReadOnlyRequest[];
   groups: string[] | undefined;
   permissions: PermissionsApi;
-  defaultUserCollectionName: EncryptedString | undefined;
+  defaultUserCollectionName: EncString | undefined;
   email: string | undefined;
   name: string | undefined;
 
@@ -22,7 +21,7 @@ export class OrganizationUserUpdateRequest {
     accessPam?: boolean;
     collections?: SelectionReadOnlyRequest[];
     groups?: string[];
-    defaultUserCollectionName?: EncryptedString;
+    defaultUserCollectionName?: EncString;
     email?: string;
     name?: string;
   }) {

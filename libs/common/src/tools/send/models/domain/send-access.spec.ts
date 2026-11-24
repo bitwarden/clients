@@ -47,10 +47,10 @@ describe("SendAccess", () => {
     expect(sendAccess).toEqual({
       id: "id",
       type: 0,
-      name: { encryptedString: "encName" },
+      name: "encName",
       text: {
         hidden: true,
-        text: { encryptedString: "encText" },
+        text: "encText",
       },
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       creatorIdentifier: "creatorIdentifier",

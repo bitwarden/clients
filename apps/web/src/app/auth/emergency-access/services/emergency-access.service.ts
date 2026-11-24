@@ -26,9 +26,7 @@ import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-m
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
-  EncryptedString,
   EncryptService,
-  EncString,
   KdfConfig,
   KdfType,
   LegacyCompatKeyService,
@@ -38,6 +36,7 @@ import {
   EmergencyAccessClient,
   EmergencyAccessId,
   EmergencyAccessType as SdkEmergencyAccessType,
+  EncString,
 } from "@bitwarden/sdk-internal";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
@@ -391,7 +390,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     }
 
     const grantorKey = await this.encryptService.decapsulateKeyUnsigned(
-      new EncString(takeoverResponse.keyEncrypted),
+      takeoverResponse.keyEncrypted as EncString,
       activeUserPrivateKey,
     );
     if (grantorKey == null) {
@@ -567,17 +566,17 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     );
   }
 
-  private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
+  private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncString> {
     const publicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
       userKey,
       publicKey,
     );
 
-    if (publicKeyEncryptedUserKey == null || !publicKeyEncryptedUserKey.encryptedString) {
+    if (publicKeyEncryptedUserKey == null || !publicKeyEncryptedUserKey) {
       throw new Error("publicKeyEncryptedUserKey not found");
     }
 
-    return publicKeyEncryptedUserKey.encryptedString;
+    return publicKeyEncryptedUserKey;
   }
 }
 

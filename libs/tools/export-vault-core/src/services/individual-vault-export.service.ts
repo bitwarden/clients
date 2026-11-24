@@ -270,7 +270,7 @@ export class IndividualVaultExportService
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {
       encrypted: true,
-      encKeyValidation_DO_NOT_EDIT: encKeyValidation.encryptedString,
+      encKeyValidation_DO_NOT_EDIT: encKeyValidation,
       folders: [],
       items: [],
     };

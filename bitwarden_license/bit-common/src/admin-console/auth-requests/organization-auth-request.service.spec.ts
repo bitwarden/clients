@@ -11,10 +11,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
@@ -203,7 +203,7 @@ describe("OrganizationAuthRequestService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const encryptedUserKey = new EncString("encryptedUserKey");
+      const encryptedUserKey = "encryptedUserKey" as EncString;
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)),
       );
@@ -220,13 +220,7 @@ describe("OrganizationAuthRequestService", () => {
 
       expect(organizationAuthRequestApiService.bulkUpdatePendingRequests).toHaveBeenCalledWith(
         organizationId,
-        [
-          new OrganizationAuthRequestUpdateRequest(
-            "requestId1",
-            true,
-            encryptedUserKey.encryptedString,
-          ),
-        ],
+        [new OrganizationAuthRequestUpdateRequest("requestId1", true, encryptedUserKey)],
       );
     });
   });
@@ -248,7 +242,7 @@ describe("OrganizationAuthRequestService", () => {
         organizationUserResetPasswordDetailsResponse,
       );
 
-      const encryptedUserKey = new EncString("encryptedUserKey");
+      const encryptedUserKey = "encryptedUserKey" as EncString;
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)),
       );

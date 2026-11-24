@@ -220,7 +220,7 @@ export class AccountComponent implements OnInit, OnDestroy {
         ),
       );
       const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey!);
-      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString!);
+      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1]!);
     }
 
     await this.organizationApiService.save(this.organizationId, request);

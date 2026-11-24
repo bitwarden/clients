@@ -12,11 +12,10 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   CryptoFunctionService,
   EncryptService,
-  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
@@ -192,13 +191,23 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       this.encryptService.wrapDecapsulationKey(devicePrivateKey, deviceKey),
     ]);
 
+    // Previously a missing key surfaced as a TypeError when its wrapper was dereferenced.
+    // An EncString is a plain string now, so the absence has to be checked for.
+    if (
+      !devicePublicKeyEncryptedUserKey ||
+      !userKeyEncryptedDevicePublicKey ||
+      !deviceKeyEncryptedDevicePrivateKey
+    ) {
+      throw new Error("Failed to encrypt device keys. Cannot trust device.");
+    }
+
     // Send encrypted keys to server
     const deviceIdentifier = await this.appIdService.getAppId();
     const deviceResponse = await this.devicesApiService.updateTrustedDeviceKeys(
       deviceIdentifier,
-      devicePublicKeyEncryptedUserKey.encryptedString,
-      userKeyEncryptedDevicePublicKey.encryptedString,
-      deviceKeyEncryptedDevicePrivateKey.encryptedString,
+      devicePublicKeyEncryptedUserKey,
+      userKeyEncryptedDevicePublicKey,
+      deviceKeyEncryptedDevicePrivateKey,
     );
 
     // store device key in local/secure storage if enc keys posted to server successfully
@@ -232,7 +241,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
         .filter((device) => device.isTrusted)
         .map(async (device) => {
           const publicKey = await this.encryptService.unwrapEncapsulationKey(
-            new EncString(device.encryptedPublicKey),
+            device.encryptedPublicKey as EncString,
             oldUserKey,
           );
 
@@ -257,8 +266,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
           );
 
           const request = new OtherDeviceKeysUpdateRequest();
-          request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
+          request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey;
           request.deviceId = device.id;
           return request;
         })
@@ -321,8 +330,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
 
     const currentDeviceUpdateRequest = new DeviceKeysUpdateRequest();
-    currentDeviceUpdateRequest.encryptedUserKey = encryptedNewUserKey.encryptedString;
-    currentDeviceUpdateRequest.encryptedPublicKey = encryptedDevicePublicKey.encryptedString;
+    currentDeviceUpdateRequest.encryptedUserKey = encryptedNewUserKey;
+    currentDeviceUpdateRequest.encryptedPublicKey = encryptedDevicePublicKey;
 
     // TODO: For device management, allow this method to take an array of device ids that can be looped over and individually rotated
     // then it can be added to trustRequest.otherDevices.
@@ -429,7 +438,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
       // Attempt to decrypt encryptedUserDataKey with devicePrivateKey
       const userKey = await this.encryptService.decapsulateKeyUnsigned(
-        new EncString(encryptedUserKey.encryptedString),
+        encryptedUserKey as EncString,
         devicePrivateKey,
       );
 

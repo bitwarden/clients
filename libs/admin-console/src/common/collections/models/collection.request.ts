@@ -1,6 +1,5 @@
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export abstract class BaseCollectionRequest {
   externalId: string | undefined;
@@ -38,11 +37,11 @@ export class CreateCollectionRequest extends BaseCollectionRequest {
   }) {
     super(c);
 
-    if (!c.name || !c.name.encryptedString) {
+    if (!c.name || !c.name) {
       throw new Error("Name not provided for CollectionRequest.");
     }
 
-    this.name = c.name.encryptedString;
+    this.name = c.name;
   }
 }
 
@@ -56,6 +55,6 @@ export class UpdateCollectionRequest extends BaseCollectionRequest {
     externalId?: string;
   }) {
     super(c);
-    this.name = c.name?.encryptedString ?? null;
+    this.name = c.name ?? null;
   }
 }

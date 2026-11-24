@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Password } from "../../vault/models/domain/password";
 import { PasswordHistoryView } from "../../vault/models/view/password-history.view";
-
-import { safeGetString } from "./utils";
 
 export class PasswordHistoryExport {
   static template(): PasswordHistoryExport {
@@ -19,7 +16,7 @@ export class PasswordHistoryExport {
   }
 
   static toDomain(req: PasswordHistoryExport, domain = new Password()) {
-    domain.password = new EncString(req.password);
+    domain.password = req.password as EncString;
     domain.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : new Date();
     return domain;
   }
@@ -32,7 +29,7 @@ export class PasswordHistoryExport {
       return;
     }
 
-    this.password = safeGetString(o.password) ?? "";
+    this.password = o.password ?? "";
     this.lastUsedDate = o.lastUsedDate ?? undefined;
   }
 }

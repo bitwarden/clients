@@ -1,8 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { makeEncString } from "../../../spec";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
@@ -89,9 +88,7 @@ describe("UserKeyEncryptor", () => {
       const encryptor = new UserKeyEncryptor(anyUserId, sdkService, dataPacker);
       const value = { foo: true };
       const expectedEncString = makeEncString();
-      mockCrypto.encrypt_with_local_user_data_key.mockReturnValue(
-        expectedEncString.encryptedString,
-      );
+      mockCrypto.encrypt_with_local_user_data_key.mockReturnValue(expectedEncString);
 
       const result = await encryptor.encrypt(value);
 
@@ -120,9 +117,7 @@ describe("UserKeyEncryptor", () => {
 
       const result = await encryptor.decrypt(secret);
 
-      expect(mockCrypto.decrypt_with_local_user_data_key).toHaveBeenCalledWith(
-        secret.encryptedString,
-      );
+      expect(mockCrypto.decrypt_with_local_user_data_key).toHaveBeenCalledWith(secret);
       expect(dataPacker.unpack).toHaveBeenCalledWith("decrypted:some-encrypted-value");
       expect(result).toBe("decrypted:some-encrypted-value");
     });

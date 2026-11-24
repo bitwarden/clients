@@ -127,9 +127,9 @@ describe("Send <-> SDK Send mapping", () => {
       expect(back.accessId).toBe(original.accessId);
       expect(back.type).toBe(original.type);
       expect(back.authType).toBe(original.authType);
-      expect(back.name?.toSdk()).toBe(original.name?.toSdk());
-      expect(back.notes?.toSdk()).toBe(original.notes?.toSdk());
-      expect(back.key?.toSdk()).toBe(original.key?.toSdk());
+      expect(back.name).toBe(original.name);
+      expect(back.notes).toBe(original.notes);
+      expect(back.key).toBe(original.key);
       expect(back.password).toBe(original.password);
       expect(back.maxAccessCount).toBe(original.maxAccessCount);
       expect(back.accessCount).toBe(original.accessCount);
@@ -139,9 +139,9 @@ describe("Send <-> SDK Send mapping", () => {
       expect(back.revisionDate).toEqual(original.revisionDate);
       expect(back.deletionDate).toEqual(original.deletionDate);
       expect(back.expirationDate).toEqual(original.expirationDate);
-      expect(back.text?.text?.toSdk()).toBe(original.text?.text?.toSdk());
+      expect(back.text?.text).toBe(original.text?.text);
       expect(back.text?.hidden).toBe(original.text?.hidden);
-      expect(back.file?.fileName?.toSdk()).toBe(original.file?.fileName?.toSdk());
+      expect(back.file?.fileName).toBe(original.file?.fileName);
       expect(back.file?.id).toBe(original.file?.id);
       expect(back.file?.size).toBe(original.file?.size);
       expect(back.file?.sizeName).toBe(original.file?.sizeName);

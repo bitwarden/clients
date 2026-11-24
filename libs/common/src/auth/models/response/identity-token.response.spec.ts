@@ -97,7 +97,7 @@ describe("IdentityTokenResponse", () => {
     const response = {
       access_token: accessToken,
       token_type: tokenType,
-      Key: encryptedUserKey.encryptedString,
+      Key: encryptedUserKey,
       ...kdfFields,
     };
 
@@ -230,7 +230,7 @@ describe("IdentityTokenResponse", () => {
     describe("canUnlockWithKeyConnector", () => {
       it("returns true when a key connector option and a wrapped user key are present and there is no master password", () => {
         const response = buildResponse({
-          key: encryptedUserKey.encryptedString,
+          key: encryptedUserKey,
           hasMasterPassword: false,
           withKeyConnectorOption: true,
         });
@@ -246,7 +246,7 @@ describe("IdentityTokenResponse", () => {
 
       it("returns false when the user still has a master password", () => {
         const response = buildResponse({
-          key: encryptedUserKey.encryptedString,
+          key: encryptedUserKey,
           hasMasterPassword: true,
           withKeyConnectorOption: true,
         });
@@ -256,7 +256,7 @@ describe("IdentityTokenResponse", () => {
 
       it("returns false when there is no key connector option", () => {
         const response = buildResponse({
-          key: encryptedUserKey.encryptedString,
+          key: encryptedUserKey,
           hasMasterPassword: false,
           withKeyConnectorOption: false,
         });
@@ -268,14 +268,14 @@ describe("IdentityTokenResponse", () => {
     describe("intoKeyConnectorUnlockData", () => {
       it("returns the key connector url and the wrapped user key", () => {
         const response = buildResponse({
-          key: encryptedUserKey.encryptedString,
+          key: encryptedUserKey,
           hasMasterPassword: false,
           withKeyConnectorOption: true,
         });
 
         expect(response.intoKeyConnectorUnlockData()).toEqual({
           url: keyConnectorUrl,
-          keyConnectorKeyWrappedUserKey: encryptedUserKey.toSdk(),
+          keyConnectorKeyWrappedUserKey: encryptedUserKey,
         });
       });
 

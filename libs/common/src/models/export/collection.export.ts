@@ -1,15 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   CollectionView,
   Collection as CollectionDomain,
 } from "../../admin-console/models/collections";
 import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
-
-import { safeGetString } from "./utils";
 
 export class CollectionExport {
   static template(): CollectionExport {
@@ -32,7 +29,7 @@ export class CollectionExport {
   }
 
   static toDomain(req: CollectionExport, domain: CollectionDomain) {
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.name = req.name != null ? (req.name as EncString) : null;
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
       domain.organizationId = req.organizationId;
@@ -48,7 +45,7 @@ export class CollectionExport {
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
     this.organizationId = o.organizationId;
-    this.name = safeGetString(o.name);
+    this.name = o.name ?? undefined;
     this.externalId = o.externalId;
   }
 }

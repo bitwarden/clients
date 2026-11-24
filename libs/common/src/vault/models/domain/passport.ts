@@ -1,11 +1,8 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { Passport as SdkPassport } from "@bitwarden/sdk-internal";
+import { Passport as SdkPassport, EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
-import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { PassportData } from "../data/passport.data";
 
 export class Passport extends Domain {
@@ -29,19 +26,20 @@ export class Passport extends Domain {
       return;
     }
 
-    this.surname = conditionalEncString(obj.surname);
-    this.givenName = conditionalEncString(obj.givenName);
-    this.dateOfBirth = conditionalEncString(obj.dateOfBirth);
-    this.sex = conditionalEncString(obj.sex);
-    this.birthPlace = conditionalEncString(obj.birthPlace);
-    this.nationality = conditionalEncString(obj.nationality);
-    this.issuingCountry = conditionalEncString(obj.issuingCountry);
-    this.passportNumber = conditionalEncString(obj.passportNumber);
-    this.passportType = conditionalEncString(obj.passportType);
-    this.nationalIdentificationNumber = conditionalEncString(obj.nationalIdentificationNumber);
-    this.issuingAuthority = conditionalEncString(obj.issuingAuthority);
-    this.issueDate = conditionalEncString(obj.issueDate);
-    this.expirationDate = conditionalEncString(obj.expirationDate);
+    this.surname = (obj.surname ?? undefined) as EncString;
+    this.givenName = (obj.givenName ?? undefined) as EncString;
+    this.dateOfBirth = (obj.dateOfBirth ?? undefined) as EncString;
+    this.sex = (obj.sex ?? undefined) as EncString;
+    this.birthPlace = (obj.birthPlace ?? undefined) as EncString;
+    this.nationality = (obj.nationality ?? undefined) as EncString;
+    this.issuingCountry = (obj.issuingCountry ?? undefined) as EncString;
+    this.passportNumber = (obj.passportNumber ?? undefined) as EncString;
+    this.passportType = (obj.passportType ?? undefined) as EncString;
+    this.nationalIdentificationNumber = (obj.nationalIdentificationNumber ??
+      undefined) as EncString;
+    this.issuingAuthority = (obj.issuingAuthority ?? undefined) as EncString;
+    this.issueDate = (obj.issueDate ?? undefined) as EncString;
+    this.expirationDate = (obj.expirationDate ?? undefined) as EncString;
   }
 
   toPassportData(): PassportData {
@@ -70,38 +68,38 @@ export class Passport extends Domain {
     }
 
     const passport = new Passport();
-    passport.surname = encStringFrom(obj.surname);
-    passport.givenName = encStringFrom(obj.givenName);
-    passport.dateOfBirth = encStringFrom(obj.dateOfBirth);
-    passport.sex = encStringFrom(obj.sex);
-    passport.birthPlace = encStringFrom(obj.birthPlace);
-    passport.nationality = encStringFrom(obj.nationality);
-    passport.issuingCountry = encStringFrom(obj.issuingCountry);
-    passport.passportNumber = encStringFrom(obj.passportNumber);
-    passport.passportType = encStringFrom(obj.passportType);
-    passport.nationalIdentificationNumber = encStringFrom(obj.nationalIdentificationNumber);
-    passport.issuingAuthority = encStringFrom(obj.issuingAuthority);
-    passport.issueDate = encStringFrom(obj.issueDate);
-    passport.expirationDate = encStringFrom(obj.expirationDate);
+    passport.surname = obj.surname ?? undefined;
+    passport.givenName = obj.givenName ?? undefined;
+    passport.dateOfBirth = obj.dateOfBirth ?? undefined;
+    passport.sex = obj.sex ?? undefined;
+    passport.birthPlace = obj.birthPlace ?? undefined;
+    passport.nationality = obj.nationality ?? undefined;
+    passport.issuingCountry = obj.issuingCountry ?? undefined;
+    passport.passportNumber = obj.passportNumber ?? undefined;
+    passport.passportType = obj.passportType ?? undefined;
+    passport.nationalIdentificationNumber = obj.nationalIdentificationNumber ?? undefined;
+    passport.issuingAuthority = obj.issuingAuthority ?? undefined;
+    passport.issueDate = obj.issueDate ?? undefined;
+    passport.expirationDate = obj.expirationDate ?? undefined;
 
     return passport;
   }
 
   toSdkPassport(): SdkPassport {
     return {
-      surname: this.surname?.toSdk(),
-      givenName: this.givenName?.toSdk(),
-      dateOfBirth: this.dateOfBirth?.toSdk(),
-      sex: this.sex?.toSdk(),
-      birthPlace: this.birthPlace?.toSdk(),
-      nationality: this.nationality?.toSdk(),
-      issuingCountry: this.issuingCountry?.toSdk(),
-      passportNumber: this.passportNumber?.toSdk(),
-      passportType: this.passportType?.toSdk(),
-      nationalIdentificationNumber: this.nationalIdentificationNumber?.toSdk(),
-      issuingAuthority: this.issuingAuthority?.toSdk(),
-      issueDate: this.issueDate?.toSdk(),
-      expirationDate: this.expirationDate?.toSdk(),
+      surname: this.surname ?? undefined,
+      givenName: this.givenName ?? undefined,
+      dateOfBirth: this.dateOfBirth ?? undefined,
+      sex: this.sex ?? undefined,
+      birthPlace: this.birthPlace ?? undefined,
+      nationality: this.nationality ?? undefined,
+      issuingCountry: this.issuingCountry ?? undefined,
+      passportNumber: this.passportNumber ?? undefined,
+      passportType: this.passportType ?? undefined,
+      nationalIdentificationNumber: this.nationalIdentificationNumber ?? undefined,
+      issuingAuthority: this.issuingAuthority ?? undefined,
+      issueDate: this.issueDate ?? undefined,
+      expirationDate: this.expirationDate ?? undefined,
     };
   }
 
@@ -111,19 +109,19 @@ export class Passport extends Domain {
     }
 
     const passport = new Passport();
-    passport.surname = encStringFrom(obj.surname);
-    passport.givenName = encStringFrom(obj.givenName);
-    passport.dateOfBirth = encStringFrom(obj.dateOfBirth);
-    passport.sex = encStringFrom(obj.sex);
-    passport.birthPlace = encStringFrom(obj.birthPlace);
-    passport.nationality = encStringFrom(obj.nationality);
-    passport.issuingCountry = encStringFrom(obj.issuingCountry);
-    passport.passportNumber = encStringFrom(obj.passportNumber);
-    passport.passportType = encStringFrom(obj.passportType);
-    passport.nationalIdentificationNumber = encStringFrom(obj.nationalIdentificationNumber);
-    passport.issuingAuthority = encStringFrom(obj.issuingAuthority);
-    passport.issueDate = encStringFrom(obj.issueDate);
-    passport.expirationDate = encStringFrom(obj.expirationDate);
+    passport.surname = obj.surname ?? undefined;
+    passport.givenName = obj.givenName ?? undefined;
+    passport.dateOfBirth = obj.dateOfBirth ?? undefined;
+    passport.sex = obj.sex ?? undefined;
+    passport.birthPlace = obj.birthPlace ?? undefined;
+    passport.nationality = obj.nationality ?? undefined;
+    passport.issuingCountry = obj.issuingCountry ?? undefined;
+    passport.passportNumber = obj.passportNumber ?? undefined;
+    passport.passportType = obj.passportType ?? undefined;
+    passport.nationalIdentificationNumber = obj.nationalIdentificationNumber ?? undefined;
+    passport.issuingAuthority = obj.issuingAuthority ?? undefined;
+    passport.issueDate = obj.issueDate ?? undefined;
+    passport.expirationDate = obj.expirationDate ?? undefined;
 
     return passport;
   }

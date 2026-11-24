@@ -1,11 +1,8 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { FieldType, LinkedIdType } from "../../vault/enums";
 import { Field as FieldDomain } from "../../vault/models/domain/field";
 import { FieldView } from "../../vault/models/view/field.view";
-
-import { safeGetString } from "./utils";
 
 export class FieldExport {
   static template(): FieldExport {
@@ -26,8 +23,8 @@ export class FieldExport {
 
   static toDomain(req: FieldExport, domain = new FieldDomain()) {
     domain.type = req.type;
-    domain.value = req.value != null ? new EncString(req.value) : undefined;
-    domain.name = req.name != null ? new EncString(req.name) : undefined;
+    domain.value = req.value != null ? (req.value as EncString) : undefined;
+    domain.name = req.name != null ? (req.name as EncString) : undefined;
     domain.linkedId = req.linkedId;
     return domain;
   }
@@ -42,8 +39,8 @@ export class FieldExport {
       return;
     }
 
-    this.name = safeGetString(o.name);
-    this.value = safeGetString(o.value);
+    this.name = o.name ?? undefined;
+    this.value = o.value ?? undefined;
     this.type = o.type;
     this.linkedId = o.linkedId;
   }

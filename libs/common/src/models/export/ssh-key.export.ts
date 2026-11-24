@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
-
-import { safeGetString } from "./utils";
 
 export class SshKeyExport {
   static template(): SshKeyExport {
@@ -31,9 +28,9 @@ export class SshKeyExport {
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
-    domain.privateKey = new EncString(req.privateKey);
-    domain.publicKey = new EncString(req.publicKey);
-    domain.keyFingerprint = new EncString(req.keyFingerprint);
+    domain.privateKey = req.privateKey as EncString;
+    domain.publicKey = req.publicKey as EncString;
+    domain.keyFingerprint = req.keyFingerprint as EncString;
     return domain;
   }
 
@@ -46,8 +43,8 @@ export class SshKeyExport {
       return;
     }
 
-    this.privateKey = safeGetString(o.privateKey) ?? "";
-    this.publicKey = safeGetString(o.publicKey) ?? "";
-    this.keyFingerprint = safeGetString(o.keyFingerprint) ?? "";
+    this.privateKey = o.privateKey ?? "";
+    this.publicKey = o.publicKey ?? "";
+    this.keyFingerprint = o.keyFingerprint ?? "";
   }
 }

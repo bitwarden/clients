@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { SendItemMetadataData } from "../data/send-item-metadata.data";
@@ -25,10 +24,10 @@ export class SendItemMetadata extends Domain {
     this.creationDate = data.creationDate;
     this.revisionDate = data.revisionDate;
     if (data.collectionNames) {
-      this.collectionNames = data.collectionNames.map((cn) => new EncString(cn));
+      this.collectionNames = data.collectionNames.map((cn) => cn as EncString);
     }
     if (data.folderName) {
-      this.folderName = new EncString(data.folderName);
+      this.folderName = data.folderName as EncString;
     }
     this.organizationName = data.organizationName;
   }
@@ -37,8 +36,8 @@ export class SendItemMetadata extends Domain {
   toSendData(): SendItemMetadataData {
     return {
       itemId: this.itemId,
-      folderName: this.folderName?.toJSON(),
-      collectionNames: this.collectionNames?.map((cn) => cn.toJSON()),
+      folderName: this.folderName ?? undefined,
+      collectionNames: this.collectionNames?.map((cn) => cn),
       organizationName: this.organizationName,
       creationDate: this.creationDate,
       revisionDate: this.revisionDate,

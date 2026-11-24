@@ -2,8 +2,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, from, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import {
   FakeStateProvider,
@@ -42,17 +41,17 @@ function mockEncryptor<T>(fooBar: T[] = []): Observable<UserEncryptor> {
   // stores "encrypted values" so that they can be "decrypted" later
   // while allowing the operations to be interleaved.
   const encrypted = new Map<string, Jsonify<FooBar>>(
-    fooBar.map((fb) => [toKey(fb as any).encryptedString, toValue(fb)] as const),
+    fooBar.map((fb) => [toKey(fb as any), toValue(fb)] as const),
   );
 
   const result: UserEncryptor = mock<UserEncryptor>({
     encrypt<T>(value: Jsonify<T>) {
       const encString = toKey(value as any);
-      encrypted.set(encString.encryptedString, toValue(value));
+      encrypted.set(encString, toValue(value));
       return Promise.resolve(encString);
     },
     decrypt(secret: EncString) {
-      const decValue = encrypted.get(secret.encryptedString);
+      const decValue = encrypted.get(secret);
       return Promise.resolve(decValue as any);
     },
   });

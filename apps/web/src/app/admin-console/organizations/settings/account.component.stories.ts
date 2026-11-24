@@ -91,7 +91,7 @@ const mockKeyService = {
 // `AccountComponent` uses `makeKeyPair`; the nested `AccountFingerprintComponent` uses
 // `getFingerprint`. Both moved off `KeyService` onto `LegacyCompatKeyService`.
 const mockLegacyCompatKeyService = {
-  makeKeyPair: () => Promise.resolve(["publicKey", { encryptedString: "encryptedPrivateKey" }]),
+  makeKeyPair: () => Promise.resolve(["publicKey", "encryptedPrivateKey"]),
   getFingerprint: () => Promise.resolve(["acme", "fingerprint", "words", "here"]),
 };
 

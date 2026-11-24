@@ -43,13 +43,15 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
-  EncryptedString,
   EncryptService,
-  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
-import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import {
+  UnsignedSharedKey,
+  WrappedAccountCryptographicState,
+  EncString,
+} from "@bitwarden/sdk-internal";
 
 import {
   CipherDecryptionKeys,
@@ -221,7 +223,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   ): Record<OrganizationId, UnsignedSharedKey> {
     const result: Record<OrganizationId, UnsignedSharedKey> = {};
     for (const [orgId, orgKey] of Object.entries(orgKeys) as [OrganizationId, EncString][]) {
-      result[orgId] = orgKey.toJSON() as UnsignedSharedKey;
+      result[orgId] = orgKey as string as UnsignedSharedKey;
     }
     return result;
   }
@@ -242,10 +244,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async setProviderKeys(providers: ProfileProviderResponse[], userId: UserId): Promise<void> {
     await this.stateProvider.getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS).update(() => {
-      const encProviderKeys: { [providerId: ProviderId]: EncryptedString } = {};
+      const encProviderKeys: { [providerId: ProviderId]: EncString } = {};
 
       providers.forEach((provider) => {
-        encProviderKeys[provider.id as ProviderId] = provider.key as EncryptedString;
+        encProviderKeys[provider.id as ProviderId] = provider.key as EncString;
       });
 
       return encProviderKeys;
@@ -368,7 +370,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
-  userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString | null> {
+  userEncryptedPrivateKey$(userId: UserId): Observable<EncString | null> {
     return this.accountCryptographyStateService.accountCryptographicState$(userId).pipe(
       map((state: WrappedAccountCryptographicState | null) => {
         if (state == null) {
@@ -418,16 +420,13 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
-  private async decryptPrivateKey(
-    encryptedPrivateKey: EncryptedString | null,
-    key: SymmetricCryptoKey,
-  ) {
+  private async decryptPrivateKey(encryptedPrivateKey: EncString | null, key: SymmetricCryptoKey) {
     if (encryptedPrivateKey == null) {
       return null;
     }
 
     return (await this.encryptService.unwrapDecapsulationKey(
-      new EncString(encryptedPrivateKey),
+      encryptedPrivateKey as EncString,
       key,
     )) as UserPrivateKey;
   }
@@ -458,7 +457,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       // Convert each value in the record to it's own decryption observable
       convertValues(async (_, value) => {
         const decapsulatedKey = await this.encryptService.decapsulateKeyUnsigned(
-          new EncString(value),
+          value as EncString,
           userPrivateKey,
         );
         return decapsulatedKey as ProviderKey;

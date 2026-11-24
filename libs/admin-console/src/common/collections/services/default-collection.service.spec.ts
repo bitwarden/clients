@@ -27,7 +27,6 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
@@ -67,9 +66,9 @@ describe("DefaultCollectionService", () => {
 
     // Set up mock decryption
     encryptService.decryptString
-      .calledWith(expect.any(EncString), expect.any(SymmetricCryptoKey))
+      .calledWith(expect.any(String), expect.any(SymmetricCryptoKey))
       .mockImplementation((encString, key) =>
-        Promise.resolve(encString.encryptedString!.split("|")[1].replace("ENC_", "DEC_")),
+        Promise.resolve(encString!.split("|")[1].replace("ENC_", "DEC_")),
       );
 
     (window as any).bitwardenContainerService = new ContainerService(
@@ -463,7 +462,7 @@ describe("DefaultCollectionService", () => {
       await setEncryptedState([collection1]);
 
       const updatedCollection1 = Object.assign(new CollectionData({} as any), collection1, {
-        name: makeEncString("UPDATED_ENC_NAME_" + collection1.id).encryptedString,
+        name: makeEncString("UPDATED_ENC_NAME_" + collection1.id),
       });
 
       const updatedView = collectionViewDataFactory(org1);
@@ -689,7 +688,7 @@ const collectionDataFactory = (orgId?: OrganizationId) => {
   const collection = new CollectionData({} as any);
   collection.id = Utils.newGuid() as CollectionId;
   collection.organizationId = orgId ?? (Utils.newGuid() as OrganizationId);
-  collection.name = makeEncString("ENC_NAME_" + collection.id).encryptedString ?? "";
+  collection.name = makeEncString("ENC_NAME_" + collection.id) ?? "";
 
   return collection;
 };

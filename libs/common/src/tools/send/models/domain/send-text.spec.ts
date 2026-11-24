@@ -30,7 +30,7 @@ describe("SendText", () => {
 
     expect(secureNote).toEqual({
       hidden: false,
-      text: { encryptedString: "encText" },
+      text: "encText",
     });
   });
 

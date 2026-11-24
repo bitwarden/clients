@@ -324,7 +324,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              applicationData: encryptedData.encryptedApplicationData.toSdk(),
+              applicationData: encryptedData.encryptedApplicationData,
             },
           },
         );
@@ -334,7 +334,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              summaryData: encryptedData.encryptedSummaryData.toSdk(),
+              summaryData: encryptedData.encryptedSummaryData,
               metrics: metrics.toRiskInsightsMetricsData(),
             },
           },
@@ -456,7 +456,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              applicationData: encryptedData.encryptedApplicationData.toSdk(),
+              applicationData: encryptedData.encryptedApplicationData,
             },
           },
         );
@@ -467,7 +467,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              summaryData: encryptedData.encryptedSummaryData.toSdk(),
+              summaryData: encryptedData.encryptedSummaryData,
               metrics: metrics.toRiskInsightsMetricsData(),
             },
           },
@@ -602,7 +602,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              applicationData: encryptedData.encryptedApplicationData.toSdk(),
+              applicationData: encryptedData.encryptedApplicationData,
             },
           },
         );
@@ -613,7 +613,7 @@ export class RiskInsightsOrchestratorService {
           organizationDetails.organizationId,
           {
             data: {
-              summaryData: encryptedData.encryptedSummaryData.toSdk(),
+              summaryData: encryptedData.encryptedSummaryData,
               metrics: metrics.toRiskInsightsMetricsData(),
             },
           },

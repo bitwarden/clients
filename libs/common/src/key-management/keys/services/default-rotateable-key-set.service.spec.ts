@@ -3,10 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../platform/misc/utils";
 import { RotateableKeySet } from "../models/rotateable-key-set";
@@ -48,9 +48,9 @@ describe("DefaultRotateableKeySetService", () => {
     it("should create a new key set", async () => {
       const externalKey = createSymmetricKey();
       const userKey = createSymmetricKey();
-      const encryptedUserKey = new EncString("encryptedUserKey");
-      const encryptedPublicKey = new EncString("encryptedPublicKey");
-      const encryptedPrivateKey = new EncString("encryptedPrivateKey");
+      const encryptedUserKey = "encryptedUserKey" as EncString;
+      const encryptedPublicKey = "encryptedPublicKey" as EncString;
+      const encryptedPrivateKey = "encryptedPrivateKey" as EncString;
       legacyCompatKeyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey]);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey);
       encryptService.wrapEncapsulationKey.mockResolvedValue(encryptedPublicKey);
@@ -74,9 +74,9 @@ describe("DefaultRotateableKeySetService", () => {
 
   describe("rotateKeySet", () => {
     const keySet = new RotateableKeySet(
-      new EncString("encUserKey"),
-      new EncString("encPublicKey"),
-      new EncString("encPrivateKey"),
+      "encUserKey" as EncString,
+      "encPublicKey" as EncString,
+      "encPrivateKey" as EncString,
     );
     const dataValidationTests = [
       {
@@ -149,8 +149,8 @@ describe("DefaultRotateableKeySetService", () => {
       const oldDownstreamKey = createSymmetricKey();
       const newDownstreamKey = new SymmetricCryptoKey(new Uint8Array(64));
       const publicKey = Utils.fromB64ToArray("decryptedPublicKey");
-      const newEncryptedPublicKey = new EncString("newEncPublicKey");
-      const newEncryptedRotateableKey = new EncString("newEncUserKey");
+      const newEncryptedPublicKey = "newEncPublicKey" as EncString;
+      const newEncryptedRotateableKey = "newEncUserKey" as EncString;
 
       encryptService.unwrapEncapsulationKey.mockResolvedValue(publicKey);
       encryptService.wrapEncapsulationKey.mockResolvedValue(newEncryptedPublicKey);

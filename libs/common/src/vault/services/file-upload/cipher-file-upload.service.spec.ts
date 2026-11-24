@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { ErrorResponse } from "../../../models/response/error.response";
@@ -30,7 +31,7 @@ describe("CipherFileUploadService", () => {
     const cipherIdStr = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22";
     const attachmentId = "newatt0000000000000000000000000";
     const uploadUrl = "https://upload.example.com/slot";
-    const encFileName = new EncString("encrypted-filename");
+    const encFileName = "encrypted-filename" as EncString;
     const encData = { buffer: new ArrayBuffer(50) } as unknown as EncArrayBuffer;
 
     it("delegates to fileUploadService.upload with the supplied url and file upload type", async () => {

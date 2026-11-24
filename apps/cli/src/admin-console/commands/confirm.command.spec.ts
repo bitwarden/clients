@@ -55,8 +55,8 @@ describe("ConfirmCommand", () => {
     accountService.activeAccount$ = of({ id: userId } as any);
     keyService.orgKeys$ = jest.fn().mockReturnValue(of({ [organizationId]: mockOrgKey }));
     i18nService.t.mockReturnValue("My Items");
-    encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
-    encryptService.encapsulateKeyUnsigned.mockResolvedValue({ encryptedString: "key" } as any);
+    encryptService.encryptString.mockResolvedValue("encrypted" as any);
+    encryptService.encapsulateKeyUnsigned.mockResolvedValue("key" as any);
     apiService.getUserPublicKey.mockResolvedValue({ publicKey: mockPublicKey } as any);
     organizationUserApiService.postOrganizationUserConfirm.mockResolvedValue();
   });

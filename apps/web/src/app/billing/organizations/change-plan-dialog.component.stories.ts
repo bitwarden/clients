@@ -183,7 +183,7 @@ const mockOrganizationApiService: Partial<OrganizationApiServiceAbstraction> = {
 const mockPolicyService = { policiesByType$: () => of([]), policyAppliesToUser$: () => of(false) };
 const mockKeyService = { orgKeys$: () => of({}) };
 const mockLegacyCompatKeyService = {
-  makeKeyPair: () => Promise.resolve(["publicKey", { encryptedString: "encryptedPrivateKey" }]),
+  makeKeyPair: () => Promise.resolve(["publicKey", "encryptedPrivateKey"]),
 };
 const mockSyncService: Partial<SyncService> = { fullSync: () => Promise.resolve(true) };
 const mockMessagingService = { send: () => {} };

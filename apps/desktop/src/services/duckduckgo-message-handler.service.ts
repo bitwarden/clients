@@ -14,13 +14,11 @@ import {
   CryptoFunctionService,
   DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
   DuckDuckGoEncstring,
-  EncryptedString,
   EncryptionType,
   EncryptService,
-  EncString,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
 import { DesktopAutofillSettingsService } from "../autofill/services/desktop-autofill-settings.service";
@@ -154,9 +152,7 @@ export class DuckDuckGoMessageHandlerService {
   }
 
   private async handleEncryptedMessage(message: EncryptedMessage) {
-    message.encryptedCommand = EncString.fromJSON(
-      message.encryptedCommand.toString() as EncryptedString,
-    );
+    message.encryptedCommand = message.encryptedCommand.toString() as EncString;
     const decryptedCommandData = await this.decryptPayload(message);
     const { command } = decryptedCommandData;
 
@@ -199,7 +195,7 @@ export class DuckDuckGoMessageHandlerService {
 
     try {
       const decryptedResult = await this.decryptDuckDuckGoEncString(
-        message.encryptedCommand.encryptedString as DuckDuckGoEncstring,
+        message.encryptedCommand as DuckDuckGoEncstring,
         this.duckduckgoSharedSecret,
       );
       return JSON.parse(decryptedResult);

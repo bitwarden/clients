@@ -1,10 +1,7 @@
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
 import { UriMatchType } from "@bitwarden/sdk-internal";
 
-import { mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginUriData } from "../data/login-uri.data";
@@ -41,8 +38,8 @@ describe("LoginUri", () => {
 
     expect(loginUri).toEqual({
       match: 0,
-      uri: { encryptedString: "encUri" },
-      uriChecksum: { encryptedString: "encUriChecksum" },
+      uri: "encUri",
+      uriChecksum: "encUriChecksum",
     });
   });
 
@@ -70,8 +67,6 @@ describe("LoginUri", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
-
       const actual = LoginUri.fromJSON({
         uri: "myUri",
         uriChecksum: "myUriChecksum",
@@ -79,8 +74,8 @@ describe("LoginUri", () => {
       } as Jsonify<LoginUri>);
 
       expect(actual).toEqual({
-        uri: "myUri_fromJSON",
-        uriChecksum: "myUriChecksum_fromJSON",
+        uri: "myUri",
+        uriChecksum: "myUriChecksum",
         match: UriMatchStrategy.Domain,
       });
       expect(actual).toBeInstanceOf(LoginUri);

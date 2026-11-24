@@ -1,7 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { Guid } from "@bitwarden/common/types/guid";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 export class MemberAccessResponse extends BaseResponse {
   userName: string;
@@ -34,7 +33,7 @@ export class MemberAccessResponse extends BaseResponse {
     this.groupId = this.getResponseProperty("GroupId");
     this.collectionId = this.getResponseProperty("CollectionId");
     this.groupName = this.getResponseProperty("GroupName");
-    this.collectionName = new EncString(this.getResponseProperty("CollectionName"));
+    this.collectionName = this.getResponseProperty("CollectionName") as EncString;
     this.itemCount = this.getResponseProperty("ItemCount");
     this.readOnly = this.getResponseProperty("ReadOnly");
     this.hidePasswords = this.getResponseProperty("HidePasswords");

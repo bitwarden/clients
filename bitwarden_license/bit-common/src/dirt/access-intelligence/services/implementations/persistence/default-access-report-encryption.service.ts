@@ -7,12 +7,11 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   EncArrayBuffer,
   EncryptService,
-  EncString,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { AccessReportSummaryView } from "../../../models";
 import { flowTimer } from "../../../utils/measure-flow-step.operator";
@@ -115,10 +114,10 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               wrappedEncryptionKey,
             }) => {
               if (
-                !encryptedReportData.encryptedString ||
-                !encryptedSummaryData.encryptedString ||
-                !encryptedApplicationData.encryptedString ||
-                !wrappedEncryptionKey.encryptedString
+                !encryptedReportData ||
+                !encryptedSummaryData ||
+                !encryptedApplicationData ||
+                !wrappedEncryptionKey
               ) {
                 this.logService.error(
                   "[DefaultAccessReportEncryptionService] Encryption failed, encrypted strings are null",
@@ -339,11 +338,8 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
                 measureStep("Save: artifacts encrypted", [
                   ...counts,
                   ["reportByteSize", encrypted.encryptedReportData.buffer.byteLength],
-                  ["summaryCharCount", encrypted.encryptedSummaryData.encryptedString?.length ?? 0],
-                  [
-                    "applicationsCharCount",
-                    encrypted.encryptedApplicationData.encryptedString?.length ?? 0,
-                  ],
+                  ["summaryCharCount", encrypted.encryptedSummaryData?.length ?? 0],
+                  ["applicationsCharCount", encrypted.encryptedApplicationData?.length ?? 0],
                 ]),
               ),
             );
@@ -357,10 +353,10 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               wrappedEncryptionKey,
             }) => {
               if (
-                !encryptedFileName.encryptedString ||
-                !encryptedSummaryData.encryptedString ||
-                !encryptedApplicationData.encryptedString ||
-                !wrappedEncryptionKey.encryptedString
+                !encryptedFileName ||
+                !encryptedSummaryData ||
+                !encryptedApplicationData ||
+                !wrappedEncryptionKey
               ) {
                 this.logService.error(
                   "[DefaultAccessReportEncryptionService] Encryption failed, encrypted strings are null",

@@ -8,11 +8,11 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncryptService,
-  EncString,
   KdfConfig,
   KeyGenerationService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 import {
   BitwardenJsonExport,
   BitwardenPasswordProtectedFileFormat,
@@ -78,7 +78,7 @@ export class BitwardenPasswordProtectedImporter
       return result;
     }
 
-    const encData = new EncString(parsedData.data);
+    const encData = parsedData.data as EncString;
     const clearTextData = await this.encryptService.decryptString(encData, this.key);
     return await super.parse(clearTextData);
   }
@@ -94,7 +94,7 @@ export class BitwardenPasswordProtectedImporter
 
     this.key = await this.keyGenerationService.deriveVaultExportKey(password, jdoc.salt, kdfConfig);
 
-    const encKeyValidation = new EncString(jdoc.encKeyValidation_DO_NOT_EDIT);
+    const encKeyValidation = jdoc.encKeyValidation_DO_NOT_EDIT as EncString;
 
     try {
       await this.encryptService.decryptString(encKeyValidation, this.key);

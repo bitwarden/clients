@@ -1,10 +1,7 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Identity as IdentityDomain } from "../../vault/models/domain/identity";
 import { IdentityView } from "../../vault/models/view/identity.view";
-
-import { safeGetString } from "./utils";
 
 export class IdentityExport {
   static template(): IdentityExport {
@@ -52,25 +49,25 @@ export class IdentityExport {
   }
 
   static toDomain(req: IdentityExport, domain = new IdentityDomain()) {
-    domain.title = req.title != null ? new EncString(req.title) : undefined;
-    domain.firstName = req.firstName != null ? new EncString(req.firstName) : undefined;
-    domain.middleName = req.middleName != null ? new EncString(req.middleName) : undefined;
-    domain.lastName = req.lastName != null ? new EncString(req.lastName) : undefined;
-    domain.address1 = req.address1 != null ? new EncString(req.address1) : undefined;
-    domain.address2 = req.address2 != null ? new EncString(req.address2) : undefined;
-    domain.address3 = req.address3 != null ? new EncString(req.address3) : undefined;
-    domain.city = req.city != null ? new EncString(req.city) : undefined;
-    domain.state = req.state != null ? new EncString(req.state) : undefined;
-    domain.postalCode = req.postalCode != null ? new EncString(req.postalCode) : undefined;
-    domain.country = req.country != null ? new EncString(req.country) : undefined;
-    domain.company = req.company != null ? new EncString(req.company) : undefined;
-    domain.email = req.email != null ? new EncString(req.email) : undefined;
-    domain.phone = req.phone != null ? new EncString(req.phone) : undefined;
-    domain.ssn = req.ssn != null ? new EncString(req.ssn) : undefined;
-    domain.username = req.username != null ? new EncString(req.username) : undefined;
+    domain.title = req.title != null ? (req.title as EncString) : undefined;
+    domain.firstName = req.firstName != null ? (req.firstName as EncString) : undefined;
+    domain.middleName = req.middleName != null ? (req.middleName as EncString) : undefined;
+    domain.lastName = req.lastName != null ? (req.lastName as EncString) : undefined;
+    domain.address1 = req.address1 != null ? (req.address1 as EncString) : undefined;
+    domain.address2 = req.address2 != null ? (req.address2 as EncString) : undefined;
+    domain.address3 = req.address3 != null ? (req.address3 as EncString) : undefined;
+    domain.city = req.city != null ? (req.city as EncString) : undefined;
+    domain.state = req.state != null ? (req.state as EncString) : undefined;
+    domain.postalCode = req.postalCode != null ? (req.postalCode as EncString) : undefined;
+    domain.country = req.country != null ? (req.country as EncString) : undefined;
+    domain.company = req.company != null ? (req.company as EncString) : undefined;
+    domain.email = req.email != null ? (req.email as EncString) : undefined;
+    domain.phone = req.phone != null ? (req.phone as EncString) : undefined;
+    domain.ssn = req.ssn != null ? (req.ssn as EncString) : undefined;
+    domain.username = req.username != null ? (req.username as EncString) : undefined;
     domain.passportNumber =
-      req.passportNumber != null ? new EncString(req.passportNumber) : undefined;
-    domain.licenseNumber = req.licenseNumber != null ? new EncString(req.licenseNumber) : undefined;
+      req.passportNumber != null ? (req.passportNumber as EncString) : undefined;
+    domain.licenseNumber = req.licenseNumber != null ? (req.licenseNumber as EncString) : undefined;
     return domain;
   }
 
@@ -98,23 +95,23 @@ export class IdentityExport {
       return;
     }
 
-    this.title = safeGetString(o.title);
-    this.firstName = safeGetString(o.firstName);
-    this.middleName = safeGetString(o.middleName);
-    this.lastName = safeGetString(o.lastName);
-    this.address1 = safeGetString(o.address1);
-    this.address2 = safeGetString(o.address2);
-    this.address3 = safeGetString(o.address3);
-    this.city = safeGetString(o.city);
-    this.state = safeGetString(o.state);
-    this.postalCode = safeGetString(o.postalCode);
-    this.country = safeGetString(o.country);
-    this.company = safeGetString(o.company);
-    this.email = safeGetString(o.email);
-    this.phone = safeGetString(o.phone);
-    this.ssn = safeGetString(o.ssn);
-    this.username = safeGetString(o.username);
-    this.passportNumber = safeGetString(o.passportNumber);
-    this.licenseNumber = safeGetString(o.licenseNumber);
+    this.title = o.title ?? undefined;
+    this.firstName = o.firstName ?? undefined;
+    this.middleName = o.middleName ?? undefined;
+    this.lastName = o.lastName ?? undefined;
+    this.address1 = o.address1 ?? undefined;
+    this.address2 = o.address2 ?? undefined;
+    this.address3 = o.address3 ?? undefined;
+    this.city = o.city ?? undefined;
+    this.state = o.state ?? undefined;
+    this.postalCode = o.postalCode ?? undefined;
+    this.country = o.country ?? undefined;
+    this.company = o.company ?? undefined;
+    this.email = o.email ?? undefined;
+    this.phone = o.phone ?? undefined;
+    this.ssn = o.ssn ?? undefined;
+    this.username = o.username ?? undefined;
+    this.passportNumber = o.passportNumber ?? undefined;
+    this.licenseNumber = o.licenseNumber ?? undefined;
   }
 }

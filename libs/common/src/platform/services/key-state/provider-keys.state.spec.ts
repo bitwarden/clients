@@ -7,8 +7,8 @@ describe("encrypted provider keys", () => {
 
   it("should deserialize encrypted provider keys", () => {
     const encryptedProviderKeys = {
-      "provider-id-1": makeEncString().encryptedString,
-      "provider-id-2": makeEncString().encryptedString,
+      "provider-id-1": makeEncString(),
+      "provider-id-2": makeEncString(),
     };
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(encryptedProviderKeys)));

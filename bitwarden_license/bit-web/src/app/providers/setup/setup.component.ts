@@ -141,7 +141,7 @@ export class SetupComponent implements OnInit, OnDestroy {
       }
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       const providerKey = await this.legacyCompatKeyService.makeOrgKey<ProviderKey>(activeUserId);
-      const key = providerKey[0].encryptedString;
+      const key = providerKey[0];
 
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
       if (!paymentMethod) {

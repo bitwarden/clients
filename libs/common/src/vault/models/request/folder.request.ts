@@ -4,9 +4,9 @@ export class FolderRequest {
   name: string;
 
   constructor(folder: Folder) {
-    if (folder.name?.encryptedString == null) {
+    if (folder.name == null) {
       throw new Error("Folder name is required");
     }
-    this.name = folder.name.encryptedString;
+    this.name = folder.name;
   }
 }

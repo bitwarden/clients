@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { mockContainerService, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
@@ -57,14 +56,14 @@ describe("Login DTO", () => {
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       autofillOnPageLoad: false,
       httpAuthenticationEnabled: true,
-      username: { encryptedString: "username" },
-      password: { encryptedString: "password" },
-      totp: { encryptedString: "123" },
+      username: "username",
+      password: "password",
+      totp: "123",
       uris: [
         {
           match: 0,
-          uri: { encryptedString: "uri" },
-          uriChecksum: { encryptedString: "checksum" },
+          uri: "uri",
+          uriChecksum: "checksum",
         },
       ],
       fido2Credentials: [encryptFido2Credential(fido2CredentialData)],
@@ -97,32 +96,31 @@ describe("Login DTO", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
       jest.spyOn(LoginUri, "fromJSON").mockImplementation(mockFromJson);
       const passwordRevisionDate = new Date("2022-01-31T12:00:00.000Z");
       const fido2CreationDate = new Date("2023-01-01T12:00:00.000Z");
 
       const actual = Login.fromJSON({
         uris: ["loginUri1", "loginUri2"] as any,
-        username: "myUsername" as EncryptedString,
-        password: "myPassword" as EncryptedString,
+        username: "myUsername" as EncString,
+        password: "myPassword" as EncString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
-        totp: "myTotp" as EncryptedString,
+        totp: "myTotp" as EncString,
         // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
         fido2Credentials: [
           {
-            credentialId: "keyId" as EncryptedString,
-            keyType: "keyType" as EncryptedString,
-            keyAlgorithm: "keyAlgorithm" as EncryptedString,
-            keyCurve: "keyCurve" as EncryptedString,
-            keyValue: "keyValue" as EncryptedString,
-            rpId: "rpId" as EncryptedString,
-            userHandle: "userHandle" as EncryptedString,
-            userName: "userName" as EncryptedString,
-            counter: "counter" as EncryptedString,
-            rpName: "rpName" as EncryptedString,
-            userDisplayName: "userDisplayName" as EncryptedString,
-            discoverable: "discoverable" as EncryptedString,
+            credentialId: "keyId" as EncString,
+            keyType: "keyType" as EncString,
+            keyAlgorithm: "keyAlgorithm" as EncString,
+            keyCurve: "keyCurve" as EncString,
+            keyValue: "keyValue" as EncString,
+            rpId: "rpId" as EncString,
+            userHandle: "userHandle" as EncString,
+            userName: "userName" as EncString,
+            counter: "counter" as EncString,
+            rpName: "rpName" as EncString,
+            userDisplayName: "userDisplayName" as EncString,
+            discoverable: "discoverable" as EncString,
             creationDate: fido2CreationDate.toISOString(),
           },
         ] as any,
@@ -130,24 +128,24 @@ describe("Login DTO", () => {
 
       expect(actual).toEqual({
         uris: ["loginUri1_fromJSON", "loginUri2_fromJSON"] as any,
-        username: "myUsername_fromJSON",
-        password: "myPassword_fromJSON",
+        username: "myUsername",
+        password: "myPassword",
         passwordRevisionDate: passwordRevisionDate,
-        totp: "myTotp_fromJSON",
+        totp: "myTotp",
         fido2Credentials: [
           {
-            credentialId: "keyId_fromJSON",
-            keyType: "keyType_fromJSON",
-            keyAlgorithm: "keyAlgorithm_fromJSON",
-            keyCurve: "keyCurve_fromJSON",
-            keyValue: "keyValue_fromJSON",
-            rpId: "rpId_fromJSON",
-            userHandle: "userHandle_fromJSON",
-            userName: "userName_fromJSON",
-            counter: "counter_fromJSON",
-            rpName: "rpName_fromJSON",
-            userDisplayName: "userDisplayName_fromJSON",
-            discoverable: "discoverable_fromJSON",
+            credentialId: "keyId",
+            keyType: "keyType",
+            keyAlgorithm: "keyAlgorithm",
+            keyCurve: "keyCurve",
+            keyValue: "keyValue",
+            rpId: "rpId",
+            userHandle: "userHandle",
+            userName: "userName",
+            counter: "counter",
+            rpName: "rpName",
+            userDisplayName: "userDisplayName",
+            discoverable: "discoverable",
             creationDate: fido2CreationDate,
           },
         ],
@@ -249,18 +247,18 @@ function initializeFido2Credential<T extends Fido2CredentialLike>(key: T): T {
 
 function encryptFido2Credential(key: Fido2CredentialLike): Fido2Credential {
   const encrypted = new Fido2Credential();
-  encrypted.credentialId = { encryptedString: key.credentialId } as EncString;
-  encrypted.keyType = { encryptedString: key.keyType } as EncString;
-  encrypted.keyAlgorithm = { encryptedString: key.keyAlgorithm } as EncString;
-  encrypted.keyCurve = { encryptedString: key.keyCurve } as EncString;
-  encrypted.keyValue = { encryptedString: key.keyValue } as EncString;
-  encrypted.rpId = { encryptedString: key.rpId } as EncString;
-  encrypted.userHandle = { encryptedString: key.userHandle } as EncString;
-  encrypted.userName = { encryptedString: key.userName } as EncString;
-  encrypted.counter = { encryptedString: key.counter } as EncString;
-  encrypted.rpName = { encryptedString: key.rpName } as EncString;
-  encrypted.userDisplayName = { encryptedString: key.userDisplayName } as EncString;
-  encrypted.discoverable = { encryptedString: key.discoverable } as EncString;
+  encrypted.credentialId = key.credentialId as EncString;
+  encrypted.keyType = key.keyType as EncString;
+  encrypted.keyAlgorithm = key.keyAlgorithm as EncString;
+  encrypted.keyCurve = key.keyCurve as EncString;
+  encrypted.keyValue = key.keyValue as EncString;
+  encrypted.rpId = key.rpId as EncString;
+  encrypted.userHandle = key.userHandle as EncString;
+  encrypted.userName = key.userName as EncString;
+  encrypted.counter = key.counter as EncString;
+  encrypted.rpName = key.rpName as EncString;
+  encrypted.userDisplayName = key.userDisplayName as EncString;
+  encrypted.discoverable = key.discoverable as EncString;
 
   // not encrypted
   encrypted.creationDate = new Date(key.creationDate);

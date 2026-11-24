@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
-import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Collection as SdkCollection, EncString } from "@bitwarden/sdk-internal";
 
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -45,7 +45,7 @@ export class Collection extends Domain {
 
     const collection = new Collection({
       ...obj,
-      name: new EncString(obj.name),
+      name: obj.name as EncString,
     });
 
     collection.externalId = obj.externalId;
@@ -93,7 +93,7 @@ export class Collection extends Domain {
         ? (uuidAsString(sdkCollection.id) as CollectionId)
         : ("" as CollectionId),
       organizationId: uuidAsString(sdkCollection.organizationId) as OrganizationId,
-      name: new EncString(sdkCollection.name as unknown as string),
+      name: sdkCollection.name as unknown as string as EncString,
     });
     collection.externalId = sdkCollection.externalId;
     collection.hidePasswords = sdkCollection.hidePasswords;
@@ -112,7 +112,7 @@ export class Collection extends Domain {
     return {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: asUuid(this.organizationId),
-      name: this.name.toSdk(),
+      name: this.name,
       externalId: this.externalId,
       hidePasswords: this.hidePasswords,
       readOnly: this.readOnly,

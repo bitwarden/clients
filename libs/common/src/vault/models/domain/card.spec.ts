@@ -1,7 +1,5 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
-import { mockFromJson } from "../../../../spec";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -44,12 +42,12 @@ describe("Card", () => {
     const card = new Card(data);
 
     expect(card).toEqual({
-      cardholderName: { encryptedString: "encHolder" },
-      brand: { encryptedString: "encBrand" },
-      number: { encryptedString: "encNumber" },
-      expMonth: { encryptedString: "encMonth" },
-      expYear: { encryptedString: "encYear" },
-      code: { encryptedString: "encCode" },
+      cardholderName: "encHolder",
+      brand: "encBrand",
+      number: "encNumber",
+      expMonth: "encMonth",
+      expYear: "encYear",
+      code: "encCode",
     });
   });
 
@@ -60,24 +58,22 @@ describe("Card", () => {
 
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
-      jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
-
       const actual = Card.fromJSON({
-        cardholderName: "mockCardHolder" as EncryptedString,
-        brand: "mockBrand" as EncryptedString,
-        number: "mockNumber" as EncryptedString,
-        expMonth: "mockExpMonth" as EncryptedString,
-        expYear: "mockExpYear" as EncryptedString,
-        code: "mockCode" as EncryptedString,
+        cardholderName: "mockCardHolder" as EncString,
+        brand: "mockBrand" as EncString,
+        number: "mockNumber" as EncString,
+        expMonth: "mockExpMonth" as EncString,
+        expYear: "mockExpYear" as EncString,
+        code: "mockCode" as EncString,
       });
 
       expect(actual).toEqual({
-        cardholderName: "mockCardHolder_fromJSON",
-        brand: "mockBrand_fromJSON",
-        number: "mockNumber_fromJSON",
-        expMonth: "mockExpMonth_fromJSON",
-        expYear: "mockExpYear_fromJSON",
-        code: "mockCode_fromJSON",
+        cardholderName: "mockCardHolder",
+        brand: "mockBrand",
+        number: "mockNumber",
+        expMonth: "mockExpMonth",
+        expYear: "mockExpYear",
+        code: "mockCode",
       });
       expect(actual).toBeInstanceOf(Card);
     });

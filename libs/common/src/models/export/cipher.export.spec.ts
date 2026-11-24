@@ -2,7 +2,6 @@ import { CipherType } from "../../vault/enums";
 import { Cipher } from "../../vault/models/domain/cipher";
 import { Login } from "../../vault/models/domain/login";
 import { CipherView } from "../../vault/models/view/cipher.view";
-import { conditionalEncString } from "../../vault/utils/domain-utils";
 
 import { CipherExport } from "./cipher.export";
 import { SecureNoteExport } from "./secure-note.export";
@@ -53,7 +52,7 @@ describe("Cipher Export", () => {
       const cipher = new Cipher();
       cipher.id = "25c8c414-b446-48e9-a1bd-b10700bbd740";
       cipher.type = CipherType.Login;
-      cipher.key = conditionalEncString(cipherKey);
+      cipher.key = cipherKey ?? undefined;
       cipher.data = sealedData;
       return cipher;
     }
@@ -114,9 +113,9 @@ describe("Cipher Export", () => {
     function legacyCipher(): Cipher {
       const cipher = new Cipher();
       cipher.type = CipherType.Login;
-      cipher.name = conditionalEncString(encName);
+      cipher.name = encName ?? undefined;
       cipher.login = new Login();
-      cipher.login.username = conditionalEncString(encUsername);
+      cipher.login.username = encUsername ?? undefined;
       cipher.data = JSON.stringify({ Name: encName, Username: encUsername });
       return cipher;
     }
@@ -176,7 +175,7 @@ describe("Cipher Export", () => {
           const cipher = new Cipher();
           cipher.type = CipherType.Login;
           cipher.organizationId = organizationId;
-          cipher.name = conditionalEncString("2.name|iv|mac");
+          cipher.name = "2.name|iv|mac" as EncString;
           cipher.login = new Login();
           cipher.login.httpAuthenticationEnabled = httpAuthenticationEnabled;
 

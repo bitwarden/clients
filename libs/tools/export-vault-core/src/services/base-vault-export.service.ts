@@ -39,8 +39,8 @@ export class BaseVaultExportService {
       salt: salt,
       kdfType: kdfConfig.kdfType,
       kdfIterations: kdfConfig.iterations,
-      encKeyValidation_DO_NOT_EDIT: encKeyValidation.encryptedString,
-      data: encText.encryptedString,
+      encKeyValidation_DO_NOT_EDIT: encKeyValidation,
+      data: encText,
     };
 
     if (kdfConfig.kdfType === KdfType.Argon2id) {

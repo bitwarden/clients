@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptionType, EncString } from "@bitwarden/legacy-crypto";
+import { EncryptionType } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
@@ -17,14 +18,14 @@ describe("Fido2Credential", () => {
       const data = new Fido2CredentialData();
       const credential = new Fido2Credential(data);
 
-      expect(credential.credentialId).toBeDefined();
-      expect(credential.keyType).toBeDefined();
-      expect(credential.keyAlgorithm).toBeDefined();
-      expect(credential.keyCurve).toBeDefined();
-      expect(credential.keyValue).toBeDefined();
-      expect(credential.rpId).toBeDefined();
-      expect(credential.counter).toBeDefined();
-      expect(credential.discoverable).toBeDefined();
+      expect(credential.credentialId).toBeUndefined();
+      expect(credential.keyType).toBeUndefined();
+      expect(credential.keyAlgorithm).toBeUndefined();
+      expect(credential.keyCurve).toBeUndefined();
+      expect(credential.keyValue).toBeUndefined();
+      expect(credential.rpId).toBeUndefined();
+      expect(credential.counter).toBeUndefined();
+      expect(credential.discoverable).toBeUndefined();
       expect(credential.userHandle).toBeUndefined();
       expect(credential.userName).toBeUndefined();
       expect(credential.rpName).toBeUndefined();
@@ -51,18 +52,18 @@ describe("Fido2Credential", () => {
       const credential = new Fido2Credential(data);
 
       expect(credential).toEqual({
-        credentialId: { encryptedString: "credentialId" },
-        keyType: { encryptedString: "public-key" },
-        keyAlgorithm: { encryptedString: "ECDSA" },
-        keyCurve: { encryptedString: "P-256" },
-        keyValue: { encryptedString: "keyValue" },
-        rpId: { encryptedString: "rpId" },
-        userHandle: { encryptedString: "userHandle" },
-        userName: { encryptedString: "userName" },
-        counter: { encryptedString: "counter" },
-        rpName: { encryptedString: "rpName" },
-        userDisplayName: { encryptedString: "userDisplayName" },
-        discoverable: { encryptedString: "discoverable" },
+        credentialId: "credentialId",
+        keyType: "public-key",
+        keyAlgorithm: "ECDSA",
+        keyCurve: "P-256",
+        keyValue: "keyValue",
+        rpId: "rpId",
+        userHandle: "userHandle",
+        userName: "userName",
+        counter: "counter",
+        rpName: "rpName",
+        userDisplayName: "userDisplayName",
+        discoverable: "discoverable",
         creationDate: mockDate,
       });
     });
@@ -180,5 +181,5 @@ describe("Fido2Credential", () => {
 });
 
 function createEncryptedEncString(s: string): EncString {
-  return new EncString(`${EncryptionType.AesCbc256_HmacSha256_B64}.${s}`);
+  return `${EncryptionType.AesCbc256_HmacSha256_B64}.${s}` as EncString;
 }

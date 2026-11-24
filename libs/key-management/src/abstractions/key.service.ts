@@ -14,9 +14,7 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
-import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
+import { UnsignedSharedKey, EncString } from "@bitwarden/sdk-internal";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -139,7 +137,7 @@ export abstract class KeyService {
    * @deprecated Temporary function to allow the SDK to be initialized after the login process, it
    * will be removed when auth has been migrated to the SDK.
    */
-  abstract userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString | null>;
+  abstract userEncryptedPrivateKey$(userId: UserId): Observable<EncString | null>;
 
   /**
    * Gets an observable stream of the given users decrypted private key and public key, guaranteed to be consistent.

@@ -9,12 +9,8 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BulkOperationStatus } from "../models/bulk-operation-status";
 import { ProjectListView } from "../models/view/project-list.view";
@@ -140,7 +136,7 @@ export class ProjectService {
     projectView.write = projectResponse.write;
     try {
       projectView.name = await this.encryptService.decryptString(
-        new EncString(projectResponse.name),
+        projectResponse.name as EncString,
         orgKey,
       );
     } catch {
@@ -164,7 +160,7 @@ export class ProjectService {
         projectListView.write = s.write;
         try {
           projectListView.name = await this.encryptService.decryptString(
-            new EncString(s.name),
+            s.name as EncString,
             orgKey,
           );
         } catch {

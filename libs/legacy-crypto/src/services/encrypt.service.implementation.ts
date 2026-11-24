@@ -3,13 +3,12 @@
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, EncString } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { EncryptionType } from "../enums/encryption-type.enum";
 import { EncArrayBuffer } from "../models/enc-array-buffer";
-import { EncString } from "../models/enc-string";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 
 const PERF_TRACK_GROUP = PerfTrackGroup.Crypto;
@@ -32,13 +31,13 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
+    return PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     await SdkLoadService.Ready;
-    return new EncString(PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()));
+    return PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -54,7 +53,7 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
+    return PureCrypto.symmetric_decrypt_string(encString, key.toEncoded());
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -63,7 +62,7 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("Decryption of AesCbc256_B64 encrypted data is disabled.");
     }
     await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
+    return PureCrypto.symmetric_decrypt_bytes(encString, key.toEncoded());
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -89,9 +88,10 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_decapsulation_key(decapsulationKeyPkcs8, wrappingKey.toEncoded()),
-    );
+    return PureCrypto.wrap_decapsulation_key(
+      decapsulationKeyPkcs8,
+      wrappingKey.toEncoded(),
+    ) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -108,9 +108,10 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_encapsulation_key(encapsulationKeySpki, wrappingKey.toEncoded()),
-    );
+    return PureCrypto.wrap_encapsulation_key(
+      encapsulationKeySpki,
+      wrappingKey.toEncoded(),
+    ) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -127,9 +128,10 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.wrap_symmetric_key(keyToBeWrapped.toEncoded(), wrappingKey.toEncoded()),
-    );
+    return PureCrypto.wrap_symmetric_key(
+      keyToBeWrapped.toEncoded(),
+      wrappingKey.toEncoded(),
+    ) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -149,10 +151,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return PureCrypto.unwrap_decapsulation_key(
-      wrappedDecapsulationKey.encryptedString,
-      wrappingKey.toEncoded(),
-    );
+    return PureCrypto.unwrap_decapsulation_key(wrappedDecapsulationKey, wrappingKey.toEncoded());
   }
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async unwrapEncapsulationKey(
@@ -170,10 +169,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    return PureCrypto.unwrap_encapsulation_key(
-      wrappedEncapsulationKey.encryptedString,
-      wrappingKey.toEncoded(),
-    );
+    return PureCrypto.unwrap_encapsulation_key(wrappedEncapsulationKey, wrappingKey.toEncoded());
   }
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async unwrapSymmetricKey(
@@ -192,7 +188,7 @@ export class EncryptServiceImplementation implements EncryptService {
 
     await SdkLoadService.Ready;
     return new SymmetricCryptoKey(
-      PureCrypto.unwrap_symmetric_key(keyToBeUnwrapped.encryptedString, wrappingKey.toEncoded()),
+      PureCrypto.unwrap_symmetric_key(keyToBeUnwrapped, wrappingKey.toEncoded()),
     );
   }
 
@@ -214,9 +210,10 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No encapsulationKey provided for encapsulation");
     }
     await SdkLoadService.Ready;
-    return new EncString(
-      PureCrypto.encapsulate_key_unsigned(sharedKey.toEncoded(), encapsulationKey),
-    );
+    return PureCrypto.encapsulate_key_unsigned(
+      sharedKey.toEncoded(),
+      encapsulationKey,
+    ) as EncString;
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
@@ -232,10 +229,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     await SdkLoadService.Ready;
-    const keyBytes = PureCrypto.decapsulate_key_unsigned(
-      encryptedSharedKey.encryptedString,
-      decapsulationKey,
-    );
+    const keyBytes = PureCrypto.decapsulate_key_unsigned(encryptedSharedKey, decapsulationKey);
     return new SymmetricCryptoKey(keyBytes);
   }
 }
@@ -246,11 +240,11 @@ export class EncryptServiceImplementation implements EncryptService {
  */
 function isAesCbc256B64(encString: EncString): boolean {
   // An empty string has no type, so it is not blocked here.
-  if (!encString.encryptedString) {
+  if (!encString) {
     return false;
   }
 
-  const headerPieces = encString.encryptedString.split(".");
+  const headerPieces = encString.split(".");
   if (headerPieces.length !== 2) {
     return true;
   }

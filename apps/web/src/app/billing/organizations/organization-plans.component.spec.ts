@@ -461,7 +461,7 @@ describe("OrganizationPlansComponent", () => {
       generateOrganizationEncryptionData: jest.fn().mockResolvedValue({
         key: "mock-key",
         collectionCt: "mock-collection",
-        orgKeys: ["public-key", { encryptedString: "private-key" }],
+        orgKeys: ["public-key", "private-key"],
         orgKey: {} as any,
         activeUserId: "user-id" as any,
       }),

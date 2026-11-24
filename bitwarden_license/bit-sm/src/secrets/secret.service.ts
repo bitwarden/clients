@@ -8,12 +8,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import {
-  DECRYPT_ERROR,
-  EncryptService,
-  EncString,
-  SymmetricCryptoKey,
-} from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { BulkOperationStatus } from "../models/bulk-operation-status";
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
@@ -210,9 +206,9 @@ export class SecretService {
       this.encryptService.encryptString(secretView.value, orgKey),
       this.encryptService.encryptString(secretView.note, orgKey),
     ]);
-    request.key = key.encryptedString;
-    request.value = value.encryptedString;
-    request.note = note.encryptedString;
+    request.key = key;
+    request.value = value;
+    request.note = note;
     request.projectIds = [];
     request.valueChanged = valueChanged;
 
@@ -236,9 +232,9 @@ export class SecretService {
     secretView.revisionDate = secretResponse.revisionDate;
 
     const [name, value, note] = await Promise.all([
-      this.decryptField(new EncString(secretResponse.name), orgKey),
-      this.decryptField(new EncString(secretResponse.value), orgKey),
-      this.decryptField(new EncString(secretResponse.note), orgKey),
+      this.decryptField(secretResponse.name as EncString, orgKey),
+      this.decryptField(secretResponse.value as EncString, orgKey),
+      this.decryptField(secretResponse.note as EncString, orgKey),
     ]);
 
     secretView.name = name.value;
@@ -286,7 +282,7 @@ export class SecretService {
         secretListView.id = s.id;
         secretListView.organizationId = s.organizationId;
 
-        const name = await this.decryptField(new EncString(s.name), orgKey);
+        const name = await this.decryptField(s.name as EncString, orgKey);
         secretListView.name = name.value;
         secretListView.decryptionError = name.error;
         secretListView.creationDate = s.creationDate;
@@ -315,7 +311,7 @@ export class SecretService {
         projectsMappedToSecretView.id = s.id;
         try {
           projectsMappedToSecretView.name = s.name
-            ? await this.encryptService.decryptString(new EncString(s.name), orgKey)
+            ? await this.encryptService.decryptString(s.name as EncString, orgKey)
             : null;
         } catch {
           projectsMappedToSecretView.name = DECRYPT_ERROR;

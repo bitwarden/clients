@@ -53,13 +53,13 @@ export class CipherRequest {
     this.encryptedByKeyId = encryptedByKeyId;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;
-    this.name = cipher.name ? cipher.name.encryptedString : null;
-    this.notes = cipher.notes ? cipher.notes.encryptedString : null;
+    this.name = cipher.name ?? null;
+    this.notes = cipher.notes ?? null;
     this.favorite = cipher.favorite;
     this.lastKnownRevisionDate = cipher.revisionDate;
     this.archivedDate = cipher.archivedDate;
     this.reprompt = cipher.reprompt;
-    this.key = cipher.key?.encryptedString;
+    this.key = cipher.key;
     this.data = cipher.data;
 
     switch (this.type) {
@@ -71,42 +71,36 @@ export class CipherRequest {
         this.login.uris =
           cipher.login.uris?.map((u) => {
             const uri = new LoginUriApi();
-            uri.uri = u.uri != null ? u.uri.encryptedString : null;
+            uri.uri = u.uri ?? null;
             uri.match = u.match != null ? u.match : null;
-            uri.uriChecksum = u.uriChecksum != null ? u.uriChecksum.encryptedString : null;
+            uri.uriChecksum = u.uriChecksum ?? null;
             return uri;
           }) ?? [];
-        this.login.username = cipher.login.username ? cipher.login.username.encryptedString : null;
-        this.login.password = cipher.login.password ? cipher.login.password.encryptedString : null;
+        this.login.username = cipher.login.username ?? null;
+        this.login.password = cipher.login.password ?? null;
         this.login.passwordRevisionDate =
           cipher.login.passwordRevisionDate != null
             ? cipher.login.passwordRevisionDate.toISOString()
             : null;
-        this.login.totp = cipher.login.totp ? cipher.login.totp.encryptedString : null;
+        this.login.totp = cipher.login.totp ?? null;
         this.login.autofillOnPageLoad = cipher.login.autofillOnPageLoad;
         this.login.httpAuthenticationEnabled = cipher.login.httpAuthenticationEnabled;
 
         if (cipher.login.fido2Credentials != null) {
           this.login.fido2Credentials = cipher.login.fido2Credentials.map((key) => {
             const keyApi = new Fido2CredentialApi();
-            keyApi.credentialId =
-              key.credentialId != null ? key.credentialId.encryptedString : null;
-            keyApi.keyType =
-              key.keyType != null ? (key.keyType.encryptedString as "public-key") : null;
-            keyApi.keyAlgorithm =
-              key.keyAlgorithm != null ? (key.keyAlgorithm.encryptedString as "ECDSA") : null;
-            keyApi.keyCurve =
-              key.keyCurve != null ? (key.keyCurve.encryptedString as "P-256") : null;
-            keyApi.keyValue = key.keyValue != null ? key.keyValue.encryptedString : null;
-            keyApi.rpId = key.rpId != null ? key.rpId.encryptedString : null;
-            keyApi.rpName = key.rpName != null ? key.rpName.encryptedString : null;
-            keyApi.counter = key.counter != null ? key.counter.encryptedString : null;
-            keyApi.userHandle = key.userHandle != null ? key.userHandle.encryptedString : null;
-            keyApi.userName = key.userName != null ? key.userName.encryptedString : null;
-            keyApi.userDisplayName =
-              key.userDisplayName != null ? key.userDisplayName.encryptedString : null;
-            keyApi.discoverable =
-              key.discoverable != null ? key.discoverable.encryptedString : null;
+            keyApi.credentialId = key.credentialId ?? null;
+            keyApi.keyType = key.keyType != null ? (key.keyType as "public-key") : null;
+            keyApi.keyAlgorithm = key.keyAlgorithm != null ? (key.keyAlgorithm as "ECDSA") : null;
+            keyApi.keyCurve = key.keyCurve != null ? (key.keyCurve as "P-256") : null;
+            keyApi.keyValue = key.keyValue ?? null;
+            keyApi.rpId = key.rpId ?? null;
+            keyApi.rpName = key.rpName ?? null;
+            keyApi.counter = key.counter ?? null;
+            keyApi.userHandle = key.userHandle ?? null;
+            keyApi.userName = key.userName ?? null;
+            keyApi.userDisplayName = key.userDisplayName ?? null;
+            keyApi.discoverable = key.discoverable ?? null;
             keyApi.creationDate = key.creationDate != null ? key.creationDate.toISOString() : null;
             return keyApi;
           });
@@ -124,209 +118,98 @@ export class CipherRequest {
           break;
         }
         this.sshKey = new SshKeyApi();
-        this.sshKey.privateKey =
-          cipher.sshKey.privateKey != null ? cipher.sshKey.privateKey.encryptedString : null;
-        this.sshKey.publicKey =
-          cipher.sshKey.publicKey != null ? cipher.sshKey.publicKey.encryptedString : null;
-        this.sshKey.keyFingerprint =
-          cipher.sshKey.keyFingerprint != null
-            ? cipher.sshKey.keyFingerprint.encryptedString
-            : null;
+        this.sshKey.privateKey = cipher.sshKey.privateKey ?? null;
+        this.sshKey.publicKey = cipher.sshKey.publicKey ?? null;
+        this.sshKey.keyFingerprint = cipher.sshKey.keyFingerprint ?? null;
         break;
       case CipherType.Card:
         if (cipher.card == null) {
           break;
         }
         this.card = new CardApi();
-        this.card.cardholderName =
-          cipher.card.cardholderName != null ? cipher.card.cardholderName.encryptedString : null;
-        this.card.brand = cipher.card.brand != null ? cipher.card.brand.encryptedString : null;
-        this.card.number = cipher.card.number != null ? cipher.card.number.encryptedString : null;
-        this.card.expMonth =
-          cipher.card.expMonth != null ? cipher.card.expMonth.encryptedString : null;
-        this.card.expYear =
-          cipher.card.expYear != null ? cipher.card.expYear.encryptedString : null;
-        this.card.code = cipher.card.code != null ? cipher.card.code.encryptedString : null;
+        this.card.cardholderName = cipher.card.cardholderName ?? null;
+        this.card.brand = cipher.card.brand ?? null;
+        this.card.number = cipher.card.number ?? null;
+        this.card.expMonth = cipher.card.expMonth ?? null;
+        this.card.expYear = cipher.card.expYear ?? null;
+        this.card.code = cipher.card.code ?? null;
         break;
       case CipherType.Identity:
         if (cipher.identity == null) {
           break;
         }
         this.identity = new IdentityApi();
-        this.identity.title =
-          cipher.identity.title != null ? cipher.identity.title.encryptedString : null;
-        this.identity.firstName =
-          cipher.identity.firstName != null ? cipher.identity.firstName.encryptedString : null;
-        this.identity.middleName =
-          cipher.identity.middleName != null ? cipher.identity.middleName.encryptedString : null;
-        this.identity.lastName =
-          cipher.identity.lastName != null ? cipher.identity.lastName.encryptedString : null;
-        this.identity.address1 =
-          cipher.identity.address1 != null ? cipher.identity.address1.encryptedString : null;
-        this.identity.address2 =
-          cipher.identity.address2 != null ? cipher.identity.address2.encryptedString : null;
-        this.identity.address3 =
-          cipher.identity.address3 != null ? cipher.identity.address3.encryptedString : null;
-        this.identity.city =
-          cipher.identity.city != null ? cipher.identity.city.encryptedString : null;
-        this.identity.state =
-          cipher.identity.state != null ? cipher.identity.state.encryptedString : null;
-        this.identity.postalCode =
-          cipher.identity.postalCode != null ? cipher.identity.postalCode.encryptedString : null;
-        this.identity.country =
-          cipher.identity.country != null ? cipher.identity.country.encryptedString : null;
-        this.identity.company =
-          cipher.identity.company != null ? cipher.identity.company.encryptedString : null;
-        this.identity.email =
-          cipher.identity.email != null ? cipher.identity.email.encryptedString : null;
-        this.identity.phone =
-          cipher.identity.phone != null ? cipher.identity.phone.encryptedString : null;
-        this.identity.ssn =
-          cipher.identity.ssn != null ? cipher.identity.ssn.encryptedString : null;
-        this.identity.username =
-          cipher.identity.username != null ? cipher.identity.username.encryptedString : null;
-        this.identity.passportNumber =
-          cipher.identity.passportNumber != null
-            ? cipher.identity.passportNumber.encryptedString
-            : null;
-        this.identity.licenseNumber =
-          cipher.identity.licenseNumber != null
-            ? cipher.identity.licenseNumber.encryptedString
-            : null;
+        this.identity.title = cipher.identity.title ?? null;
+        this.identity.firstName = cipher.identity.firstName ?? null;
+        this.identity.middleName = cipher.identity.middleName ?? null;
+        this.identity.lastName = cipher.identity.lastName ?? null;
+        this.identity.address1 = cipher.identity.address1 ?? null;
+        this.identity.address2 = cipher.identity.address2 ?? null;
+        this.identity.address3 = cipher.identity.address3 ?? null;
+        this.identity.city = cipher.identity.city ?? null;
+        this.identity.state = cipher.identity.state ?? null;
+        this.identity.postalCode = cipher.identity.postalCode ?? null;
+        this.identity.country = cipher.identity.country ?? null;
+        this.identity.company = cipher.identity.company ?? null;
+        this.identity.email = cipher.identity.email ?? null;
+        this.identity.phone = cipher.identity.phone ?? null;
+        this.identity.ssn = cipher.identity.ssn ?? null;
+        this.identity.username = cipher.identity.username ?? null;
+        this.identity.passportNumber = cipher.identity.passportNumber ?? null;
+        this.identity.licenseNumber = cipher.identity.licenseNumber ?? null;
         break;
       case CipherType.BankAccount:
         if (cipher.bankAccount == null) {
           break;
         }
         this.bankAccount = new BankAccountApi();
-        this.bankAccount.bankName =
-          cipher.bankAccount.bankName != null ? cipher.bankAccount.bankName.encryptedString : null;
-        this.bankAccount.nameOnAccount =
-          cipher.bankAccount.nameOnAccount != null
-            ? cipher.bankAccount.nameOnAccount.encryptedString
-            : null;
-        this.bankAccount.accountType =
-          cipher.bankAccount.accountType != null
-            ? cipher.bankAccount.accountType.encryptedString
-            : null;
-        this.bankAccount.accountNumber =
-          cipher.bankAccount.accountNumber != null
-            ? cipher.bankAccount.accountNumber.encryptedString
-            : null;
-        this.bankAccount.routingNumber =
-          cipher.bankAccount.routingNumber != null
-            ? cipher.bankAccount.routingNumber.encryptedString
-            : null;
-        this.bankAccount.branchNumber =
-          cipher.bankAccount.branchNumber != null
-            ? cipher.bankAccount.branchNumber.encryptedString
-            : null;
-        this.bankAccount.pin =
-          cipher.bankAccount.pin != null ? cipher.bankAccount.pin.encryptedString : null;
-        this.bankAccount.swiftCode =
-          cipher.bankAccount.swiftCode != null
-            ? cipher.bankAccount.swiftCode.encryptedString
-            : null;
-        this.bankAccount.iban =
-          cipher.bankAccount.iban != null ? cipher.bankAccount.iban.encryptedString : null;
-        this.bankAccount.bankContactPhone =
-          cipher.bankAccount.bankContactPhone != null
-            ? cipher.bankAccount.bankContactPhone.encryptedString
-            : null;
+        this.bankAccount.bankName = cipher.bankAccount.bankName ?? null;
+        this.bankAccount.nameOnAccount = cipher.bankAccount.nameOnAccount ?? null;
+        this.bankAccount.accountType = cipher.bankAccount.accountType ?? null;
+        this.bankAccount.accountNumber = cipher.bankAccount.accountNumber ?? null;
+        this.bankAccount.routingNumber = cipher.bankAccount.routingNumber ?? null;
+        this.bankAccount.branchNumber = cipher.bankAccount.branchNumber ?? null;
+        this.bankAccount.pin = cipher.bankAccount.pin ?? null;
+        this.bankAccount.swiftCode = cipher.bankAccount.swiftCode ?? null;
+        this.bankAccount.iban = cipher.bankAccount.iban ?? null;
+        this.bankAccount.bankContactPhone = cipher.bankAccount.bankContactPhone ?? null;
         break;
       case CipherType.DriversLicense:
         if (cipher.driversLicense == null) {
           break;
         }
         this.driversLicense = new DriversLicenseApi();
-        this.driversLicense.firstName =
-          cipher.driversLicense.firstName != null
-            ? cipher.driversLicense.firstName.encryptedString
-            : null;
-        this.driversLicense.middleName =
-          cipher.driversLicense.middleName != null
-            ? cipher.driversLicense.middleName.encryptedString
-            : null;
-        this.driversLicense.lastName =
-          cipher.driversLicense.lastName != null
-            ? cipher.driversLicense.lastName.encryptedString
-            : null;
-        this.driversLicense.dateOfBirth =
-          cipher.driversLicense.dateOfBirth != null
-            ? cipher.driversLicense.dateOfBirth.encryptedString
-            : null;
-        this.driversLicense.licenseNumber =
-          cipher.driversLicense.licenseNumber != null
-            ? cipher.driversLicense.licenseNumber.encryptedString
-            : null;
-        this.driversLicense.issuingCountry =
-          cipher.driversLicense.issuingCountry != null
-            ? cipher.driversLicense.issuingCountry.encryptedString
-            : null;
-        this.driversLicense.issuingState =
-          cipher.driversLicense.issuingState != null
-            ? cipher.driversLicense.issuingState.encryptedString
-            : null;
-        this.driversLicense.issueDate =
-          cipher.driversLicense.issueDate != null
-            ? cipher.driversLicense.issueDate.encryptedString
-            : null;
-        this.driversLicense.expirationDate =
-          cipher.driversLicense.expirationDate != null
-            ? cipher.driversLicense.expirationDate.encryptedString
-            : null;
-        this.driversLicense.issuingAuthority =
-          cipher.driversLicense.issuingAuthority != null
-            ? cipher.driversLicense.issuingAuthority.encryptedString
-            : null;
-        this.driversLicense.licenseClass =
-          cipher.driversLicense.licenseClass != null
-            ? cipher.driversLicense.licenseClass.encryptedString
-            : null;
+        this.driversLicense.firstName = cipher.driversLicense.firstName ?? null;
+        this.driversLicense.middleName = cipher.driversLicense.middleName ?? null;
+        this.driversLicense.lastName = cipher.driversLicense.lastName ?? null;
+        this.driversLicense.dateOfBirth = cipher.driversLicense.dateOfBirth ?? null;
+        this.driversLicense.licenseNumber = cipher.driversLicense.licenseNumber ?? null;
+        this.driversLicense.issuingCountry = cipher.driversLicense.issuingCountry ?? null;
+        this.driversLicense.issuingState = cipher.driversLicense.issuingState ?? null;
+        this.driversLicense.issueDate = cipher.driversLicense.issueDate ?? null;
+        this.driversLicense.expirationDate = cipher.driversLicense.expirationDate ?? null;
+        this.driversLicense.issuingAuthority = cipher.driversLicense.issuingAuthority ?? null;
+        this.driversLicense.licenseClass = cipher.driversLicense.licenseClass ?? null;
         break;
       case CipherType.Passport:
         if (cipher.passport == null) {
           break;
         }
         this.passport = new PassportApi();
-        this.passport.surname =
-          cipher.passport.surname != null ? cipher.passport.surname.encryptedString : null;
-        this.passport.givenName =
-          cipher.passport.givenName != null ? cipher.passport.givenName.encryptedString : null;
-        this.passport.dateOfBirth =
-          cipher.passport.dateOfBirth != null ? cipher.passport.dateOfBirth.encryptedString : null;
-        this.passport.sex =
-          cipher.passport.sex != null ? cipher.passport.sex.encryptedString : null;
-        this.passport.birthPlace =
-          cipher.passport.birthPlace != null ? cipher.passport.birthPlace.encryptedString : null;
-        this.passport.nationality =
-          cipher.passport.nationality != null ? cipher.passport.nationality.encryptedString : null;
-        this.passport.issuingCountry =
-          cipher.passport.issuingCountry != null
-            ? cipher.passport.issuingCountry.encryptedString
-            : null;
-        this.passport.passportNumber =
-          cipher.passport.passportNumber != null
-            ? cipher.passport.passportNumber.encryptedString
-            : null;
-        this.passport.passportType =
-          cipher.passport.passportType != null
-            ? cipher.passport.passportType.encryptedString
-            : null;
+        this.passport.surname = cipher.passport.surname ?? null;
+        this.passport.givenName = cipher.passport.givenName ?? null;
+        this.passport.dateOfBirth = cipher.passport.dateOfBirth ?? null;
+        this.passport.sex = cipher.passport.sex ?? null;
+        this.passport.birthPlace = cipher.passport.birthPlace ?? null;
+        this.passport.nationality = cipher.passport.nationality ?? null;
+        this.passport.issuingCountry = cipher.passport.issuingCountry ?? null;
+        this.passport.passportNumber = cipher.passport.passportNumber ?? null;
+        this.passport.passportType = cipher.passport.passportType ?? null;
         this.passport.nationalIdentificationNumber =
-          cipher.passport.nationalIdentificationNumber != null
-            ? cipher.passport.nationalIdentificationNumber.encryptedString
-            : null;
-        this.passport.issuingAuthority =
-          cipher.passport.issuingAuthority != null
-            ? cipher.passport.issuingAuthority.encryptedString
-            : null;
-        this.passport.issueDate =
-          cipher.passport.issueDate != null ? cipher.passport.issueDate.encryptedString : null;
-        this.passport.expirationDate =
-          cipher.passport.expirationDate != null
-            ? cipher.passport.expirationDate.encryptedString
-            : null;
+          cipher.passport.nationalIdentificationNumber ?? null;
+        this.passport.issuingAuthority = cipher.passport.issuingAuthority ?? null;
+        this.passport.issueDate = cipher.passport.issueDate ?? null;
+        this.passport.expirationDate = cipher.passport.expirationDate ?? null;
         break;
       default:
         break;
@@ -336,8 +219,8 @@ export class CipherRequest {
       this.fields = cipher.fields.map((f) => {
         const field = new FieldApi();
         field.type = f.type;
-        field.name = f.name ? f.name.encryptedString : null;
-        field.value = f.value ? f.value.encryptedString : null;
+        field.name = f.name ?? null;
+        field.value = f.value ?? null;
         field.linkedId = f.linkedId;
         return field;
       });
@@ -348,7 +231,7 @@ export class CipherRequest {
       cipher.passwordHistory.forEach((ph) => {
         this.passwordHistory.push({
           lastUsedDate: ph.lastUsedDate,
-          password: ph.password ? ph.password.encryptedString : null,
+          password: ph.password ?? null,
         });
       });
     }
@@ -357,13 +240,13 @@ export class CipherRequest {
       this.attachments = {};
       this.attachments2 = {};
       cipher.attachments.forEach((attachment) => {
-        const fileName = attachment.fileName ? attachment.fileName.encryptedString : null;
+        const fileName = attachment.fileName ?? null;
         this.attachments[attachment.id] = fileName;
         const attachmentRequest = new AttachmentRequest();
         attachmentRequest.fileName = fileName;
         attachmentRequest.lastKnownRevisionDate = cipher.revisionDate;
         if (attachment.key != null) {
-          attachmentRequest.key = attachment.key.encryptedString;
+          attachmentRequest.key = attachment.key;
         }
         this.attachments2[attachment.id] = attachmentRequest;
       });

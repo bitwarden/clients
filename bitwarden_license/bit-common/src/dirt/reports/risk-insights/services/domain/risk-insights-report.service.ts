@@ -7,8 +7,7 @@ import {
   UserId,
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
@@ -175,7 +174,7 @@ export class RiskInsightsReportService {
           // Return an empty report and summary if response is falsy
           return of(null as unknown as RiskInsightsData);
         }
-        if (!response.contentEncryptionKey?.encryptedString) {
+        if (!response.contentEncryptionKey) {
           return throwError(() => new Error("Report key not found"));
         }
         if (!response.reportData) {
@@ -274,10 +273,10 @@ export class RiskInsightsReportService {
             data: {
               organizationId: encryptionParameters.organizationId,
               creationDate: new Date().toISOString(),
-              reportData: encryptedReportData.toSdk(),
-              summaryData: encryptedSummaryData.toSdk(),
-              applicationData: encryptedApplicationData.toSdk(),
-              contentEncryptionKey: contentEncryptionKey.toSdk(),
+              reportData: encryptedReportData,
+              summaryData: encryptedSummaryData,
+              applicationData: encryptedApplicationData,
+              contentEncryptionKey: contentEncryptionKey,
               metrics: metrics.toRiskInsightsMetricsData(),
             },
           },

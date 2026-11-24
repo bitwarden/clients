@@ -1,8 +1,8 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { DECRYPT_ERROR, EncryptService, EncString } from "@bitwarden/legacy-crypto";
-import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
+import { DECRYPT_ERROR, EncryptService } from "@bitwarden/legacy-crypto";
+import { CollectionView as SdkCollectionView, EncString } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
@@ -161,7 +161,7 @@ export class CollectionView implements View, ITreeNodeObject {
     const view = new CollectionView({ ...collection });
 
     try {
-      view.name = await encryptService.decryptString(new EncString(collection.name), orgKey);
+      view.name = await encryptService.decryptString(collection.name as EncString, orgKey);
     } catch (e) {
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console

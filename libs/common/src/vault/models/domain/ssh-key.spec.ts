@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
-import { EncString as SdkEncString, SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
+import { EncString as EncString, SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
 import { mockContainerService } from "../../../../spec";
 import { SshKeyApi } from "../api/ssh-key.api";
@@ -27,9 +25,9 @@ describe("Sshkey", () => {
     const sshKey = new SshKey(data);
 
     expect(sshKey).toEqual({
-      privateKey: { encryptedString: "privateKey" },
-      publicKey: { encryptedString: "publicKey" },
-      keyFingerprint: { encryptedString: "keyFingerprint" },
+      privateKey: "privateKey",
+      publicKey: "publicKey",
+      keyFingerprint: "keyFingerprint",
     });
   });
 
@@ -38,7 +36,7 @@ describe("Sshkey", () => {
     const sshKey = new SshKey(data);
 
     expect(sshKey).toBeInstanceOf(SshKey);
-    expect(sshKey.privateKey).toBeInstanceOf(EncString);
+    expect(sshKey.privateKey).toBeUndefined();
     expect(sshKey.publicKey).toBeUndefined();
     expect(sshKey.keyFingerprint).toBeUndefined();
     expect(data.privateKey).toBeUndefined();
@@ -110,9 +108,9 @@ describe("Sshkey", () => {
 
     it("creates SshKey from SDK object", () => {
       const sdkSshKey: SdkSshKey = {
-        privateKey: "2.privateKey|encryptedData" as SdkEncString,
-        publicKey: "2.publicKey|encryptedData" as SdkEncString,
-        fingerprint: "2.keyFingerprint|encryptedData" as SdkEncString,
+        privateKey: "2.privateKey|encryptedData" as EncString,
+        publicKey: "2.publicKey|encryptedData" as EncString,
+        fingerprint: "2.keyFingerprint|encryptedData" as EncString,
       };
 
       const result = SshKey.fromSdkSshKey(sdkSshKey);
@@ -125,9 +123,9 @@ describe("Sshkey", () => {
 
     it("creates a new SshKey instance", () => {
       const sdkSshKey: SdkSshKey = {
-        privateKey: "2.privateKey|encryptedData" as SdkEncString,
-        publicKey: "2.publicKey|encryptedData" as SdkEncString,
-        fingerprint: "2.keyFingerprint|encryptedData" as SdkEncString,
+        privateKey: "2.privateKey|encryptedData" as EncString,
+        publicKey: "2.publicKey|encryptedData" as EncString,
+        fingerprint: "2.keyFingerprint|encryptedData" as EncString,
       };
 
       const result = SshKey.fromSdkSshKey(sdkSshKey);
@@ -141,11 +139,9 @@ describe("Sshkey", () => {
       const sdkFormat = original.toSdkSshKey();
       const reconstructed = SshKey.fromSdkSshKey(sdkFormat);
 
-      expect(reconstructed.privateKey.encryptedString).toBe(original.privateKey.encryptedString);
-      expect(reconstructed.publicKey.encryptedString).toBe(original.publicKey.encryptedString);
-      expect(reconstructed.keyFingerprint.encryptedString).toBe(
-        original.keyFingerprint.encryptedString,
-      );
+      expect(reconstructed.privateKey).toBe(original.privateKey);
+      expect(reconstructed.publicKey).toBe(original.publicKey);
+      expect(reconstructed.keyFingerprint).toBe(original.keyFingerprint);
     });
   });
 });

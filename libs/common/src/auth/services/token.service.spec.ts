@@ -297,9 +297,7 @@ describe("TokenService", () => {
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
-          encryptService.encryptString.mockResolvedValue({
-            encryptedString: mockEncryptedAccessToken,
-          } as any);
+          encryptService.encryptString.mockResolvedValue(mockEncryptedAccessToken as any);
 
           // First call resolves to null to simulate no key in secure storage
           // then resolves to the key to simulate the key being set in secure storage
@@ -469,9 +467,7 @@ describe("TokenService", () => {
               .nextState(accessTokenJwt);
 
             jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(accessTokenKey);
-            encryptService.encryptString.mockResolvedValue({
-              encryptedString: "encryptedAccessToken",
-            } as any);
+            encryptService.encryptString.mockResolvedValue("encryptedAccessToken" as any);
             secureStorageService.get
               .mockResolvedValueOnce(null)
               .mockResolvedValue(accessTokenKeyB64);

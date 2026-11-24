@@ -50,9 +50,9 @@ export class WebProviderService {
     assertNonNullish(providerKey, "Provider key not found");
 
     const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
-    assertNonNullish(encryptedOrgKey.encryptedString, "Encrypted organization key");
+    assertNonNullish(encryptedOrgKey, "Encrypted organization key");
     await this.providerApiService.addOrganizationToProvider(providerId, {
-      key: encryptedOrgKey.encryptedString,
+      key: encryptedOrgKey,
       organizationId,
     });
     await this.syncService.fullSync(true);
@@ -89,18 +89,18 @@ export class WebProviderService {
       providerKey,
     );
 
-    assertNonNullish(encryptedProviderKey.encryptedString, "Encrypted provider key");
-    assertNonNullish(encryptedPrivateKey.encryptedString, "Encrypted private key");
-    assertNonNullish(encryptedCollectionName.encryptedString, "Encrypted collection name");
+    assertNonNullish(encryptedProviderKey, "Encrypted provider key");
+    assertNonNullish(encryptedPrivateKey, "Encrypted private key");
+    assertNonNullish(encryptedCollectionName, "Encrypted collection name");
 
     const request = new CreateProviderOrganizationRequest(
       name,
       ownerEmail,
       planType,
       seats,
-      encryptedProviderKey.encryptedString,
-      new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString),
-      encryptedCollectionName.encryptedString,
+      encryptedProviderKey,
+      new OrganizationKeysRequest(publicKey, encryptedPrivateKey),
+      encryptedCollectionName,
     );
 
     await this.providerApiService.createProviderOrganization(providerId, request);

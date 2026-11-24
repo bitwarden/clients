@@ -1,7 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
-// eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { createNewSummaryData } from "../helpers";
 
@@ -75,10 +74,10 @@ export class GetRiskInsightsReportResponse extends BaseResponse {
     this.id = this.getResponseProperty("id");
     this.organizationId = this.getResponseProperty("organizationId");
     this.creationDate = new Date(this.getResponseProperty("creationDate"));
-    this.reportData = new EncString(this.getResponseProperty("reportData"));
-    this.summaryData = new EncString(this.getResponseProperty("summaryData"));
-    this.applicationData = new EncString(this.getResponseProperty("applicationData"));
-    this.contentEncryptionKey = new EncString(this.getResponseProperty("contentEncryptionKey"));
+    this.reportData = this.getResponseProperty("reportData") as EncString;
+    this.summaryData = this.getResponseProperty("summaryData") as EncString;
+    this.applicationData = this.getResponseProperty("applicationData") as EncString;
+    this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey") as EncString;
   }
 }
 

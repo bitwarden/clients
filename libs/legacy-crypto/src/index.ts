@@ -10,8 +10,6 @@ export { KdfType } from "./enums/kdf-type.enum";
 export type { Decryptable } from "./interfaces/decryptable.interface";
 
 export { EncArrayBuffer } from "./models/enc-array-buffer";
-export { EncString } from "./models/enc-string";
-export type { EncryptedString } from "./models/enc-string";
 export { DECRYPT_ERROR, isSerializedEncString } from "./utils";
 export {
   Argon2KdfConfig,
