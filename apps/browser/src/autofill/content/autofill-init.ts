@@ -37,6 +37,10 @@ class AutofillInit implements AutofillInitInterface {
     applyTargetedFields: ({ message }) =>
       this.isMonitoring ? this.applyTargetedFields(message) : undefined,
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
+    runFillAssistHeuristicFallback: () =>
+      this.isMonitoring
+        ? this.collectAutofillContentService.handleRunFillAssistHeuristicFallback()
+        : undefined,
     startAutofillMonitors: () => this.startMonitoring(),
     stopAutofillMonitors: () => this.stopMonitoring(),
   };
