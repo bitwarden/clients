@@ -1,5 +1,6 @@
 import { Subject } from "rxjs";
 
+import { TabEvent, TabSignalKind } from "./enums";
 import type { ObservedWindow, TabLifecycleEvent, TabSignal } from "./types";
 
 /**
@@ -48,25 +49,25 @@ function diff(
   before: Facts,
   after: Facts,
   signedIn: boolean,
-): Extract<TabSignal, { kind: "tab" }>[] {
+): Extract<TabSignal, { kind: typeof TabSignalKind.Tab }>[] {
   const was = activeTabs(before);
   const is = activeTabs(after);
   const signal = (tabId: number, event: TabLifecycleEvent) =>
-    ({ kind: "tab", tabId, event, signedIn }) as const;
+    ({ kind: TabSignalKind.Tab, tabId, event, signedIn }) as const;
 
   const signals = [];
   for (const [tabId, focused] of was) {
     if (!is.has(tabId)) {
-      signals.push(signal(tabId, { kind: "deactivate" }));
+      signals.push(signal(tabId, { kind: TabEvent.Deactivate }));
     } else if (focused && !is.get(tabId)) {
-      signals.push(signal(tabId, { kind: "blur" }));
+      signals.push(signal(tabId, { kind: TabEvent.Blur }));
     }
   }
   for (const [tabId, focused] of is) {
     if (!was.has(tabId)) {
-      signals.push(signal(tabId, { kind: "activate", focused }));
+      signals.push(signal(tabId, { kind: TabEvent.Activate, focused }));
     } else if (focused && !was.get(tabId)) {
-      signals.push(signal(tabId, { kind: "focus" }));
+      signals.push(signal(tabId, { kind: TabEvent.Focus }));
     }
   }
   return signals;
@@ -79,13 +80,13 @@ function diff(
  *
  * Every method takes one signal and reports what follows from it on {@link signals$}. A method
  * that returns `false` could not interpret its signal, or all of it, against what the reducer
- * holds, and has reported nothing for what it could not interpret: the caller reads the browser's windows and passes them to
- * {@link TabSignalReducer.reconciled}, or says it could not with {@link TabSignalReducer.reconcileFailed}.
+ * holds, and has reported nothing for what it could not interpret: the caller reads the browser's
+ * windows and passes them to {@link TabSignalReducer.reconciled}. If the windows cannot be read, the
+ * facts stand.
  */
 export class TabSignalReducer implements Disposable {
   private facts: Facts = { windows: new Map(), focusedWindow: undefined };
   private signedIn: boolean | undefined;
-  private seeding = false;
   private readonly reported = new Subject<TabSignal>();
 
   /** What follows from each signal, in the order it is to be applied. */
@@ -106,12 +107,21 @@ export class TabSignalReducer implements Disposable {
       return true;
     }
 
-    this.reported.next({ kind: "all", event: { kind: signedIn ? "login" : "logout" }, signedIn });
+    this.reported.next({
+      kind: TabSignalKind.All,
+      event: { kind: signedIn ? TabEvent.Login : TabEvent.Logout },
+      signedIn,
+    });
     if (signedIn) {
       // Signing in says nothing about which tab the user is looking at, so every window's active
       // tab is announced again for the machine to promote.
       for (const [tabId, focused] of activeTabs(this.facts)) {
-        this.reported.next({ kind: "tab", tabId, event: { kind: "activate", focused }, signedIn });
+        this.reported.next({
+          kind: TabSignalKind.Tab,
+          tabId,
+          event: { kind: TabEvent.Activate, focused },
+          signedIn,
+        });
       }
     }
     return true;
@@ -119,22 +129,15 @@ export class TabSignalReducer implements Disposable {
 
   /**
    * Starts the seed: every window's active tab is announced once the browser's windows are
-   * {@link TabSignalReducer.reconciled}, or the attempt has failed.
+   * {@link TabSignalReducer.reconciled}. It says that the browser must be asked.
    */
   seed(): boolean {
-    this.seeding = true;
     return false;
   }
 
   /** Takes the browser's windows as the facts, and reports what differs from the facts held. */
   reconciled(windows: readonly ObservedWindow[]): void {
     this.apply(factsFrom(windows));
-    this.finishSeed();
-  }
-
-  /** The browser's windows could not be read. The facts stand. */
-  reconcileFailed(): void {
-    this.finishSeed();
   }
 
   tabActivated(tabId: number, windowId: number): boolean {
@@ -188,7 +191,7 @@ export class TabSignalReducer implements Disposable {
       }
     }
     this.facts = { ...this.facts, windows };
-    this.reported.next({ kind: "removed", tabId });
+    this.reported.next({ kind: TabSignalKind.Removed, tabId });
     return true;
   }
 
@@ -231,13 +234,6 @@ export class TabSignalReducer implements Disposable {
     this.facts = next;
     for (const signal of signals) {
       this.reported.next(signal);
-    }
-  }
-
-  private finishSeed(): void {
-    if (this.seeding) {
-      this.seeding = false;
-      this.reported.next({ kind: "seeded" });
     }
   }
 }

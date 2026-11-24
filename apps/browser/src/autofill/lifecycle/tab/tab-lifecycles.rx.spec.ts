@@ -1,4 +1,4 @@
-import { BehaviorSubject, firstValueFrom, NEVER, of, Subject } from "rxjs";
+import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
 import { TabEdgeCause, TabState } from "../enums";
 import type { TabEdge } from "../types";
@@ -59,8 +59,6 @@ describe("feedTabLifecycles", () => {
     return { surface, stop };
   }
 
-  const latest = (surface: TabLifecycles) => firstValueFrom(surface.latestEdges$);
-
   beforeEach(() => {
     jest.useFakeTimers();
     tabActivated$ = new Subject();
@@ -89,29 +87,6 @@ describe("feedTabLifecycles", () => {
     stop();
   });
 
-  it("is not ready until the browser has been read", async () => {
-    let release: () => void = () => undefined;
-    getWindows.mockImplementationOnce(
-      () => new Promise((resolve) => (release = () => resolve([win(1, 10, true)]))),
-    );
-    const { surface } = await start([]);
-    const ready: unknown[] = [];
-    surface.ready$.subscribe(() => ready.push(true));
-    expect(ready).toEqual([]);
-
-    release();
-    await advance(0);
-
-    expect(ready).toEqual([true]);
-  });
-
-  it("has the seed's edges in the latest edges when it is ready", async () => {
-    const { surface } = await start([win(1, 10, true)]);
-    await firstValueFrom(surface.ready$);
-
-    expect((await latest(surface)).get(10)?.to).toBe(TabState.WarmUp);
-  });
-
   it("leaves a tab the seed could not resolve cold until the browser activates it", async () => {
     getWindows.mockRejectedValueOnce(new Error("nope"));
     const { stop } = await start([win(1, 10, true)]);
@@ -124,18 +99,6 @@ describe("feedTabLifecycles", () => {
       [10, TabState.WarmUp],
       [10, TabState.Hot],
     ]);
-    stop();
-  });
-
-  it("brings the latest edges up to date before it reports an edge", async () => {
-    const { surface, stop } = await start([win(1, 10, true)]);
-    const map = await latest(surface);
-    const seen: Array<TabEdge | undefined> = [];
-    surface.tabLifecycleChanged$.subscribe(([tabId]) => seen.push(map.get(tabId)));
-
-    await advance(SETTLE_MS);
-
-    expect(seen.map((edge) => edge?.to)).toEqual([TabState.Hot]);
     stop();
   });
 
@@ -152,20 +115,12 @@ describe("feedTabLifecycles", () => {
     stop();
   });
 
-  it("is ready once the seed has been announced", async () => {
-    const { surface, stop } = await start([win(1, 10, true)]);
-
-    await expect(firstValueFrom(surface.ready$)).resolves.toBeUndefined();
-    stop();
-  });
-
-  it("is ready, with every tab cold, when the browser cannot be read", async () => {
+  it("leaves every tab cold when the browser cannot be read", async () => {
     getWindows.mockRejectedValue(new Error("nope"));
 
-    const { surface, stop } = await start([win(1, 10, true)]);
+    const { stop } = await start([win(1, 10, true)]);
     await advance(SETTLE_MS);
 
-    await expect(firstValueFrom(surface.ready$)).resolves.toBeUndefined();
     expect(changes).toEqual([]);
     stop();
   });
@@ -245,48 +200,6 @@ describe("feedTabLifecycles", () => {
 
     expect(removed).toEqual([10, 77]);
     stop();
-  });
-
-  describe("the latest edge of each tab", () => {
-    it("holds the edge a tab last had, for reading at join time", async () => {
-      const { surface, stop } = await start([win(1, 10, true)]);
-      await advance(SETTLE_MS);
-
-      const edges = await latest(surface);
-
-      expect(isMonitoring(edges.get(10)!)).toBe(true);
-      expect(edges.get(10)).toEqual(
-        expect.objectContaining({ to: TabState.Hot, cause: TabEdgeCause.Settle }),
-      );
-      stop();
-    });
-
-    it("has no entry for a tab that has not changed", async () => {
-      const { surface, stop } = await start([win(1, 10, true)]);
-
-      expect((await latest(surface)).has(99)).toBe(false);
-      stop();
-    });
-
-    it("drops a removed tab", async () => {
-      const { surface, stop } = await start([win(1, 10, true)]);
-      await advance(SETTLE_MS);
-
-      tabRemoved$.next({ tabId: 10 });
-
-      expect((await latest(surface)).has(10)).toBe(false);
-      stop();
-    });
-
-    it("is one map, updated in place", async () => {
-      const { surface, stop } = await start([win(1, 10, true)]);
-      const before = await latest(surface);
-
-      await advance(SETTLE_MS);
-
-      expect(await latest(surface)).toBe(before);
-      stop();
-    });
   });
 
   it("cools down a tab that is left, and stops monitoring it afterward", async () => {

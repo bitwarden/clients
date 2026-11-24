@@ -3,25 +3,25 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { TabEvent, TabSignalKind } from "./enums";
 import { signedIn, tabSignals$ } from "./reducer.rx";
 import type { ObservedWindow, ReducerSources, TabLifecycleEvent, TabSignal } from "./types";
 
 const { LoggedOut, Locked, Unlocked } = AuthenticationStatus;
 
-const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
-const deactivate: TabLifecycleEvent = { kind: "deactivate" };
-const focus: TabLifecycleEvent = { kind: "focus" };
-const blur: TabLifecycleEvent = { kind: "blur" };
+const activate = (focused: boolean): TabLifecycleEvent => ({ kind: TabEvent.Activate, focused });
+const deactivate: TabLifecycleEvent = { kind: TabEvent.Deactivate };
+const focus: TabLifecycleEvent = { kind: TabEvent.Focus };
+const blur: TabLifecycleEvent = { kind: TabEvent.Blur };
 
 /** The signal that delivers `event` to a tab, while someone is signed in. */
 const tab = (tabId: number, event: TabLifecycleEvent): TabSignal => ({
-  kind: "tab",
+  kind: TabSignalKind.Tab,
   tabId,
   event,
   signedIn: true,
 });
-const removed = (tabId: number): TabSignal => ({ kind: "removed", tabId });
-const seeded: TabSignal = { kind: "seeded" };
+const removed = (tabId: number): TabSignal => ({ kind: TabSignalKind.Removed, tabId });
 
 /** A window with the given active tab, and another tab that is not active. */
 const win = (id: number, activeTabId: number, focused = false): ObservedWindow => ({
@@ -127,17 +127,17 @@ describe("tabSignals$", () => {
       await flush();
 
       expect(getWindows).toHaveBeenCalledTimes(1);
-      expect(signals).toEqual([tab(10, activate(true)), tab(20, activate(false)), seeded]);
+      expect(signals).toEqual([tab(10, activate(true)), tab(20, activate(false))]);
     });
 
-    it("is seeded, having reported the failure, when the browser cannot be read", async () => {
+    it("reports the failure, and announces nothing, when the browser cannot be read", async () => {
       const failure = new Error("nope");
       getWindows.mockRejectedValue(failure);
       tabSignals$(sources).subscribe((s) => signals.push(s));
 
       await flush();
 
-      expect(signals).toEqual([seeded]);
+      expect(signals).toEqual([]);
       expect(onReconcileError).toHaveBeenCalledWith(failure);
     });
 
@@ -155,9 +155,8 @@ describe("tabSignals$", () => {
       await flush();
 
       expect(signals).toEqual([
-        { kind: "all", event: { kind: "login" }, signedIn: true },
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Login }, signedIn: true },
         tab(70, activate(true)),
-        seeded,
       ]);
     });
   });
@@ -345,7 +344,9 @@ describe("tabSignals$", () => {
       tabAttached$.next({ tabId: 21 });
       signedIn$.next(false);
 
-      expect(signals).toEqual([{ kind: "all", event: { kind: "logout" }, signedIn: false }]);
+      expect(signals).toEqual([
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Logout }, signedIn: false },
+      ]);
     });
 
     it("gives up on a browser that does not answer, and goes on with the signals behind it", async () => {

@@ -1,5 +1,6 @@
 import { TabEdgeCause, TabState } from "../enums";
 
+import { TabEvent } from "./enums";
 import type { MachineContext, TabLifecycleEvent } from "./types";
 
 /**
@@ -14,14 +15,14 @@ import type { MachineContext, TabLifecycleEvent } from "./types";
 export function transition(ctx: MachineContext, event: TabLifecycleEvent): MachineContext {
   const { state, focused } = ctx;
   switch (event.kind) {
-    case "logout":
+    case TabEvent.Logout:
       // The user signs out, or the account is removed. Every tab is affected at once, whatever
       // each was doing, and no amount of browser activity brings one back.
       return state === TabState.Frozen
         ? ctx
         : { state: TabState.Frozen, focused, cause: TabEdgeCause.Logout };
 
-    case "login":
+    case TabEvent.Login:
       // The user signs in. Signing in says nothing about which tab the user is looking at, so
       // every tab starts from the resting position and the activation signals that follow
       // promote whichever one the browser reports as active.
@@ -29,7 +30,7 @@ export function transition(ctx: MachineContext, event: TabLifecycleEvent): Machi
         ? { state: TabState.Cold, focused, cause: TabEdgeCause.Login }
         : ctx;
 
-    case "activate":
+    case TabEvent.Activate:
       if (state === TabState.Frozen) {
         return ctx;
       }
@@ -47,7 +48,7 @@ export function transition(ctx: MachineContext, event: TabLifecycleEvent): Machi
       // gained or lost focus alongside the activation. Only the focus axis has moved.
       return event.focused === focused ? ctx : { ...ctx, focused: event.focused };
 
-    case "deactivate":
+    case TabEvent.Deactivate:
       if (state === TabState.WarmUp || state === TabState.Warm) {
         // A tab cycled past with ctrl+tab, or a background window's active tab being replaced.
         return { state: TabState.Cold, focused, cause: TabEdgeCause.Deactivate };
@@ -58,7 +59,7 @@ export function transition(ctx: MachineContext, event: TabLifecycleEvent): Machi
       }
       return ctx;
 
-    case "focus":
+    case TabEvent.Focus:
       // The user returns to the window this tab is active in.
       if (state === TabState.Warm) {
         return { state: TabState.Hot, focused: true, cause: TabEdgeCause.Focus };
@@ -71,7 +72,7 @@ export function transition(ctx: MachineContext, event: TabLifecycleEvent): Machi
       }
       return ctx;
 
-    case "blur":
+    case TabEvent.Blur:
       // The user switches to another window, or away from the browser entirely.
       if (state === TabState.Hot) {
         return { state: TabState.Warm, focused: false, cause: TabEdgeCause.Blur };
@@ -83,7 +84,7 @@ export function transition(ctx: MachineContext, event: TabLifecycleEvent): Machi
       }
       return ctx;
 
-    case "command":
+    case TabEvent.Command:
       // The user asks for a fill directly — a keyboard shortcut, or a context-menu choice. The
       // request is its own evidence that the user is looking at the tab, so it is trusted ahead of
       // the settle it would otherwise have waited out, and the window is taken to be focused even

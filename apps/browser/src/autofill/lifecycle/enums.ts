@@ -14,9 +14,10 @@ export const TabState = Object.freeze({
 export type TabState = (typeof TabState)[keyof typeof TabState];
 
 /**
- * The event that drove a `TabEdge`, named for the transition it represents. `Settle` and
- * `CoolDownElapsed` are synthesized internally when a timer fires; the other seven correspond to
- * `TabLifecycleEvent` kinds (both in `./types.ts`).
+ * The reason a `TabEdge` happened, named for the transition it represents. The machine takes
+ * `TabEvent`s as input and reports `TabEdge`s as output. A cause says which input produced the edge.
+ * Seven causes have the value of the `TabEvent` of the same name (`./tab/enums.ts`). `Settle` and
+ * `CoolDownElapsed` are the machine's own timers expiring.
  */
 export const TabEdgeCause = Object.freeze({
   Login: "login",

@@ -1,8 +1,9 @@
 import { of } from "rxjs";
 
-import { TabState } from "../enums";
+import { TabEdgeCause, TabState } from "../enums";
 import type { TabEdge } from "../types";
 
+import { TabEvent, TabSignalKind } from "./enums";
 import { TabLifecycles } from "./tab-lifecycles";
 
 const SETTLE_MS = 500;
@@ -25,7 +26,12 @@ describe("TabLifecycles", () => {
   });
 
   const activate = (tabId: number, signedIn: boolean) =>
-    lifecycles.apply({ kind: "tab", tabId, event: { kind: "activate", focused: true }, signedIn });
+    lifecycles.apply({
+      kind: TabSignalKind.Tab,
+      tabId,
+      event: { kind: TabEvent.Activate, focused: true },
+      signedIn,
+    });
 
   it("starts the machine of a tab first heard of while signed in from cold", () => {
     activate(1, true);
@@ -43,19 +49,51 @@ describe("TabLifecycles", () => {
 
   it("gives every tab that has a machine a login, and no tab that does not", () => {
     activate(1, false);
-    lifecycles.apply({ kind: "all", event: { kind: "login" }, signedIn: true });
+    lifecycles.apply({ kind: TabSignalKind.All, event: { kind: TabEvent.Login }, signedIn: true });
 
     expect(edges.map(([tabId, edge]) => [tabId, edge.to])).toEqual([[1, TabState.Cold]]);
   });
 
   it("ends a removed tab's machine, so its wait does not elapse", async () => {
     activate(1, true);
-    lifecycles.apply({ kind: "removed", tabId: 1 });
+    lifecycles.apply({ kind: TabSignalKind.Removed, tabId: 1 });
     edges.length = 0;
 
     await jest.advanceTimersByTimeAsync(SETTLE_MS);
 
     expect(edges).toEqual([]);
+  });
+
+  describe("a command", () => {
+    it("makes a warming tab hot before it settles", async () => {
+      activate(1, true);
+      edges.length = 0;
+
+      lifecycles.command(1);
+
+      expect(edges.map(([, edge]) => [edge.from, edge.to, edge.cause])).toEqual([
+        [TabState.WarmUp, TabState.Hot, TabEdgeCause.Command],
+      ]);
+    });
+
+    it("starts no machine for a tab that has none, so a command for a closed tab leaves nothing", async () => {
+      lifecycles.command(1);
+      activate(1, true);
+
+      expect(edges.map(([, edge]) => [edge.from, edge.to])).toEqual([
+        [TabState.Cold, TabState.WarmUp],
+      ]);
+    });
+
+    it("is ignored once the lifecycles are disposed", () => {
+      activate(1, true);
+      edges.length = 0;
+      lifecycles[Symbol.dispose]();
+
+      lifecycles.command(1);
+
+      expect(edges).toEqual([]);
+    });
   });
 
   it("ends every machine when disposed, and completes its streams", async () => {

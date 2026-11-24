@@ -79,9 +79,11 @@ export function feedTabSignalReducer(
       sources.onReconcileError(error);
       return of(undefined);
     }),
-    tap<readonly ObservedWindow[] | undefined>((windows) =>
-      windows ? reducer.reconciled(windows) : reducer.reconcileFailed(),
-    ),
+    tap<readonly ObservedWindow[] | undefined>((windows) => {
+      if (windows) {
+        reducer.reconciled(windows);
+      }
+    }),
     ignoreElements(),
   );
 

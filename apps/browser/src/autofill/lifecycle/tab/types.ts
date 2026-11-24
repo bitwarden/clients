@@ -2,18 +2,20 @@ import type { Observable } from "rxjs";
 
 import type { TabEdgeCause, TabState } from "../enums";
 
+import type { TabEvent, TabSignalKind } from "./enums";
+
 /**
  * An external input to the machine. `activate` carries the window's focus at the moment of
  * activation; `focus` and `blur` update it thereafter.
  */
 export type TabLifecycleEvent =
-  | { kind: "login" }
-  | { kind: "logout" }
-  | { kind: "activate"; focused: boolean }
-  | { kind: "deactivate" }
-  | { kind: "focus" }
-  | { kind: "blur" }
-  | { kind: "command" };
+  | { kind: typeof TabEvent.Login }
+  | { kind: typeof TabEvent.Logout }
+  | { kind: typeof TabEvent.Activate; focused: boolean }
+  | { kind: typeof TabEvent.Deactivate }
+  | { kind: typeof TabEvent.Focus }
+  | { kind: typeof TabEvent.Blur }
+  | { kind: typeof TabEvent.Command };
 
 /** A tab's position in the machine: its state, the window focus behind it, and how it got there. */
 export interface MachineContext {
@@ -52,13 +54,16 @@ export type ReducerSources = Readonly<{
 /** What the reducer delivers, in the order it is meant to be applied. */
 export type TabSignal =
   /** An event for one tab. `signedIn` is the extension's state when it was derived. */
-  | Readonly<{ kind: "tab"; tabId: number; event: TabLifecycleEvent; signedIn: boolean }>
   | Readonly<{
-      kind: "all";
-      event: Extract<TabLifecycleEvent, { kind: "login" | "logout" }>;
+      kind: typeof TabSignalKind.Tab;
+      tabId: number;
+      event: TabLifecycleEvent;
+      signedIn: boolean;
+    }>
+  | Readonly<{
+      kind: typeof TabSignalKind.All;
+      event: Extract<TabLifecycleEvent, { kind: typeof TabEvent.Login | typeof TabEvent.Logout }>;
       signedIn: boolean;
     }>
   /** The tab does not exist. Nothing follows for it. */
-  | Readonly<{ kind: "removed"; tabId: number }>
-  /** The first reconciliation with the browser is complete, however it ended. */
-  | Readonly<{ kind: "seeded" }>;
+  | Readonly<{ kind: typeof TabSignalKind.Removed; tabId: number }>;

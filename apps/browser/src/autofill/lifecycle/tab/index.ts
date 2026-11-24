@@ -1,3 +1,4 @@
+export { TabEvent } from "./enums";
 export { signedIn } from "./reducer.rx";
 export { tabLifecycle } from "./machine.rx";
 export { TabLifecycles } from "./tab-lifecycles";

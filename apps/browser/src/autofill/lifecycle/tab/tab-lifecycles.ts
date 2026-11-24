@@ -1,8 +1,9 @@
-import { BehaviorSubject, ReplaySubject, Subject, Subscription } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 
 import { TabState } from "../enums";
 import type { AutofillTimings, TabEdge } from "../types";
 
+import { TabEvent, TabSignalKind } from "./enums";
 import { tabLifecycle } from "./machine.rx";
 import type { TabLifecycleEvent, TabSignal } from "./types";
 
@@ -12,12 +13,9 @@ import type { TabLifecycleEvent, TabSignal } from "./types";
  *
  * A tab's machine is created on its first event, from `Frozen` or `Cold` according to whether
  * anyone is signed in, and ends with the tab. A tab that never activates never has one. The
- * machine emits no seed, so a consumer that needs a tab's state reads {@link latestEdges$}.
- *
- * Every consumer is told of a change after the state it reads has changed: a consumer that joins
- * {@link latestEdges$} as an edge arrives reads a map that includes the edge. A signal that reaches
- * every tab, such as a logout, reaches them one at a time, so a consumer hearing of one tab's edge
- * may still read another tab as it was before the signal.
+ * machine emits no seed, so a consumer hears only the changes of state, and a tab that has had none
+ * is in its initial state. A signal that reaches every tab, such as a logout, reaches them one at a
+ * time.
  *
  * A signal for a tab must not follow the tab's removal, or it starts a machine that nothing ends.
  * The reducer applies signals in an order that keeps this true.
@@ -27,16 +25,11 @@ export class TabLifecycles implements Disposable {
     number,
     Readonly<{ events: Subject<TabLifecycleEvent>; subscription: Subscription }>
   >();
-  private readonly latest = new Map<number, TabEdge>();
   private signedIn = false;
   private disposed = false;
 
   private readonly edgeReported = new Subject<readonly [number, TabEdge]>();
   private readonly tabRemoved = new Subject<number>();
-  private readonly latestEdgesChanged = new BehaviorSubject<ReadonlyMap<number, TabEdge>>(
-    this.latest,
-  );
-  private readonly seeded = new ReplaySubject<void>(1);
 
   /** Each state change of each tab, with its tab's id. A tab's initial state is not a change. */
   readonly tabLifecycleChanged$ = this.edgeReported.asObservable();
@@ -47,24 +40,6 @@ export class TabLifecycles implements Disposable {
    */
   readonly tabRemoved$ = this.tabRemoved.asObservable();
 
-  /**
-   * The latest edge of each tab that has had one, for joining at the arrival of an event. It is one
-   * map, updated in place: read it when joining, and never compare two of its emissions. A tab with
-   * no entry has not changed state since the lifecycles began, which is `Frozen` or `Cold`
-   * according to whether anyone is signed in; a removed tab has none.
-   */
-  readonly latestEdges$ = this.latestEdgesChanged.asObservable();
-
-  /**
-   * Emits once the first read of the browser's windows has finished, whether or not the read
-   * succeeded. Subscribers that arrive later receive it too. The read starts after the first
-   * observation of the accounts.
-   *
-   * When the read succeeds, each window's active tab has a state by then. When it fails, or does
-   * not name a tab, a tab has no recorded edge until the browser activates it.
-   */
-  readonly ready$ = this.seeded.asObservable();
-
   constructor(private readonly timings: Pick<AutofillTimings, "settleMs$" | "coolDownMs$">) {}
 
   /** Applies a signal. Nothing follows once the lifecycles are disposed. */
@@ -73,29 +48,35 @@ export class TabLifecycles implements Disposable {
       return;
     }
     switch (signal.kind) {
-      case "tab":
+      case TabSignalKind.Tab:
         this.signedIn = signal.signedIn;
         this.machine(signal.tabId).next(signal.event);
         break;
 
-      case "all":
+      case TabSignalKind.All:
         this.signedIn = signal.signedIn;
         for (const { events } of [...this.machines.values()]) {
           events.next(signal.event);
         }
         break;
 
-      case "removed":
+      case TabSignalKind.Removed:
         this.machines.get(signal.tabId)?.subscription.unsubscribe();
         this.machines.delete(signal.tabId);
-        this.latest.delete(signal.tabId);
         this.tabRemoved.next(signal.tabId);
         break;
-
-      case "seeded":
-        this.seeded.next();
-        break;
     }
+  }
+
+  /**
+   * Notifies the tab lifecycle that the user initiated a fill command targeting
+   * its content.
+   */
+  command(tabId: number): void {
+    if (this.disposed) {
+      return;
+    }
+    this.machines.get(tabId)?.events.next({ kind: TabEvent.Command });
   }
 
   [Symbol.dispose](): void {
@@ -106,8 +87,6 @@ export class TabLifecycles implements Disposable {
     this.machines.clear();
     this.edgeReported.complete();
     this.tabRemoved.complete();
-    this.latestEdgesChanged.complete();
-    this.seeded.complete();
   }
 
   private machine(tabId: number): Subject<TabLifecycleEvent> {
@@ -119,7 +98,6 @@ export class TabLifecycles implements Disposable {
     const events = new Subject<TabLifecycleEvent>();
     const seed = this.signedIn ? TabState.Cold : TabState.Frozen;
     const subscription = events.pipe(tabLifecycle(seed, this.timings)).subscribe((edge) => {
-      this.latest.set(tabId, edge);
       this.edgeReported.next([tabId, edge]);
     });
     this.machines.set(tabId, { events, subscription });

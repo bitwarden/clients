@@ -1,20 +1,20 @@
+import { TabEvent, TabSignalKind } from "./enums";
 import { TabSignalReducer } from "./reducer";
 import type { ObservedWindow, TabLifecycleEvent, TabSignal } from "./types";
 
-const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
-const deactivate: TabLifecycleEvent = { kind: "deactivate" };
-const focus: TabLifecycleEvent = { kind: "focus" };
-const blur: TabLifecycleEvent = { kind: "blur" };
+const activate = (focused: boolean): TabLifecycleEvent => ({ kind: TabEvent.Activate, focused });
+const deactivate: TabLifecycleEvent = { kind: TabEvent.Deactivate };
+const focus: TabLifecycleEvent = { kind: TabEvent.Focus };
+const blur: TabLifecycleEvent = { kind: TabEvent.Blur };
 
 /** The signal that delivers `event` to a tab, while someone is signed in. */
 const tab = (tabId: number, event: TabLifecycleEvent): TabSignal => ({
-  kind: "tab",
+  kind: TabSignalKind.Tab,
   tabId,
   event,
   signedIn: true,
 });
-const removed = (tabId: number): TabSignal => ({ kind: "removed", tabId });
-const seeded: TabSignal = { kind: "seeded" };
+const removed = (tabId: number): TabSignal => ({ kind: TabSignalKind.Removed, tabId });
 
 /** A window with the given active tab, and another tab that is not active. */
 const win = (id: number, activeTabId: number, focused = false): ObservedWindow => ({
@@ -50,7 +50,9 @@ describe("TabSignalReducer", () => {
 
       reducer.accountChanged(false);
 
-      expect(reported).toEqual([{ kind: "all", event: { kind: "logout" }, signedIn: false }]);
+      expect(reported).toEqual([
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Logout }, signedIn: false },
+      ]);
     });
 
     it("delivers login to every tab, then announces each window's active tab", () => {
@@ -61,7 +63,7 @@ describe("TabSignalReducer", () => {
       reducer.accountChanged(true);
 
       expect(reported).toEqual([
-        { kind: "all", event: { kind: "login" }, signedIn: true },
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Login }, signedIn: true },
         tab(10, activate(true)),
         tab(20, activate(false)),
       ]);
@@ -75,7 +77,9 @@ describe("TabSignalReducer", () => {
       reducer.accountChanged(false);
       reducer.accountChanged(false);
 
-      expect(reported).toEqual([{ kind: "all", event: { kind: "logout" }, signedIn: false }]);
+      expect(reported).toEqual([
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Logout }, signedIn: false },
+      ]);
     });
 
     it("stamps each tab event with whether anyone is signed in", () => {
@@ -89,19 +93,19 @@ describe("TabSignalReducer", () => {
       reducer.tabActivated(12, 1);
 
       expect(reported).toEqual([
-        { kind: "all", event: { kind: "login" }, signedIn: true },
-        { kind: "tab", tabId: 10, event: activate(true), signedIn: true },
-        { kind: "tab", tabId: 10, event: deactivate, signedIn: true },
-        { kind: "tab", tabId: 11, event: activate(true), signedIn: true },
-        { kind: "all", event: { kind: "logout" }, signedIn: false },
-        { kind: "tab", tabId: 11, event: deactivate, signedIn: false },
-        { kind: "tab", tabId: 12, event: activate(true), signedIn: false },
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Login }, signedIn: true },
+        { kind: TabSignalKind.Tab, tabId: 10, event: activate(true), signedIn: true },
+        { kind: TabSignalKind.Tab, tabId: 10, event: deactivate, signedIn: true },
+        { kind: TabSignalKind.Tab, tabId: 11, event: activate(true), signedIn: true },
+        { kind: TabSignalKind.All, event: { kind: TabEvent.Logout }, signedIn: false },
+        { kind: TabSignalKind.Tab, tabId: 11, event: deactivate, signedIn: false },
+        { kind: TabSignalKind.Tab, tabId: 12, event: activate(true), signedIn: false },
       ]);
     });
   });
 
   describe("the seed", () => {
-    it("announces each window's active tab with its window's focus, then says it is seeded", () => {
+    it("announces each window's active tab with its window's focus", () => {
       reducer.accountChanged(true);
       reducer.signals$.subscribe((signal) => reported.push(signal));
 
@@ -109,27 +113,16 @@ describe("TabSignalReducer", () => {
       expect(reported).toEqual([]);
       reducer.reconciled([win(1, 10, true), win(2, 20)]);
 
-      expect(reported).toEqual([tab(10, activate(true)), tab(20, activate(false)), seeded]);
+      expect(reported).toEqual([tab(10, activate(true)), tab(20, activate(false))]);
     });
 
-    it("says it is seeded when the browser could not be read", () => {
-      reducer.accountChanged(true);
-      reducer.signals$.subscribe((signal) => reported.push(signal));
-
-      reducer.seed();
-      reducer.reconcileFailed();
-
-      expect(reported).toEqual([seeded]);
-    });
-
-    it("says it is seeded once, however many reconciliations follow", () => {
+    it("announces nothing when a later reconciliation finds what it already held", () => {
       reducer.accountChanged(true);
       reducer.seed();
       reducer.reconciled([win(1, 10, true)]);
       reducer.signals$.subscribe((signal) => reported.push(signal));
 
       reducer.reconciled([win(1, 10, true)]);
-      reducer.reconcileFailed();
 
       expect(reported).toEqual([]);
     });
