@@ -126,9 +126,8 @@ export class MonitoringController implements Disposable {
 
   /** Every known frame. */
   frames(): FrameRef[] {
-    return [...this.tabs.values()].flatMap((frames) =>
-      [...frames.values()].map(({ tab, frameId }) => ({ tab, frameId })),
-    );
+    const frames = [...this.tabs.values()].flatMap((tabFrames) => [...tabFrames.values()]);
+    return frames.map(({ tab, frameId }) => ({ tab, frameId }));
   }
 
   [Symbol.dispose](): void {
