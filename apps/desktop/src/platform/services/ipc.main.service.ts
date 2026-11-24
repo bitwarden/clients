@@ -67,7 +67,7 @@ export class IpcMainService extends IpcService {
           }
 
           if (message.destination === "DesktopRenderer") {
-            this.windowMain.win?.webContents.send("ipc.onMessage", {
+            this.sendToRenderer({
               type: "bitwarden-ipc-message",
               message: {
                 destination: message.destination,
@@ -111,7 +111,7 @@ export class IpcMainService extends IpcService {
         try {
           // Forward to renderer process
           if (ipcMessage.message.destination === "DesktopRenderer") {
-            this.windowMain.win?.webContents.send("ipc.onMessage", {
+            this.sendToRenderer({
               type: "forwarded-bitwarden-ipc-message",
               message: ipcMessage.message,
               originalSource: this.sourceFor(nativeMessage.clientId),
@@ -190,6 +190,27 @@ export class IpcMainService extends IpcService {
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
+  }
+
+  /**
+   * Sends to the renderer, logging when there is no renderer to send to.
+   *
+   * The renderer is destroyed while the app is hidden, and `webContents.send` has nowhere to put
+   * a message then. Dropping it is the only option — recreating the renderer for every message
+   * would undo the teardown — but it must not happen quietly: a peer addressing the renderer for
+   * something main now serves is a routing mistake, and silence makes it look like a hang.
+   */
+  private sendToRenderer(message: IpcMessage | ForwardedIpcMessage): void {
+    const renderer = this.windowMain.win?.webContents;
+    if (renderer == null) {
+      this.logService.warning(
+        "[IPC] Dropped a message for the renderer, which is not running",
+        message.message.topic,
+      );
+      return;
+    }
+
+    renderer.send("ipc.onMessage", message);
   }
 
   /**

@@ -51,9 +51,11 @@ export class CliIpcService extends IpcService {
 
   private async discoverDesktop(): Promise<string> {
     try {
+      // DesktopMain, because it is the one endpoint always there: it runs for as long as the app
+      // does, where the renderer may have been destroyed to save memory while hidden.
       const response = await ipcRequestDiscover(
         this.client,
-        "DesktopRenderer",
+        "DesktopMain",
         AbortSignal.timeout(DESKTOP_DISCOVER_TIMEOUT_MS),
       );
       if (lt(response.version, MINIMUM_BIOMETRIC_DESKTOP_VERSION)) {
