@@ -322,10 +322,14 @@ export class WindowMain {
 
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
-          // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q.
-          // A renderer destroyed for background operation must not quit the app either.
-          if (this.isQuitting || isMacAppStore() || (!isMac() && !this.tornDown)) {
+          // On OS X it is common for applications and their menu bar to stay active until the
+          // user quits explicitly with Cmd + Q.
+
+          // Everywhere else the app goes when its last window does, unless that window was the
+          // renderer being destroyed to carry on in the background.
+          const quitWithLastWindow = !isMac() && !this.tornDown;
+
+          if (this.isQuitting || isMacAppStore() || quitWithLastWindow) {
             app.quit();
           }
         });

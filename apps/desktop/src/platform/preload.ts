@@ -24,6 +24,7 @@ import {
 import { isDev } from "../utils";
 
 import { RENDERER_READY_CHANNEL } from "./renderer-ready";
+import { RENDERER_TEARDOWN_FLAG_CHANNEL } from "./renderer-teardown-flag";
 import { ClipboardWriteMessage } from "./types/clipboard";
 
 type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
@@ -139,6 +140,8 @@ export default {
   },
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
+  rendererTeardownEnabled: (): Promise<boolean> =>
+    ipcRenderer.invoke(RENDERER_TEARDOWN_FLAG_CHANNEL),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 

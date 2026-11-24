@@ -72,6 +72,7 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { MainSdkService } from "./platform/main/main-sdk.service";
+import { RendererTeardownFlagMain } from "./platform/main/renderer-teardown-flag.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -122,6 +123,8 @@ export class Main {
   ipcService: IpcService;
   /** Read-only: main must not write policy state, the renderer would not observe it. */
   policyService: PolicyService;
+  /** The single source of truth for whether the renderer may be destroyed. */
+  rendererTeardownFlag: RendererTeardownFlagMain;
 
   constructor() {
     // Set paths for portable builds
@@ -161,10 +164,21 @@ export class Main {
       (error) => this.logService.error("Failed to write the storage file, will retry", error),
     );
 
-    const flightRecorderEnabled = cachedFlagEnabled(
-      storageBackend,
-      FeatureFlag.PM30935_FlightRecorderTsLogging,
-    );
+    this.rendererTeardownFlag = new RendererTeardownFlagMain(storageBackend);
+
+    // Main has no ConfigService, so it reads the cached server configs straight from the store.
+    let flightRecorderEnabled = false;
+    try {
+      const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
+        string,
+        { featureStates?: Record<string, unknown> }
+      >;
+      flightRecorderEnabled = Object.values(configs).some(
+        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
+      );
+    } catch {
+      // Ignore errors
+    }
     const flightRecorder = new FlightRecorderLogRecorder(
       SdkLoadService.Ready.then(() => new FlightRecorderClient()),
     );
@@ -346,7 +360,7 @@ export class Main {
       this.desktopSettingsService,
       this.messagingService,
       this.biometricsService,
-      this.createRendererTeardown(storageBackend),
+      this.createRendererTeardown(),
     );
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
@@ -483,14 +497,14 @@ export class Main {
    * Features below answer through the renderer until main owns them, so each keeps it alive.
    * Services are read lazily: most are constructed after the tray.
    */
-  private createRendererTeardown(storageBackend: CachedBackend): RendererTeardownMain {
+  private createRendererTeardown(): RendererTeardownMain {
     let ddgEnabled = false;
     this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
       ddgEnabled = enabled;
     });
 
     return new RendererTeardownMain(
-      cachedFlagEnabled(storageBackend, FeatureFlag.DesktopRendererTeardown),
+      this.rendererTeardownFlag.isEnabled,
       [
         { name: "ssh-agent", active: () => this.sshAgentService.status === FeatureStatus.Active },
         {
@@ -555,21 +569,5 @@ export class Main {
         app.disableHardwareAcceleration();
       }
     }
-  }
-}
-
-/**
- * Whether any cached server config enables `flag`. Main has no ConfigService, so it reads the
- * configs the renderer stored.
- */
-function cachedFlagEnabled(storageBackend: CachedBackend, flag: FeatureFlag): boolean {
-  try {
-    const configs = (storageBackend.read().global_config_byServer ?? {}) as Record<
-      string,
-      { featureStates?: Record<string, unknown> }
-    >;
-    return Object.values(configs).some((config) => config?.featureStates?.[flag] === true);
-  } catch {
-    return false;
   }
 }
