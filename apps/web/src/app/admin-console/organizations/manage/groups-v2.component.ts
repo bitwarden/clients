@@ -42,7 +42,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
   BitCellComponent,
@@ -64,7 +64,9 @@ import {
   MenuModule,
   SearchModule,
   type SelectionConfig,
+  type ColumnName,
   type SortFn,
+  type SortState,
   StatusLockupComponent,
   ToastService,
   TooltipDirective,
@@ -82,12 +84,23 @@ import {
   openAddGroupDialog,
   openEditGroupDialog,
 } from "./group-add-edit";
+import { GroupsV2TableStateService } from "./groups-v2-table-state.service";
 
 type GroupRow = {
   details: GroupDetailsView;
 
   collectionChips: ChipGroupItem[];
 };
+
+type GroupColumn = ColumnName<GroupRow, "actions">;
+
+function sameSharedFolders(a: readonly string[], b: readonly string[] | undefined): boolean {
+  const other = b ?? [];
+  if (a.length !== other.length) {
+    return false;
+  }
+  return a.every((id) => other.includes(id));
+}
 
 type GroupFilters = {
   search?: string;
@@ -135,8 +148,10 @@ export class GroupsV2Component {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly tableState = inject(GroupsV2TableStateService);
 
-  private readonly tableRef = viewChild<BitTableV2Component<GroupRow>>(BitTableV2Component);
+  private readonly tableRef =
+    viewChild<BitTableV2Component<GroupRow, "actions", GroupFilters>>(BitTableV2Component);
 
   private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
@@ -146,11 +161,27 @@ export class GroupsV2Component {
 
   protected readonly selectedGroups = signal<readonly GroupRow[]>([]);
 
-  protected readonly initialFilters: Partial<GroupFilters> = {
-    search: this.route.snapshot.queryParams.search ?? "",
-  };
+  private readonly organizationId$ = this.route.params.pipe(
+    map((params): OrganizationId => params.organizationId),
+  );
 
-  private readonly organizationId$ = this.route.params.pipe(map((params) => params.organizationId));
+  private readonly organizationId = toSignal(this.organizationId$);
+
+  private readonly storedTableState = toSignal(
+    this.organizationId$.pipe(
+      switchMap((organizationId) => this.tableState.state$(organizationId)),
+    ),
+  );
+
+  protected readonly initialFilters = computed<Partial<GroupFilters>>(() => {
+    const sharedFolders = this.storedTableState()?.sharedFolders;
+    return {
+      search: this.route.snapshot.queryParams.search ?? "",
+      ...(sharedFolders != null && { collections: sharedFolders }),
+    };
+  });
+
+  protected readonly sort = signal<SortState<GroupColumn>>({ direction: "asc" });
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -227,6 +258,8 @@ export class GroupsV2Component {
 
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
 
+  private readonly filterRestored = signal(false);
+
   constructor() {
     effect(() => {
       this.rows.set(this.fetchedRows() ?? []);
@@ -243,6 +276,29 @@ export class GroupsV2Component {
 
     this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
       this.searchControl.setValue(qParams.search);
+    });
+
+    effect(() => {
+      const sharedFolders = this.tableRef()?.filterValues()?.collections ?? [];
+      const organizationId = this.organizationId();
+      const stored = this.storedTableState();
+      if (organizationId == null || stored == null) {
+        return;
+      }
+      if (!this.filterRestored()) {
+        if (
+          stored.sharedFolders != null &&
+          !sameSharedFolders(sharedFolders, stored.sharedFolders)
+        ) {
+          return;
+        }
+        this.filterRestored.set(true);
+        return;
+      }
+      if (sameSharedFolders(sharedFolders, stored.sharedFolders)) {
+        return;
+      }
+      void this.tableState.update(organizationId, { sharedFolders: [...sharedFolders] });
     });
   }
 

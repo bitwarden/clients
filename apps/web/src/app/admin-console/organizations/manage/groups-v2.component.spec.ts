@@ -1,8 +1,8 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -14,13 +14,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ChipGroupItem, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import { GroupAddEditDialogResultType } from "./group-add-edit";
+import { GroupsTableState, GroupsV2TableStateService } from "./groups-v2-table-state.service";
 import { GroupsV2Component } from "./groups-v2.component";
 
 describe("GroupsV2Component", () => {
@@ -38,6 +39,10 @@ describe("GroupsV2Component", () => {
   let mockLogService: MockProxy<LogService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockAccountService: FakeAccountService;
+
+  /** The stored view a test wants restored; swap before `createComponent()`. */
+  let storedState$: Observable<GroupsTableState>;
+  let mockTableStateService: MockProxy<GroupsV2TableStateService>;
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
@@ -97,6 +102,12 @@ describe("GroupsV2Component", () => {
 
     mockAccountService = mockAccountServiceWith(userId);
 
+    storedState$ = of({});
+    mockTableStateService = mock<GroupsV2TableStateService>();
+    // Read lazily so a test can swap `storedState$` after this setup runs.
+    mockTableStateService.state$.mockImplementation(() => storedState$);
+    mockTableStateService.update.mockResolvedValue(undefined);
+
     await TestBed.configureTestingModule({
       imports: [GroupsV2Component],
       schemas: [NO_ERRORS_SCHEMA],
@@ -112,6 +123,7 @@ describe("GroupsV2Component", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: GroupsV2TableStateService, useValue: mockTableStateService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -150,47 +162,147 @@ describe("GroupsV2Component", () => {
     await fixture.whenStable();
   }
 
+  describe("restoring the stored table view", () => {
+    /**
+     * The stored state loads asynchronously, so the component renders at least once before it
+     * arrives. `initialFilters` must not claim the `collections` key during that window: the
+     * table seeds each chip the first time its key is present, so an eagerly-included
+     * `undefined` would seed the chip empty and block the stored value forever.
+     */
+    it("omits the collections key until the stored state loads", async () => {
+      const stored = new Subject<GroupsTableState>();
+      storedState$ = stored;
+      createComponent();
+      await detectAndFlush();
+
+      expect("collections" in (component as any).initialFilters()).toBe(false);
+
+      stored.next({ sharedFolders: ["col-eng"] });
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().collections).toEqual(["col-eng"]);
+    });
+
+    it("seeds the collections filter from the stored state", async () => {
+      storedState$ = of({ sharedFolders: ["col-eng"] });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().collections).toEqual(["col-eng"]);
+    });
+
+    it("leaves the collections key off when nothing is stored", async () => {
+      storedState$ = of({});
+      createComponent();
+      await detectAndFlush();
+
+      expect("collections" in (component as any).initialFilters()).toBe(false);
+    });
+  });
+
+  describe("persisting the shared folder filter", () => {
+    /**
+     * Replaces the `tableRef` viewChild signal with a fake, writable one exposing just enough
+     * surface for the persistence effect, so tests can drive filter changes without a real
+     * `bit-table-v2` (the spec stubs the template out entirely).
+     */
+    function fakeTableRef() {
+      const filterValues = signal<{ collections?: string[] } | undefined>(undefined);
+      (component as any).tableRef = signal({
+        filterValues,
+        selectionModel: () => ({ selected: (): unknown[] => [], deselect: () => {} }),
+      });
+      return (collections: string[]) => filterValues.set({ collections });
+    }
+
+    it("saves the first selection even when nothing was previously stored", async () => {
+      storedState$ = of({});
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        sharedFolders: ["col-eng"],
+      });
+    });
+
+    it("does not save while restoring a stored selection", async () => {
+      storedState$ = of({ sharedFolders: ["col-eng"] });
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).not.toHaveBeenCalled();
+    });
+
+    it("saves a later change once restored", async () => {
+      storedState$ = of({ sharedFolders: ["col-eng"] });
+      createComponent();
+      const setFilterValues = fakeTableRef();
+      await detectAndFlush();
+
+      setFilterValues(["col-eng"]);
+      await detectAndFlush();
+
+      setFilterValues(["col-design"]);
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        sharedFolders: ["col-design"],
+      });
+    });
+  });
+
   describe("filterGroups", () => {
     const group = makeGroup({
       id: "group-1",
       name: "Engineering Team",
       collections: [{ id: "col-eng", readOnly: false, hidePasswords: false, manage: true }],
     });
-    const row = { details: group, collectionChips: [] };
+    const row = { details: group, collectionChips: [] as ChipGroupItem[] };
 
     beforeEach(() => createComponent());
 
     it("matches on id", () => {
-      expect(component.filterGroups(row, { search: "group-1" })).toBe(true);
+      expect((component as any).filterGroups(row, { search: "group-1" })).toBe(true);
     });
 
     it("matches on name, case-insensitively", () => {
-      expect(component.filterGroups(row, { search: "engineering" })).toBe(true);
+      expect((component as any).filterGroups(row, { search: "engineering" })).toBe(true);
     });
 
     it("does not match on unrelated search text", () => {
-      expect(component.filterGroups(row, { search: "nope" })).toBe(false);
+      expect((component as any).filterGroups(row, { search: "nope" })).toBe(false);
     });
 
     it("passes every row when no collections are selected", () => {
-      expect(component.filterGroups(row, { collections: [] })).toBe(true);
+      expect((component as any).filterGroups(row, { collections: [] })).toBe(true);
     });
 
     it("matches a row with access to a selected collection", () => {
-      expect(component.filterGroups(row, { collections: ["col-eng"] })).toBe(true);
+      expect((component as any).filterGroups(row, { collections: ["col-eng"] })).toBe(true);
     });
 
     it("excludes a row with no access to any selected collection", () => {
-      expect(component.filterGroups(row, { collections: ["col-design"] })).toBe(false);
+      expect((component as any).filterGroups(row, { collections: ["col-design"] })).toBe(false);
     });
 
     it("requires both search and collection filters to match", () => {
       expect(
-        component.filterGroups(row, { search: "engineering", collections: ["col-design"] }),
+        (component as any).filterGroups(row, {
+          search: "engineering",
+          collections: ["col-design"],
+        }),
       ).toBe(false);
-      expect(component.filterGroups(row, { search: "engineering", collections: ["col-eng"] })).toBe(
-        true,
-      );
+      expect(
+        (component as any).filterGroups(row, { search: "engineering", collections: ["col-eng"] }),
+      ).toBe(true);
     });
 
     it("matches a row when a parent collection's selection expands to include a child the row has access to", () => {
@@ -198,7 +310,9 @@ describe("GroupsV2Component", () => {
       // descendant IDs before the row filter ever runs, so a parent/child selection arrives here
       // as multiple collection IDs. The row should match as long as it has access to any of them.
       expect(
-        component.filterGroups(row, { collections: ["col-parent", "col-eng", "col-other-child"] }),
+        (component as any).filterGroups(row, {
+          collections: ["col-parent", "col-eng", "col-other-child"],
+        }),
       ).toBe(true);
     });
   });
@@ -206,8 +320,8 @@ describe("GroupsV2Component", () => {
   describe("confirmDelete", () => {
     const group1 = makeGroup({ id: "group-1", name: "Engineering Team" });
     const group2 = makeGroup({ id: "group-2", name: "Design Team" });
-    const row1 = { details: group1, collectionChips: [] };
-    const row2 = { details: group2, collectionChips: [] };
+    const row1 = { details: group1, collectionChips: [] as ChipGroupItem[] };
+    const row2 = { details: group2, collectionChips: [] as ChipGroupItem[] };
 
     beforeEach(async () => {
       createComponent();
@@ -215,7 +329,7 @@ describe("GroupsV2Component", () => {
     });
 
     it("does nothing when given no rows", async () => {
-      await component.confirmDelete([]);
+      await (component as any).confirmDelete([]);
       expect(mockDialogService.openSimpleDialog).not.toHaveBeenCalled();
     });
 
@@ -223,7 +337,7 @@ describe("GroupsV2Component", () => {
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
       mockGroupService.deleteMany.mockResolvedValue(undefined);
 
-      await component.confirmDelete([row1]);
+      await (component as any).confirmDelete([row1]);
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -242,7 +356,7 @@ describe("GroupsV2Component", () => {
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
       mockGroupService.deleteMany.mockResolvedValue(undefined);
 
-      await component.confirmDelete([row1, row2]);
+      await (component as any).confirmDelete([row1, row2]);
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -260,7 +374,7 @@ describe("GroupsV2Component", () => {
     it("does not delete or toast when the admin cancels the dialog", async () => {
       mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.confirmDelete([row1]);
+      await (component as any).confirmDelete([row1]);
 
       expect(mockGroupService.deleteMany).not.toHaveBeenCalled();
       expect(mockToastService.showToast).not.toHaveBeenCalled();
@@ -270,7 +384,7 @@ describe("GroupsV2Component", () => {
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
       mockGroupService.deleteMany.mockRejectedValue(new Error("boom"));
 
-      await component.confirmDelete([row1]);
+      await (component as any).confirmDelete([row1]);
 
       expect(mockLogService.error).toHaveBeenCalled();
       expect(mockToastService.showToast).not.toHaveBeenCalled();
@@ -285,12 +399,12 @@ describe("GroupsV2Component", () => {
 
     it("deletes whatever the table last reported as selected", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionChips: [] };
+      const row = { details: group, collectionChips: [] as ChipGroupItem[] };
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
       mockGroupService.deleteMany.mockResolvedValue(undefined);
 
-      component.selectedGroups.set([row]);
-      component.confirmDeleteSelected();
+      (component as any).selectedGroups.set([row]);
+      (component as any).confirmDeleteSelected();
       // confirmDeleteSelected fires confirmDelete without awaiting it; let its promise chain
       // (dialog confirm -> delete -> toast) settle before asserting.
       await new Promise((resolve) => setImmediate(resolve));
@@ -307,7 +421,7 @@ describe("GroupsV2Component", () => {
 
     it("opens the edit dialog for the clicked row's group, scoped to the current organization", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionChips: [] };
+      const row = { details: group, collectionChips: [] as ChipGroupItem[] };
 
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Saved),
@@ -325,7 +439,7 @@ describe("GroupsV2Component", () => {
 
     it("refreshes the list when the dialog reports Saved", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionChips: [] };
+      const row = { details: group, collectionChips: [] as ChipGroupItem[] };
 
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Saved),
@@ -340,7 +454,7 @@ describe("GroupsV2Component", () => {
 
     it("removes the row and does not toast, when the dialog reports Deleted", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionChips: [] };
+      const row = { details: group, collectionChips: [] as ChipGroupItem[] };
 
       component["rows"].set([row]);
       expect(component["rows"]()).toContain(row);
@@ -361,7 +475,7 @@ describe("GroupsV2Component", () => {
       mockGroupService.getAllDetails.mockReturnValue(new Promise(() => {})); // never resolves
       createComponent();
 
-      expect(component.hasNoGroups()).toBe(false);
+      expect((component as any).hasNoGroups()).toBe(false);
     });
 
     it("is true once loaded with zero groups", async () => {
@@ -369,7 +483,7 @@ describe("GroupsV2Component", () => {
       createComponent();
       await detectAndFlush();
 
-      expect(component.hasNoGroups()).toBe(true);
+      expect((component as any).hasNoGroups()).toBe(true);
     });
 
     it("is false once loaded with at least one group", async () => {
@@ -377,7 +491,7 @@ describe("GroupsV2Component", () => {
       createComponent();
       await detectAndFlush();
 
-      expect(component.hasNoGroups()).toBe(false);
+      expect((component as any).hasNoGroups()).toBe(false);
     });
   });
 });
