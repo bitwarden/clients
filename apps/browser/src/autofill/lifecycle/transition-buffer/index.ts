@@ -9,10 +9,10 @@ export { BufferAction, TransitionValidity } from "./enums";
 export { pageTransitionResolver } from "./page-transitions.rx";
 export { resetTransitionBuffer } from "./persistent-buffer";
 export type {
-  BufferedTransitionReport,
   LiveFrame,
   PageTransitionDependencies,
   PageTransitionSignals,
+  ResolvedTransitionReport,
   TransitionReport,
 } from "./types";
 export { registerTransition, validateTransition } from "./utils";

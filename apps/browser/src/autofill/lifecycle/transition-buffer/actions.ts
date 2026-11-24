@@ -3,10 +3,8 @@ import type { TabEdge } from "../types";
 
 import { BufferAction } from "./enums";
 
-/**
- * The questions the controller asks of each edge the machine reports. See `model.md`, "Semantics",
- * and `lifecycle/design.md`, "Buffering transitions", for what the answers mean.
- */
+// The questions the controller asks of each edge the machine reports. See `model.md`, "Semantics",
+// and `lifecycle/design.md`, "Buffering transitions", for what the answers mean.
 
 /** The states that hold a reported page transition. */
 function holdsPageTransition(state: TabState): boolean {
@@ -16,6 +14,13 @@ function holdsPageTransition(state: TabState): boolean {
 /** Whether this edge retires a held page transition. */
 export function retirePageTransition({ from }: TabEdge): boolean {
   return !holdsPageTransition(from);
+}
+
+/**
+ * Whether this edge ends the span in which a resolved page transition may be acted on.
+ */
+export function endResolvedPageTransition({ from }: TabEdge): boolean {
+  return from === TabState.Hot;
 }
 
 /** Whether this edge keeps a held page transition waiting. */

@@ -3,6 +3,7 @@ import type { Observable } from "rxjs";
 import type { UserId } from "@bitwarden/common/types/guid";
 import type { StateProvider } from "@bitwarden/state";
 
+import type { CancellationToken } from "../../utils/cancellation";
 import type { AccountEvent, TabEdge } from "../types";
 
 import type { PageTransitionEventKind } from "./enums";
@@ -39,6 +40,25 @@ export type BufferedTransitionReport = Readonly<{
   expiresAt: number;
 }>;
 
+/**
+ * A transition that resolved into a fill opportunity. It identifies the document that reported it
+ * without describing it, and carries the token that is cancelled when its release ends.
+ */
+export type ResolvedTransitionReport = Readonly<{
+  /** The account active when the transition was reported. */
+  userId: UserId;
+  /** The reporting tab. */
+  tabId: number;
+  /** The reporting frame. `undefined` for the top frame. */
+  frameId: number | undefined;
+  /** Browser-assigned UUID of the reporting document. Opaque; carries no page content. */
+  documentId: string;
+  /** Absolute epoch-ms deadline, exclusive: the transition is expired at `now >= expiresAt`. */
+  expiresAt: number;
+  /** Cancelled when the transition expires. The deadline does not cancel it. See `model.md`. */
+  cancellation: CancellationToken;
+}>;
+
 /** The live facts of a frame that exists. */
 export type LiveFrame = Readonly<{
   /**
@@ -64,7 +84,10 @@ export type TransitionReport = Readonly<{
   documentId: string | undefined;
 }>;
 
-/** The signals the transition buffer's controller reads. Every stream is subscribed once. */
+/**
+ * The signals the transition buffer's controller reads. The controller subscribes to each stream
+ * once, and the operator that follows it reads the tab streams as well.
+ */
 export type PageTransitionSignals = Readonly<{
   /**
    * Each transition a frame reports. The report carries no account: the account active when it

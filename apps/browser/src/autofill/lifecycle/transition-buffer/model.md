@@ -15,8 +15,11 @@ fill happens.
   tab and frame that reported it, the identity the browser assigned the document, the moment it was
   reported, and the deadline after which it no longer matters. A transition identifies a document
   without describing it. It carries nothing from the page.
-- **Opportunity** — a transition that has resolved. It leaves the buffer as a signal that this frame
-  has reached a point where autofill _may_ act.
+- **Opportunity** — a transition that has resolved, as it leaves the module. It is a signal that this
+  frame has reached a point where autofill _may_ act. It identifies the document, the account, the
+  tab, and the frame, and it carries the deadline. It carries a cancellation token that is cancelled
+  when the transition expires. It carries nothing the buffer keeps for its own bookkeeping, and it is
+  not stored.
 - **The buffer** — a store of transitions that are waiting. It holds at most one transition for each
   frame, the latest. It acts on instructions and knows nothing of tabs, accounts, or lifecycles.
 - **Disposition** — what a transition reported on a tab deserves at that moment: to be buffered, to
@@ -39,6 +42,7 @@ fill happens.
 | **Forget**        | To drop every transition of a tab, and everything the buffer remembers about it.                                      |
 | **Admission**     | Whether the buffer accepts transitions at all. It follows the active account.                                         |
 | **Expiry**        | A transition is expired once the moment of its deadline arrives.                                                      |
+| **Release**       | The span in which an opportunity may be acted on: while its tab is hot. An opportunity expires when its release ends. |
 | **Hot**           | The tab is the active tab of the focused window and has settled. It is the only state in which a transition resolves. |
 
 ## Invariants
@@ -52,13 +56,10 @@ fill happens.
 3. **An unseen tab buffers.** A tab whose lifecycle has reported no change is in its initial state,
    which buffers. The buffer fails open for tabs. It fails closed through admission, which is off
    whenever no signed-in account is active.
-4. **Attention gates resolution; validity gates the fill.** Only a hot tab resolves, because only
-   there is the user attending to the page. A later check that the target is still the live
-   foreground tab establishes that a fill is valid. It does not establish attention, and it does not
-   substitute for it.
+4. **Attention gates resolution.** Only a hot tab resolves, because only there is the user attending
+   to the page.
 5. **A transition belongs to one document and one account.** The account is the one active when the
-   transition arrives. Whoever uses an opportunity confirms that the account is still the active
-   one, because the buffer is shared by every account.
+   transition arrives, and the buffer is shared by every account.
 6. **Only the latest transition for a frame is kept.** A transition never replaces a newer one for
    the same frame, whatever order they arrive in.
 7. **A transition leaves for a reason.** It leaves the buffer only by resolving or by being dropped,
@@ -75,7 +76,10 @@ fill happens.
     property.
 11. **The record is shared and opaque.** A stored record is shared across accounts and describes
     documents without describing pages, so it discloses no browsing activity.
-12. **One driver.** The buffer has exactly one controller, and a stored buffer has exactly one
+12. **An opportunity expires when its release ends.** It is released while its tab is hot, so it
+    expires when its tab leaves hot, when its tab is removed, and when a newer transition for its
+    frame resolves. The older opportunity expires before the newer one leaves the module.
+13. **One driver.** The buffer has exactly one controller, and a stored buffer has exactly one
     writer. A second driver would interleave instructions that were meant to be ordered.
 
 ## Semantics
@@ -140,8 +144,19 @@ what it holds, only what autofill may do with it.
 ### Age
 
 A transition stays actionable for a bounded time from the moment it was reported. The bound is a
-tuned value. The deadline is an absolute moment, so it survives a restart. An opportunity may also
-expire after it leaves the buffer, and whoever acts on it confirms that it has not.
+tuned value. The deadline is an absolute moment, so it survives a restart. An opportunity may pass
+its deadline after it leaves the buffer, and whoever acts on it confirms that it has not.
+
+### An opportunity expires
+
+The opportunity the buffer resolves leaves with a token, and the token is cancelled when the
+opportunity expires. A tab that leaves hot, for any reason, expires the opportunities of its frames,
+as does a tab that is removed. A newer transition that resolves for a frame expires the older
+opportunity of the frame. If the module ends or fails, every opportunity it handed on expires as
+a safeguard.
+
+An opportunity that has expired never becomes unexpired. Passing the deadline does not expire it:
+whoever acts on an opportunity refuses one that is past its deadline.
 
 ## What the model does not decide
 

@@ -9,7 +9,7 @@ import type { AccountEvent, TabEdge } from "../types";
 
 import { pageTransitionResolver } from "./page-transitions.rx";
 import type { BufferedTransitions } from "./persistent-buffer";
-import type { BufferedTransitionReport } from "./types";
+import type { BufferedTransitionReport, ResolvedTransitionReport } from "./types";
 
 const MAX_AGE_MS = 5000;
 const user = "user-1" as UserId;
@@ -48,7 +48,7 @@ describe("pageTransitionResolver", () => {
   let state: GlobalState<BufferedTransitions>;
   let stateProvider: StateProvider;
   let storageFailures: unknown[];
-  let resolved: BufferedTransitionReport[];
+  let resolved: ResolvedTransitionReport[];
   let errors: unknown[];
   let subscription: Subscription;
 
@@ -70,6 +70,22 @@ describe("pageTransitionResolver", () => {
     documentId,
     stampedAt,
     expiresAt: stampedAt + MAX_AGE_MS,
+  });
+
+  /** A transition as the resolver hands it on: no bookkeeping of the buffer, and a token. */
+  const resolvedAs = (
+    tabId: number,
+    frameId: number | undefined,
+    documentId: string,
+    userId: UserId = user,
+    stampedAt = 1000,
+  ) => ({
+    userId,
+    tabId,
+    frameId,
+    documentId,
+    expiresAt: stampedAt + MAX_AGE_MS,
+    cancellation: expect.anything(),
   });
 
   /** The accounts as the first observation describes them, with `id` signed in and active. */
@@ -126,7 +142,7 @@ describe("pageTransitionResolver", () => {
       expect(resolved).toEqual([]);
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 0, "a")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "a")]);
     });
 
     it("on a hot tab resolves at once", () => {
@@ -135,7 +151,7 @@ describe("pageTransitionResolver", () => {
 
       report$.next(frame(1, 0, "a"));
 
-      expect(resolved).toEqual([stamped(1, 0, "a")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "a")]);
     });
 
     it("is stamped for the account switched to, not the one before it", () => {
@@ -146,7 +162,7 @@ describe("pageTransitionResolver", () => {
       report$.next(frame(1, 0, "a"));
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 0, "a", otherUser)]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "a", otherUser)]);
     });
 
     it("that arrives before the accounts are observed waits, and is not lost", () => {
@@ -156,7 +172,7 @@ describe("pageTransitionResolver", () => {
 
       observeAccounts();
 
-      expect(resolved).toEqual([stamped(1, 0, "a")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "a")]);
     });
 
     it("that arrives before the accounts are observed is kept with every other that waits", () => {
@@ -168,7 +184,11 @@ describe("pageTransitionResolver", () => {
       tabLifecycleChanged$.next([1, hot]);
       tabLifecycleChanged$.next([2, hot]);
 
-      expect(resolved).toEqual([stamped(1, 0, "a"), stamped(1, 5, "c"), stamped(2, 0, "b")]);
+      expect(resolved).toEqual([
+        resolvedAs(1, 0, "a"),
+        resolvedAs(1, 5, "c"),
+        resolvedAs(2, 0, "b"),
+      ]);
     });
 
     it("is dropped when no account is signed in", () => {
@@ -204,7 +224,7 @@ describe("pageTransitionResolver", () => {
 
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 0, "a")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "a")]);
     });
 
     it("is dropped when its frame is lost", () => {
@@ -237,7 +257,7 @@ describe("pageTransitionResolver", () => {
 
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 5, "later")]);
+      expect(resolved).toEqual([resolvedAs(1, 5, "later")]);
     });
 
     it("is dropped when the scripts begin reloading, though later reports are kept", () => {
@@ -246,7 +266,7 @@ describe("pageTransitionResolver", () => {
 
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 5, "later")]);
+      expect(resolved).toEqual([resolvedAs(1, 5, "later")]);
     });
 
     it("is dropped by a command, which carries its own fill", () => {
@@ -289,7 +309,7 @@ describe("pageTransitionResolver", () => {
       observeAccounts();
       await settle();
 
-      expect(resolved).toEqual([stamped(1, 0, "restored")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "restored")]);
     });
 
     it("waits for its tab to be hot when the tab has reported no change", async () => {
@@ -300,7 +320,7 @@ describe("pageTransitionResolver", () => {
       expect(resolved).toEqual([]);
       tabLifecycleChanged$.next([1, hot]);
 
-      expect(resolved).toEqual([stamped(1, 0, "restored")]);
+      expect(resolved).toEqual([resolvedAs(1, 0, "restored")]);
     });
 
     it("is dropped when its tab is warm", async () => {
@@ -365,7 +385,7 @@ describe("pageTransitionResolver", () => {
       report$.next(frame(2, 0, "after"));
       tabLifecycleChanged$.next([2, hot]);
 
-      expect(resolved).toEqual([stamped(2, 0, "after")]);
+      expect(resolved).toEqual([resolvedAs(2, 0, "after")]);
     });
 
     it("continues in memory with each tab where it was, so a report on a hot tab resolves", async () => {
@@ -374,7 +394,7 @@ describe("pageTransitionResolver", () => {
 
       report$.next(frame(3, 0, "on-hot-tab"));
 
-      expect(resolved).toEqual([stamped(3, 0, "on-hot-tab")]);
+      expect(resolved).toEqual([resolvedAs(3, 0, "on-hot-tab")]);
     });
 
     it("loses what was waiting at the moment of failure", async () => {
@@ -392,5 +412,80 @@ describe("pageTransitionResolver", () => {
     expect(report$.observed).toBe(false);
     expect(accountEvents$.observed).toBe(false);
     expect(tabLifecycleChanged$.observed).toBe(false);
+  });
+  describe("the token of a resolved transition", () => {
+    const leaveHot = edge(TabState.Hot, TabState.CoolDown, TabEdgeCause.Deactivate);
+
+    it("is cancelled when its tab leaves hot", () => {
+      observeAccounts();
+      report$.next(frame(1, 0, "a"));
+      tabLifecycleChanged$.next([1, hot]);
+      expect(resolved[0].cancellation.cancelled).toBe(false);
+
+      tabLifecycleChanged$.next([1, leaveHot]);
+
+      expect(resolved[0].cancellation.cancelled).toBe(true);
+    });
+
+    it("is cancelled when its tab is removed", () => {
+      observeAccounts();
+      report$.next(frame(1, 0, "a"));
+      tabLifecycleChanged$.next([1, hot]);
+
+      tabRemoved$.next(1);
+
+      expect(resolved[0].cancellation.cancelled).toBe(true);
+    });
+
+    it("is cancelled when its tab leaves hot, and not when another tab does", () => {
+      observeAccounts();
+      report$.next(frame(1, 0, "a"));
+      tabLifecycleChanged$.next([1, hot]);
+
+      tabLifecycleChanged$.next([2, leaveHot]);
+
+      expect(resolved[0].cancellation.cancelled).toBe(false);
+    });
+
+    it("is cancelled when a newer transition for its frame resolves", () => {
+      observeAccounts();
+      tabLifecycleChanged$.next([1, hot]);
+
+      report$.next(frame(1, 0, "older"));
+      report$.next(frame(1, 0, "newer"));
+
+      expect(resolved.map(({ cancellation }) => cancellation.cancelled)).toEqual([true, false]);
+    });
+
+    it("is cancelled for a transition restored from storage, when its tab leaves hot", async () => {
+      const stored = Object.fromEntries([[`1:0`, stamped(1, 0, "restored")]]);
+      subscription.unsubscribe();
+      resolved = [];
+      loaded$ = new Subject();
+      Object.assign(state, { state$: loaded$ });
+      subscription = pageTransitionResolver({
+        stateProvider,
+        now: () => now,
+        maxAgeMs$: of(MAX_AGE_MS),
+        onStorageFailure: (error) => storageFailures.push(error),
+      })({
+        report$,
+        accountEvents$,
+        tabLifecycleChanged$,
+        tabRemoved$,
+        frameLost$,
+        scriptsReloading$,
+      }).subscribe((r) => resolved.push(r));
+      loaded$.next(stored);
+      tabLifecycleChanged$.next([1, hot]);
+      observeAccounts();
+      await settle();
+      expect(resolved).toEqual([resolvedAs(1, 0, "restored")]);
+      expect(resolved[0].cancellation.cancelled).toBe(false);
+
+      tabLifecycleChanged$.next([1, leaveHot]);
+
+      expect(resolved[0].cancellation.cancelled).toBe(true);
+    });
   });
 });

@@ -1,5 +1,10 @@
 import { TransitionValidity } from "./enums";
-import type { BufferedTransitionReport, LiveFrame, TransitionReport } from "./types";
+import type {
+  BufferedTransitionReport,
+  LiveFrame,
+  ResolvedTransitionReport,
+  TransitionReport,
+} from "./types";
 
 /**
  * Stamps a reported transition with the time it was reported and the deadline it expires at.
@@ -40,7 +45,7 @@ export function registerTransition(
  * @param now Epoch ms.
  */
 export function validateTransition(
-  report: BufferedTransitionReport,
+  report: Pick<ResolvedTransitionReport, "documentId" | "expiresAt">,
   live: LiveFrame | undefined,
   now: number,
 ): TransitionValidity {
