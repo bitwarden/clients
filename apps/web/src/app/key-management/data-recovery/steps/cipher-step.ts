@@ -16,6 +16,9 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+/**
+ * Formats the ownership of a vault item for logging.
+ */
 function ownership(cipher: Cipher): string {
   return cipher.organizationId == null ? "personal" : `organization ${cipher.organizationId}`;
 }
@@ -32,8 +35,10 @@ function keyScope(cipher: Cipher): string {
 type OwnershipCounts = { personal: number; organization: number };
 
 function countByOwnership(ciphers: Cipher[]): OwnershipCounts {
-  const organization = ciphers.filter((c) => c.organizationId != null).length;
-  return { personal: ciphers.length - organization, organization };
+  const numberOfOrganizationCiphers = ciphers.filter((c) => c.organizationId != null).length;
+  const numberOfPersonalCiphers = ciphers.length - numberOfOrganizationCiphers;
+
+  return { personal: numberOfPersonalCiphers, organization: numberOfOrganizationCiphers };
 }
 
 export class CipherStep implements RecoveryStep {
@@ -64,7 +69,7 @@ export class CipherStep implements RecoveryStep {
       return false;
     }
 
-    const { checkable, skipped } = await this.partitionByOrgKeyAvailability(
+    const { checkable, skipped } = await this.filterByOrgKeyAvailability(
       workingData.ciphers,
       workingData.userId,
     );
@@ -77,9 +82,8 @@ export class CipherStep implements RecoveryStep {
     // Decrypt through the same service and method the vault uses for full decryption, so this
     // step flags exactly the items the vault shows as decryption failures.
     const failures = await this.decryptAndCollectFailures(checkable, workingData, logger);
-    const failedIds = new Set(failures.map((c) => c.id));
-    this.decryptableCiphers = checkable.filter((c) => !failedIds.has(c.id));
-    const scopesWithDecryptableItems = new Set(this.decryptableCiphers.map(keyScope));
+    this.decryptableCiphers = checkable.filter((c) => !failures.includes(c));
+    const keysWithDecryptableItems = new Set(this.decryptableCiphers.map(keyScope));
 
     for (const cipher of failures) {
       const cipherKeyState = cipher.key != null ? "present" : "absent";
@@ -90,12 +94,18 @@ export class CipherStep implements RecoveryStep {
       );
       this.undecryptableCiphers.push(cipher);
 
-      const reasons = this.reasonsNotDeletable(cipher, scopesWithDecryptableItems);
-      if (reasons.length === 0) {
+      // When every item under a key fails, the key itself (or this device's copy of it) is the likely problem.
+      // This is separate from the org key availability check above:
+      // that key is present here, but may still be the cause of the failure.
+      const otherItemsWithSameKeyDecrypt = keysWithDecryptableItems.has(keyScope(cipher));
+      const hasDeletePermission =
+        cipher.organizationId == null || cipher.permissions?.delete === true;
+
+      if (otherItemsWithSameKeyDecrypt && hasDeletePermission) {
         this.deletableCiphers.push(cipher);
       } else {
         logger.record(
-          `Cipher ID ${cipher.id} (${ownership(cipher)}) cannot be deleted: ${reasons.join("; ")}`,
+          `Cipher ID ${cipher.id} (${ownership(cipher)}) cannot be deleted (other items encrypted with the same key decrypt: ${otherItemsWithSameKeyDecrypt}, delete permission: ${hasDeletePermission})`,
         );
       }
     }
@@ -110,26 +120,6 @@ export class CipherStep implements RecoveryStep {
     return this.undecryptableCiphers.length === 0;
   }
 
-  /**
-   * Returns why an undecryptable cipher must not be offered for deletion, or an empty list when it
-   * is safe to delete.
-   *
-   * Deletion is only safe when at least one other item encrypted under the same key decrypts. When
-   * every item under a key fails, the key itself (or this device's copy of it) is the likely
-   * problem rather than the items, and deleting would destroy data that is intact for everyone
-   * else, including other organization members.
-   */
-  private reasonsNotDeletable(cipher: Cipher, scopesWithDecryptableItems: Set<string>): string[] {
-    const reasons: string[] = [];
-    if (!scopesWithDecryptableItems.has(keyScope(cipher))) {
-      reasons.push("no other item encrypted with the same key decrypts");
-    }
-    if (cipher.organizationId != null && cipher.permissions?.delete !== true) {
-      reasons.push("the user lacks delete permission");
-    }
-    return reasons;
-  }
-
   private notDeletableOrgCiphers(): Cipher[] {
     return this.undecryptableCiphers.filter(
       (c) => c.organizationId != null && !this.deletableCiphers.includes(c),
@@ -141,7 +131,7 @@ export class CipherStep implements RecoveryStep {
    * ciphers whose organization key is not available are not decrypted at all, so they are neither
    * healthy nor corrupt. When no organization keys are loaded, nothing is excluded.
    */
-  private async partitionByOrgKeyAvailability(
+  private async filterByOrgKeyAvailability(
     ciphers: Cipher[],
     userId: NonNullable<RecoveryWorkingData["userId"]>,
   ): Promise<{ checkable: Cipher[]; skipped: Cipher[] }> {

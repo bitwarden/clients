@@ -222,7 +222,7 @@ describe("CipherStep", () => {
       );
 
       expect(logLines()).toContain(
-        "Cipher ID org-1 (organization org-a) cannot be deleted: the user lacks delete permission",
+        "Cipher ID org-1 (organization org-a) cannot be deleted (other items encrypted with the same key decrypt: true, delete permission: false)",
       );
       expect(cipherStep.message).toBe("recoveryOrgItemsContactSupport:1");
     });
@@ -291,7 +291,7 @@ describe("CipherStep", () => {
 
       expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
       expect(logLines()).toContain(
-        "Cipher ID p-a (personal) cannot be deleted: no other item encrypted with the same key decrypts",
+        "Cipher ID p-a (personal) cannot be deleted (other items encrypted with the same key decrypt: false, delete permission: true)",
       );
     });
 
@@ -304,7 +304,7 @@ describe("CipherStep", () => {
 
       expect(cipherStep.canRecover(workingDataWith([]))).toBe(false);
       expect(logLines()).toContain(
-        "Cipher ID org-a-1 (organization org-a) cannot be deleted: no other item encrypted with the same key decrypts",
+        "Cipher ID org-a-1 (organization org-a) cannot be deleted (other items encrypted with the same key decrypt: false, delete permission: true)",
       );
       expect(cipherStep.message).toBe("recoveryOrgItemsContactSupport:2");
     });
@@ -325,14 +325,14 @@ describe("CipherStep", () => {
       expect(apiService.deleteCipher).not.toHaveBeenCalledWith("org-b-bad");
     });
 
-    it("logs every reason an item cannot be deleted", async () => {
+    it("logs both deletion checks when an item fails both", async () => {
       const locked = orgCipher("org-a-locked", orgA, false);
       failDecryptionFor([locked]);
 
       await cipherStep.runDiagnostics(workingDataWith([locked, personalCipher("ok")]), logger);
 
       expect(logLines()).toContain(
-        "Cipher ID org-a-locked (organization org-a) cannot be deleted: no other item encrypted with the same key decrypts; the user lacks delete permission",
+        "Cipher ID org-a-locked (organization org-a) cannot be deleted (other items encrypted with the same key decrypt: false, delete permission: false)",
       );
     });
   });
