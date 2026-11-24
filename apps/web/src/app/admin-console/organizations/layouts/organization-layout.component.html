@@ -34,7 +34,8 @@
     }
 
     @let needsConfirmation = needsConfirmation$ | async;
-    <!-- Berries are decorative: the nav item's aria-label carries the count for screen readers. -->
+    <!-- One berry, on the top Members nav item (the group header when Members is a group). It's
+         decorative: that item's aria-label carries the count for screen readers. -->
     <ng-template #needsConfirmationBerry>
       @if (needsConfirmation) {
         <bit-berry
@@ -56,12 +57,9 @@
         >
           <bit-nav-item
             [text]="'members' | i18n"
-            [ariaLabel]="needsConfirmation?.ariaLabel"
             route="members"
             [routerLinkActiveOptions]="{ exact: true }"
-          >
-            <ng-container slot="end" *ngTemplateOutlet="needsConfirmationBerry"></ng-container>
-          </bit-nav-item>
+          ></bit-nav-item>
           <bit-nav-item
             [text]="'sponsoredFamilies' | i18n"
             route="members/sponsored-families"

@@ -150,19 +150,18 @@
   <bit-column sortable [sortFn]="nameSortFn()" width="minmax(240px, 2fr)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">
-      <!-- `bit-avatar` has no berry input, so the status berry sits over its top end corner. It's
-           decorative: the Status column already says "Needs confirmation". -->
-      <span slot="start" class="tw-relative tw-inline-flex">
-        <bit-avatar
-          size="sm"
-          [text]="row | userName"
-          [id]="row | avatarId"
-          [color]="row.avatarColor"
-        ></bit-avatar>
+      <bit-avatar
+        slot="start"
+        size="sm"
+        [text]="row | userName"
+        [id]="row | avatarId"
+        [color]="row.avatarColor"
+      >
+        <!-- Decorative: the Status column already says "Needs confirmation". -->
         @if (needsConfirmation(row)) {
-          <bit-berry type="status" class="tw-absolute tw-end-0 tw-top-0" aria-hidden="true" />
+          <bit-berry slot="status" type="status" aria-hidden="true" />
         }
-      </span>
+      </bit-avatar>
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
         @if (canManage && organization) {
           <button
