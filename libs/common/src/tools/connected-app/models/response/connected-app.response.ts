@@ -1,4 +1,5 @@
 import { BaseResponse } from "../../../../models/response/base.response";
+import { ConnectedAppType } from "../connected-app-type";
 
 /**
  * API response for an {@link ConnectedApp} returned by the server (sync and the
@@ -7,6 +8,7 @@ import { BaseResponse } from "../../../../models/response/base.response";
  */
 export class ConnectedAppResponse extends BaseResponse {
   id: string;
+  type: ConnectedAppType;
   partnerClientId: string;
   name: string;
   key: string;
@@ -17,6 +19,7 @@ export class ConnectedAppResponse extends BaseResponse {
   constructor(response: unknown) {
     super(response);
     this.id = this.getResponseProperty("Id");
+    this.type = this.getResponseProperty("Type");
     this.partnerClientId = this.getResponseProperty("PartnerClientId");
     this.name = this.getResponseProperty("Name");
     this.key = this.getResponseProperty("Key");

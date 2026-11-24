@@ -12,6 +12,11 @@
     {{ "loginWithBitwardenConsentDescription" | i18n: context.clientName }}
   </p>
 
+  <bit-form-field class="tw-mt-4">
+    <bit-label>{{ "loginWithBitwardenConnectionNameLabel" | i18n }}</bit-label>
+    <input bitInput type="text" [formControl]="nameControl" id="oauth-authorize_input_name" />
+  </bit-form-field>
+
   <p bitTypography="body1" class="tw-mb-2 tw-font-bold">
     {{ "loginWithBitwardenScopesTitle" | i18n }}
   </p>

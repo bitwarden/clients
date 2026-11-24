@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { ConnectedAppType } from "../connected-app-type";
 import { ConnectedApp } from "../domain/connected-app";
 
 /**
@@ -9,11 +10,13 @@ import { ConnectedApp } from "../domain/connected-app";
  * free-form value.
  */
 export class ConnectedAppRequest {
+  type: ConnectedAppType;
   partnerClientId: string;
   name: string;
   key: string;
 
   constructor(connection: ConnectedApp) {
+    this.type = connection.type;
     this.partnerClientId = connection.partnerClientId;
     this.name = connection.name;
     this.key = connection.key?.encryptedString ?? null;

@@ -7,6 +7,10 @@ export abstract class ConnectedAppApiService {
   abstract post(request: ConnectedAppRequest): Promise<ConnectedAppResponse>;
   /** Lists the authenticated user's agent connections. */
   abstract getAll(): Promise<ListResponse<ConnectedAppResponse>>;
+  /** Reads a single agent connection by id. */
+  abstract get(id: string): Promise<ConnectedAppResponse>;
+  /** Renames an agent connection. */
+  abstract update(id: string, name: string): Promise<ConnectedAppResponse>;
   /** Revokes (deletes) an agent connection by id. */
   abstract delete(id: string): Promise<void>;
 }

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { ConnectedAppType } from "../connected-app-type";
 import { ConnectedAppResponse } from "../response/connected-app.response";
 
 /**
@@ -9,6 +10,7 @@ import { ConnectedAppResponse } from "../response/connected-app.response";
  */
 export class ConnectedAppData {
   id: string;
+  type: ConnectedAppType;
   partnerClientId: string;
   name: string;
   key: string;
@@ -22,6 +24,7 @@ export class ConnectedAppData {
     }
 
     this.id = response.id;
+    this.type = response.type;
     this.partnerClientId = response.partnerClientId;
     this.name = response.name;
     this.key = response.key;

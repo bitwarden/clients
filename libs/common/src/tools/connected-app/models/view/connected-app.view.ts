@@ -3,6 +3,7 @@
 import { Jsonify } from "type-fest";
 
 import { View } from "../../../../models/view/view";
+import { ConnectedAppType } from "../connected-app-type";
 import { ConnectedApp } from "../domain/connected-app";
 
 /**
@@ -11,6 +12,7 @@ import { ConnectedApp } from "../domain/connected-app";
  */
 export class ConnectedAppView implements View {
   id: string = null;
+  type: ConnectedAppType = null;
   partnerClientId: string = null;
   name: string = null;
   psk: string = null;
@@ -24,6 +26,7 @@ export class ConnectedAppView implements View {
     }
 
     this.id = c.id;
+    this.type = c.type;
     this.partnerClientId = c.partnerClientId;
     this.name = c.name;
     this.creationDate = c.creationDate;

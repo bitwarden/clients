@@ -7,6 +7,7 @@ import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { UserKey } from "../../../../types/key";
+import { ConnectedAppType } from "../connected-app-type";
 import { ConnectedAppData } from "../data/connected-app.data";
 import { ConnectedAppView } from "../view/connected-app.view";
 
@@ -17,6 +18,7 @@ import { ConnectedAppView } from "../view/connected-app.view";
  */
 export class ConnectedApp extends Domain {
   id: string;
+  type: ConnectedAppType;
   partnerClientId: string;
   name: string;
   key: EncString;
@@ -31,6 +33,7 @@ export class ConnectedApp extends Domain {
     }
 
     this.id = obj.id;
+    this.type = obj.type;
     this.partnerClientId = obj.partnerClientId;
     this.name = obj.name;
     this.key = obj.key != null ? new EncString(obj.key) : null;
@@ -53,6 +56,7 @@ export class ConnectedApp extends Domain {
   toConnectedAppData(): ConnectedAppData {
     const data = new ConnectedAppData();
     data.id = this.id;
+    data.type = this.type;
     data.partnerClientId = this.partnerClientId;
     data.name = this.name;
     data.key = this.key?.encryptedString ?? null;

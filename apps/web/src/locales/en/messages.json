@@ -21957,6 +21957,9 @@
       }
     }
   },
+  "loginWithBitwardenConnectionNameLabel": {
+    "message": "Connection name"
+  },
   "loginWithBitwardenScopesTitle": {
     "message": "This app will be able to access"
   },

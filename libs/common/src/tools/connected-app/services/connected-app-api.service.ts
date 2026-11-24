@@ -18,6 +18,16 @@ export class ConnectedAppApiService implements ConnectedAppApiServiceAbstraction
     return new ListResponse(result, ConnectedAppResponse);
   }
 
+  async get(id: string): Promise<ConnectedAppResponse> {
+    const result = await this.apiService.send("GET", "/connected-apps/" + id, null, true, true);
+    return new ConnectedAppResponse(result);
+  }
+
+  async update(id: string, name: string): Promise<ConnectedAppResponse> {
+    const result = await this.apiService.send("PUT", "/connected-apps/" + id, { name }, true, true);
+    return new ConnectedAppResponse(result);
+  }
+
   async delete(id: string): Promise<void> {
     await this.apiService.send("DELETE", "/connected-apps/" + id, null, true, false);
   }

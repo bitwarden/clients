@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -38,6 +39,12 @@ export class OAuthAuthorizeComponent implements OnInit {
   protected submitting = false;
   protected context?: AuthorizeContext;
 
+  /** User-chosen name for the connection; defaults to the partner's name once the context loads. */
+  protected nameControl = new FormControl<string>("", {
+    nonNullable: true,
+    validators: [Validators.required, Validators.maxLength(200)],
+  });
+
   /** The `returnUrl` of the pending authorize request, from Identity's login redirect. */
   private returnUrl = "";
   /** The OAuth `state`, parsed out of `returnUrl` (Identity does not pass it as a top-level param). */
@@ -63,6 +70,7 @@ export class OAuthAuthorizeComponent implements OnInit {
       this.returnUrl = params.returnUrl ?? "";
       this.state = this.parseState(this.returnUrl);
       this.context = await this.brokerApiService.getAuthorizeContext(this.returnUrl);
+      this.nameControl.setValue(this.context.clientName ?? "");
     } catch {
       this.toastService.showToast({
         variant: "error",
@@ -99,6 +107,10 @@ export class OAuthAuthorizeComponent implements OnInit {
     if (this.context == null || this.submitting) {
       return;
     }
+    this.nameControl.markAsTouched();
+    if (this.nameControl.invalid) {
+      return;
+    }
     this.submitting = true;
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -106,10 +118,10 @@ export class OAuthAuthorizeComponent implements OnInit {
       // Generate the PSK only after consent; the plaintext stays client-side.
       const psk = await this.pskGenerator.generate();
 
-      // Store the user-key-encrypted PSK (ciphertext only) on the account, bound to the partner.
+      // Store the user-key-encrypted PSK (ciphertext only) on the account, under the name the user chose.
       const connection = await this.connectedAppService.encrypt(
         this.context.clientId,
-        this.context.clientName,
+        this.nameControl.value,
         psk,
         userId,
       );

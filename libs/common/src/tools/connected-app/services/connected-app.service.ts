@@ -12,6 +12,7 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { ConnectedAppType } from "../models/connected-app-type";
 import { ConnectedAppData } from "../models/data/connected-app.data";
 import { ConnectedApp } from "../models/domain/connected-app";
 import { ConnectedAppWithIdRequest } from "../models/request/connected-app-with-id.request";
@@ -57,6 +58,7 @@ export class ConnectedAppService implements InternalConnectedAppServiceAbstracti
     }
 
     const connection = new ConnectedApp();
+    connection.type = ConnectedAppType.AgentAccess;
     connection.partnerClientId = partnerClientId;
     connection.name = name;
     connection.key = await this.encryptService.encryptString(plaintextPsk, userKey);
