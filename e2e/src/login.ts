@@ -8,6 +8,7 @@ import { SETUP_EXTENSION_URL, skipExtensionSetup, skipOnboardingDialogs } from "
 const ENV_MENU_TRIGGER = 'environment-selector button[aria-haspopup="menu"]';
 const SELF_HOSTED_MENU_ITEM = /self-hosted/i;
 const BASE_URL_INPUT = "#self_hosted_env_settings_form_input_base_url";
+const EMAIL_INPUT = "login-email-input";
 
 // Web lands on the vault, or on the extension pitch until it is dismissed once.
 const WEB_POST_LOGIN_URL = new RegExp(`#\\/vault|${SETUP_EXTENSION_URL.source}`);
@@ -29,10 +30,15 @@ export async function logInToWebVault(page: Page, targetAccount: Account = accou
 export class LoginPage {
   constructor(private page: Page) {}
 
+  /** The email step, where a logged out user lands. */
+  async waitUntilShown() {
+    await expect(this.page.getByTestId(EMAIL_INPUT)).toBeVisible();
+  }
+
   async logIn(targetAccount: Account = account()) {
     // Wait for the page before probing for the selector, which renders alongside it.
-    const email = this.page.getByTestId("login-email-input");
-    await expect(email).toBeVisible();
+    await this.waitUntilShown();
+    const email = this.page.getByTestId(EMAIL_INPUT);
 
     // On desktop and browser, the self-hosted server is not the default; switch to it if needed.
     if ((await this.page.locator(ENV_MENU_TRIGGER).count()) > 0) {
