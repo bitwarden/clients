@@ -134,8 +134,21 @@ export class VaultHeaderComponent {
     () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
   );
 
+  /**
+   * With the VFO1 flag on, the trail runs the full nesting path — "Shared folders" (linking back to
+   * the organization's shared folders page), ancestors, then the
+   * collection in view as the final, non-linked crumb (which `bit-header` promotes to the page
+   * heading). With the flag off, the legacy trail of ancestors followed by the page title is kept.
+   */
+  protected readonly showFullNestingBreadcrumbs = computed(
+    () => this.vfo1TerminologyService.enabled() && this.showBreadcrumbs(),
+  );
+
+  /** Query params that return to the shared folders page, clearing any selected collection. */
+  protected readonly orgRootQueryParams = computed(() => this.collectionQueryParams(undefined));
+
   /** Builds query params to navigate to a collection, using the terminology-appropriate param key. */
-  protected collectionQueryParams(collectionId: string) {
+  protected collectionQueryParams(collectionId: string | undefined) {
     return this.vfo1TerminologyService.collectionQueryParams(collectionId);
   }
 

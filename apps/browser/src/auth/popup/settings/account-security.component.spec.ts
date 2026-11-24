@@ -23,7 +23,6 @@ import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/sh
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -125,7 +124,6 @@ describe("AccountSecurityComponent", () => {
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
-        { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
         { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },

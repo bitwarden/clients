@@ -1086,7 +1086,7 @@ describe("AccessConnectorDetailComponent", () => {
       expect(loading.textContent).toContain("pamAccessConnectorDetailsHeading");
       expect(loading.textContent).toContain("pamAccessConnectorRotationHeading");
       expect(loading.getAttribute("aria-hidden")).toBe("true");
-      expect(query("pam-detail-breadcrumb")).not.toBeNull();
+      expect(query('bit-breadcrumbs[slot="breadcrumbs"]')).not.toBeNull();
     });
 
     it("mirrors the history table instead when the history tab is the one loading", async () => {
@@ -1117,6 +1117,26 @@ describe("AccessConnectorDetailComponent", () => {
 
       expect(query('[data-testid="access-connector-detail-loading"]')).toBeNull();
       expect(query("#access-connector-detail_multi-select_target-systems")).not.toBeNull();
+    });
+  });
+
+  describe("breadcrumbs", () => {
+    it("slots a bit-breadcrumbs straight into the header, with no wrapper or extra content", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+
+      const slotted = el().querySelectorAll('bit-header [slot="breadcrumbs"]');
+      expect(slotted).toHaveLength(1);
+      expect(slotted[0].tagName).toBe("BIT-BREADCRUMBS");
+    });
+
+    it("leads back to the access connectors list from the connector's name", async () => {
+      await mount(makeAccessConnector(), { renderTemplate: true });
+
+      const crumbs = Array.from(el().querySelectorAll("bit-breadcrumbs [bitOverflowItem]")).map(
+        (crumb) => crumb.textContent?.trim(),
+      );
+      expect(crumbs).toEqual(["pamRotationTabAccessConnectors", "East datacenter"]);
+      expect(query("bit-breadcrumbs bit-icon.bwi-access-connector")).not.toBeNull();
     });
   });
 });

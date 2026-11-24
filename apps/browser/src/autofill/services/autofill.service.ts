@@ -57,7 +57,7 @@ import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
+import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../orchestration";
 import {
   fieldContainsKeyword,
   isNonLoginUsernameField,

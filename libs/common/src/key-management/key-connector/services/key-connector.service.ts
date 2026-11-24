@@ -25,15 +25,19 @@ import { Organization } from "../../../admin-console/models/domain/organization"
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogoutReason } from "../../../auth/logout";
+import {
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+  SsoJitProvisionFinishSetKeyConnectorKeyRequest,
+} from "../../../auth/sso-jit-provision-finish";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
-import { UserId } from "../../../types/guid";
+import { OrganizationId, UserId } from "../../../types/guid";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "../../utils";
@@ -88,7 +92,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
     private configService: ConfigService,
-    private registerSdkService: RegisterSdkService,
+    private ssoJitProvisionFinishService: SsoJitProvisionFinishService,
+    private ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private sdkService: SdkService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -161,7 +166,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     return this.findManagingOrganization(organizations);
   }
 
-  async convertNewSsoUserToKeyConnector(userId: UserId) {
+  async convertNewSsoUserToKeyConnector(userId: UserId, orgId: OrganizationId): Promise<boolean> {
     const conversion = await firstValueFrom(
       this.stateProvider.getUserState$(NEW_SSO_USER_KEY_CONNECTOR_CONVERSION, userId),
     );
@@ -171,6 +176,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
     const { kdfConfig, keyConnectorUrl, organizationId: ssoOrganizationIdentifier } = conversion;
 
+    let organizationInviteAccepted: boolean;
     if (
       await firstValueFrom(
         this.configService.getFeatureFlag$(
@@ -178,14 +184,16 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         ),
       )
     ) {
-      await this.convertNewSsoUserToKeyConnectorV2(
+      organizationInviteAccepted = await this.convertNewSsoUserToKeyConnectorV2(
         userId,
+        orgId,
         keyConnectorUrl,
         ssoOrganizationIdentifier,
       );
     } else {
-      await this.convertNewSsoUserToKeyConnectorV1(
+      organizationInviteAccepted = await this.convertNewSsoUserToKeyConnectorV1(
         userId,
+        orgId,
         kdfConfig,
         keyConnectorUrl,
         ssoOrganizationIdentifier,
@@ -195,29 +203,23 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.stateProvider
       .getUser(userId, NEW_SSO_USER_KEY_CONNECTOR_CONVERSION)
       .update(() => null);
+
+    return organizationInviteAccepted;
   }
 
   async convertNewSsoUserToKeyConnectorV2(
     userId: UserId,
+    orgId: OrganizationId,
     keyConnectorUrl: string,
     ssoOrganizationIdentifier: string,
-  ) {
-    const result = await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-
-          return await ref.value
-            .auth()
-            .registration()
-            .post_keys_for_key_connector_registration(keyConnectorUrl, ssoOrganizationIdentifier);
-        }),
-      ),
-    );
+  ): Promise<boolean> {
+    const { registration: result, organizationInviteAccepted } =
+      await this.ssoJitProvisionFinishService.finishKeyConnector({
+        userId,
+        orgId,
+        orgSsoIdentifier: ssoOrganizationIdentifier,
+        keyConnectorUrl,
+      });
 
     if (!("V2" in result.account_cryptographic_state)) {
       const version = Object.keys(result.account_cryptographic_state);
@@ -225,7 +227,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     }
 
     // Note: When SDK state management matures, the state writes and the unlock below should all be
-    // moved into post_keys_for_key_connector_registration
+    // moved into SsoJitProvisionFinishService.finishKeyConnector
     await this.accountCryptographicStateService.setAccountCryptographicState(
       result.account_cryptographic_state,
       userId,
@@ -237,14 +239,21 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       userId,
       SymmetricCryptoKey.fromString(result.user_key),
     );
+
+    return organizationInviteAccepted;
   }
 
+  // TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
   async convertNewSsoUserToKeyConnectorV1(
     userId: UserId,
+    orgId: OrganizationId,
     kdfConfig: KdfConfig,
     keyConnectorUrl: string,
     ssoOrganizationIdentifier: string,
-  ) {
+  ): Promise<boolean> {
+    const organizationInviteAccepted =
+      await this.ssoJitProvisionFinishService.shouldAcceptOrganizationInvite(orgId);
+
     await SdkLoadService.Ready;
     const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
@@ -273,7 +282,19 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       ssoOrganizationIdentifier,
       keys,
     );
-    await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
+    // Same endpoint choice as the SDK makes for V2. The legacy endpoint always accepts the invite.
+    // TODO: Remove the legacy endpoint when the pm-34429-invite-link-auto-confirm flag is removed
+    // with https://bitwarden.atlassian.net/browse/PM-40052
+    if (await this.configService.getFeatureFlag(FeatureFlag.InviteLinkAutoConfirm)) {
+      await this.ssoJitProvisionFinishApiService.postKeyConnector(
+        new SsoJitProvisionFinishSetKeyConnectorKeyRequest(
+          setPasswordRequest,
+          organizationInviteAccepted,
+        ),
+      );
+    } else {
+      await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
+    }
 
     // The key pair generated above is only known to the server until it is persisted here.
     // Unlocking initializes the SDK from state, so it has to run after that.
@@ -286,6 +307,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       userId,
     );
     await this.unlockService.unlockWithDecryptedUserKey(userId, userKey[0]);
+
+    return organizationInviteAccepted;
   }
 
   async setNewSsoUserKeyConnectorConversionData(

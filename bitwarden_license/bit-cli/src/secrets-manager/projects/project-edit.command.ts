@@ -6,6 +6,7 @@ import { SmProjectResponse } from "../models/sm-project.response";
 import {
   checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   parseSmId,
   parseSmRequest,
   readSmName,
@@ -33,6 +34,10 @@ export class ProjectEditCommand {
     if (orgMismatch) {
       return orgMismatch;
     }
+    const unknown = checkSmUnknownProperties(parsed.request, "project");
+    if (unknown) {
+      return unknown;
+    }
     const name = readSmName(parsed.request);
     if (name.error) {
       return name.error;
@@ -47,8 +52,11 @@ export class ProjectEditCommand {
         return Response.noEditPermission();
       }
 
-      // `get` always emits read/write, so only a value that differs from the project's is an edit.
-      const readOnly = checkSmReadOnlyProperties(parsed.request, "project", existing);
+      const readOnly = checkSmReadOnlyProperties(
+        parsed.request,
+        "project",
+        new SmProjectResponse(existing),
+      );
       if (readOnly) {
         return readOnly;
       }

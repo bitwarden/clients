@@ -1,3 +1,5 @@
+import { mock } from "jest-mock-extended";
+
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
@@ -162,6 +164,7 @@ describe("BrowserPopupUtils", () => {
 
   describe("openPopout", () => {
     beforeEach(() => {
+      jest.replaceProperty(BrowserApi, "isFirefox", false);
       jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
         id: 1,
         left: 100,
@@ -175,6 +178,80 @@ describe("BrowserPopupUtils", () => {
         os: "win",
       } as chrome.runtime.PlatformInfo);
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it.each([
+      { os: "win", left: 2560, top: -200 },
+      { os: "win", left: -1920, top: 100 },
+      { os: "linux", left: 1920, top: 100 },
+      { os: "mac", left: 100, top: 100 },
+    ] as const)(
+      "lets Firefox position popouts on $os at ($left, $top)",
+      async ({ os, left, top }) => {
+        jest.replaceProperty(BrowserApi, "isFirefox", true);
+        jest
+          .spyOn(BrowserApi, "getWindow")
+          .mockReset()
+          .mockResolvedValueOnce(mock<chrome.windows.Window>({ id: 2, left, top, width: 1920 }));
+        jest
+          .spyOn(BrowserApi, "getPlatformInfo")
+          .mockResolvedValue(mock<chrome.runtime.PlatformInfo>({ os }));
+        jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([]);
+
+        await BrowserPopupUtils.openPopout("popup/index.html#/fido2", {
+          senderWindowId: 2,
+          singleActionKey: "vault_Fido2Popout_session",
+          forceCloseExistingWindows: true,
+          windowOptions: { height: 570 },
+        });
+
+        expect(BrowserApi.getWindow).toHaveBeenCalledWith(2);
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+          type: "popup",
+          focused: true,
+          width: PopupWidthOptions.default,
+          height: 570,
+          url: "chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=vault_Fido2Popout_session#/fido2",
+        });
+      },
+    );
+
+    it("does not reposition an existing Firefox popout using sender coordinates", async () => {
+      jest.replaceProperty(BrowserApi, "isFirefox", true);
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([
+        createChromeTabMock({
+          url: "chrome-extension://id/popup/index.html?singleActionPopout=123",
+          windowId: 3,
+        }),
+      ]);
+      jest.spyOn(BrowserApi, "updateWindowProperties").mockResolvedValueOnce();
+
+      await BrowserPopupUtils.openPopout("popup/index.html", { singleActionKey: "123" });
+
+      expect(BrowserApi.createWindow).not.toHaveBeenCalled();
+      expect(BrowserApi.updateWindowProperties).toHaveBeenCalledWith(3, {
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        left: undefined,
+        top: undefined,
+      });
+    });
+
+    it("honors explicit position overrides on Firefox", async () => {
+      jest.replaceProperty(BrowserApi, "isFirefox", true);
+
+      await BrowserPopupUtils.openPopout("popup/index.html", {
+        windowOptions: { left: 200, top: 300 },
+      });
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({ left: 200, top: 300 }),
+      );
     });
 
     it("creates a window with the default window options", async () => {

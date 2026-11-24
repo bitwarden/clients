@@ -100,8 +100,43 @@ describe("ProjectEditCommand", () => {
     });
 
     beforeEach(() => {
-      projectService.getByProjectId.mockResolvedValue(makeProject({ read: true, write: true }));
+      projectService.getByProjectId.mockResolvedValue(
+        makeProject({
+          creationDate: "2024-01-01T00:00:00Z",
+          revisionDate: "2024-01-02T00:00:00Z",
+          read: true,
+          write: true,
+          decryptionError: false,
+        }),
+      );
       projectService.update.mockResolvedValue(makeProject({ name: "Frontend" }));
+    });
+
+    it("renames from a template-shaped body", async () => {
+      const response = await command.run(smOrg, projectId, {
+        organizationId: null,
+        name: "Frontend",
+      });
+
+      expect(response.success).toBe(true);
+    });
+
+    it("rejects a creationDate added to the template and saves nothing", async () => {
+      const response = await command.run(
+        smOrg,
+        projectId,
+        encodeSmRequest({
+          organizationId: null,
+          name: "Project name",
+          creationDate: "2026-11-17T04:22:34.0716668Z",
+        }),
+      );
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`creationDate` cannot be edited on a project. Remove this property from the request.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
     });
 
     it("renames from a full get-shaped body", async () => {
@@ -119,8 +154,14 @@ describe("ProjectEditCommand", () => {
     });
 
     it.each([
+      ["object", { object: "sm-secret" }],
+      ["id", { id: "33333333-3333-3333-3333-333333333333" }],
+      ["creationDate", { creationDate: "2026-11-17T04:22:34.0716668Z" }],
+      ["revisionDate", { revisionDate: "2026-11-17T04:22:34.0716668Z" }],
       ["read", { read: false }],
       ["write", { write: false }],
+      ["decryptionError", { decryptionError: true }],
+      ["accessToSecrets", { accessToSecrets: 1 }],
     ])("rejects a changed %s and saves nothing", async (property, change) => {
       const response = await command.run(smOrg, projectId, {
         ...getBody(),
@@ -167,6 +208,73 @@ describe("ProjectEditCommand", () => {
 
     it("accepts a body without read or write", async () => {
       const response = await command.run(smOrg, projectId, { name: "Frontend" });
+
+      expect(response.success).toBe(true);
+    });
+
+    it.each([true, false])(
+      "rejects decryptionError %p when it differs from the project's and saves nothing",
+      async (decryptionError) => {
+        projectService.getByProjectId.mockResolvedValue(
+          makeProject({ read: true, write: true, decryptionError: !decryptionError }),
+        );
+
+        const response = await command.run(
+          smOrg,
+          projectId,
+          encodeSmRequest({ organizationId: null, name: "Project name", decryptionError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptionError` cannot be edited on a project. Remove this property from the request.",
+        );
+        expect(projectService.update).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe("unknown properties", () => {
+    beforeEach(() => {
+      projectService.getByProjectId.mockResolvedValue(makeProject());
+      projectService.update.mockResolvedValue(makeProject({ name: "Project name" }));
+    });
+
+    // QA repro: bw sm template sm-project | jq '.decryptError=true' | bw encode | bw sm project edit
+    it.each([true, false])(
+      "rejects decryptError %p added to the template and saves nothing",
+      async (decryptError) => {
+        const response = await command.run(
+          smOrg,
+          projectId,
+          encodeSmRequest({ organizationId: null, name: "Project name", decryptError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptError` is not a project property. Remove this property from the request. Properties that can be edited on a project: `name`.",
+        );
+        expect(projectService.getByProjectId).not.toHaveBeenCalled();
+        expect(projectService.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it("names every unknown property", async () => {
+      const response = await command.run(smOrg, projectId, {
+        name: "Frontend",
+        Name: "Frontend",
+        description: "x",
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`Name`, `description` are not project properties. Remove these properties from the request. Properties that can be edited on a project: `name`.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("ignores unknown properties that are null", async () => {
+      const response = await command.run(smOrg, projectId, { name: "Frontend", description: null });
 
       expect(response.success).toBe(true);
     });

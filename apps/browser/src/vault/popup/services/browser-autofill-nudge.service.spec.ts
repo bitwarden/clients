@@ -1,9 +1,9 @@
 import { TestBed } from "@angular/core/testing";
-import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { NudgeStatus, NudgeType } from "@bitwarden/angular/vault";
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -16,7 +16,7 @@ import { BrowserAutofillNudgeService } from "./browser-autofill-nudge.service";
 
 describe("BrowserAutofillNudgeService", () => {
   let service: BrowserAutofillNudgeService;
-  let vaultProfileService: MockProxy<VaultProfileService>;
+  let accounts$: BehaviorSubject<Record<UserId, AccountInfo>>;
   let fakeStateProvider: FakeStateProvider;
 
   const userId = "test-user-id" as UserId;
@@ -36,8 +36,9 @@ describe("BrowserAutofillNudgeService", () => {
   const recentProfileDate = new Date();
 
   beforeEach(() => {
-    vaultProfileService = mock<VaultProfileService>();
-    vaultProfileService.getProfileCreationDate.mockResolvedValue(recentProfileDate);
+    accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
+      [userId]: { creationDate: recentProfileDate } as AccountInfo,
+    });
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
 
@@ -45,8 +46,8 @@ describe("BrowserAutofillNudgeService", () => {
       providers: [
         BrowserAutofillNudgeService,
         {
-          provide: VaultProfileService,
-          useValue: vaultProfileService,
+          provide: AccountService,
+          useValue: { accounts$ },
         },
         {
           provide: StateProvider,
@@ -99,7 +100,7 @@ describe("BrowserAutofillNudgeService", () => {
     it("preserves parent dismissed status when account is older than 30 days", async () => {
       // Set profile creation date to more than 30 days ago
       const oldProfileDate = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
-      vaultProfileService.getProfileCreationDate.mockResolvedValue(oldProfileDate);
+      accounts$.next({ [userId]: { creationDate: oldProfileDate } as AccountInfo });
 
       jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue(BrowserClientVendors.Chrome);
       jest.spyOn(BrowserApi, "browserAutofillSettingsOverridden").mockResolvedValue(false);
@@ -112,7 +113,7 @@ describe("BrowserAutofillNudgeService", () => {
     it("combines parent dismissed and browser autofill overridden status", async () => {
       // Set profile creation date to more than 30 days ago (parent dismisses)
       const oldProfileDate = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
-      vaultProfileService.getProfileCreationDate.mockResolvedValue(oldProfileDate);
+      accounts$.next({ [userId]: { creationDate: oldProfileDate } as AccountInfo });
 
       jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue(BrowserClientVendors.Chrome);
       jest.spyOn(BrowserApi, "browserAutofillSettingsOverridden").mockResolvedValue(true);
