@@ -1,7 +1,7 @@
 import { CurrencyPipe, NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { catchError, map, of } from "rxjs";
+import { catchError, EMPTY, map, Observable, of } from "rxjs";
 
 import { ClientType } from "@bitwarden/client-type";
 import {
@@ -10,9 +10,9 @@ import {
 } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   AsyncActionsModule,
-  BadgeModule,
   ButtonModule,
   DIALOG_DATA,
   DialogConfig,
@@ -22,9 +22,10 @@ import {
   IconModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
 import { DarkImageSourceDirective } from "../../../directives/dark-image-source.directive";
+import { PremiumBadgeComponent } from "../premium-badge/premium-badge.component";
 
 type NudgeImage = { light: string; dark: string; width: number; height: number };
 
@@ -42,6 +43,14 @@ export type PremiumUpgradeNudgeDialogData = {
   upgrade: () => Promise<void>;
 };
 
+class NoopPremiumUpgradePromptService implements PremiumUpgradePromptService {
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
+
+  promptForPremium(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
 @Component({
   selector: "billing-premium-upgrade-nudge",
   templateUrl: "./premium-upgrade-nudge.component.html",
@@ -50,13 +59,20 @@ export type PremiumUpgradeNudgeDialogData = {
     CurrencyPipe,
     NgTemplateOutlet,
     AsyncActionsModule,
-    BadgeModule,
     ButtonModule,
     DialogModule,
     IconModule,
     TypographyModule,
     I18nPipe,
     DarkImageSourceDirective,
+    PremiumBadgeComponent,
+  ],
+  providers: [
+    safeProvider({
+      provide: PremiumUpgradePromptService,
+      useClass: NoopPremiumUpgradePromptService,
+      deps: [],
+    }),
   ],
 })
 export class PremiumUpgradeNudgeComponent {

@@ -45,16 +45,7 @@
 <bit-dialog>
   <span bitDialogTitle class="tw-flex tw-items-center tw-gap-2">
     <span class="tw-min-w-0">{{ options.titleKey | i18n }}</span>
-    <span
-      bitBadge
-      variant="primary"
-      size="small"
-      startIcon="bwi-premium"
-      class="tw-shrink-0"
-      [truncate]="false"
-    >
-      {{ "premium" | i18n }}
-    </span>
+    <app-premium-badge class="tw-flex tw-shrink-0" />
   </span>
   <div bitDialogContent>
     <ng-container [ngTemplateOutlet]="body" />
