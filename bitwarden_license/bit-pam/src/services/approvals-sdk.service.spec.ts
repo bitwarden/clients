@@ -12,6 +12,7 @@ import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service
 import { UserId } from "@bitwarden/common/types/guid";
 import type {
   AccessDecisionRequest,
+  AccessRequestHistoryPage,
   AccessRequestHistoryQuery,
   AccessRequestId,
   AccessRequestView,
@@ -105,7 +106,12 @@ describe("ApprovalsSdkService", () => {
 
     it("calls approvals().list_history() with the query and returns the page", async () => {
       const approvals = mockApprovalsClient();
-      const page = { requests: [decidedView], total: 51, requesters: [], collectionIds: [] };
+      const page: AccessRequestHistoryPage = {
+        requests: [decidedView],
+        total: 51,
+        requesters: [],
+        collectionIds: [],
+      };
       approvals.list_history.mockResolvedValue(page);
 
       const result = await service.listHistory(query);

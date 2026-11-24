@@ -8,6 +8,7 @@ import {
   AccessEventService,
   AccessRequestHistoryPage,
   AccessRequestHistoryQuery,
+  AccessRequestHistoryRequester,
   AccessRequestHistoryStatus,
   AccessRequestView,
   ApprovalSdkService,
@@ -168,7 +169,7 @@ function historyServer(requests: () => Ended[]): Pick<ApprovalSdkService, "listH
         total: matching.length,
         requesters: [
           ...new Map(
-            all.map(({ request }) => [
+            all.map(({ request }): [string, AccessRequestHistoryRequester] => [
               uuidAsString(request.requesterId),
               { id: request.requesterId, name: request.requesterName, email: undefined },
             ]),
