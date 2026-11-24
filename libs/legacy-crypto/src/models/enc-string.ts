@@ -14,20 +14,8 @@ export const DECRYPT_ERROR = "[error: cannot decrypt]";
 export class EncString {
   encryptedString?: SdkEncString;
 
-  constructor(
-    encryptedStringOrType: string | EncryptionType,
-    /** @deprecated */
-    data?: string,
-    /** @deprecated */
-    iv?: string,
-    /** @deprecated */
-    mac?: string,
-  ) {
-    if (data != null) {
-      this.initFromData(encryptedStringOrType as EncryptionType, data, iv, mac);
-    } else {
-      this.initFromEncryptedString(encryptedStringOrType as string);
-    }
+  constructor(encryptedString: string) {
+    this.encryptedString = encryptedString as SdkEncString;
   }
 
   toSdk(): SdkEncString {
@@ -44,24 +32,6 @@ export class EncString {
     }
 
     return new EncString(obj);
-  }
-
-  /** @deprecated */
-  private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
-    if (iv != null) {
-      this.encryptedString = (encType + "." + iv + "|" + data) as SdkEncString;
-    } else {
-      this.encryptedString = (encType + "." + data) as SdkEncString;
-    }
-
-    // mac
-    if (mac != null) {
-      this.encryptedString = (this.encryptedString + "|" + mac) as SdkEncString;
-    }
-  }
-
-  private initFromEncryptedString(encryptedString: string) {
-    this.encryptedString = encryptedString as SdkEncString;
   }
 
   private static parseEncryptedString(encryptedString: string): {

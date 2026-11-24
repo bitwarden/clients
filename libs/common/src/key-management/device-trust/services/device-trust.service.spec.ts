@@ -392,18 +392,15 @@ describe("deviceTrustService", () => {
         ];
 
         mockDevicePublicKeyEncryptedUserKey = new EncString(
-          EncryptionType.Rsa2048_OaepSha1_B64,
-          "mockDevicePublicKeyEncryptedUserKey",
+          `${EncryptionType.Rsa2048_OaepSha1_B64}.mockDevicePublicKeyEncryptedUserKey`,
         );
 
         mockUserKeyEncryptedDevicePublicKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockUserKeyEncryptedDevicePublicKey",
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserKeyEncryptedDevicePublicKey`,
         );
 
         mockDeviceKeyEncryptedDevicePrivateKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockDeviceKeyEncryptedDevicePrivateKey",
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockDeviceKeyEncryptedDevicePrivateKey`,
         );
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
@@ -558,13 +555,11 @@ describe("deviceTrustService", () => {
         mockUserKey = new SymmetricCryptoKey(mockUserKeyRandomBytes) as UserKey;
 
         mockEncryptedDevicePrivateKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockEncryptedDevicePrivateKey",
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedDevicePrivateKey`,
         );
 
         mockEncryptedUserKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockEncryptedUserKey",
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockEncryptedUserKey`,
         );
 
         jest.clearAllMocks();

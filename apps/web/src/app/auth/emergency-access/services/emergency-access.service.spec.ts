@@ -168,8 +168,7 @@ describe("EmergencyAccessService", () => {
         const publicKey = new Uint8Array(64);
 
         const mockUserPublicKeyEncryptedUserKey = new EncString(
-          EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockUserPublicKeyEncryptedUserKey",
+          `${EncryptionType.AesCbc256_HmacSha256_B64}.mockUserPublicKeyEncryptedUserKey`,
         );
 
         keyService.userKey$.mockReturnValue(of(mockUserKey));
@@ -552,7 +551,7 @@ describe("EmergencyAccessService", () => {
 
       encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
         return Promise.resolve(
-          new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
+          new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.${"Encrypted: " + plainValue}`),
         );
       });
     });

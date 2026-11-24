@@ -1,5 +1,3 @@
-import { EncryptionType } from "../enums/encryption-type.enum";
-
 import { EncString } from "./enc-string";
 
 describe("EncString", () => {
@@ -8,14 +6,6 @@ describe("EncString", () => {
   });
 
   describe("Rsa2048_OaepSha256_B64", () => {
-    it("constructor", () => {
-      const encString = new EncString(EncryptionType.Rsa2048_OaepSha256_B64, "data");
-
-      expect(encString).toEqual({
-        encryptedString: "3.data",
-      });
-    });
-
     describe("isSerializedEncString", () => {
       it("is true if valid", () => {
         expect(EncString.isSerializedEncString("3.data")).toBe(true);
@@ -46,14 +36,6 @@ describe("EncString", () => {
   });
 
   describe("AesCbc256_B64", () => {
-    it("constructor", () => {
-      const encString = new EncString(EncryptionType.AesCbc256_B64, "data", "iv");
-
-      expect(encString).toEqual({
-        encryptedString: "0.iv|data",
-      });
-    });
-
     describe("isSerializedEncString", () => {
       it("is true if valid", () => {
         expect(EncString.isSerializedEncString("0.iv|data")).toBe(true);
@@ -84,14 +66,6 @@ describe("EncString", () => {
   });
 
   describe("AesCbc256_HmacSha256_B64", () => {
-    it("constructor", () => {
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
-
-      expect(encString).toEqual({
-        encryptedString: "2.iv|data|mac",
-      });
-    });
-
     describe("isSerializedEncString", () => {
       it("is true if valid", () => {
         expect(EncString.isSerializedEncString("2.iv|data|mac")).toBe(true);
@@ -166,7 +140,7 @@ describe("EncString", () => {
 
   describe("toJSON", () => {
     it("Should be represented by the encrypted string", () => {
-      const encString = new EncString(EncryptionType.AesCbc256_B64, "data", "iv");
+      const encString = new EncString("0.iv|data");
 
       expect(encString.toJSON()).toBe(encString.encryptedString);
     });

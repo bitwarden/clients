@@ -115,7 +115,7 @@ describe("OrganizationUserResetPasswordService", () => {
       );
 
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-        new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
+        new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey`),
       );
     });
 
@@ -710,7 +710,7 @@ describe("OrganizationUserResetPasswordService", () => {
         }),
       );
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(
-        new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
+        new EncString(`${EncryptionType.Rsa2048_OaepSha1_B64}.mockEncryptedUserKey`),
       );
     });
 
