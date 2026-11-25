@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
 
@@ -18,5 +19,10 @@ export class MemberAccessReportApiService {
     const memberAccessResponses = response.map((o: any) => new MemberAccessResponse(o));
 
     return memberAccessResponses;
+  }
+
+  async getCollectionAccessDetails(orgId: string): Promise<CollectionAccessDetailsResponse[]> {
+    const response = await this.apiService.getManyCollectionsWithOrganizationDetails(orgId);
+    return response.data;
   }
 }
