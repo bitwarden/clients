@@ -9,12 +9,13 @@ import { of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -39,6 +40,13 @@ import {
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportUpgradeService } from "./import-upgrade.service";
 import { ImportService } from "./import.service";
+
+const collectionView = () =>
+  new CollectionView({
+    id: "collection-id" as CollectionId,
+    organizationId: "org-id" as OrganizationId,
+    name: "Shared",
+  });
 
 describe("ImportUpgradeService", () => {
   let importService: ImportUpgradeService;
@@ -152,6 +160,33 @@ describe("ImportUpgradeService", () => {
       expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.NothingImported);
     });
 
+    it("throws the nothing-imported errorKey for collections only when importing to a personal vault", async () => {
+      const importResult = new ImportResult();
+      importResult.success = true;
+      importResult.collections = [collectionView()];
+
+      const thrown = await failedWith(importResult);
+
+      expect((thrown as ImportResultError).errorKey).toBe(ImportResultErrorKey.NothingImported);
+    });
+
+    it("does not throw nothing-imported for collections only when importing to an organization", async () => {
+      const importResult = new ImportResult();
+      importResult.success = true;
+      importResult.collections = [collectionView()];
+
+      let thrown: unknown;
+      try {
+        await importService.importImportResult(importResult, "org-id" as OrganizationId);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect((thrown as ImportResultError | undefined)?.errorKey).not.toBe(
+        ImportResultErrorKey.NothingImported,
+      );
+    });
+
     it("throws the invalid-format errorKey for a failed result with no message", async () => {
       const importResult = new ImportResult();
       importResult.success = false;
@@ -187,6 +222,7 @@ describe("ImportUpgradeService", () => {
       const error = new Error("Something else.");
       const importResult = new ImportResult();
       importResult.success = true;
+      importResult.ciphers = [new CipherView()];
       const baseImport = jest
         .spyOn(ImportService.prototype, "importImportResult")
         .mockRejectedValue(error);
@@ -285,6 +321,14 @@ describe("ImportUpgradeService", () => {
       const thrown = await failedWith(() => importService.parse(importerReturning(result), "x"));
 
       expect((thrown as Error).message).toBe("importNothingError");
+    });
+
+    it("validateParsed accepts a result with only collections", () => {
+      const result = new ImportResult();
+      result.success = true;
+      result.collections = [collectionView()];
+
+      expect(() => importService.validateParsed(result)).not.toThrow();
     });
 
     it("validateParsed accepts a good result and rejects a failed one", async () => {

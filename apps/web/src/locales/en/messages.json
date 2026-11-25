@@ -3162,6 +3162,12 @@
   "multifactorAuthenticationFailedV2": {
     "message": "Multifactor authentication failed."
   },
+  "noLastPassDataFoundV2": {
+    "message": "No LastPass data found."
+  },
+  "incorrectUsernameOrPasswordV2": {
+    "message": "Incorrect username or password."
+  },
   "filePasswordProtectedSubtitle": {
     "message": "The file uploaded is password protected. Enter the password to continue."
   },

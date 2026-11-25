@@ -2116,6 +2116,18 @@ describe("ImportDestinationComponent", () => {
         expect(stagingService.takeFileStepReturn()).toBeUndefined();
       });
 
+      it("does not show the empty-file toast when the SDK imports only collections", async () => {
+        stageKdbx();
+        await setup();
+        importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 2 });
+
+        await submit();
+
+        expect(toastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ message: "importFileEmpty" }),
+        );
+      });
+
       it("shows the empty-file toast and stays when the SDK imports nothing", async () => {
         stageKdbx();
         await setup();

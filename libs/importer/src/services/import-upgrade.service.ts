@@ -203,16 +203,26 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     }
   }
 
+  private hasNoItemsOrFolders(importResult: ImportResult): boolean {
+    return (
+      importResult.success && importResult.folders.length === 0 && importResult.ciphers.length === 0
+    );
+  }
+
+  private nothingImportedError(): ImportResultError {
+    return new ImportResultError(
+      this.bitwardenImporterDeps.i18nService.t("importNothingError"),
+      ImportResultErrorKey.NothingImported,
+    );
+  }
+
   protected override validateImportResult(importResult: ImportResult): void {
-    if (
-      importResult.success &&
-      importResult.folders.length === 0 &&
-      importResult.ciphers.length === 0
-    ) {
-      throw new ImportResultError(
-        this.bitwardenImporterDeps.i18nService.t("importNothingError"),
-        ImportResultErrorKey.NothingImported,
-      );
+    if (this.hasNoItemsOrFolders(importResult)) {
+      if (importResult.collections.length === 0) {
+        throw this.nothingImportedError();
+      }
+      // Collections only: the destination decides whether they can be imported.
+      return;
     }
     try {
       super.validateImportResult(importResult);
@@ -232,6 +242,10 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     canAccessImportExport: boolean = false,
   ): Promise<ImportResult> {
     this.throwIfFailed(importResult);
+    // A personal vault import posts only items and folders, never collections.
+    if (organizationId == null && this.hasNoItemsOrFolders(importResult)) {
+      throw this.nothingImportedError();
+    }
     try {
       return await super.importImportResult(
         importResult,

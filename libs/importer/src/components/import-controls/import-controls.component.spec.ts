@@ -3710,6 +3710,17 @@ describe("ImportControlsComponent", () => {
         expect(importService.importWithSdk).toHaveBeenCalled();
       });
 
+      it("does not show the empty-file toast when the SDK imports only collections", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 2 });
+
+        await component().onContinue();
+
+        expect(toastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ message: "importFileEmpty" }),
+        );
+      });
+
       it("shows the empty-file toast when the SDK imports nothing", async () => {
         await chooseKdbx();
         importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 0 });
