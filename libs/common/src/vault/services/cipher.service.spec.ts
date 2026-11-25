@@ -2059,6 +2059,20 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
       expect(result).toBe(encryptedCipher);
     });
+
+    it("returns undefined without encrypting when the result is restricted", async () => {
+      const restrictedView = new CipherView(cipher);
+      restrictedView.partial = true;
+
+      jest
+        .spyOn(cipherSdkService, "saveCollectionsWithServerAdmin")
+        .mockResolvedValue(restrictedView);
+
+      const result = await cipherService.saveCollectionsWithServerAdmin(cipher);
+
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+      expect(result).toBeUndefined();
+    });
   });
 
   describe("saveCollectionsWithServer()", () => {
