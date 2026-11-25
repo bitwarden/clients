@@ -1204,7 +1204,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   async addFolder() {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
-      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService, {
+        parentFolderId: this.scopedFolderId(),
+      });
       const folderResult = await firstValueFrom(folderRef.closed);
       if (folderResult === AddEditFolderDialogResult.Created) {
         await this.syncService.fullSync(false);

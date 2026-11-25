@@ -1,9 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, Observable } from "rxjs";
 
-import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/state";
 
 import {
   NewAccountNudgeService,
@@ -44,6 +44,7 @@ export const NudgeType = {
   PremiumUpgrade: "premium-upgrade",
   Vfo1NewExperience: "vfo1-new-experience",
   Vfo1Walkthrough: "vfo1-walkthrough",
+  Vfo1FolderNestingCallout: "vfo1-folder-nesting-callout",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;
@@ -99,6 +100,7 @@ export class NudgesService {
     [NudgeType.AutoConfirmNudge]: this.autoConfirmNudgeService ?? this.noOpNudgeService,
     [NudgeType.Vfo1NewExperience]: this.vfo1OnboardingNudgeService,
     [NudgeType.Vfo1Walkthrough]: this.vfo1OnboardingNudgeService,
+    [NudgeType.Vfo1FolderNestingCallout]: this.vfo1OnboardingNudgeService,
   };
 
   /**
