@@ -12,14 +12,11 @@ import {
 import { Observable, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import {
   DEFAULT_FILL_ASSIST_RULES_URL,
   LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS,
 } from "@bitwarden/common/autofill/constants";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -129,10 +126,6 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   component = FillAssistPolicyComponent;
   prerequisiteKey = "requireSingleOrganizationPolicy";
   prerequisiteKeyVfo1 = "requireSingleOrganizationPolicyVfo1";
-
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules);
-  }
 }
 
 @Component({

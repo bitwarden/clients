@@ -4,7 +4,7 @@ import * as papa from "papaparse";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
-import { AuditRow } from "./access-audit-row";
+import { AuditRow, auditDeviceLabel } from "./access-audit-row";
 import { AuditExport } from "./audit.export";
 
 const FILE_NAME_PREFIX = "pam_audit";
@@ -75,6 +75,8 @@ export class AuditExportService {
       detail: row.detail ?? "",
       automated: row.automated,
       incomplete: row.inDoubt,
+      ipAddress: row.ipAddress ?? "",
+      device: auditDeviceLabel(row.deviceType, this.i18nService) ?? "",
       requestId: row.requestId ?? "",
       leaseId: row.leaseId ?? "",
     });

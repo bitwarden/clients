@@ -27,7 +27,6 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
   FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -57,7 +56,6 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
@@ -125,7 +123,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
@@ -188,7 +185,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,

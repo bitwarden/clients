@@ -5,11 +5,13 @@ import { OrganizationUserView } from "../../core/views/organization-user.view";
 
 import {
   AccountRecoveryFilter,
+  isDefaultView,
   matchesAccess,
   matchesPolicies,
   matchesProduct,
   matchesRole,
   matchesStatus,
+  MemberFilters,
   MemberProductFilter,
   PolicyOption,
   REVOCATION_REASON_OPTIONS,
@@ -199,5 +201,41 @@ describe("matchesPolicies", () => {
     expect(matching([AccountRecoveryFilter.Enrolled, TwoFactorFilter.Inactive])).toEqual([
       enrolledInactive,
     ]);
+  });
+});
+
+describe("isDefaultView", () => {
+  it.each([
+    ["no column sort", { direction: "asc" as const }],
+    ["Name ascending", { column: "name", direction: "asc" as const }],
+  ])("is true with %s and no filters", (_, sort) => {
+    expect(isDefaultView(sort, {})).toBe(true);
+  });
+
+  it("treats cleared filters and an empty search as the default", () => {
+    // A cleared filter menu may hold `null`, which `MemberFilters` doesn't model.
+    const filters = {
+      search: "",
+      status: [],
+      role: undefined,
+      access: null,
+    } as unknown as MemberFilters;
+    expect(isDefaultView({ direction: "asc" }, filters)).toBe(true);
+  });
+
+  it.each([
+    ["Name descending", { column: "name", direction: "desc" as const }],
+    ["another column", { column: "status", direction: "asc" as const }],
+  ])("is false when sorted by %s", (_, sort) => {
+    expect(isDefaultView(sort, {})).toBe(false);
+  });
+
+  it.each([
+    ["a search", { search: "ali" }],
+    ["a Status selection", { status: [OrganizationUserStatusType.Accepted] }],
+    ["a Role selection", { role: [OrganizationUserType.Admin] }],
+    ["a Policies selection", { policies: [TwoFactorFilter.Active] }],
+  ])("is false with %s", (_, filters) => {
+    expect(isDefaultView({ direction: "asc" }, filters)).toBe(false);
   });
 });

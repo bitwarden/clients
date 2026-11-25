@@ -40,11 +40,24 @@ Usage guidelines:
   it reads as inactive alongside the muted label. A plain `icon` needs no equivalent handling — it
   inherits the option's text color.
 
+## Disable search
+
+Set `disableSearch` for short, fixed lists. Typing then jumps to the first option starting with the
+typed characters instead of filtering.
+
+```html
+<bit-select disableSearch>...</bit-select>
+```
+
 ## Stories
 
 ### Default
 
 <Canvas of={stories.Default} />
+
+### Disable search
+
+<Canvas of={stories.DisableSearch} />
 
 ### Icon tiles
 

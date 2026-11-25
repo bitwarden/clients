@@ -81,6 +81,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private ruleFailureFallback: boolean | undefined = undefined;
   private ruleQualificationResult: QualificationResult | undefined = undefined;
   private ruleQualificationService?: RuleQualificationService;
+  // Flipped true when this frame's own `getPageDetails` call resolves page
+  // details (targeted, heuristic, or bypass). Not flipped by
+  // `applyExternalTargetedFields`, which resolves using a parent frame's
+  // rule. Reset on cache-clear and on navigation. Read by the child-frame
+  // fallback handler to skip a redundant bypass when the parent dispatched
+  // to a frame that already filled from its own rule.
+  private resolvedFields = false;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -331,7 +338,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
-        // Blocklisted; return empty page details, skip heuristics
+        // Blocklisted; return empty page details, skip heuristics. Flipping
+        // the flag keeps the child-frame fallback handler from running a
+        // bypass that would clear `pageTargetingRules` and override the
+        // blocklist.
+        this.resolvedFields = true;
         return this.getFormattedPageDetails({}, []);
       }
       return this.getTargetedPageDetails(targetingRules);
@@ -374,6 +385,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
     this.setupOverlayListeners(pageDetails);
+    this.resolvedFields = true;
 
     return pageDetails;
   }
@@ -391,7 +403,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   async collectHeuristicPageDetailsBypass(
     cachedInScopeForms?: InScopeFormsDetection,
   ): Promise<AutofillPageDetails> {
-    this.pageTargetingRules = null;
+    // Only pin to null when the envelope was already fetched. For the
+    // iframe-dispatched fallback path the child may not have fetched its own
+    // envelope yet; preserving `undefined` keeps the next `getPageDetails`
+    // honoring the child's own blocklist entry.
+    if (this.pageTargetingRules !== undefined) {
+      this.pageTargetingRules = null;
+    }
     this.autofillFieldElements.clear();
     this.autofillFieldsByOpid.clear();
     return this.runHeuristicCollection();
@@ -399,6 +417,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
     this.ruleQualificationService = ruleQualificationService;
+  }
+
+  hasResolvedTargetedFields(): boolean {
+    return this.resolvedFields;
+  }
+
+  async handleRunFillAssistHeuristicFallback(): Promise<void> {
+    if (this.resolvedFields) {
+      return;
+    }
+    await this.collectHeuristicPageDetailsBypass();
   }
 
   /**
@@ -512,6 +541,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.getFormattedAutofillFieldsData(),
       );
       this.setupOverlayListeners(cachedPageDetails);
+      this.resolvedFields = true;
       return cachedPageDetails;
     }
 
@@ -522,6 +552,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
      */
     const pageDetails = this.getFormattedPageDetails({}, localFields);
     this.setupOverlayListeners(pageDetails);
+    this.resolvedFields = true;
 
     return pageDetails;
   }
@@ -732,6 +763,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pageTargetingRules = undefined;
     this.ruleFailureFallback = undefined;
     this.ruleQualificationResult = undefined;
+    this.resolvedFields = false;
   }
 
   /**
@@ -1762,6 +1794,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pageTargetingRules = undefined;
     this.ruleFailureFallback = undefined;
     this.ruleQualificationResult = undefined;
+    this.resolvedFields = false;
 
     this.clearFieldCache();
 

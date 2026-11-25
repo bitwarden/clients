@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -8,7 +8,11 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,7 +25,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { type SortState, ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
@@ -32,11 +36,17 @@ import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog
 import {
   MemberDialogManagerService,
   MemberExportService,
+  NeedsConfirmationCountService,
   OrganizationMembersService,
 } from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 
-import { AccountRecoveryFilter, MemberProductFilter, TwoFactorFilter } from "./members-filter";
+import {
+  AccountRecoveryFilter,
+  MemberFilters,
+  MemberProductFilter,
+  TwoFactorFilter,
+} from "./members-filter";
 import { MembersV2Component } from "./members-v2.component";
 
 const ORG_ID = "org-1" as OrganizationId;
@@ -71,6 +81,7 @@ describe("MembersV2Component", () => {
   let router: MockProxy<Router>;
   let memberExportService: MockProxy<MemberExportService>;
   let validationService: MockProxy<ValidationService>;
+  let needsConfirmationCountService: MockProxy<NeedsConfirmationCountService>;
   const billingMetadata = {} as OrganizationBillingMetadataResponse;
 
   async function setup(
@@ -104,6 +115,7 @@ describe("MembersV2Component", () => {
     router.navigate.mockResolvedValue(true);
     memberExportService = mock<MemberExportService>();
     validationService = mock<ValidationService>();
+    needsConfirmationCountService = mock<NeedsConfirmationCountService>();
 
     const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(billingMetadata));
@@ -152,6 +164,7 @@ describe("MembersV2Component", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: UserNamePipe, useValue: userNamePipe },
         { provide: ConfigService, useValue: configService },
+        { provide: NeedsConfirmationCountService, useValue: needsConfirmationCountService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -181,6 +194,24 @@ describe("MembersV2Component", () => {
     ]);
 
     expect(component.members().map((m: OrganizationUserView) => m.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("reports how many members need confirmation after each load", async () => {
+    await setup({}, [
+      member({ id: "a" as Guid, status: OrganizationUserStatusType.Accepted }),
+      member({ id: "b" as Guid, status: OrganizationUserStatusType.Accepted }),
+      member({ id: "c" as Guid }),
+    ]);
+
+    expect(needsConfirmationCountService.update).toHaveBeenLastCalledWith(ORG_ID, 2);
+
+    memberService.loadMembers.mockResolvedValue({
+      users: [member({ id: "c" as Guid })],
+      accessNames: new Map(),
+    });
+    await component.load({ id: ORG_ID } as Organization);
+
+    expect(needsConfirmationCountService.update).toHaveBeenLastCalledWith(ORG_ID, 0);
   });
 
   describe("displayedColumns", () => {
@@ -297,6 +328,80 @@ describe("MembersV2Component", () => {
       ];
 
       expect(rows.sort(component.sortByGroups).map((r) => r.id)).toEqual(["none", "a1", "a2", "b"]);
+    });
+  });
+
+  describe("needs confirmation first", () => {
+    const members = [
+      member({ id: "carol" as Guid, name: "Carol" }),
+      member({ id: "zoe" as Guid, name: "Zoe", status: OrganizationUserStatusType.Accepted }),
+      member({ id: "alice" as Guid, name: "Alice" }),
+      member({ id: "bob" as Guid, name: "Bob", status: OrganizationUserStatusType.Accepted }),
+    ];
+    const ids = (rows: OrganizationUserView[]) => rows.map((r) => r.id);
+
+    // The test template is empty, so stand in for the table's sort and filter state.
+    let sort: WritableSignal<SortState>;
+    let filterValues: WritableSignal<MemberFilters>;
+
+    beforeEach(async () => {
+      await setup({}, members);
+      sort = signal<SortState>({ direction: "asc" });
+      filterValues = signal<MemberFilters>({});
+      component.membersTable = () => ({ sort, filterValues });
+    });
+
+    it("puts Accepted members first, each part by name, when there's no column sort", () => {
+      expect(ids(component.tableRows())).toEqual(["bob", "zoe", "alice", "carol"]);
+    });
+
+    it("keeps the plain name order when a filter or search is set", () => {
+      filterValues.set({ search: "o" });
+
+      expect(ids(component.tableRows())).toEqual(["alice", "bob", "carol", "zoe"]);
+    });
+
+    it("puts Accepted members first again once filters are cleared", () => {
+      filterValues.set({ role: [OrganizationUserType.Admin] });
+      expect(ids(component.tableRows())).toEqual(["alice", "bob", "carol", "zoe"]);
+
+      filterValues.set({ role: [] });
+      expect(ids(component.tableRows())).toEqual(["bob", "zoe", "alice", "carol"]);
+    });
+
+    it("sorts Accepted members first by Name ascending", () => {
+      sort.set({ column: "name", direction: "asc" });
+
+      expect(ids([...members].sort(component.nameSortFn()))).toEqual([
+        "bob",
+        "zoe",
+        "alice",
+        "carol",
+      ]);
+    });
+
+    it.each([
+      ["Name descending", { column: "name", direction: "desc" } as const],
+      ["another column", { column: "status", direction: "asc" } as const],
+    ])("gives Accepted members no special place when sorted by %s", (_, state) => {
+      sort.set(state);
+
+      expect(component.nameSortFn()).toBe(component.sortByName);
+      expect(ids(component.tableRows())).toEqual(["alice", "bob", "carol", "zoe"]);
+    });
+
+    it("uses the plain name sort when Name ascending is filtered", () => {
+      sort.set({ column: "name", direction: "asc" });
+      filterValues.set({ status: [OrganizationUserStatusType.Accepted] });
+
+      expect(component.nameSortFn()).toBe(component.sortByName);
+    });
+
+    it("shows the status berry only for Accepted members", () => {
+      expect(members.filter((m) => component.needsConfirmation(m)).map((m) => m.id)).toEqual([
+        "zoe",
+        "bob",
+      ]);
     });
   });
 
@@ -598,6 +703,33 @@ describe("MembersV2Component", () => {
 
     it("hides the Staged option without staged members", () => {
       expect(component.hasStagedMembers()).toBe(false);
+    });
+  });
+
+  describe("status tooltip", () => {
+    beforeEach(async () => {
+      await setup({}, []);
+    });
+
+    it("explains why a revoked member was revoked", () => {
+      expect(
+        component.statusTooltip(
+          member({
+            status: OrganizationUserStatusType.Revoked,
+            revocationReason: RevocationReasonType.TwoFactorPolicyNonCompliance,
+          }),
+        ),
+      ).toBe("revocationReasonTwoFactorNonCompliance");
+    });
+
+    it("falls back to the unknown reason when none is recorded", () => {
+      expect(component.statusTooltip(member({ status: OrganizationUserStatusType.Revoked }))).toBe(
+        "revocationReasonNotLogged",
+      );
+    });
+
+    it("has no tooltip for members who aren't revoked", () => {
+      expect(component.statusTooltip(member())).toBe("");
     });
   });
 
