@@ -1,9 +1,40 @@
 import { globalShortcut } from "electron";
 
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
+import {
+  AutotypeDriver,
+  AutotypeRunningApp,
+  registerAutotypeHandlers,
+} from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../main/window.main";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
+
+/**
+ * SDK driver for the Autotype IPC channels. This is responsible for answering the render
+ * process's Autotype requests, received over encrypted IPC, in the main process.
+ *
+ * The method names are snake_case because they implement the SDK's `AutotypeDriver` interface.
+ */
+class MainAutotypeDriver implements AutotypeDriver {
+  constructor(private autotypeService: MainDesktopAutotypeService) {}
+
+  // TODO: Apply the requested enabled state (PM-38967)
+  async set_autotype_enabled(_enabled: boolean): Promise<boolean> {
+    return false;
+  }
+
+  // TODO: Apply the requested keyboard shortcut (PM-38967)
+  async set_autotype_keyboard_shortcut(_shortcut: string[]): Promise<boolean> {
+    return false;
+  }
+
+  async list_running_apps(): Promise<AutotypeRunningApp[]> {
+    return await this.autotypeService.listRunningApps();
+  }
+}
 
 export class MainDesktopAutotypeService {
   private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
@@ -11,8 +42,32 @@ export class MainDesktopAutotypeService {
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
+    private ipcService: IpcService,
   ) {
     this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
+  }
+
+  // Registers the handlers that answer the render process's Autotype requests. Must be
+  // called after the IPC service is initialized, and before the main window is created.
+  async init() {
+    try {
+      await registerAutotypeHandlers(this.ipcService.client, new MainAutotypeDriver(this));
+    } catch (e) {
+      this.logService.error("Failed to register the Autotype IPC handlers.", e);
+    }
+  }
+
+  // Lists the running apps that can be paired with a login, sorted by name.
+  // Returns:
+  //   - An empty list on platforms other than Windows, or if the apps can't be listed
+  // The apps' names and paths can include the user's name, so they must never be logged.
+  async listRunningApps(): Promise<AutotypeRunningApp[]> {
+    try {
+      return await autotype.getRunningApps();
+    } catch (e) {
+      this.logService.error("Failed to list the running apps for Autotype.", e);
+      return [];
+    }
   }
 
   // Enabling Autotype will:
