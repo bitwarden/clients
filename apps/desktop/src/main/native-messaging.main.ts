@@ -40,14 +40,12 @@ export class NativeMessagingMain {
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
           try {
-            await this.listen();
             await this.generateManifests();
           } catch (e) {
             this.logService.error("Error generating manifests: " + e);
             return e;
           }
         } else {
-          this.stop();
           try {
             await this.removeManifests();
           } catch (e) {
@@ -64,14 +62,12 @@ export class NativeMessagingMain {
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
           try {
-            await this.listen();
             await this.generateDdgManifests();
           } catch (e) {
             this.logService.error("Error generating duckduckgo manifests: " + e);
             return e;
           }
         } else {
-          this.stop();
           try {
             await this.removeDdgManifests();
           } catch (e) {
@@ -135,10 +131,6 @@ export class NativeMessagingMain {
         this.send(msg);
       }
     });
-  }
-
-  stop() {
-    this.ipcServer?.stop();
   }
 
   /**

@@ -1,6 +1,6 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
-import { FillAssistMissReason } from "../../background/fill-assist-event-receiver";
+import { FillAssistMissReason } from "../../background/fill-assist-event";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { FormFieldElement } from "../../types";
 

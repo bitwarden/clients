@@ -8,6 +8,7 @@ import {
   requestDurationOptions,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
+  withStoredDurations,
 } from "./lease-window.utils";
 
 const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
@@ -146,5 +147,46 @@ describe("extensionDurationOptions", () => {
 
   it("stays non-empty for a cap below the smallest preset", () => {
     expect(seconds(extensionDurationOptions(15 * 60))).toEqual([15 * 60]);
+  });
+});
+
+describe("withStoredDurations", () => {
+  it("returns the presets unchanged when every stored value is a preset or absent", () => {
+    expect(
+      seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 3600, null, undefined)),
+    ).toEqual(seconds([...ACCESS_RULE_DURATION_PRESETS]));
+  });
+
+  it("adds an off-preset stored value in order", () => {
+    const result = seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 50 * 60, 3 * 86400));
+
+    expect(result).toContain(50 * 60);
+    expect(result).toContain(3 * 86400);
+    expect(result).toEqual([...result].sort((a, b) => a - b));
+    expect(result).toHaveLength(ACCESS_RULE_DURATION_PRESETS.length + 2);
+  });
+
+  it("does not duplicate a value stored twice", () => {
+    const result = seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 50 * 60, 50 * 60));
+
+    expect(result.filter((s) => s === 50 * 60)).toHaveLength(1);
+  });
+
+  it("places multi-day values past the 30 day preset, up to the server's 365 day ceiling", () => {
+    const DAY = 86400;
+    const result = seconds(
+      withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 3 * DAY, 60 * DAY, 365 * DAY),
+    );
+
+    // 3 days is not a preset (2 and 7 are), so it slots between them.
+    expect(result.slice(-6)).toEqual([2 * DAY, 3 * DAY, 7 * DAY, 30 * DAY, 60 * DAY, 365 * DAY]);
+    expect(result.slice(-2)).toEqual([60 * DAY, 365 * DAY]);
+    expect(result).toEqual([...result].sort((a, b) => a - b));
+  });
+
+  it("ignores non-positive values", () => {
+    expect(seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 0, -5))).toEqual(
+      seconds([...ACCESS_RULE_DURATION_PRESETS]),
+    );
   });
 });

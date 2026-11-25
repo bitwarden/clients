@@ -86,6 +86,11 @@ export class AccessSetCommand {
       return resolved.error;
     }
 
+    const invalidGrantee = await this.store.checkNewGrantees(loaded.state, resolved.policies);
+    if (invalidGrantee) {
+      return invalidGrantee;
+    }
+
     const saved = await this.store.save(loaded.state, resolved.policies);
     if (saved.error) {
       return saved.error;

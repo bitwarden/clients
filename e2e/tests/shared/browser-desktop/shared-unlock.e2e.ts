@@ -26,7 +26,7 @@ import { expect, test } from "../../../src/shared/desktop-fixtures";
  * Every desktop lock crashes and reloads its renderer, so tests go on in the reloaded window.
  */
 
-const FLAGS = [FeatureFlag.SharedUnlock, FeatureFlag.BiometricsSdkIpc];
+const FLAGS = [FeatureFlag.SharedUnlock];
 const PIN = "1234";
 // LockComponent refreshes its unlock options every second; one more covers the 500 ms status query.
 const LOCK_SCREEN_POLL_MS = 2_000;

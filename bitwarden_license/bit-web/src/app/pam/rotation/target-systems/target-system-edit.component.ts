@@ -40,6 +40,7 @@ import {
   BadgeModule,
   BadgeVariant,
   BitwardenIcon,
+  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -77,7 +78,6 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import { DetailBreadcrumbComponent, DetailBreadcrumbStep } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import { ManagedCredentialsTabComponent } from "../managed-credentials/managed-credentials-tab.component";
 import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
@@ -310,7 +310,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
-    DetailBreadcrumbComponent,
+    BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
     CardComponent,
@@ -382,28 +382,20 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     ROTATION_TABS.targetSystems,
   );
 
-  private readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
+  /** The add-credential page this flow started on, shown as the middle breadcrumb. */
+  protected readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
 
   private readonly credentialDetailRoute = [...this.credentialsListRoute, this.returnConfigId];
 
-  private readonly breadcrumbsFromCredentials = this.returnsToCredential;
-
-  protected readonly breadcrumbParentKey = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentKey = this.returnsToCredential
     ? "pamRotationTabManagedCredentials"
     : "pamRotationTabTargetSystems";
-  protected readonly breadcrumbParentRoute: unknown[] = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentRoute: unknown[] = this.returnsToCredential
     ? this.credentialsListRoute
     : this.targetSystemsListRoute;
-  protected readonly breadcrumbParentIcon = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentIcon = this.returnsToCredential
     ? ("bwi-managed-credential" as const)
     : ("bwi-target-system" as const);
-  protected readonly breadcrumbStep: DetailBreadcrumbStep | undefined = this.returnsToCredential
-    ? {
-        labelKey: "pamRotationConfigCreateTitle",
-        route: this.addCredentialRoute,
-        tileIcon: "bwi-plus",
-      }
-    : undefined;
   protected readonly loading = signal(true);
 
   protected readonly loadError = signal<unknown | null>(null);

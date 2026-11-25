@@ -1,14 +1,12 @@
 import { Injectable } from "@angular/core";
-import { Observable, combineLatest, from, map, of } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { Observable, combineLatest, map, of } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
-import { VaultProfileService } from "../vault-profile.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -21,19 +19,14 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 export class NewAccountNudgeService extends DefaultSingleNudgeService {
   constructor(
     stateProvider: StateProvider,
-    private vaultProfileService: VaultProfileService,
-    private logService: LogService,
+    private accountService: AccountService,
   ) {
     super(stateProvider);
   }
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
-    const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
-      catchError(() => {
-        this.logService.error("Error getting profile creation date");
-        // Default to today to ensure we show the nudge
-        return of(new Date());
-      }),
+    const profileDate$ = this.accountService.accounts$.pipe(
+      map((accounts) => accounts[userId]?.creationDate ?? new Date()),
     );
 
     return combineLatest([
