@@ -142,7 +142,7 @@ export class DesktopAutofillService implements OnDestroy {
       return false;
     }
 
-    const running = await ipc.autofill.desktopAutofill.setEnabled(true);
+    const running = await ipc.autofill.desktopAutofill.enable();
     if (!running) {
       this.logService.error(
         "[DesktopAutofillService]",

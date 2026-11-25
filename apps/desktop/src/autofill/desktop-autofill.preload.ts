@@ -32,14 +32,13 @@ export const DesktopAutofillPreload = {
     ipcRenderer.invoke(AutofillIpcChannelControl.GetAppWindowHandle),
 
   /**
-   * Signals the main process whether native credential sync is enabled. The main process only
-   * registers the native OS credential provider and starts the autofill IPC server once this is
-   * called with `true`, which the renderer does on platforms that support a native credential
-   * provider. Each call with `true` re-submits the registration. Resolves to whether
-   * registration succeeded and native autofill is running in the main process.
+   * Asks the main process to enable native credential sync. The main process only registers the
+   * native OS credential provider and starts the autofill IPC server once this is called, which
+   * the renderer does on platforms that support a native credential provider. Each call
+   * re-submits the registration. Resolves to whether registration succeeded and native autofill
+   * is running in the main process.
    */
-  setEnabled: (enabled: boolean): Promise<boolean> =>
-    ipcRenderer.invoke(AutofillIpcChannelControl.SetEnabled, enabled),
+  enable: (): Promise<boolean> => ipcRenderer.invoke(AutofillIpcChannelControl.Enable),
 
   /** Resolves to the app's status as a passkey provider with the OS. */
   getPasskeyProviderState: (): Promise<passkey_authenticator.PasskeyProviderState> =>

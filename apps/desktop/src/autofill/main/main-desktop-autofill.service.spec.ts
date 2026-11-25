@@ -57,12 +57,12 @@ describe("DesktopAutofillMain", () => {
   });
 
   describe("native autofill gating", () => {
-    // Captures the SetEnabled handler registered by init() so tests can drive it directly.
-    const getSetEnabledHandler = () => {
+    // Captures the Enable handler registered by init() so tests can drive it directly.
+    const getEnableHandler = () => {
       const call = (ipcMain.handle as jest.Mock).mock.calls.find(
-        ([channel]) => channel === AutofillIpcChannelControl.SetEnabled,
+        ([channel]) => channel === AutofillIpcChannelControl.Enable,
       );
-      return call?.[1] as (event: unknown, enabled: boolean) => Promise<boolean>;
+      return call?.[1] as (event: unknown) => Promise<boolean>;
     };
 
     beforeEach(() => {
@@ -71,17 +71,17 @@ describe("DesktopAutofillMain", () => {
       (AutofillIpcServer.listen as jest.Mock).mockResolvedValue(ipcServer);
     });
 
-    it("registers the SetEnabled handler on init without starting the IPC server", () => {
+    it("registers the Enable handler on init without starting the IPC server", () => {
       service.init();
 
-      expect(getSetEnabledHandler()).toBeDefined();
+      expect(getEnableHandler()).toBeDefined();
       expect(AutofillIpcServer.listen).not.toHaveBeenCalled();
     });
 
     it("starts the IPC server and reports running when enabled", async () => {
       service.init();
 
-      const started = await getSetEnabledHandler()(null, true);
+      const started = await getEnableHandler()(null);
 
       expect(started).toBe(true);
       expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
@@ -89,10 +89,10 @@ describe("DesktopAutofillMain", () => {
 
     it("re-registers but does not start the IPC server twice when enabled repeatedly", async () => {
       service.init();
-      const handler = getSetEnabledHandler();
+      const handler = getEnableHandler();
 
-      await handler(null, true);
-      const secondResult = await handler(null, true);
+      await handler(null);
+      const secondResult = await handler(null);
 
       expect(secondResult).toBe(true);
       expect(passkey_authenticator.register).toHaveBeenCalledTimes(2);
@@ -110,7 +110,7 @@ describe("DesktopAutofillMain", () => {
         });
         service.init();
 
-        const started = await getSetEnabledHandler()(null, true);
+        const started = await getEnableHandler()(null);
 
         expect(started).toBe(true);
         expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
@@ -118,13 +118,13 @@ describe("DesktopAutofillMain", () => {
 
       it("reports failure when re-registration fails after the IPC server started", async () => {
         service.init();
-        const handler = getSetEnabledHandler();
-        await handler(null, true);
+        const handler = getEnableHandler();
+        await handler(null);
         (passkey_authenticator.register as jest.Mock).mockImplementation(() => {
           throw new Error("Passkey registration failed: boom");
         });
 
-        const result = await handler(null, true);
+        const result = await handler(null);
 
         expect(result).toBe(false);
         expect(AutofillIpcServer.listen).toHaveBeenCalledTimes(1);
@@ -136,7 +136,7 @@ describe("DesktopAutofillMain", () => {
         });
         service.init();
 
-        const started = await getSetEnabledHandler()(null, true);
+        const started = await getEnableHandler()(null);
 
         expect(started).toBe(false);
         expect(AutofillIpcServer.listen).not.toHaveBeenCalled();
@@ -152,15 +152,6 @@ describe("DesktopAutofillMain", () => {
       );
 
       await expect(call?.[1]()).resolves.toEqual(state);
-    });
-
-    it("reports not running when disabled before ever being enabled", async () => {
-      service.init();
-
-      const started = await getSetEnabledHandler()(null, false);
-
-      expect(started).toBe(false);
-      expect(AutofillIpcServer.listen).not.toHaveBeenCalled();
     });
   });
 

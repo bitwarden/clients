@@ -83,21 +83,11 @@ export class DesktopAutofillMain {
   }
 
   /**
-   * Registers the control handler that waits for the renderer to signal whether native credential
-   * sync is enabled via the {@link AutofillIpcChannelControl.SetEnabled} channel.
+   * Registers the control handler that waits for the renderer to enable native credential sync
+   * via the {@link AutofillIpcChannelControl.Enable} channel.
    */
   init() {
-    ipcMain.handle(
-      AutofillIpcChannelControl.SetEnabled,
-      (_event, enabled: boolean): Promise<boolean> => {
-        // TODO: PM-46824 - the renderer only sends `true` now that the native passkey flags are
-        // gone; drop the `enabled` parameter and this branch.
-        if (!enabled) {
-          return Promise.resolve(this.enabled);
-        }
-        return this.enable();
-      },
-    );
+    ipcMain.handle(AutofillIpcChannelControl.Enable, (): Promise<boolean> => this.enable());
 
     // Read on demand rather than sent with each request: the handle belongs to
     // the window, not to any one request, and the window may be recreated.

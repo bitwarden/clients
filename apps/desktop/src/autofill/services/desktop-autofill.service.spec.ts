@@ -81,7 +81,7 @@ describe("DesktopAutofillService", () => {
 
   describe("enabling native autofill", () => {
     let desktopAutofillIpc: {
-      setEnabled: jest.Mock;
+      enable: jest.Mock;
       getPasskeyProviderState: jest.Mock;
       listenerReady: jest.Mock;
     };
@@ -93,7 +93,7 @@ describe("DesktopAutofillService", () => {
       accountService.activeAccount$ = new BehaviorSubject(null);
 
       desktopAutofillIpc = {
-        setEnabled: jest.fn().mockResolvedValue(true),
+        enable: jest.fn().mockResolvedValue(true),
         getPasskeyProviderState: jest.fn().mockResolvedValue(registered),
         listenerReady: jest.fn(),
       };
@@ -123,7 +123,7 @@ describe("DesktopAutofillService", () => {
       );
 
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
-      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
+      expect(desktopAutofillIpc.enable).not.toHaveBeenCalled();
     });
 
     it("reports the passkey provider state from the OS", async () => {
@@ -131,19 +131,19 @@ describe("DesktopAutofillService", () => {
       desktopAutofillIpc.getPasskeyProviderState.mockResolvedValue(state);
 
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(state);
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.enable).toHaveBeenCalled();
     });
 
     it("re-submits registration on every call but only starts listening once", async () => {
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(registered);
 
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledTimes(2);
+      expect(desktopAutofillIpc.enable).toHaveBeenCalledTimes(2);
       expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
 
     it("does not start listening when the main process fails to enable", async () => {
-      desktopAutofillIpc.setEnabled.mockResolvedValue(false);
+      desktopAutofillIpc.enable.mockResolvedValue(false);
 
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
       expect(desktopAutofillIpc.listenerReady).not.toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe("DesktopAutofillService", () => {
       await service.init();
       await new Promise(process.nextTick);
 
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.enable).toHaveBeenCalled();
       expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
     });
 
@@ -174,11 +174,11 @@ describe("DesktopAutofillService", () => {
       await service.init();
       await new Promise(process.nextTick);
 
-      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+      expect(desktopAutofillIpc.enable).toHaveBeenCalled();
     });
 
     it("logs and does not throw when enabling fails during init", async () => {
-      desktopAutofillIpc.setEnabled.mockRejectedValue(new Error("ipc failed"));
+      desktopAutofillIpc.enable.mockRejectedValue(new Error("ipc failed"));
 
       await expect(service.init()).resolves.toBeUndefined();
       await new Promise(process.nextTick);
