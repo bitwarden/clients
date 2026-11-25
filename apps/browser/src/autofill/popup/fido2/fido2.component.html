@@ -93,7 +93,9 @@
         @case (BrowserFido2MessageTypes.PickCredentialRequest) {
           <bit-section>
             @if (displayedCiphers.length > 0) {
-              <ng-container slot="title">{{ "chooseCipherForPasskeyAuth" | i18n }}</ng-container>
+              <bit-section-header>
+                <h2 bitTypography="h6">{{ "chooseCipherForPasskeyAuth" | i18n }}</h2>
+              </bit-section-header>
               @for (cipherItem of displayedCiphers; track cipherItem.id) {
                 <app-fido2-cipher-row
                   [cipher]="cipherItem"
