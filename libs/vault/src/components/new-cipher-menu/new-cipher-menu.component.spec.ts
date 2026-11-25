@@ -8,11 +8,20 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { PopoverAnchorForDirective } from "@bitwarden/components";
 
+import { NewItemTypesAnnouncementService } from "../../services/new-item-types-announcement.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { CoachmarkStepId } from "../coachmark/coachmark-step";
 import { CoachmarkService } from "../coachmark/coachmark.service";
 
 import { NewCipherMenuComponent } from "./new-cipher-menu.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badges$: of({ userId: "user-id", types: [] }),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 describe("NewCipherMenuComponent", () => {
   let fixture: ComponentFixture<NewCipherMenuComponent>;
@@ -40,6 +49,7 @@ describe("NewCipherMenuComponent", () => {
     await TestBed.configureTestingModule({
       imports: [NewCipherMenuComponent],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
         {
           provide: ConfigService,

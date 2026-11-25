@@ -110,6 +110,7 @@
       </div>
       @if (showAddCipherBtn()) {
         <vault-new-cipher-menu
+          [coachmarkEnabled]="false"
           [canCreateCipher]="true"
           [canCreateFolder]="true"
           [canCreateSshKey]="true"

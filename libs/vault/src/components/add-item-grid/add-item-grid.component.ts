@@ -1,6 +1,16 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  untracked,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { take } from "rxjs";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -9,6 +19,7 @@ import {
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
+  BadgeComponent,
   BitwardenIcon,
   IconComponent,
   ItemModule,
@@ -17,6 +28,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { NewItemTypesAnnouncementService } from "../../services/new-item-types-announcement.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 export const AddItemGridResult = Object.freeze({
@@ -34,6 +46,7 @@ type GridItem = {
   icon: BitwardenIcon;
   labelKey: string;
   subtitleKey: string;
+  badged?: boolean;
   action: () => void;
 };
 
@@ -41,7 +54,15 @@ type GridItem = {
   selector: "vault-add-item-grid",
   templateUrl: "./add-item-grid.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, I18nPipe, IconTileComponent, IconComponent, ItemModule, TypographyModule],
+  imports: [
+    BadgeComponent,
+    CommonModule,
+    I18nPipe,
+    IconTileComponent,
+    IconComponent,
+    ItemModule,
+    TypographyModule,
+  ],
 })
 export class AddItemGridComponent {
   readonly canCreateCipher = input(true);
@@ -55,8 +76,14 @@ export class AddItemGridComponent {
     initialValue: [] as RestrictedCipherType[],
   });
 
+  private readonly announcementService = inject(NewItemTypesAnnouncementService);
+
+  /** Types badged "New", held from first render since showing them marks the badges seen */
+  private readonly badges = toSignal(this.announcementService.badges$.pipe(take(1)));
+
   readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
+    const badgedTypes = this.badges()?.types ?? [];
     const items: GridItem[] = this.canCreateCipher()
       ? DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
           if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
@@ -67,6 +94,7 @@ export class AddItemGridComponent {
           icon: item.icon as BitwardenIcon,
           labelKey: item.labelKey,
           subtitleKey: item.subtitleKey,
+          badged: badgedTypes.includes(item.type),
           action: () =>
             this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
         }))
@@ -95,5 +123,14 @@ export class AddItemGridComponent {
 
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {}
+  constructor(private readonly restrictedItemTypesService: RestrictedItemTypesService) {
+    effect(() => {
+      const badges = this.badges();
+      if (this.canCreateCipher() && badges != null && badges.types.length > 0) {
+        untracked(() => {
+          void this.announcementService.dismissBadges(badges.userId);
+        });
+      }
+    });
+  }
 }

@@ -31,6 +31,7 @@
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu
         slot="empty-add-item"
+        [coachmarkEnabled]="false"
         [canCreateCipher]="canCreateCipher()"
         [canCreateFolder]="false"
         [canCreateCollection]="false"

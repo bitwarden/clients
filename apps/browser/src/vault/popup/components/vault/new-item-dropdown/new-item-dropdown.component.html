@@ -6,10 +6,15 @@
     (click)="navigateToNewItemPage()"
     [disabled]="!canCreateCipher()"
     [bitTooltip]="!canCreateCipher() ? ('organizationIsDeactivated' | i18n) : ''"
+    [bitPopoverAnchorFor]="newItemTypesCoachmark.popover()"
+    [popoverOpen]="newItemTypesCoachmark.open()"
+    (popoverOpenChange)="newItemTypesCoachmark.openChange($event)"
+    position="below-end"
     startIcon="bwi-plus"
   >
     {{ "add" | i18n }}
   </button>
+  <vault-new-item-types-coachmark #newItemTypesCoachmark [enabled]="canCreateCipher()" />
 } @else {
   <button
     bitButton

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, input, output } from "@angular/core";
+import { Component, computed, inject, input, output, viewChild } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
@@ -16,6 +16,7 @@ import {
   IconModule,
   MenuModule,
   PopoverModule,
+  PositionIdentifier,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -25,6 +26,7 @@ import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
+import { NewItemTypesCoachmarkComponent } from "../new-item-types-coachmark/new-item-types-coachmark.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -43,6 +45,7 @@ import { CoachmarkService } from "../coachmark/coachmark.service";
     Vfo1IconPipe,
     IconModule,
     CoachmarkComponent,
+    NewItemTypesCoachmarkComponent,
   ],
 })
 export class NewCipherMenuComponent {
@@ -80,6 +83,34 @@ export class NewCipherMenuComponent {
     { initialValue: false },
   );
 
+  /** The new item types coachmark anchors only to the dialog button, and never over the tour */
+  protected readonly newItemTypesCoachmarkEnabled = computed(
+    () =>
+      this.coachmarkEnabled() &&
+      this.useNewItemDialog() &&
+      this.canCreateCipher() &&
+      !this.disabled() &&
+      !this.coachmarkActive(),
+  );
+
+  private readonly addItemCoachmark = viewChild.required(CoachmarkComponent);
+  private readonly newItemTypesCoachmark = viewChild.required(NewItemTypesCoachmarkComponent);
+
+  /** The tour's add item step takes the dialog button over from the new item types coachmark */
+  protected readonly activePopover = computed(() =>
+    this.coachmarkActive()
+      ? this.addItemCoachmark().popover()
+      : this.newItemTypesCoachmark().popover(),
+  );
+
+  protected readonly popoverOpen = computed(
+    () => this.coachmarkActive() || this.newItemTypesCoachmark().open(),
+  );
+
+  protected readonly popoverPosition = computed<PositionIdentifier | undefined>(() =>
+    this.coachmarkActive() ? this.coachmark.getStepPosition("addItem") : "below-end",
+  );
+
   constructor(
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
@@ -113,6 +144,10 @@ export class NewCipherMenuComponent {
    * If only collections can be created (no ciphers or folders), show "New Collection".
    * Otherwise, show "New".
    */
+  protected onPopoverOpenChange(open: boolean): void {
+    this.newItemTypesCoachmark().openChange(open);
+  }
+
   protected getButtonLabel(): string {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();

@@ -8,9 +8,10 @@
     [disabled]="disabled()"
     [appA11yTitle]="getButtonLabel() | i18n"
     [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
-    [bitPopoverAnchorFor]="addItemCoachmark.popover()"
-    [popoverOpen]="coachmarkActive()"
-    [position]="coachmark.getStepPosition('addItem')"
+    [bitPopoverAnchorFor]="activePopover()"
+    [popoverOpen]="popoverOpen()"
+    (popoverOpenChange)="onPopoverOpenChange($event)"
+    [position]="popoverPosition()"
     [spotlight]="coachmarkActive()"
     [startIcon]="icon()"
   >
@@ -63,3 +64,4 @@
   </div>
 }
 <vault-coachmark #addItemCoachmark stepId="addItem" />
+<vault-new-item-types-coachmark [enabled]="newItemTypesCoachmarkEnabled()" />

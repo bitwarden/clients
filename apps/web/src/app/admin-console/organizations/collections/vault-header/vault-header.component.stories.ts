@@ -24,7 +24,11 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
-import { CoachmarkService, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  CoachmarkService,
+  NewItemTypesAnnouncementService,
+  RoutedVaultFilterModel,
+} from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 
@@ -184,6 +188,12 @@ const mockCoachmarkService: Partial<CoachmarkService> = {
   completeTour: () => Promise.resolve(),
 };
 
+/** Keeps the new item types coachmark closed without wiring up its nudge and state deps */
+const mockNewItemTypesAnnouncementService: Partial<NewItemTypesAnnouncementService> = {
+  coachmarkCopy$: of(null),
+  dismissCoachmark: () => Promise.resolve(),
+};
+
 export default {
   title: "Admin Console/Organizations/Collections/Vault Header",
   component: VaultHeaderComponent,
@@ -203,6 +213,10 @@ export default {
         { provide: DialogService, useValue: mockDialogService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
         { provide: CoachmarkService, useValue: mockCoachmarkService },
+        {
+          provide: NewItemTypesAnnouncementService,
+          useValue: mockNewItemTypesAnnouncementService,
+        },
       ],
     }),
     applicationConfig({

@@ -24,11 +24,20 @@ import {
   AddItemGridComponent,
   AddItemGridResult,
   Vfo1TerminologyService,
+  NewItemTypesAnnouncementService,
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { NewItemPageComponent } from "./new-item-page.component";
+
+const newItemTypesAnnouncementMock = {
+  coachmarkCopy$: of(null),
+  badges$: of({ userId: "user-id", types: [] }),
+  release: jest.fn(),
+  dismissCoachmark: jest.fn(),
+  dismissBadges: jest.fn(),
+};
 
 describe("NewItemPageComponent", () => {
   let fixture: ComponentFixture<NewItemPageComponent>;
@@ -57,6 +66,7 @@ describe("NewItemPageComponent", () => {
     await TestBed.configureTestingModule({
       imports: [NewItemPageComponent, RouterTestingModule],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },

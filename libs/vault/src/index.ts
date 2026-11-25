@@ -47,6 +47,8 @@ export {
   NEW_EXPERIENCE_LEARN_MORE_URL,
 } from "./components/new-experience-dialog/new-experience-dialog.component";
 export { NewExperienceDialogService } from "./services/new-experience-dialog.service";
+export { NewItemTypesAnnouncementService } from "./services/new-item-types-announcement.service";
+export { NewItemTypesCoachmarkComponent } from "./components/new-item-types-coachmark/new-item-types-coachmark.component";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";

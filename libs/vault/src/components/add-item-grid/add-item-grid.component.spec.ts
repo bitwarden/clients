@@ -4,12 +4,25 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import {
+  NewItemTypesAnnouncementService,
+  NewItemTypesBadges,
+} from "../../services/new-item-types-announcement.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { AddItemGridComponent, AddItemGridResult } from "./add-item-grid.component";
+
+const userId = "user-id" as UserId;
+const badges$ = new BehaviorSubject<NewItemTypesBadges>({ userId, types: [] });
+const badge = (...types: CipherType[]) => badges$.next({ userId, types });
+const newItemTypesAnnouncementMock = {
+  badges$,
+  dismissBadges: jest.fn(),
+};
 
 describe("AddItemGridComponent", () => {
   let component: AddItemGridComponent;
@@ -21,10 +34,13 @@ describe("AddItemGridComponent", () => {
   beforeEach(async () => {
     restricted$.next([]);
     vfo1Enabled.set(false);
+    badge();
+    newItemTypesAnnouncementMock.dismissBadges.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [AddItemGridComponent, NoopAnimationsModule],
       providers: [
+        { provide: NewItemTypesAnnouncementService, useValue: newItemTypesAnnouncementMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: RestrictedItemTypesService,
@@ -225,5 +241,62 @@ describe("AddItemGridComponent", () => {
     collectionItem!.action();
 
     expect(itemSelected).toHaveBeenCalledWith({ result: AddItemGridResult.Collection });
+  });
+
+  describe("New badges", () => {
+    const badged = () =>
+      component["items"]()
+        .filter((i) => i.badged)
+        .map((i) => i.labelKey);
+
+    it("badges the new item types and marks them seen", () => {
+      badge(CipherType.BankAccount, CipherType.Passport);
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: true,
+      });
+
+      expect(badged()).toEqual(["typeBankAccount", "typePassport"]);
+      expect(newItemTypesAnnouncementMock.dismissBadges).toHaveBeenCalledTimes(1);
+      expect(newItemTypesAnnouncementMock.dismissBadges).toHaveBeenCalledWith(userId);
+    });
+
+    it("keeps the badges for this view after they are marked seen", () => {
+      badge(CipherType.BankAccount);
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: true,
+      });
+
+      badge();
+      fixture.detectChanges();
+
+      expect(badged()).toEqual(["typeBankAccount"]);
+    });
+
+    it("leaves the badges unseen when nothing is badged", () => {
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: true,
+      });
+
+      expect(badged()).toEqual([]);
+      expect(newItemTypesAnnouncementMock.dismissBadges).not.toHaveBeenCalled();
+    });
+
+    it("leaves the badges unseen when ciphers can't be created", () => {
+      badge(CipherType.BankAccount);
+      createComponent({
+        canCreateCipher: false,
+        canCreateFolder: true,
+        canCreateCollection: false,
+        canCreateSshKey: false,
+      });
+
+      expect(newItemTypesAnnouncementMock.dismissBadges).not.toHaveBeenCalled();
+    });
   });
 });

@@ -60,6 +60,7 @@ import {
   PasswordRepromptService,
   Vfo1TerminologyService,
   CoachmarkService,
+  NewItemTypesAnnouncementService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -282,6 +283,12 @@ const mockCoachmarkService: Partial<CoachmarkService> = {
   completeTour: () => Promise.resolve(),
 };
 
+/** Keeps the new item types coachmark closed without wiring up its nudge and state deps */
+const mockNewItemTypesAnnouncementService: Partial<NewItemTypesAnnouncementService> = {
+  coachmarkCopy$: of(null),
+  dismissCoachmark: () => Promise.resolve(),
+};
+
 // The rest of these mocks match the ones already established for VaultItemsComponent (which
 // VaultComponent renders) in apps/web/src/app/vault/components/vault-items/vault-items.stories.ts.
 const mockEnvironmentService: Partial<EnvironmentService> = {
@@ -378,6 +385,7 @@ const rootProviders = [
   { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
   { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
   { provide: CoachmarkService, useValue: mockCoachmarkService },
+  { provide: NewItemTypesAnnouncementService, useValue: mockNewItemTypesAnnouncementService },
   { provide: PolicyService, useValue: mockPolicyService },
   { provide: FolderService, useValue: mockFolderService },
   { provide: StateProvider, useValue: mockStateProvider },

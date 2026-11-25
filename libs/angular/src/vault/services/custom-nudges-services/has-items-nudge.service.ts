@@ -50,7 +50,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
 
         if (
           profileOlderThanCutoff &&
-          filteredCiphers.length > 0 &&
+          (filteredCiphers?.length ?? 0) > 0 &&
           !nudgeStatus.hasSpotlightDismissed
         ) {
           const dismissedStatus = {

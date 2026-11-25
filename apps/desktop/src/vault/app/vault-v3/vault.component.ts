@@ -109,6 +109,8 @@ import {
   DefaultCipherFormConfigService,
   DefaultVaultItemsTransferService,
   NewExperienceDialogService,
+  NewItemTypesAnnouncementService,
+  Vfo1TourCalloutService,
   PasswordRepromptService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -264,6 +266,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
   private newExperienceDialogService = inject(NewExperienceDialogService);
+  private newItemTypesAnnouncementService = inject(NewItemTypesAnnouncementService);
+  private tourCalloutService = inject(Vfo1TourCalloutService);
   private sideNavService = inject(SideNavService);
   private vaultBatchBarService = inject(VaultBatchBarService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
@@ -941,6 +945,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
     }
+
+    const calloutShown = await firstValueFrom(this.tourCalloutService.show$(activeUserId));
+    await this.newItemTypesAnnouncementService.release(
+      activeUserId,
+      newExperienceResult != null || calloutShown,
+    );
   }
 
   ngOnDestroy() {

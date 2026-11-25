@@ -13,8 +13,14 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherMenuItem, CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { ButtonModule, DialogService, MenuModule, TooltipDirective } from "@bitwarden/components";
-import { AddEditFolderDialogComponent } from "@bitwarden/vault";
+import {
+  ButtonModule,
+  DialogService,
+  MenuModule,
+  PopoverModule,
+  TooltipDirective,
+} from "@bitwarden/components";
+import { AddEditFolderDialogComponent, NewItemTypesCoachmarkComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -31,7 +37,16 @@ export interface NewItemInitialValues {
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown.component.html",
-  imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, TooltipDirective],
+  imports: [
+    JslibModule,
+    CommonModule,
+    ButtonModule,
+    RouterLink,
+    MenuModule,
+    TooltipDirective,
+    PopoverModule,
+    NewItemTypesCoachmarkComponent,
+  ],
 })
 export class NewItemDropdownComponent implements OnInit {
   cipherType = CipherType;
