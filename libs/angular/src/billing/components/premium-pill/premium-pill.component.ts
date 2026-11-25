@@ -6,7 +6,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "app-premium-pill",
   template: `
-    <span bitBadge variant="primary" size="small" startIcon="bwi-premium">
+    <span
+      bitBadge
+      variant="primary"
+      size="small"
+      startIcon="bwi-premium"
+      class="tw-pointer-events-none"
+    >
       {{ "premium" | i18n }}
     </span>
   `,
