@@ -1472,6 +1472,21 @@
   "attachments": {
     "message": "Attachments"
   },
+  "attachmentsUpgradeTitle": {
+    "message": "Store sensitive documents safely"
+  },
+  "attachmentsUpgradeDescription": {
+    "message": "Upload and attach your important documents to items in your vault."
+  },
+  "attachmentsUnlockIds": {
+    "message": "Passports and other IDs"
+  },
+  "attachmentsUnlockReceipts": {
+    "message": "Digital receipts"
+  },
+  "attachmentsUnlockTaxForms": {
+    "message": "Tax forms"
+  },
   "select": {
     "message": "Select"
   },

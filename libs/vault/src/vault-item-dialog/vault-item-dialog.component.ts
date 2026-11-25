@@ -33,6 +33,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -83,6 +84,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { ATTACHMENTS_NUDGE_OPTIONS } from "../premium-upgrade-nudge-options";
 import { VaultViewPasswordHistoryService } from "../services/view-password-history.service";
 import { SHARE_ITEM_ENTRY_POINT } from "../tokens/share-item-entry-point.token";
 import { deleteFailureMessageKey } from "../utils/delete-failure-message";
@@ -430,6 +432,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
     private revealedCipherService: RevealedCipherService,
+    private premiumUpgradeNudgeService: PremiumUpgradeNudgeService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -673,8 +676,25 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     const canAccessAttachments = await firstValueFrom(this.userHasPremium$);
 
     if (!canAccessAttachments) {
-      await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
-      return;
+      if (
+        !(await this.configService.getFeatureFlag(FeatureFlag.PM42214_FeatureBasedUpgradePaths))
+      ) {
+        await this.premiumUpgradeService.promptForPremium(this.cipher?.organizationId);
+        return;
+      }
+
+      if (this.cipher?.organizationId != null) {
+        await this.premiumUpgradeService.promptForPremium(this.cipher.organizationId);
+        return;
+      }
+
+      if (
+        !(await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
+          ATTACHMENTS_NUDGE_OPTIONS,
+        ))
+      ) {
+        return;
+      }
     }
 
     const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, AttachmentsDialogParams>(

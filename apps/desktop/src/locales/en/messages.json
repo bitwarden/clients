@@ -317,6 +317,21 @@
   "attachmentsNeedFix": {
     "message": "This item has old file attachments that need to be fixed."
   },
+  "attachmentsUpgradeTitle": {
+    "message": "Store sensitive documents safely"
+  },
+  "attachmentsUpgradeDescription": {
+    "message": "Upload and attach your important documents to items in your vault."
+  },
+  "attachmentsUnlockIds": {
+    "message": "Passports and other IDs"
+  },
+  "attachmentsUnlockReceipts": {
+    "message": "Digital receipts"
+  },
+  "attachmentsUnlockTaxForms": {
+    "message": "Tax forms"
+  },
   "viewItem": {
     "message": "View item"
   },
