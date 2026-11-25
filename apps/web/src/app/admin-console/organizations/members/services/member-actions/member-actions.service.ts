@@ -219,6 +219,27 @@ export class MemberActionsService {
     );
   }
 
+  /**
+   * Restores revoked members in one request. The server reports each member's outcome, so a member
+   * it skipped (for example, one who breaks the single organization policy) fails on its own row.
+   * A request rejected as a whole, such as one that hits the seat limit, fails every member.
+   */
+  bulkRestore(organization: Organization, userIds: string[]): Observable<BulkActionResult> {
+    return this.organizationUserService.bulkRestoreUsers(organization, userIds).pipe(
+      take(1),
+      map((response) =>
+        partitionResults(response.data.map((row) => ({ id: row.id, error: row.error }))),
+      ),
+      tap((result) => {
+        if (result.successful.length > 0) {
+          this.organizationMetadataService.refreshMetadataCache();
+        }
+      }),
+      catchError((error: unknown) => of(this.failAll(userIds, error))),
+      this.trackProcessing(),
+    );
+  }
+
   async confirmUser(
     user: OrganizationUserView,
     publicKey: Uint8Array,
@@ -237,9 +258,17 @@ export class MemberActionsService {
     }
   }
 
+  /**
+   * Resends invites in batches of {@link REQUESTS_PER_BATCH}, showing the progress dialog past one
+   * batch. A batch that fails as a whole fails only its own members; the rest still run.
+   *
+   * @param options.offerRetry - Whether to offer the v1 retry dialog when members fail. The v2 bulk
+   * actions bar reports failures in its own dialog instead.
+   */
   bulkReinvite(
     organization: Organization,
     users: OrganizationUserView[],
+    { offerRetry = true }: { offerRetry?: boolean } = {},
   ): Observable<BulkActionResult> {
     return this.processBatched$(users, REQUESTS_PER_BATCH, (userBatch) =>
       this.withMembersClient$((client) =>
@@ -250,7 +279,9 @@ export class MemberActionsService {
       ).pipe(map((rows) => rows.map(toBulkResult))),
     ).pipe(
       concatMap((result) =>
-        result.failed.length > 0 ? this.offerResend(organization, users, result) : of(result),
+        offerRetry && result.failed.length > 0
+          ? this.offerResend(organization, users, result)
+          : of(result),
       ),
       catchError((error: unknown) =>
         of(

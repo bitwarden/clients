@@ -29,7 +29,6 @@ import { type SortState, ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
-import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
@@ -276,10 +275,10 @@ describe("MembersV2Component", () => {
   });
 
   describe("selection", () => {
-    it("is capped at MaxCheckedCount when the admin can manage users", async () => {
+    it("is uncapped when the admin can manage users, so each bulk action applies its own limit", async () => {
       await setup({ canManageUsers: true }, []);
 
-      expect(component.selection()).toEqual({ multiple: true, max: MaxCheckedCount });
+      expect(component.selection()).toEqual({ multiple: true });
     });
 
     it("is off when the admin can't manage users", async () => {

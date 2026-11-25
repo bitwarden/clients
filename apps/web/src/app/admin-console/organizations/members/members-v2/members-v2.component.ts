@@ -77,9 +77,9 @@ import {
 } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
-import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { SharedOrganizationModule } from "../../shared";
+import { MembersBulkActionsBarComponent } from "../bulk-actions/members-bulk-actions-bar.component";
 import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
 import { AvatarIdPipe } from "../pipes";
@@ -139,6 +139,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     FilterMenuModule,
     HeaderModule,
     IconModule,
+    MembersBulkActionsBarComponent,
     MemberStatusBadgeComponent,
     SharedOrganizationModule,
     StatusLockupComponent,
@@ -254,9 +255,14 @@ export class MembersV2Component {
     );
   });
 
-  /** Select all stops at {@link MaxCheckedCount}, the most members a bulk action accepts. */
+  /**
+   * NOTE: selection is deliberately uncapped, on cloud and self-hosted alike. v1 caps self-hosted at
+   * 500 when members are checked, but the server's bulk endpoints accept any number of IDs, so each
+   * bulk action applies its own limit instead: Resend invite sends every selected member in batches
+   * of 500, and the other actions keep the first 500 in table order and unselect the rest.
+   */
   protected readonly selection = computed<SelectionConfig<OrganizationUserView> | undefined>(() =>
-    this.showUserManagementControls() ? { multiple: true, max: MaxCheckedCount } : undefined,
+    this.showUserManagementControls() ? { multiple: true } : undefined,
   );
 
   /**

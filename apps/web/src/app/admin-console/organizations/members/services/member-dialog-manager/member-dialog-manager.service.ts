@@ -25,6 +25,7 @@ import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress
 import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
+import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import {
@@ -355,6 +356,30 @@ export class MemberDialogManagerService {
         allCount,
       },
     });
+  }
+
+  /**
+   * Lists the members a bulk action failed for, each with the server's reason, under the action's
+   * title and summary. Resolves once the admin closes it.
+   */
+  async openBulkActionFailureDialog(
+    failedMembers: OrganizationUserView[],
+    failed: BulkActionResult["failed"],
+    title: string,
+    summary: string,
+  ): Promise<void> {
+    const dialogRef = BulkStatusComponent.open(this.dialogService, {
+      data: {
+        users: failedMembers,
+        filteredUsers: failedMembers,
+        request: Promise.resolve(failed),
+        successfulMessage: "",
+        title,
+        summary,
+      },
+    });
+
+    await firstValueFrom(dialogRef.closed);
   }
 
   openBulkReinviteFailureDialog(

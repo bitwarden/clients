@@ -2,6 +2,7 @@ import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/co
 import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Guid, UserId } from "@bitwarden/common/types/guid";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 
@@ -71,6 +72,64 @@ export class OrganizationUserView {
     this.canRestore = this.status === OrganizationUserStatusType.Revoked;
     this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
     this.canRemove = !this.claimedByOrganization;
+  }
+
+  /** Whether this member is the signed-in admin themselves. */
+  isSelf(organization: Organization): boolean {
+    return this.userId != null && this.userId === organization.userId;
+  }
+
+  /**
+   * Mirrors the server: only Owners (including Provider users) act on Owners, and Custom users
+   * can't act on Admins.
+   */
+  canBeActedOnBy(organization: Organization): boolean {
+    if (this.type === OrganizationUserType.Owner) {
+      return organization.isOwner;
+    }
+    if (this.type === OrganizationUserType.Admin) {
+      return organization.isOwner || organization.type === OrganizationUserType.Admin;
+    }
+    return true;
+  }
+
+  canRestoreAccess(organization: Organization): boolean {
+    return this.canRestore && this.canBeActedOnBy(organization);
+  }
+
+  canRevokeAccess(organization: Organization): boolean {
+    return this.canRevoke && this.canBeActedOnBy(organization);
+  }
+
+  canRemoveFromOrg(organization: Organization): boolean {
+    return this.canRemove && this.canBeActedOnBy(organization);
+  }
+
+  /** Only accounts the organization claims, once they've accepted, can be deleted. */
+  canDeleteAccount(organization: Organization): boolean {
+    return (
+      this.claimedByOrganization &&
+      [
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Confirmed,
+        OrganizationUserStatusType.Revoked,
+      ].includes(this.status) &&
+      this.canBeActedOnBy(organization)
+    );
+  }
+
+  canAddToSecretsManager(organization: Organization): boolean {
+    return (
+      organization.useSecretsManager &&
+      !this.accessSecretsManager &&
+      this.status !== OrganizationUserStatusType.Revoked
+    );
+  }
+
+  canAddToPrivilegedControls(organization: Organization): boolean {
+    return (
+      organization.usePam && !this.accessPam && this.status !== OrganizationUserStatusType.Revoked
+    );
   }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {

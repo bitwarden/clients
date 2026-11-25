@@ -1,0 +1,19 @@
+<!-- Reads the selection from the enclosing members table, which also clears it on Clear. -->
+<bit-bulk-actions-bar>
+  @for (item of inlineActions(); track item.action) {
+    <bit-bulk-action
+      [action]="item.run"
+      [label]="item.labelKey | i18n"
+      [icon]="item.icon"
+      [disabled]="isProcessing()"
+    ></bit-bulk-action>
+  }
+  @for (item of menuActions(); track item.action) {
+    <bit-bulk-additional-action
+      [action]="item.run"
+      [label]="item.labelKey | i18n"
+      [icon]="item.icon"
+      [disabled]="isProcessing()"
+    ></bit-bulk-additional-action>
+  }
+</bit-bulk-actions-bar>

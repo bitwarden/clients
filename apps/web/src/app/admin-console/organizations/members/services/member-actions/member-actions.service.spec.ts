@@ -712,6 +712,101 @@ describe("MemberActionsService", () => {
       expect(result.successful.map((u) => u.id)).toEqual([firstId]);
       expect(result.failed).toEqual([{ id: secondId, error: "Invalid email" }]);
     });
+
+    describe("without the retry dialog", () => {
+      it("should return the failures without offering a retry", async () => {
+        const ids = memberIds(3);
+        membersClient.bulk_reinvite.mockResolvedValue([
+          memberOutcome(ids[0]),
+          memberOutcome(ids[1], "Already accepted"),
+          memberOutcome(ids[2]),
+        ]);
+
+        const result = await firstValueFrom(
+          service.bulkReinvite(mockOrganization, asUsers(ids), { offerRetry: false }),
+        );
+
+        expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
+        expect(result.successful.map((r) => r.id)).toEqual([ids[0], ids[2]]);
+        expect(result.failed).toEqual([{ id: ids[1], error: "Already accepted" }]);
+      });
+
+      it("should fail only the members of a batch that fails as a whole and still send the rest", async () => {
+        const ids = memberIds(REQUESTS_PER_BATCH * 2 + 10);
+        const firstBatch = ids.slice(0, REQUESTS_PER_BATCH);
+        const secondBatch = ids.slice(REQUESTS_PER_BATCH, REQUESTS_PER_BATCH * 2);
+        const thirdBatch = ids.slice(REQUESTS_PER_BATCH * 2);
+        membersClient.bulk_reinvite
+          .mockResolvedValueOnce(allSent(firstBatch))
+          .mockRejectedValueOnce(new Error("Email send failure"))
+          .mockResolvedValueOnce(allSent(thirdBatch));
+
+        const result = await firstValueFrom(
+          service.bulkReinvite(mockOrganization, asUsers(ids), { offerRetry: false }),
+        );
+
+        expect(membersClient.bulk_reinvite).toHaveBeenCalledTimes(3);
+        expect(result.successful.map((r) => r.id)).toEqual([...firstBatch, ...thirdBatch]);
+        expect(result.failed).toEqual(
+          secondBatch.map((id) => ({ id, error: "Email send failure" })),
+        );
+        expect(memberDialogManager.openBulkReinviteFailureDialog).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("bulkRestore", () => {
+    const restoredId = newGuid();
+    const skippedId = newGuid();
+
+    it("should restore the members and split the response by outcome", async () => {
+      organizationUserService.bulkRestoreUsers.mockReturnValue(
+        of({
+          data: [
+            { id: restoredId, error: "" },
+            { id: skippedId, error: "Single organization policy" },
+          ],
+        } as any),
+      );
+
+      const result = await firstValueFrom(
+        service.bulkRestore(mockOrganization, [restoredId, skippedId]),
+      );
+
+      expect(organizationUserService.bulkRestoreUsers).toHaveBeenCalledWith(mockOrganization, [
+        restoredId,
+        skippedId,
+      ]);
+      expect(result.successful.map((r) => r.id)).toEqual([restoredId]);
+      expect(result.failed).toEqual([{ id: skippedId, error: "Single organization policy" }]);
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
+    it("should not refresh the metadata cache when no member was restored", async () => {
+      organizationUserService.bulkRestoreUsers.mockReturnValue(
+        of({ data: [{ id: skippedId, error: "Single organization policy" }] } as any),
+      );
+
+      await firstValueFrom(service.bulkRestore(mockOrganization, [skippedId]));
+
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+
+    it("should fail every member with the message when the request is rejected", async () => {
+      organizationUserService.bulkRestoreUsers.mockReturnValue(
+        throwError(() => new ErrorResponse({ message: "Seat limit has been reached." }, 400)),
+      );
+
+      const result = await firstValueFrom(
+        service.bulkRestore(mockOrganization, [restoredId, skippedId]),
+      );
+
+      expect(result.successful).toHaveLength(0);
+      expect(result.failed).toEqual([
+        { id: restoredId, error: "Seat limit has been reached." },
+        { id: skippedId, error: "Seat limit has been reached." },
+      ]);
+    });
   });
 
   describe("allowResetPassword", () => {

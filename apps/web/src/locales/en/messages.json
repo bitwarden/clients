@@ -22038,5 +22038,85 @@
   "cancelAnytime": {
     "message": "Cancel anytime",
     "description": "Reassurance under the Premium upgrade button"
+  },
+  "resendInvite": {
+    "message": "Resend invite",
+    "description": "Bulk action that sends a new invite email to every selected invited member"
+  },
+  "inviteSentToast": {
+    "message": "1 invite sent"
+  },
+  "invitesSentToast": {
+    "message": "$COUNT$ invites sent",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "inviteDidNotSendTitle": {
+    "message": "1 invite didn't send"
+  },
+  "invitesDidNotSendTitle": {
+    "message": "$COUNT$ invites didn't send",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "invitesDidNotSendSummary": {
+    "message": "$FAILED$ didn't send | $SENT$ sent",
+    "description": "Summary in the dialog listing members whose invites failed",
+    "placeholders": {
+      "failed": {
+        "content": "$1",
+        "example": "2"
+      },
+      "sent": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "memberRestoredToast": {
+    "message": "1 member restored"
+  },
+  "membersRestoredToast": {
+    "message": "$COUNT$ members restored",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "memberAccessNotRestoredTitle": {
+    "message": "1 member's access wasn't restored"
+  },
+  "membersAccessNotRestoredTitle": {
+    "message": "$COUNT$ members' access wasn't restored",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "membersNotRestoredSummary": {
+    "message": "$FAILED$ weren't restored | $RESTORED$ restored",
+    "description": "Summary in the dialog listing members whose access failed to restore",
+    "placeholders": {
+      "failed": {
+        "content": "$1",
+        "example": "2"
+      },
+      "restored": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
   }
 }

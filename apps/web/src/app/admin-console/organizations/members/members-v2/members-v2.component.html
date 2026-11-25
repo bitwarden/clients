@@ -12,6 +12,14 @@
   [filters]="initialFilters"
   queryParam="members"
 >
+  @if (organization && canManage) {
+    <app-members-bulk-actions-bar
+      ngProjectAs="bit-bulk-actions-bar"
+      [organization]="organization"
+      (actionCompleted)="load(organization)"
+    ></app-members-bulk-actions-bar>
+  }
+
   <bit-table-toolbar [rangeLabel]="rangeLabel">
     <bit-search class="tw-flex-1" [placeholder]="'searchMembers' | i18n"></bit-search>
 

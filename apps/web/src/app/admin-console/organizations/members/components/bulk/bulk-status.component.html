@@ -1,5 +1,8 @@
-<bit-dialog dialogSize="large" [title]="'bulkConfirmStatus' | i18n">
+<bit-dialog dialogSize="large" [title]="title">
   <ng-container bitDialogContent>
+    @if (summary) {
+      <p bitTypography="body1" data-testid="bulk-status-summary">{{ summary }}</p>
+    }
     @if (loading()) {
       <div class="tw-text-center">
         <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>

@@ -23,6 +23,7 @@ import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bu
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
+import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import { MemberDialogResult, MemberDialogTab } from "../../components/member-dialog";
@@ -399,6 +400,34 @@ describe("MemberDialogManagerService", () => {
           }),
         }),
       );
+    });
+  });
+
+  describe("openBulkActionFailureDialog", () => {
+    it("should list only the failed members under the action's title and summary", async () => {
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      const failed = [{ id: mockUser.id, error: "Already accepted" }];
+
+      await service.openBulkActionFailureDialog(
+        [mockUser],
+        failed,
+        "1 invite didn't send",
+        "1 didn't send | 1 sent",
+      );
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        BulkStatusComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            users: [mockUser],
+            filteredUsers: [mockUser],
+            title: "1 invite didn't send",
+            summary: "1 didn't send | 1 sent",
+          }),
+        }),
+      );
+      const { data } = dialogService.open.mock.calls[0][1] as any;
+      await expect(data.request).resolves.toEqual(failed);
     });
   });
 

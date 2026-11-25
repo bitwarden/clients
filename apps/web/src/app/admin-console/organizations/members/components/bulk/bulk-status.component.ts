@@ -17,6 +17,7 @@ import {
   DialogModule,
   DialogService,
   TableModule,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -54,11 +55,15 @@ export type BulkStatusResult = {
   error?: string;
 };
 
-type BulkStatusDialogData = {
+export type BulkStatusDialogData = {
   users: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
   filteredUsers: Array<OrganizationUserView | ProviderUserUserDetailsResponse>;
   request: Promise<BulkStatusResult[]>;
   successfulMessage: string;
+  /** Replaces the default "Bulk action status" title. */
+  title?: string;
+  /** A line above the members, such as "1 didn't send | 1 sent". */
+  summary?: string;
 };
 
 @Component({
@@ -74,6 +79,7 @@ type BulkStatusDialogData = {
     DialogModule,
     I18nPipe,
     TableModule,
+    TypographyModule,
     UserNamePipe,
   ],
 })
@@ -82,6 +88,8 @@ export class BulkStatusComponent {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
 
+  protected readonly title = this.data.title ?? this.i18nService.t("bulkConfirmStatus");
+  protected readonly summary = this.data.summary;
   protected readonly users = signal<BulkStatusEntry[] | undefined>(undefined);
   protected readonly loading = signal(false);
 
