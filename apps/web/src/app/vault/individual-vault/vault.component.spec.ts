@@ -32,7 +32,9 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -65,6 +67,8 @@ import {
   ASSIGN_COLLECTIONS_DIALOG,
   AssignCollectionsDialogRef,
   AssignCollectionsResult,
+  ATTACHMENTS_NUDGE_OPTIONS,
+  AttachmentsV2Component,
   BULK_DELETE_DIALOG,
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
@@ -206,12 +210,14 @@ describe("VaultComponent", () => {
         { provide: BillingApiServiceAbstraction, useValue: mock<BillingApiServiceAbstraction>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+        { provide: PremiumUpgradeNudgeService, useValue: mock<PremiumUpgradeNudgeService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
         {
           provide: ConfigService,
           useValue: {
             ...mock<ConfigService>(),
             getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+            getFeatureFlag: jest.fn().mockResolvedValue(false),
           },
         },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -638,6 +644,108 @@ describe("VaultComponent", () => {
       expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
       expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
     });
+  });
+
+  describe("editCipherAttachments", () => {
+    const ORGANIZATION_ID = "org-1";
+
+    let openAttachmentsSpy: jest.SpyInstance;
+    let getFeatureFlag: jest.Mock;
+    let hasPremiumOrShowUpgradeNudge: jest.Mock;
+    let promptForPremium: jest.Mock;
+    let send: jest.Mock;
+
+    function cipher(overrides: Record<string, unknown> = {}): any {
+      return { id: TEST_CIPHER_ID, edit: true, reprompt: 0, ...overrides };
+    }
+
+    function setUpgradePathsFlag(enabled: boolean) {
+      getFeatureFlag.mockImplementation(
+        async (flag: FeatureFlag) =>
+          enabled && flag === FeatureFlag.PM42214_FeatureBasedUpgradePaths,
+      );
+    }
+
+    beforeEach(() => {
+      openAttachmentsSpy = jest.spyOn(AttachmentsV2Component, "open").mockReturnValue({
+        closed: of(undefined),
+      } as unknown as ReturnType<typeof AttachmentsV2Component.open>);
+      getFeatureFlag = TestBed.inject(ConfigService).getFeatureFlag as jest.Mock;
+      hasPremiumOrShowUpgradeNudge = TestBed.inject(PremiumUpgradeNudgeService)
+        .hasPremiumOrShowUpgradeNudge as jest.Mock;
+      promptForPremium = TestBed.inject(PremiumUpgradePromptService).promptForPremium as jest.Mock;
+      send = TestBed.inject(MessagingService).send as jest.Mock;
+    });
+
+    afterEach(() => {
+      openAttachmentsSpy.mockRestore();
+    });
+
+    it("prompts for premium and does not open attachments when the flag is off", async () => {
+      setUpgradePathsFlag(false);
+
+      await component.editCipherAttachments(cipher());
+
+      expect(promptForPremium).toHaveBeenCalledTimes(1);
+      expect(hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows the attachments nudge and does not open attachments when the flag is on", async () => {
+      setUpgradePathsFlag(true);
+      hasPremiumOrShowUpgradeNudge.mockResolvedValue(false);
+
+      await component.editCipherAttachments(cipher());
+
+      expect(hasPremiumOrShowUpgradeNudge).toHaveBeenCalledWith(ATTACHMENTS_NUDGE_OPTIONS);
+      expect(promptForPremium).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).not.toHaveBeenCalled();
+    });
+
+    it("opens attachments when the nudge gate resolves true", async () => {
+      setUpgradePathsFlag(true);
+      hasPremiumOrShowUpgradeNudge.mockResolvedValue(true);
+
+      await component.editCipherAttachments(cipher());
+
+      expect(hasPremiumOrShowUpgradeNudge).toHaveBeenCalledWith(ATTACHMENTS_NUDGE_OPTIONS);
+      expect(promptForPremium).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens attachments for a Premium user without reading the flag", async () => {
+      setUpgradePathsFlag(true);
+      (component as any).canAccessPremium = true;
+
+      await component.editCipherAttachments(cipher());
+
+      expect(getFeatureFlag).not.toHaveBeenCalledWith(FeatureFlag.PM42214_FeatureBasedUpgradePaths);
+      expect(hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+      expect(promptForPremium).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([true, false])(
+      "sends the organization upgrade for an organization without storage when the flag is %s",
+      async (enabled) => {
+        setUpgradePathsFlag(enabled);
+        (TestBed.inject(OrganizationService).organizations$ as jest.Mock).mockReturnValue(
+          of([{ id: ORGANIZATION_ID, maxStorageGb: 0 } as Organization]),
+        );
+
+        await component.editCipherAttachments(cipher({ organizationId: ORGANIZATION_ID }));
+
+        expect(send).toHaveBeenCalledWith("upgradeOrganization", {
+          organizationId: ORGANIZATION_ID,
+        });
+        expect(getFeatureFlag).not.toHaveBeenCalledWith(
+          FeatureFlag.PM42214_FeatureBasedUpgradePaths,
+        );
+        expect(hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+        expect(promptForPremium).not.toHaveBeenCalled();
+        expect(openAttachmentsSpy).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe("viewCipherById", () => {
