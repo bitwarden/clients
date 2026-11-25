@@ -323,16 +323,13 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
     );
   }
 
-  /** Whole hours ("8h"), then minutes ("14m"), then "<1m": a row needs no finer than a minute. */
+  /** Hours and minutes ("1h 59m", "8h"), then minutes ("14m"), then "<1m": a row needs no finer than a minute. */
   private countdownLabel(locale: string, remainingMs: number): string {
     if (remainingMs < 60_000) {
       return this.i18nService.t("pamAccessBadgeLessThanMinuteLeft");
     }
     const totalMinutes = Math.ceil(remainingMs / 60_000);
-    const duration =
-      totalMinutes < 60
-        ? formatRemaining(locale, totalMinutes * 60_000)
-        : formatRemaining(locale, Math.floor(totalMinutes / 60) * 3_600_000);
+    const duration = formatRemaining(locale, totalMinutes * 60_000);
     return this.i18nService.t("pamAccessBadgeTimeLeft", duration);
   }
 

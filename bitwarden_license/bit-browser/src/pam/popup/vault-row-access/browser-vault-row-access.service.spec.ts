@@ -159,8 +159,13 @@ describe("BrowserVaultRowAccessService", () => {
         return (await latest())?.label;
       };
 
-      it("shows whole hours", async () => {
+      it("shows whole hours when no minutes remain", async () => {
         expect(await labelAt(8 * 3_600_000 - 500)).toBe("pamAccessBadgeTimeLeft:8h");
+      });
+
+      it("shows hours and minutes, so an extended lease reads exactly (PAM-682)", async () => {
+        expect(await labelAt((60 + 59) * 60_000 - 500)).toBe("pamAccessBadgeTimeLeft:1h 59m");
+        expect(await labelAt((2 * 60 + 5) * 60_000 - 500)).toBe("pamAccessBadgeTimeLeft:2h 5m");
       });
 
       it("shows minutes under an hour", async () => {
