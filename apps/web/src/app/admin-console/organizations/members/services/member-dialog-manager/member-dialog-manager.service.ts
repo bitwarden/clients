@@ -77,7 +77,7 @@ export class MemberDialogManagerService {
       data: {
         readonly: !organization.canManageUsers,
         member: user,
-        organizationId: organization.id,
+        organization,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
         initialTab: initialTab,
       },

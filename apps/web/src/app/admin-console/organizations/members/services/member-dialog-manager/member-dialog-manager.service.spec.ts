@@ -169,7 +169,7 @@ describe("MemberDialogManagerService", () => {
           data: {
             readonly: false,
             member: mockUser,
-            organizationId: mockOrganization.id,
+            organization: mockOrganization,
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Details,
           },

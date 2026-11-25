@@ -17,7 +17,6 @@ import {
   CollectionAdminService,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -34,7 +33,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   A11yTitleDirective,
@@ -124,6 +122,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
 })
 export class EditMemberDialogComponent {
   protected readonly params = inject<EditMemberDialogParams>(DIALOG_DATA);
+  private readonly organizationId = this.params.organization.id;
   protected readonly member = this.params.member;
   /** The display name: the member's name, or their email when they have no name. */
   protected readonly memberName = this.member.name?.trim() ? this.member.name : this.member.email;
@@ -136,7 +135,6 @@ export class EditMemberDialogComponent {
   private readonly memberActionsService = inject(MemberActionsService);
   private readonly dialogService = inject(DialogService);
   private readonly accountService = inject(AccountService);
-  private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
   private readonly billingConstraint = inject(BillingConstraintService);
@@ -164,7 +162,7 @@ export class EditMemberDialogComponent {
     from(this.configService.getFeatureFlag(FeatureFlag.PamAccessConnector)),
   );
 
-  protected readonly readonly = this.params.readonly === true;
+  protected readonly readonly = this.params.readonly;
 
   protected readonly emailEditable = computed(
     () => !this.readonly && this.member.claimedByOrganization && !this.member.hasMasterPassword,
@@ -244,25 +242,13 @@ export class EditMemberDialogComponent {
     () => this.formTypeValue() === OrganizationUserType.Custom,
   );
 
-  protected readonly organization$: Observable<Organization> =
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-      getById(this.params.organizationId),
-      map((organization) => {
-        if (organization == undefined) {
-          throw new Error("Organization not found");
-        }
-        return organization;
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
+  protected readonly organization$: Observable<Organization> = of(this.params.organization);
 
   private readonly collections$: Observable<CollectionAdminView[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+        this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -307,7 +293,7 @@ export class EditMemberDialogComponent {
         if (this.readonly) {
           return this.readonlyGroupDetails$();
         }
-        return this.groupService.getAllDetails(this.params.organizationId);
+        return this.groupService.getAllDetails(this.organizationId);
       }),
     );
 
@@ -485,13 +471,11 @@ export class EditMemberDialogComponent {
   private loadUserDetails$(): Observable<OrganizationUserAdminView | undefined> {
     if (this.readonly) {
       return this.collections$.pipe(
-        map((collections) =>
-          mapMemberToAdminView(this.member, this.params.organizationId, collections),
-        ),
+        map((collections) => mapMemberToAdminView(this.member, this.organizationId, collections)),
       );
     }
 
-    return from(this.userService.get(this.params.organizationId, this.member.id));
+    return from(this.userService.get(this.organizationId, this.member.id));
   }
 
   /**
@@ -501,7 +485,7 @@ export class EditMemberDialogComponent {
    */
   private readonlyGroupDetails$(): Observable<GroupDetailsView[]> {
     return combineLatest([
-      from(this.groupService.getAll(this.params.organizationId)),
+      from(this.groupService.getAll(this.organizationId)),
       this.collections$,
     ]).pipe(
       map(([groups, collections]) =>
@@ -736,7 +720,7 @@ export class EditMemberDialogComponent {
   readonly delete = async () => {
     const showWarningDialog = combineLatest([
       this.organization$,
-      this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organizationId),
     ]).pipe(
       map(
         ([organization, acknowledged]) =>
@@ -784,7 +768,7 @@ export class EditMemberDialogComponent {
       message: this.i18nService.t("organizationUserDeleted", this.memberName),
     });
 
-    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId);
 
     this.close(MemberDialogResult.Deleted);
   };

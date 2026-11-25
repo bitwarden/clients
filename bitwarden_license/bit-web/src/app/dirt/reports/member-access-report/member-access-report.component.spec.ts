@@ -278,7 +278,7 @@ describe("MemberAccessReportComponent", () => {
           data: expect.objectContaining({ member: row.member }),
         }),
       );
-      expect(open.mock.calls[0][1]?.data).not.toHaveProperty("readonly");
+      expect(open.mock.calls[0][1]?.data).toHaveProperty("readonly", false);
     });
   });
 

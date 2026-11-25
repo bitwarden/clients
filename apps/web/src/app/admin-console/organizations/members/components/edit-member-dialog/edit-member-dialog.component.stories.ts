@@ -4,7 +4,6 @@ import { of } from "rxjs";
 import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -107,7 +106,8 @@ function defaultParams(
   memberOverrides: Parameters<typeof listMember>[0] = {},
 ): EditMemberDialogParams {
   return {
-    organizationId: ORG_ID,
+    organization: mockOrganization(),
+    readonly: false,
     member: listMember(memberOverrides),
     createdDate: new Date("2026-01-16T10:02:00Z"),
     isOnSecretsManagerStandalone: false,
@@ -196,10 +196,6 @@ function makeConfigService() {
   };
 }
 
-function makeOrganizationService(org: Organization) {
-  return { organizations$: () => of([org]) };
-}
-
 type StoryArgs = {
   /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
   vfo1FoundationEnabled: boolean;
@@ -269,6 +265,7 @@ function makeRender(
           provide: DIALOG_DATA,
           useValue: {
             ...params,
+            organization: org,
             initialTab:
               params.initialTab !== MemberDialogTab.Groups &&
               params.initialTab !== MemberDialogTab.Collections
@@ -276,7 +273,6 @@ function makeRender(
                 : params.initialTab,
           },
         },
-        { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: ConfigService, useValue: makeConfigService() },
         {
           provide: Vfo1TerminologyService,
@@ -431,14 +427,11 @@ export const DetailsTabEditEmailError: Story = {
         {
           provide: DIALOG_DATA,
           useValue: defaultParams(
-            { initialTab: MemberDialogTab.Details },
+            {
+              initialTab: MemberDialogTab.Details,
+              organization: mockOrganization({ productTierType: ProductTierType.Enterprise }),
+            },
             { claimedByOrganization: true, hasMasterPassword: false },
-          ),
-        },
-        {
-          provide: OrganizationService,
-          useValue: makeOrganizationService(
-            mockOrganization({ productTierType: ProductTierType.Enterprise }),
           ),
         },
         { provide: ConfigService, useValue: makeConfigService() },

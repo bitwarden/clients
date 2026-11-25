@@ -4,14 +4,16 @@ import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -19,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -79,6 +82,8 @@ import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 })
 export class MemberAccessReportComponent implements OnInit {
   private readonly configService = inject(ConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -176,10 +181,22 @@ export class MemberAccessReportComponent implements OnInit {
   };
 
   edit = async (user: MemberAccessReportViewV2): Promise<void> => {
+    const organization = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+        getById(this.organizationId),
+      ),
+    );
+    if (organization == undefined) {
+      throw new Error("Organization not found");
+    }
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
+        readonly: false,
         member: user.member,
-        organizationId: this.organizationId,
+        organization,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: MemberDialogTab.Details,
       },

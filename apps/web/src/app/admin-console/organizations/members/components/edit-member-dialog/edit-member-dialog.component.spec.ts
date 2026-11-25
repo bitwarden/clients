@@ -16,7 +16,6 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 }));
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -140,7 +139,8 @@ function defaultParams(
   memberOverrides: MemberOverrides = {},
 ): EditMemberDialogParams {
   return {
-    organizationId: ORG_ID,
+    organization: buildOrg(),
+    readonly: false,
     member: buildListMember(memberOverrides),
     isOnSecretsManagerStandalone: false,
     initialTab: MemberDialogTab.Details,
@@ -164,7 +164,6 @@ async function createComponent(
   component: EditMemberDialogComponent;
   mocks: {
     accountService: MockProxy<AccountService>;
-    organizationService: MockProxy<OrganizationService>;
     collectionAdminService: MockProxy<CollectionAdminService>;
     groupApiService: MockProxy<GroupApiService>;
     userAdminService: MockProxy<UserAdminService>;
@@ -183,7 +182,6 @@ async function createComponent(
   };
 }> {
   const accountService = mock<AccountService>();
-  const organizationService = mock<OrganizationService>();
   const collectionAdminService = mock<CollectionAdminService>();
   const groupApiService = mock<GroupApiService>();
   const userAdminService = mock<UserAdminService>();
@@ -201,9 +199,6 @@ async function createComponent(
   const platformUtilsService = mock<PlatformUtilsService>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
-  organizationService.organizations$ = jest
-    .fn()
-    .mockReturnValue(of([buildOrg(overrides.orgOverrides)]));
   collectionAdminService.collectionAdminViews$ = jest
     .fn()
     .mockReturnValue(of(overrides.collections ?? []));
@@ -227,10 +222,12 @@ async function createComponent(
     imports: [EditMemberDialogComponent],
     providers: [
       provideNoopAnimations(),
-      { provide: DIALOG_DATA, useValue: params },
+      {
+        provide: DIALOG_DATA,
+        useValue: { ...params, organization: buildOrg(overrides.orgOverrides) },
+      },
       { provide: DialogRef, useValue: dialogRef },
       { provide: AccountService, useValue: accountService },
-      { provide: OrganizationService, useValue: organizationService },
       { provide: CollectionAdminService, useValue: collectionAdminService },
       { provide: GroupApiService, useValue: groupApiService },
       { provide: UserAdminService, useValue: userAdminService },
@@ -266,7 +263,6 @@ async function createComponent(
     component,
     mocks: {
       accountService,
-      organizationService,
       collectionAdminService,
       groupApiService,
       userAdminService,
