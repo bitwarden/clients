@@ -100,34 +100,65 @@ export class UriOptionComponent implements ControlValueAccessor {
     matchDetection: [null as UriMatchStrategySetting],
   });
 
-  /** The URI last written to this row by the parent form */
-  private readonly writtenUri = signal<string | null>(null);
+  /** The row's URI, as last written by the parent form or selected by the user */
+  private readonly currentUri = signal<string | null>(null);
+
+  /** The pairing of the row's URI, or `null` if it isn't a valid pairing URI */
+  private readonly currentPairing = computed(() => {
+    const uri = this.currentUri();
+    return uri == null ? null : DesktopAutotypePairingUri.fromString(uri);
+  });
 
   /**
-   * The desktop app saved on the cipher, so the dropdown shows the paired app's name. A saved URI
-   * that isn't a valid pairing URI is labeled as an invalid pairing.
+   * The desktop app of the row's URI, so the dropdown shows the app's name:
+   * - A saved desktop app keeps its saved URI. One that isn't a valid pairing URI is labeled as an
+   *   invalid pairing.
+   * - A new desktop app row keeps the app the user selected, even after a new list of running apps
+   *   arrives.
    */
-  private readonly savedAppOption = computed(() => {
-    const uri = this.writtenUri();
-    if (this.desktopAppRow() !== DesktopAppRow.Saved || uri == null) {
-      return null;
-    }
+  private readonly currentAppOption = computed(() => {
+    const uri = this.currentUri();
+    const appName = this.currentPairing()?.data.appData.name;
 
-    // The saved string is the option's value, so the selection matches it exactly and it is saved
-    // unchanged
-    const appName = DesktopAutotypePairingUri.fromString(uri)?.data.appData.name;
-    return { label: appName ?? this.i18nService.t("invalidAppPairing"), value: uri };
+    switch (this.desktopAppRow()) {
+      case DesktopAppRow.Saved:
+        // The saved string is the option's value, so the selection matches it exactly and it is
+        // saved unchanged
+        return uri == null
+          ? null
+          : { label: appName ?? this.i18nService.t("invalidAppPairing"), value: uri };
+      case DesktopAppRow.New:
+        return appName == null ? null : { label: appName, value: uri };
+      default:
+        return null;
+    }
   });
 
   /**
    * The desktop apps that can be selected for a desktop app URI. Each option is labeled with the
-   * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI.
+   * app's name, and its value is the Desktop Autotype Pairing URI string saved as the login URI. A
+   * new desktop app row also lists the running apps, except the one it already has selected.
    */
-  // TODO: Add the apps that can be paired to the options for new desktop app URIs. This will be
-  // implemented in https://bitwarden.atlassian.net/browse/PM-38788
   protected readonly appOptions = computed(() => {
-    const savedAppOption = this.savedAppOption();
-    return savedAppOption == null ? [] : [savedAppOption];
+    const currentAppOption = this.currentAppOption();
+    const options = currentAppOption == null ? [] : [currentAppOption];
+    if (this.desktopAppRow() !== DesktopAppRow.New) {
+      return options;
+    }
+
+    // A running app is the selected app when both its name and its path match. Apps can share an
+    // executable (e.g. browser PWAs), and Windows paths aren't case-sensitive.
+    const selectedApp = this.currentPairing()?.data.appData;
+    const isSelectedApp = (app: DesktopAutotypePairingUri) =>
+      selectedApp != null &&
+      app.data.appData.name === selectedApp.name &&
+      app.data.appData.normalizedPath.toLowerCase() === selectedApp.normalizedPath.toLowerCase();
+
+    const runningAppOptions = this.runningApps()
+      .filter((app) => !isSelectedApp(app))
+      .map((app) => ({ label: app.data.appData.name, value: app.toString() }));
+
+    return [...options, ...runningAppOptions];
   });
 
   protected uriMatchOptions: {
@@ -205,6 +236,12 @@ export class UriOptionComponent implements ControlValueAccessor {
    * apps saved on the cipher are locked: they can be removed and reordered, but not changed.
    */
   readonly desktopAppRow = input<DesktopAppRow | null>(null);
+
+  /**
+   * The running apps a new desktop app row can be paired with. The parent form shares one list with
+   * every row, and only new desktop app rows list them.
+   */
+  readonly runningApps = input<DesktopAutotypePairingUri[]>([]);
 
   /** Whether the whole row is disabled, e.g. because the cipher form is disabled. */
   private rowDisabled = false;
@@ -290,6 +327,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   ) {
     // The raw value includes the URI of a locked desktop app, which is disabled
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.currentUri.set(this.uriForm.controls.uri.value);
       this.onChange(this.uriForm.getRawValue());
     });
 
@@ -399,7 +437,7 @@ export class UriOptionComponent implements ControlValueAccessor {
         { emitEvent: false },
       );
       this.lastMatchDetection = value.matchDetection ?? null;
-      this.writtenUri.set(value.uri ?? null);
+      this.currentUri.set(value.uri ?? null);
       this.applyAppUriLock();
     }
   }

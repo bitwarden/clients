@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -13,7 +14,7 @@ import {
 } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, SelectComponent } from "@bitwarden/components";
 
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
@@ -29,6 +30,18 @@ function createPairingUri(name: string): string {
     appData: { name, normalizedPath: `C:\\Program Files\\${name}\\${name}.exe` },
     clientData: { packagingType: AutotypePairingPackagingType.WindowsExe },
   }).toString();
+}
+
+function createRunningApp(
+  name: string,
+  pairingTimestamp: number,
+  normalizedPath = `C:\\Program Files\\${name}\\${name}.exe`,
+): DesktopAutotypePairingUri {
+  return new DesktopAutotypePairingUri(DesktopAutotypePairingUri.CurrentVersion, {
+    metadata: { schemaVersion: { ...AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION }, pairingTimestamp },
+    appData: { name, normalizedPath },
+    clientData: { packagingType: AutotypePairingPackagingType.WindowsExe },
+  });
 }
 
 describe("UriOptionComponent", () => {
@@ -520,6 +533,129 @@ describe("UriOptionComponent", () => {
 
     it("does not add an option for a pairing URI in a website row", () => {
       component.writeValue({ uri: createPairingUri("Notepad"), matchDetection: null });
+
+      expect(component["appOptions"]()).toEqual([]);
+    });
+  });
+
+  describe("running apps", () => {
+    const firstList = [
+      createRunningApp("Notepad", 1796169600),
+      createRunningApp("Paint", 1796169600),
+    ];
+    // The same apps listed again later have new pairing timestamps, so their URIs differ
+    const secondList = [
+      createRunningApp("Calculator", 1796169660),
+      createRunningApp("Notepad", 1796169660),
+      createRunningApp("Paint", 1796169660),
+    ];
+
+    const toOption = (app: DesktopAutotypePairingUri) => ({
+      label: app.data.appData.name,
+      value: app.toString(),
+    });
+
+    function renderNewDesktopAppRow(runningApps: DesktopAutotypePairingUri[]) {
+      fixture.componentRef.setInput("recognizeDesktopApps", true);
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.New);
+      fixture.componentRef.setInput("runningApps", runningApps);
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: UriMatchStrategy.Exact });
+      fixture.detectChanges();
+    }
+
+    it("lists the running apps in a new desktop app row, labeled with their names", () => {
+      renderNewDesktopAppRow(firstList);
+
+      expect(component["appOptions"]()).toEqual(firstList.map(toOption));
+    });
+
+    it("passes the running apps to the desktop app dropdown", async () => {
+      renderNewDesktopAppRow(firstList);
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent))
+        .componentInstance as SelectComponent<string>;
+      expect(select.items().map((item) => item.label)).toEqual(["Notepad", "Paint"]);
+    });
+
+    it("lists a new list of running apps when it arrives", () => {
+      renderNewDesktopAppRow(firstList);
+
+      fixture.componentRef.setInput("runningApps", secondList);
+
+      expect(component["appOptions"]()).toEqual(secondList.map(toOption));
+    });
+
+    it("keeps the selected app as an option when a new list of running apps arrives", () => {
+      renderNewDesktopAppRow(firstList);
+      component["uriForm"].controls.uri.setValue(firstList[0].toString());
+
+      fixture.componentRef.setInput("runningApps", secondList);
+
+      expect(component["appOptions"]()).toEqual([
+        toOption(firstList[0]),
+        toOption(secondList[0]),
+        toOption(secondList[2]),
+      ]);
+    });
+
+    it("lists the selected app only once when it's running, ignoring the case of its path", () => {
+      renderNewDesktopAppRow([]);
+      component["uriForm"].controls.uri.setValue(firstList[0].toString());
+
+      fixture.componentRef.setInput("runningApps", [
+        createRunningApp("Notepad", 1796169660, "C:\\PROGRAM FILES\\NOTEPAD\\NOTEPAD.EXE"),
+        secondList[2],
+      ]);
+
+      expect(component["appOptions"]()).toEqual([toOption(firstList[0]), toOption(secondList[2])]);
+    });
+
+    it("lists the running apps that share the selected app's executable", () => {
+      // A browser and its PWAs run from the same executable but are different apps
+      const edgePath = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+      const netflix = createRunningApp("Netflix", 1796169600, edgePath);
+      renderNewDesktopAppRow([netflix]);
+      component["uriForm"].controls.uri.setValue(netflix.toString());
+
+      const edge = createRunningApp("Microsoft Edge", 1796169660, edgePath);
+      fixture.componentRef.setInput("runningApps", [
+        edge,
+        createRunningApp("Netflix", 1796169660, edgePath),
+      ]);
+
+      expect(component["appOptions"]()).toEqual([toOption(netflix), toOption(edge)]);
+    });
+
+    it("keeps the selected app when the parent form writes it back", () => {
+      renderNewDesktopAppRow(secondList);
+
+      component.writeValue({
+        uri: firstList[0].toString(),
+        matchDetection: UriMatchStrategy.Exact,
+      });
+
+      expect(component["appOptions"]()).toEqual([
+        toOption(firstList[0]),
+        toOption(secondList[0]),
+        toOption(secondList[2]),
+      ]);
+    });
+
+    it("does not list the running apps in a saved desktop app row", () => {
+      const pairingUri = createPairingUri("Notepad");
+      fixture.componentRef.setInput("desktopAppRow", DesktopAppRow.Saved);
+      fixture.componentRef.setInput("runningApps", secondList);
+
+      component.writeValue({ uri: pairingUri, matchDetection: null });
+
+      expect(component["appOptions"]()).toEqual([{ label: "Notepad", value: pairingUri }]);
+    });
+
+    it("does not list the running apps in a website row", () => {
+      fixture.componentRef.setInput("runningApps", secondList);
+
+      component.writeValue({ uri: "https://example.com", matchDetection: null });
 
       expect(component["appOptions"]()).toEqual([]);
     });

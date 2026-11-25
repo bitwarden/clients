@@ -159,6 +159,7 @@ import {
 } from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
+  AppPairingService,
   CIPHER_SHARE_ACCESS,
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -182,6 +183,7 @@ import {
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-request-answering/desktop-auth-request-answering.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
+import { DesktopAppPairingService } from "../../autofill/services/desktop-app-pairing.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
@@ -245,6 +247,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: AppPairingService,
+    useClass: DesktopAppPairingService,
     deps: [],
   }),
   safeProvider({
