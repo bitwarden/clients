@@ -444,6 +444,14 @@ export class VaultNextComponent implements OnInit {
       : undefined;
   });
 
+  /** The collection {@link scopedCollectionId} names, once the user's collections have loaded. */
+  protected readonly scopedCollection = computed(() => {
+    const collectionId = this.scopedCollectionId();
+    return collectionId == null
+      ? undefined
+      : this.collections().find((collection) => collection.id === collectionId);
+  });
+
   private readonly collectionMenuTarget = computed(() =>
     collectionMenuTargetForScope(this.vaultScope(), this.scopedCollections(), this.organizations()),
   );

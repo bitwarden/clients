@@ -13,7 +13,7 @@ import {
 } from "@bitwarden/bit-pam";
 import type { CipherAccessStateView } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -52,9 +52,14 @@ export class ItemDetailsStateBadgeComponent {
   private readonly state$: Observable<AccessBadgeState | null> = combineLatest([
     toObservable(this.cipher),
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    // Anonymous pages (such as Send access) have no active account, so nothing is revealed there.
     this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null
+          ? of(new Map<CipherId, CipherView>())
+          : this.revealedCipherService.revealed$(userId),
+      ),
     ),
   ]).pipe(
     switchMap(([cipher, enabled, revealed]) => {

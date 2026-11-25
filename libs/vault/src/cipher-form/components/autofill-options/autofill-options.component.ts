@@ -44,7 +44,6 @@ import {
 } from "@bitwarden/components";
 
 import { CipherFormContainer } from "../../cipher-form-container";
-import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { DesktopAppRow, UriOptionComponent } from "./uri-option.component";
 
@@ -151,7 +150,6 @@ export class AutofillOptionsComponent implements OnInit {
    */
   protected readonly desktopAppRows = new WeakMap<AbstractControl, DesktopAppRow>();
 
-  private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -167,7 +165,6 @@ export class AutofillOptionsComponent implements OnInit {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.publishUriMatchStrategies();
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
@@ -212,9 +209,6 @@ export class AutofillOptionsComponent implements OnInit {
       this.initNewCipher();
     }
 
-    // URIs from an existing cipher are added without emitting value changes
-    this.publishUriMatchStrategies();
-
     this.autotypeGaEnabled$
       .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.saveDesktopAppUriMatchDetection());
@@ -222,29 +216,6 @@ export class AutofillOptionsComponent implements OnInit {
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
-  }
-
-  /** Shares the current URI match strategies with the HTTP authentication setting */
-  private publishUriMatchStrategies() {
-    this.httpAuthenticationService.updateUriMatchStrategies(
-      this.uriControls.map((control) => control.value?.matchDetection ?? null),
-    );
-  }
-
-  /**
-   * Adds a new URI input requested by the user. When the new URI uses the default match strategy,
-   * the user is asked to confirm when that would turn HTTP authentication off.
-   * @param uriFieldValue The initial value for the new URI input.
-   */
-  async addUriFromUser(uriFieldValue: UriField) {
-    if (
-      uriFieldValue.matchDetection == null &&
-      !(await this.httpAuthenticationService.confirmDefaultMatchStrategy())
-    ) {
-      return;
-    }
-
-    this.addUri(uriFieldValue, true);
   }
 
   /**

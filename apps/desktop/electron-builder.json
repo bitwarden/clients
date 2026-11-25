@@ -206,6 +206,7 @@
     "minVersion": "10.0.14393.0",
     "maxVersionTested": "10.0.26100.0",
     "customExtensionsPath": "../custom-appx-extensions.stable.xml",
+    "displayName": "Bitwarden Password Manager",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [
       "en-US",

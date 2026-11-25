@@ -1,0 +1,172 @@
+<!-- One row, with the divider that precedes it. Shared by the plain list, the virtualized
+     list and the sizer, so all three draw a row the same way. -->
+<ng-template #row let-node let-index="index">
+  <!-- Everything the row shows that comes from a signal, read once here through the row's own
+       `computed`.
+       Avoids: reading a row's signals directly in this template, which would make drawing the
+       tree cost the square of its length. See `rowState`. -->
+  @let state = rowState(node);
+  @if (node.dividerBefore) {
+    <!-- The dialog hides this and separates the groups with a gap instead.
+         `aria-hidden` because the rule is decorative and `role="tree"` owns only
+         `treeitem`/`group` — the divider's own `role="separator"` would fail
+         `aria-required-children` otherwise. -->
+    <bit-menu-divider data-filter-divider aria-hidden="true"></bit-menu-divider>
+  }
+  <div
+    role="treeitem"
+    data-filter-option-row
+    [attr.data-filter-section-row]="node.row.kind === 'section' ? '' : null"
+    [attr.data-filter-card-top]="node.groupStart ? '' : null"
+    [attr.data-filter-card-bottom]="node.groupEnd ? '' : null"
+    [bitFilterTreeRow]="index"
+    [tabbable]="index === activeIndex()"
+    [class]="node.row.kind === 'option' ? optionRowClasses() : sectionRowClasses()"
+    [style.padding-inline-start.rem]="
+      node.row.kind === 'section' ? null : 0.5 + (node.indent - 1) * 1.75
+    "
+    [style.margin-bottom.rem]="
+      virtualized() && cards() && hasCardGap(node, index) ? cardGapRem : null
+    "
+    [attr.aria-level]="node.level"
+    [attr.aria-setsize]="node.setsize"
+    [attr.aria-posinset]="node.posinset"
+    [attr.aria-expanded]="state.expandable ? node.expanded : null"
+    [attr.aria-checked]="state.checked"
+    [attr.aria-disabled]="state.disabled ? true : null"
+    (click)="state.disabled ? null : owner.activateNode(node)"
+    (focus)="onRowFocus(index)"
+    (blur)="onRowBlur($event)"
+  >
+    @if (node.row.kind !== "section") {
+      @if (state.expandable) {
+        <span
+          data-filter-expander
+          class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
+          aria-hidden="true"
+          (click)="node.row.toggleExpanded(); $event.stopPropagation()"
+        >
+          <!-- An option discloses children, so it takes the solid caret a nested
+               `bit-nav-group` uses: one glyph, rotated when collapsed, sized as that
+               group's `xsmall` icon button renders it. -->
+          <bit-icon
+            name="bwi-down-solid"
+            class="tw-text-xl"
+            [class.-tw-rotate-90]="!node.expanded"
+          ></bit-icon>
+        </span>
+      } @else if (node.reserveExpander) {
+        <span class="-tw-me-1 tw-size-6 tw-flex-none" aria-hidden="true"></span>
+      }
+    }
+    @if (state.checked !== null) {
+      <!-- Draws the control only; the row owns the semantics via `aria-checked`. -->
+      <input
+        type="checkbox"
+        bitCheckbox
+        class="tw-pointer-events-none"
+        aria-hidden="true"
+        tabindex="-1"
+        [checked]="state.checked === 'true'"
+        [indeterminate]="state.checked === 'mixed'"
+        [disabled]="state.disabled"
+      />
+    }
+    @if (state.tile; as tile) {
+      <bit-icon-tile
+        class="!tw-flex tw-flex-none"
+        [icon]="tile.icon"
+        [variant]="tile.variant"
+        [color]="tile.color"
+        [emphasis]="tile.emphasis"
+        size="xs"
+      />
+    }
+    <!-- Clamped, not `truncate`: a `nowrap` label's min-content is its full text, so the grid never shrinks it.
+         Tooltipped here, not on the row, which overflows the clipped tree; the row opens it on keyboard focus. -->
+    @if (node.row.kind === "section") {
+      <span
+        data-filter-row-label
+        bitTypography="helper"
+        class="tw-me-auto tw-min-w-0 tw-line-clamp-1 tw-break-all tw-font-semibold"
+        [bitTooltip]="state.label"
+        >{{ state.label }}</span
+      >
+    } @else {
+      <span
+        data-filter-row-label
+        class="tw-me-auto tw-min-w-16 tw-line-clamp-1 tw-break-all"
+        [bitTooltip]="state.label"
+        >{{ state.label }}</span
+      >
+    }
+    @if (node.row.kind === "section") {
+      <bit-berry [value]="state.sectionSelectedCount"></bit-berry>
+      @if (state.expandable) {
+        <span
+          data-filter-expander
+          class="tw-ms-1 tw-flex tw-flex-none tw-items-center tw-text-fg-body-subtle"
+          aria-hidden="true"
+          (click)="node.row.toggleExpanded(); $event.stopPropagation()"
+        >
+          <bit-icon
+            [name]="node.expanded ? 'bwi-angle-up' : 'bwi-angle-down'"
+            class="tw-text-base"
+          ></bit-icon>
+        </span>
+      }
+    } @else if (state.count != null) {
+      <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+        state.count
+      }}</span>
+    }
+  </div>
+</ng-template>
+
+@if (virtualized()) {
+  <!-- Determine which width sizers (represents longest labels, invisible with 0 height) are needed:
+     - `scrollElement` is specified, so we assume that the scroll container's width is controlled
+        elsewhere (example: filter dialog). Only render a sizer inside of the virtual scroll 
+        viewport to allow horizontal scroll inside the viewport. 
+     - `scrollElement` is not specified, so we assume that the tree content itself is what sets the
+        width of the container (example: filter popover). Render the virtual scroll viewport sizer
+        for horizontal scroll, but also render a sizer outside of the virtual scroll viewport to set
+        the container width. 
+  -->
+  @if (!scrollElement()) {
+    <div class="tw-invisible tw-h-0 tw-flex-none tw-overflow-hidden" aria-hidden="true" inert>
+      @for (node of sizerNodes(); track $index) {
+        <ng-container
+          *ngTemplateOutlet="row; context: { $implicit: node, index: sizerIndex }"
+        ></ng-container>
+      }
+    </div>
+  }
+  <cdk-virtual-scroll-viewport [class]="viewportClasses()" [style.height.px]="viewportHeight()">
+    @if (deepestNode(); as node) {
+      <div class="tw-invisible tw-h-0 tw-overflow-hidden" aria-hidden="true" inert>
+        <ng-container
+          *ngTemplateOutlet="row; context: { $implicit: node, index: sizerIndex }"
+        ></ng-container>
+      </div>
+    }
+    <ng-container
+      *cdkVirtualFor="
+        let node of nodes();
+        let index = index;
+        trackBy: trackByIndex;
+        templateCacheSize: 0
+      "
+    >
+      <ng-container
+        *ngTemplateOutlet="row; context: { $implicit: node, index: index }"
+      ></ng-container>
+    </ng-container>
+  </cdk-virtual-scroll-viewport>
+} @else {
+  @for (node of nodes(); track $index) {
+    <ng-container
+      *ngTemplateOutlet="row; context: { $implicit: node, index: $index }"
+    ></ng-container>
+  }
+}

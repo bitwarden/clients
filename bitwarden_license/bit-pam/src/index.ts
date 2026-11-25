@@ -28,6 +28,10 @@ export type {
   AccessPreCheckView,
   AccessRequestCreateRequest,
   AccessRequestDecisionView,
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
+  AccessRequestHistoryRequester,
+  AccessRequestHistoryStatus,
   AccessRequestId,
   AccessRequestResultView,
   AccessRequestStatus,
@@ -94,6 +98,7 @@ export {
   pickDurationUnit,
   maxRequestDurationSeconds,
   requestDurationOptions,
+  withStoredDurations,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";
 export {

@@ -4,6 +4,8 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 
 import type { AccessRuleView } from "@bitwarden/bit-pam";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -37,6 +39,11 @@ function withRules(rules: AccessRuleView[]) {
     providers: [
       { provide: GovernedCollectionsService, useValue: { rules$: () => of(rules) } },
       { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: OrganizationService,
+        useValue: { organizations$: () => of([{ id: ORG_ID, canManageAccessRules: true }]) },
+      },
     ],
   });
 }
