@@ -2,7 +2,13 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { UserId, PeerLockState, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
+import {
+  Endpoint,
+  UserId,
+  PeerLockState,
+  SharedUnlockDriver,
+  SymmetricKey,
+} from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
@@ -12,7 +18,9 @@ import { PlatformUtilsService } from "../../platform/abstractions/platform-utils
 import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { SHARED_UNLOCK_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserKey } from "../../types/key";
+import { DesktopEndpointService } from "../biometrics/desktop-endpoint.service";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
+
 
 /**
  * Date (ms since the Unix epoch) of the user's last manual lock. On disk, so a lock made just
@@ -46,6 +54,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
     private stateProvider: StateProvider,
+    private desktopEndpointService: DesktopEndpointService,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
@@ -74,6 +83,12 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
 
   async get_client_name(): Promise<string> {
     return this.platformUtilsService.getClientType();
+  }
+
+  async get_desktop_endpoint(): Promise<Endpoint | undefined> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+
+    return account == null ? undefined : await this.desktopEndpointService.endpoint(account.id);
   }
 
   async get_vault_url(user_id: UserId): Promise<string> {

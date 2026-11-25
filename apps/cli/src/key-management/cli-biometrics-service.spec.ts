@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -18,6 +19,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { CliIpcService } from "../platform/services/cli-ipc.service";
+
 
 import { CliBiometricsService } from "./cli-biometrics-service";
 
@@ -37,12 +39,24 @@ describe("CliBiometricsService", () => {
   const ipcClient = mock<IpcClient>();
 
   let service: CliBiometricsService;
+  // Both desktop processes are asked which serves biometrics; the tests answer with main.
+  const desktopEndpointService = {
+    endpoint: jest.fn().mockResolvedValue("DesktopMain"),
+    current: "DesktopMain",
+    forget: jest.fn(),
+  } as unknown as DesktopEndpointService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     accountService.activeAccount$ = of({ id: userId } as never);
     Object.defineProperty(ipcService, "client", { configurable: true, value: ipcClient });
-    service = new CliBiometricsService(accountService, () => keyService, logService, ipcService);
+    service = new CliBiometricsService(
+      accountService,
+      () => keyService,
+      logService,
+      ipcService,
+      desktopEndpointService,
+    );
   });
 
   it("returns the desktop biometric status for the active account", async () => {

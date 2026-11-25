@@ -13,6 +13,8 @@ import { CryptoClient, ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-inte
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
+import { rendererTeardownEnabled } from "../../platform/renderer-teardown-flag";
+
 import { BiometricsUnlockDriver } from "./biometrics-unlock.driver";
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
@@ -101,9 +103,17 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.hasPersistentKey(userId);
   }
 
-  /** Serves biometrics requests addressed to the renderer's endpoint. Main serves its own. */
+  /**
+   * Serves biometrics requests addressed to the renderer's endpoint, unless main serves them.
+   *
+   * Exactly one process answers, so a peer asking both can tell which one that is.
+   */
   async setUnlockService(service: UnlockService): Promise<void> {
     await super.setUnlockService(service);
+    if (await rendererTeardownEnabled()) {
+      return;
+    }
+
     const driver = new BiometricsUnlockDriver(this, service);
     await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }

@@ -1,5 +1,8 @@
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -35,6 +38,8 @@ jest.mock("@bitwarden/sdk-internal", () => ({
 }));
 
 const userId = "bc205928-7552-491a-b4c4-b4a9015cf4e0" as UserId;
+let desktopEndpointService: DesktopEndpointService;
+let accountService: AccountService;
 const userKey = makeSymmetricCryptoKey<UserKey>();
 
 describe("background browser biometrics service tests", function () {
@@ -56,6 +61,13 @@ describe("background browser biometrics service tests", function () {
     // jsdom has no `AbortSignal.timeout`, which the SDK IPC path uses.
     AbortSignal.timeout = jest.fn(() => new AbortController().signal);
     safariCommand = jest.spyOn(SafariApp, "sendBiometricsCommand");
+    // Both desktop processes are asked which serves biometrics; the tests answer with main.
+    desktopEndpointService = {
+      endpoint: jest.fn().mockResolvedValue("DesktopMain"),
+      current: "DesktopMain",
+      forget: jest.fn(),
+    } as unknown as DesktopEndpointService;
+    accountService = { activeAccount$: of({ id: userId }) } as unknown as AccountService;
     service = new BackgroundBrowserBiometricsService(
       logService,
       () => keyService,
@@ -64,6 +76,8 @@ describe("background browser biometrics service tests", function () {
       () => vaultTimeoutSettingsService,
       () => ipcService,
       platformUtilsService,
+      () => desktopEndpointService,
+      accountService,
     );
     await service.setUnlockService(unlockService);
   });

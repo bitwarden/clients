@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -26,14 +27,22 @@ export class CliBiometricsService extends BiometricsService {
     private keyService: () => KeyService,
     private logService: LogService,
     private ipcService: CliIpcService,
+    private desktopEndpointService: DesktopEndpointService,
   ) {
     super();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
     try {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const destination = account == null ? undefined : await this.desktopEndpoint(account.id);
+      if (destination == null) {
+        return false;
+      }
+
       return await ipcRequestAuthenticateBiometrics(
         this.ipcService.client,
+        destination,
         AbortSignal.timeout(this.interactionTimeout),
       );
     } catch (error) {
@@ -51,9 +60,15 @@ export class CliBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     try {
+      const destination = await this.desktopEndpoint(userId);
+      if (destination == null) {
+        return null;
+      }
+
       const response = await ipcRequestUnlockBiometrics(
         this.ipcService.client,
         fromTsUserId(userId),
+        destination,
         AbortSignal.timeout(this.interactionTimeout),
       );
 
@@ -76,9 +91,15 @@ export class CliBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
     try {
+      const destination = await this.desktopEndpoint(userId);
+      if (destination == null) {
+        return BiometricsStatus.DesktopDisconnected;
+      }
+
       const status = await ipcRequestGetBiometricsStatus(
         this.ipcService.client,
         fromTsUserId(userId),
+        destination,
         AbortSignal.timeout(this.noInteractionTimeout),
       );
       const mappedStatus = toTsBiometricsStatus(status);
@@ -89,6 +110,11 @@ export class CliBiometricsService extends BiometricsService {
       this.logService.info("Could not query Bitwarden Desktop biometric status", error);
       return BiometricsStatus.DesktopDisconnected;
     }
+  }
+
+  /** Which desktop process serves biometrics, found once by asking both. */
+  private async desktopEndpoint(userId: UserId) {
+    return await this.desktopEndpointService.endpoint(userId);
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {

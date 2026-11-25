@@ -166,7 +166,15 @@ describe("renderer biometrics service tests", function () {
   });
 
   describe("setUnlockService", () => {
+    /** The renderer reads the teardown flag from main over IPC. */
+    const withTeardownFlag = (enabled: boolean) => {
+      (global as unknown as { ipc: unknown }).ipc = {
+        platform: { rendererTeardownEnabled: jest.fn().mockResolvedValue(enabled) },
+      };
+    };
+
     it("serves biometrics requests addressed to the renderer's own endpoint", async () => {
+      withTeardownFlag(false);
       const service = new RendererBiometricsService(
         tokenService,
         biometricStateService,
@@ -179,6 +187,22 @@ describe("renderer biometrics service tests", function () {
         ipcService.client,
         expect.anything(),
       );
+    });
+
+    it("serves nothing while main owns biometrics", async () => {
+      // A peer asks both processes which serves biometrics, so the one that does not must stay
+      // silent rather than answer for a service it is not providing.
+      withTeardownFlag(true);
+      jest.mocked(ipcRegisterBiometricsHandlers).mockClear();
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        ipcService,
+      );
+
+      await service.setUnlockService(mock<UnlockService>());
+
+      expect(ipcRegisterBiometricsHandlers).not.toHaveBeenCalled();
     });
   });
 });

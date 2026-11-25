@@ -13,6 +13,7 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
@@ -134,6 +135,7 @@ export class Main {
   policyService: PolicyService;
   /** The single source of truth for whether the renderer may be destroyed. */
   rendererTeardownFlag: RendererTeardownFlagMain;
+  desktopEndpointService: DesktopEndpointService;
   serviceContainer: MainServiceContainer;
   messageListener: MessageListener;
   headlessVaultTimeout: HeadlessVaultTimeoutMain;
@@ -367,6 +369,7 @@ export class Main {
       this.nativeMessagingMain,
       this.windowMain,
     );
+    this.desktopEndpointService = new DesktopEndpointService(this.ipcService, this.logService);
 
     this.serviceContainer = new MainServiceContainer(
       this.logService,
@@ -383,6 +386,7 @@ export class Main {
       this.biometricsService,
       biometricStateService,
       this.ipcService,
+      this.desktopEndpointService,
       this.sharedUnlockSettingsService,
       this.shell,
       this.policyService,
@@ -498,13 +502,14 @@ export class Main {
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
 
-        // The browser extension and the CLI reach the desktop app over native messaging, and their
-        // messages are answered by main's client. The renderer's own biometrics handlers are not on
-        // that path (the renderer is not even alive when it is headless), so main answers them.
-        await ipcRegisterBiometricsHandlers(
-          this.ipcService.client,
-          new BiometricsUnlockDriver(this.biometricsService, this.serviceContainer.unlockService),
-        );
+        // Exactly one process serves biometrics, and the flag says which. A peer finds out by
+        // asking both, so the one that is not serving must not answer.
+        if (this.rendererTeardownFlag.isEnabled) {
+          await ipcRegisterBiometricsHandlers(
+            this.ipcService.client,
+            new BiometricsUnlockDriver(this.biometricsService, this.serviceContainer.unlockService),
+          );
+        }
 
         await this.windowMain.init(showWindow);
         this.headlessVaultTimeout.init();

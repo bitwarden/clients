@@ -87,6 +87,7 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -257,6 +258,7 @@ import {
   DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
+
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
@@ -404,6 +406,7 @@ export class ServiceContainer {
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
   ipcService: CliIpcService;
+  desktopEndpointService: DesktopEndpointService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -596,11 +599,13 @@ export class ServiceContainer {
     );
 
     this.ipcService = new CliIpcService(this.logService);
+    this.desktopEndpointService = new DesktopEndpointService(this.ipcService, this.logService);
     this.biometricsService = new CliBiometricsService(
       this.accountService,
       () => this.keyService,
       this.logService,
       this.ipcService,
+      this.desktopEndpointService,
     );
 
     this.keyService = new KeyService(
