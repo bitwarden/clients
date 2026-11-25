@@ -9,6 +9,7 @@ import { mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
+import { RevealedCipherService } from "../../../vault/abstractions/revealed-cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
@@ -53,8 +54,16 @@ describe("FidoAuthenticatorService", () => {
   let userInterface!: MockProxy<Fido2UserInterfaceService<ParentWindowReference>>;
   let userInterfaceSession!: MockProxy<Fido2UserInterfaceSession>;
   let syncService!: MockProxy<SyncService>;
+  let revealedCipherService!: MockProxy<RevealedCipherService>;
   let authenticator!: Fido2AuthenticatorService<ParentWindowReference>;
   let windowReference!: ParentWindowReference;
+
+  /** Serves `ciphers` as the live leased views. */
+  const serveLeased = (ciphers: CipherView[]) => {
+    const views = new Map(ciphers.map((cipher) => [cipher.id as CipherId, cipher]));
+    revealedCipherService.revealed$.mockReturnValue(of(views));
+    revealedCipherService.get.mockImplementation((_userId, id) => views.get(id));
+  };
 
   /** Serves `ciphers` as the vault: its list views, and lookups by id. */
   const serveCiphers = (ciphers: CipherView[]) => {
@@ -72,12 +81,15 @@ describe("FidoAuthenticatorService", () => {
     syncService = mock<SyncService>({
       activeUserLastSync$: () => of(new Date()),
     });
+    revealedCipherService = mock<RevealedCipherService>();
+    serveLeased([]);
     const accountService = mockAccountServiceWith("testId" as UserId);
     authenticator = new Fido2AuthenticatorService(
       cipherService,
       userInterface,
       syncService,
       accountService,
+      revealedCipherService,
     );
     windowReference = Utils.newGuid();
     accountService.activeAccount$ = activeAccountSubject;
@@ -731,6 +743,7 @@ describe("FidoAuthenticatorService", () => {
             }),
           }),
           "testId",
+          undefined,
         );
       });
 
@@ -805,6 +818,106 @@ describe("FidoAuthenticatorService", () => {
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
         await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
+      });
+    });
+
+    describe("leased passkeys", () => {
+      let leased: CipherView;
+      let params: Fido2AuthenticatorGetAssertionParams;
+
+      beforeEach(async () => {
+        leased = createCipherView();
+        params = await createParams();
+        // The stored copy of a leased item is restricted, so the stored lookups drop it.
+        serveCiphers([]);
+        serveLeased([leased]);
+        userInterfaceSession.pickCredential.mockResolvedValue({
+          cipherId: leased.id,
+          userVerified: false,
+        });
+      });
+
+      it("offers a passkey from a leased item", async () => {
+        const result = await authenticator.getAssertion(params, windowReference);
+
+        expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith(
+          expect.objectContaining({ cipherIds: [leased.id] }),
+        );
+        expect(result.selectedCredential.id).toEqual(
+          parseCredentialId(leased.login.fido2Credentials[0].credentialId),
+        );
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
+      });
+
+      it("finds a leased passkey for silent discovery", async () => {
+        const result = await authenticator.silentCredentialDiscovery(RpId);
+
+        expect(result.map((credential) => credential.credentialId)).toEqual([
+          leased.login.fido2Credentials[0].credentialId,
+        ]);
+      });
+
+      it("offers the stored copy when a stored copy and a leased copy share an ID", async () => {
+        const stored = createCipherView(
+          { type: CipherType.Login, id: leased.id },
+          { credentialId: leased.login.fido2Credentials[0].credentialId, rpId: RpId },
+        );
+        serveCiphers([stored]);
+
+        await authenticator.getAssertion(params, windowReference);
+
+        expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith(
+          expect.objectContaining({ cipherIds: [leased.id] }),
+        );
+        expect(revealedCipherService.get).not.toHaveBeenCalled();
+      });
+
+      it("refuses the sign-in when the lease ends before the user picks", async () => {
+        revealedCipherService.get.mockReturnValue(undefined);
+
+        const result = async () => await authenticator.getAssertion(params, windowReference);
+
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
+      });
+
+      it("saves a counter with the unchanged leased view as the original, then refreshes it", async () => {
+        leased.login.fido2Credentials[0].counter = 9000;
+
+        await authenticator.getAssertion(params, windowReference);
+
+        expect(cipherService.updateWithServer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: leased.id,
+            login: expect.objectContaining({
+              fido2Credentials: [expect.objectContaining({ counter: 9001 })],
+            }),
+          }),
+          "testId",
+          leased,
+        );
+        expect(leased.login.fido2Credentials[0].counter).toBe(9000);
+        expect(leased.login.fido2Credentials[0].keyValue).toBeDefined();
+        expect(revealedCipherService.refresh).toHaveBeenCalledWith("testId", leased.id);
+      });
+
+      it("keeps every passkey field except the counter in the saved copy", async () => {
+        const credential = leased.login.fido2Credentials[0];
+        credential.counter = 41;
+        credential.userName = "admin@example.com";
+        credential.userDisplayName = "Admin";
+        credential.rpName = "Example";
+        credential.creationDate = new Date("2026-11-01T10:00:00.000Z");
+        const before = credential.toSdkFido2CredentialFullView();
+
+        await authenticator.getAssertion(params, windowReference);
+
+        const saved: CipherView = cipherService.updateWithServer.mock.calls[0][0];
+        expect(saved.login.fido2Credentials).toHaveLength(1);
+        expect(saved.login.fido2Credentials[0].toSdkFido2CredentialFullView()).toEqual({
+          ...before,
+          counter: "42",
+        });
       });
     });
 

@@ -128,6 +128,7 @@ import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sd
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -569,6 +570,7 @@ const safeProviders: SafeProvider[] = [
       Fido2UserInterfaceServiceAbstraction,
       SyncService,
       AccountService,
+      RevealedCipherService,
       LogService,
     ],
   }),
