@@ -269,6 +269,30 @@ export declare namespace autostart {
   export function setAutostart(enabled: boolean, config: AutostartConfig): Promise<void>
 }
 
+export declare namespace autotype {
+  /**
+   * Lists the running, user-facing applications, sorted by name.
+   *
+   * Returns an empty list on platforms other than Windows, where Autotype isn't supported.
+   */
+  export function getRunningApps(): Promise<Array<RunningApp>>
+  /**
+   * A running application that can be paired with a login for Autotype.
+   *
+   * Holds the app's name and path, which can include the user's name, so it must never be
+   * logged.
+   */
+  export interface RunningApp {
+    /** Human-readable name for the app, e.g. `Google Chrome`. */
+    name: string
+    /**
+     * Normalized absolute path to the app's executable, e.g.
+     * `%LOCALAPPDATA%\App\app.exe`.
+     */
+    path: string
+  }
+}
+
 export declare namespace autotype_mvp {
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void

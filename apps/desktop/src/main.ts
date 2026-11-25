@@ -390,6 +390,7 @@ export class Main {
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
       this.windowMain,
+      this.ipcService,
     );
 
     app.on("will-quit", () => {
@@ -420,6 +421,7 @@ export class Main {
         // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
         await this.sdkLoadService.loadAndInit();
         await this.ipcService.init();
+        await this.mainDesktopAutotypeService.init();
 
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
