@@ -52,6 +52,7 @@ impl SessionBindState {
         let verified = match pub_key.key_data() {
             KeyData::Ed25519(key) => verify_ed25519(key, alg, session_id, raw_sig),
             KeyData::Rsa(key) => verify_rsa(key, alg, session_id, raw_sig),
+            KeyData::Ecdsa(key) => verify_ecdsa(key, alg, session_id, raw_sig),
             _ => {
                 warn!("session-bind received unknown host key type");
                 false
@@ -89,6 +90,24 @@ fn verify_ed25519(
         return false;
     }
     let Ok(signature) = Signature::new(Algorithm::Ed25519, sig.to_vec()) else {
+        return false;
+    };
+    key.verify(session_id, &signature).is_ok()
+}
+
+fn verify_ecdsa(
+    key: &ssh_key::public::EcdsaPublicKey,
+    alg: &str,
+    session_id: &[u8],
+    sig: &[u8],
+) -> bool {
+    // The signature algorithm must match the host key's curve.
+    let key_alg = key.algorithm();
+    if alg != key_alg.as_str() {
+        warn!(alg, "session-bind ECDSA received mismatched algorithm");
+        return false;
+    }
+    let Ok(signature) = Signature::new(key_alg, sig.to_vec()) else {
         return false;
     };
     key.verify(session_id, &signature).is_ok()
@@ -400,6 +419,311 @@ mod tests {
         assert!(apply(&payload).is_none());
     }
 
+    #[test]
+    fn valid_ecdsa_forwarding_sets_flag_and_fingerprint_all_curves() {
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
+            let state =
+                apply(&payload).unwrap_or_else(|| panic!("{curve:?} session-bind should verify"));
+            assert!(state.is_forwarding, "{curve:?} should set is_forwarding");
+
+            let expected = ssh_key::PublicKey::from(ssh_key::public::KeyData::Ecdsa(
+                ssh_key::public::EcdsaPublicKey::from(&keypair),
+            ))
+            .fingerprint(ssh_key::HashAlg::Sha256)
+            .to_string();
+            assert_eq!(state.host_fingerprint, expected, "{curve:?} fingerprint");
+        }
+    }
+
+    #[test]
+    fn valid_ecdsa_not_forwarding_returns_true() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+        let state = apply(&payload).unwrap();
+        assert!(!state.is_forwarding);
+        assert!(state.host_fingerprint.starts_with("SHA256:"));
+    }
+
+    #[test]
+    fn ecdsa_tampered_signature_returns_false() {
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let mut payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+            let n = payload.len();
+            payload[n - 2] ^= 0x01; // last byte of the `s` mpint
+            assert!(
+                apply(&payload).is_none(),
+                "{curve:?} tampered signature must fail"
+            );
+        }
+    }
+
+    #[test]
+    fn ecdsa_malformed_signature_encoding_returns_false() {
+        // The algorithm name matches the P-256 host key, but the signature blob is not a valid
+        // `mpint r || mpint s` encoding: an empty blob, `r` wider than the curve's field, and a
+        // well-formed pair followed by trailing bytes.
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let valid_sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let mut oversized_r = Vec::new();
+        write_ssh_string(&mut oversized_r, &[0x01u8; 40]);
+        write_ssh_string(&mut oversized_r, &[0x01u8; 32]);
+
+        let mut trailing = valid_sig.as_bytes().to_vec();
+        trailing.push(0u8);
+
+        for raw_sig in [Vec::new(), oversized_r, trailing] {
+            let mut sig_outer = Vec::new();
+            write_ssh_string(&mut sig_outer, b"ecdsa-sha2-nistp256");
+            write_ssh_string(&mut sig_outer, &raw_sig);
+
+            let mut payload = Vec::new();
+            write_ssh_string(&mut payload, &hostkey_bytes);
+            write_ssh_string(&mut payload, &session_id);
+            write_ssh_string(&mut payload, &sig_outer);
+            payload.push(1u8);
+
+            assert!(apply(&payload).is_none());
+        }
+    }
+
+    #[test]
+    fn ecdsa_wrong_session_id_returns_false() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let mut payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+        // session_id follows the host key string; flip its first byte.
+        let hostkey_len = u32::from_be_bytes(payload[0..4].try_into().unwrap()) as usize;
+        payload[4 + hostkey_len + 4] ^= 0xFF;
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn ecdsa_wrong_key_returns_false() {
+        let keypair_a = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let keypair_b = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+
+        let private_a =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair_a.clone()), "").unwrap();
+        let hostkey_bytes = private_a.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair_b.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    // The signature's algorithm name must match the host key's curve. A valid P-256 signature
+    // is used so that only the name check can reject it: `ecdsa_curve_mismatch_returns_false`
+    // uses a real P-384 signature, which is too wide for P-256 and fails to parse with or without
+    // the check.
+    #[test]
+    fn ecdsa_mislabelled_algorithm_returns_false() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let payload_with_label = |label: &str| {
+            let mut sig_outer = Vec::new();
+            write_ssh_string(&mut sig_outer, label.as_bytes());
+            write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+            let mut payload = Vec::new();
+            write_ssh_string(&mut payload, &hostkey_bytes);
+            write_ssh_string(&mut payload, &session_id);
+            write_ssh_string(&mut payload, &sig_outer);
+            payload.push(0u8);
+            payload
+        };
+
+        // Control: with the correct name the same signature verifies, so the rejections below can
+        // only come from the name check.
+        assert!(apply(&payload_with_label("ecdsa-sha2-nistp256")).is_some());
+
+        for label in ["ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521", "ssh-ed25519"] {
+            assert!(
+                apply(&payload_with_label(label)).is_none(),
+                "a P-256 signature labelled {label} must be rejected"
+            );
+        }
+    }
+
+    #[test]
+    fn ecdsa_curve_mismatch_returns_false() {
+        // Host key is P-256 but the signature claims (and is) P-384.
+        let host = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let signer = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP384).unwrap();
+        let session_id = [0x42u8; 32];
+
+        let private_host = ssh_key::PrivateKey::new(KeypairData::Ecdsa(host.clone()), "").unwrap();
+        let hostkey_bytes = private_host.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = signer.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    /// An ECDSA host-key signature made by OpenSSH rather than `ssh-key`. All fields are base64.
+    ///
+    /// Generated with `ssh-keygen -Y sign -O hashalg=sha256 -n file`, which signs with
+    /// `sshkey_sign`, the same routine `sshd` uses for host-key signatures. `signed` is the exact
+    /// byte string OpenSSH signed (an SSHSIG preamble). It stands in for the session ID, which the
+    /// agent treats as opaque bytes.
+    struct OpensshVector {
+        curve: &'static str,
+        /// Host key blob: the base64 field of the `.pub` file.
+        host_key: &'static str,
+        /// The bytes OpenSSH signed.
+        signed: &'static str,
+        /// OpenSSH signature blob: `string alg || string (mpint r || mpint s)`.
+        signature: &'static str,
+        /// `ssh-keygen -l -E sha256` output for the host key.
+        fingerprint: &'static str,
+    }
+
+    // Every other ECDSA test signs and verifies with `ssh-key`, so a bug shared by both sides
+    // (wrong hash, wrong mpint handling) would still pass them. These vectors come from OpenSSH
+    // and catch that, e.g. after an `ssh-key` upgrade. Each signature was picked so that one of
+    // `r`/`s` needs a leading zero byte and the other is shorter than the field, so the verifier
+    // must zero-pad it.
+    const OPENSSH_ECDSA_VECTORS: [OpensshVector; 3] = [
+        OpensshVector {
+            curve: "nistp256",
+            host_key: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBP8Eyp5KWYvR07vyKN+sb/tn",
+                "yR9LZUXqqqJ9PLF3S3CHf6C413im/Q/Q5NqFjGA1RpQ9irEVveyeSoTzrH/Rz2s=",
+            ),
+            signed: concat!(
+                "U1NIU0lHAAAABGZpbGUAAAAAAAAABnNoYTI1NgAAACBDwXy/MyFhCwMTW4tUuV2DnI4FwgTZ1FJU",
+                "oqnPCpTFDg==",
+            ),
+            signature: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAABIAAAAIQDQWju/RXNT1o5ID2f4VJFzA2Kd8ooQxKjv",
+                "E95E0EOg9wAAAB9J7P721zPoHcQrgFJzIxRnV2W/XEQ4nVCPkXlvSveO",
+            ),
+            fingerprint: "SHA256:spqfXZMusv/KBn7dnzIVHpVGEM/v+2edlzzEALuET3g",
+            // r has a leading zero byte (33 bytes); s is shorter than the field (31 of 32 bytes)
+        },
+        OpensshVector {
+            curve: "nistp384",
+            host_key: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBCAblSnVII4EWr3qf9ntcSZH",
+                "SD0tMI9X6FnvQxB4Tr+sf+W5BoLCo3H33qM3pQvV7sT6Oc40g+45CX35trXBt9yHMUaQmrphNYRo",
+                "iNCwziTfaGtpcTJ/eWTq+ovsAp0F1Q==",
+            ),
+            signed: concat!(
+                "U1NIU0lHAAAABGZpbGUAAAAAAAAABnNoYTI1NgAAACBtlPOstuPL8kRlEWL51guiw7YyeHm7U+4r",
+                "ct1ktERdnQ==",
+            ),
+            signature: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAABoAAAAL2liVyWBPQS0Plo0I7JPi1bg9MItYDnyZRYC",
+                "yOpo60TwICVI4+oy72X6avm8Ad59AAAAMQC5/b6FoT0NFGcUsYQQ0m/RGsLsWeVXY2t4WtLoHuo3",
+                "gy9Zx/fEZNAXQa2G3lSMIwM=",
+            ),
+            fingerprint: "SHA256:TVq38491fRWNnR3fSzQWw8k5vHnBwQ1VoVo77OwrAns",
+            // s has a leading zero byte (49 bytes); r is shorter than the field (47 of 48 bytes)
+        },
+        OpensshVector {
+            curve: "nistp521",
+            host_key: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAFYKp/enDftp+MC+u+tuVMr",
+                "4fDIIGioPN7PwQIxWpIZnORvNl00ky+24xODUg8YjUJqgQ2IgOjSQ7Ww70hkXdHKeAEG98FVjzDB",
+                "gnyqzeAWfRbcOQll9s8bHoAl+sqwQ+fByimKhcbmX60KDlnc+R+2Cv3In2vJROj3fyUGg4FaUlgC",
+                "wA==",
+            ),
+            signed: concat!(
+                "U1NIU0lHAAAABGZpbGUAAAAAAAAABnNoYTI1NgAAACBdazObU1QZY7/xhh9BrAYrpbNmUfVnoKRi",
+                "Lo9QSTWUzg==",
+            ),
+            signature: concat!(
+                "AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAACLAAAAQgCmoRCd0v+YOxNswsR7/oT3GAbQUV7zepN2",
+                "v4oVQS9c3KD/hhaHgZsIivOn85g0NxJGauDigs5YuWIWDAYrzZUSuQAAAEF6T8PswGwBWsJOGHyo",
+                "hvEkYv20ImZqr+vADnCTykb7wb1iMnSQzwFaiT4BhJJi9+Rh6uo1yYE7+yXEo49px4DYgg==",
+            ),
+            fingerprint: "SHA256:mZhKFZM4NoIUy2bpYsUrhZNvbIPTEvsQcqJY/HRy1Eg",
+            // r has a leading zero byte (66 bytes); s is shorter than the field (65 of 66 bytes)
+        },
+    ];
+
+    fn decode_base64(text: &str) -> Vec<u8> {
+        use base64::{prelude::BASE64_STANDARD, Engine as _};
+        BASE64_STANDARD.decode(text).unwrap()
+    }
+
+    // Builds a non-forwarding session-bind payload from a vector and the given signature blob.
+    fn openssh_vector_payload(vector: &OpensshVector, signature: &[u8]) -> Vec<u8> {
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &decode_base64(vector.host_key));
+        write_ssh_string(&mut payload, &decode_base64(vector.signed));
+        write_ssh_string(&mut payload, signature);
+        payload.push(0u8);
+        payload
+    }
+
+    #[test]
+    fn ecdsa_openssh_signatures_verify() {
+        for vector in &OPENSSH_ECDSA_VECTORS {
+            let payload = openssh_vector_payload(vector, &decode_base64(vector.signature));
+            let state = apply(&payload)
+                .unwrap_or_else(|| panic!("{} OpenSSH signature must verify", vector.curve));
+            assert_eq!(
+                state.host_fingerprint, vector.fingerprint,
+                "{} fingerprint must match ssh-keygen",
+                vector.curve
+            );
+            assert!(!state.is_forwarding);
+        }
+    }
+
+    #[test]
+    fn ecdsa_openssh_signatures_tampered_fail() {
+        for vector in &OPENSSH_ECDSA_VECTORS {
+            let mut signature = decode_base64(vector.signature);
+            *signature.last_mut().unwrap() ^= 0x01; // last byte of `s`
+            let payload = openssh_vector_payload(vector, &signature);
+            assert!(
+                apply(&payload).is_none(),
+                "{} tampered signature must fail",
+                vector.curve
+            );
+        }
+    }
+
     // Host certificates are a known, documented limitation: they are rejected (and the
     // connection closed by the caller) rather than treated as an unbound, local connection.
     #[test]
@@ -418,27 +742,6 @@ mod tests {
         assert!(!state.parse_and_verify(&payload));
         assert!(!state.is_forwarding);
         assert!(state.host_fingerprint.is_empty());
-    }
-
-    // ECDSA host keys are not supported for session-bind in this change, so a validly signed
-    // ECDSA bind must be rejected (the caller then closes the connection) rather than verified.
-    #[test]
-    fn ecdsa_host_key_returns_false() {
-        for curve in [
-            EcdsaCurve::NistP256,
-            EcdsaCurve::NistP384,
-            EcdsaCurve::NistP521,
-        ] {
-            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
-            let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
-            let mut state = SessionBindState::default();
-            assert!(
-                !state.parse_and_verify(&payload),
-                "{curve:?} must be rejected"
-            );
-            assert!(!state.is_forwarding);
-            assert!(state.host_fingerprint.is_empty());
-        }
     }
 
     #[test]
