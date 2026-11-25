@@ -28,6 +28,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+import { AppPairingService } from "../../abstractions/app-pairing.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
@@ -53,6 +54,17 @@ function createPairingUri(name: string): string {
   }).toString();
 }
 
+function createRunningApp(name: string): DesktopAutotypePairingUri {
+  return new DesktopAutotypePairingUri(DesktopAutotypePairingUri.CurrentVersion, {
+    metadata: {
+      schemaVersion: { ...AUTOTYPE_PAIRING_DATA_SCHEMA_VERSION },
+      pairingTimestamp: 1796169600,
+    },
+    appData: { name, normalizedPath: `C:\\Program Files\\${name}\\${name}.exe` },
+    clientData: { packagingType: AutotypePairingPackagingType.WindowsExe },
+  });
+}
+
 describe("AutofillOptionsComponent", () => {
   let component: AutofillOptionsComponent;
   let fixture: ComponentFixture<AutofillOptionsComponent>;
@@ -64,6 +76,7 @@ describe("AutofillOptionsComponent", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let configService: MockProxy<ConfigService>;
   let httpAuthenticationService: MockProxy<CipherFormHTTPAuthenticationService>;
+  let appPairingService: MockProxy<AppPairingService>;
   let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
   let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   const getInitialCipherView = jest.fn((): any => null);
@@ -90,6 +103,8 @@ describe("AutofillOptionsComponent", () => {
 
     httpAuthenticationService = mock<CipherFormHTTPAuthenticationService>();
     httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(true);
+    appPairingService = mock<AppPairingService>();
+    appPairingService.getRunningApps.mockResolvedValue([]);
 
     await TestBed.configureTestingModule({
       imports: [AutofillOptionsComponent],
@@ -105,6 +120,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ConfigService, useValue: configService },
         { provide: CipherFormHTTPAuthenticationService, useValue: httpAuthenticationService },
+        { provide: AppPairingService, useValue: appPairingService },
       ],
     }).compileComponents();
 
@@ -645,6 +661,128 @@ describe("AutofillOptionsComponent", () => {
         true,
         DesktopAppRow.New,
       );
+    });
+  });
+
+  describe("running apps", () => {
+    const notepad = createRunningApp("Notepad");
+    const paint = createRunningApp("Paint");
+
+    const runningApps = () => component["runningApps"]();
+    const refreshRunningApps = () => component["refreshRunningApps"]();
+    const requestSignal = (call: number): AbortSignal =>
+      appPairingService.getRunningApps.mock.calls[call][0];
+
+    // Makes the next running apps request wait until the returned function answers it
+    function waitingRequest() {
+      let answer: (apps: DesktopAutotypePairingUri[] | null) => void;
+      appPairingService.getRunningApps.mockReturnValueOnce(
+        new Promise((resolve) => (answer = resolve)),
+      );
+      return (apps: DesktopAutotypePairingUri[] | null) => answer(apps);
+    }
+
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it("requests the running apps when 'Add website or app' is pressed", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      gaFeatureFlagSubject.next(true);
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      const triggerBtn = Array.from(localFixture.nativeElement.querySelectorAll("button")).find(
+        (btn: HTMLButtonElement) => btn.textContent?.trim() === "addWebsiteOrApp",
+      ) as HTMLButtonElement;
+      triggerBtn.click();
+
+      expect(appPairingService.getRunningApps).toHaveBeenCalledTimes(1);
+      expect(appPairingService.getRunningApps).toHaveBeenCalledWith(expect.any(AbortSignal));
+    });
+
+    it("passes the running apps to the URI options", async () => {
+      appPairingService.getRunningApps.mockResolvedValue([notepad, paint]);
+
+      await refreshRunningApps();
+      fixture.detectChanges();
+
+      const uriOption = fixture.debugElement.query(By.directive(UriOptionComponent));
+      expect(uriOption.componentInstance.runningApps()).toEqual([notepad, paint]);
+    });
+
+    it("is empty until the first list arrives", async () => {
+      const answer = waitingRequest();
+      const request = refreshRunningApps();
+
+      expect(runningApps()).toEqual([]);
+
+      answer([notepad]);
+      await request;
+      expect(runningApps()).toEqual([notepad]);
+    });
+
+    it("keeps the previous list until a new list arrives", async () => {
+      appPairingService.getRunningApps.mockResolvedValueOnce([notepad]);
+      await refreshRunningApps();
+
+      const answer = waitingRequest();
+      const request = refreshRunningApps();
+      expect(runningApps()).toEqual([notepad]);
+
+      answer([notepad, paint]);
+      await request;
+      expect(runningApps()).toEqual([notepad, paint]);
+    });
+
+    it("keeps the previous list when a later request fails", async () => {
+      appPairingService.getRunningApps.mockResolvedValueOnce([notepad]);
+      await refreshRunningApps();
+
+      appPairingService.getRunningApps.mockResolvedValueOnce(null);
+      await refreshRunningApps();
+
+      expect(runningApps()).toEqual([notepad]);
+    });
+
+    it("aborts a request that's still waiting when 'Add website or app' is pressed again", async () => {
+      waitingRequest();
+      void refreshRunningApps();
+
+      await refreshRunningApps();
+
+      expect(requestSignal(0).aborted).toBe(true);
+      expect(requestSignal(1).aborted).toBe(false);
+    });
+
+    it("doesn't replace the list with an earlier request that answers after a later one", async () => {
+      const answerFirst = waitingRequest();
+      const firstRequest = refreshRunningApps();
+      appPairingService.getRunningApps.mockResolvedValueOnce([paint]);
+      await refreshRunningApps();
+
+      answerFirst([notepad]);
+      await firstRequest;
+
+      expect(runningApps()).toEqual([paint]);
+    });
+
+    it("aborts a request that's still waiting when the form is destroyed", () => {
+      waitingRequest();
+      void refreshRunningApps();
+
+      fixture.destroy();
+
+      expect(requestSignal(0).aborted).toBe(true);
+    });
+
+    it("doesn't request the running apps without the app pairing service, which only desktop provides", async () => {
+      component["appPairingService"] = null;
+
+      await refreshRunningApps();
+
+      expect(appPairingService.getRunningApps).not.toHaveBeenCalled();
+      expect(runningApps()).toEqual([]);
     });
   });
 

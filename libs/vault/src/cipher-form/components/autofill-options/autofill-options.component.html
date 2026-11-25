@@ -20,6 +20,7 @@
           [index]="i"
           [recognizeDesktopApps]="recognizeDesktopApps()"
           [desktopAppRow]="desktopAppRows.get(uri) ?? null"
+          [runningApps]="runningApps()"
         ></vault-autofill-uri-option>
       }
     </ng-container>
@@ -33,6 +34,7 @@
           [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
           startIcon="bwi-plus"
           [bitMenuTriggerFor]="addUriMenu"
+          (click)="refreshRunningApps()"
         >
           {{ "addWebsiteOrApp" | i18n }}
         </button>

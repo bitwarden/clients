@@ -10,6 +10,7 @@ import {
   inject,
   OnInit,
   QueryList,
+  signal,
   ViewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -20,7 +21,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { AutotypeFeatureFlagState } from "@bitwarden/common/desktop-native/enums/autotype-feature-flag-state.enum";
-import { DESKTOP_APP_URI_PREFIX } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
+import {
+  DESKTOP_APP_URI_PREFIX,
+  DesktopAutotypePairingUri,
+} from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import {
@@ -43,6 +47,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { AppPairingService } from "../../abstractions/app-pairing.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
@@ -156,7 +161,17 @@ export class AutofillOptionsComponent implements OnInit {
    */
   protected readonly desktopAppRows = new WeakMap<AbstractControl, DesktopAppRow>();
 
+  /**
+   * The running apps that new desktop app rows can be paired with. One list is shared by every new
+   * desktop app row. It's empty until the first list arrives, and each list that arrives replaces it.
+   */
+  protected readonly runningApps = signal<DesktopAutotypePairingUri[]>([]);
+
+  /** The running apps request that was sent last, so an earlier one can be aborted */
+  private runningAppsRequest: AbortController | null = null;
+
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+  private appPairingService = inject(AppPairingService, { optional: true });
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -207,6 +222,8 @@ export class AutofillOptionsComponent implements OnInit {
         this.autofillOptionsForm.enable({ emitEvent: false });
       }
     });
+
+    this.destroyRef.onDestroy(() => this.runningAppsRequest?.abort());
   }
 
   ngOnInit() {
@@ -250,6 +267,28 @@ export class AutofillOptionsComponent implements OnInit {
     }
 
     this.addUri(uriFieldValue, true);
+  }
+
+  /**
+   * Requests the apps that are running, so they're ready by the time the user adds a desktop app.
+   * Called when the user opens the menu to add a website or app.
+   *
+   * A request that's still waiting is aborted, and the list is only replaced by the latest request.
+   * A request that fails leaves the list as it was.
+   */
+  protected async refreshRunningApps() {
+    if (this.appPairingService == null) {
+      return;
+    }
+
+    this.runningAppsRequest?.abort();
+    const request = new AbortController();
+    this.runningAppsRequest = request;
+
+    const apps = await this.appPairingService.getRunningApps(request.signal);
+    if (apps != null && this.runningAppsRequest === request) {
+      this.runningApps.set(apps);
+    }
   }
 
   /**
