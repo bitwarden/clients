@@ -8,6 +8,11 @@ import { GROUPS_TABLE_FILTERS_MEMORY, StateProvider, UserKeyDefinition } from "@
 export type GroupsTableState = {
   /** Ids of the shared folders selected in the filter menu. */
   sharedFolders?: string[];
+  /** The last search term typed into the table's search box. */
+  search?: string;
+  /** The sorted column's name, as declared on `bit-column`. */
+  sortColumn?: string;
+  sortDirection?: "asc" | "desc";
 };
 
 type GroupsTableStateByOrg = Record<string, GroupsTableState>;

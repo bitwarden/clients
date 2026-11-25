@@ -48,6 +48,34 @@ describe("GroupsV2TableStateService", () => {
       expect(await firstValueFrom(service.state$(orgId))).toEqual({ sharedFolders: ["col-eng"] });
     });
 
+    it("round-trips the sort column and direction", async () => {
+      await service.update(orgId, { sortColumn: "details", sortDirection: "desc" });
+
+      expect(await firstValueFrom(service.state$(orgId))).toEqual({
+        sortColumn: "details",
+        sortDirection: "desc",
+      });
+    });
+
+    it("round-trips the search term", async () => {
+      await service.update(orgId, { search: "engineering" });
+
+      expect(await firstValueFrom(service.state$(orgId))).toEqual({ search: "engineering" });
+    });
+
+    it("merges a patch rather than replacing the stored view", async () => {
+      await service.update(orgId, { sharedFolders: ["col-eng"] });
+      await service.update(orgId, { sortColumn: "details", sortDirection: "desc" });
+      await service.update(orgId, { search: "engineering" });
+
+      expect(await firstValueFrom(service.state$(orgId))).toEqual({
+        sharedFolders: ["col-eng"],
+        sortColumn: "details",
+        sortDirection: "desc",
+        search: "engineering",
+      });
+    });
+
     it("keeps each organization's view separate", async () => {
       await service.update(orgId, { sharedFolders: ["col-eng"] });
       await service.update(otherOrgId, { sharedFolders: ["col-design"] });

@@ -94,6 +94,12 @@ type GroupRow = {
 
 type GroupColumn = ColumnName<GroupRow, "actions">;
 
+const SORTABLE_COLUMNS: readonly GroupColumn[] = ["details", "collectionChips"];
+
+function isSortableColumn(value: string | undefined): value is GroupColumn {
+  return SORTABLE_COLUMNS.some((column) => column === value);
+}
+
 function sameSharedFolders(a: readonly string[], b: readonly string[] | undefined): boolean {
   const other = b ?? [];
   if (a.length !== other.length) {
@@ -176,9 +182,14 @@ export class GroupsV2Component {
   );
 
   protected readonly initialFilters = computed<Partial<GroupFilters>>(() => {
-    const sharedFolders = this.storedTableState()?.sharedFolders;
+    const stored = this.storedTableState();
+    if (stored == null) {
+      return {};
+    }
+    const search = this.route.snapshot.queryParams.search ?? stored.search ?? "";
+    const sharedFolders = stored.sharedFolders;
     return {
-      search: this.route.snapshot.queryParams.search ?? "",
+      search,
       ...(sharedFolders != null && { collections: sharedFolders }),
     };
   });
@@ -261,6 +272,8 @@ export class GroupsV2Component {
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
 
   private readonly filterRestored = signal(false);
+  private readonly sortRestored = signal(false);
+  private readonly searchRestored = signal(false);
 
   constructor() {
     effect(() => {
@@ -277,7 +290,9 @@ export class GroupsV2Component {
     });
 
     this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
-      this.searchControl.setValue(qParams.search);
+      if (qParams.search != null) {
+        this.searchControl.setValue(qParams.search);
+      }
     });
 
     effect(() => {
@@ -301,6 +316,47 @@ export class GroupsV2Component {
         return;
       }
       void this.tableState.update(organizationId, { sharedFolders: [...sharedFolders] });
+    });
+
+    effect(() => {
+      const { column, direction } = this.sort();
+      const organizationId = this.organizationId();
+      const stored = this.storedTableState();
+      if (organizationId == null || stored == null) {
+        return;
+      }
+      if (!this.sortRestored()) {
+        this.sortRestored.set(true);
+        if (isSortableColumn(stored.sortColumn)) {
+          this.sort.set({ column: stored.sortColumn, direction: stored.sortDirection ?? "asc" });
+        }
+        return;
+      }
+      const storedDirection = stored.sortDirection ?? "asc";
+      if (stored.sortColumn === column && storedDirection === direction) {
+        return;
+      }
+      void this.tableState.update(organizationId, { sortColumn: column, sortDirection: direction });
+    });
+
+    effect(() => {
+      const search = this.tableRef()?.filterValues()?.search ?? "";
+      const organizationId = this.organizationId();
+      const stored = this.storedTableState();
+      if (organizationId == null || stored == null) {
+        return;
+      }
+      if (!this.searchRestored()) {
+        if (stored.search != null && stored.search !== search) {
+          return;
+        }
+        this.searchRestored.set(true);
+        return;
+      }
+      if ((stored.search ?? "") === search) {
+        return;
+      }
+      void this.tableState.update(organizationId, { search });
     });
   }
 

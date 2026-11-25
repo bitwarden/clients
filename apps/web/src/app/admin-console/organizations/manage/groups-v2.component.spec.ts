@@ -46,6 +46,8 @@ describe("GroupsV2Component", () => {
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
+  /** The route snapshot's query params a test wants read by `initialFilters`. */
+  let snapshotQueryParams: Record<string, string>;
 
   const orgId = newGuid() as OrganizationId;
   const userId = newGuid() as UserId;
@@ -67,6 +69,7 @@ describe("GroupsV2Component", () => {
   beforeEach(async () => {
     routeParamsSubject = new BehaviorSubject({ organizationId: orgId });
     queryParamsSubject = new BehaviorSubject({});
+    snapshotQueryParams = {};
 
     mockApiService = mock<ApiService>();
     mockApiService.getCollections.mockResolvedValue({
@@ -129,7 +132,9 @@ describe("GroupsV2Component", () => {
           useValue: {
             params: routeParamsSubject.asObservable(),
             queryParams: queryParamsSubject.asObservable(),
-            snapshot: { queryParams: {} },
+            get snapshot() {
+              return { queryParams: snapshotQueryParams };
+            },
           },
         },
       ],
@@ -198,30 +203,107 @@ describe("GroupsV2Component", () => {
 
       expect("collections" in (component as any).initialFilters()).toBe(false);
     });
+
+    it("restores the stored sort", async () => {
+      storedState$ = of({ sortColumn: "details", sortDirection: "desc" as const });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).sort()).toEqual({ column: "details", direction: "desc" });
+    });
+
+    it("ignores a stored sort column that no longer exists", async () => {
+      storedState$ = of({ sortColumn: "removedColumn", sortDirection: "desc" as const });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).sort().column).toBeUndefined();
+    });
+
+    it("seeds the search term from the stored state", async () => {
+      storedState$ = of({ search: "engineering" });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().search).toEqual("engineering");
+    });
+
+    /**
+     * The table seeds a chip's value the first time its key is present in `initialFilters()`,
+     * and never again — a projected `bit-search`'s `search` key always exists in the returned
+     * object (unlike `collections`, which is conditionally omitted), so if it resolved eagerly
+     * to `""` before the stored state loaded, the table would seed it empty and the real stored
+     * value arriving later would be silently ignored, permanently losing the restored search.
+     */
+    it("omits every key, including search, until the stored state loads", async () => {
+      const stored = new Subject<GroupsTableState>();
+      storedState$ = stored;
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).initialFilters()).toEqual({});
+
+      stored.next({ search: "engineering" });
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().search).toEqual("engineering");
+    });
+
+    it("prefers a search query param over the stored search term", async () => {
+      snapshotQueryParams = { search: "from-url" };
+      storedState$ = of({ search: "engineering" });
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).initialFilters().search).toEqual("from-url");
+    });
+
+    /**
+     * The query-param sync subscribes once and used to unconditionally call
+     * `searchControl.setValue(qParams.search)`, which is `undefined` whenever the URL has no
+     * `search` param. Since `bit-search`'s form control and the table's own restore-from-state
+     * seeding both write through the same `SearchComponent.writeValue`, that unconditional write
+     * could race the (async) stored-state restore and blank it back out depending on which
+     * resolved last.
+     */
+    it("does not clear searchControl when there is no search query param", async () => {
+      snapshotQueryParams = {};
+      queryParamsSubject.next({});
+      createComponent();
+      await detectAndFlush();
+
+      expect((component as any).searchControl.value).not.toBeUndefined();
+    });
   });
 
-  describe("persisting the shared folder filter", () => {
+  describe("persisting the table view", () => {
     /**
      * Replaces the `tableRef` viewChild signal with a fake, writable one exposing just enough
-     * surface for the persistence effect, so tests can drive filter changes without a real
-     * `bit-table-v2` (the spec stubs the template out entirely).
+     * surface for the persistence effects, so tests can drive filter/search changes without a
+     * real `bit-table-v2` (the spec stubs the template out entirely).
      */
     function fakeTableRef() {
-      const filterValues = signal<{ collections?: string[] } | undefined>(undefined);
+      const filterValues = signal<{ collections?: string[]; search?: string } | undefined>(
+        undefined,
+      );
       (component as any).tableRef = signal({
         filterValues,
         selectionModel: () => ({ selected: (): unknown[] => [], deselect: () => {} }),
       });
-      return (collections: string[]) => filterValues.set({ collections });
+      return {
+        setCollections: (collections: string[]) =>
+          filterValues.update((v) => ({ ...v, collections })),
+        setSearch: (search: string) => filterValues.update((v) => ({ ...v, search })),
+      };
     }
 
     it("saves the first selection even when nothing was previously stored", async () => {
       storedState$ = of({});
       createComponent();
-      const setFilterValues = fakeTableRef();
+      const { setCollections } = fakeTableRef();
       await detectAndFlush();
 
-      setFilterValues(["col-eng"]);
+      setCollections(["col-eng"]);
       await detectAndFlush();
 
       expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
@@ -232,10 +314,10 @@ describe("GroupsV2Component", () => {
     it("does not save while restoring a stored selection", async () => {
       storedState$ = of({ sharedFolders: ["col-eng"] });
       createComponent();
-      const setFilterValues = fakeTableRef();
+      const { setCollections } = fakeTableRef();
       await detectAndFlush();
 
-      setFilterValues(["col-eng"]);
+      setCollections(["col-eng"]);
       await detectAndFlush();
 
       expect(mockTableStateService.update).not.toHaveBeenCalled();
@@ -244,17 +326,82 @@ describe("GroupsV2Component", () => {
     it("saves a later change once restored", async () => {
       storedState$ = of({ sharedFolders: ["col-eng"] });
       createComponent();
-      const setFilterValues = fakeTableRef();
+      const { setCollections } = fakeTableRef();
       await detectAndFlush();
 
-      setFilterValues(["col-eng"]);
+      setCollections(["col-eng"]);
       await detectAndFlush();
 
-      setFilterValues(["col-design"]);
+      setCollections(["col-design"]);
       await detectAndFlush();
 
       expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
         sharedFolders: ["col-design"],
+      });
+    });
+
+    it("saves a sort change", async () => {
+      storedState$ = of({});
+      createComponent();
+      await detectAndFlush();
+
+      (component as any).sort.set({ column: "details", direction: "desc" });
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        sortColumn: "details",
+        sortDirection: "desc",
+      });
+    });
+
+    it("does not re-save the sort it just restored", async () => {
+      storedState$ = of({ sortColumn: "details", sortDirection: "desc" as const });
+      createComponent();
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).not.toHaveBeenCalled();
+    });
+
+    it("saves the first search term even when nothing was previously stored", async () => {
+      storedState$ = of({});
+      createComponent();
+      const { setSearch } = fakeTableRef();
+      await detectAndFlush();
+
+      setSearch("engineering");
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        search: "engineering",
+      });
+    });
+
+    it("does not save while restoring a stored search term", async () => {
+      storedState$ = of({ search: "engineering" });
+      createComponent();
+      const { setSearch } = fakeTableRef();
+      await detectAndFlush();
+
+      setSearch("engineering");
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).not.toHaveBeenCalled();
+    });
+
+    it("saves a later search change once restored", async () => {
+      storedState$ = of({ search: "engineering" });
+      createComponent();
+      const { setSearch } = fakeTableRef();
+      await detectAndFlush();
+
+      setSearch("engineering");
+      await detectAndFlush();
+
+      setSearch("design");
+      await detectAndFlush();
+
+      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+        search: "design",
       });
     });
   });
