@@ -34,8 +34,8 @@ export const DesktopAutofillPreload = {
   /**
    * Signals the main process whether native credential sync is enabled. The main process only
    * registers the native OS credential provider and starts the autofill IPC server once this is
-   * called with `true`, so the flag-gating decision stays in the renderer where the feature flag
-   * is evaluated. Each call with `true` re-submits the registration. Resolves to whether
+   * called with `true`, which the renderer does on platforms that support a native credential
+   * provider. Each call with `true` re-submits the registration. Resolves to whether
    * registration succeeded and native autofill is running in the main process.
    */
   setEnabled: (enabled: boolean): Promise<boolean> =>

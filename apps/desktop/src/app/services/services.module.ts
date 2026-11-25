@@ -513,7 +513,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       LogService,
       CipherServiceAbstraction,
-      ConfigService,
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,

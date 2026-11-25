@@ -9,7 +9,6 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -37,7 +36,6 @@ import {
 describe("DesktopAutofillService", () => {
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
-  let configService: MockProxy<ConfigService>;
   let fido2AuthenticatorService: MockProxy<
     Fido2AuthenticatorServiceAbstraction<NativeWindowObject>
   >;
@@ -55,7 +53,6 @@ describe("DesktopAutofillService", () => {
   beforeEach(() => {
     logService = mock<LogService>();
     cipherService = mock<CipherService>();
-    configService = mock<ConfigService>();
     fido2AuthenticatorService = mock<Fido2AuthenticatorServiceAbstraction<NativeWindowObject>>();
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
@@ -73,7 +70,6 @@ describe("DesktopAutofillService", () => {
     service = new DesktopAutofillService(
       logService,
       cipherService,
-      configService,
       fido2AuthenticatorService,
       accountService,
       authService,
@@ -84,7 +80,6 @@ describe("DesktopAutofillService", () => {
   });
 
   describe("enabling native autofill", () => {
-    let featureFlag$: BehaviorSubject<boolean>;
     let desktopAutofillIpc: {
       setEnabled: jest.Mock;
       getPasskeyProviderState: jest.Mock;
@@ -95,9 +90,6 @@ describe("DesktopAutofillService", () => {
     const unregistered = { registered: false, enabled: false };
 
     beforeEach(() => {
-      featureFlag$ = new BehaviorSubject<boolean>(true);
-      configService.getFeatureFlag$.mockReturnValue(featureFlag$);
-      configService.getFeatureFlag.mockImplementation(async () => featureFlag$.value);
       accountService.activeAccount$ = new BehaviorSubject(null);
 
       desktopAutofillIpc = {
@@ -117,19 +109,11 @@ describe("DesktopAutofillService", () => {
       delete (global as any).ipc;
     });
 
-    it("does not enable when the feature flag is off", async () => {
-      featureFlag$.next(false);
-
-      await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
-      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
-    });
-
     it("does not enable on Linux", async () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.LinuxDesktop);
       service = new DesktopAutofillService(
         logService,
         cipherService,
-        configService,
         fido2AuthenticatorService,
         accountService,
         authService,
@@ -166,16 +150,41 @@ describe("DesktopAutofillService", () => {
       expect(desktopAutofillIpc.getPasskeyProviderState).not.toHaveBeenCalled();
     });
 
-    it("enables when the feature flag turns on after init", async () => {
-      featureFlag$.next(false);
+    it("enables on init without any feature flag", async () => {
       await service.init();
-      expect(desktopAutofillIpc.setEnabled).not.toHaveBeenCalled();
-
-      featureFlag$.next(true);
       await new Promise(process.nextTick);
 
       expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
       expect(desktopAutofillIpc.listenerReady).toHaveBeenCalledTimes(1);
+    });
+
+    it("enables on Windows", async () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      service = new DesktopAutofillService(
+        logService,
+        cipherService,
+        fido2AuthenticatorService,
+        accountService,
+        authService,
+        environmentService,
+        platformUtilsService,
+        fido2UserInterfaceService,
+      );
+
+      await service.init();
+      await new Promise(process.nextTick);
+
+      expect(desktopAutofillIpc.setEnabled).toHaveBeenCalledWith(true);
+    });
+
+    it("logs and does not throw when enabling fails during init", async () => {
+      desktopAutofillIpc.setEnabled.mockRejectedValue(new Error("ipc failed"));
+
+      await expect(service.init()).resolves.toBeUndefined();
+      await new Promise(process.nextTick);
+
+      expect(logService.error).toHaveBeenCalled();
+      expect(desktopAutofillIpc.listenerReady).not.toHaveBeenCalled();
     });
   });
 
@@ -437,8 +446,6 @@ describe("DesktopAutofillService", () => {
     beforeEach(() => {
       // `makeListener` reads `ipc.autofill.desktopAutofill` to derive a log name.
       (global as any).ipc = { autofill: { desktopAutofill: {} } };
-      // Correlation only runs once the feature flag has enabled the service.
-      (service as any).isEnabled = true;
     });
 
     afterEach(() => {

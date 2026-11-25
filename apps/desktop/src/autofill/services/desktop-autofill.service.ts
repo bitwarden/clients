@@ -3,14 +3,12 @@ import {
   Subject,
   combineLatest,
   debounceTime,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
   mergeMap,
   switchMap,
   takeUntil,
-  tap,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -18,9 +16,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { isDesktopAppUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2AuthenticatorGetAssertionParams,
@@ -70,9 +66,6 @@ import {
   type RpIdNotAllowedOperation,
 } from "./desktop-fido2-user-interface.service";
 
-type NativeCredentialSyncFeatureFlag =
-  typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
-
 /**
  * Derives an RP ID from the web vault URL for the purpose of excluding passkey
  * requests that match it.
@@ -109,8 +102,8 @@ function isVaultRpId(rpId: string, vaultRpId: string | undefined): boolean {
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private featureFlag?: NativeCredentialSyncFeatureFlag;
-  private isEnabled: boolean = false;
+  /** Whether the OS supports Bitwarden as a native credential provider. */
+  private readonly isSupported: boolean;
   /** Whether syncing and IPC listeners have been started. */
   private started = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
@@ -118,7 +111,6 @@ export class DesktopAutofillService implements OnDestroy {
   constructor(
     private logService: LogService,
     private cipherService: CipherService,
-    private configService: ConfigService,
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
@@ -127,29 +119,15 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2UserInterfaceService: DesktopFido2UserInterfaceService,
   ) {
     const deviceType = platformUtilsService.getDevice();
-    if (deviceType === DeviceType.MacOsDesktop) {
-      this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
-    } else if (deviceType === DeviceType.WindowsDesktop) {
-      this.featureFlag = FeatureFlag.WindowsNativeCredentialSync;
-    }
+    this.isSupported =
+      deviceType === DeviceType.MacOsDesktop || deviceType === DeviceType.WindowsDesktop;
   }
 
   async init() {
-    if (!this.featureFlag) {
-      return;
-    }
-
-    // Enable as soon as the flag turns on, so a flag value that arrives after startup takes
-    // effect without restarting the app.
-    this.configService
-      .getFeatureFlag$(this.featureFlag)
-      .pipe(
-        distinctUntilChanged(),
-        filter((enabled) => enabled === true),
-        mergeMap(() => this.ensureEnabled()),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    // Don't block app startup on the main process registering the OS credential provider.
+    this.ensureEnabled().catch((e: unknown) =>
+      this.logService.error("[DesktopAutofillService]", "Failed to enable native autofill", e),
+    );
   }
 
   /**
@@ -160,15 +138,10 @@ export class DesktopAutofillService implements OnDestroy {
    * @returns whether native autofill is running.
    */
   private async ensureEnabled(): Promise<boolean> {
-    if (!this.featureFlag) {
-      return false;
-    }
-    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
-    if (!this.isEnabled) {
+    if (!this.isSupported) {
       return false;
     }
 
-    // Gated here because the main process cannot evaluate the feature flag itself.
     const running = await ipc.autofill.desktopAutofill.setEnabled(true);
     if (!running) {
       this.logService.error(
@@ -180,7 +153,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     if (!this.started) {
       this.started = true;
-      this.startSync(this.featureFlag);
+      this.startSync();
       this.listenIpc();
     }
     return true;
@@ -232,27 +205,19 @@ export class DesktopAutofillService implements OnDestroy {
     }
   }
 
-  private startSync(featureFlag: NativeCredentialSyncFeatureFlag) {
-    this.configService
-      .getFeatureFlag$(featureFlag)
+  private startSync() {
+    combineLatest([
+      this.accountService.activeAccount$.pipe(
+        map((account) => account?.id),
+        filter((userId): userId is UserId => userId != null),
+      ),
+      this.authService.activeAccountStatus$,
+    ])
       .pipe(
-        distinctUntilChanged(),
-        tap((enabled) => (this.isEnabled = enabled === true)),
-        filter((enabled) => enabled === true), // Only proceed if feature is enabled
-        switchMap(() => {
-          return combineLatest([
-            this.accountService.activeAccount$.pipe(
-              map((account) => account?.id),
-              filter((userId): userId is UserId => userId != null),
-            ),
-            this.authService.activeAccountStatus$,
-          ]).pipe(
-            // Only proceed when the vault is unlocked
-            filter(([, status]) => status === AuthenticationStatus.Unlocked),
-            // Then get cipher views
-            switchMap(([userId]) => this.cipherService.cipherViews$(userId)),
-          );
-        }),
+        // Only proceed when the vault is unlocked
+        filter(([, status]) => status === AuthenticationStatus.Unlocked),
+        // Then get cipher views
+        switchMap(([userId]) => this.cipherService.cipherViews$(userId)),
         // No filter for empty arrays here - we want to sync even if there are 0 items
         filter((cipherViewMap) => cipherViewMap !== null),
         debounceTime(100),
@@ -568,17 +533,6 @@ export class DesktopAutofillService implements OnDestroy {
         clientId,
         sequenceNumber,
       });
-      if (!this.isEnabled) {
-        this.logService.debug(
-          "[DesktopAutofillService]",
-          `${handlerName}: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-        );
-        if (completeCallback) {
-          completeCallback(new Error("Native credential sync feature flag is disabled"), null);
-        }
-        return;
-      }
-
       // Setup correlation for cancellation requests
       let transactionId: string | undefined = undefined;
       const abortController: AbortController = new AbortController();

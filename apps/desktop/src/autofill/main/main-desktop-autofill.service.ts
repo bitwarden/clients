@@ -90,6 +90,8 @@ export class DesktopAutofillMain {
     ipcMain.handle(
       AutofillIpcChannelControl.SetEnabled,
       (_event, enabled: boolean): Promise<boolean> => {
+        // TODO: PM-46824 - the renderer only sends `true` now that the native passkey flags are
+        // gone; drop the `enabled` parameter and this branch.
         if (!enabled) {
           return Promise.resolve(this.enabled);
         }
