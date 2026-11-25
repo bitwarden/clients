@@ -713,6 +713,28 @@ describe("VaultComponent", () => {
       expect(openAttachmentsSpy).toHaveBeenCalledTimes(1);
     });
 
+    it("does not open attachments when the flag read fails", async () => {
+      getFeatureFlag.mockRejectedValue(new Error("flag read failed"));
+
+      await expect(component.editCipherAttachments(cipher())).rejects.toThrow("flag read failed");
+
+      expect(hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+      expect(promptForPremium).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not open attachments when the nudge check fails", async () => {
+      setUpgradePathsFlag(true);
+      hasPremiumOrShowUpgradeNudge.mockRejectedValue(new Error("premium read failed"));
+
+      await expect(component.editCipherAttachments(cipher())).rejects.toThrow(
+        "premium read failed",
+      );
+
+      expect(promptForPremium).not.toHaveBeenCalled();
+      expect(openAttachmentsSpy).not.toHaveBeenCalled();
+    });
+
     it("opens attachments for a Premium user without reading the flag", async () => {
       setUpgradePathsFlag(true);
       (component as any).canAccessPremium = true;
