@@ -1,0 +1,38 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>{{ "fillLoginPopUpPromptsTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <p class="tw-mb-0 tw-hyphens-none">
+      {{ "fillLoginPopUpPromptsWarning" | i18n }}
+      <a
+        bitLink
+        href="#"
+        endIcon="bwi-external-link"
+        id="http-authentication-warning_link_learn-more"
+        [attr.aria-label]="'fillLoginPopUpPromptsHelpArticleSignpost' | i18n"
+        (click)="openHelpArticle($event)"
+      >
+        {{ "learnMore" | i18n }}
+      </a>
+    </p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      id="http-authentication-warning_button_turn-on"
+      (click)="turnOn()"
+    >
+      {{ "turnOn" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      id="http-authentication-warning_button_cancel"
+      (click)="cancel()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

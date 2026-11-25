@@ -247,7 +247,6 @@
       <bit-cell
         *bitCellDef="table.columns.actor; let row"
         class="tw-cursor-pointer"
-        [truncate]="false"
         (click)="openDetails(row)"
       >
         @if (row.automated) {
@@ -255,6 +254,7 @@
         } @else if (linkedMember(row.actorId, row.actor); as member) {
           <a
             bitLink
+            truncate
             href="#"
             id="access-audit_link_actor-{{ rowIndex().get(row) }}"
             [title]="member.email"
@@ -262,7 +262,7 @@
             >{{ row.actor }}</a
           >
         } @else if (row.actor) {
-          {{ row.actor }}
+          <span [title]="row.actor">{{ row.actor }}</span>
         } @else {
           <span class="tw-text-muted">—</span>
         }
@@ -273,12 +273,12 @@
       <bit-cell
         *bitCellDef="table.columns.requester; let row"
         class="tw-cursor-pointer"
-        [truncate]="false"
         (click)="openDetails(row)"
       >
         @if (linkedMember(row.requesterId, row.requester); as member) {
           <a
             bitLink
+            truncate
             href="#"
             id="access-audit_link_requester-{{ rowIndex().get(row) }}"
             [title]="member.email"
@@ -286,7 +286,7 @@
             >{{ row.requester }}</a
           >
         } @else if (row.requester) {
-          {{ row.requester }}
+          <span [title]="row.requester">{{ row.requester }}</span>
         } @else {
           <span class="tw-text-muted">—</span>
         }

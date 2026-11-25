@@ -1,3 +1,4 @@
+import { DeviceType } from "@bitwarden/common/enums";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 /**
@@ -18,6 +19,8 @@ export const AccessAuditEventKind = Object.freeze({
   LeaseExpired: "leaseExpired",
   CredentialAccessed: "credentialAccessed",
   CredentialAccessDenied: "credentialAccessDenied",
+  CredentialUngated: "credentialUngated",
+  VaultExported: "vaultExported",
   RuleCreated: "ruleCreated",
   RuleUpdated: "ruleUpdated",
   RuleDeleted: "ruleDeleted",
@@ -94,6 +97,10 @@ export class AccessAuditEventResponse extends BaseResponse {
   targetSystemName: string | null;
   /** Plaintext organization configuration, for rotation and fleet administration events. */
   accessConnectorName: string | null;
+  /** The source IP address of the request that recorded the event; null for a background job. */
+  ipAddress: string | null;
+  /** The device type of the request that recorded the event; null for a background job. */
+  deviceType: DeviceType | null;
   /** True for a system event with no human actor. */
   automated: boolean;
   /** True when only the write-ahead attempt was recorded, so the outcome is in doubt. */
@@ -123,6 +130,8 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.ruleName = this.getResponseProperty("RuleName") ?? null;
     this.targetSystemName = this.getResponseProperty("TargetSystemName") ?? null;
     this.accessConnectorName = this.getResponseProperty("AccessConnectorName") ?? null;
+    this.ipAddress = this.getResponseProperty("IpAddress") ?? null;
+    this.deviceType = this.getResponseProperty("DeviceType") ?? null;
     this.automated = this.getResponseProperty("Automated");
     this.incomplete = this.getResponseProperty("Incomplete") ?? false;
   }

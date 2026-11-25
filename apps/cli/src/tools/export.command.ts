@@ -9,7 +9,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { isGuid } from "@bitwarden/guid";
 import {
   ExportFormat,
   EXPORT_FORMATS,
@@ -27,9 +29,26 @@ export class ExportCommand {
     private policyService: PolicyService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+
+    if (vfo1Enabled && options.organizationid && process.env.BW_QUIET !== "true") {
+      CliUtils.writeLn(
+        "--organizationid is deprecated and will be removed in a future CLI release. Use --vaultid instead",
+        false,
+        true,
+      );
+    }
+
+    const organizationId = vfo1Enabled
+      ? (options.vaultid ?? options.organizationid)
+      : options.organizationid;
+
+    const isPersonalExport = organizationId == null;
+
     const policyApplies$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -37,7 +56,7 @@ export class ExportCommand {
       ),
     );
 
-    if (options.organizationid == null && (await firstValueFrom(policyApplies$))) {
+    if (isPersonalExport && (await firstValueFrom(policyApplies$))) {
       return Response.badRequest(
         "One or more organization policies prevents you from exporting your personal vault.",
       );
@@ -59,8 +78,8 @@ export class ExportCommand {
       );
     }
 
-    if (options.organizationid != null && !Utils.isGuid(options.organizationid)) {
-      return Response.error("`" + options.organizationid + "` is not a GUID.");
+    if (!isPersonalExport && !isGuid(organizationId)) {
+      return Response.error("`" + organizationId + "` is not a GUID.");
     }
 
     let exportContent: ExportedVault = null;
@@ -71,20 +90,14 @@ export class ExportCommand {
 
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-      exportContent =
-        options.organizationid == null
-          ? await this.exportService.getExport(userId, format, password)
-          : await this.exportService.getOrganizationExport(
-              userId,
-              options.organizationid,
-              format,
-              password,
-            );
+      exportContent = isPersonalExport
+        ? await this.exportService.getExport(userId, format, password)
+        : await this.exportService.getOrganizationExport(userId, organizationId, format, password);
 
-      const eventType = options.organizationid
-        ? EventType.Organization_ClientExportedVault
-        : EventType.User_ClientExportedVault;
-      await this.eventCollectionService.collect(eventType, null, true, options.organizationid);
+      const eventType = isPersonalExport
+        ? EventType.User_ClientExportedVault
+        : EventType.Organization_ClientExportedVault;
+      await this.eventCollectionService.collect(eventType, null, true, organizationId);
     } catch (e) {
       return Response.error(e);
     }

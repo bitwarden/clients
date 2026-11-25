@@ -32,7 +32,6 @@ const SET_USERKEY_UNLOCK = false;
 
 /**
  * SDK driver for biometrics IPC. This is responsible for responding to the browser extension's requests to unlock with biometrics.
- * This replaces the `BiometricMessageHandlerService` entirely.
  */
 class BiometricsUnlockDriver implements BiometricsUnlock {
   constructor(

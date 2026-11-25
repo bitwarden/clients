@@ -3819,6 +3819,33 @@
   "sendTypeFile": {
     "message": "Soubor"
   },
+  "item": {
+    "message": "Položka"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Nemáte žádné Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Sdílejte bezpečně text nebo soubory s kýmkoli. Vaše informace budou šifrovány."
+  },
+  "pendingDeletion": {
+    "message": "Čekání na smazání"
+  },
   "allSends": {
     "message": "Všechny Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5237,6 +5264,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import byl úspěšný"
+  },
+  "importConfirmationBody": {
+    "message": "Do Bitwardenu jste úspěšně importovali $AMOUNT$ položek.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Do Bitwardenu jste úspěšně importovali 1 položku."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Nezapomeňte smazat $FILENAME$. Obsahuje citlivá data a může být nešifrovaný.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Nezapomeňte smazat soubor s importem. Obsahuje citlivá data a může být nešifrovaný."
+  },
+  "importingTitle": {
+    "message": "Importování"
+  },
+  "importingDescription": {
+    "message": "Tento proces může trvat několik minut."
+  },
+  "importingItemsTitle": {
+    "message": "Importování $COUNT$ položek!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Importování 1 položky!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Otevírání rozšíření prohlížeče"
+  },
+  "openedExtensionTitle": {
+    "message": "Otevřeno rozšíření prohlížeče"
+  },
+  "somethingWentWrong": {
+    "message": "Něco se pokazilo…"
+  },
+  "openingExtensionError": {
+    "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na tlačítko pro jeho otevření."
+  },
+  "openExtension": {
+    "message": "Otevřít rozšíření"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " na panelu nástrojů.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Zkusit znovu"
   },
@@ -6159,11 +6257,11 @@
   "onePasswordCheckCredentials": {
     "message": "Došlo k chybě. Zkontrolujte Vaše přihlašovací údaje a zkuste to znovu."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Je podporováno jen přihlášení s heslem."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Podporováno je jen přihlášení s heslem. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Tento účet 1Password používá metodu přihlášení, která není podporována. Zkuste to znovu nebo použijte jinou metodu importu."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Zadejte platnou e-mailovou adresu nebo použijte jinou metodu importu."
@@ -6182,6 +6280,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Zadejte platnou přihlašovací adresu."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Najděte to v nouzové sadě 1Password."
   },
   "secretKeyIsRequired": {
     "message": "Tajný klíč je povinný."
@@ -6204,6 +6305,9 @@
   "onePasswordEmailHint": {
     "message": "Zadejte e-mail, který používáte k přihlášení do 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Zadejte e-mail, který používáte k přihlášení do 1Password. Podporováno je jen přihlášení s heslem."
+  },
   "secretKey": {
     "message": "Tajný klíč"
   },
@@ -6212,6 +6316,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Váš účet je zabezpečen tajným klíčem a heslem. Pro pokračování budete muset zadat obojí."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Přihlásit se pomocí SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Přepněte na přihlašovací stránku SSO pro dokončení importu do Bitwardenu."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Přenos šifrovacího klíče"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Přihlaste se k 1Password a přejděte na čekající přihlášení pro ověření tohoto požadavku."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Ten kód nefungoval. Zkontrolujte, zda na svém druhém zařízení nemáte nový."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Přihlašovací stránka SSO byla uzavřena před dokončením přihlášení. Zkuste to znovu a pokračujte v importu."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Toto zařízení nebylo schváleno na jiném zařízení. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Příliš mnoho nesprávných ověřovacích kódů. Zkuste to znovu nebo použijte jinou metodu importu."
   },
   "keeperEmail": {
     "message": "E-mail Keeper"
@@ -6731,9 +6859,6 @@
   "copyAddress": {
     "message": "Kopírovat adresu"
   },
-  "myItems": {
-    "message": "Moje položky"
-  },
   "myItemsV2": {
     "message": "Moje položky"
   },
@@ -7080,7 +7205,7 @@
   },
   "desktopApp": {
     "message": "Aplikace pro počítač",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Aplikace pro počítač $COUNT$",
@@ -7092,6 +7217,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Neplatné párování aplikace",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Webová stránka přidána"
   },
@@ -7100,9 +7229,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Přidat web nebo aplikaci"
-  },
-  "app": {
-    "message": "Aplikace"
   },
   "deleteWebsite": {
     "message": "Vymazat webovou stránku"
@@ -8190,7 +8316,7 @@
   "howToManageMyVault": {
     "message": "Jak mohu spravovat svůj trezor?"
   },
-  "transferItemsToOrganizationTitle": {
+  "transferYourItemsToOrganizationTitle": {
     "message": "Přenést položky do $ORGANIZATION$",
     "placeholders": {
       "organization": {
@@ -8199,17 +8325,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ nyní vyžaduje, aby všechny položky členů byly ve vlastnictví organizace. Vaše osobní položky budou přesunuty do složky s názvem Moje položky, kterou uvidíte jen Vy.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klepněte na tlačítko Přijmout pro převod vlastnictví Vašich položek."
   },
   "openTransferItemsHelpArticle": {
     "message": "Otevřít článek nápovědy o přenosu položek"
@@ -8470,7 +8593,7 @@
     "message": "Tento Send automaticky vyprší v nastaveném datu smazání",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
   },
   "cannotSaveItemNoConfirmedOrgs": {
@@ -8892,6 +9015,9 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "Tato položka má zapnutý požadavek na hlavní heslo, takže automatické vyplňování dotazů na přihlášení v prohlížeči bylo vypnuto. Uložte položku pro zachování této změny."
+  },
+  "vaultItem": {
+    "message": "Položka v trezoru"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Schválené přístupové okno ještě nezačalo."

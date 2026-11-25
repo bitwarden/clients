@@ -108,13 +108,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   individual vault and the Admin Console org sidebar (the same
   `VaultFilterSectionComponent` hosts it in both).
 - `gated-collection-banner/`, the notice above the vault's item list while a governed
-  collection is the active filter, carrying the sidebar lock's sentence verbatim. It
-  cannot read the flag the way the sidebar lock and the collection-row badge do, because
-  it is handed ids alone, never a collection: it decides "governed" through
-  `services/gated-collection.ts`, which wraps the same `GovernedCollectionsService` /
-  `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
-  collection's own PAM-enabled organization before reading at all. A new surface that is
-  likewise handed no collection belongs on that helper, not on a re-derived check.
+  collection is the active filter, carrying the sidebar lock's sentence verbatim. Like the
+  sidebar lock and the collection-row badge, it reads the collection's `hasEnabledAccessRule`;
+  both vault pages hand it the open collection. The access-rule reads answer only users who
+  can manage access rules, so a surface any member sees must take a collection and read the
+  flag, never `listAccessRules`.
 - `bit-pam-components/src/vault-filter-controlled-access/`, the vault tables' "Controlled access"
   filter. The multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
@@ -155,7 +153,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   the only countdown there and has to carry the warning itself. A new countdown must read this
   constant, not restate five minutes.
 - `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
-  inside the collection edit dialog.
+  inside the collection edit dialog. Renders only for users who can manage access rules.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
@@ -169,8 +167,12 @@ SDK has no audit client yet (see `access-audit/README.md`).
 `AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
 `ApprovalSdkService` are the abstract contracts; `bit-pam/src/services/*-sdk.service.ts` compose the
 SDK client. `ApprovalSdkService` (`bit-pam/src/services/approvals-sdk.service.ts`) covers the
-approver-facing surface (the pending inbox, the decided history, recording a
-decision, and withdrawing an approval) via `commercial().pam().approvals()`.
+approver-facing surface (the pending inbox, the approved requests that can still give access, the
+ended history a page at a time, recording a decision, and withdrawing an approval) via
+`commercial().pam().approvals()`. The Approvals tab reads the inbox and the approved requests,
+never the history. The History tab's `HistoryPageService` reads one page: the server filters,
+orders (newest request first) and counts it, and also returns the Requester and Shared folders options,
+so the tab has no client-side search, filter or sort.
 
 **If a PAM capability turns out to be missing from the SDK, that is SDK work, not a
 raw-HTTP route.** An approver ending a lease and an approver withdrawing an approval go
@@ -256,7 +258,7 @@ which spells out which happened and when; the row builders have no need for it, 
 ## Refresh model
 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
-Two services drive every refresh:
+Two services drive almost every refresh:
 
 - `AccessEventService`, the server's pushes for the active user, filtered to bare ticks:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
@@ -264,6 +266,11 @@ Two services drive every refresh:
 - `AccessRefreshService`, which merges `accessChanged$` with this client's own mutations and
   fans it out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a
   local change and a remote one through exactly the same path.
+
+The one exception: `PamRevealedCipherService` listens for `SyncCipherUpdate` itself and reads a
+held view again. During a lease, core sync keeps the stored restricted copy on that push, so
+neither service above carries the edit. The extension's `PamLeaseRefreshService` does the same for
+its held copies.
 
 Page-level services reload on these streams. `MyAccessService` listens on
 `AccessRefreshService.accessChanged$()`, not the bare push, so a cancel, start or end made
@@ -285,16 +292,20 @@ lapsed lease whatever the response said and fails closed on an unparseable `notA
 
 Something has to move that clock. **Use one of the two that already tick; do not add a third.**
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
-active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
-`PamRevealedCipherService` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
-clock the badges run on, and only while the state they hold carries a live lease.
+active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent`,
+`PamRevealedCipherService` and `VaultRowAccessActionsService` take a single tick off
+`AccessBadgeTickerService.ticks$`, the shared clock the badges run on, and only while the state
+they hold has something left to lapse.
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
 device, and no push need ever reach this tab (PAM-152). So every surface that caches a state
-re-reads it when its lease lapses, through `rereadOnLapse`
-(`bit-pam/src/helpers/lease-liveness.ts`), and judges the answer with `liveActiveLease` again. A
-server whose clock trails still hands back the old `notAfter`, so the item still locks; only a
-genuinely later end keeps it open.
+re-reads it when it lapses, through `rereadOnLapse` (`bit-pam/src/helpers/lease-liveness.ts`), and
+judges the answer with `liveActiveLease` again. A server whose clock trails still hands back the
+old `notAfter`, so the item still locks; only a genuinely later end keeps it open. "Lapses" also
+covers a pending or approved request's `leaseNotAfter`: the server drops the request once its
+window closes, but announces nothing, so without that re-read the row and the dialog keep showing
+Pending or Start access (PAM-445). A request has no local clamp, so `nextRereadMs` retries a
+trailing server for a bounded time (see its constants) rather than once.
 
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
@@ -312,8 +323,10 @@ PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
 binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
 `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the vault table's "Controlled access" chip and
-column, over the same state reads), and
-`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
+column, over the same state reads),
+`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name), and
+`REVEALABLE_CIPHERS` (the ciphers under a live lease, so the vault-row menu offers what a
+reveal allows before the item is opened). In `apps/web`:
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows;
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
@@ -322,9 +335,8 @@ governed collection in the vault's Filters sidebar, reading that same
 carries it onto the copy `buildCollectionTree` makes through `new CollectionView(...)`,
 whose field initializer would otherwise reset it to `false`),
 `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming that same
-restriction while a governed collection is the active filter, off the shared per-org
-`GovernedCollectionsService` lookup, because it is handed ids alone and so has no flag
-to read), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
+restriction while a governed collection is the active filter, off that same
+`hasEnabledAccessRule`), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), `PAM_ROUTES` (the
 lazy loader for the user-scoped pages), and
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's

@@ -65,6 +65,16 @@ export function requestDurationOptions(
   return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
+/**
+ * The longest duration the requester's picker offers, which is what an auto-approved request can
+ * actually get. Under a rule with no cap that is the longest preset (or a longer default), not the
+ * server's ceiling.
+ */
+export function maxRequestDurationSeconds(maxSeconds: number, defaultSeconds: number): number {
+  const options = requestDurationOptions(maxSeconds, defaultSeconds);
+  return options.at(-1)?.seconds ?? maxSeconds;
+}
+
 /** Extension lengths, in seconds: the choices for a rule's cap, and a requester's up to the cap. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number }> = [
   { seconds: 30 * 60 },
@@ -105,6 +115,23 @@ export function snapToNearestDuration(
   return options.reduce((nearest, opt) =>
     Math.abs(opt.seconds - seconds) < Math.abs(nearest.seconds - seconds) ? opt : nearest,
   ).seconds;
+}
+
+/**
+ * The presets plus any stored value outside them, in order, so a duration set elsewhere (the API)
+ * stays selectable and an untouched field saves unchanged instead of being snapped to a preset.
+ */
+export function withStoredDurations(
+  presets: ReadonlyArray<{ seconds: number }>,
+  ...stored: ReadonlyArray<number | null | undefined>
+): RequestDurationOption[] {
+  const options = new Map<number, RequestDurationOption>(presets.map((p) => [p.seconds, p]));
+  for (const seconds of stored) {
+    if (seconds != null && seconds > 0 && !options.has(seconds)) {
+      options.set(seconds, { seconds });
+    }
+  }
+  return [...options.values()].sort((a, b) => a.seconds - b.seconds);
 }
 
 export function snapToNearestAccessRuleDuration(seconds: number | null | undefined): number {

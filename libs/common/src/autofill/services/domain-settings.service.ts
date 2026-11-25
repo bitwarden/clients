@@ -19,7 +19,6 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { getUserId } from "../../auth/services/account.service";
-import { FeatureFlag } from "../../enums/feature-flag.enum";
 import {
   NeverDomains,
   EquivalentDomains,
@@ -183,12 +182,11 @@ export abstract class DomainSettingsService {
   effectiveFillAssistRulesUrl$: Observable<string | undefined>;
 
   /**
-   * Resolved state for enabling fill assist, combining the feature flag, the
-   * user setting, and the org policy with user-explicit-wins semantics: if the
-   * user has explicitly set the toggle (true or false), their choice wins. If
-   * the user has never touched the toggle ("pristine"), the org policy default
-   * applies when active. Gated on the {@link FeatureFlag.FillAssistTargetingRules}
-   * flag.
+   * Resolved state for enabling fill assist, combining the user setting and
+   * the org policy with user-explicit-wins semantics: if the user has
+   * explicitly set the toggle (true or false), their choice wins. If the user
+   * has never touched the toggle ("pristine"), the org policy default applies
+   * when active.
    */
   resolvedEnableFillAssist$: Observable<boolean>;
 
@@ -339,12 +337,8 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.resolvedEnableFillAssist$ = combineLatest([
       this.enableFillAssistState.state$,
       this.fillAssistPolicy$,
-      this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
     ]).pipe(
-      map(([rawUserSetting, policy, featureFlag]) => {
-        if (!featureFlag) {
-          return false;
-        }
+      map(([rawUserSetting, policy]) => {
         if (rawUserSetting == null) {
           // Pristine — policy default applies
           return policy != null;

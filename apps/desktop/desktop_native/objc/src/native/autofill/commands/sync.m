@@ -14,16 +14,16 @@ void runSync(void* context, NSDictionary *params) {
 
   // Map credentials to ASPasswordCredential objects
   NSMutableArray *mappedCredentials = [NSMutableArray arrayWithCapacity:credentials.count];
-  
+
   for (NSDictionary *credential in credentials) {
     @try {
       NSString *type = credential[@"type"];
-      
+
       if ([type isEqualToString:@"password"]) {
         NSString *cipherId = credential[@"cipherId"];
         NSString *uri = credential[@"uri"];
         NSString *username = credential[@"username"];
-        
+
         // Skip credentials with null username since MacOS crashes if we send credentials with empty usernames
         if ([username isKindOfClass:[NSNull class]] || username.length == 0) {
             NSLog(@"Skipping credential, username is empty: %@", credential);
@@ -36,7 +36,7 @@ void runSync(void* context, NSDictionary *params) {
           initWithServiceIdentifier:serviceId user:username recordIdentifier:cipherId];
 
         [mappedCredentials addObject:passwordIdentity];
-      } 
+      }
       else if (@available(macos 14, *)) {
         // Fido2CredentialView uses `userName` (camelCase) while Login uses `username`.
         // This is intentional. Fido2 fields are flattened from the FIDO2 spec's nested structure
@@ -51,10 +51,10 @@ void runSync(void* context, NSDictionary *params) {
             NSLog(@"Skipping credential, username is empty: %@", credential);
             continue;
           }
-          
+
           NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
           NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
-          
+
           Class passkeyCredentialIdentityClass = NSClassFromString(@"ASPasskeyCredentialIdentity");
           id passkeyIdentity = [[passkeyCredentialIdentityClass alloc]
             initWithRelyingPartyIdentifier:rpId
@@ -75,12 +75,24 @@ void runSync(void* context, NSDictionary *params) {
     }
   }
 
-  [ASCredentialIdentityStore.sharedStore replaceCredentialIdentityEntries:mappedCredentials
-    completion:^(__attribute__((unused)) BOOL success, NSError * _Nullable error) {
+  ASCredentialIdentityStore *store = ASCredentialIdentityStore.sharedStore;
+  void (^completionHandler)(BOOL, NSError *) = ^(__attribute__((unused)) BOOL success, NSError * _Nullable error) {
       if (error) {
         return _return(context, _error_er(error));
       }
 
       _return(context, _success(@{@"added": @([mappedCredentials count])}));
-    }];
+    };
+
+  if (@available(macos 14, *)) {
+    [store replaceCredentialIdentityEntries:mappedCredentials completion:completionHandler];
+  } else {
+    // Before macOS 14, only password credentials are supported. Above, we only
+    // passkeys on macOS 14+, so the mappedCredentials only contains password
+    // identities.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [store replaceCredentialIdentitiesWithIdentities:mappedCredentials completion:completionHandler];
+#pragma clang diagnostic pop
+  }
 }

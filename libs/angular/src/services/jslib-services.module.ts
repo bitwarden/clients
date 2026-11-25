@@ -156,6 +156,11 @@ import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauth
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
 import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
+import {
   DefaultTwoFactorApiService,
   DefaultTwoFactorService,
   TwoFactorApiService,
@@ -1389,7 +1394,8 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       StateProvider,
       ConfigService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
+      SsoJitProvisionFinishApiService,
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
@@ -1891,7 +1897,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
-      RegisterSdkService,
+      SsoJitProvisionFinishService,
       UnlockService,
     ],
   }),
@@ -2142,6 +2148,17 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
     deps: [PasswordPreloginApiService, SdkService, ConfigService, MasterPasswordServiceAbstraction],
+  }),
+  // TODO: Remove with https://bitwarden.atlassian.net/browse/PM-27328 (V1 Key Connector registration).
+  safeProvider({
+    provide: SsoJitProvisionFinishApiService,
+    useClass: SsoJitProvisionFinishApiService,
+    deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: SsoJitProvisionFinishService,
+    useClass: DefaultSsoJitProvisionFinishService,
+    deps: [RegisterSdkService, ConfigService, GlobalStateProvider],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

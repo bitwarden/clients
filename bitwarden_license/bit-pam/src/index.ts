@@ -28,6 +28,10 @@ export type {
   AccessPreCheckView,
   AccessRequestCreateRequest,
   AccessRequestDecisionView,
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
+  AccessRequestHistoryRequester,
+  AccessRequestHistoryStatus,
   AccessRequestId,
   AccessRequestResultView,
   AccessRequestStatus,
@@ -67,7 +71,7 @@ export {
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining, formatRemainingLong } from "./date/format-remaining";
-export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { lapse$, liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { rereadAt } from "./helpers/reread-at";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
@@ -92,7 +96,9 @@ export {
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
   pickDurationUnit,
+  maxRequestDurationSeconds,
   requestDurationOptions,
+  withStoredDurations,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";
 export {

@@ -27,7 +27,12 @@ import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationUserType,
+  PolicyType,
+  RevocationReasonMessageMap,
+  RevocationReasonType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -41,6 +46,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
+  BerryComponent,
   BitCellComponent,
   BitCellDefDirective,
   BitColumnComponent,
@@ -80,13 +86,16 @@ import { AvatarIdPipe } from "../pipes";
 import {
   MemberDialogManagerService,
   MemberExportService,
+  NeedsConfirmationCountService,
   OrganizationMembersService,
 } from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
+import { MemberStatusBadgeComponent } from "./member-status-badge.component";
 import {
   AccountRecoveryFilter,
+  isDefaultView,
   matchesAccess,
   matchesPolicies,
   matchesProduct,
@@ -118,6 +127,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
   templateUrl: "members-v2.component.html",
   imports: [
     AvatarIdPipe,
+    BerryComponent,
     BitCellComponent,
     BitCellDefDirective,
     BitColumnComponent,
@@ -129,6 +139,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     FilterMenuModule,
     HeaderModule,
     IconModule,
+    MemberStatusBadgeComponent,
     SharedOrganizationModule,
     StatusLockupComponent,
     SvgComponent,
@@ -157,6 +168,7 @@ export class MembersV2Component {
   private readonly memberExportService = inject(MemberExportService);
   private readonly userNamePipe = inject(UserNamePipe);
   private readonly configService = inject(ConfigService);
+  private readonly needsConfirmationCountService = inject(NeedsConfirmationCountService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -189,7 +201,28 @@ export class MembersV2Component {
   private readonly accessNames = signal<Map<string, string>>(new Map());
   protected readonly firstLoaded = signal(false);
   protected readonly isProcessing = this.memberActionsService.isProcessing;
-  protected readonly table = defineTable<OrganizationUserView, "options">(this.members);
+
+  private readonly membersTable = viewChild(BitTableV2Component);
+
+  /** Only in the default view do Accepted members come first. */
+  private readonly defaultView = computed(() => {
+    const table = this.membersTable();
+    return !table || isDefaultView(table.sort(), table.filterValues() as MemberFilters);
+  });
+
+  /**
+   * In the default view, Accepted members come first, then everyone else, each by name, so admins
+   * see who needs confirming on page 1. `members` is already by name, and the sort is stable.
+   */
+  private readonly tableRows = computed(() =>
+    this.defaultView()
+      ? [...this.members()].sort(
+          (a, b) => Number(this.needsConfirmation(b)) - Number(this.needsConfirmation(a)),
+        )
+      : this.members(),
+  );
+
+  protected readonly table = defineTable<OrganizationUserView, "options">(this.tableRows);
 
   /**
    * Whether an empty table means the search or filters hide every member, rather than the
@@ -312,7 +345,6 @@ export class MembersV2Component {
     this.members().some((member) => member.status === OrganizationUserStatusType.Staged),
   );
 
-  private readonly membersTable = viewChild(BitTableV2Component);
   private readonly filterMenus = viewChildren(FilterMenuComponent);
 
   /**
@@ -355,13 +387,18 @@ export class MembersV2Component {
 
   /**
    * Orders members by name before they reach the table, so the page opens alphabetized without
-   * an active column sort. This keeps the sort out of the URL until the user picks one.
+   * an active column sort. This keeps the sort out of the URL until the user picks one. Reports
+   * how many need confirmation, so the Members nav item's count follows confirms and invites.
    */
   async load(organization: Organization) {
     const { users, accessNames } = await this.memberService.loadMembers(organization);
     this.accessNames.set(accessNames);
     this.members.set([...users].sort(this.sortByName));
     this.firstLoaded.set(true);
+    this.needsConfirmationCountService.update(
+      organization.id,
+      users.filter((member) => this.needsConfirmation(member)).length,
+    );
   }
 
   /**
@@ -598,8 +635,35 @@ export class MembersV2Component {
     return STATUS_BADGES.find((badge) => badge.status === status);
   }
 
+  /** Revoked members' badges explain why they were revoked, matching the v1 table. */
+  protected statusTooltip(member: OrganizationUserView): string {
+    if (member.status !== OrganizationUserStatusType.Revoked) {
+      return "";
+    }
+    return this.i18nService.t(
+      RevocationReasonMessageMap[member.revocationReason ?? RevocationReasonType.Unknown],
+    );
+  }
+
   protected readonly sortByName = (a: OrganizationUserView, b: OrganizationUserView) =>
     this.compareText(a.name ?? a.email, b.name ?? b.email);
+
+  /**
+   * The Name column's comparator: in the default view (Name ascending after a header click),
+   * Accepted members first, then by name. Otherwise the plain name sort.
+   */
+  protected readonly nameSortFn = computed(() =>
+    this.defaultView()
+      ? (a: OrganizationUserView, b: OrganizationUserView) =>
+          Number(this.needsConfirmation(b)) - Number(this.needsConfirmation(a)) ||
+          this.sortByName(a, b)
+      : this.sortByName,
+  );
+
+  /** Accepted members are waiting for an admin to confirm them. */
+  protected needsConfirmation(member: OrganizationUserView): boolean {
+    return member.status === OrganizationUserStatusType.Accepted;
+  }
 
   protected readonly sortByStatus = (a: OrganizationUserView, b: OrganizationUserView) =>
     statusOrder(a.status) - statusOrder(b.status);

@@ -20,7 +20,7 @@ import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { TooltipDirective } from "../tooltip";
 
 import { FilterMenuComponent } from "./filter-menu.component";
-import { FilterOptionComponent } from "./filter-option.component";
+import { FilterOptionComponent, FilterOptionNode } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
 import { FILTER_HOST, FilterHost, FilterOptionRow } from "./filter-tokens";
 
@@ -691,5 +691,516 @@ describe("FilterMenuComponent host counts", () => {
     expect(menu["unsetCount"]()).toBeUndefined();
     expect([...menu["optionCounts"]().values()]).toEqual([10, 11]);
     expect(filterHost.optionCounts).toHaveBeenCalledWith("vault", [["org-1"], ["org-2"]]);
+  });
+});
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="letters" placeholderText="Letters" multiple>
+      <bit-filter-option [value]="'alpha'" disabled>Alpha</bit-filter-option>
+      <bit-filter-option [value]="'beta'"
+        >Beta
+        <bit-filter-option [value]="'beta-one'">Beta one</bit-filter-option>
+        <bit-filter-option [value]="'beta-two'">Beta two</bit-filter-option>
+      </bit-filter-option>
+      <bit-filter-option [value]="'gamma'"
+        >Gamma
+        <bit-filter-option [value]="'gamma-one'">Gamma one</bit-filter-option>
+      </bit-filter-option>
+      <bit-filter-option [value]="'delta'">Delta</bit-filter-option>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class TreeKeyboardHostComponent {
+  readonly showRows = signal(false);
+}
+
+const letterOptions = (): FilterOptionNode<string>[] =>
+  ["Alpha", "Beta", "Gamma", "Delta"].map((label) => ({ value: label.toLowerCase(), label }));
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu
+      #chip
+      key="letters"
+      placeholderText="Letters"
+      multiple
+      [options]="options()"
+    ></bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class TreeKeyboardDataHostComponent {
+  readonly options = signal(letterOptions());
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent tree keyboard navigation", () => {
+  let fixture: ComponentFixture<{ showRows: WritableSignal<boolean> }>;
+
+  const chip = () =>
+    fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .componentInstance as FilterMenuComponent;
+
+  const rows = () =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"]'))
+      .map((row) => row.nativeElement as HTMLElement);
+
+  const label = (row: Element | null) =>
+    row?.querySelector("[data-filter-row-label]")?.textContent?.trim();
+
+  const labels = () => rows().map(label);
+
+  const row = (text: string) => rows().find((el) => label(el) === text)!;
+
+  const focused = () => label(document.activeElement);
+
+  const tabStops = () =>
+    rows()
+      .filter((el) => el.tabIndex === 0)
+      .map(label);
+
+  /** Sends a key to the focused row, returning whether the tree claimed it. */
+  const press = (key: string): boolean => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    document.activeElement!.dispatchEvent(event);
+    fixture.detectChanges();
+    return event.defaultPrevented;
+  };
+
+  const focus = (text: string) => {
+    row(text).focus();
+    fixture.detectChanges();
+  };
+
+  const render = <T extends { showRows: WritableSignal<boolean> }>(hostType: Type<T>) => {
+    const created = TestBed.createComponent(hostType);
+    fixture = created;
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    return created;
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TreeKeyboardHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    render(TreeKeyboardHostComponent);
+  });
+
+  it("starts with the tab stop on the first enabled row", () => {
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+    expect(tabStops()).toEqual(["Beta"]);
+  });
+
+  it("moves one row at a time with the arrow keys and stops at either end", () => {
+    focus("Gamma");
+
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+
+    press("ArrowUp");
+    press("ArrowUp");
+    expect(focused()).toBe("Beta");
+  });
+
+  it("lets the arrow keys reach a disabled row, so its label can still be read", () => {
+    focus("Beta");
+
+    press("ArrowUp");
+    expect(focused()).toBe("Alpha");
+    press("ArrowUp");
+    expect(focused()).toBe("Alpha");
+  });
+
+  it("jumps to the first and last row with Home and End", () => {
+    focus("Beta");
+
+    press("End");
+    expect(focused()).toBe("Delta");
+
+    press("Home");
+    expect(focused()).toBe("Alpha");
+  });
+
+  it("keeps a single tab stop, on whichever row last had focus", () => {
+    focus("Beta");
+    press("ArrowDown");
+
+    expect(tabStops()).toEqual(["Gamma"]);
+  });
+
+  it("opens a closed parent with ArrowRight, then steps into its first child", () => {
+    focus("Beta");
+
+    press("ArrowRight");
+    expect(labels()).toEqual(["Alpha", "Beta", "Beta one", "Beta two", "Gamma", "Delta"]);
+    expect(focused()).toBe("Beta");
+
+    press("ArrowRight");
+    expect(focused()).toBe("Beta one");
+  });
+
+  it("steps out to the parent with ArrowLeft, then closes it", () => {
+    focus("Beta");
+    press("ArrowRight");
+    focus("Beta two");
+
+    press("ArrowLeft");
+    expect(focused()).toBe("Beta");
+
+    press("ArrowLeft");
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+    expect(focused()).toBe("Beta");
+  });
+
+  it("leaves a top-level row with nothing to open where it is", () => {
+    focus("Delta");
+
+    press("ArrowLeft");
+    expect(focused()).toBe("Delta");
+    press("ArrowRight");
+    expect(focused()).toBe("Delta");
+    expect(labels()).toEqual(["Alpha", "Beta", "Gamma", "Delta"]);
+  });
+
+  it("opens every parent at the focused row's level with *", () => {
+    focus("Delta");
+
+    press("*");
+    // Focus follows the option on the render after its position changes.
+    fixture.detectChanges();
+
+    expect(labels()).toEqual([
+      "Alpha",
+      "Beta",
+      "Beta one",
+      "Beta two",
+      "Gamma",
+      "Gamma one",
+      "Delta",
+    ]);
+    expect(focused()).toBe("Delta");
+  });
+
+  it("toggles the focused option with Enter and with Space", () => {
+    focus("Delta");
+
+    press("Enter");
+    expect(chip().value()).toEqual(["delta"]);
+
+    press(" ");
+    expect(chip().value()).toEqual([]);
+  });
+
+  it("does not toggle a disabled option", () => {
+    focus("Alpha");
+
+    press("Enter");
+    press(" ");
+
+    expect(chip().value()).toBeUndefined();
+  });
+
+  it("claims the keys it handles and leaves the rest to the browser", () => {
+    focus("Beta");
+
+    expect(press("ArrowDown")).toBe(true);
+    expect(press("Home")).toBe(true);
+    expect(press("Tab")).toBe(false);
+    expect(press("a")).toBe(false);
+  });
+
+  it("keeps its place when a consumer rebuilds the options while a row has focus", () => {
+    const data = render(TreeKeyboardDataHostComponent);
+    focus("Gamma");
+
+    data.componentInstance.options.set(letterOptions());
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    expect(tabStops()).toEqual(["Gamma"]);
+    expect(focused()).toBe("Gamma");
+    press("ArrowDown");
+    expect(focused()).toBe("Delta");
+  });
+
+  it("goes straight from a leaf to its parent with ArrowLeft, even after ArrowRight on the leaf", () => {
+    focus("Beta");
+    press("ArrowRight");
+    focus("Beta one");
+
+    press("ArrowRight");
+    press("ArrowLeft");
+
+    expect(focused()).toBe("Beta");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, FilterSectionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="fruit" placeholderText="Fruit" multiple>
+      <bit-filter-option [value]="'apple'">Apple</bit-filter-option>
+      <bit-filter-section label="Stone fruit">
+        <bit-filter-option [value]="'peach'"
+          >Peach
+          <bit-filter-option [value]="'white-peach'">White peach</bit-filter-option>
+          <bit-filter-option [value]="'nectarine'">Nectarine</bit-filter-option>
+        </bit-filter-option>
+        <bit-filter-option [value]="'plum'">Plum</bit-filter-option>
+      </bit-filter-section>
+      <bit-filter-section label="Citrus">
+        <bit-filter-option [value]="'lime'">Lime</bit-filter-option>
+      </bit-filter-section>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class SearchHostComponent {
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent search", () => {
+  let fixture: ComponentFixture<SearchHostComponent>;
+  let chip: FilterMenuComponent;
+
+  const labels = () =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"] [data-filter-row-label]'))
+      .map((label) => (label.nativeElement as HTMLElement).textContent?.trim());
+
+  const search = (term: string) => {
+    chip.setSearchTerm(term);
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SearchHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SearchHostComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    chip = fixture.debugElement.query(By.directive(FilterMenuComponent)).componentInstance;
+  });
+
+  it("shows every row, with nested options closed, while nothing is searched", () => {
+    expect(labels()).toEqual(["Apple", "Stone fruit", "Peach", "Plum", "Citrus", "Lime"]);
+    expect(chip["resultCount"]()).toBeUndefined();
+    expect(chip["noResults"]()).toBe(false);
+  });
+
+  it("keeps a match's parent and section, opened, and hides everything else", () => {
+    search("nect");
+
+    expect(labels()).toEqual(["Stone fruit", "Peach", "Nectarine"]);
+  });
+
+  it("hides a matching parent's children that don't match themselves", () => {
+    search("peach");
+
+    expect(labels()).toEqual(["Stone fruit", "Peach", "White peach"]);
+  });
+
+  it("counts the options left showing, a kept parent included", () => {
+    search("nect");
+    expect(chip["resultCount"]()).toBe(2);
+
+    search("lime");
+    expect(chip["resultCount"]()).toBe(1);
+  });
+
+  it("ignores case and surrounding space", () => {
+    search("  LIME ");
+
+    expect(labels()).toEqual(["Citrus", "Lime"]);
+  });
+
+  it("does not match a section by its own label", () => {
+    search("stone");
+
+    expect(labels()).toEqual([]);
+    expect(chip["noResults"]()).toBe(true);
+    expect(chip["resultCount"]()).toBeUndefined();
+  });
+
+  it("restores the list as it was once the term is cleared", () => {
+    search("nect");
+    search("");
+
+    expect(labels()).toEqual(["Apple", "Stone fruit", "Peach", "Plum", "Citrus", "Lime"]);
+  });
+});
+
+describe("FilterMenuComponent checked state", () => {
+  let fixture: ComponentFixture<SearchHostComponent>;
+  let chip: FilterMenuComponent;
+
+  const row = (text: string) =>
+    fixture.debugElement
+      .queryAll(By.css('[role="treeitem"]'))
+      .map((el) => el.nativeElement as HTMLElement)
+      .find((el) => el.querySelector("[data-filter-row-label]")?.textContent?.trim() === text)!;
+
+  const checked = (text: string) => row(text).getAttribute("aria-checked");
+
+  const select = (values: string[]) => {
+    chip.setValue(values);
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SearchHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SearchHostComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+    chip = fixture.debugElement.query(By.directive(FilterMenuComponent)).componentInstance;
+  });
+
+  it("starts every option unchecked, and gives a section header no checked state", () => {
+    expect(checked("Apple")).toBe("false");
+    expect(checked("Peach")).toBe("false");
+    expect(checked("Stone fruit")).toBeNull();
+  });
+
+  it("checks a parent only when it and everything beneath it are selected", () => {
+    select(["peach", "white-peach", "nectarine"]);
+
+    expect(checked("Peach")).toBe("true");
+  });
+
+  it("marks a parent mixed when only part of its subtree is selected", () => {
+    select(["white-peach"]);
+    expect(checked("Peach")).toBe("mixed");
+
+    // Its children alone aren't the whole subtree: the parent's own value is part of it.
+    select(["white-peach", "nectarine"]);
+    expect(checked("Peach")).toBe("mixed");
+  });
+
+  it("selects a mixed parent's whole subtree on click, leaving other selections alone", () => {
+    select(["apple", "white-peach"]);
+
+    row("Peach").click();
+    fixture.detectChanges();
+
+    expect(chip.value()).toEqual(["apple", "white-peach", "peach", "nectarine"]);
+    expect(checked("Peach")).toBe("true");
+  });
+
+  it("clears a checked parent's whole subtree on click, leaving other selections alone", () => {
+    select(["apple", "peach", "white-peach", "nectarine"]);
+
+    row("Peach").click();
+    fixture.detectChanges();
+
+    expect(chip.value()).toEqual(["apple"]);
+    expect(checked("Peach")).toBe("false");
+  });
+
+  it("counts a section's selected options, nested ones included", () => {
+    const [stoneFruit, citrus] = fixture.debugElement
+      .queryAll(By.directive(FilterSectionComponent))
+      .map((el) => el.componentInstance as FilterSectionComponent);
+
+    select(["white-peach", "plum", "apple"]);
+
+    expect(chip.sectionSelectedCount(stoneFruit)).toBe(2);
+    expect(chip.sectionSelectedCount(citrus)).toBe(0);
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent, FilterSectionComponent, NgTemplateOutlet],
+  template: `
+    <bit-filter-menu #chip key="fruit" placeholderText="Fruit" [multiple]="multiple()">
+      <bit-filter-option [value]="'apple'">Apple</bit-filter-option>
+      <bit-filter-section label="Still loading">
+        @for (name of loaded(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-section>
+    </bit-filter-menu>
+    @if (showRows()) {
+      <ng-container *ngTemplateOutlet="chip.optionsTemplate()!"></ng-container>
+    }
+  `,
+})
+class EmptySectionHostComponent {
+  readonly multiple = signal(true);
+  readonly loaded = signal<string[]>([]);
+  readonly showRows = signal(false);
+}
+
+describe("FilterMenuComponent empty sections", () => {
+  let fixture: ComponentFixture<EmptySectionHostComponent>;
+
+  const text = () => (fixture.nativeElement as HTMLElement).textContent;
+
+  const render = async (multiple: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [EmptySectionHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(EmptySectionHostComponent);
+    fixture.componentInstance.multiple.set(multiple);
+    fixture.detectChanges();
+    fixture.componentInstance.showRows.set(true);
+    fixture.detectChanges();
+  };
+
+  it.each([
+    ["multi-select", true],
+    ["single-select", false],
+  ])(
+    "hides a section with no options on a %s chip, with no search running",
+    async (_, multiple) => {
+      await render(multiple);
+
+      expect(text()).toContain("Apple");
+      expect(text()).not.toContain("Still loading");
+    },
+  );
+
+  it("shows the section once it has an option", async () => {
+    await render(true);
+
+    fixture.componentInstance.loaded.set(["Pear"]);
+    fixture.detectChanges();
+
+    expect(text()).toContain("Still loading");
+    expect(text()).toContain("Pear");
   });
 });

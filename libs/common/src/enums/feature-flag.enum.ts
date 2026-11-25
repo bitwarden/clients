@@ -23,12 +23,10 @@ export enum FeatureFlag {
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM30806_SelfServiceChangeEmailCommand = "pm-30806-self-service-change-email-command",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
-  PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
   FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -58,7 +56,6 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
-  BiometricsSDKIPC = "biometrics-sdk-ipc",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
@@ -126,7 +123,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
@@ -171,7 +167,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM30806_SelfServiceChangeEmailCommand]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
-  [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
@@ -190,7 +185,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,

@@ -46,6 +46,13 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
+    if (!(await this.userHasPermissionToMigrate(userId))) {
+      this.logService.info(
+        `[V2KeyRotationMigration] User ${userId} is inside the v2 migration grace period. Skipping.`,
+      );
+      return "noMigrationNeeded";
+    }
+
     // Sync first so a rotation already performed on another client is reflected
     // here before we prompt the user.
     await this.syncService.fullSync(false);
@@ -134,6 +141,31 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       throw new Error(`[V2KeyRotationMigration] No user key found for user ${userId}`);
     }
     return userKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64;
+  }
+
+  /**
+   * Returns whether the grace period before the user is prompted has elapsed.
+   *
+   * The first call arms the grace period: the SDK stores the current timestamp and reports that
+   * the user must wait. The window therefore starts at the first call, not at login, so this must
+   * only be called for users that are candidates for migration.
+   */
+  private async userHasPermissionToMigrate(userId: UserId): Promise<boolean> {
+    return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+      const permission = await sdk.user_crypto_management().request_permission_to_migrate_to_v2();
+      switch (permission) {
+        case "Migrate":
+          return true;
+        case "Wait":
+          return false;
+        default: {
+          const _exhaustive: never = permission;
+          throw new Error(
+            `[V2KeyRotationMigration] Unhandled migration permission: ${_exhaustive}`,
+          );
+        }
+      }
+    });
   }
 
   private async userEnrolledInAccountRecovery(userId: UserId): Promise<boolean> {
