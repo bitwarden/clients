@@ -8,7 +8,7 @@ import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { MenuModule } from "@bitwarden/components";
+import { MenuModule, TypographyModule } from "@bitwarden/components";
 
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
@@ -18,7 +18,7 @@ import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-f
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",
-  imports: [CommonModule, JslibModule, MenuModule],
+  imports: [CommonModule, JslibModule, MenuModule, TypographyModule],
 })
 export class Fido2UseBrowserLinkComponent {
   showOverlay = false;
