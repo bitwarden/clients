@@ -1,11 +1,10 @@
 import { Injectable } from "@angular/core";
 import { catchError, defer, Observable, of, shareReplay } from "rxjs";
 
+import { AccessRuleSdkService } from "@bitwarden/bit-pam";
+import type { AccessRuleView } from "@bitwarden/bit-pam";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-
-import type { AccessRuleView } from "../abstractions/access-rule";
-import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
  * How long a cached per-organization read serves new consumers. Checked lazily, so an open callout
@@ -17,7 +16,9 @@ type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleVie
 
 /**
  * One cached `listAccessRules` read per organization, for surfaces that need the rules rather than
- * `hasEnabledAccessRule`. A failed read resolves to no rules, as every consumer is informational.
+ * `hasEnabledAccessRule`. The server only answers users who can manage access rules, so a surface
+ * other users see must read the flag instead. A failed read resolves to no rules, as every consumer
+ * is informational.
  */
 @Injectable()
 export class GovernedCollectionsService {

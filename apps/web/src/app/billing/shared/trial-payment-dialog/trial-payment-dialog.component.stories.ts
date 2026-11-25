@@ -5,6 +5,8 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
@@ -15,11 +17,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BannerModule, DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
-import {
-  SubscriberBillingClient,
-  PreviewInvoiceClient,
-} from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -28,16 +28,28 @@ import {
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 import { SharedModule } from "../../../shared";
 import { BraintreeService, StripeService } from "../../services";
+import { BillingNotificationService } from "../../services/billing-notification.service";
+import { InvoicePreviewService } from "../../services/invoice-preview.service";
 import { PlanCardService } from "../../services/plan-card.service";
-import { PricingSummaryService } from "../../services/pricing-summary.service";
 import { PlanCardComponent } from "../plan-card/plan-card.component";
-import { PricingSummaryComponent } from "../pricing-summary/pricing-summary.component";
 
 import { TrialPaymentDialogComponent } from "./trial-payment-dialog.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 const ORG_ID = "org-1" as OrganizationId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = buildTestOrganization({
   id: ORG_ID,
   name: "Acme Families",
   productTierType: ProductTierType.Families,
@@ -68,21 +80,23 @@ const mockOrganizationApiService: Partial<OrganizationApiServiceAbstraction> = {
 const mockPlanCardService: Partial<PlanCardService> = {
   getCadenceCards: () => Promise.resolve([]),
 };
-const mockPricingSummaryService: Partial<PricingSummaryService> = {
-  getPricingSummaryData: () =>
+const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
+  previewPlanChangeCart: () =>
     Promise.resolve({
-      selectedPlanInterval: "year",
-      passwordManagerSeats: 6,
-      passwordManagerSeatTotal: 40,
-      secretsManagerSeatTotal: 0,
-      additionalStorageTotal: 0,
-      additionalStoragePriceMonthly: 0,
-      additionalServiceAccountTotal: 0,
-      totalAppliedDiscount: 0,
-      secretsManagerSubtotal: 0,
-      passwordManagerSubtotal: 40,
-      total: 40,
-    }),
+      passwordManager: {
+        seats: {
+          translationKey: "members",
+          quantity: 6,
+          cost: 40,
+          cadence: "annually",
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 3,
+    } as Cart),
+};
+const mockBillingNotificationService: Partial<BillingNotificationService> = {
+  showError: () => {},
 };
 const mockApiService: Partial<ApiService> = {
   getPlans: () => Promise.resolve({ data: [] } as any),
@@ -92,7 +106,6 @@ const mockOrganizationBillingApiService: Partial<OrganizationBillingApiServiceAb
 const mockSubscriberBillingClient: Partial<SubscriberBillingClient> = {
   getBillingAddress: () => Promise.resolve(null),
 };
-const mockPreviewInvoiceClient: Partial<PreviewInvoiceClient> = {};
 const mockLogService: Partial<LogService> = { warning: () => {}, error: () => {} };
 // Mocked to avoid injecting real Stripe/Braintree scripts and DOM elements into the story preview.
 const mockBraintreeService: Partial<BraintreeService> = {
@@ -116,10 +129,11 @@ export default {
   component: TrialPaymentDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [TrialPaymentDialogComponent, PlanCardComponent, PricingSummaryComponent],
+      declarations: [TrialPaymentDialogComponent, PlanCardComponent],
       imports: [
         SharedModule,
         BannerModule,
+        CartSummaryComponent,
         EnterPaymentMethodComponent,
         EnterBillingAddressComponent,
         Vfo1I18nPipe,
@@ -131,7 +145,6 @@ export default {
         { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: PlanCardService, useValue: mockPlanCardService },
-        { provide: PricingSummaryService, useValue: mockPricingSummaryService },
         { provide: ApiService, useValue: mockApiService },
         { provide: ToastService, useValue: mockToastService },
         {
@@ -139,7 +152,8 @@ export default {
           useValue: mockOrganizationBillingApiService,
         },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
+        { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
+        { provide: BillingNotificationService, useValue: mockBillingNotificationService },
         { provide: BraintreeService, useValue: mockBraintreeService },
         { provide: StripeService, useValue: mockStripeService },
         { provide: LogService, useValue: mockLogService },

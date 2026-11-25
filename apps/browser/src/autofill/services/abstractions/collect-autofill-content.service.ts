@@ -4,6 +4,8 @@ import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
+import { InScopeFormsDetection, RuleQualificationService } from "./rule-qualification.service";
+
 type AutofillFormElements = Map<ElementWithOpId<HTMLFormElement>, AutofillForm>;
 
 type AutofillFieldElements = Map<ElementWithOpId<FormFieldElement>, AutofillField>;
@@ -24,6 +26,43 @@ interface CollectAutofillContentService extends AutofillMonitor {
     targetedFields: { selector: string; fieldType: string }[],
   ): Promise<void>;
   clearCachedTargetingRules(): void;
+  /**
+   * Runs the heuristic collection path after clearing the field caches so the
+   * pass starts fresh. Called by `RuleQualificationService` on the miss path.
+   * When `cachedInScopeForms.detectedFields` is populated, the bypass reuses
+   * those detections rather than scanning the same forms again.
+   */
+  collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails>;
+  /**
+   * Setter wiring to break the circular dependency between this service and
+   * the rule qualification service. Called once at DI setup.
+   */
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void;
+  /**
+   * Returns whether the element is a form field the heuristic collection pass
+   * would consider fillable. Exposed so the rule qualification service can
+   * apply the same filter when checking in-scope extras.
+   */
+  isElementFormFieldElement(element: Element): boolean;
+  /**
+   * Returns whether this frame has already resolved fields via its own
+   * `getPageDetails` call (targeted, heuristic, or bypass). Used by child
+   * frames to skip a redundant bypass when a parent frame dispatches
+   * `runFillAssistHeuristicFallback` to an iframe that already filled from
+   * its own matching rule.
+   *
+   * Does not count `applyExternalTargetedFields`, which resolves fields
+   * from a parent frame's rule rather than the child's own.
+   */
+  hasResolvedTargetedFields(): boolean;
+  /**
+   * Handles a `runFillAssistHeuristicFallback` dispatch from a parent frame.
+   * Skips when fields are already resolved. Otherwise runs the heuristic
+   * bypass locally so the child frame produces fresh page details.
+   */
+  handleRunFillAssistHeuristicFallback(): Promise<void>;
 }
 
 export {

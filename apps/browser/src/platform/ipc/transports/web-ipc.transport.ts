@@ -1,5 +1,6 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
+import { urlOriginsMatch } from "@bitwarden/platform";
 import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
@@ -30,6 +31,11 @@ export class WebIpcTransport {
 
       if (sender.tab?.id === undefined || sender.tab.id === chrome.tabs.TAB_ID_NONE) {
         // Ignore messages from non-tab sources
+        return;
+      }
+
+      if (sender.origin != null && urlOriginsMatch(BrowserApi.getRuntimeURL(""), sender.origin)) {
+        // Extension pages open in tabs (popouts) must use the foreground transport.
         return;
       }
 

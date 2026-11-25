@@ -17,8 +17,6 @@ import {
   combineLatest,
   debounceTime,
   defer,
-  distinctUntilChanged,
-  from,
   map,
   merge,
   Observable,
@@ -38,8 +36,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -146,12 +142,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.isFamiliesPlan() ? DiscountTierType.Families : DiscountTierType.Premium,
   );
 
-  private readonly configService = inject(ConfigService);
   private readonly invoicePreviewService = inject(InvoicePreviewService);
-
-  private readonly previewDrivenCart$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
-    .pipe(distinctUntilChanged());
 
   private readonly previewCart = signal<Cart | null>(null);
 
@@ -179,33 +170,16 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
   );
 
-  // Use defer to lazily create the observable when subscribed to
-  protected estimatedTax$ = defer(() =>
-    combineLatest([
-      merge(
-        this.formGroup.controls.billingAddress.valueChanges.pipe(
-          startWith(this.formGroup.controls.billingAddress.value),
-        ),
-        this.eligibleDiscounts$,
-      ),
-      this.previewDrivenCart$,
-    ]).pipe(
-      debounceTime(1000),
-      switchMap(([, previewDrivenCart]) => {
-        if (!previewDrivenCart) {
-          this.previewCart.set(null);
-          this.previewFailed.set(false);
-          return this.refreshSalesTax$();
-        }
-        return this.refreshPreviewCart$();
-      }),
+  // Refetches the server cart whenever the billing address or eligible discounts change.
+  private readonly previewRefresh$ = merge(
+    this.formGroup.controls.billingAddress.valueChanges.pipe(
+      startWith(this.formGroup.controls.billingAddress.value),
     ),
+    this.eligibleDiscounts$,
+  ).pipe(
+    debounceTime(1000),
+    switchMap(() => this.refreshPreviewCart$()),
   );
-
-  // Convert estimatedTax$ to signal for use in computed cart
-  protected readonly estimatedTax = toSignal(this.estimatedTax$, {
-    initialValue: this.INITIAL_TAX_VALUE,
-  });
 
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
@@ -220,7 +194,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           seats: { translationKey: "", cost: 0, quantity: 0 },
         },
         cadence: "annually",
-        estimatedTax: 0,
+        estimatedTax: this.INITIAL_TAX_VALUE,
       };
     }
 
@@ -233,7 +207,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         },
       },
       cadence: "annually",
-      estimatedTax: this.estimatedTax() ?? 0,
+      estimatedTax: this.INITIAL_TAX_VALUE,
       discounts: this.cartDiscounts().length > 0 ? this.cartDiscounts() : undefined,
     };
   });
@@ -246,7 +220,9 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     private destroyRef: DestroyRef,
     private upgradePaymentService: UpgradePaymentService,
     private subscriptionDiscountService: SubscriptionDiscountService,
-  ) {}
+  ) {
+    this.previewRefresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+  }
 
   protected userIsOwnerOfFreeOrg$ = this.upgradePaymentService.userIsOwnerOfFreeOrg$;
   protected adminConsoleRouteForOwnedOrganization$ =
@@ -454,7 +430,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     return await this.paymentComponent().tokenize();
   }
 
-  private refreshPreviewCart$(): Observable<number> {
+  private refreshPreviewCart$(): Observable<void> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
     if (
       this.formGroup.controls.billingAddress.invalid ||
@@ -463,7 +439,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     ) {
       this.previewCart.set(null);
       this.previewFailed.set(false);
-      return of(this.INITIAL_TAX_VALUE);
+      return of(undefined);
     }
 
     const coupons = this.eligibleCouponIds();
@@ -491,7 +467,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         this.previewCart.set(cart);
         this.previewFailed.set(false);
       }),
-      map(() => this.INITIAL_TAX_VALUE),
+      map((): void => undefined),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
         const key = invoicePreviewErrorMessageKey(error);
@@ -502,35 +478,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);
-        return of(this.INITIAL_TAX_VALUE);
-      }),
-    );
-  }
-
-  // Create an observable for tax calculation
-  private refreshSalesTax$(): Observable<number> {
-    if (this.formGroup.invalid || !this.selectedPlan()) {
-      return of(this.INITIAL_TAX_VALUE);
-    }
-
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      return of(this.INITIAL_TAX_VALUE);
-    }
-    return from(
-      this.upgradePaymentService.calculateEstimatedTax(
-        this.selectedPlan()!,
-        billingAddress,
-        this.eligibleCouponIds(),
-      ),
-    ).pipe(
-      catchError((error: unknown) => {
-        this.logService.error("Tax calculation failed:", error);
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("taxCalculationError"),
-        });
-        return of(this.INITIAL_TAX_VALUE); // Return default value on error
+        return of(undefined);
       }),
     );
   }

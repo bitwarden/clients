@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Priečinky v $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "Priečinky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "Priečinok ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "Vnorené zdieľané priečinky: $COUNT$",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 vnorený zdieľaný priečinok",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "Vnorené priečinky ($COUNT$)",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 vnorený priečinok",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Môj priečinok"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Upraviť"
   },
+  "editInfo": {
+    "message": "Upraviť informácie"
+  },
+  "editAccess": {
+    "message": "Upraviť prístup"
+  },
   "authenticatorKeyTotp": {
     "message": "Overovací kľúč (TOTP)"
   },
@@ -923,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "Aplikácia (URI)"
+  "desktopApp": {
+    "message": "Desktopová aplikácia",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "Aplikácia (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktopová aplikácia $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Neplatné spárovanie aplikácie",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Webová stránka pridaná"
@@ -944,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Pridať webovú stránku alebo aplikáciu"
-  },
-  "app": {
-    "message": "Aplikácia"
   },
   "deleteWebsite": {
     "message": "Odstrániť webovú stránku"
@@ -1180,6 +1230,15 @@
   },
   "deletedItem": {
     "message": "Položka bola presunutá do koša"
+  },
+  "deleteItemError": {
+    "message": "Položku sa nepodarilo odstrániť."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Táto položka je obmedzená. Vaša zmena nebola uložená."
+  },
+  "controlledAccess": {
+    "message": "Riadený prístup"
   },
   "overwritePasswordConfirmation": {
     "message": "Naozaj chcete prepísať aktuálne heslo?"
@@ -2377,6 +2436,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 položka",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Všetko"
   },
@@ -2459,7 +2522,7 @@
     "message": "Vybrané"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "vybrané",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3318,6 +3381,10 @@
   "custom": {
     "message": "Vlastné"
   },
+  "deleteSend": {
+    "message": "Odstrániť Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Naozaj chcete odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3347,14 +3414,34 @@
   "disabled": {
     "message": "Zakázané"
   },
+  "removeAuth": {
+    "message": "Odstrániť overenie heslom alebo e-mailom"
+  },
+  "removedAuth": {
+    "message": "Overenie heslom alebo e-mailom bolo odstránené"
+  },
+  "removeAuthConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla alebo overenie e-mailom?"
+  },
   "removePassword": {
     "message": "Odstrániť heslo"
+  },
+  "removeEmailVerification": {
+    "message": "Odstrániť overenie e-mailom"
   },
   "removedPassword": {
     "message": "Heslo bolo odstránené"
   },
-  "removePasswordConfirmation": {
-    "message": "Naozaj chcete odstrániť heslo?"
+  "removedEmailVerification": {
+    "message": "Overenie e-mailom bolo odstránené"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na zadanie hesla?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Naozaj chcete z tohto Sendu odstrániť žiadosť na overenie e-mailom?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Bol dosiahnutý maximálny počet prístupov"
@@ -4383,7 +4470,7 @@
     "message": "Organizácia nie je dôveryhodná"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Pre bezpečnosť vášho účtu stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
+    "message": "Pre bezpečnosť vášho účtu stačí overiť, že ste tomuto používateľovi udelili núdzový prístup, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
   },
   "orgTrustWarning": {
     "message": "Pre bezpečnosť vášho účtu pokračujte, iba ak ste členom organizácie, máte povolenú obnovu účtu a odtlačok sa zhoduje s odtlačkom organizácie."
@@ -4538,6 +4625,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import prebehol úspešne"
+  },
+  "importConfirmationBody": {
+    "message": "Do Bitwardenu ste úspešne importovali položky: $AMOUNT$.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Do Bitwardenu ste úspešne importovali 1 položku."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Nezabudnite odstrániť súbor $FILENAME$. Obsahuje citlivé údaje a môže byť nezašifrovaný.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Nezabudnite odstrániť importný súbor. Obsahuje citlivé údaje a môže byť nezašifrovaný."
+  },
+  "importingTitle": {
+    "message": "Importuje sa"
+  },
+  "importingDescription": {
+    "message": "Tento proces môže trvať niekoľko minút."
   },
   "total": {
     "message": "Celkom"
@@ -4713,6 +4836,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Vyberte trezor",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Vyberte umiestnenie",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Vyberte trezor"
+  },
+  "selectALocationTitle": {
+    "message": "Vyberte umiestnenie"
+  },
+  "importDestinationDescription": {
+    "message": "Vyberte, kam chcete tieto položky importovať."
+  },
+  "importMyItemsOption": {
+    "message": "Moje položky",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Viditeľné len pre vás"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Vlastníkom je $ORGANIZATION$, ale viditeľné je to len pre vás",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Trezor organizácie"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Zdieľané s jednou osobou"
+  },
+  "importFamilyVault": {
+    "message": "Rodinný trezor"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Presunúť všetko do nadradeného priečinka, štruktúra vnorených priečinkov zostane zachovaná."
+  },
+  "importSharedFolderRequired": {
+    "message": "Vyžaduje sa zdieľaný priečinok."
+  },
+  "importIntoOrganization": {
+    "message": "Položky budú importované do $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Presunúť všetky položky do zdieľaného priečinka"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Položky nemôžu byť importované do $ORGANIZATION$ bez zdieľaného priečinka a žiadne v ňom nespravujete. Vyberte iné umiestnenie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Importovať položky ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Importovať 1 položku"
+  },
+  "importToOrganization": {
+    "message": "Importovať do $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Vaše údaje môžu byť zdieľané s inými členmi tejto organizácie."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ nepovoľuje importovať $ITEM_TYPES$. Ak sa vo vašom importe nachádzajú, budú preskočené.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "prihlasovacie údaje",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "zabezpečené poznámky",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "karty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "identity",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "kľúče SSH",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "bankové účty",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "vodičské preukazy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "pasy",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Prejsť na Access Intelligence"
   },
   "chooseFile": {
     "message": "Vybrať súbor"
@@ -4910,6 +5194,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Rýchlo a bezpečne"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Tento proces je kompletne šifrovaný. Nie je potrebný žiadny exportný súbor."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Všetko, čo potrebujete, sú vaše prihlasovacie údaje"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "V ďalšom kroku zadáte svoje prihlasovacie údaje pre $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Čo sa prenesie"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Vaše prihlasovacie údaje, ostatné položky a priečinky sa prenesú. Prístupové kľúče a prílohy môžu byť vylúčené."
   },
   "importAcceptedFormats": {
     "message": "Podporované: $FORMATS$",
@@ -5192,6 +5500,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 položka nebola zahrnutá do tohto exportu. Je chránená pravidlom privilegovaného prístupu, preto jej prihlasovacie údaje nie sú na tomto zariadení k dispozícii."
+  },
+  "exportExcludedGatedItems": {
+    "message": "Niekoľko položiek ($COUNT$) nebolo zahrnutých do tohto exportu. Sú chránené pravidlami privilegovaného prístupu, preto ich prihlasovacie údaje nie sú na tomto zariadení k dispozícii.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
     "placeholders": {
@@ -5231,8 +5551,92 @@
   "lastPassEmail": {
     "message": "E-mail LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Zadajte platné heslo"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Zadajte hlavné heslo pre LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Zadajte overovací kód nižšie."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Čaká sa na overenie SSO"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Po prihlásení automaticky pokračujeme v importe."
+  },
   "importingYourAccount": {
     "message": "Importovanie vášho účtu..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Nepodporovaná metóda dvojstupňového overenia. Zmeňte metódu alebo importujte manuálne."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Spôsob schválenia zariadenia"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Znova odoslať overovací kód"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Upozornenie Keeper Push odoslané na schválené zariadenie."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Schváľte toto zariadenie výberom jednej z metód."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Skontrolujte e-mail a zadajte overovací kód nižšie."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Zadajte kód z overovacej aplikácie."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Zadajte kód zaslaný cez SMS správu."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Zadajte hlavné heslo pre Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Výzva Keeper DNA bola odoslaná"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Schváľte oznámenie aplikácie Keeper DNA na vašom zariadení."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Vaša žiadosť o schválenie bude zrušená. Naozaj chcete pokračovať?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Poslali sme žiadosť o schválenie správcom vášmu správcovi."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Zadajte platné heslo."
   },
   "lastPassMFARequired": {
     "message": "Vyžaduje sa viacfaktorové overenie LastPass"
@@ -5291,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Vyskytla sa chyba. Skontrolujte svoje prihlasovacie údaje a skúste to znova."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Podporované je iba prihlásenie pomocou hesla."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Tento účet 1Password používa spôsob prihlásenia, ktorý nie je podporovaný. Skúste to znovu alebo použite iný spôsob importu."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
@@ -5314,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Zadajte platnú prihlasovaciu adresu."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Nájdete to vo 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Vyžaduje sa tajný kľúč."
@@ -5336,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Zadajte e-mail, ktorý používate na prihlásenie do 1Password. Podporované je iba prihlásenie pomocou hesla."
+  },
   "secretKey": {
     "message": "Tajný kľúč"
   },
@@ -5344,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Prihlásiť sa cez SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Prepnite sa na prihlasovaciu stránku SSO a dokončite import do Bitwardenu."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Prenos šifrovacieho kľúča"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Prihláste sa do 1Password a prejdite na čakajúce prihlásenia na overenie tejto žiadosti."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Tento kód nefungoval. Skúste nájsť nový kód na inom zariadení."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Prihlasovacia stránka SSO bola zatvorená pred dokončením prihlásenia. Skúste to znova a pokračujte v importe."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Toto zariadenie nebolo schválené na vašom inom zariadení. Skúste to znova alebo použite iný spôsob importu."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Príliš veľa nesprávnych overovacích kódov. Skúste to znova alebo použite iný spôsob importu."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -5603,7 +6037,7 @@
     "message": "Prístupový kľúč bol odstránený"
   },
   "errorAssigningTargetCollection": {
-    "message": "Chyba pri priraďovaní cieľovej kolekcie."
+    "message": "Chyba pri priraďovaní cieľovej zbierky."
   },
   "errorAssigningTargetFolder": {
     "message": "Chyba pri priraďovaní cieľového priečinka."
@@ -5923,12 +6357,19 @@
     "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Nemáte žiadne Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Nenašli sa žiadne výsledky vyhľadávania"
   },
   "sendsBodyNoItems": {
     "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Bezpečne zdieľajte súbory alebo text s kýmkoľvek. Vaše informácie budú kompletne šifrované."
   },
   "sendsBodyNoSearchResults": {
     "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
@@ -6019,6 +6460,9 @@
   },
   "itemLower": {
     "message": "položka"
+  },
+  "itemUpper": {
+    "message": "Položka"
   },
   "itemsLower": {
     "message": "položky"
@@ -6547,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Ako môžem spravovať svoj trezor?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Prenos položiek do $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Presuňte svoje položky do $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6556,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "Organizácia $ORGANIZATION$ teraz vyžaduje, aby všetky položky členov boli vo vlastníctve organizácie. Vaše osobné položky sa presunú do priečinka s názvom Moje položky, ktorý uvidíte len vy.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
   },
   "openTransferItemsHelpArticle": {
     "message": "Otvoriť článok pomocníka o prenose položiek"
@@ -6624,6 +7065,20 @@
         "example": "Engineering"
       }
     }
+  },
+  "noItemsInFolder": {
+    "message": "Priečinok $FOLDER_NAME$ je prázdny",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Pridajte položky do tohto priečinka. Pomocou filtrov trezoru k nim budete mať rýchly prístup.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "Moje položky sú prázdne"
@@ -6690,6 +7145,49 @@
   },
   "noSharedFoldersAddedDescription": {
     "message": "Pridajte zdieľaný priečinok na bezpečné zdieľanie položiek trezoru s ostatnými členmi."
+  },
+  "pinned": {
+    "message": "Pripnuté",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pripnúť na bočný panel",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Odopnúť z bočného panela",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pripnuté na bočnom paneli",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ odopnuté z bočného panela",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Nájdite zdieľaný priečinok v tomto trezore a vyberte ho",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "z ponuky Možnosti.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pripnite zdieľané priečinky na bočný panel a filtrujte ich tu."
   },
   "sendPasswordHelperText": {
     "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",
@@ -6957,7 +7455,7 @@
   "makeACopy": {
     "message": "Vytvoriť kópiu"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
   },
   "driversLicenseDetails": {
@@ -7222,6 +7720,15 @@
   "unknownCipher": {
     "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
   },
+  "viewSharedItem": {
+    "message": "Zobraziť zdieľanú položku"
+  },
+  "copyShareLink": {
+    "message": "Kopírovať odkaz na zdieľanie"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nepodarilo sa zistiť ID položky"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden má nový vzhľad",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7286,14 +7793,20 @@
   "coachmarkVaultListTitle": {
     "message": "Všetky vaše trezory na jednom mieste"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Tu sú teraz zobrazené osobné, rodinné a obchodné trezory."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Rýchlo si pozrite osobné položky alebo položky v trezore, ktoré zdieľate s ostatnými."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Kolekcie a priečinky majú nové názvy"
+    "message": "Zbierky a priečinky majú nové názvy"
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Rovnaké funkcie, jasnejšie názvy. Zbierky sa teraz nazývajú zdieľané priečinky. Priečinky sú teraz Moje priečinky."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinujte filtre"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Vyberte naraz viacero filtrov, aby ste zúžili vyhľadávanie presne na výsledky, ktoré chcete. Tieto filtre zostanú aktívne aj po prechode na inú stránku."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",
@@ -7307,5 +7820,49 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Otvoriť článok pomocníka o automatickom vyplňovaní prihlasovacích údajov v prehliadači"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Ak chcete použiť toto nastavenie, vyberte pre každú webovú stránku tejto položky prihlásenia inú možnosť zisťovania zhody ako \"Predvolené\"."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Zapnúť automatické vypĺňanie pri výzvach na prihlásenie v prehliadači?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Pre túto položku bude vypnutá opätovná výzva na zadanie hlavného hesla. Obe nastavenia nemôžu byť zapnuté súčasne."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Zapnúť opätovné vyžiadanie hlavného hesla?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači bude pre túto položku vypnuté. Obe nastavenia nemôžu byť zapnuté súčasne."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Použiť predvolenú detekciu zhôd?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Webové stránky, ktoré využívajú predvolenú detekciu zhôd, nie je možné používať s prihlasovacími výzvami prehliadača. Funkcia automatického vypĺňania pre prihlasovacie výzvy prehliadača bude pre túto položku vypnutá."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači je vypnuté"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
+  },
+  "item": {
+    "message": "Položka"
   }
 }

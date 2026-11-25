@@ -22,6 +22,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RestrictedCipherWriteError } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -335,6 +336,12 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       !cachedCipher.id &&
       this.updatedCipherView.type === cachedCipher.type;
 
+    if (isEditingExistingCipher) {
+      // Attachment changes happen outside the form and bump the revision date, so keep the fresh values
+      cachedCipher.revisionDate = this.updatedCipherView.revisionDate;
+      cachedCipher.attachments = this.updatedCipherView.attachments;
+    }
+
     if (isEditingExistingCipher || isCreatingNewCipher) {
       this.updatedCipherView = cachedCipher;
     }
@@ -416,10 +423,19 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       successToast = "itemRestored";
     }
 
-    const savedCipher = await this.addEditFormService.saveCipher(
-      this.updatedCipherView,
-      this.config,
-    );
+    let savedCipher: CipherView;
+    try {
+      savedCipher = await this.addEditFormService.saveCipher(this.updatedCipherView, this.config);
+    } catch (e) {
+      if (e instanceof RestrictedCipherWriteError) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("restrictedItemChangeRefused"),
+        });
+        return;
+      }
+      throw e;
+    }
 
     // Clear the cache after successful save
     this.cipherFormCacheService.clearCache();

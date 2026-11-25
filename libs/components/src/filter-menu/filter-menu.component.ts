@@ -1,4 +1,3 @@
-import { TreeKeyManager } from "@angular/cdk/a11y";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -17,17 +16,13 @@ import {
   input,
   signal,
   viewChild,
-  viewChildren,
 } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { map } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../berry/berry.component";
 import { ButtonModule } from "../button";
-import { CheckboxModule } from "../checkbox";
 import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
@@ -39,14 +34,12 @@ import {
   resolveIconTileVariant,
 } from "../icon-tile";
 import { MenuDividerComponent } from "../menu/menu-divider.component";
-import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 import { OverflowItemDirective } from "../overflow-list";
 import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
-import { StatusLockupComponent } from "../status-lockup";
 import { TooltipDirective } from "../tooltip";
 import { TypographyModule } from "../typography";
 import { focusAfterRender } from "../utils/focus-after-render";
@@ -59,7 +52,7 @@ import {
   FILTER_GROUP,
   FILTER_HOST,
   FILTER_PRESENTER,
-  FILTER_TREE_HOST,
+  FILTER_TREE_OWNER,
   FilterControl,
   FilterEntry,
   FilterOptionRow,
@@ -67,13 +60,13 @@ import {
   FilterGroup,
   FilterPresenter,
   FilterSelection,
-  FilterTreeHost,
   FilterTreeNode,
+  FilterTreeOwner,
   buildDataEntries,
   createFilterOptionOpenState,
   flattenFilterOptions,
 } from "./filter-tokens";
-import { FilterTreeRowDirective } from "./filter-tree-row.directive";
+import { FilterTreeComponent, filterOptionRowClasses } from "./filter-tree.component";
 
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
@@ -165,10 +158,8 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
-    CheckboxModule,
-    FilterTreeRowDirective,
+    FilterTreeComponent,
     IconTileComponent,
-    StatusLockupComponent,
     TooltipDirective,
     TypographyModule,
   ],
@@ -178,7 +169,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
   host: { class: "!tw-ps-0 !tw-py-0" },
   providers: [
     { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterMenuComponent) },
-    { provide: FILTER_TREE_HOST, useExisting: forwardRef(() => FilterMenuComponent) },
+    { provide: FILTER_TREE_OWNER, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterMenuComponent) },
   ],
@@ -189,7 +180,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
   ],
 })
 export class FilterMenuComponent
-  implements FilterGroup, FilterControl, FilterPresenter, FilterTreeHost, OnInit
+  implements FilterGroup, FilterControl, FilterPresenter, FilterTreeOwner, OnInit
 {
   /** The chip's key — the property its value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
@@ -225,6 +216,18 @@ export class FilterMenuComponent
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
 
+  /**
+   * Shows the in-menu search however few options there are. Without it, the search shows once
+   * the menu has more than ten options.
+   */
+  readonly searchable = input(false, { transform: booleanAttribute });
+
+  /**
+   * Renders only the options in view, for a list long enough to be slow to open — a few
+   * hundred options or more. `multiple` only: a single-select chip ignores it.
+   */
+  readonly virtualized = input(false, { transform: booleanAttribute });
+
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
   protected readonly triggerPaddingClass = computed(() =>
@@ -237,6 +240,19 @@ export class FilterMenuComponent
 
   /** The selection: a single value (single-select) or an array (multi-select). */
   private readonly _value = signal<unknown>(undefined);
+
+  /**
+   * A multi-select chip's selected values as a set, so checking whether a value is selected
+   * takes the same time however many are.
+   *
+   * Avoids: checking against the selection array. Every option checks on each change, and a
+   * parent checks its whole subtree, so searching the array each time would cost the number of
+   * options times the number selected.
+   */
+  private readonly selectedValues = computed<ReadonlySet<unknown>>(() => {
+    const value = this._value();
+    return new Set(this.multiple() && Array.isArray(value) ? value : []);
+  });
 
   /** In-menu search term; options self-hide when their label doesn't match. */
   private readonly _searchTerm = signal("");
@@ -282,32 +298,7 @@ export class FilterMenuComponent
    */
   private readonly selected = signal<FilterSelection[]>([]);
 
-  /**
-   * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
-   * it as-is; option rows use {@link optionRowClasses}.
-   */
-  protected readonly rowBaseClasses = [
-    "tw-flex",
-    "tw-items-center",
-    "tw-gap-2",
-    ...menuItemBaseStyles,
-    ...menuItemPrimaryStyles,
-    // Focus and disabled land on the input, not the row; mirror both onto the row.
-    "tw-mb-0",
-    "has-[:focus-visible]:tw-z-50",
-    "has-[:focus-visible]:tw-rounded-lg",
-    "has-[:focus-visible]:tw-ring-2",
-    "has-[:focus-visible]:tw-ring-inset",
-    "has-[:focus-visible]:tw-ring-border-focus",
-    "has-[:focus-visible]:tw-bg-bg-brand-softer",
-    "has-[:focus-visible]:tw-text-fg-heading",
-    "has-[:disabled]:tw-cursor-default",
-    "has-[:disabled]:hover:tw-bg-background",
-    "has-[:disabled]:!tw-text-fg-inactive",
-  ];
-
-  /** An option row is 48px against a section header's 40px. */
-  protected readonly optionRowClasses = [...this.rowBaseClasses, "tw-py-3"];
+  protected readonly optionRowClasses = filterOptionRowClasses;
 
   /** Shared `name` so a menu's radios form one group; unique per chip so menus don't merge. */
   protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;
@@ -392,8 +383,10 @@ export class FilterMenuComponent
   /** Whether any option has children — nesting requires `multiple`. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.expandable()));
 
-  /** Whether the menu has enough options to warrant the in-menu search box. */
-  protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
+  /** Whether to show the in-menu search box: opted in, or enough options to warrant it. */
+  protected readonly showSearch = computed(
+    () => this.searchable() || this.allOptions().length > SEARCH_THRESHOLD,
+  );
 
   /**
    * How many options the running search matched, or `undefined` when no search is running. Shown
@@ -428,29 +421,45 @@ export class FilterMenuComponent
    * set, else the host's count for this chip's `key`. In `multiple` mode the count uses the
    * option's full subtree of values so a parent row reflects the same item set its click selects.
    */
-  protected readonly optionCounts = computed(() => {
+  readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionRow, number | undefined>();
-    const host = this.filterHost;
-    const key = this.key();
-    const multiple = this.multiple();
+    const hostCounts = this.hostCounts().options;
     for (const option of this.allOptions()) {
-      const explicit = option.count();
-      if (explicit != null) {
-        counts.set(option, explicit);
+      counts.set(option, option.count() ?? hostCounts.get(option));
+    }
+    return counts;
+  });
+
+  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
+  protected readonly unsetCount = computed(() => this.hostCounts().unset);
+
+  /**
+   * The host's counts for the "All" row and for every option without an explicit `count`, from
+   * one host call so the host can count them all in one pass.
+   */
+  private readonly hostCounts = computed(() => {
+    const multiple = this.multiple();
+    const options: FilterOptionRow[] = [];
+    // `null` pins nothing: the "All" row, which only a single-select chip shows.
+    const pinned: unknown[] = multiple ? [] : [null];
+    const firstOption = pinned.length;
+    for (const option of this.allOptions()) {
+      if (option.count() != null) {
         continue;
       }
       const resolved = this.optionValue(option);
       if (!resolved) {
         continue;
       }
-      const pinned = multiple ? this.subtreeValues(option) : resolved.value;
-      counts.set(option, host?.optionCount?.(key, pinned));
+      options.push(option);
+      pinned.push(multiple ? this.subtreeValues(option) : resolved.value);
     }
-    return counts;
+    const counts = this.filterHost?.optionCounts?.(this.key(), pinned);
+    return {
+      unset: multiple ? undefined : counts?.[0],
+      options: new Map(options.map((option, index) => [option, counts?.[firstOption + index]])),
+    };
   });
-
-  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
-  protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**
    * An option can appear in {@link allOptions} a tick before Angular binds its required
@@ -481,10 +490,11 @@ export class FilterMenuComponent
       if (options.length === 0) {
         return;
       }
+      const isSelected = this.selectionTest();
       const selected: FilterSelection[] = [];
       for (const option of options) {
         const resolved = this.optionValue(option);
-        if (resolved && this.isSelected(resolved.value)) {
+        if (resolved && isSelected(resolved.value)) {
           selected.push({ value: resolved.value, label: option.label() });
         }
       }
@@ -531,17 +541,50 @@ export class FilterMenuComponent
     return entry.kind === "option" ? (entry as FilterOptionRow) : null;
   }
 
-  /** A parent stays visible when a child matches; a section has no label of its own to match. */
-  protected rowVisible(row: FilterRow): boolean {
+  /**
+   * The rows a running search leaves visible, or `null` with no search, when every row is.
+   * A parent stays visible when a child matches; a section has no label of its own to match.
+   *
+   * Worked out in one pass over the whole tree, so each row's label and children are read once
+   * however many places ask whether a row is visible.
+   *
+   * Avoids: working out visibility row by row. That would read a parent's subtree again for
+   * every ancestor and every caller, and re-reading a signal inside one `computed` or view
+   * costs more the more signals it has already read.
+   */
+  private readonly visibleRows = computed<ReadonlySet<FilterRow> | null>(() => {
     const term = this._searchTerm().trim().toLowerCase();
-    if (row.kind === "section") {
-      return row.children().some((child) => this.rowVisible(child));
+    if (term === "") {
+      return null;
     }
-    return (
-      term === "" ||
-      row.label().toLowerCase().includes(term) ||
-      row.children().some((child) => this.rowVisible(child))
-    );
+    const visible = new Set<FilterRow>();
+    const visit = (row: FilterRow): boolean => {
+      // Every child is visited, matched or not: each needs its own answer.
+      let shown = false;
+      for (const child of row.children()) {
+        shown = visit(child) || shown;
+      }
+      shown ||= row.kind !== "section" && row.label().toLowerCase().includes(term);
+      if (shown) {
+        visible.add(row);
+      }
+      return shown;
+    };
+    for (const entry of this.entries()) {
+      if (entry.kind !== "divider") {
+        visit(entry as FilterRow);
+      }
+    }
+    return visible;
+  });
+
+  /** Whether a row is shown. A section with no options never is, searching or not. */
+  protected rowVisible(row: FilterRow): boolean {
+    const visible = this.visibleRows();
+    if (visible === null) {
+      return row.kind !== "section" || row.children().length > 0;
+    }
+    return visible.has(row);
   }
 
   /**
@@ -573,10 +616,11 @@ export class FilterMenuComponent
   }
 
   /** How many of a section's options are selected, nesting included — the header berry. */
-  protected sectionSelectedCount(section: FilterSectionComponent): number {
+  sectionSelectedCount(section: FilterSectionComponent): number {
+    const selected = this.selectionTest();
     return section.allOptions().filter((option) => {
       const resolved = this.optionValue(option);
-      return resolved != null && this.isSelected(resolved.value);
+      return resolved != null && selected(resolved.value);
     }).length;
   }
 
@@ -643,55 +687,20 @@ export class FilterMenuComponent
     return nodes;
   });
 
-  /** The rendered rows, in document order — the same order as {@link treeNodes}. */
-  private readonly treeRows = viewChildren(FilterTreeRowDirective);
-
-  // Typeahead is left off — optional for a tree, and the menu already has a search field.
-  private readonly keyManager = new TreeKeyManager<FilterTreeRowDirective>(
-    toObservable(this.treeRows).pipe(
-      map((rows) => [...(rows as readonly FilterTreeRowDirective[])]),
-    ),
-    {
-      // Rows are re-created as the tree expands, so key on the declaration behind each.
-      trackBy: (row) => {
-        const node = row.node();
-        return node.row;
-      },
-    },
-  );
-
-  protected onTreeKeydown(event: KeyboardEvent): void {
-    this.keyManager.onKeydown(event);
-  }
-
-  protected onRowFocus(row: FilterTreeRowDirective): void {
-    this.keyManager.focusItem(row);
-  }
-
-  /** @see FilterTreeHost.parentRow */
-  parentRow<T>(row: T): T | null {
-    const rows = this.treeRows();
-    const parent = rows[rows.indexOf(row as never)]?.node().parent;
-    return parent == null ? null : (rows[parent] as never);
-  }
-
-  /** @see FilterTreeHost.childRows */
-  childRows<T>(row: T): T[] {
-    const rows = this.treeRows();
-    const index = rows.indexOf(row as never);
-    return index < 0 ? [] : (rows.filter((r) => r.node().parent === index) as never);
-  }
+  /** The rendered tree, for handing focus back to its rows. */
+  private readonly tree = viewChild(FilterTreeComponent);
 
   /** A section header isn't selectable; only options carry a checked state. */
-  protected nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null {
-    if (node.row.kind === "section") {
+  rowChecked(row: FilterRow): "true" | "false" | "mixed" | null {
+    if (row.kind === "section") {
       return null;
     }
-    const option = node.row as FilterOptionRow;
-    if (this.partiallySelected(option)) {
-      return "mixed";
+    const values = this.subtreeValues(row as FilterOptionRow);
+    const selected = values.filter(this.selectionTest()).length;
+    if (selected === 0) {
+      return "false";
     }
-    return this.optionSelected(option) ? "true" : "false";
+    return selected === values.length ? "true" : "mixed";
   }
 
   /** Section headers aren't selectable, so they expand instead. */
@@ -703,26 +712,45 @@ export class FilterMenuComponent
     }
   }
 
-  private subtreeValues(option: FilterOptionRow): unknown[] {
-    const own = this.optionValue(option);
-    const values = own ? [own.value] : [];
-    for (const child of option.children()) {
-      values.push(...this.subtreeValues(child));
+  /**
+   * Every option's own value followed by those of everything beneath it, worked out in one pass
+   * over the tree so each option's children are read once.
+   *
+   * Avoids: walking a subtree each time its values are wanted. That would read each option's
+   * children again for every ancestor and every caller, with the cost described on
+   * {@link visibleRows}.
+   */
+  private readonly subtrees = computed(() => {
+    const subtrees = new Map<FilterOptionRow, readonly unknown[]>();
+    const visit = (option: FilterOptionRow): readonly unknown[] => {
+      const own = this.optionValue(option);
+      const values = own ? [own.value] : [];
+      for (const child of option.children()) {
+        for (const value of visit(child)) {
+          values.push(value);
+        }
+      }
+      subtrees.set(option, values);
+      return values;
+    };
+    for (const entry of this.entries()) {
+      if (entry.kind === "option") {
+        visit(entry as FilterOptionRow);
+      } else if (entry.kind === "section") {
+        (entry as FilterSectionComponent).children().forEach(visit);
+      }
     }
-    return values;
+    return subtrees;
+  });
+
+  private subtreeValues(option: FilterOptionRow): readonly unknown[] {
+    return this.subtrees().get(option) ?? [];
   }
 
   /** Whether a row draws selected: a leaf's own value, or a parent's whole subtree. */
   protected optionSelected(option: FilterOptionRow): boolean {
     const values = this.subtreeValues(option);
-    return values.length > 0 && values.every((value) => this.isSelected(value));
-  }
-
-  protected partiallySelected(option: FilterOptionRow): boolean {
-    const values = this.subtreeValues(option);
-    return (
-      values.some((value) => this.isSelected(value)) && !values.every((v) => this.isSelected(v))
-    );
+    return values.length > 0 && values.every(this.selectionTest());
   }
 
   /** Selecting a row selects everything beneath it; clearing it clears the same set. */
@@ -733,12 +761,14 @@ export class FilterMenuComponent
       return;
     }
     const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
-    const selectAll = !values.every((value) => current.includes(value));
-    this._value.set(
-      selectAll
-        ? [...current, ...values.filter((value) => !current.includes(value))]
-        : current.filter((value) => !values.includes(value)),
-    );
+    const selected = this.selectedValues();
+    const selectAll = !values.every((value) => selected.has(value));
+    if (selectAll) {
+      this._value.set([...current, ...values.filter((value) => !selected.has(value))]);
+    } else {
+      const cleared = new Set(values);
+      this._value.set(current.filter((value) => !cleared.has(value)));
+    }
   }
 
   isSelected(value: unknown): boolean {
@@ -746,8 +776,24 @@ export class FilterMenuComponent
     if (value === CLEAR_FILTER) {
       return !this.active();
     }
+    return this.selectionTest()(value);
+  }
+
+  /**
+   * Returns a test for whether a value is selected. The selection is read once, when this is
+   * called, and the returned test reads no signals. Use it to test many values in a row.
+   *
+   * Avoids: reading the selection again for each value. That is a repeated signal read, which
+   * would get slower the more signals the caller has read in between: a parent's whole subtree,
+   * in the worst case.
+   */
+  private selectionTest(): (value: unknown) => boolean {
+    if (this.multiple()) {
+      const selected = this.selectedValues();
+      return (value) => selected.has(value);
+    }
     const current = this._value();
-    return this.multiple() ? Array.isArray(current) && current.includes(value) : current === value;
+    return (value) => current === value;
   }
 
   toggle(value: unknown): void {
@@ -806,9 +852,7 @@ export class FilterMenuComponent
     const surface = (event.currentTarget as HTMLElement).closest<HTMLElement>("[role=dialog]");
     this.clear();
     focusAfterRender(this.injector, () => {
-      const active = this.keyManager.getActiveItem() ?? this.treeRows()[0];
-      if (active) {
-        active.focus();
+      if (this.tree()?.focusActiveRow()) {
         return null;
       }
       // A search matching nothing leaves no row to return to, so fall back to the field that

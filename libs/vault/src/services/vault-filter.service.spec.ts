@@ -22,6 +22,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { buildTestOrganization } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -293,6 +294,24 @@ describe("vault filter service", () => {
         expect(result.children[0].children.map((c) => c.node.id)).toEqual(["id-2", "id-3"]);
       });
 
+      it("carries hasEnabledAccessRule onto the tree node", async () => {
+        // `buildCollectionTree`'s `new CollectionView(...)` resets the flag to `false`; losing
+        // the carry-over unmarks every governed collection silently.
+        const governed = createCollectionView("id-1", "Collection 1", "org test id");
+        governed.hasEnabledAccessRule = true;
+        const ungoverned = createCollectionView("id-2", "Collection 2", "org test id");
+        const storedCollections = [governed, ungoverned];
+        collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
+
+        const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+        expect(result.children[0].node.hasEnabledAccessRule).toBe(true);
+        expect(result.children[1].node.hasEnabledAccessRule).toBe(false);
+      });
+
       it("returns tree where non-existing collections are excluded from children", async () => {
         const storedCollections = [
           createCollectionView("id-1", "Collection 1", "org test id"),
@@ -473,12 +492,12 @@ describe("vault filter service", () => {
   });
 
   function createOrganization(id: OrganizationId, name: string) {
-    const org = new Organization();
-    org.id = id;
-    org.name = name;
-    org.identifier = name;
-    org.isMember = true;
-    return org;
+    return buildTestOrganization({
+      id,
+      name,
+      identifier: name,
+      isMember: true,
+    });
   }
 
   function createCipherView(id: string, orgId: string, folderId: string) {

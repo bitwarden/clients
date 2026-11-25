@@ -7,7 +7,6 @@ import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
-import { LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -16,6 +15,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -23,14 +23,13 @@ import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/sh
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
@@ -65,6 +64,16 @@ class MockPopOutComponent {}
 class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
+
+const makePolicy = (enabled: boolean) =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("AccountSecurityComponent", () => {
   let component: AccountSecurityComponent;
@@ -115,7 +124,6 @@ describe("AccountSecurityComponent", () => {
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
-        { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
         { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
@@ -173,9 +181,7 @@ describe("AccountSecurityComponent", () => {
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
     sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
-    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
     sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
-    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
     sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
     policyService.policiesByType$.mockReturnValue(of([null]));
@@ -207,9 +213,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -225,9 +229,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -254,9 +256,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -269,9 +269,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -286,9 +284,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -551,7 +547,6 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(true);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(true);
       expect(
         fixture.nativeElement.textContent.includes(
           "sharedUnlockUnavailableUntrustedDevice-used-i18n",
@@ -569,7 +564,6 @@ describe("AccountSecurityComponent", () => {
       fixture.detectChanges();
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
-      expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
     });
   });
 

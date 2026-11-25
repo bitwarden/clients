@@ -1,15 +1,4 @@
 @if (!!cipher()) {
-  @if (bannerComponent) {
-    <ng-container
-      *ngComponentOutlet="
-        bannerComponent;
-        inputs: {
-          cipher: cipher(),
-        }
-      "
-    />
-  }
-
   @if (cardIsExpired()) {
     <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
       {{ "cardExpiredMessage" | i18n }}
@@ -26,13 +15,26 @@
   <!-- ITEM DETAILS -->
   <app-item-details-v2
     [cipher]="cipher()"
-    [organization]="organization()"
+    [organization]="resolvedOrganization()"
     [collections]="resolvedCollections()"
-    [folder]="folder()"
+    [folder]="resolvedFolder()"
     [hideOwner]="isAdminConsole()"
+    [isAdminConsole]="isAdminConsole()"
   >
     <ng-content select="[slot=button]"></ng-content>
   </app-item-details-v2>
+
+  @if (bannerComponent) {
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: {
+          cipher: cipher(),
+          isAdminConsole: isAdminConsole(),
+        }
+      "
+    />
+  }
 
   <!-- LOGIN CREDENTIALS -->
   @if (hasLogin()) {
@@ -40,6 +42,7 @@
       [cipher]="cipher()"
       [activeUserId]="activeUserId$ | async"
       [showChangePasswordLink]="showChangePasswordLink()"
+      [passwordRiskCategory]="passwordRiskCategory()"
       [changePasswordLink]="changePasswordLink()"
       (handleChangePassword)="launchChangePassword()"
       [hasAnonymousPremium]="hasAnonymousPremium()"

@@ -1,0 +1,184 @@
+// Polyfills Symbol.dispose for `using ref = sdk.take()`; not reliably present in jsdom.
+if (!(Symbol as any).dispose) {
+  (Symbol as any).dispose = Symbol("Symbol.dispose");
+}
+
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import type {
+  AccessDecisionRequest,
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
+  AccessRequestId,
+  AccessRequestView,
+} from "@bitwarden/sdk-internal";
+
+import { ApprovalsSdkService } from "./approvals-sdk.service";
+
+describe("ApprovalsSdkService", () => {
+  let sdkService: MockSdkService;
+  let accountService: AccountService;
+  let logService: LogService;
+  let service: ApprovalsSdkService;
+
+  const userId = "3f5a3c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as UserId;
+  const requestId = "9b1e4c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as unknown as AccessRequestId;
+
+  const requestView = {
+    id: requestId,
+    requesterId: userId,
+    status: "pending",
+  } as unknown as AccessRequestView;
+
+  const decidedView = {
+    id: requestId,
+    status: "approved",
+  } as unknown as AccessRequestView;
+
+  beforeEach(() => {
+    sdkService = new MockSdkService();
+    accountService = { activeAccount$: of({ id: userId }) } as unknown as AccountService;
+    logService = mock<LogService>();
+    service = new ApprovalsSdkService(sdkService, accountService, logService);
+  });
+
+  /** Deep-mocks the `client.commercial().pam().approvals()` chain for the logged-in user. */
+  function mockApprovalsClient() {
+    const client = sdkService.simulate.userLogin(userId);
+    return client.commercial.mockDeep().pam.mockDeep().approvals.mockDeep();
+  }
+
+  describe("listInbox", () => {
+    it("calls approvals().list_inbox() and returns the result", async () => {
+      const approvals = mockApprovalsClient();
+      approvals.list_inbox.mockResolvedValue([requestView]);
+
+      const result = await service.listInbox();
+
+      expect(approvals.list_inbox).toHaveBeenCalledWith();
+      expect(result).toEqual([requestView]);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("boom");
+      approvals.list_inbox.mockRejectedValue(error);
+
+      await expect(service.listInbox()).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("listApproved", () => {
+    it("calls approvals().list_approved() and returns the result", async () => {
+      const approvals = mockApprovalsClient();
+      approvals.list_approved.mockResolvedValue([decidedView]);
+
+      const result = await service.listApproved();
+
+      expect(approvals.list_approved).toHaveBeenCalledWith();
+      expect(result).toEqual([decidedView]);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("boom");
+      approvals.list_approved.mockRejectedValue(error);
+
+      await expect(service.listApproved()).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("listHistory", () => {
+    const query = {
+      page: 2,
+      pageSize: 25,
+      statuses: ["revoked"],
+      collectionIds: [],
+      requesterIds: [],
+    } as unknown as AccessRequestHistoryQuery;
+
+    it("calls approvals().list_history() with the query and returns the page", async () => {
+      const approvals = mockApprovalsClient();
+      const page: AccessRequestHistoryPage = {
+        requests: [decidedView],
+        total: 51,
+        requesters: [],
+        collectionIds: [],
+      };
+      approvals.list_history.mockResolvedValue(page);
+
+      const result = await service.listHistory(query);
+
+      expect(approvals.list_history).toHaveBeenCalledWith(query);
+      expect(result).toEqual(page);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("boom");
+      approvals.list_history.mockRejectedValue(error);
+
+      await expect(service.listHistory(query)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("decide", () => {
+    const decision = { verdict: "approve", comment: "looks fine" } as AccessDecisionRequest;
+
+    it("calls approvals().decide() with the request id and decision", async () => {
+      const approvals = mockApprovalsClient();
+      approvals.decide.mockResolvedValue(decidedView);
+
+      const result = await service.decide(requestId, decision);
+
+      expect(approvals.decide).toHaveBeenCalledWith(requestId, decision);
+      expect(result).toEqual(decidedView);
+    });
+
+    it("logs and rethrows on failure without echoing the comment", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("cannot decide");
+      approvals.decide.mockRejectedValue(error);
+
+      await expect(
+        service.decide(requestId, {
+          verdict: "deny",
+          comment: "secret reason",
+        } as AccessDecisionRequest),
+      ).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+      const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
+      expect(logged).not.toContain("secret reason");
+    });
+  });
+
+  describe("revoke", () => {
+    it("calls approvals().revoke() with the request id and reason", async () => {
+      const approvals = mockApprovalsClient();
+      approvals.revoke.mockResolvedValue(undefined);
+
+      await service.revoke(requestId, { reason: "Approved by mistake" });
+
+      expect(approvals.revoke).toHaveBeenCalledWith(requestId, { reason: "Approved by mistake" });
+    });
+
+    it("logs and rethrows on failure without echoing the reason", async () => {
+      const approvals = mockApprovalsClient();
+      const error = new Error("cannot revoke");
+      approvals.revoke.mockRejectedValue(error);
+
+      await expect(service.revoke(requestId, { reason: "secret reason" })).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+      const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
+      expect(logged).not.toContain("secret reason");
+    });
+  });
+});

@@ -68,6 +68,10 @@ const getProrationChargePlacement = (
   }
 };
 
+const flowShowsProrationNote = (flowContext: InvoicePreviewFlowContext): boolean =>
+  flowContext === InvoicePreviewFlowContext.PremiumOrgUpgrade ||
+  flowContext === InvoicePreviewFlowContext.OrganizationPlanChange;
+
 /**
  * Converts the server's `InvoicePreview` wire model into the render-ready `Cart` view model consumed
  * by `<billing-cart-summary>`.
@@ -267,6 +271,15 @@ export const adaptInvoicePreviewToCart = (
   const credit = buildCreditRow(preview, flowContext);
   if (credit) {
     cart.credit = credit;
+  }
+
+  // Check amounts rather than hasProrations(): entries with zero charge and credit have nothing
+  // that can change between preview and submit.
+  const hasProrationAmount = [passwordManager, secretsManager, privilegedControls].some((group) =>
+    group?.prorations?.some((p) => p.charge > 0 || p.credit > 0),
+  );
+  if (flowShowsProrationNote(flowContext) && hasProrationAmount) {
+    cart.showProrationNote = true;
   }
 
   cart.amountDue = preview.amountDue;

@@ -110,15 +110,6 @@ const HONOR_BITWARDEN_AUTOFILL_ATTRIBUTE = new KeyDefinition(
   },
 );
 
-const ENABLE_BASIC_AUTH_RESPONSE = new UserKeyDefinition(
-  AUTOFILL_SETTINGS_DISK,
-  "enableBasicAuthResponse",
-  {
-    deserializer: (value: boolean) => value ?? false,
-    clearOn: [],
-  },
-);
-
 const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
   deserializer: (value: boolean) => value ?? true,
 });
@@ -175,20 +166,13 @@ export abstract class AutofillSettingsServiceAbstraction {
   honorBitwardenAutofillAttribute$: Observable<boolean>;
   setHonorBitwardenAutofillAttribute: (newValue: boolean) => Promise<void>;
   /**
-   * User-controlled setting for whether or not HTTP auth challenges should be
-   * answered with a matching vault credential.
-   */
-  enableBasicAuthResponse$: Observable<boolean>;
-  setEnableBasicAuthResponse: (newValue: boolean) => Promise<void>;
-  /**
-   * Resolved state for answering HTTP auth challenges for the active user: the
-   * user setting, gated on the {@link FeatureFlag.EnableBasicAuthResponse} flag.
+   * Whether HTTP authentication challenges may be answered from the active user's vault, gated on
+   * the {@link FeatureFlag.EnableBasicAuthResponse} flag. This reports availability only; a login is
+   * offered only when it has HTTP authentication turned on in its own settings.
    *
-   * Emits `false` while there is no active user. Each subscription resolves the
-   * setting of the user active when it subscribes, and follows later changes of
-   * active user.
+   * Emits `false` while there is no active user, and follows changes of active user.
    */
-  resolvedEnableBasicAuthResponse$: Observable<boolean>;
+  httpAuthenticationAvailable$: Observable<boolean>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
@@ -235,9 +219,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   private honorBitwardenAutofillAttributeState: GlobalState<boolean>;
   readonly honorBitwardenAutofillAttribute$: Observable<boolean>;
 
-  private enableBasicAuthResponseState: ActiveUserState<boolean>;
-  readonly enableBasicAuthResponse$: Observable<boolean>;
-  readonly resolvedEnableBasicAuthResponse$: Observable<boolean>;
+  readonly httpAuthenticationAvailable$: Observable<boolean>;
 
   private enableContextMenuState: GlobalState<boolean>;
   readonly enableContextMenu$: Observable<boolean>;
@@ -340,27 +322,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
       map((x) => x ?? false),
     );
 
-    this.enableBasicAuthResponseState = this.stateProvider.getActive(ENABLE_BASIC_AUTH_RESPONSE);
-    this.enableBasicAuthResponse$ = this.enableBasicAuthResponseState.state$.pipe(
-      map((x) => x ?? false),
-    );
-
-    // The active user is resolved here rather than through `enableBasicAuthResponseState`,
-    // and the result is not shared, so that each subscription reads the setting of the user
-    // active at subscription time. A shared replay would hand a new subscriber the previous
-    // user's value until the newly active user's setting has been read from storage.
-    this.resolvedEnableBasicAuthResponse$ = this.accountService.activeAccount$.pipe(
+    this.httpAuthenticationAvailable$ = this.accountService.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
         userId == null
           ? of(false)
-          : combineLatest([
-              // A future org policy would also be resolved here
-              this.stateProvider.getUser(userId, ENABLE_BASIC_AUTH_RESPONSE).state$,
-              this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
-            ]).pipe(
-              map(([userSetting, featureFlag]) => featureFlag === true && userSetting === true),
-            ),
+          : this.configService
+              .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+              .pipe(map((featureFlag) => featureFlag === true)),
       ),
       distinctUntilChanged(),
     );
@@ -442,10 +411,6 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setHonorBitwardenAutofillAttribute(newValue: boolean): Promise<void> {
     await this.honorBitwardenAutofillAttributeState.update(() => newValue);
-  }
-
-  async setEnableBasicAuthResponse(newValue: boolean): Promise<void> {
-    await this.enableBasicAuthResponseState.update(() => newValue);
   }
 
   async setEnableContextMenu(newValue: boolean): Promise<void> {

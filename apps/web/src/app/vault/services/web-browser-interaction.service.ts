@@ -30,10 +30,9 @@ const OPEN_RESPONSE_TIMEOUT_MS = 2000;
 /**
  * Timeout for checking if the extension is installed.
  *
- * A shorter timeout is used to avoid waiting for too long for the extension. The listener for
- * checking the installation runs in the background scripts so the response should be relatively quick.
+ * Covers a content script to background round trip, including a cold MV3 worker.
  */
-const CHECK_FOR_EXTENSION_TIMEOUT_MS = 25;
+const CHECK_FOR_EXTENSION_TIMEOUT_MS = 500;
 
 @Injectable({
   providedIn: "root",

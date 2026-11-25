@@ -83,7 +83,7 @@ export class AboutMenu implements IMenubarMenu {
           buttons: [this.localize("ok"), this.localize("copy")],
         });
         if (result.response === 1) {
-          clipboard.writeText(aboutInformation);
+          await clipboard.writeText(aboutInformation);
         }
       },
     };

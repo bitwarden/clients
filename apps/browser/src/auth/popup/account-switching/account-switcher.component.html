@@ -55,6 +55,7 @@
           type="button"
           bit-item-content
           (click)="lock(currentAccount.id)"
+          data-testid="account-switcher-lock-now-button"
           [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
           [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
         >

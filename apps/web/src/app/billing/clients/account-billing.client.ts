@@ -2,15 +2,11 @@ import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
 import {
   SubscriptionDiscount,
   SubscriptionDiscountResponse,
 } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { Maybe } from "@bitwarden/pricing";
-import { BitwardenSubscription } from "@bitwarden/subscription";
 
 import {
   BillingAddress,
@@ -38,20 +34,6 @@ export class AccountBillingClient {
   getLicense = async (): Promise<string> => {
     const path = `${this.endpoint}/license`;
     return this.apiService.send("GET", path, null, true, true);
-  };
-
-  getSubscription = async (): Promise<Maybe<BitwardenSubscription>> => {
-    const path = `${this.endpoint}/subscription`;
-    try {
-      const json = await this.apiService.send("GET", path, null, true, true);
-      const response = new BitwardenSubscriptionResponse(json);
-      return response.toDomain();
-    } catch (error: any) {
-      if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return null;
-      }
-      throw error;
-    }
   };
 
   purchaseSubscription = async (
@@ -100,7 +82,7 @@ export class AccountBillingClient {
     request: UpgradePremiumToOrganizationRequest,
   ): Promise<string> => {
     const path = `${this.endpoint}/upgrade`;
-    return await this.apiService.send(
+    const response = await this.apiService.send(
       "POST",
       path,
       {
@@ -116,5 +98,10 @@ export class AccountBillingClient {
       true,
       true,
     );
+
+    // The endpoint returns an `UpgradePremiumToOrganizationResponseModel` object. It previously
+    // returned the organization ID as a bare string, so tolerate both shapes: a client running
+    // against an older server would otherwise resolve to "[object Object]".
+    return typeof response === "string" ? response : response?.organizationId;
   };
 }

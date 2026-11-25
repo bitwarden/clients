@@ -39,7 +39,7 @@
       </div>
     </td>
 
-    <!-- Column: Login Status / Recently Active -->
+    <!-- Column: Recently Active -->
     <td bitCell>
       <div class="tw-flex tw-gap-1">
         <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
@@ -48,8 +48,7 @@
         <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
           {{ "requestPending" | i18n }}
         </span>
-        <!-- TODO: PM-34091 - Remove the showRecentlyActive condition; always show recentlyActiveText. -->
-        <span *ngIf="showRecentlyActive && !device.isCurrentDevice && !device.pendingAuthRequest">
+        <span *ngIf="!device.isCurrentDevice && !device.pendingAuthRequest">
           {{ device.recentlyActiveText }}
         </span>
       </div>

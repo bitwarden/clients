@@ -36,6 +36,9 @@ import { MAIN_CONTENT_MIN_WIDTH_REM } from "./layout-metrics";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// The drawer and footer portal outlets create component views inside this template, so OnPush
+// here skips any Default-CD content they host. See https://bitwarden.atlassian.net/browse/PM-47445:
+// on desktop the vault item drawer kept its loading spinner until the next UI event.
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-layout",
@@ -56,10 +59,10 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
   },
 })
 export class LayoutComponent {
-  protected sideNavService = inject(SideNavService);
+  protected readonly sideNavService = inject(SideNavService);
   private readonly drawerService = inject(DrawerService);
-  protected drawerPortal = this.drawerService.portal;
-  protected footerPortal = inject(LayoutFooterService).portal;
+  protected readonly drawerPortal = this.drawerService.portal;
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
   private readonly configService = inject(ConfigService, { optional: true });
 
   // remove when VFO1 flag is removed

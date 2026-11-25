@@ -1,4 +1,5 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -49,10 +50,10 @@ export const Default: Story = {
       <bit-form-field>
         <bit-label>Choose a value</bit-label>
         <bit-select [disabled]="disabled">
-          <bit-option value="value1" label="Value 1" icon="bwi-collection-shared" description="Very cool hint text that is also incredibly long, so helpful that it will need to truncate if you shrink the window width"></bit-option>
-          <bit-option value="value2" label="Value 2 very long label though so it will truncate on small screen" icon="bwi-collection-shared"></bit-option>
-          <bit-option value="value3" label="Value 3" icon="bwi-collection-shared"></bit-option>
-          <bit-option value="value4" label="Value 4" icon="bwi-collection-shared" disabled></bit-option>
+          <bit-option value="value1" label="Value 1" icon="bwi-shared-folder" description="Very cool hint text that is also incredibly long, so helpful that it will need to truncate if you shrink the window width"></bit-option>
+          <bit-option value="value2" label="Value 2 very long label though so it will truncate on small screen" icon="bwi-shared-folder"></bit-option>
+          <bit-option value="value3" label="Value 3" icon="bwi-shared-folder"></bit-option>
+          <bit-option value="value4" label="Value 4" icon="bwi-shared-folder" disabled></bit-option>
         </bit-select>
       </bit-form-field>
     `,
@@ -64,6 +65,34 @@ export const Disabled: Story = {
   ...Default,
   args: {
     disabled: true,
+  },
+};
+
+export const DisableSearch: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field>
+        <bit-label>Rows per page</bit-label>
+        <bit-select disableSearch>
+          <bit-option [value]="10" label="10 rows"></bit-option>
+          <bit-option [value]="25" label="25 rows"></bit-option>
+          <bit-option [value]="50" label="50 rows"></bit-option>
+          <bit-option [value]="100" label="100 rows"></bit-option>
+        </bit-select>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+  play: async ({ canvasElement }) => {
+    const combobox = within(canvasElement).getByRole("combobox", { name: "Rows per page" });
+    await userEvent.click(combobox);
+    await userEvent.keyboard("5");
+    const fifty = await screen.findByRole("option", { name: "50 rows" });
+    await waitFor(() => expect(combobox).toHaveAttribute("aria-activedescendant", fifty.id));
+    await expect(screen.getAllByRole("option")).toHaveLength(4);
   },
 };
 

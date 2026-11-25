@@ -13,7 +13,7 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
   host: {
     // Unpadded so the banner can span the full content width; the gutters sit on the content
     // below it instead. Matches the vault page.
-    class: "tw-block",
+    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [
     DesktopHeaderComponent,

@@ -9,4 +9,5 @@ export { safeStringify } from "./safe-stringify";
 export { FlightRecorder } from "./flight-recorder";
 export { FlightRecorderLogRecorder } from "./flight-recorder-log-recorder";
 export { buildFlightRecorderCsvExport } from "./flight-recorder-export";
+export { limitPerformanceMeasurements } from "./performance-measurement-limit";
 export type { FlightRecorderEvent } from "@bitwarden/sdk-internal";

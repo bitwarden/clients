@@ -5,21 +5,20 @@ import {
   Overlay,
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Observable, Subject } from "rxjs";
 
 import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TooltipDirective],
   template: ` <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button> `,
 })
 class TooltipHostComponent {
-  tooltipText = "Hello Tooltip";
+  readonly tooltipText = "Hello Tooltip";
 }
 
 /** Minimal strategy shape the directive expects */

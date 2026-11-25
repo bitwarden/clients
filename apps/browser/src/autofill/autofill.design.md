@@ -11,16 +11,16 @@
 ## Autofill and the monitoring lifecycle
 
 Autofill and the monitoring lifecycle are separate concerns. The
-[monitoring lifecycle](./lifecycle.design.md) decides _when a frame is worth engaging_ — it
+[monitoring lifecycle](./lifecycle/design.md) decides _when a frame is worth engaging_ — it
 reconciles the page, account, extension, and tab lifecycles and, when a page transition resolves,
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
-Autofill decides _whether and how to fill_. The [orchestrator](./orchestrator.design.md) coordinates
+Autofill decides _whether and how to fill_. The [orchestrator](./orchestration/design.md) coordinates
 the fill action, including resolving concurrent autofill requests. It decides which contexts are
 targeted, how autofill operations are sequenced, and secures the autofill workflow at large.
 
 One rule spans every fill: autofill fills only the **hot** tab — the active tab of the _focused_
 window (see the
-[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never a background or unfocused one.
+[tab lifecycle](./lifecycle/design.md#the-tab-lifecycle)) — and never a background or unfocused one.
 The lifecycle carries this for page loads, surfacing an opportunity only when the tab is hot and
 buffering it otherwise; a user-initiated fill acts on the active tab the user just used, which is
 hot by construction. Either way a fill lands where the user is looking, never on a background
@@ -34,26 +34,32 @@ opportunity, autofill applies its policy before it commits a fill:
 - **The autofill-on-page-load setting must be enabled.** It is off by default, and a user who has not
   opted in gets no page-load fill even on a hot, monitored frame. The monitoring lifecycle
   gates the _autofiller's injection_ on this same setting, but an already-injected autofiller is not
-  re-evaluated when the setting changes — it keeps reporting transitions until logout or context
-  loss — so this fill-time check, not the injection-time gate, is what enforces the setting when a
+  re-evaluated when the setting changes — it keeps reporting transitions until the extension logs out or
+  context loss ends it — so this fill-time check, not the injection-time gate, is what enforces the setting when a
   user toggles it off mid-session.
+- **The transition's account must be the active account, and that account must be unlocked.** Each
+  transition is attributed to the account that is active when the background receives it. An
+  opportunity from one account never fills for another, even when it resolves after a switch. A
+  page-load fill raises no unlock prompt: an opportunity that resolves while the active account is
+  locked is refused. A lock or switch after the opportunity resolves
+  [retires](./lifecycle/design.md#retiring-an-opportunity) it.
 - **A cipher must match the frame's page.** Autofill reads the frame to learn its fields and selects
   the cipher saved for its URL; with no match there is nothing to fill and the opportunity is
   discarded.
 - **The frame's trust must permit filling.** A page-load fill into an untrusted iframe is refused as
-  a policy decision, not retried.
+  a policy decision, and not re-attempted.
 
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
-Once policy permits, the fill is carried out by the [orchestrator](./orchestrator.design.md).
+Once policy permits, the fill is carried out by the [orchestrator](./orchestration/design.md).
 
-A page-load fill targets **the frame that produced the transition**, resolved live, by id, at the
+A page-load fill targets **the frame that produced the transition**, resolved live, by identity, at the
 moment of the fill. It must not use a snapshot carried from when the transition was reported.
 This distinction is a security boundary. A transition can be buffered (see the
-[tab lifecycle](./lifecycle.design.md#buffering-transitions)). Between report and fill, the frame may
+[tab lifecycle](./lifecycle/design.md#buffering-transitions)). Between report and fill, the frame may
 have navigated. Filling from the transition's stale snapshot would put a cipher chosen for the _old_
 page into whatever page now occupies that frame — a credential handed to the wrong origin.
-Targeting the frame by its live identity and validating its origin keeps a buffered-then-resolved
-transition from filling the wrong page.
+Targeting the frame by its live identity and validating that it still holds the document that
+reported the transition keeps a buffered-then-resolved transition from filling the wrong page.
 
 ## Automated login (auto-submit)
 
@@ -94,12 +100,6 @@ Absent and denied outcomes are both forms of fill-failure. Their distinguishing 
 autofill operations should terminate or continue. A denied response terminates the request. An
 absent response may mitigate the failure (say, by copying a TOTP code).
 
-A form that has not finished rendering when autofill reaches it looks, momentarily, like a page with
-nothing to fill. A retry is a fresh attempt at the page-load opportunity after a short delay, gated
-on the tab still being hot: if the tab has gone cold or the transition has been dropped in the meantime,
-the retry is abandoned. Because the decision to retry is made from the honest outcome of the attempt,
-a page should fill at most once per opportunity, whether it renders promptly or slowly.
-
 ### Reading an outcome
 
 When a fill attempt uses a credential featuring a TOTP code, the current value of the code may be
@@ -116,7 +116,7 @@ entitlement to verification codes for that cipher. A denial forbids the release 
 
 The autofill service's **fill operation** is a narrow primitive: given a concrete cipher and a
 target, it fills and reports whether it did. It makes no selection, targeting, or foreground
-decision. The [orchestrator](./orchestrator.design.md) chooses the cipher, verifies the tab the
+decision. The [orchestrator](./orchestration/design.md) chooses the cipher, verifies the tab the
 user is working in, and sequences the collect with other autofill operations. Keeping the
 fill contract narrow lets autofill's fill invariants live in one place rather than being
 re-derived at every entry point.
@@ -124,7 +124,7 @@ re-derived at every entry point.
 The service applies **policy** during fill operations. This includes enforcing enterprise policy,
 reading a user's settings, and checking whether licensing entitlements permit an action.
 
-The service also carries broader, older autofill responsibilities including injecting the content scripts,
-driving the reprompt popout, event and TOTP handling. These are under active migration. The direction
-is to keep the fill operation the service's only hand in placing a credential, with selection and
-coordination remaining the orchestrator's.
+The service also carries broader autofill responsibilities that sit outside the fill operation,
+including injecting the content scripts, driving the reprompt popout, and event and TOTP handling.
+None of them places a credential: the fill operation is the service's only hand in that, and
+selection and coordination are the orchestrator's.

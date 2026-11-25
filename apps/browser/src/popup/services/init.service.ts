@@ -7,16 +7,20 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { limitPerformanceMeasurements } from "@bitwarden/logging";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { PopupThemeService } from "../../platform/popup/shell/popup-theme.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
+  private themeService = inject(PopupThemeService);
   private automationDriver = inject(AutomationDriver);
 
   constructor(
@@ -29,18 +33,22 @@ export class InitService {
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
     private readonly unlockService: ForegroundUnlockService,
+    private readonly ipcService: IpcService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
+      await this.ipcService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+      this.themeService.init();
 
       this.automationDriver.attachToGlobal(self);
 

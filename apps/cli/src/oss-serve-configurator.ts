@@ -86,6 +86,7 @@ export class OssServeConfigurator {
       this.serviceContainer.keyService,
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.cipherArchiveService,
+      this.serviceContainer.configService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -112,6 +113,7 @@ export class OssServeConfigurator {
       this.serviceContainer.policyService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.configService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -173,7 +175,7 @@ export class OssServeConfigurator {
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
       this.serviceContainer.organizationApiService,
-      async () => await this.serviceContainer.logout(),
+      this.serviceContainer.logoutService,
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.unlockService,

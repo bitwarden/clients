@@ -290,10 +290,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
   refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
 
-  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
-
   isElementInlineMenu = (element: Element): boolean =>
-    this.inlineMenuContentService?.isElementInlineMenu(element as HTMLElement) ?? false;
+    this.inlineMenuContentService?.isElementInlineMenu(element) ?? false;
 
   getUnownedTopLayerItems = (includeCandidates?: boolean) =>
     this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
@@ -1256,6 +1254,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
     // which are distinct from the heuristic AutofillFieldQualifierType values.
     const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+
+    // A oneTimeCode field needs the TOTP sub-type marker so the inline menu
+    // activates its TOTP flow, in addition to the cipher-type routing below.
+    if (qualifier === AutofillTargetingRuleTypes.oneTimeCode) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+    }
 
     if (qualifier === AutofillTargetingRuleTypes.newPassword) {
       autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;

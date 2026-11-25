@@ -7,6 +7,7 @@
   (blur)="onBlur()"
   [labelForId]="searchInputId()"
   [clearable]="false"
+  [searchable]="!disableSearch()"
   (close)="onClose()"
   appendTo="body"
   outsideClickEvent="mousedown"

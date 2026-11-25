@@ -17,7 +17,14 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import {
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+} from "@bitwarden/angular/auth/registration";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   DevicesIcon,
   ExpiredIcon,
@@ -34,24 +41,21 @@ import {
   LoginViaAuthRequestComponent,
   NewDeviceVerificationComponent,
   PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
   SsoComponent,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
 } from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -65,6 +69,7 @@ import { autofillToolsDevFlagGuard } from "../autofill/popup/autofill-tools/auto
 import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
 import { DefaultPasswordManagerPromptGuard } from "../autofill/popup/default-password-manager/default-password-manager-prompt.guard";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
+import { HttpAuthenticationComponent } from "../autofill/popup/http-authentication/http-authentication.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
@@ -92,6 +97,7 @@ import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
+import { IMPORT_CONFIRMATION_ROUTE_PATH } from "../tools/popup/settings/import/import-confirmation-state.service";
 import { ImportShellBrowserComponent } from "../tools/popup/settings/import/import-shell-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
@@ -104,6 +110,7 @@ import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-p
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
+import { WelcomePageComponent } from "../vault/popup/components/vault/welcome-page/welcome-page.component";
 import {
   atRiskPasswordAuthGuard,
   canAccessAtRiskPasswords,
@@ -111,6 +118,8 @@ import {
 } from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
+import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
+import { restrictedCipherGuard } from "../vault/popup/guards/restricted-cipher.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -173,6 +182,12 @@ const routes: Routes = [
     path: "fido2",
     component: Fido2Component,
     canActivate: [fido2AuthGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "http-authentication",
+    component: HttpAuthenticationComponent,
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -268,7 +283,11 @@ const routes: Routes = [
   {
     path: "edit-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard, debounceNavigationGuard()],
+    canActivate: [
+      authGuard,
+      debounceNavigationGuard(),
+      restrictedCipherGuard(RestrictedCipherAction.Edit),
+    ],
     data: {
       // Above "trash"
       elevation: 3,
@@ -325,7 +344,25 @@ const routes: Routes = [
         canActivate: [canActivateImportType("/import-source-select")],
         data: { elevation: 1 } satisfies RouteDataProperties,
       },
+      {
+        path: IMPORT_DESTINATION_ROUTE_PATH,
+        loadComponent: () =>
+          import("../tools/popup/settings/import/import-destination-browser.component").then(
+            (m) => m.ImportDestinationBrowserComponent,
+          ),
+        canActivate: [canActivateImportType("/import-source-select")],
+        data: { elevation: 1 } satisfies RouteDataProperties,
+      },
     ],
+  },
+  {
+    path: IMPORT_CONFIRMATION_ROUTE_PATH,
+    loadComponent: () =>
+      import("../tools/popup/settings/import/import-confirmation-browser.component").then(
+        (m) => m.ImportConfirmationBrowserComponent,
+      ),
+    canActivate: [authGuard, importUpgradeRequiredGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "export",
@@ -348,12 +385,7 @@ const routes: Routes = [
   {
     path: AuthExtensionRoute.SettingsPassword,
     component: ChangePasswordPageComponent,
-    canActivate: [
-      // TODO: PM-32419 - remove feature flag check
-      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
-      authGuard,
-      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
-    ],
+    canActivate: [authGuard, hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`])],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {
@@ -413,7 +445,7 @@ const routes: Routes = [
   {
     path: "clone-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.Clone)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -723,7 +755,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.AssignCollections)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -750,22 +782,31 @@ const routes: Routes = [
     canActivate: [],
     data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
   },
-  {
-    path: "intro-carousel",
-    component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [],
-    data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
-    children: [
-      {
-        path: "",
-        component: IntroCarouselComponent,
-        data: {
-          pageIcon: null,
-          hideFooter: true,
-        } satisfies ExtensionAnonLayoutWrapperData,
-      },
-    ],
-  },
+  ...featureFlaggedRoute({
+    defaultComponent: ExtensionAnonLayoutWrapperComponent,
+    flaggedComponent: WelcomePageComponent,
+    featureFlag: FeatureFlag.PM45335_ExtensionWelcomePage,
+    routeOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+      children: [
+        {
+          path: "",
+          component: IntroCarouselComponent,
+          data: {
+            pageIcon: null,
+            hideFooter: true,
+          } satisfies ExtensionAnonLayoutWrapperData,
+        },
+      ],
+    },
+    flaggedRouteOptions: {
+      path: "intro-carousel",
+      canActivate: [],
+      data: { elevation: 0, doNotSaveUrl: true } satisfies RouteDataProperties,
+    },
+  }),
   {
     path: "confirm-key-connector-domain",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -802,7 +843,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultComponent,
-        canActivate: [authGuard],
+        canActivate: [authGuard, restoreVaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
@@ -816,6 +857,14 @@ const routes: Routes = [
         canActivate: [authGuard, vaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        // An organization's "My items" collection, named by a static segment — see `MY_ITEMS_ROUTE`.
+        path: `vault/:vaultId/${MY_ITEMS_ROUTE}`,
+        component: VaultComponent,
+        canActivate: [authGuard, vaultScopeGuard],
+        canDeactivate: [clearVaultStateGuard],
+        data: { ...MY_ITEMS_ROUTE_DATA, elevation: 0 } satisfies RouteDataProperties,
       },
       {
         path: "generator",

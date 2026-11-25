@@ -9,10 +9,12 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -20,13 +22,14 @@ import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/gui
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
   CipherRiskService,
-  isPasswordAtRisk,
+  getPasswordRiskCategory,
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { CalloutModule, SearchModule, TypographyModule } from "@bitwarden/components";
 
@@ -78,7 +81,7 @@ export class CipherViewComponent {
    */
   readonly cipher = input.required<CipherView>();
 
-  /** Host-provided banner above the cipher's details; null when unprovided. */
+  /** Host-provided banner below the cipher's details; null when unprovided. */
   protected readonly bannerComponent: CipherViewBanner | null = inject(CIPHER_VIEW_BANNER, {
     optional: true,
   });
@@ -96,8 +99,23 @@ export class CipherViewComponent {
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
    */
   readonly collections = input<CollectionView[] | undefined>(undefined);
+
+  /**
+   * Optional organization the cipher is assigned to. If none is provided, it will be fetched using the
+   * `OrganizationService` and the `organizationId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
+   */
+  readonly organization = input<Organization | undefined>(undefined);
+
+  /**
+   * Optional folder the cipher is assigned to. If none is provided, it will be fetched using the
+   * `FolderService` and the `folderId` property of the cipher.
+   * Note: Passed-in data is assumed to be correct; the relationship with the cipher will not be validated
+   */
+  readonly folder = input<FolderView | undefined>(undefined);
 
   /**
    * Should be set to true when the component is used within the Admin Console
@@ -120,6 +138,11 @@ export class CipherViewComponent {
    * Optional input for explicitly disabling the item history section of cipher details
    */
   readonly hideItemHistory = input<boolean>(false);
+  /**
+   * Optional input for hiding the expired card callout (used where the viewer cannot act on it,
+   * such as a card shared with them through a Send)
+   */
+  readonly hideExpiredCardWarning = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -158,9 +181,13 @@ export class CipherViewComponent {
     ),
   );
 
-  readonly organization = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
+  readonly resolvedOrganization = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.organization)]).pipe(
+      switchMap(([userId, cipher, providedOrganization]) => {
+        // Use the provided organization if available
+        if (providedOrganization) {
+          return of(providedOrganization);
+        }
         if (!userId || !cipher?.organizationId) {
           return of(undefined);
         }
@@ -172,9 +199,13 @@ export class CipherViewComponent {
       }),
     ),
   );
-  readonly folder = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
+  readonly resolvedFolder = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.folder)]).pipe(
+      switchMap(([userId, cipher, providedFolder]) => {
+        // Use the provided folder if available
+        if (providedFolder) {
+          return of(providedFolder);
+        }
         if (!userId || !cipher?.folderId) {
           return of(undefined);
         }
@@ -233,7 +264,7 @@ export class CipherViewComponent {
 
   readonly cardIsExpired = computed(() => {
     const cipher = this.cipher();
-    if (cipher == null) {
+    if (cipher == null || this.hideExpiredCardWarning()) {
       return false;
     }
     return isCardExpired(cipher.card);
@@ -294,34 +325,36 @@ export class CipherViewComponent {
   });
 
   /**
-   * Whether the login password for the cipher is considered at risk.
-   * The password is only evaluated when the user is premium (and not anonymous;
-   * the userId is required to make the check) and has edit access to the cipher.
+   * The highest risk category of the login password, or null when it is not at risk.
+   * Personal ciphers are evaluated for premium users; org ciphers only once an admin has assigned
+   * a change-password task. Both require a userId and edit access to the cipher.
    */
-  readonly passwordIsAtRisk = toSignal(
-    combineLatest([this.activeUserId$, this.cipher$]).pipe(
-      switchMap(([userId, cipher]) => {
-        if (
-          !cipher.hasLoginPassword ||
-          !cipher.edit ||
-          cipher.organizationId ||
-          cipher.isDeleted ||
-          !userId
-        ) {
-          return of(false);
+  readonly passwordRiskCategory = toSignal(
+    combineLatest([
+      this.activeUserId$,
+      this.cipher$,
+      toObservable(this.hadPendingChangePasswordTask),
+    ]).pipe(
+      switchMap(([userId, cipher, hasPendingTask]): Observable<RiskCategory | null> => {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.isDeleted || !userId) {
+          return of(null);
         }
-        return this.switchPremium$(
-          userId,
-          () =>
-            from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)).pipe(
-              startWith(false),
-            ),
-          () => of(false),
-        );
+        const riskCategory$ = () =>
+          from(this.getPasswordRiskCategory(cipher.id as CipherId, userId as UserId)).pipe(
+            startWith<RiskCategory | null>(null),
+          );
+        // Admins own org risk via Access Intelligence, so only categorize what they've flagged.
+        if (cipher.organizationId) {
+          return hasPendingTask ? riskCategory$() : of(null);
+        }
+        return this.switchPremium$<RiskCategory | null>(userId, riskCategory$, () => of(null));
       }),
     ),
-    { initialValue: false },
+    { initialValue: null },
   );
+
+  /** Whether the login password for the cipher is considered at risk. */
+  readonly passwordIsAtRisk = computed(() => this.passwordRiskCategory() != null);
 
   readonly showChangePasswordLink = computed(() => {
     return (
@@ -389,13 +422,16 @@ export class CipherViewComponent {
       .pipe(switchMap((isPremium) => (isPremium ? ifPremium$() : ifNonPremium$())));
   }
 
-  private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
+  private async getPasswordRiskCategory(
+    cipherId: CipherId,
+    userId: UserId,
+  ): Promise<RiskCategory | null> {
     try {
       const risk = await this.cipherRiskService.computeCipherRiskForUser(cipherId, userId, true);
-      return isPasswordAtRisk(risk);
+      return getPasswordRiskCategory(risk);
     } catch (error: unknown) {
       this.logService.error("Failed to check if password is at risk", error);
-      return false;
+      return null;
     }
   }
 }

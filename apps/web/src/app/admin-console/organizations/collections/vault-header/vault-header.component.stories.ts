@@ -4,20 +4,20 @@ import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@s
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
+import { ProviderService } from "@bitwarden/common/provider";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -78,6 +78,14 @@ function mockTreeNode(
 function nestedCollection(): TreeNode<CollectionAdminView> {
   const parent = mockTreeNode(mockCollection("Engineering", "col-1" as CollectionId));
   const child = mockTreeNode(mockCollection("Frontend", "col-2" as CollectionId), parent);
+  parent.children = [child];
+  return child;
+}
+
+/** "Web", nested under "Frontend", nested under "Engineering". */
+function deeplyNestedCollection(): TreeNode<CollectionAdminView> {
+  const parent = nestedCollection();
+  const child = mockTreeNode(mockCollection("Web", "col-3" as CollectionId), parent);
   parent.children = [child];
   return child;
 }
@@ -277,6 +285,19 @@ export const CollectionSelectedVfo1Enabled: Story = {
   args: {
     filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
     collection: mockTreeNode(mockCollection("Engineering")),
+  },
+  render,
+};
+
+/**
+ * Three levels of nesting with the VFO1 flag on — the full trail renders "Shared folders", each
+ * ancestor as a link, and the collection in view as the final, non-linked crumb.
+ */
+export const DeeplyNestedCollectionVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-3" as CollectionId },
+    collection: deeplyNestedCollection(),
   },
   render,
 };

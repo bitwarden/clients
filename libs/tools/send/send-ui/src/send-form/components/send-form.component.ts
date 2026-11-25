@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -32,7 +30,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { ItemDetailsV2Component } from "@bitwarden/vault";
 
+import { toSendItemVaultViews } from "../../utils/send-item-vault-views";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 
@@ -57,6 +57,7 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     CopyClickDirective,
     ButtonModule,
     CardComponent,
+    ItemDetailsV2Component,
   ],
 })
 export class SendFormComponent implements AfterViewInit {
@@ -76,8 +77,12 @@ export class SendFormComponent implements AfterViewInit {
   protected readonly editing = input<boolean>();
   private readonly environment = toSignal(this.envService.environment$);
   protected readonly sendLink = computed(() => {
+    const env = this.environment();
+    if (!env) {
+      return "";
+    }
     return (
-      this.environment().getSendUrl() +
+      env.getSendUrl() +
       this.sendFormService.originalSendView()?.accessId +
       "/" +
       this.sendFormService.originalSendView()?.urlB64Key
@@ -93,6 +98,9 @@ export class SendFormComponent implements AfterViewInit {
   /** Event emitted when the user requests to open the password generator. */
   readonly openPasswordGenerator = output<void>();
 
+  /** Event emitted when the user requests to view the item of an item-type Send. Outputs the cipher ID */
+  readonly onGoToItem = output<string>();
+
   readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
   protected loading: boolean = true;
@@ -105,6 +113,11 @@ export class SendFormComponent implements AfterViewInit {
    */
   protected readonly sendDisabled = computed(
     () => this.sendFormService.originalSendView()?.disabled ?? false,
+  );
+
+  /** Vault view models for the item this Send was created from, used to render its item details. */
+  protected readonly itemViews = computed(() =>
+    toSendItemVaultViews(this.sendFormService.originalSendView()?.data),
   );
 
   constructor(
@@ -157,9 +170,20 @@ export class SendFormComponent implements AfterViewInit {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("editedItem"),
     });
     this.onSendUpdated.emit(sendView);
   };
+
+  async goToItem() {
+    const cipher = this.sendFormService.originalSendView()?.data.data;
+    if (!cipher) {
+      this.toastService.showToast({
+        message: this.i18nService.t("unableToDetermineItemId"),
+        variant: "error",
+      });
+      return;
+    }
+    this.onGoToItem.emit(cipher.id);
+  }
 }

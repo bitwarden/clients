@@ -7,7 +7,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SideNavVariant, NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  SideNavHeaderBorder,
+  SideNavVariant,
+  NavigationModule,
+  SideNavService,
+} from "@bitwarden/components";
 import { Vfo1TourCalloutService, VaultTourCalloutComponent } from "@bitwarden/vault";
 
 import { UpgradeCalloutComponent } from "../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
@@ -31,6 +36,7 @@ import { ProductSwitcherService } from "./product-switcher/shared/product-switch
 })
 export class WebSideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
+  readonly headerBorder = input<SideNavHeaderBorder>("scrolled");
   protected readonly sideNavService = inject(SideNavService);
 
   private readonly productSwitcherService = inject(ProductSwitcherService);

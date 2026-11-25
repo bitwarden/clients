@@ -167,6 +167,38 @@ describe("EmptyVaultComponent", () => {
     });
   });
 
+  describe("a folder", () => {
+    const folderScope = {
+      type: VaultScopeType.Folder,
+      folderId: "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a",
+    } satisfies VaultScope;
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("scope", folderScope);
+      fixture.componentRef.setInput("folderName", "Banking");
+      fixture.detectChanges();
+    });
+
+    it("shows the folder title with the folder's name", () => {
+      expect(fixture.nativeElement.textContent).toContain("noItemsInFolder Banking");
+    });
+
+    it("shows the folder description", () => {
+      expect(fixture.nativeElement.textContent).toContain("emptyFolderDescription");
+    });
+
+    it("offers the Add item button", () => {
+      expect(component["addItemEmptyStates"]).toContain("emptyFolder");
+    });
+
+    it("shows nothing while the folder's name has yet to resolve", () => {
+      fixture.componentRef.setInput("folderName", undefined);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent.trim()).toBe("");
+    });
+  });
+
   describe("trash", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("scope", { type: VaultScopeType.Trash } satisfies VaultScope);

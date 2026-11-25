@@ -4,6 +4,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
@@ -17,6 +18,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { PolicyId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
@@ -31,6 +33,16 @@ import { WebLoginComponentService } from "./web-login-component.service";
 jest.mock("../../../../../utils/flags", () => ({
   flagEnabled: jest.fn(),
 }));
+
+const makePolicy = () =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.ResetPassword,
+    data: null,
+    enabled: true,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("WebLoginComponentService", () => {
   let service: WebLoginComponentService;
@@ -118,7 +130,7 @@ describe("WebLoginComponentService", () => {
     ])(
       "returns policies successfully with autoEnrollEnabled=%s and resetPasswordPolicyEnabled=%s",
       async (autoEnrollEnabled, resetPasswordPolicyEnabled) => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [makePolicy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
@@ -150,10 +162,9 @@ describe("WebLoginComponentService", () => {
       const mockMismatchedEmail = "mismatched@example.com";
       it("should clear the login redirect URL and organization invite", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         await service.getOrgPoliciesFromOrgInvite(mockEmail);
@@ -165,10 +176,9 @@ describe("WebLoginComponentService", () => {
 
       it("should log an error and return undefined", async () => {
         // Arrange
-        organizationInviteService.getOrganizationInvite.mockResolvedValue({
-          ...orgInvite,
-          email: mockMismatchedEmail,
-        });
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new DirectOrganizationInvite({ ...orgInvite, email: mockMismatchedEmail }),
+        );
 
         // Act
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
@@ -190,7 +200,7 @@ describe("WebLoginComponentService", () => {
       });
 
       it("returns PasswordPolicies", async () => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [makePolicy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
@@ -313,6 +323,24 @@ describe("WebLoginComponentService", () => {
           organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInviteFor());
 
           const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result.kind).toBe("auto-submit");
+          expect(toastService.showToast).not.toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
+        });
+
+        it.each([
+          ["direct", directOrgInviteFor],
+          ["open", openOrgInviteFor],
+        ])("treats the %s-invite org id match as case-insensitive", async (_, inviteFor) => {
+          const lowerCaseOrgId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            inviteFor({ organizationId: lowerCaseOrgId.toUpperCase() }),
+          );
+
+          const result = await service.handleQueryParamErrors(
+            paramsFor({ organizationId: lowerCaseOrgId }),
+          );
 
           expect(result.kind).toBe("auto-submit");
           expect(toastService.showToast).not.toHaveBeenCalled();

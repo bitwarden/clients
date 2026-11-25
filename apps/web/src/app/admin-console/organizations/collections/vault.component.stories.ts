@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import "../../../billing/organizations/change-plan-dialog.component";
 
 import { importProvidersFrom, signal } from "@angular/core";
@@ -8,18 +6,18 @@ import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@s
 import { of } from "rxjs";
 
 import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -34,6 +32,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ProviderService } from "@bitwarden/common/provider";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -52,6 +51,7 @@ import {
   StorybookGlobalStateProvider,
   ToastService,
 } from "@bitwarden/components";
+import { ConsoleLogService } from "@bitwarden/logging";
 import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
@@ -68,27 +68,32 @@ import { GroupApiService, GroupView } from "../core";
 
 import { VaultComponent } from "./vault.component";
 
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
+
 function mockOrganization(overrides: Partial<Organization> = {}): Organization {
-  return {
+  return buildTestOrganization({
     id: "org-1" as OrganizationId,
     name: "Acme Corp",
     enabled: true,
     isMember: true,
     isProviderUser: false,
-    canEditAnyCollection: true,
-    canEditAllCiphers: true,
-    canCreateNewCollections: true,
-    canDeleteAnyCollection: true,
-    canEditUnassignedCiphers: true,
-    canEditUnmanagedCollections: true,
     allowAdminAccessToAllCollectionItems: true,
     useGroups: true,
     useEvents: false,
-    canAccessEventLogs: false,
     type: OrganizationUserType.Owner,
     permissions: new PermissionsApi(),
     ...overrides,
-  } as unknown as Organization;
+  });
 }
 
 function mockCollection(
@@ -367,7 +372,7 @@ const rootProviders = [
     provide: PlatformUtilsService,
     useValue: { isSelfHost: () => false, copyToClipboard: () => {} },
   },
-  { provide: LogService, useValue: { error: () => {}, info: () => {} } },
+  { provide: LogService, useFactory: () => new ConsoleLogService(true) },
   { provide: DialogService, useValue: {} },
   { provide: ToastService, useValue: { showToast: () => {} } },
   { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },

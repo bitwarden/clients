@@ -29,6 +29,35 @@
         ></auth-input-password>
       </app-vertical-step>
       <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
+        @if (includesPrivilegedControls && trialLength > 0) {
+          <bit-callout
+            type="info"
+            [title]="null"
+            [accessibleName]="'privilegedControls' | i18n"
+            class="tw-mb-3 tw-block"
+          >
+            {{ "trialIncludesPrivilegedControls" | i18n }}
+          </bit-callout>
+        } @else if (showPrivilegedControlsSalesCallout) {
+          <bit-callout
+            type="info"
+            [title]="null"
+            [accessibleName]="'privilegedControls' | i18n"
+            class="tw-mb-3 tw-block"
+            id="privileged-controls-sales-callout"
+          >
+            {{ "trialPrivilegedControlsThroughSales" | i18n }}
+            <a
+              bitLink
+              href="https://bitwarden.com/contact/"
+              target="_blank"
+              rel="noreferrer"
+              id="complete-trial-initiation_link_privileged-controls-contact-sales"
+            >
+              {{ "contactSales" | i18n }}
+            </a>
+          </bit-callout>
+        }
         <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
         <button
           type="button"
@@ -38,48 +67,18 @@
           [loading]="loading"
           (click)="orgNameEntrySubmit()"
         >
-          {{ paymentOptional && trialLength > 0 ? ("startTrial" | i18n) : ("next" | i18n) }}
+          {{ orgInfoButtonLabel | i18n }}
         </button>
       </app-vertical-step>
       <app-vertical-step label="Billing" [subLabel]="billingSubLabel" *ngIf="showBillingStep">
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"
           [trial]="trial"
-          (steppedBack)="previousStep()"
           (organizationCreated)="createdOrganization($event)"
+          [existingOrganization]="organization"
+          (steppedBack)="previousStep()"
         >
         </app-trial-billing-step>
-      </app-vertical-step>
-      <app-vertical-step label="Confirmation Details" [applyBorder]="false">
-        <app-trial-confirmation-details
-          [email]="email"
-          [orgLabel]="orgLabel"
-          [product]="this.product"
-          [trialLength]="trialLength"
-        ></app-trial-confirmation-details>
-        <div class="tw-mb-3 tw-flex">
-          <a
-            type="button"
-            bitButton
-            buttonType="primary"
-            [routerLink]="
-              product === ProductType.SecretsManager
-                ? ['/sm', orgId]
-                : ['/organizations', orgId, 'vault']
-            "
-          >
-            {{ "getStarted" | i18n | titlecase }}
-          </a>
-          <a
-            type="button"
-            bitButton
-            buttonType="secondary"
-            [routerLink]="['/organizations', orgId, 'members']"
-            class="tw-ml-3 tw-inline-flex tw-items-center tw-px-3"
-          >
-            {{ "inviteUsers" | i18n }}
-          </a>
-        </div>
       </app-vertical-step>
     </app-vertical-stepper>
   </div>

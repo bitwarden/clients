@@ -348,6 +348,13 @@ describe("CipherView", () => {
       expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
     });
 
+    it("converts empty notes to undefined", () => {
+      const cipherView = new CipherView();
+      cipherView.notes = "";
+
+      expect(cipherView.toSdkCipherView().notes).toBeUndefined();
+    });
+
     it("maps partial so the SDK can refuse to encrypt a gated view", () => {
       const cipherView = new CipherView();
       expect(cipherView.toSdkCipherView().partial).toBe(false);

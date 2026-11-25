@@ -6,7 +6,6 @@ const process = require("process");
 
 // Map of the Node arch equivalents for the rust target triplets, used to move the file to the correct location
 const rustTargetsMap = {
-    "i686-pc-windows-msvc":       { nodeArch: 'ia32',  platform: 'win32'  },
     "x86_64-pc-windows-msvc":     { nodeArch: 'x64',   platform: 'win32'  },
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
@@ -38,6 +37,8 @@ const mode = args.includes("--release") ? "release" : "debug";
 const isRelease = mode === "release";
 const targetArg = args.find(arg => arg.startsWith("--target="));
 const target = targetArg ? targetArg.split("=")[1] : null;
+// Cargo features for the napi module, e.g. `--features=file_secure_storage`.
+const featuresArg = args.find(arg => arg.startsWith("--features="));
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
@@ -58,7 +59,7 @@ function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const crossCompileArg = effectivePlatform(target) !== process.platform ? "--cross-compile" : "";
-    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi", true);
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg, featuresArg ?? ""].filter(s => s != ''), "./napi", true);
 }
 
 /**

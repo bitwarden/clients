@@ -1,4 +1,5 @@
 import { DatePipe } from "@angular/common";
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
@@ -8,7 +9,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +17,7 @@ import {
   isDatePreset,
   SendDeletionDatePreset,
 } from "@bitwarden/common/tools/models/send-deletion-date-preset";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -24,6 +25,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { LogService } from "@bitwarden/logging";
 
+import { SendPolicyService } from "../../../services/send-policy.service";
 import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
@@ -75,12 +77,7 @@ describe("SendDetailsComponent", () => {
       getSendUrl: () => "https://send.bitwarden.com/",
     } as any);
     mockAccountService.activeAccount$ = of({ id: "userId" } as Account);
-    mockConfigService.getFeatureFlag$.mockImplementation((key) => {
-      if (key === FeatureFlag.SendControls) {
-        return of(true);
-      }
-      return of(false);
-    });
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
     mockBillingStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
@@ -120,6 +117,37 @@ describe("SendDetailsComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("canRemoveAuth", () => {
+    const originalSendView = mockSendFormService.originalSendView;
+
+    afterEach(() => {
+      (mockSendFormService as any).originalSendView = originalSendView;
+    });
+
+    function canRemoveAuth(sendAuthRequired: boolean, sendDisabled: boolean) {
+      (TestBed.inject(SendPolicyService) as any).sendAuthRequired$ = of(sendAuthRequired);
+      const send = new SendView();
+      send.authType = AuthType.Password;
+      send.deletionDate = new Date("2030-01-01T12:00:00Z");
+      send.disabled = sendDisabled;
+      (mockSendFormService as any).originalSendView = signal(send);
+
+      return TestBed.createComponent(SendDetailsComponent).componentInstance["canRemoveAuth"]();
+    }
+
+    it("allows removing authentication when policy doesn't require it", () => {
+      expect(canRemoveAuth(false, false)).toBe(true);
+    });
+
+    it("does not allow removing authentication when policy requires it", () => {
+      expect(canRemoveAuth(true, false)).toBe(false);
+    });
+
+    it("does not allow removing authentication from a Send that doesn't comply with policy", () => {
+      expect(canRemoveAuth(false, true)).toBe(false);
+    });
   });
 
   it("should initialize authType to None if no password or emails", () => {

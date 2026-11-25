@@ -3,13 +3,15 @@ import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@an
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -20,8 +22,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TaskService } from "@bitwarden/common/vault/tasks";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
 
@@ -35,6 +39,7 @@ import { CipherViewComponent } from "./cipher-view.component";
 })
 class TestBannerComponent {
   readonly cipher = input<CipherView>();
+  readonly isAdminConsole = input(false);
 }
 
 describe("CipherViewComponent", () => {
@@ -144,6 +149,7 @@ describe("CipherViewComponent", () => {
             bannerComponent;
             inputs: {
               cipher: cipher(),
+              isAdminConsole: isAdminConsole(),
             }
           "
       />
@@ -211,6 +217,134 @@ describe("CipherViewComponent", () => {
       expect(banner).not.toBeNull();
       const instance = banner.componentInstance as TestBannerComponent;
       expect(instance.cipher()).toBe(cipher);
+    });
+  });
+
+  describe("card order in the real template", () => {
+    async function setupRealTemplate(provideBanner: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [CipherViewComponent],
+        providers: [
+          { provide: AccountService, useValue: mockAccountService },
+          { provide: OrganizationService, useValue: mockOrganizationService },
+          { provide: CollectionService, useValue: mockCollectionService },
+          { provide: FolderService, useValue: mockFolderService },
+          { provide: TaskService, useValue: mockTaskService },
+          { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+          { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
+          { provide: CipherService, useValue: mockCipherService },
+          { provide: ViewPasswordHistoryService, useValue: mockViewPasswordHistoryService },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: LogService, useValue: mockLogService },
+          { provide: CipherRiskService, useValue: mockCipherRiskService },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mockBillingAccountProfileStateService,
+          },
+          { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+          ...(provideBanner
+            ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
+            : []),
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+        // A standalone component resolves `schemas` from its own metadata, not the TestBed module.
+        .overrideComponent(CipherViewComponent, {
+          set: {
+            imports: [CommonModule, JslibModule, TestBannerComponent],
+            schemas: [NO_ERRORS_SCHEMA],
+          },
+        })
+        .compileComponents();
+
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    }
+
+    function loginCipher(): CipherView {
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login.username = "ada";
+      cipher.login.uris = [{ uri: "https://example.com" } as LoginUriView];
+      return cipher;
+    }
+
+    const SECTIONS = [
+      "bit-callout",
+      "app-item-details-v2",
+      "test-cipher-view-banner",
+      "app-login-credentials-view",
+      "app-autofill-options-view",
+      "app-item-history-v2",
+    ].join(",");
+
+    function renderedSections(): string[] {
+      return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll(SECTIONS)).map(
+        (element) => element.tagName.toLowerCase(),
+      );
+    }
+
+    it("renders the gated banner between the item details and the login credentials", async () => {
+      await setupRealTemplate(true);
+      fixture.componentRef.setInput("cipher", loginCipher());
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "app-item-details-v2",
+        "test-cipher-view-banner",
+        "app-login-credentials-view",
+        "app-autofill-options-view",
+        "app-item-history-v2",
+      ]);
+    });
+
+    it("renders no banner and an unchanged order for an ordinary cipher", async () => {
+      await setupRealTemplate(false);
+      fixture.componentRef.setInput("cipher", loginCipher());
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "app-item-details-v2",
+        "app-login-credentials-view",
+        "app-autofill-options-view",
+        "app-item-history-v2",
+      ]);
+    });
+
+    it("hands the banner the cipher and isAdminConsole", async () => {
+      await setupRealTemplate(true);
+      const cipher = loginCipher();
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.componentRef.setInput("isAdminConsole", true);
+      fixture.detectChanges();
+
+      const banner = fixture.debugElement.query(By.directive(TestBannerComponent))
+        .componentInstance as TestBannerComponent;
+      expect(banner.cipher()).toBe(cipher);
+      expect(banner.isAdminConsole()).toBe(true);
+    });
+
+    it("keeps the general vault callouts above the item details", async () => {
+      await setupRealTemplate(true);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.name = "Expired card";
+      cipher.type = CipherType.Card;
+      cipher.card.cardholderName = "Ada Lovelace";
+      cipher.card.expMonth = "1";
+      cipher.card.expYear = "2020";
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "bit-callout",
+        "app-item-details-v2",
+        "test-cipher-view-banner",
+        "app-item-history-v2",
+      ]);
     });
   });
 
@@ -282,17 +416,43 @@ describe("CipherViewComponent", () => {
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
 
-    it("returns false for organization-owned ciphers", fakeAsync(() => {
-      const cipher = createLoginCipherView();
-      cipher.organizationId = "org-id";
+    describe("organization-owned ciphers", () => {
+      const renderOrgCipher = (tasks: Partial<SecurityTask>[]) => {
+        jest
+          .mocked(mockCipherService.ciphers$)
+          .mockReturnValue(of({ "cipher-id": { edit: true, viewPassword: true } } as any));
+        jest.mocked(mockTaskService.pendingTasks$).mockReturnValue(of(tasks as SecurityTask[]));
 
-      fixture.componentRef.setInput("cipher", cipher);
-      fixture.detectChanges();
-      tick();
+        const cipher = createLoginCipherView();
+        cipher.organizationId = "org-id";
+        fixture.componentRef.setInput("cipher", cipher);
+        fixture.detectChanges();
+        tick();
+      };
 
-      expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
-      expect(component.passwordIsAtRisk()).toBe(false);
-    }));
+      it("skips the risk check without a pending change-password task", fakeAsync(() => {
+        renderOrgCipher([]);
+
+        expect(mockCipherRiskService.computeCipherRiskForUser).not.toHaveBeenCalled();
+        expect(component.passwordRiskCategory()).toBeNull();
+      }));
+
+      it("categorizes the password when a task is pending, regardless of premium", fakeAsync(() => {
+        hasPremiumFromAnySource$.next(false);
+        mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue({
+          password_strength: 4,
+          exposed_result: { type: "NotFound" },
+          reuse_count: 2,
+        });
+
+        renderOrgCipher([
+          { cipherId: "cipher-id", type: SecurityTaskType.UpdateAtRiskCredential } as any,
+        ]);
+
+        expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
+        expect(component.passwordRiskCategory()).toBe(RiskCategory.Reused);
+      }));
+    });
 
     it("returns false when user is not premium", fakeAsync(() => {
       hasPremiumFromAnySource$.next(false);
@@ -329,7 +489,35 @@ describe("CipherViewComponent", () => {
       // After async completes, should reflect the weak password
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(true);
+      expect(component.passwordRiskCategory()).toBe(RiskCategory.Weak);
     }));
+
+    it.each([
+      {
+        desc: "exposed over weak and reused",
+        result: {
+          password_strength: 1,
+          exposed_result: { type: "Found", value: 3 },
+          reuse_count: 2,
+        },
+        expected: RiskCategory.Exposed,
+      },
+      {
+        desc: "reused when only reused",
+        result: { password_strength: 4, exposed_result: { type: "NotFound" }, reuse_count: 2 },
+        expected: RiskCategory.Reused,
+      },
+    ])("sets the risk category to $desc", ({ result, expected }) => {
+      return fakeAsync(() => {
+        mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue(result);
+
+        fixture.componentRef.setInput("cipher", createLoginCipherView());
+        fixture.detectChanges();
+        tick();
+
+        expect(component.passwordRiskCategory()).toBe(expected);
+      })();
+    });
 
     it("returns false when password is strong and not exposed", fakeAsync(() => {
       // Setup mock to return safe password
@@ -355,6 +543,40 @@ describe("CipherViewComponent", () => {
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
     }));
+  });
+
+  describe("cardIsExpired", () => {
+    const createCard = (expYear: string): CipherView => {
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.type = CipherType.Card;
+      cipher.card = Object.assign(new CardView(), { expMonth: "1", expYear });
+      return cipher;
+    };
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    });
+
+    it("flags an expired card", () => {
+      fixture.componentRef.setInput("cipher", createCard("1999"));
+
+      expect(component.cardIsExpired()).toBe(true);
+    });
+
+    it("does not flag a card that has not expired", () => {
+      fixture.componentRef.setInput("cipher", createCard(String(new Date().getFullYear() + 5)));
+
+      expect(component.cardIsExpired()).toBe(false);
+    });
+
+    it("does not flag an expired card when the host hides the warning", () => {
+      fixture.componentRef.setInput("cipher", createCard("1999"));
+      fixture.componentRef.setInput("hideExpiredCardWarning", true);
+
+      expect(component.cardIsExpired()).toBe(false);
+    });
   });
 
   describe("showChangePasswordLink", () => {

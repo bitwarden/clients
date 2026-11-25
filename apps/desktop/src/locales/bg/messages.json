@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Папки в $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ вложени споделени папки",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 вложена споделена папка",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ вложени папки",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 вложена папка",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Моята папка"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Редактиране"
   },
+  "editInfo": {
+    "message": "Редактиране на информацията"
+  },
+  "editAccess": {
+    "message": "Редактиране на достъпа"
+  },
   "authenticatorKeyTotp": {
     "message": "Удостоверителен ключ (TOTP)"
   },
@@ -923,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (адрес)"
+  "desktopApp": {
+    "message": "Настолно приложение",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "Приложение (адрес) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Настолно приложение $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Неправилно сдвояване на приложението",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Уеб сайтът е добавен"
@@ -944,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Добавяне на уеб сайт или приложение"
-  },
-  "app": {
-    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Изтриване на уеб сайт"
@@ -1180,6 +1230,15 @@
   },
   "deletedItem": {
     "message": "Елементът е изтрит"
+  },
+  "deleteItemError": {
+    "message": "Записът не може да бъде изтрит."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Този запис е ограничен. Промяната не беше запазена."
+  },
+  "controlledAccess": {
+    "message": "Контролиран достъп"
   },
   "overwritePasswordConfirmation": {
     "message": "Сигурни ли сте, че искате да обновите текущата парола?"
@@ -2377,6 +2436,10 @@
       }
     }
   },
+  "itemSingular": {
+    "message": "1 елемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
+  },
   "all": {
     "message": "Всички"
   },
@@ -3318,6 +3381,10 @@
   "custom": {
     "message": "По избор"
   },
+  "deleteSend": {
+    "message": "Изтриване на Изпращането",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете това изпращане?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3347,14 +3414,34 @@
   "disabled": {
     "message": "Изключено"
   },
+  "removeAuth": {
+    "message": "Премахване на паролата или проверката на е-пощата"
+  },
+  "removedAuth": {
+    "message": "Паролата или проверката на е-пощата е премахната"
+  },
+  "removeAuthConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола или проверка на е-пощата от това Изпращане?"
+  },
   "removePassword": {
     "message": "Премахване на паролата"
+  },
+  "removeEmailVerification": {
+    "message": "Премахване на проверката на е-пощата"
   },
   "removedPassword": {
     "message": "Паролата е премахната"
   },
-  "removePasswordConfirmation": {
-    "message": "Наистина ли искате да премахнете паролата?"
+  "removedEmailVerification": {
+    "message": "Проверката на е-пощата е премахната"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за парола от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Наистина ли искате да премахнете изискването за проверка на е-пощата от това Изпращане?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Достигнат е максималният брой достъпвания"
@@ -4539,6 +4626,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Внасянето е успешно"
+  },
+  "importConfirmationBody": {
+    "message": "Внесохте успешно $AMOUNT$ елемента в Битуорден.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Внесохте успешно 1 елемент в Битуорден."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Съвет:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забравяйте да изтриете $FILENAME$. Файлът съдържа чувствителни данни и може да не е шифрован.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забравяйте да изтриете файла за внасяне. Той съдържа чувствителни данни и може да не е шифрован."
+  },
+  "importingTitle": {
+    "message": "Внасяне"
+  },
+  "importingDescription": {
+    "message": "Този процес може да отнеме няколко минути."
+  },
   "total": {
     "message": "Общо"
   },
@@ -4713,6 +4836,167 @@
         "example": "3"
       }
     }
+  },
+  "selectVault": {
+    "message": "Изберете трезор",
+    "description": "Progress label of the import step where the user picks which vault to import into."
+  },
+  "selectLocation": {
+    "message": "Изберете местоположение",
+    "description": "Progress label of the import step where the user picks where to import to. Used instead of 'Select vault' when a My items card is offered."
+  },
+  "selectAVaultTitle": {
+    "message": "Изберете трезор"
+  },
+  "selectALocationTitle": {
+    "message": "Изберете местоположение"
+  },
+  "importDestinationDescription": {
+    "message": "Изберете къде да бъдат внесени тези елементи."
+  },
+  "importMyItemsOption": {
+    "message": "Моите елементи",
+    "description": "Card title for the user's own collection inside an organization that centralizes ownership."
+  },
+  "importVisibleOnlyToYou": {
+    "message": "Видимо само за Вас"
+  },
+  "importMyItemsOwnedBy": {
+    "message": "Притежание на $ORGANIZATION$, но видимо само за Вас",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importOrganizationVault": {
+    "message": "Трезор на организацията"
+  },
+  "importSharedWithOnePerson": {
+    "message": "Споделено с един човек"
+  },
+  "importFamilyVault": {
+    "message": "Семеен трезор"
+  },
+  "importMoveAllItemsIntoSharedFolderA": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolderAn": {
+    "message": "Преместване на всички елементи в споделена папка на $ORGANIZATION$",
+    "description": "Checkbox label. Used when the organization name starts with a vowel; the 'A' variant is used for consonants.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importSharedFolderHint": {
+    "message": "Преместване на всичко към по-горна папка. Структурата от вложени папки ще бъде запазена."
+  },
+  "importSharedFolderRequired": {
+    "message": "Необходима е споделена папка."
+  },
+  "importIntoOrganization": {
+    "message": "Елементите ще бъдат внесени в $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importMoveAllItemsIntoSharedFolder": {
+    "message": "Преместване на всички елементи в споделена папка"
+  },
+  "importNoSharedFoldersForOrg": {
+    "message": "Елементите не могат да бъдат внесени в $ORGANIZATION$ без споделена папка, а Вие не управлявате никакви подобни в организацията. Изберете друго местоположение.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importItemsCount": {
+    "message": "Внасяне на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importItemsSingular": {
+    "message": "Внасяне на 1 елемент"
+  },
+  "importToOrganization": {
+    "message": "Внасяне в $ORGANIZATION$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      }
+    }
+  },
+  "importDataMayBeShared": {
+    "message": "Вашите данни може да бъдат споделени с членовете на тази организация."
+  },
+  "importItemTypesRestricted": {
+    "message": "$ORGANIZATION$ не позволява внасянето на $ITEM_TYPES$. Ако има такива елементи в данните за внасяне, те ще бъдат пропуснати.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Co"
+      },
+      "item_types": {
+        "content": "$2",
+        "example": "cards and passports"
+      }
+    }
+  },
+  "importRestrictedTypeLogin": {
+    "message": "данни за вписване",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSecureNote": {
+    "message": "защитени бележки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeCard": {
+    "message": "карти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeIdentity": {
+    "message": "самоличности",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeSshKey": {
+    "message": "SSH ключове",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeBankAccount": {
+    "message": "банкови сметки",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypeDriversLicense": {
+    "message": "лицензи",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "importRestrictedTypePassport": {
+    "message": "паспорти",
+    "description": "Lowercase plural, used inside a sentence listing the item types an organization doesn't allow."
+  },
+  "goToAccessIntelligence": {
+    "message": "Към Анализа на достъпа"
   },
   "chooseFile": {
     "message": "Изберете файл"
@@ -4910,6 +5194,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Бързо и сигурно"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Този процес е шифрован от край до край. Не е необходимо изнасяне на файлове."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Нужни са само данните Ви за вписване"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "В следващата стъпка, ще въведете данните си за вписване в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Какво ще бъде прехвърлено"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ще бъдат прехвърлени Вашите данни за вписване, други записи, както и папките. Секретните ключове и прикачените файлове може да бъдат пропуснати."
   },
   "importAcceptedFormats": {
     "message": "Приемани формати: $FORMATS$",
@@ -5192,6 +5500,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 елемент не беше включен в това изнасяне. Той е защитен от правило за доверен достъп, така че удостоверителните му данни не са налични на това устройство."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ елемента не бяха включени в това изнасяне. Те са защитени от правила за доверен достъп, така че удостоверителните им данни не са налични на това устройство.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
     "placeholders": {
@@ -5231,8 +5551,92 @@
   "lastPassEmail": {
     "message": "Е-поща от LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Въведете правилна парола"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Въведете кода за потвърждаване по-долу."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Изчакване на еднократното удостоверяване"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "След като се впишете, внасянето ще продължи автоматично."
+  },
   "importingYourAccount": {
     "message": "Внасяне на данните Ви…"
+  },
+  "keeperLoginServerLabel": {
+    "message": "Сървър"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Този метод на двустепенно удостоверяване не се поддържа. Превключете към друг или внесете ръчно."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Начин за одобрение на устройството"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Кодът за потвърждаване е изпратен отново"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Изпратено е известие Keeper Push до одобрено устройство."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Одобрете това устройство като изберете метод по-долу."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Проверете е-пощата си и въведете кода за потвърждение по-долу."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Моля, въведете кода от приложението си за удостоверяване."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Моля, въведете кода изпратен като текстово съобщение."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA е изпратено"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Потвърдете известието от Keeper DNA на устройството си."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Вашата заявка за одобрение ще бъде отменена. Наистина ли искате да продължите?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Изпратихме заявка за одобрение до Вашия администратор."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Въведете правилна парола."
   },
   "lastPassMFARequired": {
     "message": "Изисква се многостъпково удостоверяване за LastPass"
@@ -5291,11 +5695,11 @@
   "onePasswordCheckCredentials": {
     "message": "Възникна грешка. Проверете въведените данни и опитайте отново."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Поддържа се само вписване с парола."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Поддържа се само вписване с парола. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Този акаунт от 1Password използва метод на вписване, който не се поддържа. Опитайте отново или използвайте друг начин за внасяне."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Въведете правилен адрес на е-поща или използвайте друг начин за внасяне."
@@ -5314,6 +5718,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Въведете правилен адрес за вписване."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Може да намерите това в своя Комплект за спешни случаи в 1Password."
   },
   "secretKeyIsRequired": {
     "message": "Секретният ключ е задължителен."
@@ -5336,6 +5743,9 @@
   "onePasswordEmailHint": {
     "message": "Въведете е-пощата, която използвате за вписване в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Въведете е-пощата, която използвате за вписване в 1Password. Поддържа се само вписване с парола."
+  },
   "secretKey": {
     "message": "Таен ключ"
   },
@@ -5344,6 +5754,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Акаунтът Ви е защитен с таен ключ и парола. Трябва да въведете и двете, за да продължите."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Вписване с еднократно удостоверяване"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Превключете към страницата за еднократно удостоверяване, за да завършите внасянето в Битуорден."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Прехвърляне на ключа за шифроване"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Впишете се в 1Password и идете в чакащите вписвания, за да одобрите тази заявка."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Кодът не сработи. Проверете другото си устройство за нов."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Страницата за еднократно удостоверяване беше затворена преди да завършите вписването си. Опитайте отново, за да продължите внасянето."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Това устройство не беше одобрено на другото Ви устройство. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Твърде много неуспешни кодове за потвърждение. Опитайте отново или използвайте друг начин за внасяне."
   },
   "keeperEmail": {
     "message": "Е-поща за Keeper"
@@ -5923,12 +6357,19 @@
     "message": "Изпращайте чувствителна информация сигурно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "Нямате никакви Изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Няма резултати от търсенето"
   },
   "sendsBodyNoItems": {
     "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Споделяйте текстове или файлове сигурно с всеки. Вашата информация ще бъде шифрована от край до край."
   },
   "sendsBodyNoSearchResults": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
@@ -6019,6 +6460,9 @@
   },
   "itemLower": {
     "message": "елемент"
+  },
+  "itemUpper": {
+    "message": "Елемент"
   },
   "itemsLower": {
     "message": "елементи"
@@ -6547,8 +6991,8 @@
   "howToManageMyVault": {
     "message": "Как да управлявам трезора си?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Прехвърляне на елементи към $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Прехвърлете елементите си към $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6556,17 +7000,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ изисква всички данни да бъдат притежание на организацията, с цел сигурност и съгласуваност.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ вече изисква всички елементи на членовете да бъдат притежание на организацията. Личните Ви елементи ще бъдат преместени в папка с име „Моите елементи“, която само Вие ще можете да виждате.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Натиснете бутона за приемане, за да прехвърлите собствеността на данните си."
   },
   "openTransferItemsHelpArticle": {
     "message": "Отваряне на помощната информация относно прехвърлянето на данни"
@@ -6624,6 +7065,20 @@
         "example": "Engineering"
       }
     }
+  },
+  "noItemsInFolder": {
+    "message": "Няма елементи в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавете елементи в тази папка. Ще можете да имате бърз достъп до тух чрез филтрите в трезора.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "Няма елементи в Моите елементи"
@@ -6690,6 +7145,49 @@
   },
   "noSharedFoldersAddedDescription": {
     "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
+  },
+  "pinned": {
+    "message": "Закачено",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закачане към страничната лента",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Откачане от страничната лента",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "Закачено към страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "Откачено от страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Намерете споделена папка в този трезор и изберете",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "от менюто.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закачайте споделени папки към страничната лента, за да ги филтрирате тук."
   },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
@@ -6957,7 +7455,7 @@
   "makeACopy": {
     "message": "Създаване на копие"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
   },
   "driversLicenseDetails": {
@@ -7222,6 +7720,15 @@
   "unknownCipher": {
     "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
   },
+  "viewSharedItem": {
+    "message": "Преглед на споделения елемент"
+  },
+  "copyShareLink": {
+    "message": "Копиране на връзката за споделяне"
+  },
+  "unableToDetermineItemId": {
+    "message": "Идентификаторът на елемента не може да бъде определен"
+  },
   "newExperienceDialogTitle": {
     "message": "Биуорден има нов облик",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7286,14 +7793,20 @@
   "coachmarkVaultListTitle": {
     "message": "Всички Ваши трезори на едно място"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Лични, семейни и фирмени трезори вече се показват тук."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Бърз поглед върху личните елементи и елементите в трезор, който споделяте с други."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Колекциите и папките имат нови имена"
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Същите функционалности, с по-ясни имена. Колекциите вече се наричат „споделени папки“. Папките вече са „моите папки“."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинирайте филтри"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Изберете повече филтри, за да ограничите резултатите до това, което искате. Филтрите ще останат приложени дори след като излезете от тук."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ от $TOTAL$",
@@ -7307,5 +7820,49 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автоматично попълване на заявки за вписване към браузъра",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отговаряне на базови искания за удостоверяване по HTTP от уеб сайтове, които съвпадат с този елемент за вписване."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Отворете помощната статия за автоматичното попълване на заявки за вписване към браузъра"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "За да използвате тази настройка, изберете начин за откриване на съвпадения, който е различен от стандартния, за всеки уеб сайт в този елемент за вписване."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включване на автоматичното попълване за заявки към браузъра?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторното искане за главна парола ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включване на повторното запитване за главната парола?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Използване на стандартното откриване на съвпадения?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Уеб сайтовете, които използват стандартното откриване на съвпадения, не могат да бъдат ползвани при заявки за вписване към браузъра. Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра е изключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
+  },
+  "item": {
+    "message": "Елемент"
   }
 }

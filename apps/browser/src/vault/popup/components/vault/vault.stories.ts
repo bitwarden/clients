@@ -4,7 +4,7 @@ import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -16,7 +16,9 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -41,6 +43,7 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -50,6 +53,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   SecurityTask,
@@ -63,7 +67,7 @@ import {
   I18nMockService,
   ToastService,
 } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
+import { ConsoleLogService, LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
@@ -91,6 +95,18 @@ import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
+
+function buildTestOrganization(
+  def: Partial<Omit<Organization, "permissions" | "id">> & {
+    id?: string;
+    permissions?: Partial<PermissionsApi>;
+  } = {},
+): Organization {
+  const { permissions, ...rest } = def;
+  const org = Object.assign(new Organization(new OrganizationData({} as any, {} as any)), rest);
+  org.permissions = Object.assign(new PermissionsApi(), permissions ?? {});
+  return org;
+}
 
 // `NewItemDropdownComponent.ngOnInit` reaches for `chrome.windows`, which is undefined outside the
 // extension runtime, so the popup header throws while rendering. A stub reporting a single active
@@ -207,9 +223,10 @@ const inOrganization = (
   cipher.organizationId = organizationId;
   cipher.collectionIds = collectionNames.map(() => nextId());
 
-  const organization = new Organization();
-  organization.id = organizationId;
-  organization.productTierType = productTierType;
+  const organization = buildTestOrganization({
+    id: organizationId,
+    productTierType,
+  });
 
   const collections = collectionNames.map(
     (name, i) =>
@@ -356,26 +373,28 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy();
-  policy.id = "00000000-0000-4000-8000-0000000000fd" as PolicyId;
-  policy.organizationId = STORY_ORG_ID;
-  policy.type = PolicyType.OrganizationUserNotification;
-  policy.enabled = true;
-  policy.revisionDate = FIXED_REVISION_DATE;
-  policy.data = {
-    header: "Scheduled maintenance",
-    description:
-      "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-    buttonText: "Learn more",
-    showAfterEveryLogin: false,
-  };
-  return [policy];
+  return [
+    new Policy({
+      id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+      organizationId: STORY_ORG_ID,
+      type: PolicyType.OrganizationUserNotification,
+      enabled: true,
+      revisionDate: FIXED_REVISION_DATE.toISOString(),
+      data: {
+        header: "Scheduled maintenance",
+        description:
+          "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+        buttonText: "Learn more",
+        showAfterEveryLogin: false,
+      },
+    }),
+  ];
 };
 
 /**
  * Tasks backing `vault-at-risk-password-callout`. `pendingTasks$` joins each task to a cipher by
  * `cipherId` and keeps only the editable, password-visible ones, so tasks have to point at ciphers
- * the story provides and `CipherService.cipherViews$` has to return them.
+ * the story provides and `CipherService.cipherListViews$` has to return them.
  */
 const buildAtRiskTask = (
   cipherId: PopupCipherViewLike["id"],
@@ -445,6 +464,7 @@ const buildProviders = (args: StoryArgs) => {
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
+        searchText: signal(""),
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
@@ -510,9 +530,8 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of({}),
         saveFilters: () => {},
         cachedFilters: signal({}),
-        clearVaultScopedFilters: () => {},
+        setScope: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
@@ -554,6 +573,8 @@ const buildProviders = (args: StoryArgs) => {
         // No decryption failures, so the failure dialog never opens during a snapshot.
         failedToDecryptCiphers$: () => of([]),
         cipherViews$: () => of(atRiskCiphers),
+        // The at-risk password callout matches tasks to list views.
+        cipherListViews$: () => of(atRiskCiphers),
         ciphers$: () => of({}),
       },
     },
@@ -633,6 +654,7 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+    { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
     {
       provide: EnvironmentService,
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
@@ -694,10 +716,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: AutofillService, useValue: {} },
     { provide: EventCollectionService, useValue: { collect: () => Promise.resolve() } },
     // Pulled in by the real `DialogService`, which is reachable via component-level providers.
-    {
-      provide: LogService,
-      useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
-    },
+    { provide: LogService, useFactory: () => new ConsoleLogService(true) },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
     {
@@ -725,8 +744,9 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         snapshot: { queryParams: {}, paramMap: new Map() },
         queryParams: of({}),
-        // `vaultScope` combines this in a field initializer, so it must be a stream.
+        // `vaultScope` combines these in a field initializer, so they must be streams.
         paramMap: of(convertToParamMap({})),
+        data: of({}),
       },
     },
     {
@@ -888,9 +908,12 @@ const buildProviders = (args: StoryArgs) => {
           noItemsInVaults: "Your vaults are empty",
           noItemsInOrganizationVault: (name) => `No items in ${name}`,
           noItemsInSharedFolder: (name) => `No items in ${name}`,
+          noItemsInFolder: (name) => `No items in ${name}`,
           emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
           emptySharedFolderDescription: (name) =>
             `Add items to this shared folder, then give access to other ${name} members.`,
+          emptyFolderDescription:
+            "Add items to this folder. You’ll be able to quickly access them using vault filters.",
           noItemsInTrash: "No items in trash",
           noItemsInTrashDescription:
             "Items you delete will appear here and be permanently deleted after 30 days.",

@@ -2,17 +2,15 @@
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
+import { BulkOperationStatus, SecretListView, SecretService } from "@bitwarden/bit-sm";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
-import { SecretListView } from "../../models/view/secret-list.view";
 import {
-  BulkOperationStatus,
   BulkStatusDetails,
   BulkStatusDialogComponent,
 } from "../../shared/dialogs/bulk-status-dialog.component";
-import { SecretService } from "../secret.service";
 
 export interface SecretDeleteOperation {
   secrets: SecretListView[];

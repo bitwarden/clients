@@ -1,16 +1,20 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectorRef, Component, inject, Input, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { shareReplay } from "rxjs";
+import { firstValueFrom, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import {
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   LinkModule,
   SectionHeaderComponent,
@@ -20,6 +24,8 @@ import {
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
+
+import { HTTPAuthenticationWarningDialogComponent } from "./http-authentication-warning-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -45,13 +51,43 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(CustomFieldsComponent) customFieldsComponent: CustomFieldsComponent;
 
+  private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
+  private dialogService = inject(DialogService);
+  private platformUtilsService = inject(PlatformUtilsService);
+
   additionalOptionsForm = this.formBuilder.group({
     notes: [null as string],
     reprompt: [false],
+    httpAuthentication: [false],
   });
 
   passwordRepromptEnabled$ = this.passwordRepromptService.enabled$.pipe(
     shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  /**
+   * True in the browser extensions that answer HTTP authentication challenges: every browser
+   * extension except Safari, which doesn't support them. Other clients store the setting with the
+   * login but never act on it, so they don't show it.
+   */
+  private readonly clientAnswersHTTPAuthentication =
+    this.platformUtilsService.getClientType() === ClientType.Browser &&
+    !this.platformUtilsService.isSafari();
+
+  /**
+   * True when the HTTP authentication setting is shown: for logins, while HTTP authentication is
+   * available, in a client that answers HTTP authentication challenges.
+   */
+  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
+    this.autofillSettingsService.httpAuthenticationAvailable$.pipe(
+      map(
+        (httpAuthenticationAvailable) =>
+          httpAuthenticationAvailable &&
+          this.clientAnswersHTTPAuthentication &&
+          this.cipherFormContainer.config.cipherType === CipherType.Login,
+      ),
+    ),
+    { initialValue: false },
   );
 
   /** When false when the add field button should be displayed in the Additional Options section  */
@@ -81,6 +117,13 @@ export class AdditionalOptionsSectionComponent implements OnInit {
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.notes = value.notes;
         cipher.reprompt = value.reprompt ? CipherRepromptType.Password : CipherRepromptType.None;
+
+        // Read from the control because a disabled control is left out of the form's `value`
+        if (cipher.type === CipherType.Login && cipher.login != null) {
+          cipher.login.httpAuthenticationEnabled =
+            this.additionalOptionsForm.controls.httpAuthentication.value;
+        }
+
         return cipher;
       });
     });
@@ -90,15 +133,43 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     if (prefillCipher) {
+      const reprompt = prefillCipher.reprompt === CipherRepromptType.Password;
+      const httpAuthentication = prefillCipher.login?.httpAuthenticationEnabled === true;
+
       this.additionalOptionsForm.patchValue({
         notes: prefillCipher.notes,
-        reprompt: prefillCipher.reprompt === CipherRepromptType.Password,
+        reprompt,
+        httpAuthentication,
       });
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.additionalOptionsForm.disable();
       this.isPartialEdit = true;
+    }
+  }
+
+  /**
+   * Turning the HTTP authentication setting on always shows a warning first, and the checkbox stays
+   * unchecked until the user confirms. Turning it off needs no confirmation.
+   */
+  protected async handleHTTPAuthenticationClick(event: Event) {
+    const { httpAuthentication } = this.additionalOptionsForm.controls;
+
+    if (httpAuthentication.value) {
+      return;
+    }
+
+    // Keeps the checkbox from checking itself; the value is set only after the user confirms.
+    event.preventDefault();
+
+    const confirmed = await firstValueFrom(
+      HTTPAuthenticationWarningDialogComponent.open(this.dialogService).closed,
+    );
+
+    if (confirmed === true) {
+      httpAuthentication.setValue(true);
+      httpAuthentication.markAsDirty();
     }
   }
 

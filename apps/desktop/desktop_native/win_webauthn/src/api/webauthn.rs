@@ -3,17 +3,35 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use std::{collections::HashSet, marker::PhantomData, ptr::NonNull};
+use std::{collections::HashSet, marker::PhantomData, ptr::NonNull, time::Duration};
 
-use windows::core::PCWSTR;
+use windows::{
+    core::{BOOL, GUID, HRESULT, PCWSTR},
+    Win32::Foundation::{ERROR_CANCELLED, HWND, NTE_USER_CANCELLED},
+};
 
 use super::{
     sys::{
-        WEBAUTHN_COSE_CREDENTIAL_PARAMETER, WEBAUTHN_COSE_CREDENTIAL_PARAMETERS,
-        WEBAUTHN_CREDENTIAL_EX, WEBAUTHN_CREDENTIAL_LIST, WEBAUTHN_RP_ENTITY_INFORMATION,
-        WEBAUTHN_USER_ENTITY_INFORMATION,
+        webauthn_authenticator_get_assertion, webauthn_cancel_current_operation,
+        webauthn_free_assertion, webauthn_get_api_version_number, webauthn_get_cancellation_id,
+        webauthn_get_error_name, WEBAUTHN_API_VERSION_4, WEBAUTHN_ASSERTION,
+        WEBAUTHN_ASSERTION_VERSION_3, WEBAUTHN_ASSERTION_VERSION_4, WEBAUTHN_ASSERTION_VERSION_6,
+        WEBAUTHN_AUTHENTICATOR_ATTACHMENT_ANY, WEBAUTHN_AUTHENTICATOR_ATTACHMENT_CROSS_PLATFORM,
+        WEBAUTHN_AUTHENTICATOR_ATTACHMENT_PLATFORM, WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS,
+        WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_4,
+        WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_6, WEBAUTHN_CLIENT_DATA,
+        WEBAUTHN_CLIENT_DATA_CURRENT_VERSION, WEBAUTHN_COSE_CREDENTIAL_PARAMETER,
+        WEBAUTHN_COSE_CREDENTIAL_PARAMETERS, WEBAUTHN_CREDENTIAL_EX,
+        WEBAUTHN_CREDENTIAL_EX_CURRENT_VERSION, WEBAUTHN_CREDENTIAL_LIST,
+        WEBAUTHN_CREDENTIAL_TYPE_PUBLIC_KEY, WEBAUTHN_CRED_WITH_HMAC_SECRET_SALT,
+        WEBAUTHN_HASH_ALGORITHM_SHA_256, WEBAUTHN_HMAC_SECRET_SALT,
+        WEBAUTHN_HMAC_SECRET_SALT_VALUES, WEBAUTHN_RP_ENTITY_INFORMATION,
+        WEBAUTHN_USER_ENTITY_INFORMATION, WEBAUTHN_USER_VERIFICATION_REQUIREMENT_ANY,
+        WEBAUTHN_USER_VERIFICATION_REQUIREMENT_DISCOURAGED,
+        WEBAUTHN_USER_VERIFICATION_REQUIREMENT_PREFERRED,
+        WEBAUTHN_USER_VERIFICATION_REQUIREMENT_REQUIRED,
     },
-    util::ArrayPointerIterator,
+    util::{ArrayPointerIterator, WindowsString},
 };
 use crate::{api::util::cbor::CborWriter, ErrorKind, WinWebAuthnError};
 
@@ -545,6 +563,23 @@ pub enum CtapTransport {
     SmartCard = 0x40,
 }
 
+impl CtapTransport {
+    /// Converts a single WEBAUTHN_CTAP_TRANSPORT_* bit. Returns `None` for unknown values or
+    /// combinations of bits.
+    fn from_bit(bit: u32) -> Option<Self> {
+        match bit {
+            1 => Some(Self::Usb),
+            2 => Some(Self::Nfc),
+            4 => Some(Self::Ble),
+            8 => Some(Self::Test),
+            0x10 => Some(Self::Internal),
+            0x20 => Some(Self::Hybrid),
+            0x40 => Some(Self::SmartCard),
+            _ => None,
+        }
+    }
+}
+
 impl WEBAUTHN_CREDENTIAL_LIST {
     pub(super) unsafe fn iter(&self) -> CredentialListIterator<'_> {
         // SAFETY: This type can only be constructed from this library using
@@ -574,9 +609,761 @@ impl<'a> Iterator for CredentialListIterator<'a> {
     }
 }
 
+/// The default timeout for [get_assertion], used when the request does not set one. This is the
+/// default recommended by WebAuthn.
+const DEFAULT_TIMEOUT: Duration = Duration::from_secs(300);
+
+/// Returns the API version of the installed webauthn.dll, which determines the features that
+/// are available. Pass this to [GetAssertionRequest::builder].
+pub fn api_version() -> Result<u32, WinWebAuthnError> {
+    // SAFETY: This function has no preconditions.
+    unsafe { webauthn_get_api_version_number() }
+}
+
+/// Whether user verification is required for an operation.
+///
+/// Corresponds to [`UserVerificationRequirement`][uv] in WebAuthn.
+///
+/// [uv]: https://www.w3.org/TR/webauthn-3/#enumdef-userverificationrequirement
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum UserVerificationRequirement {
+    /// Let the platform decide.
+    #[default]
+    Any,
+    Required,
+    Preferred,
+    Discouraged,
+}
+
+impl UserVerificationRequirement {
+    fn as_raw(self) -> u32 {
+        match self {
+            Self::Any => WEBAUTHN_USER_VERIFICATION_REQUIREMENT_ANY,
+            Self::Required => WEBAUTHN_USER_VERIFICATION_REQUIREMENT_REQUIRED,
+            Self::Preferred => WEBAUTHN_USER_VERIFICATION_REQUIREMENT_PREFERRED,
+            Self::Discouraged => WEBAUTHN_USER_VERIFICATION_REQUIREMENT_DISCOURAGED,
+        }
+    }
+}
+
+/// Which kinds of authenticators may be used for an operation.
+///
+/// Corresponds to [`AuthenticatorAttachment`][attachment] in WebAuthn.
+///
+/// [attachment]: https://www.w3.org/TR/webauthn-3/#enumdef-authenticatorattachment
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum AuthenticatorAttachment {
+    /// Any authenticator.
+    #[default]
+    Any,
+    /// Authenticators that are part of the device, like Windows Hello and passkey plugins.
+    Platform,
+    /// Roaming authenticators, like security keys and phones.
+    CrossPlatform,
+}
+
+impl AuthenticatorAttachment {
+    fn as_raw(self) -> u32 {
+        match self {
+            Self::Any => WEBAUTHN_AUTHENTICATOR_ATTACHMENT_ANY,
+            Self::Platform => WEBAUTHN_AUTHENTICATOR_ATTACHMENT_PLATFORM,
+            Self::CrossPlatform => WEBAUTHN_AUTHENTICATOR_ATTACHMENT_CROSS_PLATFORM,
+        }
+    }
+}
+
+/// A credential that may be used for an assertion.
+///
+/// Corresponds to a [`PublicKeyCredentialDescriptor`][descriptor] in `allowCredentials`.
+///
+/// [descriptor]: https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialdescriptor
+pub struct AllowCredential {
+    pub id: CredentialId,
+    /// Transports that the client may use to reach the credential. Empty means no restriction.
+    pub transports: Vec<CtapTransport>,
+}
+
+/// A pair of PRF inputs.
+///
+/// Corresponds to [`AuthenticationExtensionsPRFValues`][values] in the PRF extension. The values
+/// are hashed by webauthn.dll into hmac-secret salts as the extension specifies, so they may be
+/// any length.
+///
+/// [values]: https://www.w3.org/TR/webauthn-3/#dictdef-authenticationextensionsprfvalues
+pub struct PrfValues {
+    pub first: Vec<u8>,
+    pub second: Option<Vec<u8>>,
+}
+
+/// Inputs for the PRF extension.
+///
+/// Corresponds to [`AuthenticationExtensionsPRFInputs`][inputs].
+///
+/// [inputs]: https://www.w3.org/TR/webauthn-3/#dictdef-authenticationextensionsprfinputs
+pub struct PrfInputs {
+    /// PRF inputs to use for any credential without an entry in `eval_by_credential`.
+    pub eval: Option<PrfValues>,
+    /// PRF inputs to use for specific credentials. Each credential must also be in the request's
+    /// allow list, or [get_assertion] returns an error.
+    pub eval_by_credential: Vec<(CredentialId, PrfValues)>,
+}
+
+/// PRF outputs returned by an authenticator.
+///
+/// Corresponds to [`AuthenticationExtensionsPRFValues`][values] in the PRF extension outputs.
+/// These are secrets, and must not be logged.
+///
+/// [values]: https://www.w3.org/TR/webauthn-3/#dictdef-authenticationextensionsprfvalues
+pub struct PrfOutputs<'a> {
+    pub first: &'a [u8],
+    pub second: Option<&'a [u8]>,
+}
+
+/// An identifier that can be used to cancel an in-progress [get_assertion] call from another
+/// thread.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct CancellationId(GUID);
+
+impl CancellationId {
+    /// Generates a new cancellation ID.
+    pub fn new() -> Result<Self, WinWebAuthnError> {
+        let mut id = GUID::zeroed();
+        // SAFETY: `id` is a valid GUID to write to.
+        unsafe { webauthn_get_cancellation_id(&mut id)? }
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to generate a cancellation ID",
+                    err,
+                )
+            })?;
+        Ok(Self(id))
+    }
+
+    /// Cancels the operation that was started with this ID. The cancelled operation returns an
+    /// error for which [WinWebAuthnError::is_user_cancelled] is true.
+    ///
+    /// Returns an error if there is no operation in progress with this ID.
+    pub fn cancel(&self) -> Result<(), WinWebAuthnError> {
+        // SAFETY: `self.0` is a valid GUID.
+        unsafe { webauthn_cancel_current_operation(&self.0)? }
+            .ok()
+            .map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Failed to cancel the operation",
+                    err,
+                )
+            })
+    }
+}
+
+/// A request for [get_assertion]. Use [GetAssertionRequest::builder] to create one.
+pub struct GetAssertionRequest {
+    api_version: u32,
+    rp_id: String,
+    client_data_json: Vec<u8>,
+    timeout: Duration,
+    allow_credentials: Vec<AllowCredential>,
+    user_verification: UserVerificationRequirement,
+    authenticator_attachment: AuthenticatorAttachment,
+    cancellation_id: Option<CancellationId>,
+    u2f_app_id: Option<String>,
+    prf: Option<PrfInputs>,
+}
+
+impl GetAssertionRequest {
+    /// Starts building a request.
+    ///
+    /// # Arguments
+    /// - `api_version`: The webauthn.dll API version, from [api_version]. Extensions that this
+    ///   version does not support are rejected by `require_*` methods and skipped by `prefer_*`
+    ///   methods on the builder.
+    /// - `rp_id`: The RP ID for the request.
+    /// - `client_data_json`: The serialized [client data][client-data]. webauthn.dll hashes it with
+    ///   SHA-256 to produce the client data hash that the authenticator signs.
+    ///
+    /// [client-data]: https://www.w3.org/TR/webauthn-3/#dictdef-collectedclientdata
+    pub fn builder(
+        api_version: u32,
+        rp_id: impl Into<String>,
+        client_data_json: Vec<u8>,
+    ) -> GetAssertionRequestBuilder {
+        GetAssertionRequestBuilder {
+            request: GetAssertionRequest {
+                api_version,
+                rp_id: rp_id.into(),
+                client_data_json,
+                timeout: DEFAULT_TIMEOUT,
+                allow_credentials: Vec::new(),
+                user_verification: UserVerificationRequirement::default(),
+                authenticator_attachment: AuthenticatorAttachment::default(),
+                cancellation_id: None,
+                u2f_app_id: None,
+                prf: None,
+            },
+        }
+    }
+
+    /// Whether the PRF extension will be sent with this request.
+    pub fn has_prf(&self) -> bool {
+        self.prf.is_some()
+    }
+}
+
+/// Builds a [GetAssertionRequest].
+///
+/// Extensions that need a newer webauthn.dll than the target API version have two setters:
+/// `require_*` returns an error if the extension is not supported, and `prefer_*` silently skips
+/// it.
+pub struct GetAssertionRequestBuilder {
+    request: GetAssertionRequest,
+}
+
+impl GetAssertionRequestBuilder {
+    /// How long the platform should wait for the user. This is guidance, and may be overridden by
+    /// the platform.
+    pub fn timeout(mut self, timeout: Duration) -> Self {
+        self.request.timeout = timeout;
+        self
+    }
+
+    /// Restricts the assertion to these credentials. If empty, any discoverable credential for
+    /// the RP may be used.
+    pub fn allow_credentials(mut self, credentials: Vec<AllowCredential>) -> Self {
+        self.request.allow_credentials = credentials;
+        self
+    }
+
+    pub fn user_verification(mut self, requirement: UserVerificationRequirement) -> Self {
+        self.request.user_verification = requirement;
+        self
+    }
+
+    pub fn authenticator_attachment(mut self, attachment: AuthenticatorAttachment) -> Self {
+        self.request.authenticator_attachment = attachment;
+        self
+    }
+
+    /// Allows the request to be cancelled from another thread with [CancellationId::cancel].
+    pub fn cancellation_id(mut self, id: CancellationId) -> Self {
+        self.request.cancellation_id = Some(id);
+        self
+    }
+
+    /// Allows credentials registered with this U2F app ID to be used, corresponding to the
+    /// [`appid` extension][appid]. [Assertion::u2f_app_id_used] reports whether it was used.
+    ///
+    /// The caller is responsible for checking that the app ID is allowed for the caller's origin.
+    ///
+    /// [appid]: https://www.w3.org/TR/webauthn-3/#sctn-appid-extension
+    pub fn u2f_app_id(mut self, app_id: impl Into<String>) -> Self {
+        self.request.u2f_app_id = Some(app_id.into());
+        self
+    }
+
+    /// Requests PRF outputs, or returns an error if the target API version does not support the
+    /// PRF extension.
+    pub fn require_prf(mut self, prf: PrfInputs) -> Result<Self, WinWebAuthnError> {
+        if !supports_prf(self.request.api_version) {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::NotSupported,
+                &format!(
+                    "PRF requires webauthn.dll API version {WEBAUTHN_API_VERSION_4}, but the \
+                     current version is {}",
+                    self.request.api_version
+                ),
+            ));
+        }
+        self.request.prf = Some(prf);
+        Ok(self)
+    }
+
+    /// Requests PRF outputs if the target API version supports the PRF extension, and otherwise
+    /// sends the request without it.
+    pub fn prefer_prf(mut self, prf: PrfInputs) -> Self {
+        if supports_prf(self.request.api_version) {
+            self.request.prf = Some(prf);
+        }
+        self
+    }
+
+    pub fn build(self) -> GetAssertionRequest {
+        self.request
+    }
+}
+
+/// Whether webauthn.dll accepts PRF inputs, which were added in version 6 of
+/// `WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS`.
+fn supports_prf(api_version: u32) -> bool {
+    api_version >= WEBAUTHN_API_VERSION_4
+}
+
+/// Requests an assertion from an authenticator.
+///
+/// Windows shows its passkey dialog, modal to `window`, and this call blocks until the user
+/// completes or dismisses it, the timeout expires, or the request is cancelled with the
+/// request's [CancellationId]. Do not call this from a thread that must stay responsive.
+pub fn get_assertion(
+    window: HWND,
+    request: &GetAssertionRequest,
+) -> Result<Assertion, WinWebAuthnError> {
+    validate_prf(request)?;
+
+    // Everything that the raw structs point to is declared as a local in this function, so that
+    // nothing moves between taking a pointer to it and the call to webauthn.dll.
+    let rp_id = request.rp_id.to_utf16();
+
+    let client_data = WEBAUTHN_CLIENT_DATA {
+        dwVersion: WEBAUTHN_CLIENT_DATA_CURRENT_VERSION,
+        cbClientDataJSON: len_u32(request.client_data_json.len(), "client data JSON")?,
+        pbClientDataJSON: request.client_data_json.as_ptr(),
+        pwszHashAlgId: WEBAUTHN_HASH_ALGORITHM_SHA_256.0,
+    };
+
+    let credentials = request
+        .allow_credentials
+        .iter()
+        .map(|c| WEBAUTHN_CREDENTIAL_EX {
+            dwVersion: WEBAUTHN_CREDENTIAL_EX_CURRENT_VERSION,
+            cbId: u32::from(c.id.len()),
+            pbId: c.id.as_ref().as_ptr(),
+            pwszCredentialType: WEBAUTHN_CREDENTIAL_TYPE_PUBLIC_KEY.0,
+            dwTransports: c.transports.iter().fold(0, |bits, t| bits | *t as u32),
+        })
+        .collect::<Vec<_>>();
+    let credential_ptrs = credentials
+        .iter()
+        .map(std::ptr::from_ref)
+        .collect::<Vec<_>>();
+    let allow_list = WEBAUTHN_CREDENTIAL_LIST {
+        cCredentials: len_u32(credential_ptrs.len(), "allow list")?,
+        ppCredentials: credential_ptrs.as_ptr(),
+    };
+
+    // webauthn.dll declares the salt buffers as mutable, but only reads them.
+    let prf = request.prf.as_ref();
+    let global_salt = prf
+        .and_then(|prf| prf.eval.as_ref())
+        .map(hmac_secret_salt)
+        .transpose()?;
+    let credential_salts = prf
+        .map_or(&[][..], |prf| &prf.eval_by_credential[..])
+        .iter()
+        .map(|(_, values)| hmac_secret_salt(values))
+        .collect::<Result<Vec<_>, _>>()?;
+    let credentials_with_salts = prf
+        .map_or(&[][..], |prf| &prf.eval_by_credential[..])
+        .iter()
+        .zip(&credential_salts)
+        .map(|((id, _), salt)| WEBAUTHN_CRED_WITH_HMAC_SECRET_SALT {
+            cbCredID: u32::from(id.len()),
+            pbCredID: id.as_ref().as_ptr().cast_mut(),
+            pHmacSecretSalt: std::ptr::from_ref(salt).cast_mut(),
+        })
+        .collect::<Vec<_>>();
+    let salt_values = WEBAUTHN_HMAC_SECRET_SALT_VALUES {
+        pGlobalHmacSalt: global_salt
+            .as_ref()
+            .map_or(std::ptr::null_mut(), |s| std::ptr::from_ref(s).cast_mut()),
+        cCredWithHmacSecretSaltList: len_u32(credentials_with_salts.len(), "PRF inputs")?,
+        pCredWithHmacSecretSaltList: if credentials_with_salts.is_empty() {
+            std::ptr::null_mut()
+        } else {
+            credentials_with_salts.as_ptr().cast_mut()
+        },
+    };
+
+    let u2f_app_id = request.u2f_app_id.as_deref().map(str::to_utf16);
+    // Set to TRUE by webauthn.dll if the U2F app ID was used instead of the RP ID.
+    let mut u2f_app_id_used = BOOL(0);
+
+    // Version 4 has every field except PRF inputs, and is supported by every API version. The
+    // request builder only accepts PRF inputs if the API version supports version 6.
+    let mut options = WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS::new(if prf.is_some() {
+        WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_6
+    } else {
+        WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_4
+    });
+    options.dwTimeoutMilliseconds = u32::try_from(request.timeout.as_millis()).unwrap_or(u32::MAX);
+    options.dwAuthenticatorAttachment = request.authenticator_attachment.as_raw();
+    options.dwUserVerificationRequirement = request.user_verification.as_raw();
+    if !credentials.is_empty() {
+        options.pAllowCredentialList = &allow_list;
+    }
+    if let Some(id) = &request.cancellation_id {
+        options.pCancellationId = &id.0;
+    }
+    if let Some(app_id) = &u2f_app_id {
+        options.pwszU2fAppId = app_id.as_ptr();
+        options.pbU2fAppId = &mut u2f_app_id_used;
+    }
+    if prf.is_some() {
+        options.pHmacSecretSaltValues = &salt_values;
+    }
+
+    let mut assertion = std::ptr::null_mut();
+    // SAFETY: Every pointer in the arguments points to a local that outlives this call, and the
+    // options struct only sets fields of the version it declares.
+    let hresult = unsafe {
+        webauthn_authenticator_get_assertion(
+            window,
+            rp_id.as_ptr(),
+            &client_data,
+            &options,
+            &mut assertion,
+        )?
+    };
+    if hresult.is_err() {
+        return Err(operation_error(hresult, "Failed to get an assertion"));
+    }
+    let ptr = NonNull::new(assertion).ok_or_else(|| {
+        WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "webauthn.dll returned a null assertion",
+        )
+    })?;
+    Ok(Assertion {
+        ptr,
+        u2f_app_id_used: u2f_app_id.is_some().then(|| u2f_app_id_used.as_bool()),
+    })
+}
+
+/// Checks that every `eval_by_credential` entry is in the allow list, as required by the
+/// [PRF extension's client processing][prf-client].
+///
+/// [prf-client]: https://www.w3.org/TR/webauthn-3/#prf-extension
+fn validate_prf(request: &GetAssertionRequest) -> Result<(), WinWebAuthnError> {
+    let Some(prf) = &request.prf else {
+        return Ok(());
+    };
+    if prf.eval_by_credential.is_empty() {
+        return Ok(());
+    }
+    if request.allow_credentials.is_empty() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "PRF evalByCredential requires an allow list",
+        )
+        .with_dom_error_name(Some("NotSupportedError".to_string())));
+    }
+    let all_allowed = prf.eval_by_credential.iter().all(|(id, _)| {
+        let credential_is_allowed = request
+            .allow_credentials
+            .iter()
+            .any(|allowed| allowed.id.as_ref() == id.as_ref());
+        credential_is_allowed
+    });
+    if !all_allowed {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "PRF evalByCredential contains a credential that is not in the allow list",
+        )
+        .with_dom_error_name(Some("SyntaxError".to_string())));
+    }
+    Ok(())
+}
+
+fn hmac_secret_salt(values: &PrfValues) -> Result<WEBAUTHN_HMAC_SECRET_SALT, WinWebAuthnError> {
+    let second = values.second.as_deref().unwrap_or_default();
+    Ok(WEBAUTHN_HMAC_SECRET_SALT {
+        cbFirst: len_u32(values.first.len(), "PRF input")?,
+        pbFirst: values.first.as_ptr().cast_mut(),
+        cbSecond: len_u32(second.len(), "PRF input")?,
+        pbSecond: if second.is_empty() {
+            std::ptr::null_mut()
+        } else {
+            second.as_ptr().cast_mut()
+        },
+    })
+}
+
+fn len_u32(len: usize, what: &str) -> Result<u32, WinWebAuthnError> {
+    u32::try_from(len).map_err(|_| {
+        WinWebAuthnError::new(ErrorKind::InvalidArguments, &format!("{what} is too long"))
+    })
+}
+
+/// Converts an HRESULT from a WebAuthn operation into an error, including the corresponding
+/// DOMException name.
+fn operation_error(hresult: HRESULT, description: &str) -> WinWebAuthnError {
+    let kind = if hresult == NTE_USER_CANCELLED || hresult == ERROR_CANCELLED.to_hresult() {
+        ErrorKind::UserCancelled
+    } else {
+        ErrorKind::OperationFailed
+    };
+    // SAFETY: webauthn.dll returns a static, null-terminated string that must not be freed.
+    let dom_error_name = unsafe { webauthn_get_error_name(hresult) }
+        .ok()
+        .filter(|name| !name.is_null())
+        .and_then(|name| unsafe { PCWSTR(name).to_string() }.ok());
+    WinWebAuthnError::with_cause(
+        kind,
+        description,
+        windows::core::Error::from_hresult(hresult),
+    )
+    .with_dom_error_name(dom_error_name)
+}
+
+/// An assertion returned by [get_assertion].
+///
+/// The memory is owned by webauthn.dll and freed when this is dropped.
+pub struct Assertion {
+    ptr: NonNull<WEBAUTHN_ASSERTION>,
+    u2f_app_id_used: Option<bool>,
+}
+
+// SAFETY: The assertion is exclusively owned by this struct, is never written to, and can be
+// freed from any thread.
+unsafe impl Send for Assertion {}
+// SAFETY: All access through `&Assertion` is read-only.
+unsafe impl Sync for Assertion {}
+
+impl Assertion {
+    fn raw(&self) -> RawAssertion<'_> {
+        // SAFETY: `ptr` was returned by WebAuthNAuthenticatorGetAssertion, and is valid until
+        // `self` is dropped.
+        unsafe { RawAssertion::new(self.ptr) }
+    }
+
+    /// The ID of the credential that was used.
+    pub fn credential_id(&self) -> &[u8] {
+        self.raw().credential_id()
+    }
+
+    /// The type of the credential that was used, e.g. `"public-key"`.
+    pub fn credential_type(&self) -> Result<String, WinWebAuthnError> {
+        let ty = self.raw().credential_type();
+        if ty.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
+                "webauthn.dll returned a null credential type",
+            ));
+        }
+        // SAFETY: webauthn.dll returns a valid null-terminated string.
+        unsafe { PCWSTR(ty).to_string() }.map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "Invalid credential type", err)
+        })
+    }
+
+    pub fn authenticator_data(&self) -> &[u8] {
+        self.raw().authenticator_data()
+    }
+
+    pub fn signature(&self) -> &[u8] {
+        self.raw().signature()
+    }
+
+    /// The user handle of the credential, if the authenticator returned one.
+    pub fn user_handle(&self) -> Option<&[u8]> {
+        let id = self.raw().user_id();
+        (!id.is_empty()).then_some(id)
+    }
+
+    /// PRF outputs, if PRF was requested and the authenticator returned results.
+    pub fn prf_results(&self) -> Option<PrfOutputs<'_>> {
+        self.raw().prf_results()
+    }
+
+    /// The transport that was used to reach the authenticator, if webauthn.dll reports it.
+    pub fn used_transport(&self) -> Option<CtapTransport> {
+        CtapTransport::from_bit(self.raw().used_transport()?)
+    }
+
+    /// The client data JSON that was signed, if webauthn.dll returns it.
+    pub fn client_data_json(&self) -> Option<&[u8]> {
+        self.raw()
+            .client_data_json()
+            .filter(|json| !json.is_empty())
+    }
+
+    /// Whether the U2F app ID was used instead of the RP ID, if one was set with
+    /// [GetAssertionRequestBuilder::u2f_app_id]. This is the `appid` extension output.
+    pub fn u2f_app_id_used(&self) -> Option<bool> {
+        self.u2f_app_id_used
+    }
+
+    /// The JSON serialization of the [`AuthenticationResponseJSON`][response], if webauthn.dll
+    /// returns it.
+    ///
+    /// [response]: https://www.w3.org/TR/webauthn-3/#dictdef-authenticationresponsejson
+    pub fn authentication_response_json(&self) -> Option<&[u8]> {
+        self.raw()
+            .authentication_response_json()
+            .filter(|json| !json.is_empty())
+    }
+}
+
+impl Drop for Assertion {
+    fn drop(&mut self) {
+        // SAFETY: `ptr` was returned by WebAuthNAuthenticatorGetAssertion and is freed only here.
+        if let Err(err) = unsafe { webauthn_free_assertion(self.ptr.as_ptr()) } {
+            tracing::error!("Failed to free assertion: {err}");
+        }
+    }
+}
+
+/// Reads a [WEBAUTHN_ASSERTION] returned by webauthn.dll.
+///
+/// webauthn.dll only allocates the fields of the struct version that it reports in `dwVersion`,
+/// which may be older than the Rust definition. So this never creates a reference to the whole
+/// struct, and reads fields through raw pointers after checking that their version is allocated.
+#[derive(Clone, Copy)]
+struct RawAssertion<'a> {
+    ptr: NonNull<WEBAUTHN_ASSERTION>,
+    _assertion: PhantomData<&'a WEBAUTHN_ASSERTION>,
+}
+
+impl<'a> RawAssertion<'a> {
+    /// # Safety
+    /// `ptr` must point to an assertion whose allocation includes every field of the version in
+    /// its `dwVersion`, and whose byte buffers are valid for their lengths, for the lifetime `'a`.
+    unsafe fn new(ptr: NonNull<WEBAUTHN_ASSERTION>) -> Self {
+        Self {
+            ptr,
+            _assertion: PhantomData,
+        }
+    }
+
+    fn version(self) -> u32 {
+        // SAFETY: Version 1 fields are always allocated.
+        unsafe { (&raw const (*self.ptr.as_ptr()).dwVersion).read() }
+    }
+
+    fn authenticator_data(self) -> &'a [u8] {
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: Version 1 fields are always allocated, and `new`'s caller guarantees that the
+        // buffer is valid for its length.
+        unsafe {
+            bytes(
+                (&raw const (*ptr).cbAuthenticatorData).read(),
+                (&raw const (*ptr).pbAuthenticatorData).read(),
+            )
+        }
+    }
+
+    fn signature(self) -> &'a [u8] {
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: See `authenticator_data`.
+        unsafe {
+            bytes(
+                (&raw const (*ptr).cbSignature).read(),
+                (&raw const (*ptr).pbSignature).read(),
+            )
+        }
+    }
+
+    fn credential_id(self) -> &'a [u8] {
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: See `authenticator_data`. `Credential` is a version 1 field, and only its
+        // version 1 fields are read.
+        unsafe {
+            bytes(
+                (&raw const (*ptr).Credential.cbId).read(),
+                (&raw const (*ptr).Credential.pbId).read(),
+            )
+        }
+    }
+
+    fn credential_type(self) -> *const u16 {
+        // SAFETY: See `credential_id`.
+        unsafe { (&raw const (*self.ptr.as_ptr()).Credential.pwszCredentialType).read() }
+    }
+
+    fn user_id(self) -> &'a [u8] {
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: See `authenticator_data`.
+        unsafe {
+            bytes(
+                (&raw const (*ptr).cbUserId).read(),
+                (&raw const (*ptr).pbUserId).read(),
+            )
+        }
+    }
+
+    fn prf_results(self) -> Option<PrfOutputs<'a>> {
+        if self.version() < WEBAUTHN_ASSERTION_VERSION_3 {
+            return None;
+        }
+        // SAFETY: The version check above guarantees that the field is allocated, and
+        // webauthn.dll returns either null or a valid pointer.
+        let salt = unsafe {
+            (&raw const (*self.ptr.as_ptr()).pHmacSecret)
+                .read()
+                .as_ref()
+        }?;
+        // SAFETY: webauthn.dll returns buffers that are valid for their lengths.
+        let (first, second) = unsafe {
+            (
+                bytes(salt.cbFirst, salt.pbFirst),
+                bytes(salt.cbSecond, salt.pbSecond),
+            )
+        };
+        if first.is_empty() {
+            return None;
+        }
+        Some(PrfOutputs {
+            first,
+            second: (!second.is_empty()).then_some(second),
+        })
+    }
+
+    fn used_transport(self) -> Option<u32> {
+        if self.version() < WEBAUTHN_ASSERTION_VERSION_4 {
+            return None;
+        }
+        // SAFETY: The version check above guarantees that the field is allocated.
+        Some(unsafe { (&raw const (*self.ptr.as_ptr()).dwUsedTransport).read() })
+    }
+
+    fn client_data_json(self) -> Option<&'a [u8]> {
+        if self.version() < WEBAUTHN_ASSERTION_VERSION_6 {
+            return None;
+        }
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: The version check above guarantees that the fields are allocated, and `new`'s
+        // caller guarantees that the buffer is valid for its length.
+        Some(unsafe {
+            bytes(
+                (&raw const (*ptr).cbClientDataJSON).read(),
+                (&raw const (*ptr).pbClientDataJSON).read(),
+            )
+        })
+    }
+
+    fn authentication_response_json(self) -> Option<&'a [u8]> {
+        if self.version() < WEBAUTHN_ASSERTION_VERSION_6 {
+            return None;
+        }
+        let ptr = self.ptr.as_ptr();
+        // SAFETY: See `client_data_json`.
+        Some(unsafe {
+            bytes(
+                (&raw const (*ptr).cbAuthenticationResponseJSON).read(),
+                (&raw const (*ptr).pbAuthenticationResponseJSON).read(),
+            )
+        })
+    }
+}
+
+/// Returns the `len` bytes at `ptr`, or an empty slice if `len` is zero or `ptr` is null.
+///
+/// # Safety
+/// If `len` is not zero and `ptr` is not null, `ptr` must point to `len` bytes that are valid for
+/// `'a`.
+unsafe fn bytes<'a>(len: u32, ptr: *const u8) -> &'a [u8] {
+    if len == 0 || ptr.is_null() {
+        return &[];
+    }
+    // SAFETY: The caller guarantees that `ptr` points to `len` valid bytes.
+    unsafe { std::slice::from_raw_parts(ptr, len as usize) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::sys::{WEBAUTHN_CREDENTIAL, WEBAUTHN_EXTENSIONS};
 
     const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
     #[test]
@@ -635,5 +1422,253 @@ mod tests {
             expected_bytes,
             "AAGUID should match expected value"
         );
+    }
+
+    const API_VERSION_WITHOUT_PRF: u32 = 3;
+    const API_VERSION_WITH_PRF: u32 = 4;
+
+    fn prf_inputs() -> PrfInputs {
+        PrfInputs {
+            eval: Some(PrfValues {
+                first: b"first".to_vec(),
+                second: None,
+            }),
+            eval_by_credential: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn test_require_prf_errors_when_unsupported() {
+        let result = GetAssertionRequest::builder(API_VERSION_WITHOUT_PRF, "example.com", vec![])
+            .require_prf(prf_inputs());
+        let Err(err) = result else {
+            panic!("expected an error");
+        };
+        assert!(matches!(err.kind, ErrorKind::NotSupported), "{err}");
+    }
+
+    #[test]
+    fn test_require_prf_succeeds_when_supported() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .require_prf(prf_inputs())
+            .unwrap()
+            .build();
+        assert!(request.has_prf());
+    }
+
+    #[test]
+    fn test_prefer_prf_is_skipped_when_unsupported() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITHOUT_PRF, "example.com", vec![])
+            .prefer_prf(prf_inputs())
+            .build();
+        assert!(!request.has_prf());
+    }
+
+    #[test]
+    fn test_prefer_prf_is_kept_when_supported() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .prefer_prf(prf_inputs())
+            .build();
+        assert!(request.has_prf());
+    }
+
+    #[test]
+    fn test_ctap_transport_from_bit_rejects_combinations() {
+        assert!(matches!(
+            CtapTransport::from_bit(0x20),
+            Some(CtapTransport::Hybrid)
+        ));
+        assert!(CtapTransport::from_bit(0x30).is_none());
+        assert!(CtapTransport::from_bit(0).is_none());
+    }
+
+    #[test]
+    fn test_hmac_secret_salt_omits_empty_second() {
+        let values = PrfValues {
+            first: vec![1, 2, 3],
+            second: None,
+        };
+        let salt = hmac_secret_salt(&values).unwrap();
+        assert_eq!(salt.cbFirst, 3);
+        assert_eq!(salt.pbFirst.cast_const(), values.first.as_ptr());
+        assert_eq!(salt.cbSecond, 0);
+        assert!(salt.pbSecond.is_null());
+    }
+
+    fn credential_id(byte: u8) -> CredentialId {
+        CredentialId::try_from(vec![byte; 16]).unwrap()
+    }
+
+    fn prf_for(ids: &[u8]) -> PrfInputs {
+        PrfInputs {
+            eval: None,
+            eval_by_credential: ids
+                .iter()
+                .map(|b| {
+                    (
+                        credential_id(*b),
+                        PrfValues {
+                            first: b"first".to_vec(),
+                            second: None,
+                        },
+                    )
+                })
+                .collect(),
+        }
+    }
+
+    fn allow(ids: &[u8]) -> Vec<AllowCredential> {
+        ids.iter()
+            .map(|b| AllowCredential {
+                id: credential_id(*b),
+                transports: Vec::new(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn test_validate_prf_accepts_eval_by_credential_in_allow_list() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .allow_credentials(allow(&[1, 2]))
+            .require_prf(prf_for(&[2]))
+            .unwrap()
+            .build();
+        assert!(validate_prf(&request).is_ok());
+    }
+
+    #[test]
+    fn test_validate_prf_rejects_eval_by_credential_not_in_allow_list() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .allow_credentials(allow(&[1, 2]))
+            .require_prf(prf_for(&[2, 3]))
+            .unwrap()
+            .build();
+        let err = validate_prf(&request).unwrap_err();
+        assert_eq!(err.dom_error_name(), Some("SyntaxError"));
+    }
+
+    #[test]
+    fn test_validate_prf_rejects_eval_by_credential_without_allow_list() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .require_prf(prf_for(&[1]))
+            .unwrap()
+            .build();
+        let err = validate_prf(&request).unwrap_err();
+        assert_eq!(err.dom_error_name(), Some("NotSupportedError"));
+    }
+
+    #[test]
+    fn test_validate_prf_allows_eval_without_allow_list() {
+        let request = GetAssertionRequest::builder(API_VERSION_WITH_PRF, "example.com", vec![])
+            .require_prf(prf_inputs())
+            .unwrap()
+            .build();
+        assert!(validate_prf(&request).is_ok());
+    }
+
+    /// Returns an assertion whose later fields are all populated, so that a reader only returns
+    /// `None` because of `dwVersion`.
+    fn assertion(
+        version: u32,
+        data: &[u8],
+        hmac_secret: &WEBAUTHN_HMAC_SECRET_SALT,
+    ) -> WEBAUTHN_ASSERTION {
+        WEBAUTHN_ASSERTION {
+            dwVersion: version,
+            cbAuthenticatorData: data.len() as u32,
+            pbAuthenticatorData: data.as_ptr(),
+            cbSignature: 0,
+            pbSignature: std::ptr::null(),
+            Credential: WEBAUTHN_CREDENTIAL {
+                dwVersion: 1,
+                cbId: data.len() as u32,
+                pbId: data.as_ptr(),
+                pwszCredentialType: std::ptr::null(),
+            },
+            cbUserId: 0,
+            pbUserId: std::ptr::null(),
+            Extensions: WEBAUTHN_EXTENSIONS {
+                cExtensions: 0,
+                pExtensions: std::ptr::null(),
+            },
+            cbCredLargeBlob: 0,
+            pbCredLargeBlob: std::ptr::null(),
+            dwCredLargeBlobStatus: 0,
+            pHmacSecret: hmac_secret,
+            dwUsedTransport: 0x10,
+            cbUnsignedExtensionOutputs: 0,
+            pbUnsignedExtensionOutputs: std::ptr::null(),
+            cbClientDataJSON: data.len() as u32,
+            pbClientDataJSON: data.as_ptr(),
+            cbAuthenticationResponseJSON: 0,
+            pbAuthenticationResponseJSON: std::ptr::null(),
+        }
+    }
+
+    fn hmac_secret(first: &mut [u8]) -> WEBAUTHN_HMAC_SECRET_SALT {
+        WEBAUTHN_HMAC_SECRET_SALT {
+            cbFirst: first.len() as u32,
+            pbFirst: first.as_mut_ptr(),
+            cbSecond: 0,
+            pbSecond: std::ptr::null_mut(),
+        }
+    }
+
+    #[test]
+    fn test_raw_assertion_hides_fields_newer_than_version() {
+        let data = [1u8, 2, 3];
+        let mut first = [7u8; 32];
+        let salt = hmac_secret(&mut first);
+        let raw = assertion(2, &data, &salt);
+        // SAFETY: `raw` is a fully allocated WEBAUTHN_ASSERTION.
+        let reader = unsafe { RawAssertion::new(NonNull::from(&raw)) };
+
+        assert_eq!(reader.version(), 2);
+        assert_eq!(reader.authenticator_data(), &data);
+        assert_eq!(reader.signature(), &[] as &[u8]);
+        assert_eq!(reader.credential_id(), &data);
+        assert!(reader.prf_results().is_none());
+        assert!(reader.used_transport().is_none());
+        assert!(reader.client_data_json().is_none());
+        assert!(reader.authentication_response_json().is_none());
+    }
+
+    #[test]
+    fn test_raw_assertion_reads_current_version() {
+        let data = [1u8, 2, 3];
+        let mut first = [7u8; 32];
+        let salt = hmac_secret(&mut first);
+        let raw = assertion(6, &data, &salt);
+        // SAFETY: `raw` is a fully allocated WEBAUTHN_ASSERTION.
+        let reader = unsafe { RawAssertion::new(NonNull::from(&raw)) };
+
+        let prf = reader.prf_results().unwrap();
+        assert_eq!(prf.first, &[7u8; 32]);
+        assert!(prf.second.is_none());
+        assert_eq!(reader.used_transport(), Some(0x10));
+        assert_eq!(reader.client_data_json(), Some(&data[..]));
+        assert_eq!(reader.authentication_response_json(), Some(&[] as &[u8]));
+    }
+
+    #[test]
+    fn test_raw_assertion_does_not_read_past_version_1_allocation() {
+        let data = [1u8, 2, 3];
+        let salt = hmac_secret(&mut []);
+        let full = assertion(1, &data, &salt);
+        // Copy only the version 1 prefix into an allocation that is too small for the whole
+        // struct, as an old webauthn.dll would return.
+        let v1_len = std::mem::offset_of!(WEBAUTHN_ASSERTION, Extensions);
+        let layout =
+            std::alloc::Layout::from_size_align(v1_len, align_of::<WEBAUTHN_ASSERTION>()).unwrap();
+        // SAFETY: The layout has a non-zero size, and the copy is within both allocations.
+        unsafe {
+            let ptr = std::alloc::alloc(layout);
+            std::ptr::copy_nonoverlapping((&raw const full).cast::<u8>(), ptr, v1_len);
+            let reader = RawAssertion::new(NonNull::new(ptr.cast()).unwrap());
+            assert_eq!(reader.authenticator_data(), &data);
+            assert!(reader.prf_results().is_none());
+            assert!(reader.client_data_json().is_none());
+            std::alloc::dealloc(ptr, layout);
+        }
     }
 }

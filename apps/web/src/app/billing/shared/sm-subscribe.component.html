@@ -1,17 +1,15 @@
 <div *ngIf="formGroup && selectedPlan != null" [formGroup]="formGroup">
   <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
-  <div class="tw-rounded-t tw-bg-background-alt3 tw-p-5">
-    <div class="tw-w-72">
-      <bit-svg [content]="logo"></bit-svg>
-    </div>
-  </div>
-  <div
-    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-secondary-300 tw-p-5"
+  <bit-accordion
+    [title]="'secretsManager' | i18n"
+    startIcon="bwi-bitwarden-shield"
+    height="auto"
+    [open]="true"
   >
-    <h4 bitTypography="h4">{{ "secretsManagerForPlan" | i18n: planName }}</h4>
-    <div class="tw-text-muted">
-      {{ "secretsManagerForPlanDesc" | i18n }}
-      <ul>
+    <div class="tw-text-fg-body">
+      {{ "secretsManagerPurchaseDesc" | i18n }}
+      <p class="tw-mb-0 tw-mt-3 tw-font-medium tw-text-fg-heading">{{ "whatsIncluded" | i18n }}</p>
+      <ul class="tw-space-y-2">
         <li *ngIf="product == productTypes.Free">{{ "limitedUsers" | i18n: maxUsers }}</li>
         <li>{{ "unlimitedSecrets" | i18n }}</li>
         <li *ngIf="product == productTypes.Free; else unlimitedProjects">
@@ -20,7 +18,7 @@
         <ng-template #unlimitedProjects>
           <li>{{ "unlimitedProjects" | i18n }}</li>
         </ng-template>
-        <li>{{ "machineAccountsIncluded" | i18n: serviceAccountsIncluded }}</li>
+        <li>{{ "includedMachineAccountsV2" | i18n: serviceAccountsIncluded }}</li>
         <li *ngIf="product != productTypes.Free">
           {{
             "additionalMachineAccountCost" | i18n: (monthlyCostPerServiceAccount | currency: "$")
@@ -29,9 +27,9 @@
       </ul>
     </div>
 
-    <div class="tw-mb-5">
+    <div class="tw-mb-5 tw-text-fg-body">
       <span *ngIf="product != productTypes.Free; else freeForever">
-        {{ "costPerUser" | i18n: (monthlyCostPerUser | currency: "$") }} /{{ "month" | i18n }}
+        {{ "pricePerMember" | i18n: (monthlyCostPerUser | currency: "$") }} / {{ "month" | i18n }}
       </span>
       <ng-template #freeForever>
         <span>{{ "freeForever" | i18n }}</span>
@@ -40,7 +38,7 @@
 
     <bit-form-control>
       <input type="checkbox" bitCheckbox formControlName="enabled" />
-      <bit-label>{{ "subscribeToSecretsManager" | i18n }}</bit-label>
+      <bit-label>{{ "addSecretsManager" | i18n }}</bit-label>
       <bit-hint *ngIf="upgradeOrganization">{{ "addSecretsManagerUpgradeDesc" | i18n }}</bit-hint>
     </bit-form-control>
 
@@ -69,5 +67,5 @@
         {{ "save" | i18n }}
       </button>
     </ng-container>
-  </div>
+  </bit-accordion>
 </div>

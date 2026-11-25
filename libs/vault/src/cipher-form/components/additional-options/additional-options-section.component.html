@@ -13,9 +13,27 @@
       <textarea bitInput rows="5" formControlName="notes"></textarea>
     </bit-form-field>
     @if (passwordRepromptEnabled$ | async) {
-      <bit-form-control [disableMargin]="hasCustomFields || isPartialEdit">
+      <bit-form-control
+        [disableMargin]="
+          (hasCustomFields || isPartialEdit) && !showHTTPAuthenticationCipherSetting()
+        "
+      >
         <input type="checkbox" bitCheckbox formControlName="reprompt" />
         <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
+      </bit-form-control>
+    }
+    @if (showHTTPAuthenticationCipherSetting()) {
+      <bit-form-control [disableMargin]="hasCustomFields || isPartialEdit">
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="httpAuthentication"
+          id="additional-options_input_http-authentication"
+          (click)="handleHTTPAuthenticationClick($event)"
+        />
+        <bit-label for="additional-options_input_http-authentication">
+          {{ "fillLoginPopUpPromptsLabel" | i18n }}
+        </bit-label>
       </bit-form-control>
     }
 

@@ -7,6 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +18,7 @@ import {
   NavigationModule,
   PopoverAnchorForDirective,
   SideNavService,
+  ToastService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
@@ -214,6 +216,11 @@ describe("VaultNavSectionComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: VAULT_NAV_ORGANIZATION_OPTIONS, useFactory: () => organizationOptions },
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
         {
           provide: CollectionService,
           useValue: mock<CollectionService>({ decryptedCollections$: () => collections$ }),
@@ -225,6 +232,7 @@ describe("VaultNavSectionComponent", () => {
           useValue: mock<PinnedSharedFoldersService>({
             pinnedIds$: () => pinnedIds$,
             emptyStateDismissed$: () => of(true),
+            activePinnedIds: signal([]),
           }),
         },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
@@ -602,6 +610,22 @@ describe("VaultNavSectionComponent", () => {
 
         expect(wrapper.attributes["slot"]).toBe("end");
         expect(wrapper.injector.get(HoverRevealDirective, null)).not.toBeNull();
+      });
+
+      it("places the menu before the suspended warning, so the hidden menu leaves no gap between icons", () => {
+        viewModel$.next({
+          ...withOrgs,
+          vaults: [personalItem, { ...orgA, enabled: false }, family],
+        });
+        fixture.detectChanges();
+
+        const menu = fixture.debugElement.query(By.directive(StubOrganizationOptionsComponent))
+          .parent.nativeElement as HTMLElement;
+        const warning = fixture.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle");
+
+        expect(
+          menu.compareDocumentPosition(warning) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
       });
     });
 

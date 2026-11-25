@@ -17,7 +17,6 @@
 ./apps/desktop/resources/appx/Square44x44Logo.png
 ./apps/cli/stores/chocolatey/tools/VERIFICATION.txt
 ./apps/browser/store/windows/AppxManifest.xml
-./apps/browser/src/background/nativeMessaging.background.ts
 ./apps/browser/src/browser/safariApp.ts
 ./apps/browser/src/safari/desktop/ViewController.swift
 ./apps/browser/src/safari/desktop/Assets.xcassets/AppIcon.appiconset/Contents.json
@@ -32,3 +31,5 @@
 ./SECURITY.md
 ./libs/nx-plugin/src/generators/files/README.md__tmpl__
 ./libs/components/CONTRIBUTING.md
+./libs/components/CODE_STYLE.md
+./libs/common/src/vault/CONTRIBUTING.md

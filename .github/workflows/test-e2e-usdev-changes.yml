@@ -1,0 +1,27 @@
+# Runs the e2e suites (test-e2e-usdev.yml) on PRs that change e2e/. A `paths` filter there would
+# also gate its labeled runs, hence this caller.
+
+name: Test E2E (usdev) on e2e changes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'e2e/**'
+
+permissions: {}
+
+jobs:
+  e2e:
+    name: E2E
+    # Shares the called workflow's group, so this run waits for any other e2e run.
+    concurrency:
+      group: km-e2e-usdev
+      cancel-in-progress: false
+    uses: ./.github/workflows/test-e2e-usdev.yml
+    secrets: inherit
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      pull-requests: write

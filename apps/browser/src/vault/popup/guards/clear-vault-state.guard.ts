@@ -15,9 +15,10 @@ import { VaultPopupListFiltersService } from "../services/vault-popup-list-filte
  * except viewing or editing a cipher.
  *
  * VFO1 intentionally persists search/filter state across navigation (see
- * `VaultPopupListTableFiltersService`'s view-cache-backed filters), so this guard is a no-op
- * when the flag is on. Once VFO1 is fully rolled out and the legacy `VaultPopupListFiltersService`
- * path is removed, this guard becomes dead code and can be deleted entirely.
+ * `VaultPopupListTableFiltersService`'s per-user state-backed filters and search text), so this
+ * guard is a no-op when the flag is on. Once VFO1 is fully rolled out and the legacy
+ * `VaultPopupListFiltersService` path is removed, this guard becomes dead code and can be deleted
+ * entirely.
  */
 export const clearVaultStateGuard: CanDeactivateFn<VaultComponent> = (
   component: VaultComponent,

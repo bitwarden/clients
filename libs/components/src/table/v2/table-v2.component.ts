@@ -10,6 +10,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Signal,
   TrackByFunction,
   booleanAttribute,
   computed,
@@ -36,6 +37,7 @@ import { IconComponent } from "../../icon/icon.component";
 import { ItemComponent } from "../../item/item.component";
 import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
+import { VariableHeightVirtualScrollStrategy } from "../../shared/variable-height-virtual-scroll.strategy";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
@@ -48,12 +50,13 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
-import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+import { BitTablePaginatorComponent, TableRowRange } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
 import {
   CustomizeColumnsDialogComponent,
   CustomizeColumnsDialogParams,
 } from "./customize-columns-dialog.component";
+import { countOptions } from "./option-counts";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableColumnPreferencesService } from "./table-column-preferences.service";
@@ -61,7 +64,6 @@ import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableStateKey } from "./table-state-keys";
-import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
@@ -97,6 +99,17 @@ const SUBGROUP_HEADER_HEIGHT = 22;
  * this height whether or not it wraps.
  */
 const GROUP_DESCRIPTION_HEIGHT = 48;
+
+/** Whether two sets of filter values hold the same value under every key. */
+function sameValues<F>(a: F, b: F): boolean {
+  const first = a as Record<string, unknown>;
+  const second = b as Record<string, unknown>;
+  const keys = Object.keys(first);
+  return (
+    keys.length === Object.keys(second).length &&
+    keys.every((key) => Object.is(first[key], second[key]))
+  );
+}
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -180,10 +193,6 @@ type RenderItem<T> =
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
   | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
-/**
- * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
- * without approval from the UI Foundation team.
- */
 @Component({
   selector: "bit-table-v2",
   exportAs: "bitTableV2",
@@ -282,6 +291,16 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** Initial filter values, keyed by chip `key`; seeds the matching chips once on init. */
   readonly filters = input<Partial<F>>();
 
+  /**
+   * The values a row holds for a chip, keyed by chip `key`. A chip listed here gets its option
+   * counts in one pass over the rows, instead of one pass for each option.
+   *
+   * List a chip only if {@link filter} matches a row for that chip when the row holds *any* of
+   * the selected values, and passes every row when the chip is cleared. Otherwise the counts
+   * differ from the rows the chip selects.
+   */
+  readonly optionValues = input<{ readonly [K in keyof F]?: (row: T) => Iterable<unknown> }>();
+
   /** Row selection config. Omit for a non-selectable table (no checkbox column). */
   readonly selection = input<SelectionConfig<T>>();
 
@@ -379,6 +398,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** The filtered row count — read by a projected `bit-table-paginator` for its total. */
   readonly filteredCount = computed(() => this.filtered().length);
 
+  /**
+   * The rows on screen — a projected paginator's page, else every filtered row. Read by a
+   * projected `bit-table-toolbar` for its range label.
+   */
+  readonly rowRange = computed<TableRowRange>(() => {
+    const paginator = this.paginator();
+    if (paginator) {
+      return paginator.range();
+    }
+    const total = this.filteredCount();
+    return { start: total === 0 ? 0 : 1, end: total, total };
+  });
+
   private readonly _selectionModel = signal<TableSelectionModel<T> | undefined>(undefined);
 
   /** Selection state, present only when {@link selection} is configured. */
@@ -395,19 +427,52 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Count for a chip option: rows matching {@link filter} with `key` pinned to `value` and every
-   * other active filter applied. `undefined` with no `[filter]` (server-side) — the chip then
-   * shows an explicit `count` instead.
+   * Counts for chip options: for each entry of `values`, rows matching {@link filter} with `key`
+   * pinned to that value and every other active filter applied. One pass over the rows when the
+   * chip is listed in {@link optionValues}, else one pass for each value. `undefined` with no
+   * `[filter]` (server-side) — the chip then shows an explicit `count` instead.
    */
-  optionCount(key: string, value: unknown): number | undefined {
+  optionCounts(key: string, values: readonly unknown[]): readonly number[] | undefined {
     const filter = this.filter();
     if (!filter) {
       return undefined;
     }
-    const values = { ...this.filterValues(), [key]: value } as F;
-    return this.tableDef()
-      .data()
-      .filter((row) => filter(row, values)).length;
+    const rows = this.tableDef().data();
+    const others = this.filterValuesWithout(key);
+    const rowValues = this.optionValues()?.[key as keyof F];
+    if (!rowValues) {
+      return values.map((value) => {
+        const pinned = { ...others, [key]: value } as F;
+        return rows.filter((row) => filter(row, pinned)).length;
+      });
+    }
+    return countOptions(rows, (row) => filter(row, others), rowValues, values);
+  }
+
+  private readonly othersByKey = new Map<string, Signal<F>>();
+
+  /**
+   * {@link filterValues} with one chip's own value cleared: what that chip's options are
+   * counted against. It stays the same object until another chip's value changes.
+   *
+   * Avoids: counting against {@link filterValues} itself. A chip's count would then depend on
+   * the chip's own value, and every change to its selection would count every row again for a
+   * result that can't have changed.
+   */
+  private filterValuesWithout(key: string): F {
+    let others = this.othersByKey.get(key);
+    if (!others) {
+      others = computed(() => ({ ...this.filterValues(), [key]: null }) as F, {
+        equal: sameValues,
+      });
+      this.othersByKey.set(key, others);
+    }
+    return others();
+  }
+
+  /** The count for one chip option. See {@link optionCounts}. */
+  optionCount(key: string, value: unknown): number | undefined {
+    return this.optionCounts(key, [value])?.[0];
   }
 
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
@@ -966,7 +1031,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order.
+   * Per-item pixel heights for {@link VariableHeightVirtualScrollStrategy}, in render order.
    * Empty until {@link virtualRowHeight} is set.
    */
   protected readonly itemHeights = computed<number[]>(() => {
@@ -1017,7 +1082,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Virtual-scroll strategy, provided to the viewport via `VIRTUAL_SCROLL_STRATEGY`.
    * Reads {@link itemHeights} lazily; the constructor effect re-renders on change.
    */
-  readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
+  readonly scrollStrategy = new VariableHeightVirtualScrollStrategy(this.itemHeights);
 
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);

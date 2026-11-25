@@ -14,7 +14,7 @@
   </div>
   <ng-container bitDialogFooter>
     <button type="submit" bitButton bitFormButton [buttonType]="isRotation ? 'danger' : 'primary'">
-      {{ (isRotation ? "rotateKey" : "viewApiKey") | i18n }}
+      {{ data.submitButtonKey | i18n }}
     </button>
     <button bitButton type="button" (click)="close()">
       {{ "close" | i18n }}

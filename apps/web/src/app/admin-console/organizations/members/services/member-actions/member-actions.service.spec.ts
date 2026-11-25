@@ -20,6 +20,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -44,6 +45,7 @@ describe("MemberActionsService", () => {
   let organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
   let memberDialogManager: MockProxy<MemberDialogManagerService>;
   let sdkService: MockProxy<SdkService>;
+  let i18nService: MockProxy<I18nService>;
   let membersClient: {
     send_staged_invites: jest.Mock;
     bulk_reinvite: jest.Mock;
@@ -63,6 +65,8 @@ describe("MemberActionsService", () => {
     organizationUserService = mock<OrganizationUserService>();
     organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
     memberDialogManager = mock<MemberDialogManagerService>();
+    i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key) => key);
 
     membersClient = {
       send_staged_invites: jest.fn(),
@@ -113,7 +117,7 @@ describe("MemberActionsService", () => {
         },
         { provide: UserNamePipe, useValue: mock<UserNamePipe>() },
         { provide: MemberDialogManagerService, useValue: memberDialogManager },
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: i18nService },
         { provide: SdkService, useValue: sdkService },
         {
           provide: AccountService,
@@ -188,6 +192,34 @@ describe("MemberActionsService", () => {
       const result = await service.removeUser(mockOrganization, userIdToManage);
 
       expect(result).toEqual({ success: false, error: errorMessage });
+    });
+
+    it("should show a generic message when the error response has no message", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue(
+        new ErrorResponse({}, 400),
+      );
+
+      const result = await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({ success: false, error: "unexpectedError" });
+    });
+
+    it("should show the first validation error when the error response has no message", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue(
+        new ErrorResponse({ validationErrors: { email: ["Email is invalid."] } }, 400),
+      );
+
+      const result = await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({ success: false, error: "Email is invalid." });
+    });
+
+    it("should show a generic message when a non-Error object is thrown", async () => {
+      organizationUserApiService.removeOrganizationUser.mockRejectedValue({ status: 500 });
+
+      const result = await service.removeUser(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({ success: false, error: "unexpectedError" });
     });
   });
 
@@ -298,6 +330,26 @@ describe("MemberActionsService", () => {
       const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
 
       expect(result).toEqual({ success: false, error: "User invalid." });
+    });
+
+    it("should surface the first validation error when the SDK response has no message", async () => {
+      membersClient.reinvite.mockRejectedValue(
+        new Error(
+          'error in response: status code 400 Bad Request: {"validationErrors":{"id":["User invalid."]}}',
+        ),
+      );
+
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({ success: false, error: "User invalid." });
+    });
+
+    it("should show a generic message when the SDK rejects with a non-Error object", async () => {
+      membersClient.reinvite.mockRejectedValue({});
+
+      const result = await firstValueFrom(service.reinviteUser(mockOrganization, userIdToManage));
+
+      expect(result).toEqual({ success: false, error: "unexpectedError" });
     });
   });
 
