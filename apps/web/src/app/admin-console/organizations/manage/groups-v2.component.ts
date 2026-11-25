@@ -227,6 +227,12 @@ export class GroupsV2Component {
 
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
 
+  /**
+   * The collection filter has nothing to offer when the organization has no collections, so the
+   * chip is disabled rather than opening onto an empty menu.
+   */
+  protected readonly hasNoCollections = computed(() => this.collectionFilterOptions().length === 0);
+
   constructor() {
     effect(() => {
       this.rows.set(this.fetchedRows() ?? []);

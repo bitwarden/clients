@@ -1,7 +1,7 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { WritableSignal, signal } from "@angular/core";
 
-import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
+import { VariableHeightVirtualScrollStrategy } from "./variable-height-virtual-scroll.strategy";
 
 /** Records the viewport calls the strategy makes and feeds it a scroll offset / size. */
 class FakeViewport {
@@ -37,9 +37,9 @@ class FakeViewport {
   }
 }
 
-describe("TableVirtualScrollStrategy", () => {
+describe("VariableHeightVirtualScrollStrategy", () => {
   let heights: WritableSignal<readonly number[]>;
-  let strategy: TableVirtualScrollStrategy;
+  let strategy: VariableHeightVirtualScrollStrategy;
   let viewport: FakeViewport;
 
   const attach = (viewportSize: number, scrollOffset = 0) => {
@@ -50,7 +50,7 @@ describe("TableVirtualScrollStrategy", () => {
 
   beforeEach(() => {
     heights = signal<readonly number[]>([]);
-    strategy = new TableVirtualScrollStrategy(heights);
+    strategy = new VariableHeightVirtualScrollStrategy(heights);
     viewport = new FakeViewport();
   });
 

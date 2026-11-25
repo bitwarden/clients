@@ -1,6 +1,9 @@
 <div class="tw-mb-4">
   <app-cipher-view
-    [cipher]="cipher()"
+    [cipher]="itemViews().cipher"
+    [organization]="itemViews().organization"
+    [folder]="itemViews().folder"
+    [collections]="itemViews().collections"
     [hasAnonymousPremium]="true"
     [hideExpiredCardWarning]="true"
   ></app-cipher-view>

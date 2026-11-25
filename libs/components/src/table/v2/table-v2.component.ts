@@ -10,6 +10,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Signal,
   TrackByFunction,
   booleanAttribute,
   computed,
@@ -36,6 +37,7 @@ import { IconComponent } from "../../icon/icon.component";
 import { ItemComponent } from "../../item/item.component";
 import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
+import { VariableHeightVirtualScrollStrategy } from "../../shared/variable-height-virtual-scroll.strategy";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
@@ -62,7 +64,6 @@ import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableStateKey } from "./table-state-keys";
-import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
@@ -98,6 +99,17 @@ const SUBGROUP_HEADER_HEIGHT = 22;
  * this height whether or not it wraps.
  */
 const GROUP_DESCRIPTION_HEIGHT = 48;
+
+/** Whether two sets of filter values hold the same value under every key. */
+function sameValues<F>(a: F, b: F): boolean {
+  const first = a as Record<string, unknown>;
+  const second = b as Record<string, unknown>;
+  const keys = Object.keys(first);
+  return (
+    keys.length === Object.keys(second).length &&
+    keys.every((key) => Object.is(first[key], second[key]))
+  );
+}
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -423,16 +435,36 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       return undefined;
     }
     const rows = this.tableDef().data();
-    const current = this.filterValues();
+    const others = this.filterValuesWithout(key);
     const rowValues = this.optionValues()?.[key as keyof F];
     if (!rowValues) {
       return values.map((value) => {
-        const pinned = { ...current, [key]: value } as F;
+        const pinned = { ...others, [key]: value } as F;
         return rows.filter((row) => filter(row, pinned)).length;
       });
     }
-    const cleared = { ...current, [key]: null } as F;
-    return countOptions(rows, (row) => filter(row, cleared), rowValues, values);
+    return countOptions(rows, (row) => filter(row, others), rowValues, values);
+  }
+
+  private readonly othersByKey = new Map<string, Signal<F>>();
+
+  /**
+   * {@link filterValues} with one chip's own value cleared: what that chip's options are
+   * counted against. It stays the same object until another chip's value changes.
+   *
+   * Avoids: counting against {@link filterValues} itself. A chip's count would then depend on
+   * the chip's own value, and every change to its selection would count every row again for a
+   * result that can't have changed.
+   */
+  private filterValuesWithout(key: string): F {
+    let others = this.othersByKey.get(key);
+    if (!others) {
+      others = computed(() => ({ ...this.filterValues(), [key]: null }) as F, {
+        equal: sameValues,
+      });
+      this.othersByKey.set(key, others);
+    }
+    return others();
   }
 
   /** The count for one chip option. See {@link optionCounts}. */
@@ -991,7 +1023,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order.
+   * Per-item pixel heights for {@link VariableHeightVirtualScrollStrategy}, in render order.
    * Empty until {@link virtualRowHeight} is set.
    */
   protected readonly itemHeights = computed<number[]>(() => {
@@ -1042,7 +1074,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Virtual-scroll strategy, provided to the viewport via `VIRTUAL_SCROLL_STRATEGY`.
    * Reads {@link itemHeights} lazily; the constructor effect re-renders on change.
    */
-  readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
+  readonly scrollStrategy = new VariableHeightVirtualScrollStrategy(this.itemHeights);
 
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);

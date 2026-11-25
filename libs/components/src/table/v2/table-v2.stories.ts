@@ -20,7 +20,7 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { filter as rxFilter, map } from "rxjs";
-import { screen, userEvent, within } from "storybook/test";
+import { expect, screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
@@ -2415,6 +2415,10 @@ export const Pagination: Story = {
       </bit-table-v2>
     `,
   }),
+  play: async ({ canvasElement }) => {
+    const pageSize = await within(canvasElement).findByRole("combobox", { name: "Rows per page" });
+    await expect(pageSize).toHaveAttribute("readonly");
+  },
 };
 
 /**

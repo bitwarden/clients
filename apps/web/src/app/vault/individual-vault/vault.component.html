@@ -49,13 +49,7 @@
 
     @if (gatedCollectionBanner && selectedCollection) {
       <ng-container
-        *ngComponentOutlet="
-          gatedCollectionBanner;
-          inputs: {
-            organizationId: selectedCollection.node.organizationId,
-            collectionId: selectedCollection.node.id,
-          }
-        "
+        *ngComponentOutlet="gatedCollectionBanner; inputs: { collection: selectedCollection.node }"
       />
     }
 

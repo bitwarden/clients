@@ -73,6 +73,8 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.LeaseExpired]: "pamAuditKindAccessExpired",
   [AccessAuditEventKind.CredentialAccessed]: "pamAuditKindCredentialAccessed",
   [AccessAuditEventKind.CredentialAccessDenied]: "pamAuditKindCredentialAccessDenied",
+  [AccessAuditEventKind.CredentialUngated]: "pamAuditKindCredentialUngated",
+  [AccessAuditEventKind.VaultExported]: "pamAuditKindVaultExported",
   [AccessAuditEventKind.RuleCreated]: "pamAuditKindRuleCreated",
   [AccessAuditEventKind.RuleUpdated]: "pamAuditKindRuleUpdated",
   [AccessAuditEventKind.RuleDeleted]: "pamAuditKindRuleDeleted",
