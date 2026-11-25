@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os";
 import * as path from "path";
 
+import { ipcMain } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -35,6 +36,7 @@ describe("NativeMessagingMain", () => {
 
   let sut: NativeMessagingMain;
   let logService: MockProxy<LogService>;
+  let server: MockProxy<ipc.NativeIpcServer>;
   let emit: (error: unknown, message: ipc.IpcMessage) => void;
 
   /** Delivers a native message from `clientId`, as the napi server would. */
@@ -60,7 +62,8 @@ describe("NativeMessagingMain", () => {
 
     jest.mocked(ipc.NativeIpcServer.listen).mockImplementation((_name, callback) => {
       emit = callback as typeof emit;
-      return Promise.resolve(mock<ipc.NativeIpcServer>({ getPaths: () => [] }));
+      server = mock<ipc.NativeIpcServer>({ getPaths: () => [] });
+      return Promise.resolve(server);
     });
 
     logService = mock<LogService>();
@@ -137,6 +140,39 @@ describe("NativeMessagingMain", () => {
     emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
 
     expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  // Chrome, Firefox and DuckDuckGo all reach the app through the one server `listen` starts, so
+  // the DuckDuckGo setting must only add or remove its own manifests.
+  describe("duckduckgo manifests", () => {
+    const channel = "nativeMessaging.ddgManifests";
+
+    /** Invokes the handler the constructor registered for `channel`, as the renderer would. */
+    function invoke(create: boolean): Promise<unknown> {
+      const handler = jest.mocked(ipcMain.handle).mock.calls.find(([c]) => c === channel)?.[1];
+
+      return handler!({} as any, { create });
+    }
+
+    beforeEach(() => {
+      jest.spyOn(sut, "generateDdgManifests").mockResolvedValue(undefined);
+      jest.spyOn(sut as any, "removeDdgManifests").mockResolvedValue(undefined);
+    });
+
+    it("leaves the server running when duckduckgo is disabled", async () => {
+      await invoke(false);
+
+      expect(server.stop).not.toHaveBeenCalled();
+    });
+
+    it("does not restart the server when duckduckgo is enabled", async () => {
+      jest.mocked(ipc.NativeIpcServer.listen).mockClear();
+
+      await invoke(true);
+
+      expect(ipc.NativeIpcServer.listen).not.toHaveBeenCalled();
+      expect(server.stop).not.toHaveBeenCalled();
+    });
   });
 
   describe("generateManifests on linux", () => {
