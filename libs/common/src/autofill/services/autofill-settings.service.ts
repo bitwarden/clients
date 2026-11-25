@@ -94,6 +94,15 @@ const SHOW_INLINE_MENU_SSH_KEYS = new UserKeyDefinition(
   },
 );
 
+const FILTER_INLINE_MENU_BY_FIELD_VALUE = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "filterInlineMenuByFieldValue",
+  {
+    deserializer: (value: boolean) => value ?? false,
+    clearOn: [],
+  },
+);
+
 const HONOR_BITWARDEN_IGNORE_ATTRIBUTE = new KeyDefinition(
   AUTOFILL_SETTINGS_DISK_LOCAL,
   "honorBitwardenIgnoreAttribute",
@@ -161,6 +170,16 @@ export abstract class AutofillSettingsServiceAbstraction {
   setShowInlineMenuCards: (newValue: boolean) => Promise<void>;
   showInlineMenuSshKeys$: Observable<boolean>;
   setShowInlineMenuSshKeys: (newValue: boolean) => Promise<void>;
+  /**
+   * Reports whether inline menu filtering is available, per the
+   * {@link FeatureFlag.EnableInlineMenuFiltering} flag.
+   */
+  filterInlineMenuByFieldValueAvailable$: Observable<boolean>;
+  /**
+   * Emits `false` unless filtering is available and the user has enabled it.
+   */
+  filterInlineMenuByFieldValue$: Observable<boolean>;
+  setFilterInlineMenuByFieldValue: (newValue: boolean) => Promise<void>;
   honorBitwardenIgnoreAttribute$: Observable<boolean>;
   setHonorBitwardenIgnoreAttribute: (newValue: boolean) => Promise<void>;
   honorBitwardenAutofillAttribute$: Observable<boolean>;
@@ -212,6 +231,10 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   private showInlineMenuSshKeysState: ActiveUserState<boolean>;
   readonly showInlineMenuSshKeys$: Observable<boolean>;
+
+  private filterInlineMenuByFieldValueState: ActiveUserState<boolean>;
+  readonly filterInlineMenuByFieldValueAvailable$: Observable<boolean>;
+  readonly filterInlineMenuByFieldValue$: Observable<boolean>;
 
   private honorBitwardenIgnoreAttributeState: GlobalState<boolean>;
   readonly honorBitwardenIgnoreAttribute$: Observable<boolean>;
@@ -308,6 +331,20 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
       ),
     );
 
+    this.filterInlineMenuByFieldValueState = this.stateProvider.getActive(
+      FILTER_INLINE_MENU_BY_FIELD_VALUE,
+    );
+    this.filterInlineMenuByFieldValueAvailable$ = this.configService
+      .getFeatureFlag$(FeatureFlag.EnableInlineMenuFiltering)
+      .pipe(
+        map((featureFlag) => featureFlag === true),
+        distinctUntilChanged(),
+      );
+    this.filterInlineMenuByFieldValue$ = combineLatest([
+      this.filterInlineMenuByFieldValueState.state$,
+      this.filterInlineMenuByFieldValueAvailable$,
+    ]).pipe(map(([enabled, available]) => available && (enabled ?? false)));
+
     this.honorBitwardenIgnoreAttributeState = this.stateProvider.getGlobal(
       HONOR_BITWARDEN_IGNORE_ATTRIBUTE,
     );
@@ -403,6 +440,10 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setShowInlineMenuSshKeys(newValue: boolean): Promise<void> {
     await this.showInlineMenuSshKeysState.update(() => newValue);
+  }
+
+  async setFilterInlineMenuByFieldValue(newValue: boolean): Promise<void> {
+    await this.filterInlineMenuByFieldValueState.update(() => newValue);
   }
 
   async setHonorBitwardenIgnoreAttribute(newValue: boolean): Promise<void> {

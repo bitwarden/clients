@@ -1222,6 +1222,7 @@ describe("OverlayBackground", () => {
         command: "updateAutofillInlineMenuListCiphers",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
+        inlineMenuFilterIsActive: false,
         focusedFieldHasValue: false,
         ciphers: [
           {
@@ -1244,6 +1245,230 @@ describe("OverlayBackground", () => {
             type: CipherType.Login,
           },
         ],
+      });
+    });
+
+    describe("filtering the inline menu ciphers by the focused field value", () => {
+      const getFilteredIds = async () =>
+        (await overlayBackground["getInlineMenuCipherData"]()).map(({ id }) => id);
+
+      beforeEach(() => {
+        autofillSettingsService.filterInlineMenuByFieldValue$ = of(true);
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: tab.id });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["inline-menu-cipher-0", loginCipher1],
+          ["inline-menu-cipher-1", loginCipher2],
+        ]);
+      });
+
+      it("shows every cipher when the field value is empty or whitespace", async () => {
+        overlayBackground["focusedFieldValue"] = "   ";
+
+        expect(await getFilteredIds()).toStrictEqual([
+          "inline-menu-cipher-0",
+          "inline-menu-cipher-1",
+        ]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(false);
+      });
+
+      it("shows only ciphers whose username starts with the trimmed, case-insensitive value", async () => {
+        overlayBackground["focusedFieldValue"] = "  USERNAME-1 ";
+
+        expect(await getFilteredIds()).toStrictEqual(["inline-menu-cipher-0"]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(true);
+      });
+
+      it("falls back to the cipher name when no username matches", async () => {
+        overlayBackground["focusedFieldValue"] = "NAME-3";
+
+        expect(await getFilteredIds()).toStrictEqual(["inline-menu-cipher-1"]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(true);
+      });
+
+      it("does not consider cipher names when a username matches", async () => {
+        const originalName = loginCipher2.name;
+        loginCipher2.name = "username-1-other";
+        overlayBackground["focusedFieldValue"] = "username-1";
+
+        try {
+          expect(await getFilteredIds()).toStrictEqual(["inline-menu-cipher-0"]);
+        } finally {
+          loginCipher2.name = originalName;
+        }
+      });
+
+      it("does not match usernames or names that only contain the value", async () => {
+        overlayBackground["focusedFieldValue"] = "ame-1";
+
+        expect(await getFilteredIds()).toStrictEqual([]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(true);
+        expect(overlayBackground["currentInlineMenuCiphersCount"]).toBe(2);
+      });
+
+      it("shows every cipher when the setting is disabled", async () => {
+        autofillSettingsService.filterInlineMenuByFieldValue$ = of(false);
+        overlayBackground["focusedFieldValue"] = "username-1";
+
+        expect(await getFilteredIds()).toStrictEqual([
+          "inline-menu-cipher-0",
+          "inline-menu-cipher-1",
+        ]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(false);
+      });
+
+      it("shows every cipher when the focused field is not filled by logins", async () => {
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: tab.id,
+          inlineMenuFillType: CipherType.Card,
+        });
+        overlayBackground["focusedFieldValue"] = "username-1";
+
+        await getFilteredIds();
+
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(false);
+      });
+
+      it("shows every cipher after the user chooses to show all items", async () => {
+        overlayBackground["focusedFieldValue"] = "username-1";
+        overlayBackground["showAllInlineMenuItems"] = true;
+
+        expect(await getFilteredIds()).toStrictEqual([
+          "inline-menu-cipher-0",
+          "inline-menu-cipher-1",
+        ]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(false);
+      });
+
+      it("does not apply a filter when there are no page-matched ciphers", async () => {
+        overlayBackground["inlineMenuCiphers"] = new Map();
+        overlayBackground["focusedFieldValue"] = "username-1";
+
+        expect(await getFilteredIds()).toStrictEqual([]);
+        expect(overlayBackground["inlineMenuFilterIsActive"]).toBe(false);
+      });
+
+      it("keeps the typed value and show all state for the same field, and resets them for a different field", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+        const focusedFieldData = createFocusedFieldDataMock({ focusedFieldOpid: "field-1" });
+        overlayBackground["setFocusedFieldData"](
+          { command: "updateFocusedFieldData", focusedFieldData },
+          sender,
+        );
+        overlayBackground["showAllInlineMenuItems"] = true;
+        overlayBackground["focusedFieldValue"] = "user";
+
+        // Focused field data is re-sent for the same field on ArrowDown and repositioning.
+        overlayBackground["setFocusedFieldData"](
+          { command: "updateFocusedFieldData", focusedFieldData },
+          sender,
+        );
+        expect(overlayBackground["showAllInlineMenuItems"]).toBe(true);
+        expect(overlayBackground["focusedFieldValue"]).toBe("user");
+
+        overlayBackground["setFocusedFieldData"](
+          {
+            command: "updateFocusedFieldData",
+            focusedFieldData: { ...focusedFieldData, focusedFieldOpid: "field-2" },
+          },
+          sender,
+        );
+        expect(overlayBackground["showAllInlineMenuItems"]).toBe(false);
+        expect(overlayBackground["focusedFieldValue"]).toBe("");
+      });
+
+      it("resets the typed value when the same field opid is focused in a different frame", () => {
+        const focusedFieldData = createFocusedFieldDataMock({ focusedFieldOpid: "field-1" });
+        overlayBackground["setFocusedFieldData"](
+          { command: "updateFocusedFieldData", focusedFieldData },
+          mock<chrome.runtime.MessageSender>({ tab, frameId: 2 }),
+        );
+        overlayBackground["focusedFieldValue"] = "user";
+
+        overlayBackground["setFocusedFieldData"](
+          { command: "updateFocusedFieldData", focusedFieldData },
+          mock<chrome.runtime.MessageSender>({ tab, frameId: 3 }),
+        );
+
+        expect(overlayBackground["focusedFieldValue"]).toBe("");
+      });
+
+      it("keeps showing all items only while the field value is unchanged", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+        jest.spyOn(overlayBackground as any, "senderFrameHasFocusedField").mockReturnValue(true);
+        overlayBackground["inlineMenuListPort"] = listPortSpy;
+        overlayBackground["focusedFieldValue"] = "user";
+        overlayBackground["showAllInlineMenuItems"] = true;
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: "user" },
+          sender,
+        );
+        expect(overlayBackground["showAllInlineMenuItems"]).toBe(true);
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: "user2" },
+          sender,
+        );
+        expect(overlayBackground["showAllInlineMenuItems"]).toBe(false);
+      });
+
+      it("returns to the filtered view when the field is cleared after show all items", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+        jest.spyOn(overlayBackground as any, "senderFrameHasFocusedField").mockReturnValue(true);
+        overlayBackground["inlineMenuListPort"] = listPortSpy;
+        overlayBackground["focusedFieldValue"] = "user";
+        overlayBackground["showAllInlineMenuItems"] = true;
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: "" },
+          sender,
+        );
+
+        expect(overlayBackground["showAllInlineMenuItems"]).toBe(false);
+      });
+
+      it("stores the field value without refreshing the list while the list is closed", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+        jest.spyOn(overlayBackground as any, "senderFrameHasFocusedField").mockReturnValue(true);
+        const updateListSpy = jest
+          .spyOn(overlayBackground as any, "updateInlineMenuListCiphers")
+          .mockResolvedValue(undefined);
+        overlayBackground["inlineMenuListPort"] = null;
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: "joh" },
+          sender,
+        );
+
+        expect(overlayBackground["focusedFieldValue"]).toBe("joh");
+        expect(updateListSpy).not.toHaveBeenCalled();
+      });
+
+      it("ignores a field value sent from a frame that does not have the focused field", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 3 });
+        jest.spyOn(overlayBackground as any, "senderFrameHasFocusedField").mockReturnValue(false);
+        overlayBackground["focusedFieldValue"] = "";
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: "joh" },
+          sender,
+        );
+
+        expect(overlayBackground["focusedFieldValue"]).toBe("");
+      });
+
+      it("ignores a non-string field value sent by the content script", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 2 });
+        jest.spyOn(overlayBackground as any, "senderFrameHasFocusedField").mockReturnValue(true);
+        overlayBackground["inlineMenuListPort"] = listPortSpy;
+        overlayBackground["focusedFieldValue"] = "user";
+
+        await overlayBackground["updateFocusedFieldValue"](
+          { command: "updateFocusedFieldValue", focusedFieldValue: { toString: () => "x" } as any },
+          sender,
+        );
+
+        expect(overlayBackground["focusedFieldValue"]).toBe("");
       });
     });
 
@@ -1316,6 +1541,7 @@ describe("OverlayBackground", () => {
         command: "updateAutofillInlineMenuListCiphers",
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
+        inlineMenuFilterIsActive: false,
         focusedFieldHasValue: false,
         ciphers: [
           {
@@ -1354,6 +1580,7 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
+          inlineMenuFilterIsActive: false,
           focusedFieldHasValue: false,
           ciphers: [
             {
@@ -1395,6 +1622,7 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
+          inlineMenuFilterIsActive: false,
           focusedFieldHasValue: false,
           ciphers: [
             {
@@ -1467,6 +1695,7 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
+          inlineMenuFilterIsActive: false,
           focusedFieldHasValue: false,
           ciphers: [
             {
@@ -1507,6 +1736,7 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
+          inlineMenuFilterIsActive: false,
           focusedFieldHasValue: false,
           ciphers: [],
         });
@@ -1597,6 +1827,7 @@ describe("OverlayBackground", () => {
         ],
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: true,
+        inlineMenuFilterIsActive: false,
         focusedFieldHasValue: false,
       });
     });
@@ -1664,6 +1895,7 @@ describe("OverlayBackground", () => {
         ],
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
+        inlineMenuFilterIsActive: false,
         focusedFieldHasValue: false,
       });
     });
@@ -1731,6 +1963,7 @@ describe("OverlayBackground", () => {
         ],
         showInlineMenuAccountCreation: false,
         showPasskeysLabels: false,
+        inlineMenuFilterIsActive: false,
         focusedFieldHasValue: false,
       });
     });
@@ -2423,6 +2656,7 @@ describe("OverlayBackground", () => {
           ciphers: [],
           showInlineMenuAccountCreation: true,
           showPasskeysLabels: false,
+          inlineMenuFilterIsActive: false,
           focusedFieldHasValue: false,
         });
       });

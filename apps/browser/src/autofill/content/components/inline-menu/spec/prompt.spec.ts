@@ -40,6 +40,33 @@ describe("InlineMenuPrompt", () => {
     });
   });
 
+  describe("secondary action", () => {
+    const secondaryAction = {
+      actionText: "Show all items",
+      i18n: { actionAria: "Show all items" },
+      handleAction: jest.fn(),
+    };
+
+    it("renders the secondary action with a top border and the prompt theme", () => {
+      InlineMenuPrompt({ ...baseProps, secondaryAction });
+
+      expect(InlineMenuAction).toHaveBeenCalledTimes(2);
+      expect(InlineMenuAction).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          ...secondaryAction,
+          theme: baseProps.theme,
+          borderedTop: true,
+        }),
+      );
+    });
+
+    it("renders a single action when no secondary action is provided", () => {
+      InlineMenuPrompt(baseProps);
+
+      expect(InlineMenuAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("action", () => {
     it("renders the action with a top border when a message is provided", () => {
       InlineMenuPrompt(baseProps);

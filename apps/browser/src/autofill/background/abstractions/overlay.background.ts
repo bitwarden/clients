@@ -151,6 +151,7 @@ export type OverlayBackgroundExtensionMessage = {
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
+  focusedFieldValue?: string;
   allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
@@ -249,6 +250,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   getAutofillInlineMenuVisibility: () => void;
   openAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   getInlineMenuCardsVisibility: () => void;
+  getFilterInlineMenuByFieldValue: () => void;
+  updateFocusedFieldValue: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getInlineMenuIdentitiesVisibility: () => void;
   getInlineMenuSshKeysVisibility: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
@@ -307,6 +310,7 @@ export type InlineMenuListPortMessageHandlers = {
   refreshGeneratedPassword: () => Promise<void>;
   fillGeneratedPassword: ({ port }: PortConnectionParam) => Promise<void>;
   refreshOverlayCiphers: () => Promise<void>;
+  showAllInlineMenuItems: ({ port }: PortConnectionParam) => void;
 };
 
 export interface OverlayBackground {

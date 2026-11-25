@@ -70,6 +70,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   pageDetailsUpdateRequired = false;
   private showInlineMenuIdentities: boolean = false;
   private showInlineMenuCards: boolean = false;
+  private filterInlineMenuByFieldValue: boolean = false;
   private showInlineMenuSshKeys: boolean = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -186,6 +187,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
     this.isMonitoring = true;
     void this.getInlineMenuCardsVisibility();
+    void this.getFilterInlineMenuByFieldValue();
     void this.getInlineMenuIdentitiesVisibility();
     void this.getInlineMenuSshKeysVisibility();
 
@@ -849,10 +851,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the input event.
    */
   private handleFormFieldInputEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
-    return this.useEventHandlersMemo(
-      debounce(() => this.triggerFormFieldInput(formFieldElement), 100, true),
-      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT),
+    const debouncedFormFieldInput = debounce(
+      (isTrustedEvent: unknown) =>
+        this.triggerFormFieldInput(formFieldElement, isTrustedEvent === true),
+      100,
+      true,
     );
+
+    const formFieldInputHandler = (event: Event) => {
+      const isTrustedEvent = EventSecurity.isEventTrusted(event);
+      debouncedFormFieldInput(isTrustedEvent);
+    };
+    const memoIndex = this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT);
+
+    return this.useEventHandlersMemo(formFieldInputHandler, memoIndex);
   };
 
   /**
@@ -861,8 +873,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * vault item. It also acts to remove the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
+   * @param isTrustedEvent - Whether the input event originated from the user agent. The field
+   * value is only shared with the background for trusted events, so page script cannot drive
+   * the inline menu filter by setting field values or dispatching synthetic events.
    */
-  private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
+  private async triggerFormFieldInput(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    isTrustedEvent: boolean,
+  ) {
     if (!elementIsFillableFormField(formFieldElement)) {
       return;
     }
@@ -875,10 +893,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("closeAutofillInlineMenu", {
-      overlayElement: AutofillOverlayElement.List,
-      forceCloseInlineMenu: true,
-    });
+    const filterableFieldValue = isTrustedEvent
+      ? this.getFilterableFieldValue(formFieldElement)
+      : undefined;
+    if (filterableFieldValue !== undefined) {
+      await this.sendExtensionMessage("updateFocusedFieldValue", {
+        focusedFieldValue: filterableFieldValue,
+      });
+    } else {
+      await this.sendExtensionMessage("closeAutofillInlineMenu", {
+        overlayElement: AutofillOverlayElement.List,
+        forceCloseInlineMenu: true,
+      });
+    }
 
     if (!formFieldElement?.value) {
       await this.sendExtensionMessage("openAutofillInlineMenu");
@@ -1461,7 +1488,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
     this.handleHiddenElementFallbackEvent(formFieldElement);
-    await this.triggerFormFieldInput(formFieldElement);
+    await this.triggerFormFieldInput(formFieldElement, EventSecurity.isEventTrusted(event));
   };
 
   /**
@@ -1523,6 +1550,39 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       "getInlineMenuCardsVisibility",
     );
     this.showInlineMenuCards = inlineMenuCardsVisibility ?? true;
+  }
+
+  /**
+   * Queries the background script for the setting that filters the inline menu
+   * ciphers by the value entered in the focused field. Defaults to false.
+   * @private
+   */
+  private async getFilterInlineMenuByFieldValue() {
+    this.filterInlineMenuByFieldValue =
+      (await this.sendExtensionMessage("getFilterInlineMenuByFieldValue")) === true;
+  }
+
+  /**
+   * Gets the value of a username/email field that is filled by login ciphers. Returns
+   * undefined unless inline menu filtering is enabled, so the value is not shared otherwise.
+   * Callers must only use this in response to a trusted user event.
+   *
+   * @param formFieldElement - The form field element to get the value of.
+   */
+  private getFilterableFieldValue(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ): string | undefined {
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    if (
+      !this.filterInlineMenuByFieldValue ||
+      !elementIsFillableFormField(formFieldElement) ||
+      autofillFieldData?.inlineMenuFillType !== CipherType.Login ||
+      !this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
+    ) {
+      return undefined;
+    }
+
+    return formFieldElement.value;
   }
 
   /**
