@@ -20,6 +20,7 @@ import { BehaviorSubject, firstValueFrom, Subject, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { isDesktopAppUri } from "@bitwarden/common/desktop-native/models/desktop-autotype-pairing-uri";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { RestrictedCipherWriteError } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -167,7 +168,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   protected updatedCipherView: CipherView | null;
 
   get website(): string | null {
-    return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
+    // Skip desktop app URIs, as they aren't websites
+    return (
+      this.updatedCipherView?.login?.uris?.find((loginUri) => !isDesktopAppUri(loginUri.uri))
+        ?.uri ?? null
+    );
   }
 
   protected loading: boolean = true;

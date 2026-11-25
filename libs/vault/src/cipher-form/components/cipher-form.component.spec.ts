@@ -190,6 +190,34 @@ describe("CipherFormComponent", () => {
       component["updatedCipherView"].login = { uris: [{ uri: "https://example.com" }] } as any;
       expect(component.website).toEqual("https://example.com");
     });
+
+    it("skips desktop app URIs and returns the first website", () => {
+      component["updatedCipherView"] = new CipherView();
+      component["updatedCipherView"].login = {
+        uris: [
+          { uri: "desktopapp://autotype?version=1.0.0&data=e30" },
+          { uri: "desktopapp://" },
+          { uri: "https://example.com" },
+        ],
+      } as any;
+      expect(component.website).toEqual("https://example.com");
+    });
+
+    it("returns null when every URI is a desktop app URI", () => {
+      component["updatedCipherView"] = new CipherView();
+      component["updatedCipherView"].login = {
+        uris: [{ uri: "desktopapp://autotype?version=1.0.0&data=e30" }, { uri: "DESKTOPAPP://" }],
+      } as any;
+      expect(component.website).toBeNull();
+    });
+
+    it("still returns mobile app URIs", () => {
+      component["updatedCipherView"] = new CipherView();
+      component["updatedCipherView"].login = {
+        uris: [{ uri: "androidapp://com.example" }, { uri: "https://example.com" }],
+      } as any;
+      expect(component.website).toEqual("androidapp://com.example");
+    });
   });
 
   describe("clone", () => {
