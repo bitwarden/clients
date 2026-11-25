@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal, Type, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { delay, of } from "rxjs";
+import { Observable, delay, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/state";
@@ -15,6 +15,7 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { CustomizeColumnsDialogParams } from "./customize-columns-dialog.component";
 import { defineTable } from "./table-def";
+import { TABLE_COLUMN_PREFERENCES } from "./table-preferences.state";
 import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
 
@@ -41,6 +42,18 @@ async function renderHost<H>(
   const fixture = TestBed.createComponent(host);
   fixture.detectChanges();
   return fixture;
+}
+
+/** A provider whose column preferences come from `columns$`; everything else is in-memory. */
+function stateProviderWithColumns(columns$: Observable<unknown>): StateProvider {
+  const fallback = new StorybookStateProvider();
+  const stateProvider = mock<StateProvider>();
+  stateProvider.getActive.mockImplementation((def) =>
+    def === TABLE_COLUMN_PREFERENCES
+      ? ({ state$: columns$ } as unknown as ActiveUserState<unknown>)
+      : fallback.getActive(def),
+  );
+  return stateProvider;
 }
 
 /** Opens the Customize dialog and returns what the table handed it. */
@@ -350,11 +363,10 @@ describe("BitTableV2Component row fill fallback", () => {
 
 describe("BitTableV2Component while preferences load", () => {
   it("holds back removable columns until preferences arrive", async () => {
-    const stateProvider = mock<StateProvider>();
-    stateProvider.getActive.mockReturnValue({
-      // Disk-backed state emits after the first render.
-      state$: of({ "vault-items": ["folder"] }).pipe(delay(0)),
-    } as unknown as ActiveUserState<unknown>);
+    // Disk-backed state emits after the first render.
+    const stateProvider = stateProviderWithColumns(
+      of({ "vault-items": ["folder"] }).pipe(delay(0)),
+    );
     const fixture = await renderHost(TestHostComponent, stateProvider);
     const names = () =>
       fixture.componentInstance
@@ -371,10 +383,7 @@ describe("BitTableV2Component while preferences load", () => {
   });
 
   it("ignores a malformed stored value", async () => {
-    const stateProvider = mock<StateProvider>();
-    stateProvider.getActive.mockReturnValue({
-      state$: of({ "vault-items": "nonsense" }),
-    } as unknown as ActiveUserState<unknown>);
+    const stateProvider = stateProviderWithColumns(of({ "vault-items": "nonsense" }));
     const fixture = await renderHost(TestHostComponent, stateProvider);
 
     expect(

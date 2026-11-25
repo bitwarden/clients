@@ -57,8 +57,8 @@ import {
 import { countOptions } from "./option-counts";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
-import { TableColumnPreferencesService } from "./table-column-preferences.service";
 import { TableDef } from "./table-def";
+import { TablePreferencesService } from "./table-preferences.service";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableStateKey } from "./table-state-keys";
@@ -107,6 +107,17 @@ const SORT_PARAM = "sort";
 const DIRECTION_PARAM = "direction";
 const PAGE_PARAM = "page";
 const PAGE_SIZE_PARAM = "pageSize";
+
+/** The slice of URL state worth keeping across visits: everything but empties and the page index. */
+function persistedState(state: ParamState): ParamState {
+  const persisted: ParamState = {};
+  for (const [key, value] of Object.entries(state)) {
+    if (key !== PAGE_PARAM && value != null && value !== "") {
+      persisted[key] = value;
+    }
+  }
+  return persisted;
+}
 
 /** Selection config a consumer supplies; the table provides the `rows` scope itself. */
 export type SelectionConfig<T> = Omit<TableSelectionConfig<T>, "rows">;
@@ -328,9 +339,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   readonly queryParam = input<string>();
 
   /**
-   * Namespaces this table's stored column preference, and opts it into customization.
-   * Required once any `<bit-column>` is marked `removable` — without it there is
-   * nowhere to persist the user's choice, so the Customize control stays hidden.
+   * Namespaces this table's stored preferences: its hidden columns, and its last filters,
+   * sort, and page size, which restore on the next visit (URL params win over them).
+   * Required for column customization — once any `<bit-column>` is marked `removable` —
+   * since without it there is nowhere to persist the user's choice, so the Customize
+   * control stays hidden.
    *
    * Register new keys in `table-state-keys.ts`.
    */
@@ -342,8 +355,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   private readonly urlStore = queryParamStore<ParamState>(this.queryParam);
 
-  /** Whether initial URL state has been applied — gates write-back until then. */
-  private readonly urlRestored = signal(false);
+  private readonly tablePreferences = inject(TablePreferencesService);
+
+  /**
+   * The table's stored state under `stateKey`, `undefined` until it loads. Empty when
+   * `stateKey` is unset or there's no `StateProvider`.
+   */
+  private readonly storedState = this.tablePreferences.tableState(this.stateKey);
+
+  /** Whether content is projected and the table is in column-def mode, so state can restore. */
+  private readonly contentReady = signal(false);
+
+  /** Whether initial URL and stored state has been applied — gates write-back until then. */
+  private readonly restored = signal(false);
 
   /** The paginator's consumer-configured page size; the `pageSize` param is omitted at this value. */
   private readonly baselinePageSize = signal<number | undefined>(undefined);
@@ -472,9 +496,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
     // Seed chips as they register and their keys resolve — from the URL store when
     // it holds a value for the key (a shared link restores faithfully), else from
-    // `[filters]`. Reading the store seeds it from the URL synchronously. Each chip
-    // is seeded once; later user edits aren't undone.
+    // stored state, else from `[filters]`. Reading the store seeds it from the URL
+    // synchronously; stored state is awaited. Each chip is seeded once; later user
+    // edits aren't undone.
     effect(() => {
+      const stored = this.storedState();
+      if (stored === undefined) {
+        return;
+      }
       const fromUrl = this.urlStore() as Record<string, unknown>;
       const initial = this.filters() as Record<string, unknown> | undefined;
       for (const control of this._filters()) {
@@ -488,6 +517,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         let value: unknown;
         if (fromUrl[key] != null) {
           value = fromUrl[key];
+        } else if (stored[key] != null) {
+          value = stored[key];
         } else if (initial && key in initial) {
           value = initial[key];
         } else {
@@ -517,18 +548,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
     });
 
-    // Mirror the table's combined state back to the URL on change. Gated on
-    // `urlRestored` so defaults don't clobber incoming params before they're read.
-    // Inactive/default facets become empty values, which the store omits, so the
-    // URL self-cleans. The store is a no-op when `queryParam` is unset.
+    // Mirror the table's combined state back to the URL, and to stored state under
+    // `stateKey`, on change. Gated on `restored` so defaults don't clobber incoming
+    // values before they're read. Inactive/default facets become empty values, which
+    // both stores omit, so the URL self-cleans. The URL store is a no-op when
+    // `queryParam` is unset.
     effect(() => {
-      if (!this.urlRestored()) {
+      if (!this.restored()) {
         return;
       }
-      // Seed from the store's current value rather than starting empty, so a param
+      // Seed from the stores' current values rather than starting empty, so a value
       // whose chip hasn't registered yet (e.g. one gated behind an `@if` that's still
       // waiting on data) survives this write instead of being dropped.
-      const state: ParamState = { ...untracked(this.urlStore) };
+      const state: ParamState = { ...untracked(this.storedState), ...untracked(this.urlStore) };
       for (const control of this._filters()) {
         const key = control.key();
         if (key) {
@@ -548,6 +580,23 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         state[PAGE_SIZE_PARAM] = pageSize === this.baselinePageSize() ? undefined : pageSize;
       }
       this.urlStore.set(state);
+      const key = untracked(this.stateKey);
+      if (key != null) {
+        this.tablePreferences.setTableState(key, persistedState(state));
+      }
+    });
+
+    // Restore sort and pagination once content is projected and stored state has loaded
+    // (filters restore as their chips register), then open the write-back gate.
+    effect(() => {
+      if (this.restored() || !this.contentReady()) {
+        return;
+      }
+      const stored = this.storedState();
+      if (stored === undefined) {
+        return;
+      }
+      untracked(() => this.restore({ ...stored, ...this.urlStore() }));
     });
 
     // `<bit-row-group>` only renders in list presentation; warn if declared in table mode.
@@ -581,31 +630,42 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Applies URL state to sort and pagination once, then opens the write-back gate.
-   * Runs before the `defaultSort` fallback so a sorted link wins.
+   * Applies restored state (URL merged over stored) to sort and pagination once, falls
+   * back to the first column's `defaultSort`, then opens the write-back gate.
    */
-  private restoreFromUrl(): void {
-    const fromUrl = this.urlStore();
-    const column = fromUrl[SORT_PARAM];
+  private restore(state: ParamState): void {
+    const column = state[SORT_PARAM];
     if (typeof column === "string") {
-      const direction = fromUrl[DIRECTION_PARAM] === "desc" ? "desc" : "asc";
+      const direction = state[DIRECTION_PARAM] === "desc" ? "desc" : "asc";
       this.sort.set({ column: column as ColumnName<T, S>, direction });
     }
     const paginator = this.paginator();
     if (paginator) {
-      // Capture the configured size before any URL override, so write-back can
-      // omit `pageSize` whenever it returns to this baseline.
+      // Capture the configured size before any override, so write-back can omit
+      // `pageSize` whenever it returns to this baseline.
       this.baselinePageSize.set(paginator.pageSize());
-      const pageSize = fromUrl[PAGE_SIZE_PARAM];
+      const pageSize = state[PAGE_SIZE_PARAM];
       if (typeof pageSize === "number" && pageSize > 0) {
         paginator.pageSize.set(pageSize);
       }
-      const page = fromUrl[PAGE_PARAM];
+      const page = state[PAGE_PARAM];
       if (typeof page === "number" && page > 0) {
         paginator.pageIndex.set(page - 1);
       }
     }
-    this.urlRestored.set(true);
+    // Seed the initial sort from the first column declaring `defaultSort`, unless
+    // a sort column is already set (e.g. via `[(sort)]` or restored above).
+    if (!this.sort().column) {
+      const defaultCol = this.availableColumns().find((c) => c.defaultSort());
+      const name = defaultCol?.name();
+      if (name) {
+        this.sort.set({
+          column: name as ColumnName<T, S>,
+          direction: defaultCol!.defaultSort() ?? "asc",
+        });
+      }
+    }
+    this.restored.set(true);
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
@@ -693,9 +753,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       this.removableColumns().length > 0,
   );
 
-  private readonly columnPreferences = inject(TableColumnPreferencesService);
-
-  private readonly storedHidden = this.columnPreferences.hiddenColumns(this.stateKey);
+  private readonly storedHidden = this.tablePreferences.hiddenColumns(this.stateKey);
 
   /** The stored hidden names, narrowed to columns that are currently togglable. */
   private readonly hiddenColumnNames = computed<ReadonlySet<string>>(() => {
@@ -804,7 +862,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private setColumnHidden(name: string, hidden: boolean): void {
     const key = this.stateKey();
     if (key != null) {
-      this.columnPreferences.setColumnHidden(key, name, hidden);
+      this.tablePreferences.setColumnHidden(key, name, hidden);
     }
   }
 
@@ -812,7 +870,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private resetColumns(): void {
     const key = this.stateKey();
     if (key != null) {
-      this.columnPreferences.reset(key);
+      this.tablePreferences.reset(key);
     }
   }
 
@@ -1113,22 +1171,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
           "virtualization already renders large sets efficiently.",
       );
     }
-    // Restore sort/pagination from the URL (filters restore as their chips
-    // register), then open the write-back gate.
-    this.restoreFromUrl();
-
-    // Seed the initial sort from the first column declaring `defaultSort`, unless
-    // a sort column is already set (e.g. via `[(sort)]` or restored from the URL).
-    if (!this.sort().column) {
-      const defaultCol = this.availableColumns().find((c) => c.defaultSort());
-      const name = defaultCol?.name();
-      if (name) {
-        this.sort.set({
-          column: name as ColumnName<T, S>,
-          direction: defaultCol!.defaultSort() ?? "asc",
-        });
-      }
-    }
+    // Sort and pagination restore, and `defaultSort` applies, once stored state loads.
+    this.contentReady.set(true);
   }
 
   /**

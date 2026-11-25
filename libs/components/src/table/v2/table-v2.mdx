@@ -227,8 +227,9 @@ show every column in declaration order.**
 ### Letting the user choose columns
 
 To enable column customization, mark a `bit-column` as `removable` and give it a `label` for the
-Customize dialog. This also requires a unique `stateKey` on the table to store the user's
-preference. A **Customize** button then appears in the toolbar.
+Customize dialog. This also requires a unique `stateKey` on the table to store the user's preference
+(which also [remembers the table's state](#remembering-state-across-visits)). A **Customize** button
+then appears in the toolbar.
 
 ```html
 <bit-table-v2 [tableDef]="table" stateKey="vaultItems">
@@ -623,6 +624,20 @@ keys within the namespace — so don't give a chip one of those keys. Give each 
 distinct prefix. Values are read back by shape (`true`/`false` → boolean, integers → number, a
 repeated key → array), which is lossy at the edges: a literal `"true"` string, a numeric-string id.
 URL sync needs a router in context; without one (e.g. in a dialog) it's a no-op.
+
+## Remembering state across visits
+
+Give the table a `stateKey` and the same state the URL carries — filters, sort, and page size, but
+not the page index — is also stored per user and restored on the next visit. On load, URL params win
+over stored state, which wins over `[filters]` and `defaultSort`. Register the `stateKey` in
+`TABLE_STATE_KEYS` (`table-state-keys.ts`); the same key namespaces the user's
+[column choice](#letting-the-user-choose-columns).
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items" stateKey="vaultItems"
+  >…</bit-table-v2
+>
+```
 
 ## List presentation
 
