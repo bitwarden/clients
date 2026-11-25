@@ -2068,9 +2068,6 @@
   "disableAutoTotpCopyDesc": {
     "message": "If a login has an authenticator key, copy the TOTP verification code to your clip-board when you autofill the login."
   },
-  "enableAutoBiometricsPrompt": {
-    "message": "Ask for biometrics on launch"
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
