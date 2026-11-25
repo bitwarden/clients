@@ -270,6 +270,24 @@ describe("AutofillInit", () => {
         expect(applyExternalTargetedFieldsSpy).not.toHaveBeenCalled();
       });
 
+      it("drops runFillAssistHeuristicFallback when monitoring is stopped", async () => {
+        autofillInit.stopMonitoring();
+        const handlerSpy = jest.spyOn(
+          autofillInit["collectAutofillContentService"],
+          "handleRunFillAssistHeuristicFallback",
+        );
+
+        const response = autofillInit["handleExtensionMessage"](
+          { command: "runFillAssistHeuristicFallback" } as AutofillExtensionMessage,
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(response).toBe(null);
+        expect(handlerSpy).not.toHaveBeenCalled();
+      });
+
       it("drops operational commands again after stopAutofillMonitors", async () => {
         const getPageDetailsSpy = jest.spyOn(
           autofillInit["collectAutofillContentService"],
@@ -448,6 +466,22 @@ describe("AutofillInit", () => {
           expect(
             autofillInit["collectAutofillContentService"].applyExternalTargetedFields,
           ).toHaveBeenCalledWith([]);
+        });
+      });
+
+      describe("runFillAssistHeuristicFallback", () => {
+        it("delegates to handleRunFillAssistHeuristicFallback on the collect service", async () => {
+          const handlerSpy = jest
+            .spyOn(
+              autofillInit["collectAutofillContentService"],
+              "handleRunFillAssistHeuristicFallback",
+            )
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage({ command: "runFillAssistHeuristicFallback" });
+          await flushPromises();
+
+          expect(handlerSpy).toHaveBeenCalled();
         });
       });
 

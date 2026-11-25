@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccessRuleSdkService } from "@bitwarden/bit-pam";
 import type { AccessRuleView } from "@bitwarden/bit-pam";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -36,6 +38,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   let logService: MockProxy<LogService>;
   let dialogRef: { close: jest.Mock };
   let enabled$: BehaviorSubject<boolean>;
+  let organizations$: BehaviorSubject<{ id: string; canManageAccessRules: boolean }[]>;
 
   /**
    * Takes an object rather than defaulted parameters, since a default would replace the explicit
@@ -68,6 +71,9 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     logService = mock<LogService>();
     dialogRef = { close: jest.fn() };
     enabled$ = new BehaviorSubject<boolean>(true);
+    organizations$ = new BehaviorSubject<{ id: string; canManageAccessRules: boolean }[]>([
+      { id: ORG_ID, canManageAccessRules: true },
+    ]);
     accessRuleSdkService.listAccessRules.mockResolvedValue([]);
 
     TestBed.configureTestingModule({
@@ -80,6 +86,8 @@ describe("CollectionAccessRuleCalloutComponent", () => {
           useFactory: () => new GovernedCollectionsService(accessRuleSdkService, logService),
         },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: LogService, useValue: logService },
         { provide: DialogRef, useValue: dialogRef },
         {
@@ -144,6 +152,25 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
     await create();
 
+    expect(callout()).toBeNull();
+  });
+
+  it("reads nothing for a user who can't manage access rules", async () => {
+    organizations$.next([{ id: ORG_ID, canManageAccessRules: false }]);
+    accessRuleSdkService.listAccessRules.mockResolvedValue([rule()]);
+
+    await create();
+
+    expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
+    expect(callout()).toBeNull();
+  });
+
+  it("reads nothing for an organization the user isn't a member of", async () => {
+    organizations$.next([]);
+
+    await create();
+
+    expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
     expect(callout()).toBeNull();
   });
 
