@@ -538,6 +538,26 @@ describe("RotationScheduleInputComponent", () => {
     expect(echoText()).toBe("pamRotationScheduleEchoDaily");
   });
 
+  it("does not re-emit when the preset table loads and nothing was chosen", async () => {
+    const emitted = jest.fn();
+    component.registerOnChange(emitted);
+    await (component as unknown as { loadPresetCrons: () => Promise<void> }).loadPresetCrons();
+    expect(emitted).not.toHaveBeenCalled();
+  });
+
+  it("fills in the cron of a preset chosen before the table loaded", async () => {
+    const emitted = jest.fn();
+    component.registerOnChange(emitted);
+    presetCrons().clear();
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    (
+      component as unknown as { presetControl: { markAsDirty: () => void } }
+    ).presetControl.markAsDirty();
+    emitted.mockClear();
+    await (component as unknown as { loadPresetCrons: () => Promise<void> }).loadPresetCrons();
+    expect(emitted).toHaveBeenCalledWith(PRESET_CRONS.daily);
+  });
+
   it("echoes a well-shaped custom expression verbatim", async () => {
     await selectCustom("0 0 */4 * * ?");
     expect(echoText()).toBe("pamRotationScheduleEchoCustom:0 0 */4 * * ?");

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { importProvidersFrom, signal } from "@angular/core";
+import { importProvidersFrom, inject, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   applicationConfig,
@@ -27,6 +27,7 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -397,7 +398,23 @@ export const WithSubmitButton: Story = {
   },
 };
 
-/** Provides an `AutofillSettingsServiceAbstraction` with HTTP authentication available */
+/**
+ * The HTTP authentication setting's copy, from the browser extension's `en` catalog. The setting is
+ * shown only in the browser extension, so these keys aren't in the web catalog the stories load.
+ */
+const browserHTTPAuthenticationMessages: Record<string, string> = {
+  fillLoginPopUpPromptsLabel: "Fill browser login pop-up prompts",
+  fillLoginPopUpPromptsTitle: "Filling pop-up prompts",
+  fillLoginPopUpPromptsWarning:
+    "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+  fillLoginPopUpPromptsHelpArticleSignpost:
+    "Learn more about filling pop-up prompts (opens in a new tab)",
+};
+
+/**
+ * Provides an `AutofillSettingsServiceAbstraction` with HTTP authentication available, and the
+ * setting's browser copy on top of the web catalog.
+ */
 const withHTTPAuthenticationAvailable = moduleMetadata({
   providers: [
     {
@@ -407,18 +424,30 @@ const withHTTPAuthenticationAvailable = moduleMetadata({
         httpAuthenticationAvailable$: new BehaviorSubject(true),
       },
     },
+    {
+      provide: I18nService,
+      useFactory: () => {
+        const webI18nService = inject(I18nService, { skipSelf: true });
+
+        return new Proxy(webI18nService, {
+          get: (target, property) => {
+            if (property === "t") {
+              return (id: string, ...args: string[]) =>
+                browserHTTPAuthenticationMessages[id] ?? target.t(id, ...args);
+            }
+
+            const value = Reflect.get(target, property, target);
+            return typeof value === "function" ? value.bind(target) : value;
+          },
+        });
+      },
+    },
   ],
 });
 
-/** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
+/** Editing a login with the HTTP authentication setting available */
 export const HTTPAuthentication: Story = {
   ...Edit,
-  decorators: [withHTTPAuthenticationAvailable],
-};
-
-/** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
-export const HTTPAuthenticationRequiresMatchDetection: Story = {
-  ...Add,
   decorators: [withHTTPAuthenticationAvailable],
 };
 

@@ -9,6 +9,8 @@ const ONBOARDING_DIALOGS = [
   { heading: "Get the extension for easy vault access", dismiss: "Skip" },
   // Introduces the redesigned vault to existing accounts (libs/vault new-experience-dialog).
   { heading: "Bitwarden has a new look", dismiss: "Close" },
+  // Tours invite links to an organization's admins in the Admin Console.
+  { heading: "Invite your whole team with a single link", dismiss: "Skip" },
 ];
 const ADD_IT_LATER_BUTTON = "Add it later";
 const SKIP_TO_WEB_APP_LINK = "Skip to web app";

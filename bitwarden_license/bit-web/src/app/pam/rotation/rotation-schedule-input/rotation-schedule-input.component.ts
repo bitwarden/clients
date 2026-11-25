@@ -222,7 +222,11 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
         this.cronByPreset.set(preset, cron);
       }
     });
-    this.emitValue();
+    // Only a choice the admin already made needs its cron filled in. Emitting otherwise would
+    // overwrite the stored value with whatever the controls hold before writeValue settles.
+    if (this.editorControls.some((control) => control.dirty)) {
+      this.emitValue();
+    }
     this.cdr.markForCheck();
   }
 

@@ -8,6 +8,7 @@ import { SmSecretResponse } from "../models/sm-secret.response";
 import {
   checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   parseSmId,
   parseSmRequest,
   SmOrganization,
@@ -43,6 +44,10 @@ export class SecretEditCommand {
     );
     if (orgMismatch) {
       return orgMismatch;
+    }
+    const unknown = checkSmUnknownProperties(parsed.request, "secret");
+    if (unknown) {
+      return unknown;
     }
     const fields = readSmSecretRequest(parsed.request);
     if (fields.error) {
