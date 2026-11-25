@@ -187,10 +187,52 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
+  describe("failed status", () => {
+    it("reads failed when the server reports the newest job failed", () => {
+      expect(row({ config: { lastJobFailed: true } }).status).toBe(RotationRowStatus.Failed);
+    });
+
+    it("carries the state model's danger badge onto the row", () => {
+      const built = row({ config: { lastJobFailed: true } });
+      expect(built.statusBadge.variant).toBe("danger");
+      expect(built.statusBadge.icon).toBe("bwi-error");
+      expect(built.statusLabelKey).toBe("pamRotationConfigStatusFailed");
+    });
+
+    it("lets rotating, paused and not connected outrank it, as on the detail page", () => {
+      expect(row({ config: { lastJobFailed: true, hasActiveJob: true } }).status).toBe(
+        RotationRowStatus.Rotating,
+      );
+      expect(row({ config: { lastJobFailed: true, enabled: false } }).status).toBe(
+        RotationRowStatus.Paused,
+      );
+      expect(row({ config: { lastJobFailed: true }, connectors: [] }).status).toBe(
+        RotationRowStatus.NotConnected,
+      );
+    });
+
+    it("outranks the manual statuses, so a failure is never hidden behind Rotation due", () => {
+      expect(
+        row({
+          config: {
+            lastJobFailed: true,
+            targetSystemMethod: "manual",
+            awaitingManualRotation: true,
+          },
+        }).status,
+      ).toBe(RotationRowStatus.Failed);
+    });
+
+    it("stays active when the newest job did not fail", () => {
+      expect(row({ config: { lastJobFailed: false } }).status).toBe(RotationRowStatus.Active);
+    });
+  });
+
   /** Sorting on `statusLabelKey` would order rows by the spelling of an i18n identifier. */
   describe("status sort order", () => {
     it("ranks the statuses by urgency, not by precedence", () => {
       expect(ROTATION_STATUS_BADGES.map((badge) => badge.status)).toEqual([
+        RotationRowStatus.Failed,
         RotationRowStatus.NotConnected,
         RotationRowStatus.RotationDue,
         RotationRowStatus.Rotating,
@@ -208,11 +250,13 @@ describe("buildRotationConfigRow", () => {
         row({ config: { enabled: false } }),
         row({ config: { targetSystemMethod: "manual" } }),
         row({ connectors: [] }),
+        row({ config: { lastJobFailed: true } }),
       ];
 
       const sorted = [...rows].sort((a, b) => a.statusSortOrder - b.statusSortOrder);
 
       expect(sorted.map((r) => r.status)).toEqual([
+        RotationRowStatus.Failed,
         RotationRowStatus.NotConnected,
         RotationRowStatus.RotationDue,
         RotationRowStatus.Rotating,
@@ -230,10 +274,17 @@ describe("buildRotationConfigRow", () => {
       expect(new Set(orders).size).toBe(7);
     });
 
-    it("withholds Failed from the filter's options, since nothing can derive it yet", () => {
-      expect(ROTATION_STATUS_BADGES.map((badge) => badge.status)).not.toContain(
-        RotationRowStatus.Failed,
-      );
+    it("offers Failed in the filter, first, since it is the most attention-worthy", () => {
+      expect(ROTATION_STATUS_BADGES[0].status).toBe(RotationRowStatus.Failed);
+      expect(ROTATION_STATUS_BADGES).toHaveLength(Object.values(RotationRowStatus).length);
+    });
+
+    /** The filter renders straight off the state model, so the badge needs no second spelling. */
+    it("gives Failed the state model's danger badge", () => {
+      const failed = ROTATION_STATUS_BADGES[0];
+      expect(failed.variant).toBe("danger");
+      expect(failed.icon).toBe("bwi-error");
+      expect(failed.labelKey).toBe("pamRotationConfigStatusFailed");
     });
   });
 

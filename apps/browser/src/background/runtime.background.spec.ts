@@ -31,10 +31,8 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
-import {
-  FillAssistEvent,
-  FillAssistEventReceiver,
-} from "../autofill/background/fill-assist-event-receiver";
+import { FillAssistEvent } from "../autofill/background/fill-assist-event";
+import { FillAssistEventReceiver } from "../autofill/background/fill-assist-event-receiver";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillOrchestrator } from "../autofill/orchestration";
@@ -42,7 +40,11 @@ import { AutofillLifecycleService } from "../autofill/services/abstractions/auto
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
-import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
+import {
+  crossContextBoundary,
+  stampSender,
+  tagAsExternalMessage,
+} from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -944,6 +946,14 @@ describe("RuntimeBackground pageTransitionDetected", () => {
 describe("RuntimeBackground fillAssistEmit", () => {
   let runtimeBackground: RuntimeBackground;
   let fillAssistEventReceiver: MockProxy<FillAssistEventReceiver>;
+  // Fresh `message` per test. `tagAsExternalMessage` stamps a non-configurable
+  // symbol on the object that cannot be unstamped, so a shared reference would
+  // leak the tag from one test into the next.
+  let message: {
+    command: string;
+    name: FillAssistEvent["name"];
+    payload: FillAssistEvent["payload"];
+  };
 
   const event: FillAssistEvent = {
     name: "fill_assist_rule_qualification_failed",
@@ -953,31 +963,53 @@ describe("RuntimeBackground fillAssistEmit", () => {
       ruleId: "0",
     },
   };
-  const message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
-  const sender = {
-    frameId: 0,
-    tab: createChromeTabMock({ id: 1 }),
-  } as chrome.runtime.MessageSender;
 
   beforeEach(() => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
 
     fillAssistEventReceiver = mock<FillAssistEventReceiver>();
     runtimeBackground = createRuntimeBackground({ fillAssistEventReceiver });
+    message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
   });
 
-  it("routes the event to the receiver on a content-script sender", async () => {
-    await runtimeBackground.processMessageWithSender(message, sender);
+  it("routes an externally-tagged message to the receiver with its event fields intact", async () => {
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(
+        stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+      ),
+    );
 
-    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(event);
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(
+      expect.objectContaining({ name: event.name, payload: event.payload }),
+    );
   });
 
-  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
-  // and options senders are rejected here.
-  it("security: rejects a message with no sender tab", async () => {
-    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+  it("passes the original message through so the external tag survives for downstream consumers", async () => {
+    const taggedMessage = tagAsExternalMessage(
+      stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+    );
 
-    await runtimeBackground.processMessageWithSender(message, tablessSender);
+    await runtimeBackground.processMessage(taggedMessage);
+
+    // Receiver must see the same object the handler received, not a reconstructed
+    // copy. Identity check pins the pass-through contract.
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledTimes(1);
+    expect(fillAssistEventReceiver.receive.mock.calls[0][0]).toBe(taggedMessage);
+  });
+
+  // Intraprocess messages are not externally tagged. The handler sits on the
+  // `allMessages$` ingest path, which emits both external and intraprocess
+  // messages, so the external-tag check is the real discriminator here.
+  it("security: rejects a tagged message whose sender is not a tab", async () => {
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(stampSender(message, {} as chrome.runtime.MessageSender)),
+    );
+
+    expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
+  });
+
+  it("security: rejects a message that was not tagged as external", async () => {
+    await runtimeBackground.processMessage(message);
 
     expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
   });

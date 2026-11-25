@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -30,7 +31,7 @@ export class UnlockCommand {
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private logout: () => Promise<void>,
+    private logoutService: LogoutService,
     private i18nService: I18nService,
     private encryptedMigrator: EncryptedMigrator,
     private unlockService: UnlockService,
@@ -84,7 +85,7 @@ export class UnlockCommand {
         this.keyConnectorService,
         this.environmentService,
         this.organizationApiService,
-        this.logout,
+        this.logoutService,
         this.i18nService,
       );
       const convertResponse = await convertToKeyConnectorCommand.run();

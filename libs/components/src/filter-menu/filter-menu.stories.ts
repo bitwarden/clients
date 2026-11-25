@@ -353,6 +353,60 @@ class FilterMenuLongLabelsWithCountsDemoComponent {
   ];
 }
 
+/** Long enough that rendering every row would make the menu slow to open. */
+const manyCollections: FilterOptionNode<string>[] = Array.from({ length: 2000 }, (_, index) => ({
+  value: `collection-${index}`,
+  // A long name every so often, so the popover has something to size itself from.
+  label:
+    index % 250 === 7
+      ? `Collection ${index + 1}: quarterly compliance evidence and audit exports`
+      : `Collection ${index + 1}`,
+  count: index % 9,
+  // Two dividers near the top: a rule in the popover, a gap between cards in the dialog.
+  dividerBefore: index === 3 || index === 9,
+}));
+
+/**
+ * `virtualized` chips: a long flat list, and the fifteen-level tree from
+ * `filter-menu-deeply-nested-demo`. The button opens both in the filter dialog.
+ */
+@Component({
+  selector: "filter-menu-virtualized-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ButtonModule, FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu
+        key="collection"
+        placeholderText="Collections"
+        multiple
+        virtualized
+        [options]="collections"
+      ></bit-filter-menu>
+      <bit-filter-menu key="folder" placeholderText="Shared folders" multiple virtualized>
+        <bit-filter-section
+          label="Acme Corporation shared folders"
+          collapsible
+          [options]="tree"
+        ></bit-filter-section>
+      </bit-filter-menu>
+      <button bitButton buttonType="secondary" type="button" size="small" (click)="openDialog()">
+        Open in filter dialog
+      </button>
+    </div>
+  `,
+})
+class FilterMenuVirtualizedDemoComponent {
+  protected readonly collections = manyCollections;
+  protected readonly tree = buildDeepFolderTree();
+  private readonly filters = viewChildren(FILTER_PRESENTER);
+  private readonly dialogService = inject(DialogService);
+
+  protected openDialog(): void {
+    this.dialogService.open(FilterDialogComponent, { data: { filters: this.filters } });
+  }
+}
+
 @Component({
   selector: "filter-menu-disabled-reason-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -416,6 +470,7 @@ export default {
         FilterMenuLongLabelsDemoComponent,
         FilterMenuLongLabelsWithCountsDemoComponent,
         FilterMenuDisabledReasonDemoComponent,
+        FilterMenuVirtualizedDemoComponent,
         FilterMenuModule,
       ],
     }),
@@ -647,6 +702,73 @@ export const LongLabelsWithCounts: Story = {
   }),
   play: async (context) => {
     await userEvent.click(getAllByRole(context.canvasElement, "button")[0]);
+  },
+};
+
+/**
+ * A `virtualized` chip with two thousand options. Only the rows in view are rendered, so the
+ * menu opens as quickly as a short one. The popover sizes itself from the longest labels.
+ */
+export const Virtualized: Story = {
+  // The demo's button opens the filter dialog.
+  decorators: [moduleMetadata({ imports: [DialogModule] })],
+  render: () => ({
+    template: `<filter-menu-virtualized-demo></filter-menu-virtualized-demo>`,
+  }),
+  play: async (context) => {
+    await userEvent.click(getAllByRole(context.canvasElement, "button")[0]);
+    await within(document.body).findAllByRole("treeitem");
+  },
+};
+
+/** The fifteen-level tree from `DeeplyNestedOptions`, on a `virtualized` chip. */
+export const VirtualizedDeeplyNested: Story = {
+  // The demo's button opens the filter dialog.
+  decorators: [moduleMetadata({ imports: [DialogModule] })],
+  render: () => ({
+    template: `<filter-menu-virtualized-demo></filter-menu-virtualized-demo>`,
+  }),
+  play: async (context) => {
+    await userEvent.click(getAllByRole(context.canvasElement, "button")[1]);
+    // Data-driven nodes start collapsed, so open each level in turn.
+    const collapsed = () =>
+      document.body.querySelector<HTMLElement>(
+        '[role="treeitem"][aria-expanded="false"] [data-filter-expander]',
+      );
+    await waitFor(() => expect(collapsed()).not.toBeNull());
+    let last: HTMLElement | undefined;
+    for (let next = collapsed(); next; next = collapsed()) {
+      await userEvent.click(next);
+      last = next;
+    }
+    // Clears the last row's hover and focus styles from the snapshot.
+    if (last) {
+      await userEvent.unhover(last);
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  },
+};
+
+/**
+ * The same two-thousand-option chip in the filter dialog, which small screens use in place of
+ * the popover. The dialog's body does the scrolling, and the list follows it.
+ */
+export const VirtualizedInDialog: Story = {
+  decorators: [moduleMetadata({ imports: [DialogModule] })],
+  render: () => ({
+    template: `<filter-menu-virtualized-demo></filter-menu-virtualized-demo>`,
+  }),
+  play: async (context) => {
+    await userEvent.click(
+      within(context.canvasElement).getByRole("button", { name: "Open in filter dialog" }),
+    );
+    // The dialog renders into the CDK overlay, outside the story canvas.
+    await userEvent.click(
+      await within(document.body).findByRole("button", { name: /Collections/ }),
+    );
+    await within(document.body).findAllByRole("treeitem");
   },
 };
 

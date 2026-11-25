@@ -1,6 +1,11 @@
 import type { AccessDecisionRequest, AccessRequestRevokeRequest } from "@bitwarden/sdk-internal";
 
-import type { AccessRequestId, AccessRequestView } from "./access-lease";
+import type {
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
+  AccessRequestId,
+  AccessRequestView,
+} from "./access-lease";
 
 export abstract class ApprovalSdkService {
   /**
@@ -11,16 +16,15 @@ export abstract class ApprovalSdkService {
 
   /**
    * The approved requests on collections the caller manages that can still give access: not
-   * started and inside their window, or behind a live lease, with that lease's extension. The
-   * ended ones are {@link listHistory}'s.
+   * started and inside their window, or behind a live lease, with that lease's extension.
    */
   abstract listApproved(): Promise<AccessRequestView[]>;
 
   /**
-   * The ended requests on collections the caller manages, newest first: denied, revoked, canceled,
-   * expired or session-ended. An approval still giving access is {@link listApproved}'s.
+   * One page of the ended requests on collections the caller manages and among their own, newest
+   * request first, with the total and the filter options.
    */
-  abstract listHistory(): Promise<AccessRequestView[]>;
+  abstract listHistory(query: AccessRequestHistoryQuery): Promise<AccessRequestHistoryPage>;
 
   /**
    * The response is only partially populated, so merge its `status`/`resolvedAt`/`decisions`
