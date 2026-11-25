@@ -2497,7 +2497,7 @@ export const RangeLabel: Story = {
           <bit-header-cell>Other</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
-        <bit-table-paginator [pageSize]="10"></bit-table-paginator>
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]"></bit-table-paginator>
       </bit-table-v2>
     `,
   }),
