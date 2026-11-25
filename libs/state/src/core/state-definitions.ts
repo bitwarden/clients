@@ -41,7 +41,10 @@ export const ORGANIZATION_INVITE_LINK_MEMORY = new StateDefinition(
   "organizationInviteLink",
   "memory",
 );
-export const GROUPS_TABLE_FILTERS_MEMORY = new StateDefinition("groupsTableFilters", "memory");
+export const ORGANIZATION_TABLE_FILTERS_MEMORY = new StateDefinition(
+  "organizationTableFilters",
+  "memory",
+);
 export const INVITE_LINK_CALLOUT_DISK = new StateDefinition("inviteLinkCallout", "disk", {
   web: "disk-local",
 });

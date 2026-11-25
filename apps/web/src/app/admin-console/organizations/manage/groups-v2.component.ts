@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   signal,
@@ -84,7 +85,7 @@ import {
   openAddGroupDialog,
   openEditGroupDialog,
 } from "./group-add-edit";
-import { GroupsV2TableStateService } from "./groups-v2-table-state.service";
+import { OrganizationTableStateService } from "./organization-table-state.service";
 
 type GroupRow = {
   details: GroupDetailsView;
@@ -98,14 +99,6 @@ const SORTABLE_COLUMNS: readonly GroupColumn[] = ["details", "collectionChips"];
 
 function isSortableColumn(value: string | undefined): value is GroupColumn {
   return SORTABLE_COLUMNS.some((column) => column === value);
-}
-
-function sameSharedFolders(a: readonly string[], b: readonly string[] | undefined): boolean {
-  const other = b ?? [];
-  if (a.length !== other.length) {
-    return false;
-  }
-  return a.every((id) => other.includes(id));
 }
 
 type GroupFilters = {
@@ -154,7 +147,8 @@ export class GroupsV2Component {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
-  private readonly tableState = inject(GroupsV2TableStateService);
+  private readonly tableState = inject(OrganizationTableStateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly tableRef =
     viewChild<BitTableV2Component<GroupRow, "actions", GroupFilters>>(BitTableV2Component);
@@ -175,18 +169,31 @@ export class GroupsV2Component {
 
   private readonly organizationId = toSignal(this.organizationId$);
 
-  private readonly storedTableState = toSignal(
-    this.organizationId$.pipe(
-      switchMap((organizationId) => this.tableState.state$(organizationId)),
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly userId = toSignal(this.userId$);
+
+  private readonly loadedTableState = toSignal(
+    combineLatest([this.userId$, this.organizationId$]).pipe(
+      switchMap(([userId, organizationId]) =>
+        this.tableState.state$(userId, organizationId, "groups").pipe(first()),
+      ),
     ),
   );
 
+  private readonly entrySearchQueryParam: string | undefined =
+    this.route.snapshot.queryParams.search;
+
   protected readonly initialFilters = computed<Partial<GroupFilters>>(() => {
-    const stored = this.storedTableState();
+    const stored = this.loadedTableState();
     if (stored == null) {
       return {};
     }
-    const search = this.route.snapshot.queryParams.search ?? stored.search ?? "";
+    const queryParamSearch = this.entrySearchQueryParam;
+    const search = queryParamSearch != null ? queryParamSearch : (stored.search ?? "");
     const sharedFolders = stored.sharedFolders;
     return {
       search,
@@ -196,10 +203,7 @@ export class GroupsV2Component {
 
   protected readonly sort = signal<SortState<GroupColumn>>({ direction: "asc" });
 
-  private readonly userId$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
+  private readonly lastFilterValues = signal<Partial<GroupFilters> | undefined>(undefined);
 
   private readonly organization$ = combineLatest([this.organizationId$, this.userId$]).pipe(
     switchMap(([organizationId, userId]) =>
@@ -271,10 +275,6 @@ export class GroupsV2Component {
 
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
 
-  private readonly filterRestored = signal(false);
-  private readonly sortRestored = signal(false);
-  private readonly searchRestored = signal(false);
-
   constructor() {
     effect(() => {
       this.rows.set(this.fetchedRows() ?? []);
@@ -296,67 +296,38 @@ export class GroupsV2Component {
     });
 
     effect(() => {
-      const sharedFolders = this.tableRef()?.filterValues()?.collections ?? [];
-      const organizationId = this.organizationId();
-      const stored = this.storedTableState();
-      if (organizationId == null || stored == null) {
+      const stored = this.loadedTableState();
+      if (stored == null || isSortableColumn(stored.sortColumn) === false) {
         return;
       }
-      if (!this.filterRestored()) {
-        if (
-          stored.sharedFolders != null &&
-          !sameSharedFolders(sharedFolders, stored.sharedFolders)
-        ) {
-          return;
-        }
-        this.filterRestored.set(true);
-        return;
-      }
-      if (sameSharedFolders(sharedFolders, stored.sharedFolders)) {
-        return;
-      }
-      void this.tableState.update(organizationId, { sharedFolders: [...sharedFolders] });
+      this.sort.set({ column: stored.sortColumn, direction: stored.sortDirection ?? "asc" });
     });
 
     effect(() => {
+      const filterValues = this.tableRef()?.filterValues();
+      if (filterValues != null) {
+        this.lastFilterValues.set(filterValues);
+      }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      const userId = this.userId();
+      const organizationId = this.organizationId();
+      if (userId == null || organizationId == null) {
+        return;
+      }
+      const loaded = this.loadedTableState();
+      const filterValues = this.lastFilterValues();
       const { column, direction } = this.sort();
-      const organizationId = this.organizationId();
-      const stored = this.storedTableState();
-      if (organizationId == null || stored == null) {
-        return;
-      }
-      if (!this.sortRestored()) {
-        this.sortRestored.set(true);
-        if (isSortableColumn(stored.sortColumn)) {
-          this.sort.set({ column: stored.sortColumn, direction: stored.sortDirection ?? "asc" });
-        }
-        return;
-      }
-      const storedDirection = stored.sortDirection ?? "asc";
-      if (stored.sortColumn === column && storedDirection === direction) {
-        return;
-      }
-      void this.tableState.update(organizationId, { sortColumn: column, sortDirection: direction });
-    });
-
-    effect(() => {
-      const search = this.tableRef()?.filterValues()?.search ?? "";
-      const organizationId = this.organizationId();
-      const stored = this.storedTableState();
-      if (organizationId == null || stored == null) {
-        return;
-      }
-      if (!this.searchRestored()) {
-        if (stored.search != null && stored.search !== search) {
-          return;
-        }
-        this.searchRestored.set(true);
-        return;
-      }
-      if ((stored.search ?? "") === search) {
-        return;
-      }
-      void this.tableState.update(organizationId, { search });
+      const search = filterValues?.search ?? loaded?.search;
+      const searchCameFromUrl =
+        this.entrySearchQueryParam != null && search === this.entrySearchQueryParam;
+      void this.tableState.save(userId, organizationId, "groups", {
+        sharedFolders: filterValues?.collections ?? loaded?.sharedFolders,
+        search: searchCameFromUrl ? loaded?.search : search,
+        sortColumn: column ?? loaded?.sortColumn,
+        sortDirection: column != null ? direction : loaded?.sortDirection,
+      });
     });
   }
 

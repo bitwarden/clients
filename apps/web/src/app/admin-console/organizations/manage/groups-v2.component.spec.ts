@@ -1,8 +1,11 @@
-import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { readFileSync } from "fs";
+import { join } from "path";
+
+import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable, Subject, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -17,12 +20,14 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ChipGroupItem, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { StateProvider } from "@bitwarden/state";
+import { FakeStateProvider } from "@bitwarden/state-test-utils";
 
 import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
 import { GroupAddEditDialogResultType } from "./group-add-edit";
-import { GroupsTableState, GroupsV2TableStateService } from "./groups-v2-table-state.service";
 import { GroupsV2Component } from "./groups-v2.component";
+import { OrganizationTableStateService, TableViewState } from "./organization-table-state.service";
 
 describe("GroupsV2Component", () => {
   let component: GroupsV2Component;
@@ -40,9 +45,9 @@ describe("GroupsV2Component", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockAccountService: FakeAccountService;
 
-  /** The stored view a test wants restored; swap before `createComponent()`. */
-  let storedState$: Observable<GroupsTableState>;
-  let mockTableStateService: MockProxy<GroupsV2TableStateService>;
+  /** The view a test wants loaded for the component; swap before `createComponent()`. */
+  let loadedState: TableViewState;
+  let mockTableStateService: MockProxy<OrganizationTableStateService>;
 
   let routeParamsSubject: BehaviorSubject<any>;
   let queryParamsSubject: BehaviorSubject<any>;
@@ -65,6 +70,16 @@ describe("GroupsV2Component", () => {
       ...overrides,
     });
   }
+
+  /**
+   * The real template, minus `<app-header>` — it pulls in the full nav dependency tree, which
+   * isn't worth stubbing out. Used by the tests that need real filter chips; everything else
+   * runs against a bare stub (see `configure`).
+   */
+  const realTemplate = readFileSync(join(__dirname, "groups-v2.component.html"), "utf8").replace(
+    "<app-header></app-header>",
+    "",
+  );
 
   beforeEach(async () => {
     routeParamsSubject = new BehaviorSubject({ organizationId: orgId });
@@ -105,11 +120,28 @@ describe("GroupsV2Component", () => {
 
     mockAccountService = mockAccountServiceWith(userId);
 
-    storedState$ = of({});
-    mockTableStateService = mock<GroupsV2TableStateService>();
-    // Read lazily so a test can swap `storedState$` after this setup runs.
-    mockTableStateService.state$.mockImplementation(() => storedState$);
-    mockTableStateService.update.mockResolvedValue(undefined);
+    loadedState = {};
+    mockTableStateService = mock<OrganizationTableStateService>();
+    // Read lazily so a test can swap `loadedState` after this setup runs.
+    mockTableStateService.state$.mockImplementation(() => of(loadedState));
+    mockTableStateService.save.mockResolvedValue(undefined);
+
+    await configure();
+  });
+
+  /**
+   * Configures the TestBed. By default the template is stubbed out — most tests only exercise
+   * the component class. Pass `realTemplate: true` to render the actual `bit-table-v2` (needed
+   * to exercise the filter chips), and `stateProvider` to swap the mocked table-state service
+   * for the real one over fake storage.
+   */
+  async function configure(
+    options: { realTemplate?: boolean; stateProvider?: FakeStateProvider } = {},
+  ) {
+    TestBed.resetTestingModule();
+    const tableStateProviders = options.stateProvider
+      ? [{ provide: StateProvider, useValue: options.stateProvider }]
+      : [{ provide: OrganizationTableStateService, useValue: mockTableStateService }];
 
     await TestBed.configureTestingModule({
       imports: [GroupsV2Component],
@@ -126,10 +158,11 @@ describe("GroupsV2Component", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: GroupsV2TableStateService, useValue: mockTableStateService },
+        ...tableStateProviders,
         {
           provide: ActivatedRoute,
           useValue: {
+            data: of({ titleId: "groups" }),
             params: routeParamsSubject.asObservable(),
             queryParams: queryParamsSubject.asObservable(),
             get snapshot() {
@@ -139,11 +172,13 @@ describe("GroupsV2Component", () => {
         },
       ],
     })
-      // Mirrors members.component.spec.ts: the real template pulls in app-header's full nav
-      // dependency tree, which isn't worth stubbing out to unit-test the component's logic.
-      .overrideComponent(GroupsV2Component, { set: { imports: [], template: "<div></div>" } })
+      .overrideComponent(GroupsV2Component, {
+        set: options.realTemplate
+          ? { template: realTemplate }
+          : { imports: [], template: "<div></div>" },
+      })
       .compileComponents();
-  });
+  }
 
   /**
    * Creates the component under test. Deferred from `beforeEach` (rather than created
@@ -167,29 +202,9 @@ describe("GroupsV2Component", () => {
     await fixture.whenStable();
   }
 
-  describe("restoring the stored table view", () => {
-    /**
-     * The stored state loads asynchronously, so the component renders at least once before it
-     * arrives. `initialFilters` must not claim the `collections` key during that window: the
-     * table seeds each chip the first time its key is present, so an eagerly-included
-     * `undefined` would seed the chip empty and block the stored value forever.
-     */
-    it("omits the collections key until the stored state loads", async () => {
-      const stored = new Subject<GroupsTableState>();
-      storedState$ = stored;
-      createComponent();
-      await detectAndFlush();
-
-      expect("collections" in (component as any).initialFilters()).toBe(false);
-
-      stored.next({ sharedFolders: ["col-eng"] });
-      await detectAndFlush();
-
-      expect((component as any).initialFilters().collections).toEqual(["col-eng"]);
-    });
-
-    it("seeds the collections filter from the stored state", async () => {
-      storedState$ = of({ sharedFolders: ["col-eng"] });
+  describe("loading the table view", () => {
+    it("seeds the collections filter from the loaded state", async () => {
+      loadedState = { sharedFolders: ["col-eng"] };
       createComponent();
       await detectAndFlush();
 
@@ -197,75 +212,46 @@ describe("GroupsV2Component", () => {
     });
 
     it("leaves the collections key off when nothing is stored", async () => {
-      storedState$ = of({});
+      loadedState = {};
       createComponent();
       await detectAndFlush();
 
       expect("collections" in (component as any).initialFilters()).toBe(false);
     });
 
-    it("restores the stored sort", async () => {
-      storedState$ = of({ sortColumn: "details", sortDirection: "desc" as const });
+    it("applies the loaded sort", async () => {
+      loadedState = { sortColumn: "details", sortDirection: "desc" as const };
       createComponent();
       await detectAndFlush();
 
       expect((component as any).sort()).toEqual({ column: "details", direction: "desc" });
     });
 
-    it("ignores a stored sort column that no longer exists", async () => {
-      storedState$ = of({ sortColumn: "removedColumn", sortDirection: "desc" as const });
+    it("ignores a loaded sort column that no longer exists", async () => {
+      loadedState = { sortColumn: "removedColumn", sortDirection: "desc" as const };
       createComponent();
       await detectAndFlush();
 
       expect((component as any).sort().column).toBeUndefined();
     });
 
-    it("seeds the search term from the stored state", async () => {
-      storedState$ = of({ search: "engineering" });
+    it("seeds the search term from the loaded state", async () => {
+      loadedState = { search: "engineering" };
       createComponent();
       await detectAndFlush();
 
       expect((component as any).initialFilters().search).toEqual("engineering");
     });
 
-    /**
-     * The table seeds a chip's value the first time its key is present in `initialFilters()`,
-     * and never again — a projected `bit-search`'s `search` key always exists in the returned
-     * object (unlike `collections`, which is conditionally omitted), so if it resolved eagerly
-     * to `""` before the stored state loaded, the table would seed it empty and the real stored
-     * value arriving later would be silently ignored, permanently losing the restored search.
-     */
-    it("omits every key, including search, until the stored state loads", async () => {
-      const stored = new Subject<GroupsTableState>();
-      storedState$ = stored;
-      createComponent();
-      await detectAndFlush();
-
-      expect((component as any).initialFilters()).toEqual({});
-
-      stored.next({ search: "engineering" });
-      await detectAndFlush();
-
-      expect((component as any).initialFilters().search).toEqual("engineering");
-    });
-
-    it("prefers a search query param over the stored search term", async () => {
+    it("prefers a search query param over the loaded search term", async () => {
       snapshotQueryParams = { search: "from-url" };
-      storedState$ = of({ search: "engineering" });
+      loadedState = { search: "engineering" };
       createComponent();
       await detectAndFlush();
 
       expect((component as any).initialFilters().search).toEqual("from-url");
     });
 
-    /**
-     * The query-param sync subscribes once and used to unconditionally call
-     * `searchControl.setValue(qParams.search)`, which is `undefined` whenever the URL has no
-     * `search` param. Since `bit-search`'s form control and the table's own restore-from-state
-     * seeding both write through the same `SearchComponent.writeValue`, that unconditional write
-     * could race the (async) stored-state restore and blank it back out depending on which
-     * resolved last.
-     */
     it("does not clear searchControl when there is no search query param", async () => {
       snapshotQueryParams = {};
       queryParamsSubject.next({});
@@ -276,133 +262,153 @@ describe("GroupsV2Component", () => {
     });
   });
 
-  describe("persisting the table view", () => {
-    /**
-     * Replaces the `tableRef` viewChild signal with a fake, writable one exposing just enough
-     * surface for the persistence effects, so tests can drive filter/search changes without a
-     * real `bit-table-v2` (the spec stubs the template out entirely).
-     */
-    function fakeTableRef() {
-      const filterValues = signal<{ collections?: string[]; search?: string } | undefined>(
-        undefined,
-      );
-      (component as any).tableRef = signal({
-        filterValues,
-        selectionModel: () => ({ selected: (): unknown[] => [], deselect: () => {} }),
-      });
-      return {
-        setCollections: (collections: string[]) =>
-          filterValues.update((v) => ({ ...v, collections })),
-        setSearch: (search: string) => filterValues.update((v) => ({ ...v, search })),
-      };
-    }
-
-    it("saves the first selection even when nothing was previously stored", async () => {
-      storedState$ = of({});
+  describe("saving the table view on destroy", () => {
+    it("does not save while the component is still alive", async () => {
+      loadedState = {};
       createComponent();
-      const { setCollections } = fakeTableRef();
       await detectAndFlush();
 
-      setCollections(["col-eng"]);
-      await detectAndFlush();
-
-      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
-        sharedFolders: ["col-eng"],
-      });
+      expect(mockTableStateService.save).not.toHaveBeenCalled();
     });
 
-    it("does not save while restoring a stored selection", async () => {
-      storedState$ = of({ sharedFolders: ["col-eng"] });
-      createComponent();
-      const { setCollections } = fakeTableRef();
-      await detectAndFlush();
-
-      setCollections(["col-eng"]);
-      await detectAndFlush();
-
-      expect(mockTableStateService.update).not.toHaveBeenCalled();
-    });
-
-    it("saves a later change once restored", async () => {
-      storedState$ = of({ sharedFolders: ["col-eng"] });
-      createComponent();
-      const { setCollections } = fakeTableRef();
-      await detectAndFlush();
-
-      setCollections(["col-eng"]);
-      await detectAndFlush();
-
-      setCollections(["col-design"]);
-      await detectAndFlush();
-
-      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
-        sharedFolders: ["col-design"],
-      });
-    });
-
-    it("saves a sort change", async () => {
-      storedState$ = of({});
+    it("saves the current sort when destroyed", async () => {
+      loadedState = {};
       createComponent();
       await detectAndFlush();
 
       (component as any).sort.set({ column: "details", direction: "desc" });
       await detectAndFlush();
+      fixture.destroy();
 
-      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
-        sortColumn: "details",
-        sortDirection: "desc",
-      });
+      expect(mockTableStateService.save).toHaveBeenCalledWith(
+        userId,
+        orgId,
+        "groups",
+        expect.objectContaining({ sortColumn: "details", sortDirection: "desc" }),
+      );
     });
 
-    it("does not re-save the sort it just restored", async () => {
-      storedState$ = of({ sortColumn: "details", sortDirection: "desc" as const });
+    /**
+     * `save` replaces the whole stored record rather than merging into it, so a teardown that
+     * happens before the sort is restored must fall back to the loaded values — otherwise an
+     * unsorted visit writes `undefined` over a sort the user had set on an earlier one.
+     */
+    it("keeps the stored sort when the component is destroyed without one applied", async () => {
+      loadedState = { sortColumn: "removedColumn", sortDirection: "desc" as const };
       createComponent();
       await detectAndFlush();
 
-      expect(mockTableStateService.update).not.toHaveBeenCalled();
+      expect((component as any).sort().column).toBeUndefined();
+      fixture.destroy();
+
+      expect(mockTableStateService.save).toHaveBeenCalledWith(
+        userId,
+        orgId,
+        "groups",
+        expect.objectContaining({ sortColumn: "removedColumn", sortDirection: "desc" }),
+      );
     });
 
-    it("saves the first search term even when nothing was previously stored", async () => {
-      storedState$ = of({});
+    /**
+     * A `?search=` deep link seeds the search box, but the term is the URL's, not the user's.
+     * Persisting it would silently replace whatever they had saved, and the next visit without
+     * the param would restore it as though they had typed it.
+     */
+    it("does not persist a search term that came from the query param", async () => {
+      snapshotQueryParams = { search: "from-url" };
+      loadedState = { search: "engineering" };
       createComponent();
-      const { setSearch } = fakeTableRef();
       await detectAndFlush();
 
-      setSearch("engineering");
+      // The real table seeds its search chip from `initialFilters()`, so the URL-supplied
+      // term is what the destroy handler would observe.
+      (component as any).lastFilterValues.set({ search: "from-url" });
+      await detectAndFlush();
+      fixture.destroy();
+
+      expect(mockTableStateService.save).toHaveBeenCalledWith(
+        userId,
+        orgId,
+        "groups",
+        expect.objectContaining({ search: "engineering" }),
+      );
+    });
+
+    it("persists a search term the user changed away from the query param", async () => {
+      snapshotQueryParams = { search: "from-url" };
+      loadedState = { search: "engineering" };
+      createComponent();
       await detectAndFlush();
 
-      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
+      (component as any).lastFilterValues.set({ search: "typed-by-user" });
+      await detectAndFlush();
+      fixture.destroy();
+
+      expect(mockTableStateService.save).toHaveBeenCalledWith(
+        userId,
+        orgId,
+        "groups",
+        expect.objectContaining({ search: "typed-by-user" }),
+      );
+    });
+  });
+
+  /**
+   * These render the real `bit-table-v2` rather than the stubbed template, because the filter
+   * chips are the thing under test: they self-register with the table and unregister as the
+   * view tears down, which is what made an earlier `onDestroy`-reads-`filterValues()`
+   * implementation silently save nothing.
+   */
+  describe("table view round trip (real template)", () => {
+    let stateProvider: FakeStateProvider;
+
+    type FilterControlHandle = { key: () => string; setValue: (value: unknown) => void };
+    type TableHandle = {
+      filterControls: () => readonly FilterControlHandle[];
+      filterValues: () => Record<string, unknown>;
+    };
+
+    const tableOf = (): TableHandle => (component as any).tableRef() as TableHandle;
+
+    async function createWithRealTable() {
+      await configure({ realTemplate: true, stateProvider });
+      createComponent();
+      await detectAndFlush();
+    }
+
+    beforeEach(async () => {
+      stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+      await createWithRealTable();
+    });
+
+    it("restores the shared folder filter, search term, and sort on a later visit", async () => {
+      for (const control of tableOf().filterControls()) {
+        if (control.key() === "collections") {
+          control.setValue(["col-eng"]);
+        }
+        if (control.key() === "search") {
+          control.setValue("engineering");
+        }
+      }
+      (component as any).sort.set({ column: "details", direction: "desc" });
+      await detectAndFlush();
+
+      fixture.destroy();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await createWithRealTable();
+
+      expect(tableOf().filterValues()).toEqual({
+        collections: ["col-eng"],
         search: "engineering",
       });
+      expect((component as any).sort()).toEqual({ column: "details", direction: "desc" });
     });
 
-    it("does not save while restoring a stored search term", async () => {
-      storedState$ = of({ search: "engineering" });
-      createComponent();
-      const { setSearch } = fakeTableRef();
-      await detectAndFlush();
-
-      setSearch("engineering");
-      await detectAndFlush();
-
-      expect(mockTableStateService.update).not.toHaveBeenCalled();
-    });
-
-    it("saves a later search change once restored", async () => {
-      storedState$ = of({ search: "engineering" });
-      createComponent();
-      const { setSearch } = fakeTableRef();
-      await detectAndFlush();
-
-      setSearch("engineering");
-      await detectAndFlush();
-
-      setSearch("design");
-      await detectAndFlush();
-
-      expect(mockTableStateService.update).toHaveBeenCalledWith(orgId, {
-        search: "design",
-      });
+    it("starts with no filters and the table's default sort when nothing was saved", () => {
+      expect(tableOf().filterValues()).toEqual({ search: "" });
+      // `defaultSort` on the name column, not a restored value.
+      expect((component as any).sort()).toEqual({ column: "details", direction: "asc" });
     });
   });
 
