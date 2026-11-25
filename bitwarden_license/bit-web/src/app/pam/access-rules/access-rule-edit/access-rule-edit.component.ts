@@ -38,6 +38,7 @@ import {
   NO_DURATION_CAP,
   resolveCollectionNames,
   snapToNearestAccessRuleDuration,
+  withStoredDurations,
 } from "@bitwarden/bit-pam";
 import { accessRuleDeleteConfirmOptions, DurationLongPipe } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -144,12 +145,22 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
   protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
 
   protected readonly editing = this.accessRuleId != null;
-  protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
-  protected readonly extensionDurationOptions = EXTENSION_DURATION_OPTIONS;
   protected readonly noDurationCap = NO_DURATION_CAP;
 
   /** Null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
+
+  /** The presets plus the rule's stored durations, so one set outside them isn't snapped away. */
+  protected readonly durationOptions = computed(() =>
+    withStoredDurations(
+      ACCESS_RULE_DURATION_PRESETS,
+      this.existing()?.defaultLeaseDurationSeconds,
+      this.existing()?.maxLeaseDurationSeconds,
+    ),
+  );
+  protected readonly extensionDurationOptions = computed(() =>
+    withStoredDurations(EXTENSION_DURATION_OPTIONS, this.existing()?.maxExtensionDurationSeconds),
+  );
   protected readonly loading = signal(true);
 
   /**

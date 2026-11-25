@@ -98,6 +98,7 @@ export {
   pickDurationUnit,
   maxRequestDurationSeconds,
   requestDurationOptions,
+  withStoredDurations,
 } from "./helpers/lease-window.utils";
 export type { RequestDurationOption } from "./helpers/lease-window.utils";
 export {
