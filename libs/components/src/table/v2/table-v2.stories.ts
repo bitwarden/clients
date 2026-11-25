@@ -1150,10 +1150,11 @@ class DemoBoundedWidthsTableComponent {
 /**
  * A transform pins `position: fixed` children to the frame; 7rem is the preview's vertical padding.
  * The inner element scrolls so the pinned bar stays put. `bit-layout` fills the frame.
+ * The docs page scrolls on its own, so stories there get a taller fixed frame.
  */
 const tableFrameDecorator = componentWrapperDecorator(
   (story) => /* HTML */ `
-    <div class="tw-scale-100 tw-h-[calc(100vh-7rem)]">
+    <div class="tw-scale-100 tw-h-[calc(100vh-7rem)] [.docs-story_&]:tw-h-[68rem]">
       <div class="tw-relative tw-h-full tw-overflow-auto [&_bit-layout]:tw-h-full">${story}</div>
     </div>
   `,
