@@ -13821,6 +13821,9 @@
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
   },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
+  },
   "accountRecoveryPolicyDescV2": {
     "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
   },

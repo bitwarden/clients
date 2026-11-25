@@ -96,6 +96,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   masterPasswordSalt: string | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
+  isSoleOwnerOfOtherOrganization: boolean;
 
   constructor(response: any) {
     super(response);
@@ -107,5 +108,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
     this.masterPasswordSalt = this.getResponseProperty("MasterPasswordSalt");
     this.resetPasswordKey = this.getResponseProperty("ResetPasswordKey");
     this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
+    this.isSoleOwnerOfOtherOrganization =
+      this.getResponseProperty("IsSoleOwnerOfOtherOrganization") ?? false;
   }
 }
