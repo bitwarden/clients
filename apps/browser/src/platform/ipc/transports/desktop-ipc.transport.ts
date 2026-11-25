@@ -31,8 +31,9 @@ type NativePort = browser.runtime.Port | chrome.runtime.Port;
  *
  * - `disconnected` — no live port. The initial state and the state after any failure/disconnect.
  * - `connecting`   — the port is open but the proxy has not reported a connection yet. `ready`
- *                    resolves once the outcome is known (either the proxy connects, or the port
- *                    disconnects), so callers can await it without risking a permanent hang.
+ *                    resolves once the outcome is known (the proxy connects, the port disconnects,
+ *                    or the attempt times out or fails), so callers can await it without risking
+ *                    a permanent hang.
  * - `connected`    — the proxy has reported a connection and the port is ready to send messages.
  */
 type ConnectionState =
@@ -103,11 +104,11 @@ export class DesktopIpcTransport {
     }
 
     let activePort: NativePort | undefined;
+    let resolveReady: () => void = () => {};
     try {
       const port = BrowserApi.connectNative("com.8bit.bitwarden");
       activePort = port;
 
-      let resolveReady: () => void;
       const ready = new Promise<void>((resolve) => {
         resolveReady = resolve;
       });
@@ -158,9 +159,11 @@ export class DesktopIpcTransport {
 
       if (this.currentState().kind !== "connected") {
         // Either we timed out waiting for the proxy, or the port disconnected mid-attempt.
-        // Explicitly tear down the port
+        // Explicitly tear down the port. `port.disconnect()` does not fire this end's
+        // `onDisconnect`, so resolve `ready` here to unblock any pending send().
         port.disconnect();
         this.setState({ kind: "disconnected" });
+        resolveReady();
         return;
       }
 
@@ -183,6 +186,8 @@ export class DesktopIpcTransport {
       // desktop_proxy process when the handshake fails (e.g. the desktop app is unreachable).
       activePort?.disconnect();
       this.setState({ kind: "disconnected" });
+      // `disconnect()` does not fire this end's `onDisconnect`, so unblock any pending send() here.
+      resolveReady();
     }
   }
 
