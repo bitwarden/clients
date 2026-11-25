@@ -1,11 +1,13 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
+import { FillAssistMissReason } from "../background/fill-assist-event";
 import { FormFieldElement } from "../types";
 import { sendExtensionMessage } from "../utils";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { FillAssistEventEmitter } from "./abstractions/fill-assist-event-emitter";
 import {
   InScopeFormsDetection,
   QualificationResult,
@@ -18,6 +20,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     private collectAutofillContentService: CollectAutofillContentService,
     private domQueryService: DomQueryService,
     private domElementVisibilityService: DomElementVisibilityService,
+    private fillAssistEventEmitter: FillAssistEventEmitter,
   ) {}
 
   async qualifyRule(url: string, matchedRule: FormContent[]): Promise<QualificationResult> {
@@ -26,6 +29,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     const domain = new URL(url).hostname;
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
+      this.fillAssistEventEmitter.qualificationFailed(domain, FillAssistMissReason.Structural);
       this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
@@ -40,6 +44,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     const extras = await this.checkInScopeExtras(matchedRule, structural.inScopeForms);
     if (!extras.ok) {
+      this.fillAssistEventEmitter.qualificationFailed(domain, FillAssistMissReason.InScopeExtras);
       this.dispatchIframeFallbacks(matchedRule);
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass(

@@ -19,6 +19,8 @@ export const AccessAuditEventKind = Object.freeze({
   LeaseExpired: "leaseExpired",
   CredentialAccessed: "credentialAccessed",
   CredentialAccessDenied: "credentialAccessDenied",
+  CredentialUngated: "credentialUngated",
+  VaultExported: "vaultExported",
   RuleCreated: "ruleCreated",
   RuleUpdated: "ruleUpdated",
   RuleDeleted: "ruleDeleted",

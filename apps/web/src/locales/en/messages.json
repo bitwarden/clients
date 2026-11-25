@@ -5874,6 +5874,12 @@
   "addGroup": {
     "message": "Add group"
   },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
+  },
   "editGroup": {
     "message": "Edit group"
   },
@@ -19063,6 +19069,12 @@
   },
   "pamAuditKindCredentialAccessDenied": {
     "message": "Credential access denied"
+  },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
   },
   "pamAuditKindRuleCreated": {
     "message": "Access rule created"

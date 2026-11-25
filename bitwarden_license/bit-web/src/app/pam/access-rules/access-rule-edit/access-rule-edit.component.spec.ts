@@ -522,20 +522,51 @@ describe("AccessRuleEditComponent: load, collections, and submit", () => {
     expect(controls().humanApprovalEnabled.value).toBe(true);
   });
 
-  it("snaps off-preset stored max/extension durations onto their picker options", async () => {
+  it("keeps off-preset stored durations and offers them as picker options", async () => {
     await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
       id: "11111111-1111-1111-1111-111111111111",
       name: "Off-preset durations",
       collections: [],
       conditions: [],
-      defaultLeaseDurationSeconds: ONE_HOUR,
-      maxLeaseDurationSeconds: 50 * 60, // 50m, not a picker option; nearest is 1h
+      defaultLeaseDurationSeconds: 20 * 60,
+      maxLeaseDurationSeconds: 50 * 60,
       allowsExtensions: true,
-      maxExtensionDurationSeconds: 50 * 60, // 50m; nearest extension option is 1h
+      maxExtensionDurationSeconds: 50 * 60,
     } as unknown as AccessRuleView);
 
-    expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
-    expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
+    expect(controls().defaultLeaseDurationSeconds.value).toBe(20 * 60);
+    expect(controls().maxLeaseDurationSeconds.value).toBe(50 * 60);
+    expect(controls().maxExtensionDurationSeconds.value).toBe(50 * 60);
+    expect(component["durationOptions"]().map((o) => o.seconds)).toEqual(
+      expect.arrayContaining([20 * 60, 50 * 60]),
+    );
+    expect(component["extensionDurationOptions"]().map((o) => o.seconds)).toContain(50 * 60);
+  });
+
+  it("keeps multi-day stored durations, including ones past the 30 day preset", async () => {
+    const DAY = 24 * 60 * 60;
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
+      name: "Multi-day durations",
+      collections: [],
+      conditions: [],
+      defaultLeaseDurationSeconds: 3 * DAY,
+      maxLeaseDurationSeconds: 60 * DAY,
+      allowsExtensions: true,
+      maxExtensionDurationSeconds: 3 * DAY,
+    } as unknown as AccessRuleView);
+
+    expect(controls().defaultLeaseDurationSeconds.value).toBe(3 * DAY);
+    expect(controls().maxLeaseDurationSeconds.value).toBe(60 * DAY);
+    expect(controls().maxExtensionDurationSeconds.value).toBe(3 * DAY);
+    const lease = component["durationOptions"]().map((o) => o.seconds);
+    expect(lease).toEqual(expect.arrayContaining([3 * DAY, 60 * DAY]));
+    expect(lease.at(-1)).toBe(60 * DAY);
+    expect(
+      component["extensionDurationOptions"]()
+        .map((o) => o.seconds)
+        .at(-1),
+    ).toBe(3 * DAY);
   });
 
   it("deletes the rule under edit and returns to the list once confirmed", async () => {
