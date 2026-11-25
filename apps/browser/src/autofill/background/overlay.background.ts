@@ -86,10 +86,10 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
+import { AutofillOrchestrator, didFillOccur, shouldAutoCopyTotp } from "../orchestration";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
-import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
   generateDomainMatchPatterns,
@@ -101,7 +101,6 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
-import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,

@@ -33,6 +33,7 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableV2Component,
+  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -60,7 +61,6 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
-import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import { RotationHistorySkeletonComponent } from "../managed-credentials/rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
@@ -129,11 +129,11 @@ export type AccessConnectorCallout = "never-connected" | "disconnected" | null;
     BitColumnComponent,
     BitHeaderCellComponent,
     BitTableV2Component,
+    BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
     CardComponent,
     CopyClickDirective,
-    DetailBreadcrumbComponent,
     FormFieldModule,
     HeaderComponent,
     IconButtonModule,
@@ -238,7 +238,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
     const resolved = new Map<RotationConfigId, string>();
     for (const config of this.rotationConfigs()) {
       const name = names.get(config.cipherId);
-      if (name != null) {
+      if (name) {
         resolved.set(config.id, name);
       }
     }

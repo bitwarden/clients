@@ -211,5 +211,72 @@ describe("ProjectEditCommand", () => {
 
       expect(response.success).toBe(true);
     });
+
+    it.each([true, false])(
+      "rejects decryptionError %p when it differs from the project's and saves nothing",
+      async (decryptionError) => {
+        projectService.getByProjectId.mockResolvedValue(
+          makeProject({ read: true, write: true, decryptionError: !decryptionError }),
+        );
+
+        const response = await command.run(
+          smOrg,
+          projectId,
+          encodeSmRequest({ organizationId: null, name: "Project name", decryptionError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptionError` cannot be edited on a project. Remove this property from the request.",
+        );
+        expect(projectService.update).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe("unknown properties", () => {
+    beforeEach(() => {
+      projectService.getByProjectId.mockResolvedValue(makeProject());
+      projectService.update.mockResolvedValue(makeProject({ name: "Project name" }));
+    });
+
+    // QA repro: bw sm template sm-project | jq '.decryptError=true' | bw encode | bw sm project edit
+    it.each([true, false])(
+      "rejects decryptError %p added to the template and saves nothing",
+      async (decryptError) => {
+        const response = await command.run(
+          smOrg,
+          projectId,
+          encodeSmRequest({ organizationId: null, name: "Project name", decryptError }),
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          "`decryptError` is not a project property. Remove this property from the request. Properties that can be edited on a project: `name`.",
+        );
+        expect(projectService.getByProjectId).not.toHaveBeenCalled();
+        expect(projectService.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it("names every unknown property", async () => {
+      const response = await command.run(smOrg, projectId, {
+        name: "Frontend",
+        Name: "Frontend",
+        description: "x",
+      });
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe(
+        "`Name`, `description` are not project properties. Remove these properties from the request. Properties that can be edited on a project: `name`.",
+      );
+      expect(projectService.update).not.toHaveBeenCalled();
+    });
+
+    it("ignores unknown properties that are null", async () => {
+      const response = await command.run(smOrg, projectId, { name: "Frontend", description: null });
+
+      expect(response.success).toBe(true);
+    });
   });
 });

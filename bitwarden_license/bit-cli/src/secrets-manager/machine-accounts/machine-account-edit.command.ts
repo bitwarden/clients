@@ -6,6 +6,7 @@ import { SmMachineAccountResponse } from "../models/sm-machine-account.response"
 import {
   checkSmReadOnlyProperties,
   checkSmRequestOrganization,
+  checkSmUnknownProperties,
   parseSmId,
   parseSmRequest,
   readSmName,
@@ -36,6 +37,10 @@ export class MachineAccountEditCommand {
     );
     if (orgMismatch) {
       return orgMismatch;
+    }
+    const unknown = checkSmUnknownProperties(parsed.request, "machine account");
+    if (unknown) {
+      return unknown;
     }
     const name = readSmName(parsed.request);
     if (name.error) {

@@ -6,6 +6,7 @@ import { Message } from "@bitwarden/common/platform/messaging";
 import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
 import {
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
@@ -31,6 +32,14 @@ export function tagAsExternalMessage<T extends Message<Record<string, unknown>>>
   // place, which is why the original object comes back tagged.
   of(message).pipe(tagAsExternal()).subscribe();
   return message;
+}
+
+/**
+ * Stamps the browser-authoritative sender that `fromChromeRuntimeMessaging` applies at ingest.
+ * Pass a sender without a `tab` to simulate the popup or options page.
+ */
+export function stampSender<T extends object>(message: T, sender: chrome.runtime.MessageSender): T {
+  return stampWebExtSender(message, sender);
 }
 
 /**

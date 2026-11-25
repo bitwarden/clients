@@ -14,6 +14,7 @@ import {
   UserApiLoginCredentials,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -21,6 +22,7 @@ import {
   isTwoFactorProviderType,
   TwoFactorProviderType,
 } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -70,12 +72,13 @@ export class LoginCommand {
     protected twoFactorService: TwoFactorService,
     protected syncService: SyncService,
     protected keyConnectorService: KeyConnectorService,
-    protected logoutCallback: () => Promise<void>,
+    protected logoutService: LogoutService,
     protected ssoUrlService: SsoUrlService,
     protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     protected encryptedMigrator: EncryptedMigrator,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -376,8 +379,10 @@ export class LoginCommand {
         const command = new ConfirmKeyConnectorDomainCommand(
           response.userId,
           domainConfirmation.keyConnectorUrl,
+          domainConfirmation.organizationSsoIdentifier,
           this.keyConnectorService,
-          this.logoutCallback,
+          this.organizationApiService,
+          this.logoutService,
           this.i18nService,
         );
         const confirmResponse = await command.run();
@@ -409,12 +414,12 @@ export class LoginCommand {
         );
 
         if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
-          await this.logoutCallback();
+          await this.logoutService.logout(response.userId, "adminForcePasswordReset");
           return Response.error(
             "An organization administrator recently changed your master password. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
         } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
-          await this.logoutCallback();
+          await this.logoutService.logout(response.userId, "masterPasswordPolicyEnforcement");
           return Response.error(
             "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now via the web app. You have been logged out.",
           );
@@ -666,7 +671,7 @@ export class LoginCommand {
       return;
     }
 
-    await this.logoutCallback();
+    await this.logoutService.logout(userId, "noUnlockOptionsAvailable");
 
     if (userDecryptionOptions.trustedDeviceOption) {
       throw Response.error(

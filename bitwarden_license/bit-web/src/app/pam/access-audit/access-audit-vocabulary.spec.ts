@@ -25,6 +25,8 @@ describe("access-audit event vocabulary", () => {
         "leaseExpired",
         "credentialAccessed",
         "credentialAccessDenied",
+        "credentialUngated",
+        "vaultExported",
         "ruleCreated",
         "ruleUpdated",
         "ruleDeleted",
