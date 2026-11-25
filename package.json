@@ -218,7 +218,7 @@
     "lunr": "2.3.9",
     "multer": "2.4.0",
     "ngx-toastr": "19.1.0",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "node-forge": "1.4.0",
     "oauth4webapi": "3.8.6",
     "open": "8.4.2",
