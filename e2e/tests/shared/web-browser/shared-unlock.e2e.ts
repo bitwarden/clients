@@ -21,7 +21,7 @@ import { lockNow as lockWebNow } from "../../../src/web/account-menu";
  * Web vault and extension lock and unlock together ("Sync unlock with web app", on by default).
  */
 
-const FLAGS = [FeatureFlag.SharedUnlock, FeatureFlag.ContentScriptIpc];
+const FLAGS = [FeatureFlag.ContentScriptIpc];
 const PIN = "1234";
 
 test.describe("shared unlock between web vault and extension", () => {

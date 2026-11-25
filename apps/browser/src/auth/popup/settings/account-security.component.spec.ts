@@ -20,7 +20,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,7 +32,7 @@ import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
-import { BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -84,7 +83,6 @@ describe("AccountSecurityComponent", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const apiService = mock<ApiService>();
   const billingService = mock<BillingAccountProfileStateService>();
-  const biometricStateService = mock<BiometricStateService>();
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
@@ -95,7 +93,6 @@ describe("AccountSecurityComponent", () => {
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
   const platformUtilsService = mock<PlatformUtilsService>();
   const vaultNudgesService = mock<NudgesService>();
-  const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
   const mockI18nService = mock<I18nService>();
 
@@ -119,7 +116,6 @@ describe("AccountSecurityComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: billingService,
         },
-        { provide: BiometricStateService, useValue: biometricStateService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: configService },
@@ -151,7 +147,6 @@ describe("AccountSecurityComponent", () => {
         },
         { provide: ConfigService, useValue: configService },
         { provide: SharedUnlockSettingsService, useValue: sharedUnlockSettingsService },
-        { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
@@ -173,7 +168,6 @@ describe("AccountSecurityComponent", () => {
       }),
     );
     vaultNudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
-    biometricStateService.promptAutomatically$.mockReturnValue(of(false));
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     configService.getFeatureFlag$.mockReturnValue(of(false));
     billingService.hasPremiumPersonally$.mockReturnValue(of(true));
@@ -345,101 +339,6 @@ describe("AccountSecurityComponent", () => {
         By.css("#phishingDetectionAction"),
       );
       expect(phishingDetectionElement).toBeNull();
-    });
-  });
-
-  describe("updateBiometric", () => {
-    let permissionsGrantedSpy: jest.SpyInstance;
-    let openDialogSpy: jest.SpyInstance;
-    let popoutSpy: jest.SpyInstance;
-    let closePopoutSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      policyService.policiesByType$.mockReturnValue(of([null]));
-      permissionsGrantedSpy = jest.spyOn(BrowserApi, "permissionsGranted");
-      openDialogSpy = jest.spyOn(NativeMessagingPermissionDialogComponent, "open");
-      popoutSpy = jest
-        .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
-        .mockResolvedValue(undefined);
-      closePopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "closeCurrentPopupOrPopout")
-        .mockResolvedValue(undefined);
-    });
-
-    describe("updating to false", () => {
-      it("calls biometricStateService methods with false when false", async () => {
-        await component.ngOnInit();
-        await component.updateBiometric(false);
-
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
-          false,
-          mockUserId,
-        );
-      });
-    });
-
-    describe("updating to true", () => {
-      it("persists the setting without prompting when the permission is already granted", async () => {
-        permissionsGrantedSpy.mockResolvedValue(true);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(openDialogSpy).not.toHaveBeenCalled();
-        expect(popoutSpy).not.toHaveBeenCalled();
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
-          true,
-          mockUserId,
-        );
-        expect(component.messagingService.send).not.toHaveBeenCalledWith("reloadExtension");
-      });
-
-      it("pops out to request the permission when not granted and not in a popout", async () => {
-        permissionsGrantedSpy.mockResolvedValue(false);
-        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(popoutSpy).toHaveBeenCalled();
-        expect(openDialogSpy).not.toHaveBeenCalled();
-        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
-          true,
-          mockUserId,
-        );
-      });
-
-      it("persists and reloads when the permission dialog grants the permission in a popout", async () => {
-        permissionsGrantedSpy.mockResolvedValue(false);
-        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
-        openDialogSpy.mockReturnValue({ closed: of(true) } as unknown as DialogRef<boolean>);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(openDialogSpy).toHaveBeenCalled();
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
-          true,
-          mockUserId,
-        );
-        expect(component.messagingService.send).toHaveBeenCalledWith("reloadExtension");
-        expect(closePopoutSpy).toHaveBeenCalled();
-      });
-
-      it("reverts the toggle when the permission dialog does not grant the permission", async () => {
-        permissionsGrantedSpy.mockResolvedValue(false);
-        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
-        openDialogSpy.mockReturnValue({ closed: of(false) } as unknown as DialogRef<boolean>);
-
-        await component.ngOnInit();
-        await component.updateBiometric(true);
-
-        expect(component.form.controls.biometric.value).toBe(false);
-        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
-          true,
-          mockUserId,
-        );
-      });
     });
   });
 

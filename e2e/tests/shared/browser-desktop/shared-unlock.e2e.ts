@@ -5,7 +5,6 @@ import { clickMenuItem, MenuItem } from "../../../src/desktop/app-menu";
 import { BiometricRequestType, Biometrics } from "../../../src/desktop/biometrics";
 import { watchReload } from "../../../src/desktop/lock";
 import { DesktopSettings } from "../../../src/desktop/settings";
-import { FeatureFlag } from "../../../src/feature-flags";
 import { LockScreen } from "../../../src/lock-screen";
 import {
   desktopConnected,
@@ -26,7 +25,6 @@ import { expect, test } from "../../../src/shared/desktop-fixtures";
  * Every desktop lock crashes and reloads its renderer, so tests go on in the reloaded window.
  */
 
-const FLAGS = [FeatureFlag.SharedUnlock];
 const PIN = "1234";
 // LockComponent refreshes its unlock options every second; one more covers the 500 ms status query.
 const LOCK_SCREEN_POLL_MS = 2_000;
@@ -37,9 +35,9 @@ test.describe("shared unlock between extension and desktop app", () => {
   let extension: Extension;
 
   test.beforeEach(async ({ context, popup, window }) => {
-    await logInToDesktop(window, FLAGS);
+    await logInToDesktop(window, []);
 
-    extension = await logInToExtension(context, popup, FLAGS);
+    extension = await logInToExtension(context, popup, []);
     const settings = new AccountSecurityPage(extension.popup);
     await settings.open(extension.url);
     await settings.enableDesktopSync();
