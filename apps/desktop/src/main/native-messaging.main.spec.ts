@@ -142,11 +142,12 @@ describe("NativeMessagingMain", () => {
     expect(sut.clientTypeFor(clientId)).toBeUndefined();
   });
 
-  // Chrome, Firefox and DuckDuckGo all reach the app through the one server `listen` starts, so
-  // the DuckDuckGo setting must only add or remove its own manifests.
-  describe("duckduckgo manifests", () => {
-    const channel = "nativeMessaging.ddgManifests";
-
+  // Every browser reaches the app through the one server `listen` starts, so a manifest handler
+  // that started or stopped it would take the other browsers' native messaging with it.
+  describe.each([
+    ["nativeMessaging.manifests", "generateManifests", "removeManifests"],
+    ["nativeMessaging.ddgManifests", "generateDdgManifests", "removeDdgManifests"],
+  ])("%s", (channel, generate, remove) => {
     /** Invokes the handler the constructor registered for `channel`, as the renderer would. */
     function invoke(create: boolean): Promise<unknown> {
       const handler = jest.mocked(ipcMain.handle).mock.calls.find(([c]) => c === channel)?.[1];
@@ -155,19 +156,18 @@ describe("NativeMessagingMain", () => {
     }
 
     beforeEach(() => {
-      jest.spyOn(sut, "generateDdgManifests").mockResolvedValue(undefined);
-      jest.spyOn(sut as any, "removeDdgManifests").mockResolvedValue(undefined);
+      jest.spyOn(sut as any, generate).mockResolvedValue(undefined);
+      jest.spyOn(sut as any, remove).mockResolvedValue(undefined);
+      jest.mocked(ipc.NativeIpcServer.listen).mockClear();
     });
 
-    it("leaves the server running when duckduckgo is disabled", async () => {
+    it("leaves the server running when the manifests are removed", async () => {
       await invoke(false);
 
       expect(server.stop).not.toHaveBeenCalled();
     });
 
-    it("does not restart the server when duckduckgo is enabled", async () => {
-      jest.mocked(ipc.NativeIpcServer.listen).mockClear();
-
+    it("does not restart the server when the manifests are written", async () => {
       await invoke(true);
 
       expect(ipc.NativeIpcServer.listen).not.toHaveBeenCalled();

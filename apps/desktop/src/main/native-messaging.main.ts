@@ -40,14 +40,12 @@ export class NativeMessagingMain {
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
           try {
-            await this.listen();
             await this.generateManifests();
           } catch (e) {
             this.logService.error("Error generating manifests: " + e);
             return e;
           }
         } else {
-          this.stop();
           try {
             await this.removeManifests();
           } catch (e) {
@@ -59,9 +57,6 @@ export class NativeMessagingMain {
       },
     );
 
-    // Only the manifests are DuckDuckGo's to add and remove. Chrome, Firefox and DuckDuckGo
-    // share the one server `listen` starts, so starting or stopping it here would take the
-    // other browsers' native messaging with it.
     ipcMain.handle(
       "nativeMessaging.ddgManifests",
       async (_event: any, options: { create: boolean }) => {
@@ -136,10 +131,6 @@ export class NativeMessagingMain {
         this.send(msg);
       }
     });
-  }
-
-  stop() {
-    this.ipcServer?.stop();
   }
 
   /**
