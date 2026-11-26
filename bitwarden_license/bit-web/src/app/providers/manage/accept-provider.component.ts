@@ -1,5 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+} from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterLink } from "@angular/router";
 
 import { BitwardenLogo } from "@bitwarden/assets/svg";
@@ -8,34 +14,43 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ProviderUserAcceptRequest } from "@bitwarden/common/provider";
-import { ButtonModule, SvgModule, TypographyModule } from "@bitwarden/components";
+import { ButtonModule, IconComponent, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-accept-provider",
   templateUrl: "accept-provider.component.html",
-  imports: [CommonModule, RouterLink, SvgModule, TypographyModule, ButtonModule, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    RouterLink,
+    SvgModule,
+    TypographyModule,
+    ButtonModule,
+    IconComponent,
+    I18nPipe,
+  ],
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
-  protected logo = BitwardenLogo;
-  providerName?: string;
-  providerId?: string;
-  providerUserId?: string;
-  providerInviteToken?: string;
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  failedMessage = "providerInviteAcceptFailed";
+  protected readonly logo = BitwardenLogo;
+  protected readonly providerName = signal("");
+  private readonly providerId = signal("");
+  private readonly providerUserId = signal("");
+  private readonly providerInviteToken = signal("");
 
-  requiredParameters = ["providerId", "providerUserId", "token"];
+  readonly failedMessage = "providerInviteAcceptFailed";
+
+  readonly requiredParameters = ["providerId", "providerUserId", "token"];
 
   constructor(
     router: Router,
     i18nService: I18nService,
     route: ActivatedRoute,
     authService: AuthService,
-    private apiService: ApiService,
+    private readonly apiService: ApiService,
     platformUtilService: PlatformUtilsService,
   ) {
     super(router, platformUtilService, i18nService, route, authService);
@@ -62,10 +77,13 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
   }
 
   async unauthedHandler(qParams: Params) {
-    this.providerName = qParams.providerName;
-    this.providerId = qParams.providerId;
-    this.providerUserId = qParams.providerUserId;
-    this.providerInviteToken = qParams.token;
+    this.providerName.set(qParams.providerName ?? "");
+    this.providerId.set(qParams.providerId);
+    this.providerUserId.set(qParams.providerUserId);
+    this.providerInviteToken.set(qParams.token);
+    // The base class clears `loading` after this handler returns, outside any template event,
+    // so under OnPush the view has to be marked for the next check to render the invitation.
+    this.cdr.markForCheck();
   }
 
   async register() {
@@ -74,8 +92,8 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
     await this.router.navigate(["/finish-signup"], {
       queryParams: {
         email: this.email,
-        providerUserId: this.providerUserId,
-        providerInviteToken: this.providerInviteToken,
+        providerUserId: this.providerUserId(),
+        providerInviteToken: this.providerInviteToken(),
       },
     });
   }
