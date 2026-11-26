@@ -29,10 +29,10 @@ export function formatRemaining(locale: string, remainingMs: number): string {
 }
 
 /**
- * The time left, spelled out, such as "4 minutes", "1 hour 59 minutes" or "20 days". Under a day it
- * shows hours and minutes so an extended lease reads exactly; from a day up it shows whole days.
- * Seconds and minutes round up so a countdown never undersells; days round down so a larger unit
- * never promises time that is not left.
+ * The time left, spelled out, such as "4 minutes", "1 hour, 59 minutes" or "1 day, 7 hours". Under
+ * a day it shows hours and minutes; from a day up it shows days and hours, so an extension (presets
+ * are whole hours) always changes the text. Seconds and minutes round up so a countdown never
+ * undersells; hours within a day-level reading round down so it never promises time that is not left.
  */
 export function formatRemainingLong(locale: string, remainingMs: number): string {
   if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
@@ -55,7 +55,13 @@ export function formatRemainingLong(locale: string, remainingMs: number): string
     }
     return longListFor(locale).format(parts);
   }
-  return formatUnit(locale, Math.floor(totalHours / 24), "day", "long");
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours - days * 24;
+  const parts = [formatUnit(locale, days, "day", "long")];
+  if (hours > 0) {
+    parts.push(formatUnit(locale, hours, "hour", "long"));
+  }
+  return longListFor(locale).format(parts);
 }
 
 function longListFor(locale: string): Intl.ListFormat {
