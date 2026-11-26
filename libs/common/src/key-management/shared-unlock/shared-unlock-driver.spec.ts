@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
@@ -30,6 +31,16 @@ describe("JsSharedUnlockDriver", () => {
       mock<EnvironmentService>(),
       stateProvider,
     );
+  });
+
+  describe("peer state", () => {
+    it("emits the state a peer reported for the user", async () => {
+      const reported = firstValueFrom(driver.peerState$);
+
+      await driver.on_peer_state(asUuid(userId), "Unlocked");
+
+      await expect(reported).resolves.toEqual({ userId, lockState: "Unlocked" });
+    });
   });
 
   describe("last manual lock", () => {

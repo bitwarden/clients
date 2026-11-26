@@ -117,6 +117,26 @@ Add a scene or query by subclassing `SceneTemplate` in `src/seeder/scenes/` or
 `QueryTemplate` in `src/seeder/queries/`, named after the server's class and typed after its
 `Request` and result.
 
+## CLI
+
+`tests/shared/cli-desktop/` runs the `bw` CLI beside the desktop app, for shared unlock and for
+unlock with the desktop app's biometrics:
+
+```
+bw ──spawns──▶ desktop_proxy ──IPC socket (.debug/e2e)──▶ desktop main
+```
+
+It is part of the `shared` suite, and needs two builds the other suites do not:
+
+```
+cd apps/cli && npm run build:oss                       # apps/cli/build/bw.js
+cd apps/desktop/desktop_native && cargo build          # target/debug/desktop_proxy
+```
+
+The CLI runs out of its own profile (`.debug/e2e/cli-profile`), emptied before every test, and
+is pointed at the suite's socket and proxy rather than an installed Bitwarden. It has no page to
+drive, so feature flag overrides are written into its profile directly (`src/cli/cli.ts`).
+
 ## SSH agent
 
 `tests/desktop/ssh-agent.e2e.ts` drives the desktop SSH agent with OpenSSH's own `ssh`,

@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, timeout } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
@@ -14,7 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PeerLockState, PureCrypto } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { Response } from "../../models/response";
@@ -22,7 +23,15 @@ import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { CliBiometricsService } from "../cli-biometrics-service";
+import { CliSharedUnlockService } from "../cli-shared-unlock.service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
+
+/**
+ * How long the desktop app gets to answer the shared unlock sync this CLI invocation opens with.
+ * It answers on first contact, so this only has to cover the round trip; an unanswered sync means
+ * no desktop peer is there, and the unlock falls back to another method.
+ */
+const SHARED_UNLOCK_SYNC_TIMEOUT_MS = 2_000;
 
 export class UnlockCommand {
   constructor(
@@ -36,6 +45,8 @@ export class UnlockCommand {
     private encryptedMigrator: EncryptedMigrator,
     private unlockService: UnlockService,
     private biometricsService: CliBiometricsService,
+    private sharedUnlockPeerService: SharedUnlockPeerService,
+    private cliSharedUnlockService: CliSharedUnlockService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -54,13 +65,14 @@ export class UnlockCommand {
       this.keyConnectorService.convertAccountRequired$,
     );
 
-    if (
-      !passwordWasProvided &&
-      !conversionRequired &&
-      process.env.BW_NOINTERACTION !== "true" &&
-      (await this.tryUnlockWithDesktop(userId))
-    ) {
-      return this.successResponse();
+    if (!passwordWasProvided && !conversionRequired) {
+      if (await this.tryUnlockFromDesktopSession(userId)) {
+        return this.successResponse();
+      }
+
+      if (process.env.BW_NOINTERACTION !== "true" && (await this.tryUnlockWithDesktop(userId))) {
+        return this.successResponse();
+      }
     }
 
     const passwordResult = await CliUtils.getPassword(password, normalizedOptions, this.logService);
@@ -72,6 +84,9 @@ export class UnlockCommand {
     }
 
     await this.setNewSessionKey();
+
+    // Started before the unlock, so the shared unlock peer announces it to the desktop app.
+    await this.cliSharedUnlockService.start();
 
     try {
       await this.unlockService.unlockWithMasterPassword(userId, password);
@@ -97,6 +112,55 @@ export class UnlockCommand {
     await this.encryptedMigrator.runMigrations(userId, password);
 
     return this.successResponse();
+  }
+
+  /**
+   * Adopts the desktop app's session, when it has an unlocked one.
+   *
+   * Starting the peer opens with a sync that the desktop app answers on first contact: with its
+   * user key when it is unlocked, with `Locked` when it is not. A desktop app that is locked, or
+   * not running at all, falls through to the unlock methods used before shared unlock.
+   */
+  private async tryUnlockFromDesktopSession(userId: UserId): Promise<boolean> {
+    // Restored unless a peer unlocks this invocation, so a shared unlock that does not happen
+    // leaves the environment as it was found. `bw serve` keeps one process across requests.
+    const previousSession = process.env.BW_SESSION;
+
+    try {
+      // The session key has to exist before a peer can hand this invocation a user key.
+      await this.setNewSessionKey();
+
+      // Subscribed before the peer starts, so the answer to the opening sync cannot be missed.
+      const peerState = firstValueFrom(
+        this.sharedUnlockPeerService
+          .peerState$(userId)
+          .pipe(timeout(SHARED_UNLOCK_SYNC_TIMEOUT_MS)),
+      ).catch((): PeerLockState | null => null);
+
+      if (!(await this.cliSharedUnlockService.start())) {
+        this.restoreSessionKey(previousSession);
+        return false;
+      }
+
+      // `Unlocked` is reported only once the peer's user key has been applied to this device.
+      if ((await peerState) === "Unlocked") {
+        return true;
+      }
+    } catch (error) {
+      this.logService.info("CLI shared unlock failed; falling back to master password", error);
+    }
+
+    this.restoreSessionKey(previousSession);
+    return false;
+  }
+
+  private restoreSessionKey(session: string | undefined) {
+    if (session == null) {
+      delete process.env.BW_SESSION;
+      return;
+    }
+
+    process.env.BW_SESSION = session;
   }
 
   private async tryUnlockWithDesktop(userId: UserId): Promise<boolean> {

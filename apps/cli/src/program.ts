@@ -240,6 +240,7 @@ export class Program extends BaseProgram {
         const command = new LockCommand(
           this.serviceContainer.lockService,
           this.serviceContainer.accountService,
+          this.serviceContainer.cliSharedUnlockService,
         );
         const response = await command.run();
         this.processResponse(response);
@@ -303,6 +304,8 @@ export class Program extends BaseProgram {
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.unlockService,
             this.serviceContainer.biometricsService,
+            this.serviceContainer.sharedUnlockPeerService,
+            this.serviceContainer.cliSharedUnlockService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
