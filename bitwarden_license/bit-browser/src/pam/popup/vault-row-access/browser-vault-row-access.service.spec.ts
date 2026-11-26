@@ -10,6 +10,7 @@ import {
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
+  AccessRequestCancelService,
   ExtendLeaseDialogComponent,
 } from "@bitwarden/bit-pam-components";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -33,6 +34,7 @@ describe("BrowserVaultRowAccessService", () => {
   let accessRequestSdk: MockProxy<AccessRequestSdkService>;
   let accessLeaseSdk: MockProxy<AccessLeaseSdkService>;
   let accessRefresh: MockProxy<AccessRefreshService>;
+  let accessRequestCancel: MockProxy<AccessRequestCancelService>;
   let dialogService: MockProxy<DialogService>;
   let router: MockProxy<Router>;
   let toastService: MockProxy<ToastService>;
@@ -57,6 +59,7 @@ describe("BrowserVaultRowAccessService", () => {
     accessRequestSdk = mock<AccessRequestSdkService>();
     accessLeaseSdk = mock<AccessLeaseSdkService>();
     accessRefresh = mock<AccessRefreshService>();
+    accessRequestCancel = mock<AccessRequestCancelService>();
     dialogService = mock<DialogService>();
     router = mock<Router>();
     toastService = mock<ToastService>();
@@ -77,6 +80,7 @@ describe("BrowserVaultRowAccessService", () => {
         { provide: AccessRequestSdkService, useValue: accessRequestSdk },
         { provide: AccessLeaseSdkService, useValue: accessLeaseSdk },
         { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: AccessRequestCancelService, useValue: accessRequestCancel },
         { provide: AccessBadgeTickerService, useValue: { ticks$ } },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: { t: (k: string, p?: string) => (p ? `${k}:${p}` : k) } },
@@ -242,6 +246,7 @@ describe("BrowserVaultRowAccessService", () => {
       expect(service.rowActions().map((a) => a.label)).toEqual([
         "pamStartLeaseButton",
         "pamRequestAccessButton",
+        "pendingStateCancelRequest",
         "pamExtendAccessMenuItem",
         "pamEndLeaseButton",
       ]);
@@ -262,15 +267,43 @@ describe("BrowserVaultRowAccessService", () => {
       state$.next({ badgeState: badge });
       report(gated);
 
-      expect(shown(gated)).toEqual(["pamRequestAccess"]);
       expect(action("pamRequestAccess").disabled?.(gated)).toBe(true);
     });
 
-    it("offers Start access instead of Request access once the request is ready", () => {
+    it.each(["privileged", "unavailable"])(
+      "offers no Cancel request on a %s gated row",
+      (badge) => {
+        state$.next({ badgeState: badge });
+        report(gated);
+
+        expect(shown(gated)).not.toContain("pamCancelRequest");
+      },
+    );
+
+    it("offers Cancel request on a pending gated row", () => {
+      state$.next({ badgeState: "pending" });
+      report(gated);
+
+      expect(shown(gated)).toEqual(["pamRequestAccess", "pamCancelRequest"]);
+    });
+
+    it("cancels the outstanding request through the shared cancel flow", async () => {
+      await action("pamCancelRequest").run(gated);
+
+      expect(accessRequestCancel.cancelOutstandingRequest).toHaveBeenCalledWith("c1");
+    });
+
+    it("cancels nothing for a row without an id", async () => {
+      await action("pamCancelRequest").run({ name: "No id" } as unknown as CipherViewLike);
+
+      expect(accessRequestCancel.cancelOutstandingRequest).not.toHaveBeenCalled();
+    });
+
+    it("offers Start access and Cancel request instead of Request access once the request is ready", () => {
       state$.next({ badgeState: "ready" });
       report(gated);
 
-      expect(shown(gated)).toEqual(["pamStartAccess"]);
+      expect(shown(gated)).toEqual(["pamStartAccess", "pamCancelRequest"]);
     });
 
     it("offers Extend and End access on the revealed row while access is active", () => {
