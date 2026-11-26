@@ -722,7 +722,9 @@ export class VaultNextComponent implements OnInit {
 
   /** Handles `vault-new-cipher-menu`'s `folderAdded`, emitted by its legacy dropdown. */
   protected addFolder(): void {
-    AddEditFolderDialogComponent.open(this.dialogService);
+    AddEditFolderDialogComponent.open(this.dialogService, {
+      parentFolderId: this.scopedFolderId(),
+    });
   }
 
   /** Handles `vault-new-cipher-menu`'s `collectionAdded`, emitted by its legacy dropdown. */

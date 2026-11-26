@@ -119,13 +119,10 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
-  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
   const autofillLifecycleService = mock<AutofillLifecycleService>();
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
-    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -1622,8 +1619,7 @@ describe("AutofillService", () => {
           .mockReturnValue(new AutofillScript());
       });
 
-      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
-        fillAssistFeatureFlagMock$.next(true);
+      it("routes to the targeted fill path when the user setting is enabled", async () => {
         await domainSettingsService.setEnableFillAssist(true);
 
         await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
@@ -1635,22 +1631,7 @@ describe("AutofillService", () => {
         expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
       });
 
-      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(false);
-        await domainSettingsService.setEnableFillAssist(true);
-
-        const result = await autofillService["generateFillScript"](
-          targetedPageDetail,
-          generateFillScriptOptions,
-        );
-
-        expect(result).toBeNull();
-        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
-        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
-      });
-
       it("abandons the fill (returns null) when the user setting is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
 
         const result = await autofillService["generateFillScript"](
