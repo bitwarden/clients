@@ -365,22 +365,19 @@ export class VaultPopupItemsService {
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
-          return (
-            ciphers
-              // Restricted ciphers are listed too. The trash row gates restore and delete on a reveal.
-              .filter((c) => CipherViewLikeUtils.isDeleted(c))
-              .filter((c) => hasAccessibleOrganization(c, orgMap))
-              .map(
-                (cipher) =>
-                  ({
-                    ...cipher,
-                    collections: cipher.collectionIds?.map(
-                      (colId) => collectionMap[colId as CollectionId],
-                    ),
-                    organization: orgMap[cipher.organizationId as OrganizationId],
-                  }) as PopupCipherViewLike,
-              )
-          );
+          return ciphers
+            .filter((c) => CipherViewLikeUtils.isDeleted(c))
+            .filter((c) => hasAccessibleOrganization(c, orgMap))
+            .map(
+              (cipher) =>
+                ({
+                  ...cipher,
+                  collections: cipher.collectionIds?.map(
+                    (colId) => collectionMap[colId as CollectionId],
+                  ),
+                  organization: orgMap[cipher.organizationId as OrganizationId],
+                }) as PopupCipherViewLike,
+            );
         }),
       ),
     ),

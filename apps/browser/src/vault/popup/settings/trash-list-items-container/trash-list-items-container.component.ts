@@ -73,10 +73,11 @@ export class TrashListItemsContainerComponent {
 
   protected readonly RestrictedCipherAction = RestrictedCipherAction;
   private readonly revealedCipherService = inject(RevealedCipherService);
+  private readonly activeAccount$ = inject(AccountService).activeAccount$;
 
   /** The active user's live revealed views. A restricted row offers restore only while revealed. */
   private readonly revealed = toSignal(
-    inject(AccountService).activeAccount$.pipe(
+    this.activeAccount$.pipe(
       getOptionalUserId,
       switchMap((userId) =>
         userId == null
