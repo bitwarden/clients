@@ -165,7 +165,15 @@ function describeCorruptFile(text: string): string {
   } else {
     try {
       const parsed: unknown = JSON.parse(text);
-      problem = `JSON ${parsed === null ? "null" : Array.isArray(parsed) ? "array" : typeof parsed}`;
+      let jsonType: string;
+      if (parsed === null) {
+        jsonType = "null";
+      } else if (Array.isArray(parsed)) {
+        jsonType = "array";
+      } else {
+        jsonType = typeof parsed;
+      }
+      problem = `JSON ${jsonType}`;
     } catch (error) {
       const position = parseErrorPosition(error, text.length);
       problem =
