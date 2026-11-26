@@ -2,6 +2,20 @@
   <ng-container bitDialogContent>
     <p>{{ "recoverAccountWarning" | i18n }}</p>
 
+    @if (showSoleOwnerCallout$ | async) {
+      <bit-callout type="warning">
+        {{ "recoverAccountRemovesFromOtherOrganizations" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/account-recovery/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {{ "learnMore" | i18n }}
+        </a>
+      </bit-callout>
+    }
+
     <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap-2">
       <bit-form-control>
         <input type="checkbox" bitCheckbox formControlName="resetMasterPassword" />
