@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
 import { TimestampPipe } from "@bitwarden/bit-pam-components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,
   CopyClickDirective,
@@ -17,7 +18,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 import { ResolvedMember } from "@bitwarden/web-vault/app/dirt/event-logs/components/send-access-member";
 
-import { AuditRow, auditRuleDeleted } from "../access-audit-row";
+import { AuditRow, auditDeviceLabel, auditRuleDeleted } from "../access-audit-row";
 
 /** The identities arrive resolved, so the drawer links names as the table does. */
 export type AuditEventDrawerParams = {
@@ -53,12 +54,17 @@ export type AuditEventDrawerParams = {
 })
 export class AuditEventDrawerComponent {
   private readonly dialogService = inject(DialogService);
+  private readonly i18nService = inject(I18nService);
   /** Optional, since a story renders the pane without a drawer. */
   private readonly dialogRef = inject(DialogRef, { optional: true });
   protected readonly params = inject<AuditEventDrawerParams>(DIALOG_DATA);
 
   protected get row(): AuditRow {
     return this.params.row;
+  }
+
+  protected get device(): string | null {
+    return auditDeviceLabel(this.row.deviceType, this.i18nService);
   }
 
   /** Null on a deletion, since the rule is gone even though its name remains. */

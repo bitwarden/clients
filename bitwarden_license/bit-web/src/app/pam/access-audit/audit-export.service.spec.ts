@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import * as papa from "papaparse";
 
+import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 
@@ -26,6 +27,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     targetSystemName: null,
     accessConnectorName: null,
     detail: "Approved for the incident window.",
+    ipAddress: "203.0.113.7",
+    deviceType: DeviceType.ChromeBrowser,
     automated: false,
     inDoubt: false,
     requestId: "req-1",
@@ -52,6 +55,8 @@ describe("AuditExportService", () => {
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindAccessExtended: "Access extended",
             pamAuditKindAccessConnectorAssigned: "Access connector assigned to target",
+            webApp: "Web app",
+            server: "Server",
           }),
         },
       ],
@@ -82,6 +87,8 @@ describe("AuditExportService", () => {
         detail: "Approved for the incident window.",
         automated: false,
         incomplete: false,
+        ipAddress: "203.0.113.7",
+        device: "Web app - Chrome",
         requestId: "req-1",
         leaseId: "lease-1",
       });
@@ -136,6 +143,8 @@ describe("AuditExportService", () => {
           collectionName: null,
           ruleName: null,
           detail: null,
+          ipAddress: null,
+          deviceType: null,
           requestId: null,
           leaseId: null,
           duration: null,
@@ -163,10 +172,23 @@ describe("AuditExportService", () => {
         detail: "",
         automated: true,
         incomplete: true,
+        ipAddress: "",
+        device: "",
         requestId: "",
         leaseId: "",
       });
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
+    });
+
+    it("carries the request's IP address and names its device as the drawer does", () => {
+      const exported = service.toAuditExport(row());
+
+      expect(exported.ipAddress).toBe("203.0.113.7");
+      expect(exported.device).toBe("Web app - Chrome");
+    });
+
+    it("names a device with no platform by its category alone", () => {
+      expect(service.toAuditExport(row({ deviceType: DeviceType.Server })).device).toBe("Server");
     });
 
     it("carries the target system and access connector a fleet event names", () => {

@@ -487,9 +487,14 @@ export class Main {
 
         try {
           await this.nativeMessagingMain.generateManifests();
+        } catch (err) {
+          this.logService.error("Error while writing native messaging manifests:", err);
+        }
+
+        try {
           await this.nativeMessagingMain.listen();
         } catch (err) {
-          this.logService.error("Error while setting up native messaging:", err);
+          this.logService.error("Error while starting the native messaging server:", err);
         }
 
         app.removeAsDefaultProtocolClient("bitwarden");

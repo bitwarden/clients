@@ -304,7 +304,22 @@ describe("AppVaultFabComponent", () => {
 
       component["openFolderDialog"]();
 
-      expect(openSpy).toHaveBeenCalledWith(expect.any(DialogService));
+      expect(openSpy).toHaveBeenCalledWith(expect.any(DialogService), {
+        parentFolderId: undefined,
+      });
+    });
+
+    it("nests the new folder under the single filtered folder", () => {
+      const openSpy = jest
+        .spyOn(AddEditFolderDialogComponent, "open")
+        .mockReturnValue(undefined as any);
+      fixture.componentRef.setInput("initialValues", { folderIds: ["folder-1"] });
+
+      component["openFolderDialog"]();
+
+      expect(openSpy).toHaveBeenCalledWith(expect.any(DialogService), {
+        parentFolderId: "folder-1",
+      });
     });
   });
 

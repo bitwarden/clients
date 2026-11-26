@@ -126,7 +126,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden-gov.com",
       events: "https://events.bitwarden-gov.com",
       scim: "https://scim.bitwarden-gov.com",
-      send: "https://send.bitwarden-gov.com",
+      send: "https://vault.bitwarden-gov.com",
     },
   },
 ];

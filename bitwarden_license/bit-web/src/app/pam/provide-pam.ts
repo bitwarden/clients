@@ -165,7 +165,7 @@ export function providePam(): SafeProvider[] {
       useClass: ApprovalPrivilegeService,
       deps: [],
     }),
-    // Root-level so the banner and repeated dialog opens share one cached per-org rules read.
+    // Root-level so repeated dialog opens share one cached per-org rules read.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,

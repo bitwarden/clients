@@ -6,6 +6,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import type {
   AccessDecisionRequest,
+  AccessRequestHistoryPage,
+  AccessRequestHistoryQuery,
   AccessRequestId,
   AccessRequestRevokeRequest,
   AccessRequestView,
@@ -36,13 +38,29 @@ export class ApprovalsSdkService implements ApprovalSdkService {
     );
   }
 
-  async listHistory(): Promise<AccessRequestView[]> {
+  async listApproved(): Promise<AccessRequestView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.commercial().pam().approvals().list_history();
+          return await ref.value.commercial().pam().approvals().list_approved();
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list the approved requests: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async listHistory(query: AccessRequestHistoryQuery): Promise<AccessRequestHistoryPage> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.commercial().pam().approvals().list_history(query);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list the approval history: ${error}`);

@@ -5,3 +5,4 @@ export { MemberExportService } from "./member-export";
 export { DeleteManagedMemberWarningService } from "./delete-managed-member/delete-managed-member-warning.service";
 export { InviteLinkCalloutService } from "./invite-link-callout/invite-link-callout.service";
 export { ProblemDetailsService } from "./problem-details/problem-details.service";
+export { NeedsConfirmationCountService } from "./needs-confirmation-count/needs-confirmation-count.service";
