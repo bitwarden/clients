@@ -4,7 +4,12 @@ import { join, resolve } from "node:path";
 import { BrowserContext, CDPSession, Page, chromium, expect, test as base } from "@playwright/test";
 
 import { pruneVideo, videoDir } from "../artifacts";
-import { BROWSER_BUILD_DIR, CHROME_PROFILE_DIR, E2E_STATE_DIR } from "../paths";
+import {
+  BROWSER_BUILD_DIR,
+  CHROME_PROFILE_DIR,
+  E2E_STATE_DIR,
+  PROXY_CONTROL_SOCKET,
+} from "../paths";
 import { IS_DEV_SERVER } from "../server";
 import { skipOnboardingDialogs } from "../web/onboarding";
 
@@ -81,7 +86,12 @@ async function launch(
     // Lets suites that also drive the web vault use relative URLs in this context.
     baseURL,
     recordVideo: { dir: recordVideoDir },
-    env: { ...process.env, BITWARDEN_IPC_SOCKET_DIR: IPC_SOCKET_DIR },
+    env: {
+      ...process.env,
+      BITWARDEN_IPC_SOCKET_DIR: IPC_SOCKET_DIR,
+      // Inherited by the native messaging host Chromium spawns. Only the fake host reads it.
+      BW_E2E_PROXY_CONTROL: PROXY_CONTROL_SOCKET,
+    },
     args: [`--load-extension=${extensionDir}`, `--disable-extensions-except=${extensionDir}`],
   });
 }

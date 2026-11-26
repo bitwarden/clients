@@ -603,6 +603,12 @@ export default class MainBackground {
 
   changeLoginPasswordService: ChangeLoginPasswordService;
 
+  /**
+   * Whether {@link bootstrap} got through every startup step. The sync it defers by 500ms runs
+   * after this is set, so this says the extension is wired up, not that it holds server data.
+   */
+  initializationCompleted = false;
+
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   organizationUserService: OrganizationUserService;
@@ -1976,6 +1982,7 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     this.badgeService.startListening();
+    this.initializationCompleted = true;
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {

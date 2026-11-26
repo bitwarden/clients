@@ -8,6 +8,9 @@ export const DEBUG_DIR = resolve(REPO_ROOT, ".debug");
 
 export const E2E_STATE_DIR = resolve(DEBUG_DIR, "e2e");
 export const CHROME_PROFILE_DIR = resolve(E2E_STATE_DIR, "chrome-profile");
+/** The control socket the fake native messaging host connects back to; see src/shared/fake-host.ts. */
+export const PROXY_CONTROL_SOCKET = resolve(E2E_STATE_DIR, "proxy-control.sock");
+export const FAKE_NATIVE_HOST = resolve(E2E_DIR, "src/shared/fake-native-host.mjs");
 
 export const BROWSER_BUILD_DIR = resolve(REPO_ROOT, "apps/browser/build");
 export const DESKTOP_BUILD_DIR = resolve(REPO_ROOT, "apps/desktop/build");

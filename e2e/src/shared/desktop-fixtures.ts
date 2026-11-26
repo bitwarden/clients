@@ -8,7 +8,7 @@ import { test as biometricsTest } from "../desktop/biometrics";
 import { CHROME_PROFILE_DIR } from "../paths";
 
 // Written by desktop's NativeMessagingMain into the profile BITWARDEN_CHROME_PROFILE_DIR names.
-const HOST_MANIFEST = resolve(
+export const HOST_MANIFEST = resolve(
   CHROME_PROFILE_DIR,
   "NativeMessagingHosts",
   "com.8bit.bitwarden.json",
