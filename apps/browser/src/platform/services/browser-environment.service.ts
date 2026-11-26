@@ -117,7 +117,7 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
       providedKeys.every((key) => {
         // A cloud region's base URL is its web vault, e.g. https://vault.bitwarden.eu
         const regionUrl = key === "base" ? config.urls.webVault : config.urls[key];
-        return formatUrl(env[key])?.toLowerCase() === formatUrl(regionUrl)?.toLowerCase();
+        return formatUrl(env[key].trim())?.toLowerCase() === formatUrl(regionUrl)?.toLowerCase();
       }),
     );
 

@@ -88,9 +88,21 @@ describe("BrowserEnvironmentService", () => {
         { name: "a trailing slash", base: "https://vault.bitwarden.eu/" },
         { name: "no scheme", base: "vault.bitwarden.eu" },
         { name: "upper case", base: "https://Vault.Bitwarden.EU" },
-        { name: "all of the above", base: "Vault.Bitwarden.EU/" },
+        { name: "surrounding whitespace", base: " https://vault.bitwarden.eu " },
+        { name: "a trailing slash and trailing whitespace", base: "https://vault.bitwarden.eu/ " },
+        { name: "all of the above", base: " Vault.Bitwarden.EU/ " },
       ])("still selects EU when base has $name", async ({ base }) => {
         const env = await applyPolicy({ base });
+
+        expect(env.getRegion()).toBe(Region.EU);
+        expect(env.isCloud()).toBe(true);
+      });
+
+      it("selects the region when only keys other than base are set and all of them match", async () => {
+        const env = await applyPolicy({
+          api: "https://api.bitwarden.eu",
+          notifications: "https://notifications.bitwarden.eu",
+        });
 
         expect(env.getRegion()).toBe(Region.EU);
         expect(env.isCloud()).toBe(true);
