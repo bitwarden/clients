@@ -186,6 +186,36 @@ describe("PamRevealableCiphersService", () => {
     expect(accessLeaseSdkService.listMyLeases).not.toHaveBeenCalled();
   });
 
+  it("serves every subscriber from one read", async () => {
+    leases = [lease("cipher-1")];
+    const first: ReadonlySet<CipherId>[] = [];
+    const second: ReadonlySet<CipherId>[] = [];
+    const subscriptions = new Subscription();
+    subscriptions.add(service.revealable$(userId).subscribe((ids) => first.push(ids)));
+    subscriptions.add(service.revealable$(userId).subscribe((ids) => second.push(ids)));
+    await flush();
+
+    accessChanged$.next();
+    await flush();
+
+    expect(accessLeaseSdkService.listMyLeases).toHaveBeenCalledTimes(2);
+    expect([...first.at(-1)!]).toEqual(["cipher-1"]);
+    expect([...second.at(-1)!]).toEqual(["cipher-1"]);
+    subscriptions.unsubscribe();
+  });
+
+  it("gives a subscriber that joins later the current ciphers without another read", async () => {
+    leases = [lease("cipher-1")];
+    watch();
+    await flush();
+
+    const late = watch();
+    await flush();
+
+    expect([...late.value!]).toEqual(["cipher-1"]);
+    expect(accessLeaseSdkService.listMyLeases).toHaveBeenCalledTimes(1);
+  });
+
   it("does not emit again when a read returns the same ciphers", async () => {
     leases = [lease("cipher-1")];
     const emissions: ReadonlySet<CipherId>[] = [];

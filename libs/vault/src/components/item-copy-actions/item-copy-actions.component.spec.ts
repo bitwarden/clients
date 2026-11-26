@@ -2,11 +2,14 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -17,12 +20,18 @@ import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components"
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { REVEALABLE_CIPHERS } from "../../tokens/revealable-ciphers.token";
 
 import { VaultItemCopyActionsComponent } from "./item-copy-actions.component";
 
 describe("VaultItemCopyActionsComponent", () => {
   let fixture: ComponentFixture<VaultItemCopyActionsComponent>;
   let component: VaultItemCopyActionsComponent;
+
+  const userId = "user-1" as UserId;
+  const revealedCipherService = mock<RevealedCipherService>();
+  const revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+  const leasedIds$ = new BehaviorSubject<ReadonlySet<CipherId>>(new Set());
 
   let i18nService: jest.Mocked<I18nService>;
   let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
@@ -31,6 +40,11 @@ describe("VaultItemCopyActionsComponent", () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+
+    revealed$.next(new Map());
+    leasedIds$.next(new Set());
+    revealedCipherService.revealed$.mockReturnValue(revealed$);
+    revealedCipherService.getOrReveal.mockClear();
 
     copyCipherFieldService = mock<CopyCipherFieldService>();
     copyCipherFieldService.totpAllowed.mockResolvedValue(true);
@@ -47,7 +61,9 @@ describe("VaultItemCopyActionsComponent", () => {
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
-        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
+        { provide: REVEALABLE_CIPHERS, useValue: { revealable$: () => leasedIds$ } },
         { provide: CipherService, useValue: mock<CipherService>() },
       ],
     }).compileComponents();
@@ -86,6 +102,67 @@ describe("VaultItemCopyActionsComponent", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe("a restricted cipher under a live lease", () => {
+    let revealedView: CipherView;
+
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("cipher", {
+        id: "cipher-1",
+        type: CipherType.SecureNote,
+        partial: true,
+        notes: null,
+        copyableFields: [],
+      } as unknown as CipherViewLike);
+
+      revealedView = new CipherView();
+      revealedView.id = "cipher-1";
+      revealedView.type = CipherType.SecureNote;
+      revealedView.notes = "the note";
+    });
+
+    it("reads the revealed view once it is held", () => {
+      revealed$.next(new Map([["cipher-1" as CipherId, revealedView]]));
+
+      expect(component["displayCipher"]()).toBe(revealedView);
+    });
+
+    it("keeps the stored copy while nothing is revealed", () => {
+      expect(component["displayCipher"]()).toBe(component.cipher());
+    });
+
+    it("reveals the cipher when the user holds a live lease on it", async () => {
+      leasedIds$.next(new Set(["cipher-1" as CipherId]));
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(revealedCipherService.getOrReveal).toHaveBeenCalledWith(userId, "cipher-1");
+    });
+
+    it("does not reveal a restricted cipher without a live lease", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(revealedCipherService.getOrReveal).not.toHaveBeenCalled();
+    });
+
+    it("does not reveal a cipher that is not restricted", async () => {
+      fixture.componentRef.setInput("cipher", {
+        id: "cipher-1",
+        type: CipherType.SecureNote,
+        partial: false,
+        copyableFields: [],
+      } as unknown as CipherViewLike);
+      leasedIds$.next(new Set(["cipher-1" as CipherId]));
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(revealedCipherService.getOrReveal).not.toHaveBeenCalled();
+    });
   });
 
   describe("quick copy action labels", () => {

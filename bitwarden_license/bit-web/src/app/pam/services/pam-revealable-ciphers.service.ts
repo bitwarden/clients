@@ -8,6 +8,7 @@ import {
   merge,
   Observable,
   of,
+  shareReplay,
   switchMap,
   take,
 } from "rxjs";
@@ -46,11 +47,25 @@ export class PamRevealableCiphersService implements RevealableCiphers {
     private readonly logService: LogService,
   ) {}
 
+  private readonly streams = new Map<UserId, Observable<ReadonlySet<CipherId>>>();
+
   /**
    * The reads run as the active user, so another user gets none. A user with no organization that
    * releases leased secrets gets none without a read, so the vault does not pay for it.
+   *
+   * Every subscriber for a user shares one stream, so a row per cipher costs one read, not one each.
+   * The read stops when the last subscriber leaves.
    */
   revealable$(userId: UserId): Observable<ReadonlySet<CipherId>> {
+    let stream = this.streams.get(userId);
+    if (stream == null) {
+      stream = this.buildRevealable$(userId).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+      this.streams.set(userId, stream);
+    }
+    return stream;
+  }
+
+  private buildRevealable$(userId: UserId): Observable<ReadonlySet<CipherId>> {
     return combineLatest([
       this.accountService.activeAccount$.pipe(map((account) => account?.id === userId)),
       this.configService.getFeatureFlag$(FeatureFlag.Pam),

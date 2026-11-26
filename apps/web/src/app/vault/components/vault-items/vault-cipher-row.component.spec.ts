@@ -18,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -93,7 +94,8 @@ describe("VaultCipherRowComponent", () => {
           useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
         },
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
-        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: RevealedCipherService, useValue: { revealed$: () => of(new Map()) } },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         {
@@ -336,7 +338,8 @@ describe("VaultCipherRowComponent", () => {
             useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
           },
           { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
-          { provide: AccountService, useValue: mock<AccountService>() },
+          { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+          { provide: RevealedCipherService, useValue: { revealed$: () => of(new Map()) } },
           { provide: CipherService, useValue: mock<CipherService>() },
           { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
           {

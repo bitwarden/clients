@@ -1,15 +1,23 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, map, of, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CopyableCipherFields } from "@bitwarden/sdk-internal";
 
 import { CopyFieldAction } from "../../services/copy-cipher-field.service";
+import { REVEALABLE_CIPHERS, RevealableCiphers } from "../../tokens/revealable-ciphers.token";
 import { CopyCipherFieldDirective } from "../copy-cipher-field.directive";
 
 type CipherItem = {
@@ -44,6 +52,74 @@ export class VaultItemCopyActionsComponent {
   /** Disables all copy actions, e.g. while the containing list is refreshing. */
   readonly disabled = input(false);
 
+  private readonly revealedCipherService = inject(RevealedCipherService);
+  private readonly revealableCiphers = inject<RevealableCiphers>(REVEALABLE_CIPHERS, {
+    optional: true,
+  });
+
+  private readonly userId$ = inject(AccountService).activeAccount$.pipe(
+    map((account) => account?.id),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /** The active user's live revealed views, by cipher ID. Empty when nothing is revealed. */
+  private readonly revealed = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        userId == null
+          ? of(new Map<CipherId, CipherView>())
+          : this.revealedCipherService.revealed$(userId),
+      ),
+    ),
+    { initialValue: new Map<CipherId, CipherView>() as ReadonlyMap<CipherId, CipherView> },
+  );
+
+  /** The ciphers the active user holds a live lease on. Empty when the host provides none. */
+  private readonly revealable = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        userId == null
+          ? of(new Set<CipherId>())
+          : (this.revealableCiphers?.revealable$(userId) ?? of(new Set<CipherId>())),
+      ),
+    ),
+    { initialValue: new Set<CipherId>() as ReadonlySet<CipherId> },
+  );
+
+  /**
+   * What the actions read. A cipher under a live lease is stored stripped, so its copyable fields
+   * come back empty; the revealed view carries the values the lease releases.
+   */
+  protected readonly displayCipher = computed<CipherViewLike>(() => {
+    const cipher = this.cipher();
+    return RestrictedCipherPolicy.revealedViewFor(cipher, this.revealed()) ?? cipher;
+  });
+
+  constructor() {
+    effect(() => {
+      const cipher = this.cipher();
+      const cipherId = cipher.id as CipherId | undefined;
+      if (
+        cipherId != null &&
+        RestrictedCipherPolicy.isRestricted(cipher) &&
+        this.revealable().has(cipherId)
+      ) {
+        void this.revealLeased(cipherId);
+      }
+    });
+  }
+
+  /**
+   * Reveals a restricted cipher the user holds a live lease on. The extension decrypts every live
+   * lease up front; the web reveals only on demand, which left the row's copy buttons disabled.
+   */
+  private async revealLeased(cipherId: CipherId): Promise<void> {
+    const userId = await firstValueFrom(this.userId$);
+    if (userId != null) {
+      await this.revealedCipherService.getOrReveal(userId, cipherId);
+    }
+  }
+
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly CipherType = CipherType;
 
@@ -52,7 +128,7 @@ export class VaultItemCopyActionsComponent {
    * code to be copied correctly. See #14167
    */
   get singleCopyableLogin(): CipherItem | null {
-    const cipher = this.cipher();
+    const cipher = this.displayCipher();
     const loginItems = this.getLoginCopyableItems(cipher);
 
     return this.findSingleCopyableItem(cipher, loginItems);
@@ -75,7 +151,7 @@ export class VaultItemCopyActionsComponent {
       { key: "copySecurityCode", field: "securityCode" },
       { key: "copyNumber", field: "cardNumber" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), cardItems);
+    return this.findSingleCopyableItem(this.displayCipher(), cardItems);
   }
 
   get singleCopyableIdentity() {
@@ -85,7 +161,7 @@ export class VaultItemCopyActionsComponent {
       { key: "copyUsername", field: "username" },
       { key: "copyPhone", field: "phone" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), identityItems);
+    return this.findSingleCopyableItem(this.displayCipher(), identityItems);
   }
 
   get singleCopyableBankAccount() {
@@ -98,7 +174,7 @@ export class VaultItemCopyActionsComponent {
       { key: "copyIban", field: "iban" },
       { key: "copySwiftCode", field: "swiftCode" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), bankAccountItems);
+    return this.findSingleCopyableItem(this.displayCipher(), bankAccountItems);
   }
 
   get singleCopyableDriversLicense() {
@@ -108,7 +184,7 @@ export class VaultItemCopyActionsComponent {
       { key: "copyLastName", field: "lastNameLicense" },
       { key: "copyLicenseNumber", field: "licenseNumber" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), driversLicenseItems);
+    return this.findSingleCopyableItem(this.displayCipher(), driversLicenseItems);
   }
 
   get singleCopyablePassport(): CipherItem | null {
@@ -118,7 +194,7 @@ export class VaultItemCopyActionsComponent {
       { key: "copyPassportNumber", field: "passportNumber" },
       { key: "copyNationalIdentificationNumber", field: "nationalIdentificationNumber" },
     ];
-    return this.findSingleCopyableItem(this.cipher(), passportItems);
+    return this.findSingleCopyableItem(this.displayCipher(), passportItems);
   }
 
   /*
@@ -134,35 +210,35 @@ export class VaultItemCopyActionsComponent {
   }
 
   get hasLoginValues() {
-    return this.getNumberOfLoginValues(this.cipher()) > 0;
+    return this.getNumberOfLoginValues(this.displayCipher()) > 0;
   }
 
   get hasCardValues() {
-    return this.getNumberOfCardValues(this.cipher()) > 0;
+    return this.getNumberOfCardValues(this.displayCipher()) > 0;
   }
 
   get hasIdentityValues() {
-    return this.getNumberOfIdentityValues(this.cipher()) > 0;
+    return this.getNumberOfIdentityValues(this.displayCipher()) > 0;
   }
 
   get hasSecureNoteValue() {
-    return this.getNumberOfSecureNoteValues(this.cipher()) > 0;
+    return this.getNumberOfSecureNoteValues(this.displayCipher()) > 0;
   }
 
   get hasSshKeyValues() {
-    return this.getNumberOfSshKeyValues(this.cipher()) > 0;
+    return this.getNumberOfSshKeyValues(this.displayCipher()) > 0;
   }
 
   get hasBankAccountValues() {
-    return this.getNumberOfBankAccountValues(this.cipher()) > 0;
+    return this.getNumberOfBankAccountValues(this.displayCipher()) > 0;
   }
 
   get hasDriversLicenseValues() {
-    return this.getNumberOfDriversLicenseValues(this.cipher()) > 0;
+    return this.getNumberOfDriversLicenseValues(this.displayCipher()) > 0;
   }
 
   get hasPassportValues() {
-    return this.getNumberOfPassportValues(this.cipher()) > 0;
+    return this.getNumberOfPassportValues(this.displayCipher()) > 0;
   }
 
   /** Sets the number of populated login values for the cipher */

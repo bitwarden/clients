@@ -1,4 +1,4 @@
-@let _cipher = cipher();
+@let _cipher = displayCipher();
 @if (CipherViewLikeUtils.getType(_cipher) === CipherType.Login) {
   @if (showQuickCopyActions()) {
     <bit-item-action>
