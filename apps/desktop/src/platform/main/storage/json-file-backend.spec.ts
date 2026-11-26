@@ -7,12 +7,10 @@ import { JsonFileBackend } from "./json-file-backend";
 describe("JsonFileBackend", () => {
   let dir: string;
   let filePath: string;
-  let corruptPath: string;
 
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "json-file-backend-"));
     filePath = path.join(dir, "data.json");
-    corruptPath = path.join(dir, "data.json.corrupt");
   });
 
   afterEach(() => {
@@ -25,7 +23,7 @@ describe("JsonFileBackend", () => {
       const sut = new JsonFileBackend(dir);
 
       expect(sut.read()).toEqual({});
-      expect(sut.corruptFileSize).toBeNull();
+      expect(sut.startupErrors).toEqual([]);
     });
 
     it("should return the stored object", () => {
@@ -47,56 +45,46 @@ describe("JsonFileBackend", () => {
     it.each([
       ["empty", ""],
       ["truncated", '{"key": "val'],
+      ["broken mid-file", '{"key": "v" x}'],
+      ["an unexpected token", '{"key": x}'],
       ["null", "null"],
       ["an array", "[]"],
-      ["NUL bytes", "\0\0\0\0"],
-    ])("should move a file that is %s aside and start empty", (_, contents) => {
+      ["a string", '"text"'],
+      ["NUL characters", "\0\0\0\0"],
+      ["whitespace", " \n"],
+    ])("should delete a file that is %s, start empty and report it", (_, contents) => {
       fs.writeFileSync(filePath, contents);
       const sut = new JsonFileBackend(dir);
 
       expect(sut.read()).toEqual({});
-      expect(sut.corruptFileSize).toBe(Buffer.byteLength(contents));
-      expect(fs.existsSync(filePath)).toBe(false);
-      expect(fs.readFileSync(corruptPath, "utf8")).toBe(contents);
+      expect(sut.startupErrors).not.toEqual([]);
+      expect(fs.readdirSync(dir)).toEqual([]);
     });
 
-    it("should replace an earlier corrupt file", () => {
-      fs.writeFileSync(corruptPath, "older");
-      fs.writeFileSync(filePath, "newer");
+    it.each([
+      ["an unexpected token", '{"key": secret}'],
+      ["a truncated value", '{"key": "secret'],
+    ])("should not quote the file contents when it has %s", (_, contents) => {
+      fs.writeFileSync(filePath, contents);
+      const sut = new JsonFileBackend(dir);
 
-      new JsonFileBackend(dir).read();
+      sut.read();
 
-      expect(fs.readdirSync(dir)).toEqual(["data.json.corrupt"]);
-      expect(fs.readFileSync(corruptPath, "utf8")).toBe("newer");
+      expect(sut.startupErrors.join("\n")).not.toContain("secret");
     });
 
-    it("should delete a corrupt copy older than 30 days", () => {
-      fs.writeFileSync(corruptPath, "old");
-      const old = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
-      fs.utimesSync(corruptPath, old, old);
+    it("should start empty and report it when reading the write time and deleting fail", () => {
+      fs.writeFileSync(filePath, "null");
+      const sut = new JsonFileBackend(dir);
+      jest.spyOn(fs, "statSync").mockImplementationOnce(() => {
+        throw new Error("ENOENT: no such file or directory, stat");
+      });
+      jest.spyOn(fs, "rmSync").mockImplementationOnce(() => {
+        throw new Error("EPERM: operation not permitted, unlink");
+      });
 
-      new JsonFileBackend(dir);
-
-      expect(fs.existsSync(corruptPath)).toBe(false);
-    });
-
-    it("should keep a corrupt copy newer than 30 days", () => {
-      fs.writeFileSync(corruptPath, "recent");
-
-      new JsonFileBackend(dir);
-
-      expect(fs.existsSync(corruptPath)).toBe(true);
-    });
-
-    it("should count the 30 days from the recovery, not from the file's last write", () => {
-      fs.writeFileSync(filePath, '{"key": "val');
-      const old = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-      fs.utimesSync(filePath, old, old);
-      new JsonFileBackend(dir).read();
-
-      new JsonFileBackend(dir);
-
-      expect(fs.existsSync(corruptPath)).toBe(true);
+      expect(sut.read()).toEqual({});
+      expect(sut.startupErrors).not.toEqual([]);
     });
   });
 

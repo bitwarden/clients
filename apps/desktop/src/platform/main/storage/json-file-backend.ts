@@ -12,23 +12,20 @@ const FILE_NAME = "data.json";
 const TEMP_PREFIX = `${FILE_NAME}.tmp-`;
 // Another process can be mid-write. Mac App Store builds skip the single-instance lock.
 const STALE_TEMP_MS = 60_000;
-const CORRUPT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 /**
  * Stores the whole state in `data.json`.
  * - Writes go to a temporary file that is fsynced and renamed over `data.json`, so an interrupted
  *   or failed write leaves the previous file in place. Each write uses its own temporary file, so
  *   two processes writing at once can't write into the same one.
- * - A file that doesn't parse to an object is moved to `data.json.corrupt`, replacing any earlier
- *   copy, and the store starts empty. {@link corruptFileSize} reports it for logging. The copy is
- *   kept for diagnostics and deleted once it's older than 30 days, since it holds wrapped keys.
+ * - A file that doesn't parse to an object is deleted, since it can hold wrapped keys, and the store
+ *   starts empty. {@link startupErrors} describes it for logging.
  */
 export class JsonFileBackend implements StorageBackend {
-  /** Size in bytes of the file that {@link read} moved aside, if it did. */
-  corruptFileSize: number | null = null;
+  /** Messages for the caller to log, since this backend is created before the log service. */
+  readonly startupErrors: string[] = [];
 
   private readonly filePath: string;
-  private readonly corruptPath: string;
   private readonly fileMode = isWindowsPortable() ? 0o666 : 0o600;
   private data: Record<string, unknown> | null = null;
 
@@ -37,9 +34,7 @@ export class JsonFileBackend implements StorageBackend {
       NodeUtils.mkdirpSync(dir, "700");
     }
     this.filePath = path.join(dir, FILE_NAME);
-    this.corruptPath = `${this.filePath}.corrupt`;
     this.removeStaleTempFiles();
-    this.removeOldCorruptFile();
   }
 
   read(): Record<string, unknown> {
@@ -72,11 +67,24 @@ export class JsonFileBackend implements StorageBackend {
     if (parsed != null) {
       return parsed;
     }
-    fs.renameSync(this.filePath, this.corruptPath);
-    // The rename keeps the last write time, so the 30 days count from the recovery instead.
-    const now = new Date();
-    fs.utimesSync(this.corruptPath, now, now);
-    this.corruptFileSize = Buffer.byteLength(text, "utf8");
+    const errors: string[] = [];
+    let modified = "unknown";
+    try {
+      modified = fs.statSync(this.filePath).mtime.toISOString();
+    } catch (error) {
+      errors.push(`Failed to read the storage file's last write time: ${error}`);
+    }
+    let outcome = "deleted it";
+    try {
+      fs.rmSync(this.filePath, { force: true });
+    } catch (error) {
+      outcome = "failed to delete it";
+      errors.push(`Failed to delete the storage file: ${error}`);
+    }
+    this.startupErrors.push(
+      `Storage file was not a JSON object (${describeCorruptFile(text)}, last written ${modified}), ${outcome} and started empty`,
+      ...errors,
+    );
     return {};
   }
 
@@ -114,13 +122,6 @@ export class JsonFileBackend implements StorageBackend {
     }
   }
 
-  private removeOldCorruptFile(): void {
-    const stats = fs.statSync(this.corruptPath, { throwIfNoEntry: false });
-    if (stats != null && stats.mtimeMs < Date.now() - CORRUPT_MAX_AGE_MS) {
-      fs.rmSync(this.corruptPath, { force: true });
-    }
-  }
-
   /** Removes temporary files left behind by interrupted writes. */
   private removeStaleTempFiles(): void {
     const cutoff = Date.now() - STALE_TEMP_MS;
@@ -147,4 +148,43 @@ function parseObject(text: string): Record<string, unknown> | null {
     // Handled by the caller as a corrupt file.
   }
   return null;
+}
+
+/**
+ * Describes the text without quoting it. Runs only after {@link parseObject} fails, so it parses
+ * the text again to get the error.
+ */
+function describeCorruptFile(text: string): string {
+  let problem: string;
+  if (text.length === 0) {
+    problem = "empty";
+  } else if (/^\0+$/.test(text)) {
+    problem = "only NUL characters";
+  } else if (text.trim().length === 0) {
+    problem = "only whitespace";
+  } else {
+    try {
+      const parsed: unknown = JSON.parse(text);
+      problem = `JSON ${parsed === null ? "null" : Array.isArray(parsed) ? "array" : typeof parsed}`;
+    } catch (error) {
+      const position = parseErrorPosition(error, text.length);
+      problem =
+        position != null
+          ? `invalid JSON, parsing failed at character ${position}`
+          : "invalid JSON, parser gave no position";
+    }
+  }
+  const size = Buffer.byteLength(text, "utf8");
+  const nulCount = text.split("\0").length - 1;
+  return `${problem}, ${text.length} characters, ${size} bytes, ${nulCount} NUL characters`;
+}
+
+/** Reads only the offset from the parse error. The rest of its message can quote file contents. */
+function parseErrorPosition(error: unknown, length: number): number | null {
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("end of JSON input")) {
+    return length;
+  }
+  const match = /at position (\d+)/.exec(message);
+  return match != null ? Number(match[1]) : null;
 }

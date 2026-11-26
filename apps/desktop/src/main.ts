@@ -166,7 +166,7 @@ export class Main {
       });
     }
 
-    // Always read through JsonFileBackend, so a corrupt file is moved aside before electron-store
+    // Always read through JsonFileBackend, so a corrupt file is deleted before electron-store
     // parses it. The flag only picks which backend writes.
     const jsonFileBackend = new JsonFileBackend(app.getPath("userData"));
     const jsonFileStorageEnabled = cachedFlagEnabled(
@@ -190,12 +190,8 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
     this.logService.info(`JSON file storage enabled: ${jsonFileStorageEnabled}`);
-    const corruptFileSize = jsonFileBackend.corruptFileSize;
-    if (corruptFileSize != null) {
-      // The parse error isn't logged, its message can include file contents.
-      this.logService.error(
-        `Storage file was not valid JSON (${corruptFileSize} bytes), moved it to data.json.corrupt and started empty`,
-      );
+    for (const message of jsonFileBackend.startupErrors) {
+      this.logService.error(message);
     }
 
     this.storageService = new ElectronStorageService(storageBackend);
