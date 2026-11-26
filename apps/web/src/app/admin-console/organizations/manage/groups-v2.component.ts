@@ -70,7 +70,7 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -116,7 +116,6 @@ type GroupFilters = {
     BulkActionComponent,
     StatusLockupComponent,
     TooltipDirective,
-    Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

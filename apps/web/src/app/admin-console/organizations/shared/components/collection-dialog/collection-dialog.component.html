@@ -15,15 +15,7 @@
   </span>
   <div bitDialogContent>
     @if (editMode && accessRuleCallout) {
-      <ng-container
-        *ngComponentOutlet="
-          accessRuleCallout;
-          inputs: {
-            organizationId: organizationSelected.value,
-            collectionId: collectionId,
-          }
-        "
-      />
+      <ng-container *ngComponentOutlet="accessRuleCallout; inputs: { collection: collection() }" />
     }
     @if (loading()) {
       <ng-container #spinner>
