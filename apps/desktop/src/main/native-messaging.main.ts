@@ -474,6 +474,10 @@ export class NativeMessagingMain {
         "HKCU",
         "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
+      "Brave Origin": [
+        "HKCU",
+        "SOFTWARE\\BraveSoftware\\Brave-Origin\\NativeMessagingHosts\\com.8bit.bitwarden",
+      ],
     };
   }
 
@@ -498,6 +502,9 @@ export class NativeMessagingMain {
       Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
       "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
       "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
+      "Brave Origin": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Origin/`,
+      "Brave Origin Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Origin-Beta/`,
+      "Brave Origin Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Origin-Nightly/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -518,6 +525,7 @@ export class NativeMessagingMain {
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
       Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+      "Brave Origin": `${this.homedir()}/.config/BraveSoftware/Brave-Origin/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
   }
