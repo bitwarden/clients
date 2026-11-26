@@ -301,8 +301,10 @@
         (click)="openDetails(row)"
       >
         @if (row.cipherName && row.cipherId) {
+          <!-- The link is inline-flex, so the cell's `break-words` can't split a long name. -->
           <a
             bitLink
+            class="[overflow-wrap:anywhere]"
             href="#"
             id="access-audit_link_item-{{ rowIndex().get(row) }}"
             [bitTooltip]="row.collectionName"
