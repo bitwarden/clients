@@ -1,7 +1,12 @@
 {
   "extends": "../../tsconfig.base",
   "angularCompilerOptions": {
-    "strictTemplates": true
+    "strictTemplates": true,
+    "extendedDiagnostics": {
+      "checks": {
+        "unusedStandaloneImports": "error"
+      }
+    }
   },
   "files": ["src/polyfills.ts", "src/main.ts", "src/theme.ts"],
   "include": [
