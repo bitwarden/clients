@@ -85,7 +85,9 @@ export class NewItemPageComponent {
 
   protected async onItemSelected(item: AddItemGridResult): Promise<void> {
     if (item.result === AddItemGridResult.Folder) {
-      const dialogRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
+        parentFolderId: this.folderId(),
+      });
       const result = await firstValueFrom(dialogRef.closed);
       if (result === AddEditFolderDialogResult.Created) {
         void this.router.navigate(["/vault"]);

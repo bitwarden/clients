@@ -31,8 +31,37 @@ export function getNestedFolderTree(
 
   const nodes: TreeNode<FolderView>[] = [];
   for (const folder of clonedFolders) {
-    const parts = folder.name ? folder.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+    const parts = folder.name ? trimNestingDelimiters(folder.name).split(NestingDelimiter) : [];
     ServiceUtils.nestedTraverse(nodes, 0, parts, folder, undefined, NestingDelimiter);
   }
   return nodes;
+}
+
+/**
+ * Splits a stored folder name into the folder's own name and the path of the folder it nests
+ * under, trimming the outer delimiters the same way {@link getNestedFolderTree} does.
+ *
+ * @example parseFolderName("Family/Home/Utilities") // { name: "Utilities", parent: "Family/Home" }
+ */
+export function parseFolderName(fullName: string): { name: string; parent?: string } {
+  const trimmed = trimNestingDelimiters(fullName ?? "");
+  const lastDelimiter = trimmed.lastIndexOf(NestingDelimiter);
+
+  if (lastDelimiter === -1) {
+    return { name: trimmed };
+  }
+
+  return {
+    name: trimmed.slice(lastDelimiter + 1),
+    parent: trimmed.slice(0, lastDelimiter),
+  };
+}
+
+/** Joins a folder's own name onto the path of its parent; the inverse of {@link parseFolderName}. */
+export function composeFolderName(parent: string | null | undefined, name: string): string {
+  return parent ? `${parent}${NestingDelimiter}${name}` : name;
+}
+
+function trimNestingDelimiters(name: string): string {
+  return name.replace(/^\/+|\/+$/g, "");
 }

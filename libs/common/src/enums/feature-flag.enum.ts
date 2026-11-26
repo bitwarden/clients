@@ -27,7 +27,6 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  FillAssistTargetingRules = "fill-assist-targeting-rules",
   FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -87,7 +86,6 @@ export enum FeatureFlag {
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
-  ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
@@ -124,7 +122,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.OrganizationMembershipSdk]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
@@ -190,7 +187,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
-  [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 
