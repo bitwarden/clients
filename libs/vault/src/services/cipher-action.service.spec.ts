@@ -418,14 +418,16 @@ describe("CipherActionService", () => {
         expect(openSpy).not.toHaveBeenCalled();
       });
 
-      it("opens without the nudge when the user has premium", async () => {
-        premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(false);
+      it("leaves the premium check to the nudge service when the user has premium", async () => {
         mockDialog(AttachmentDialogResult.Closed);
 
         await service.viewAttachments(makeCipher());
 
-        expect(premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+        expect(premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge).toHaveBeenCalledWith(
+          ATTACHMENTS_NUDGE_OPTIONS,
+        );
         expect(AttachmentsV2Component.open).toHaveBeenCalled();
+        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
       });
 
       it("keeps the organization prompt for an organization with no storage", async () => {

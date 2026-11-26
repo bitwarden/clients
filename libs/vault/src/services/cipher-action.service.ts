@@ -247,16 +247,18 @@ export class CipherActionService {
    */
   private async canAccessAttachments(organizationId: OrganizationId | undefined): Promise<boolean> {
     if (organizationId == null) {
-      if (this.userHasPremium()) {
-        return true;
+      if (
+        !(await this.configService.getFeatureFlag(FeatureFlag.PM42214_FeatureBasedUpgradePaths))
+      ) {
+        if (this.userHasPremium()) {
+          return true;
+        }
+        await this.premiumUpgradePromptService.promptForPremium();
+        return false;
       }
-      if (await this.configService.getFeatureFlag(FeatureFlag.PM42214_FeatureBasedUpgradePaths)) {
-        return await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
-          ATTACHMENTS_NUDGE_OPTIONS,
-        );
-      }
-      await this.premiumUpgradePromptService.promptForPremium();
-      return false;
+      return await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
+        ATTACHMENTS_NUDGE_OPTIONS,
+      );
     }
 
     const organization = this.organizations().find((o) => o.id === organizationId);
