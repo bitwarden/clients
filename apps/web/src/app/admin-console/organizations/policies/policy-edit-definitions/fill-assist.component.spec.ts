@@ -7,11 +7,8 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -53,29 +50,6 @@ describe("FillAssistPolicy", () => {
     expect(policy.component).toBe(FillAssistPolicyComponent);
     expect(policy.prerequisiteKey).toBe("requireSingleOrganizationPolicy");
     expect(policy.prerequisiteKeyVfo1).toBe("requireSingleOrganizationPolicyVfo1");
-  });
-
-  it("gates display$ on the FillAssistTargetingRules feature flag when enabled", async () => {
-    const policy = new FillAssistPolicy();
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(true));
-
-    const result = await firstValueFrom(policy.display$({} as Organization, configService));
-
-    expect(result).toBe(true);
-    expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-      FeatureFlag.FillAssistTargetingRules,
-    );
-  });
-
-  it("hides display$ when the FillAssistTargetingRules feature flag is off", async () => {
-    const policy = new FillAssistPolicy();
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
-
-    const result = await firstValueFrom(policy.display$({} as Organization, configService));
-
-    expect(result).toBe(false);
   });
 
   it("renders inside the drawer via the single component definition", () => {

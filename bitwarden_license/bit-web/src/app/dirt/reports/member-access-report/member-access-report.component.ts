@@ -4,15 +4,16 @@ import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom, switchMap } from "rxjs";
 
 import {
   CollectionAdminService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -20,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -49,7 +51,7 @@ import { MemberAccessReportApiService } from "./services/member-access-report-ap
 import { MemberAccessReportServiceAbstraction } from "./services/member-access-report.abstraction";
 import { MemberAccessReportService } from "./services/member-access-report.service";
 import { userReportItemHeaders } from "./view/member-access-export.view";
-import { MemberAccessReportView } from "./view/member-access-report.view";
+import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -80,6 +82,8 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 })
 export class MemberAccessReportComponent implements OnInit {
   private readonly configService = inject(ConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
 
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
@@ -89,7 +93,7 @@ export class MemberAccessReportComponent implements OnInit {
   );
   protected readonly reportTitleKey = "memberAccessReport";
 
-  protected dataSource = new TableDataSource<MemberAccessReportView>();
+  protected dataSource = new TableDataSource<MemberAccessReportViewV2>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organizationId: OrganizationId;
   protected orgIsOnSecretsManagerStandalone: boolean;
@@ -100,7 +104,6 @@ export class MemberAccessReportComponent implements OnInit {
     protected reportService: MemberAccessReportService,
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
-    protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
     protected organizationMetadataService: OrganizationMetadataServiceAbstraction,
     private logService: LogService,
@@ -177,14 +180,23 @@ export class MemberAccessReportComponent implements OnInit {
     });
   };
 
-  edit = async (user: MemberAccessReportView): Promise<void> => {
+  edit = async (user: MemberAccessReportViewV2): Promise<void> => {
+    const organization = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+        getById(this.organizationId),
+      ),
+    );
+    if (organization == undefined) {
+      throw new Error("Organization not found");
+    }
+
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
-        kind: "Edit",
-        name: this.userNamePipe.transform(user),
-        organizationId: this.organizationId,
-        organizationUserId: user.userGuid,
-        usesKeyConnector: user.usesKeyConnector,
+        readonly: false,
+        member: user.member,
+        organization,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: MemberDialogTab.Details,
       },

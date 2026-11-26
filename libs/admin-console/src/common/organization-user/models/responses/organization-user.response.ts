@@ -16,7 +16,7 @@ export class OrganizationUserResponse extends BaseResponse {
   revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
   permissions: PermissionsApi;
-  externalId: string;
+  externalId?: string;
   accessSecretsManager: boolean;
   accessPam: boolean;
   resetPasswordEnrolled: boolean;
@@ -78,7 +78,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
 
 export class OrganizationUserDetailsResponse extends OrganizationUserResponse {
   claimedByOrganization: boolean;
-  ssoExternalId: string;
+  ssoExternalId?: string;
 
   constructor(response: any) {
     super(response);
@@ -96,6 +96,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   masterPasswordSalt: string | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
+  isSoleOwnerOfOtherOrganization: boolean;
 
   constructor(response: any) {
     super(response);
@@ -107,5 +108,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
     this.masterPasswordSalt = this.getResponseProperty("MasterPasswordSalt");
     this.resetPasswordKey = this.getResponseProperty("ResetPasswordKey");
     this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
+    this.isSoleOwnerOfOtherOrganization =
+      this.getResponseProperty("IsSoleOwnerOfOtherOrganization") ?? false;
   }
 }

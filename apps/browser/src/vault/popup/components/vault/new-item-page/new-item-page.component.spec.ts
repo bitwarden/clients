@@ -223,6 +223,32 @@ describe("NewItemPageComponent", () => {
 
         expect(openSpy).toHaveBeenCalled();
       });
+
+      it("passes the folderId route param as the parent folder", async () => {
+        queryParams$.next({ folderId: "folder-1" });
+        await fixture.whenStable();
+        const openSpy = jest
+          .spyOn(AddEditFolderDialogComponent, "open")
+          .mockImplementation(() => ({}) as any);
+
+        newItemGrid().triggerEventHandler("itemSelected", { result: AddItemGridResult.Folder });
+
+        expect(openSpy).toHaveBeenLastCalledWith(expect.anything(), {
+          parentFolderId: "folder-1",
+        });
+      });
+
+      it("opens without a parent folder when no folderId route param is set", () => {
+        const openSpy = jest
+          .spyOn(AddEditFolderDialogComponent, "open")
+          .mockImplementation(() => ({}) as any);
+
+        newItemGrid().triggerEventHandler("itemSelected", { result: AddItemGridResult.Folder });
+
+        expect(openSpy).toHaveBeenLastCalledWith(expect.anything(), {
+          parentFolderId: undefined,
+        });
+      });
     });
   });
 });
