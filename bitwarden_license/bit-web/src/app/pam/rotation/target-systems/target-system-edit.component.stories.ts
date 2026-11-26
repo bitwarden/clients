@@ -241,7 +241,7 @@ export const EditCustomScript: Story = {
 export const EditCustomScriptWithdrawn: Story = {
   decorators: [at(CUSTOM_SCRIPT_SYSTEM.id)],
   play: async ({ canvasElement }) => {
-    const checkbox = await within(canvasElement).findByLabelText(/Script can end active sessions/);
+    const checkbox = await within(canvasElement).findByLabelText(/can sign out active sessions/);
     await userEvent.click(checkbox);
   },
 };
@@ -353,12 +353,12 @@ export const CreateCustomScriptNoneConnected: Story = {
 };
 
 /** A custom script with East datacenter chosen and the ending sessions opt-in ticked. */
-export const CreateCustomScriptEndsSessions: Story = {
+export const CreateCustomScriptSignsOutSessions: Story = {
   decorators: [atUrl(`${CREATE_URL}?template=custom-script`), withConnectors(CREATE_CONNECTORS)],
   play: async ({ canvasElement }) => {
     await fillCreateForm(canvasElement, "Payroll API", ["East datacenter"]);
     await userEvent.click(
-      await within(canvasElement).findByLabelText(/Script can end active sessions/),
+      await within(canvasElement).findByLabelText(/can sign out active sessions/),
     );
   },
 };

@@ -448,8 +448,10 @@
                         formControlName="supportsSessionTermination"
                         id="target-system-edit_checkbox_session-termination"
                       />
-                      <bit-label>{{ "pamTargetSystemScriptEndsSessions" | i18n }}</bit-label>
-                      <bit-hint>{{ "pamTargetSystemScriptEndsSessionsHint" | i18n }}</bit-hint>
+                      <bit-label>{{
+                        "pamTargetSystemEndingSessionsCustomScriptSupportedHint" | i18n
+                      }}</bit-label>
+                      <bit-hint>{{ "pamTargetSystemSignsOutSessionsHint" | i18n }}</bit-hint>
                     </bit-form-control>
                   </div>
                 } @else if (sessionTerminationNever()) {
@@ -643,8 +645,10 @@
                         formControlName="supportsSessionTermination"
                         id="target-system-edit_checkbox_session-termination"
                       />
-                      <bit-label>{{ "pamTargetSystemScriptEndsSessions" | i18n }}</bit-label>
-                      <bit-hint>{{ "pamTargetSystemScriptEndsSessionsHint" | i18n }}</bit-hint>
+                      <bit-label>{{
+                        "pamTargetSystemEndingSessionsCustomScriptSupportedHint" | i18n
+                      }}</bit-label>
+                      <bit-hint>{{ "pamTargetSystemSignsOutSessionsHint" | i18n }}</bit-hint>
                     </bit-form-control>
                   </div>
                   @if (showSessionTerminationWithdrawn()) {
@@ -653,7 +657,7 @@
                       class="tw-mb-0 tw-text-fg-body"
                       id="target-system-edit_session-termination-withdrawn"
                     >
-                      {{ "pamTargetSystemScriptEndsSessionsWithdrawnHint" | i18n }}
+                      {{ "pamTargetSystemSignsOutSessionsWithdrawnHint" | i18n }}
                     </p>
                   }
                 } @else if (endsSessions()) {

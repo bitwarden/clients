@@ -21836,14 +21836,11 @@
   "pamTargetSystemEndingSessionsEntraHint": {
     "message": "Entra can sign out active sessions after rotation."
   },
-  "pamTargetSystemScriptEndsSessions": {
-    "message": "Script can end active sessions"
+  "pamTargetSystemSignsOutSessionsHint": {
+    "message": "Managed credentials can then sign out active sessions after rotation. Only turn this on if the script handles the terminate operation."
   },
-  "pamTargetSystemScriptEndsSessionsHint": {
-    "message": "Turn this on if your script handles the terminate operation. Managed credentials can then choose to end active sessions after each rotation."
-  },
-  "pamTargetSystemScriptEndsSessionsWithdrawnHint": {
-    "message": "Managed credentials set to end active sessions will stop doing so once you save."
+  "pamTargetSystemSignsOutSessionsWithdrawnHint": {
+    "message": "Managed credentials set to sign out active sessions will stop once you save."
   },
   "pamTargetSystemEndingSessionsUnsetHint": {
     "message": "Shows once you choose a system type."
@@ -21880,6 +21877,9 @@
   },
   "pamTargetSystemCalloutNoneAssigned": {
     "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
   },
   "pamTargetSystemRemoveLastConnectorTitle": {
     "message": "Remove last access connector"

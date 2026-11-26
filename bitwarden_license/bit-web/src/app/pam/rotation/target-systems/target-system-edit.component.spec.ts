@@ -1113,7 +1113,7 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
     patchKind(TargetSystemKind.CustomScript);
     const el = fixture.nativeElement as HTMLElement;
     const block = el.querySelector('[data-testid="target-system-edit-ending-sessions"]')!;
-    expect(block.textContent).toContain("pamTargetSystemScriptEndsSessions");
+    expect(block.textContent).toContain("pamTargetSystemEndingSessionsCustomScriptSupportedHint");
     expect(block.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
     expect(block.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
