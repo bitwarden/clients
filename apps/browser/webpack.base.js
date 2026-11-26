@@ -7,6 +7,7 @@ const { AngularWebpackPlugin } = require("@ngtools/webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
+const { getAutofillLoginLabels, localesDirectory } = require("./config/autofill-login-labels.mjs");
 const manifest = require("./webpack/manifest");
 const AngularCheckPlugin = require("./webpack/angular-check");
 
@@ -133,6 +134,10 @@ module.exports.buildConfig = function buildConfig(params) {
       filename: "[file].map",
     }),
     new webpack.DefinePlugin({
+      AUTOFILL_LOGIN_FIELD_LABELS: webpack.DefinePlugin.runtimeValue(
+        () => JSON.stringify(getAutofillLoginLabels()),
+        { contextDependencies: [localesDirectory] },
+      ),
       "process.env": {
         ENV: JSON.stringify(ENV),
         BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(

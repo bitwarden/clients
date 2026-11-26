@@ -20,6 +20,21 @@ const autofillFormKeywordsCache: WeakMap<
   { keywordsSet: Set<string>; stringValue: string }
 > = new WeakMap();
 
+const localizedLoginFieldLabels = new Set(
+  AUTOFILL_LOGIN_FIELD_LABELS.map(normalizeLoginFieldLabel),
+);
+const localizedLoginFieldMatchCache = new WeakMap<AutofillField, boolean>();
+
+function normalizeLoginFieldLabel(value: string): string {
+  return value
+    .normalize("NFC")
+    .toUpperCase()
+    .replace(/İ/g, "I")
+    .replace(/’/g, "'")
+    .replace(/[\s:*：＊]+$/u, "")
+    .replace(/[\s_\p{Pd}]/gu, "");
+}
+
 /**
  * Normalizes and tokenizes a single attribute value string into a set of keyword tokens.
  * Produces the full lowercased value, tokens split on non-alphanumeric characters (after
@@ -47,15 +62,10 @@ function tokenizeValue(value: string): Set<string> {
 }
 
 /**
- * Collects and tokenizes all qualifying attribute values from a field into a unified
- * keyword set and a comma-joined string value. Results are cached per field reference
- * in {@link autofillFieldKeywordsCache} to avoid redundant computation across repeated calls.
+ * Gets the field attributes that can carry classification hints.
  */
-function buildAutofillFieldKeywords(field: AutofillField) {
-  if (autofillFieldKeywordsCache.has(field)) {
-    return autofillFieldKeywordsCache.get(field)!;
-  }
-  const attributeValues = [
+function getAutofillFieldKeywordValues(field: AutofillField) {
+  return [
     field.htmlID,
     field.htmlName,
     field.htmlClass,
@@ -72,8 +82,19 @@ function buildAutofillFieldKeywords(field: AutofillField) {
     field["label-top"],
     field["aria-describedby"],
   ];
+}
+
+/**
+ * Collects and tokenizes all qualifying attribute values from a field into a unified
+ * keyword set and a comma-joined string value. Results are cached per field reference
+ * in {@link autofillFieldKeywordsCache} to avoid redundant computation across repeated calls.
+ */
+function buildAutofillFieldKeywords(field: AutofillField) {
+  if (autofillFieldKeywordsCache.has(field)) {
+    return autofillFieldKeywordsCache.get(field)!;
+  }
   const keywordsSet = new Set<string>();
-  for (const attributeValue of attributeValues) {
+  for (const attributeValue of getAutofillFieldKeywordValues(field)) {
     if (!attributeValue || typeof attributeValue !== "string") {
       continue;
     }
@@ -100,6 +121,29 @@ export function fieldContainsKeyword(
     return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
   return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/** Use whole attribute values for localized labels so generic words cannot match longer phrases. */
+export function fieldContainsUsernameKeyword(
+  field: AutofillField,
+  { unambiguousOnly = false } = {},
+): boolean {
+  const keywords = unambiguousOnly
+    ? AutoFillConstants.UnambiguousUsernameFieldNames
+    : AutoFillConstants.UsernameFieldNames;
+  if (fieldContainsKeyword(field, keywords)) {
+    return true;
+  }
+
+  let matches = localizedLoginFieldMatchCache.get(field);
+  if (matches === undefined) {
+    matches = getAutofillFieldKeywordValues(field).some(
+      (value) =>
+        typeof value === "string" && localizedLoginFieldLabels.has(normalizeLoginFieldLabel(value)),
+    );
+    localizedLoginFieldMatchCache.set(field, matches);
+  }
+  return matches;
 }
 
 /**

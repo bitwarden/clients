@@ -7,6 +7,7 @@ import {
 import {
   classifyHeadings,
   fieldContainsKeyword,
+  fieldContainsUsernameKeyword,
   formContainsKeyword,
   isNonLoginUsernameField,
   isAmbiguousFieldNonLogin,
@@ -127,6 +128,47 @@ describe("fieldContainsKeyword", () => {
     });
 
     expect(fieldContainsKeyword(field, ["username"])).toBe(false);
+  });
+});
+
+describe("fieldContainsUsernameKeyword", () => {
+  it.each([
+    "Usuario: *",
+    "nombre_de_usuario",
+    "Identificador de usuario",
+    "correo-electronico",
+    "CORREO ELECTRO\u0301NICO",
+    "Usuario o correo electrónico",
+    "Courriel",
+    "Nom d’utilisateur",
+    "KULLANICI ADI",
+    "İSTİFADƏÇİ ADI",
+    "ব্যবহারকারীর নাম",
+    "اسم المستخدم",
+    "使用者名稱：",
+    "ユーザー名",
+    "Benotzernumm",
+  ])("matches the localized login label %s", (label) => {
+    const field = neutralField({ htmlID: "input", htmlName: "input", "label-tag": label });
+
+    expect(fieldContainsUsernameKeyword(field)).toBe(true);
+    expect(fieldContainsUsernameKeyword(field, { unambiguousOnly: true })).toBe(true);
+  });
+
+  it.each(["Tipo de usuario", "Correo postal", "Correo electrónico alternativo"])(
+    "rejects the non-login label %s",
+    (label) => {
+      const field = neutralField({ htmlID: "input", htmlName: "input", placeholder: label });
+
+      expect(fieldContainsUsernameKeyword(field)).toBe(false);
+    },
+  );
+
+  it("preserves the weaker match for the legacy login keyword", () => {
+    const field = neutralField({ htmlID: "login", htmlName: "login" });
+
+    expect(fieldContainsUsernameKeyword(field)).toBe(true);
+    expect(fieldContainsUsernameKeyword(field, { unambiguousOnly: true })).toBe(false);
   });
 });
 
