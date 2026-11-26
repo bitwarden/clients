@@ -367,10 +367,8 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return (
             ciphers
-              // The restricted-cipher rule blocks restore and delete, so the trash leaves them out.
-              .filter(
-                (c) => CipherViewLikeUtils.isDeleted(c) && !RestrictedCipherPolicy.isRestricted(c),
-              )
+              // Restricted ciphers are listed too. The trash row gates restore and delete on a reveal.
+              .filter((c) => CipherViewLikeUtils.isDeleted(c))
               .filter((c) => hasAccessibleOrganization(c, orgMap))
               .map(
                 (cipher) =>

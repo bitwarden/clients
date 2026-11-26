@@ -378,7 +378,7 @@ describe("VaultPopupItemsService", () => {
       expect(shown.organization).toEqual(mockOrg);
     });
 
-    it("leaves restricted ciphers out of the trash", async () => {
+    it("lists deleted restricted ciphers in the trash", async () => {
       const deletedRow = Object.assign(restrictedRow(), { deletedDate: new Date() });
       const deleted = Object.assign(new CipherView(), { deletedDate: new Date() });
       cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
@@ -387,8 +387,8 @@ describe("VaultPopupItemsService", () => {
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
 
-      expect(deletedCiphers).toHaveLength(1);
-      expect(deletedCiphers[0].id).not.toBe("restricted");
+      expect(deletedCiphers).toHaveLength(2);
+      expect(deletedCiphers.map((c) => c.id)).toContain("restricted");
     });
   });
 
