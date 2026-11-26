@@ -22,7 +22,10 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
-import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import {
+  GroupApiService,
+  OrganizationUserView,
+} from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
   getPermissionList,
   convertToPermission,
@@ -31,7 +34,10 @@ import {
 
 import { MemberAccessResponse } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
-import { MemberAccessReportView } from "../view/member-access-report.view";
+import {
+  MemberAccessReportView,
+  MemberAccessReportViewV2,
+} from "../view/member-access-report.view";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 
@@ -40,19 +46,8 @@ import { MemberAccessReportApiService } from "./member-access-report-api.service
  */
 interface MemberAccessDataV2 {
   collectionMap: Map<string, CollectionAdminView>;
-  organizationUserDataMap: Map<string, OrganizationUserData>;
+  organizationUserMap: Map<string, OrganizationUserView>;
   groupMemberMap: Map<string, { groupName: string; memberIds: string[] }>;
-}
-
-interface OrganizationUserData {
-  userId: string;
-  name: string;
-  email: string;
-  avatarColor: string;
-  twoFactorEnabled: boolean;
-  usesKeyConnector: boolean;
-  resetPasswordEnrolled: boolean;
-  userIdFromOrgUser: string | null; // userId from organization user endpoint (may be null for some users, e.g. pending invites)
 }
 
 interface MemberCipherAccess {
@@ -262,7 +257,7 @@ export class MemberAccessReportService {
    * Loads organization data (collections, users, groups) for V2 member mapping
    * @param organizationId - The organization ID
    * @param currentUserId - The current user's ID
-   * @returns Promise containing collection map, user metadata map, and group member map
+   * @returns Promise containing collection map, organization user map, and group member map
    */
   private async _loadOrganizationDataV2(
     organizationId: OrganizationId,
@@ -289,23 +284,14 @@ export class MemberAccessReportService {
     const groupNameMap = new Map<string, string>();
     groups.forEach((g) => groupNameMap.set(g.id, g.name));
 
-    // Build user metadata and group member maps
-    const organizationUserDataMap = new Map<string, OrganizationUserData>();
+    // Build organization user and group member maps
+    const organizationUserMap = new Map<string, OrganizationUserView>();
     const groupMemberMap = new Map<string, { groupName: string; memberIds: string[] }>();
 
     for (const orgUser of orgUsersResponse.data) {
-      // Build user metadata map
+      // Build organization user map
       if (orgUser.id) {
-        organizationUserDataMap.set(orgUser.id, {
-          userId: orgUser.id,
-          name: orgUser.name || orgUser.email,
-          email: orgUser.email,
-          avatarColor: orgUser.avatarColor,
-          twoFactorEnabled: orgUser.twoFactorEnabled || false,
-          usesKeyConnector: orgUser.usesKeyConnector || false,
-          resetPasswordEnrolled: orgUser.resetPasswordEnrolled || false,
-          userIdFromOrgUser: orgUser.userId || null,
-        });
+        organizationUserMap.set(orgUser.id, OrganizationUserView.fromResponse(orgUser));
       }
 
       // Build group member map
@@ -325,10 +311,10 @@ export class MemberAccessReportService {
     }
 
     this.logService.debug(
-      `[MemberAccessReportService V2] Loaded ${collections.length} collections, ${organizationUserDataMap.size} users, ${groupMemberMap.size} groups`,
+      `[MemberAccessReportService V2] Loaded ${collections.length} collections, ${organizationUserMap.size} users, ${groupMemberMap.size} groups`,
     );
 
-    return { collectionMap, organizationUserDataMap, groupMemberMap };
+    return { collectionMap, organizationUserMap, groupMemberMap };
   }
 
   /**
@@ -532,11 +518,11 @@ export class MemberAccessReportService {
    * Generate member access report using V2 frontend mapping
    *
    * @param organizationId - The organization ID
-   * @returns Promise of MemberAccessReportView array
+   * @returns Promise of MemberAccessReportViewV2 array
    */
   async generateMemberAccessReportViewV2(
     organizationId: OrganizationId,
-  ): Promise<MemberAccessReportView[]> {
+  ): Promise<MemberAccessReportViewV2[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.logService.debug("[MemberAccessReportService V2] Starting report generation");
@@ -546,7 +532,7 @@ export class MemberAccessReportService {
 
     // Log organization complexity
     this.logService.info(
-      `[MemberAccessReport V2] Organization size: ${orgData.organizationUserDataMap.size} users, ${orgData.collectionMap.size} collections`,
+      `[MemberAccessReport V2] Organization size: ${orgData.organizationUserMap.size} users, ${orgData.collectionMap.size} collections`,
     );
 
     // Get all org ciphers with timeout protection
@@ -570,7 +556,7 @@ export class MemberAccessReportService {
     // map app users regardless of what they have access to
     // this way we account for all users in the report,
     // including those without collection/cipher/group access
-    for (const userId of orgData.organizationUserDataMap.keys()) {
+    for (const userId of orgData.organizationUserMap.keys()) {
       if (!userAccessMap.has(userId)) {
         userAccessMap.set(userId, {
           collections: new Set(),
@@ -602,23 +588,24 @@ export class MemberAccessReportService {
     }
 
     // Build report views
-    const reportViews: MemberAccessReportView[] = [];
+    const reportViews: MemberAccessReportViewV2[] = [];
     for (const [userId, data] of userAccessMap.entries()) {
-      const metadata = orgData.organizationUserDataMap.get(userId);
-      if (!metadata) {
+      const member = orgData.organizationUserMap.get(userId);
+      if (!member) {
         continue;
       }
 
       reportViews.push({
         userGuid: userId as Guid,
-        name: metadata.name,
-        email: metadata.email,
-        avatarColor: metadata.avatarColor,
+        name: displayName(member),
+        email: member.email,
+        avatarColor: member.avatarColor,
         collectionsCount: data.collections.size,
         groupsCount: data.groups.size,
         itemsCount: data.items.size,
-        usesKeyConnector: metadata.usesKeyConnector,
-        userIdFromOrgUser: metadata.userIdFromOrgUser,
+        usesKeyConnector: member.usesKeyConnector,
+        userIdFromOrgUser: member.userId || null,
+        member,
       });
     }
 
@@ -666,13 +653,13 @@ export class MemberAccessReportService {
 
     const exportItems: MemberAccessExportItem[] = [];
     for (const { access, cipherIds } of accessMap.values()) {
-      const metadata = orgData.organizationUserDataMap.get(access.userId);
+      const member = orgData.organizationUserMap.get(access.userId);
 
       exportItems.push({
-        email: metadata?.email ?? "",
-        name: metadata?.name ?? "",
-        twoStepLogin: metadata?.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
-        accountRecovery: metadata?.resetPasswordEnrolled
+        email: member?.email ?? "",
+        name: member ? displayName(member) : "",
+        twoStepLogin: member?.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
+        accountRecovery: member?.resetPasswordEnrolled
           ? accountRecoveryEnabledTrue
           : accountRecoveryEnabledFalse,
         group: access.groupName || noGroup,
@@ -686,13 +673,13 @@ export class MemberAccessReportService {
 
     // include users who have no access to any collections/ciphers/groups to ensure they appear in the report with 0 counts
     const exportedUserIds = new Set(Array.from(accessMap.values()).map((a) => a.access.userId));
-    for (const [userId, metadata] of orgData.organizationUserDataMap.entries()) {
+    for (const [userId, member] of orgData.organizationUserMap.entries()) {
       if (!exportedUserIds.has(userId)) {
         exportItems.push({
-          email: metadata.email,
-          name: metadata.name,
-          twoStepLogin: metadata.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
-          accountRecovery: metadata.resetPasswordEnrolled
+          email: member.email,
+          name: displayName(member),
+          twoStepLogin: member.twoFactorEnabled ? twoFactorEnabledTrue : twoFactorEnabledFalse,
+          accountRecovery: member.resetPasswordEnrolled
             ? accountRecoveryEnabledTrue
             : accountRecoveryEnabledFalse,
           group: noGroup,
@@ -705,4 +692,9 @@ export class MemberAccessReportService {
 
     return exportItems;
   }
+}
+
+/** The member's name, or their email when they have no name. */
+function displayName(member: OrganizationUserView): string {
+  return member.name || member.email;
 }

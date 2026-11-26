@@ -381,10 +381,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     return values as F;
   });
 
-  /**
-   * Rows passing {@link filter} given {@link filterValues}, pre-sort. Also the scope
-   * for select-all and the paginator's total.
-   */
+  /** Rows passing {@link filter} given {@link filterValues}, pre-sort; the paginator's total. */
   readonly filtered = computed<T[]>(() => {
     const filter = this.filter();
     const data = this.tableDef().data();
@@ -530,14 +527,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
     });
 
-    /** (Re)build the selection model from config — in an effect, since the model's
-     * constructor writes a signal (not allowed in a computed). Scoped over the rows in display
-     * order (see {@link sorted}), so a capped select-all keeps the ones the user sees first.
-     */
+    // An effect, since the model's constructor writes a signal. Scoped to the rendered
+    // `rows`, so select-all takes only the current page.
     effect(() => {
       const config = this.selection();
       this._selectionModel.set(
-        config ? new TableSelectionModel<T>({ ...config, rows: this.sorted }) : undefined,
+        config ? new TableSelectionModel<T>({ ...config, rows: this.rows }) : undefined,
       );
     });
 
@@ -925,10 +920,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     ...(this.isFill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
   ]);
 
-  /**
-   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes over
-   * this, so a `max`-capped select-all keeps the rows shown at the top rather than scattered ones.
-   */
+  /** {@link filtered} in display order, not page-sliced. */
   readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();
     const sort = this.sort();

@@ -35,12 +35,10 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -132,9 +130,6 @@ export class AutofillComponent implements OnInit {
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;
-  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.FillAssistTargetingRules,
-  );
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
     defaultAutofill: new FormControl(),
@@ -183,7 +178,6 @@ export class AutofillComponent implements OnInit {
   accountSwitcherEnabled: boolean = false;
 
   constructor(
-    private configService: ConfigService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,

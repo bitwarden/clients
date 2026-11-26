@@ -801,6 +801,14 @@ describe("VaultNextComponent", () => {
       it("prefills new items into the folder", () => {
         expect(component()["scopedFolderId"]()).toBe(folderId);
       });
+
+      it("nests new folders under the folder", () => {
+        component().addFolder();
+
+        expect(addEditFolderDialogOpen).toHaveBeenCalledWith(component()["dialogService"], {
+          parentFolderId: folderId,
+        });
+      });
     });
 
     describe("subscription ended callout", () => {
@@ -1430,10 +1438,12 @@ describe("VaultNextComponent", () => {
   });
 
   describe("addFolder", () => {
-    it("opens the add/edit folder dialog", () => {
+    it("opens the add/edit folder dialog with no parent outside a folder", () => {
       component().addFolder();
 
-      expect(addEditFolderDialogOpen).toHaveBeenCalled();
+      expect(addEditFolderDialogOpen).toHaveBeenCalledWith(component()["dialogService"], {
+        parentFolderId: undefined,
+      });
     });
   });
 
