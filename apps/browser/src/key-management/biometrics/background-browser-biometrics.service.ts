@@ -1,3 +1,7 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
@@ -40,6 +44,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private vaultTimeoutSettingsService: () => VaultTimeoutSettingsService,
     private ipcService: () => IpcService,
     private platformUtilsService: PlatformUtilsService,
+    private desktopEndpointService: () => DesktopEndpointService,
+    private accountService: AccountService,
   ) {
     super();
   }
@@ -61,8 +67,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      const destination = userId == null ? undefined : await this.desktopEndpoint(userId);
+      if (destination == null) {
+        return false;
+      }
+
       return await ipcRequestAuthenticateBiometrics(
         this.ipcService().client,
+        destination,
         AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
       );
     } catch {
@@ -113,9 +126,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   /** Asks the desktop app for the user key over SDK IPC, and checks it is this user's key. */
   private async unlockWithDesktop(userId: UserId): Promise<UserKey | null> {
     try {
+      const destination = await this.desktopEndpoint(userId);
+      if (destination == null) {
+        return null;
+      }
+
       const response = await ipcRequestUnlockBiometrics(
         this.ipcService().client,
         fromTsUserId(userId),
+        destination,
         AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
       );
       if (!response.user_key) {
@@ -132,6 +151,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       this.logService.info("Biometric unlock for user failed", e);
       return null;
     }
+  }
+
+  /** Which desktop process serves biometrics, found once by asking both. */
+  private async desktopEndpoint(userId: UserId) {
+    return await this.desktopEndpointService().endpoint(userId);
   }
 
   /** Reads the user key the Safari app extension keeps in the keychain behind biometrics. */
@@ -158,9 +182,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
+      const destination = await this.desktopEndpoint(id);
+      if (destination == null) {
+        return BiometricsStatus.DesktopDisconnected;
+      }
+
       const status = await ipcRequestGetBiometricsStatus(
         this.ipcService().client,
         fromTsUserId(id),
+        destination,
         AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
       );
       // The status comes from the desktop app, so "not enabled" means not enabled there.

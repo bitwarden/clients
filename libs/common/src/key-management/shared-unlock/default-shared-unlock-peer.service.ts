@@ -21,7 +21,9 @@ import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
 import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { DesktopEndpointService } from "../biometrics/desktop-endpoint.service";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
+
 
 import { JsSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockPeerService } from "./shared-unlock-peer.service";
@@ -51,6 +53,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private unlockService: UnlockService,
     private configService: ConfigService,
     private stateProvider: StateProvider,
+    private desktopEndpointService: DesktopEndpointService,
   ) {}
 
   async start(): Promise<void> {
@@ -62,6 +65,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.stateProvider,
+      this.desktopEndpointService,
     );
 
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);

@@ -34,7 +34,7 @@ describe("CliIpcService", () => {
     await expect(service.verifyDesktopConnection()).resolves.toBe("2026.9.0");
     expect(ipcRequestDiscover).toHaveBeenCalledWith(
       client,
-      "DesktopRenderer",
+      "DesktopMain",
       expect.any(AbortSignal),
     );
 

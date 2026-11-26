@@ -9,6 +9,7 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DefaultDomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
@@ -135,6 +136,7 @@ export class MainServiceContainer {
     private readonly biometricsService: BiometricsService,
     private readonly biometricStateService: BiometricStateService,
     private readonly ipcService: IpcService,
+    private readonly desktopEndpointService: DesktopEndpointService,
     private readonly sharedUnlockSettingsService: SharedUnlockSettingsService,
     private readonly shell: SafeShell,
     /** Main's read-only policy service, shared rather than duplicated. */
@@ -435,6 +437,7 @@ export class MainServiceContainer {
       this.unlockService,
       this.configService,
       this.stateProvider,
+      this.desktopEndpointService,
     );
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(

@@ -71,6 +71,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -491,6 +492,7 @@ const safeProviders: SafeProvider[] = [
       UnlockService,
       ConfigService,
       StateProvider,
+      DesktopEndpointService,
     ],
   }),
   // Main owns the session; the renderer forwards every unlock over IPC and re-seeds its SDK.
@@ -886,6 +888,11 @@ const safeProviders: SafeProvider[] = [
     provide: IpcService,
     useClass: IpcRendererService,
     deps: [],
+  }),
+  safeProvider({
+    provide: DesktopEndpointService,
+    useClass: DesktopEndpointService,
+    deps: [IpcService, LogService],
   }),
   // Sharing and the Vault layer reach each other through tokens rather than imports, because
   // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`

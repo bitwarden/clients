@@ -8,6 +8,7 @@ import { EnvironmentService } from "../../platform/abstractions/environment.serv
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
+import { DesktopEndpointService } from "../biometrics/desktop-endpoint.service";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
 import { JsSharedUnlockDriver, LAST_MANUAL_LOCK } from "./shared-unlock-driver";
@@ -29,6 +30,8 @@ describe("JsSharedUnlockDriver", () => {
       mock<VaultTimeoutSettingsService>(),
       mock<EnvironmentService>(),
       stateProvider,
+      // Which desktop process serves unlocks is found by asking both; the tests answer with main.
+      { endpoint: async () => "DesktopMain" } as unknown as DesktopEndpointService,
     );
   });
 

@@ -165,6 +165,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
+import { DesktopEndpointService } from "@bitwarden/common/key-management/biometrics/desktop-endpoint.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   IntraprocessMessageSender,
@@ -590,6 +591,7 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
+  desktopEndpointService: DesktopEndpointService;
   sharedUnlockPeerService: SharedUnlockPeerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
   unlockService: BackgroundUnlockService;
@@ -891,6 +893,8 @@ export default class MainBackground {
       () => this.vaultTimeoutSettingsService,
       () => this.ipcService,
       this.platformUtilsService,
+      () => this.desktopEndpointService,
+      this.accountService,
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
@@ -1060,6 +1064,7 @@ export default class MainBackground {
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+    this.desktopEndpointService = new DesktopEndpointService(this.ipcService, this.logService);
 
     this.unlockService = new BackgroundUnlockService(
       this.registerSdkService,
@@ -1867,6 +1872,7 @@ export default class MainBackground {
       this.unlockService,
       this.configService,
       this.stateProvider,
+      this.desktopEndpointService,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
