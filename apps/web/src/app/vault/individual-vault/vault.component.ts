@@ -61,8 +61,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -98,6 +101,7 @@ import {
   AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
+  ATTACHMENTS_NUDGE_OPTIONS,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -207,6 +211,8 @@ function isEmptyStateType(map: EmptyStateMap, key: string | undefined): key is E
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly injector = inject(Injector);
+  private readonly configService = inject(ConfigService);
+  private readonly premiumUpgradeNudgeService = inject(PremiumUpgradeNudgeService);
 
   protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
     VAULT_GATED_COLLECTION_BANNER,
@@ -971,8 +977,20 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     if (cipher.organizationId == null && !this.canAccessPremium) {
-      await this.premiumUpgradePromptService.promptForPremium();
-      return;
+      if (
+        !(await this.configService.getFeatureFlag(FeatureFlag.PM42214_FeatureBasedUpgradePaths))
+      ) {
+        await this.premiumUpgradePromptService.promptForPremium();
+        return;
+      }
+
+      if (
+        !(await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
+          ATTACHMENTS_NUDGE_OPTIONS,
+        ))
+      ) {
+        return;
+      }
     } else if (cipher.organizationId != null) {
       const org = await firstValueFrom(
         this.organizations$.pipe(getOrganizationById(uuidAsString(cipher.organizationId))),
