@@ -331,9 +331,14 @@ describe("NativeMessagingMain", () => {
       it("still installs the other browsers when the Firefox manifest cannot be written", async () => {
         mkdirSync(firefoxProfiles, { recursive: true });
         mkdirSync(chrome, { recursive: true });
+        const writeManifest = (sut as any).writeManifest.bind(sut);
         jest
           .spyOn(sut as any, "writeManifest")
-          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+          .mockImplementation((destination: string, manifest: object) =>
+            destination.startsWith(mozilla)
+              ? Promise.reject(new Error("EACCES: permission denied"))
+              : writeManifest(destination, manifest),
+          );
 
         await expect(sut.generateManifests()).resolves.toBeUndefined();
 

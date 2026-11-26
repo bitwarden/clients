@@ -458,46 +458,58 @@ export class NativeMessagingMain {
     This is because our code requires the browser paths to exist before installing the manifest,
     so the fallback included in these browsers won't work if the user hasn't installed Chrome
     first (or some other application created the folder for them).
+
+    Each map is split into two groups:
+
+      - Officially supported: Edge, Opera, Chrome, Firefox and Brave, including their
+        beta/dev/nightly channels. Bitwarden tests and supports these.
+      - Community maintained: contributed browsers. Kept on a best-effort basis.
   */
 
   private getWindowsNMHS() {
     return {
-      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      // Officially supported
       "Microsoft Edge": [
         "HKCU",
         "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
-      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Brave: [
         "HKCU",
         "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
+
+      // Community maintained
+      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
     };
   }
 
   private getDarwinNMHS() {
     /* eslint-disable no-useless-escape */
     return {
-      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
-      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
-      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
-      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
-      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
-      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge/`,
       "Microsoft Edge Beta": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Beta/`,
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
+      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
+      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
+      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
+      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
+      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
+      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
+      "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
+      "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
       Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
       "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
-      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
-      "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
-      "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -512,12 +524,15 @@ export class NativeMessagingMain {
 
   private getLinuxNMHS() {
     return {
-      Firefox: `${this.homedir()}/.mozilla/`,
-      Chrome: `${this.homedir()}/.config/google-chrome/`,
-      Chromium: `${this.homedir()}/.config/chromium/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
-      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
+      Chrome: `${this.homedir()}/.config/google-chrome/`,
+      Firefox: `${this.homedir()}/.mozilla/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/.config/chromium/`,
+      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
   }
@@ -535,10 +550,13 @@ export class NativeMessagingMain {
 
   private getFlatpakNMHS() {
     return {
-      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
-      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
-      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/`,
+      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
+      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
     };
   }
 
