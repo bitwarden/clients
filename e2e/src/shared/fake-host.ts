@@ -21,9 +21,9 @@ export const HostMode = Object.freeze({
 });
 export type HostMode = (typeof HostMode)[keyof typeof HostMode];
 
-/** Holds each extension-bound frame by `ms`, including the one reporting the connection. */
-export function delayed(ms: number): string {
-  return `delay ${ms}`;
+/** Holds back only the frame reporting the connection, by `ms`. */
+export function slowConnect(ms: number): string {
+  return `slow-connect ${ms}`;
 }
 
 /**

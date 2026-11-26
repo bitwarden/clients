@@ -12,7 +12,13 @@ import {
   logInToExtension,
   openExtensionVault,
 } from "../../../src/shared/clients";
-import { bootstrapCompleted, delayed, expect, HostMode, test } from "../../../src/shared/fake-host";
+import {
+  bootstrapCompleted,
+  slowConnect,
+  expect,
+  HostMode,
+  test,
+} from "../../../src/shared/fake-host";
 
 /**
  * Background startup against a desktop app that answers late, or not at all.
@@ -88,7 +94,7 @@ test.describe("desktop app that answers late or not at all", () => {
 
   test("connects when the host reports a connection slowly", async ({ context, hostControl }) => {
     hostControl.useFakeHost();
-    hostControl.setMode(delayed(SLOW_CONNECT_MS));
+    hostControl.setMode(slowConnect(SLOW_CONNECT_MS));
     const connected = desktopConnected(context);
     await restartExtension(context);
 
@@ -123,10 +129,10 @@ test.describe("desktop app that answers late or not at all", () => {
     await expect(lock.biometricUnlockButton()).toBeEnabled({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
 
     // The connection stays up and the host stays alive; the desktop app's answers just stop
-    // arriving, which is what a wedged or suspended app looks like from here.
+    // arriving, which is what a wedged or suspended app looks like from here. An unanswered
+    // status reads as DesktopDisconnected, which keeps the option on screen but disables it.
     hostControl.setMode(HostMode.Silence);
-    await expect(lock.biometricUnlockButton()).toBeHidden({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
-    await expect(lock.biometricSwapButton()).toBeDisabled();
+    await expect(lock.biometricUnlockButton()).toBeDisabled({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
 
     hostControl.setMode(HostMode.Pass);
     await expect(lock.biometricUnlockButton()).toBeEnabled({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });

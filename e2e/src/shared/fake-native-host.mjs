@@ -11,9 +11,9 @@
  * restart spawns another host and they would otherwise race to bind one path. The test sends one
  * mode per line, the current one first:
  *
- *   pass          relay both directions
- *   silence       relay to the desktop, deliver nothing back to the extension
- *   delay <ms>    hold each extension-bound frame by <ms>
+ *   pass                 relay both directions
+ *   silence              relay to the desktop, deliver nothing back to the extension
+ *   slow-connect <ms>    hold back only the frame reporting the connection
  *
  * `silence` is the failure the real proxy cannot be made to produce on demand: the port stays
  * open and the process stays alive, so Chromium never fires `onDisconnect`, and the extension
@@ -39,7 +39,7 @@ const SOCKET_NAME = "s.bw";
 const Mode = Object.freeze({
   Pass: "pass",
   Silence: "silence",
-  Delay: "delay",
+  SlowConnect: "slow-connect",
 });
 
 /**
@@ -131,24 +131,29 @@ function writeFrame(stream, payload) {
   stream.write(payload);
 }
 
-/**
- * Sends one frame to the extension, or doesn't, according to the mode in force right now.
- *
- * The relay awaits this, so under {@link Mode.Delay} frames queue rather than overlap: the nth
- * frame leaves at n * ms. Tests delay the first frame, where the two are the same thing.
- */
-async function toExtension(control, payload) {
-  const [mode, argument] = control.current();
+/** Sends one frame to the extension, unless the mode in force right now says to drop it. */
+function toExtension(control, payload) {
+  const [mode] = control.current();
 
   if (mode === Mode.Silence) {
     return;
   }
 
-  if (mode === Mode.Delay) {
+  writeFrame(process.stdout, payload);
+}
+
+/**
+ * Holds back the connection report under {@link Mode.SlowConnect}.
+ *
+ * Only this frame: the transport's budget covers reporting the connection, and the handshake
+ * that follows has a budget of its own that several delayed round trips would exhaust.
+ */
+async function waitOutSlowConnect(control) {
+  const [mode, argument] = control.current();
+
+  if (mode === Mode.SlowConnect) {
     await sleep(Number(argument));
   }
-
-  writeFrame(process.stdout, payload);
 }
 
 async function main() {
@@ -160,16 +165,17 @@ async function main() {
   await once(desktop, "connect");
 
   writeFrame(desktop, announcement(process.argv.slice(2)));
-  await toExtension(control, CONNECTED);
+  await waitOutSlowConnect(control);
+  toExtension(control, CONNECTED);
 
   // Extension to desktop is never altered, so it needs no framing of its own.
   process.stdin.pipe(desktop);
 
   for await (const frame of frames(desktop)) {
-    await toExtension(control, frame);
+    toExtension(control, frame);
   }
 
-  await toExtension(control, DISCONNECTED);
+  toExtension(control, DISCONNECTED);
 }
 
 main().catch((error) => {
