@@ -33,7 +33,8 @@ export async function lockAll(
 ): Promise<Page> {
   if (expected === LockOutcome.NoReload) {
     // A crash means the lock reloaded after all; say so instead of timing out on the page.
-    const unexpectedReload = window.waitForEvent("crash").then(() => {
+    // No timeout of its own: the lock screen's wait bounds the race.
+    const unexpectedReload = window.waitForEvent("crash", { timeout: 0 }).then(() => {
       throw new Error("Locking reloaded the app, but no reload was expected");
     });
 
