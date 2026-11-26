@@ -31,25 +31,33 @@ export class IpcContentScriptManagerService {
     // (its chrome.runtime is invalidated after `chrome.runtime.reload()`
     // on process reload). Re-inject so they get a fresh runtime handle;
     // the old instance tears itself down via its port's onDisconnect.
-    await this.reinjectIntoOpenTabs();
+    //
+    // Not awaited: the background bootstrap awaits `init()`, and the handlers that answer the
+    // popup's lock and unlock requests are registered after it. One tab that never answers
+    // `executeScript` would otherwise stall startup indefinitely.
+    void this.reinjectIntoOpenTabs();
   }
 
   private async reinjectIntoOpenTabs() {
-    const tabs = await BrowserApi.tabsQuery({ url: IPC_CONTENT_SCRIPT_MATCHES });
-    for (const tab of tabs) {
-      if (tab.id === undefined) {
-        continue;
-      }
+    try {
+      const tabs = await BrowserApi.tabsQuery({ url: IPC_CONTENT_SCRIPT_MATCHES });
+      for (const tab of tabs) {
+        if (tab.id === undefined) {
+          continue;
+        }
 
-      try {
-        await BrowserApi.executeScriptInTab(tab.id, {
+        // Not awaited, so one unresponsive tab doesn't hold up the others.
+        BrowserApi.executeScriptInTab(tab.id, {
           file: IPC_CONTENT_SCRIPT_FILE,
           runAt: "document_start",
+        }).catch(() => {
+          // Per-tab failures (closed tab, restricted URL, etc.) shouldn't abort
+          // the rest of the re-injection pass.
         });
-      } catch {
-        // Per-tab failures (closed tab, restricted URL, etc.) shouldn't abort
-        // the rest of the re-injection pass.
       }
+    } catch {
+      // Best effort. Tabs that miss the re-injection pick up the registered script on their next
+      // load.
     }
   }
 }
