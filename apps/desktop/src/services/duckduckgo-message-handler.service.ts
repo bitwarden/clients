@@ -36,6 +36,11 @@ import { EncryptedMessageHandlerService } from "./encrypted-message-handler.serv
 const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 // This service handles messages using the protocol created for the DuckDuckGo integration.
+/**
+ * @deprecated DuckDuckGo dropped support for the integration here
+ * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a transition
+ * period.
+ */
 @Injectable()
 export class DuckDuckGoMessageHandlerService {
   private duckduckgoSharedSecret: SymmetricCryptoKey;

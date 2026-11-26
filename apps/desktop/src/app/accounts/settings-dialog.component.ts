@@ -158,6 +158,11 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly isLinux: boolean;
   protected readonly isMac: boolean;
   protected readonly showOpenAtLoginOption: boolean;
+  /**
+   * @deprecated DuckDuckGo dropped support for the integration here
+   * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a
+   * transition period.
+   */
   protected readonly showDuckDuckGoIntegrationOption: boolean;
   protected readonly runInBackgroundText: string;
   protected readonly runInBackgroundDescText: string;

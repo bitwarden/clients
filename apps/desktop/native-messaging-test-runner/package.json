@@ -1,7 +1,7 @@
 {
   "name": "native-messaging-test-runner",
   "version": "1.0.0",
-  "description": "Test runner for Desktop native messaging",
+  "description": "Deprecated. Test runner for Desktop native messaging (DuckDuckGo integration)",
   "main": "dist/bw-handshake.ts",
   "scripts": {
     "handshake": "tsc && node dist/apps/desktop/native-messaging-test-runner/src/commands/bw-handshake.js",
