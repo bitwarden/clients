@@ -23,7 +23,8 @@ describe("PamFillCipherPolicy", () => {
   const reveal = (...views: CipherView[]) =>
     revealed$.next(new Map(views.map((v) => [v.id as CipherId, v])));
 
-  const otherUses = Object.values(CipherUse).filter((use) => use !== CipherUse.UserFill);
+  const revealedUses: CipherUse[] = [CipherUse.UserFill, CipherUse.PasskeySignIn];
+  const otherUses = Object.values(CipherUse).filter((use) => !revealedUses.includes(use));
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -55,13 +56,16 @@ describe("PamFillCipherPolicy", () => {
   });
 
   describe("ciphers", () => {
-    it("appends the revealed views to the stored ciphers for a user fill", async () => {
-      reveal(view("revealed"));
+    it.each(revealedUses)(
+      "appends the revealed views to the stored ciphers for %s",
+      async (use) => {
+        reveal(view("revealed"));
 
-      const ciphers = await policy.ciphers(userId, CipherUse.UserFill);
+        const ciphers = await policy.ciphers(userId, use);
 
-      expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
-    });
+        expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
+      },
+    );
 
     it("keeps the stored copy over an old revealed view of the same cipher", async () => {
       const stored = view("stored");
@@ -90,14 +94,10 @@ describe("PamFillCipherPolicy", () => {
       );
     });
 
-    it("appends the requested revealed views for a user fill", async () => {
+    it.each(revealedUses)("appends the requested revealed views for %s", async (use) => {
       reveal(view("revealed"), view("unrequested"));
 
-      const ciphers = await policy.ciphersForIds(
-        userId,
-        ["stored", "revealed"],
-        CipherUse.UserFill,
-      );
+      const ciphers = await policy.ciphersForIds(userId, ["stored", "revealed"], use);
 
       expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
     });
@@ -112,27 +112,30 @@ describe("PamFillCipherPolicy", () => {
   });
 
   describe("ciphersForUrl", () => {
-    it("appends only the revealed views that match the URL for a user fill", async () => {
-      reveal(view("revealed"), view("other-site"));
+    it.each(revealedUses)(
+      "appends only the revealed views that match the URL for %s",
+      async (use) => {
+        reveal(view("revealed"), view("other-site"));
 
-      const ciphers = await policy.ciphersForUrl(url, userId, CipherUse.UserFill, {
-        includeOtherTypes: [CipherType.Card],
-      });
+        const ciphers = await policy.ciphersForUrl(url, userId, use, {
+          includeOtherTypes: [CipherType.Card],
+        });
 
-      expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
-        url,
-        userId,
-        [CipherType.Card],
-        undefined,
-      );
-      expect(cipherService.filterCiphersForUrl).toHaveBeenCalledWith(
-        expect.any(Array),
-        url,
-        [CipherType.Card],
-        undefined,
-      );
-    });
+        expect(ciphers.map((c) => c.id)).toEqual(["stored", "revealed"]);
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+          url,
+          userId,
+          [CipherType.Card],
+          undefined,
+        );
+        expect(cipherService.filterCiphersForUrl).toHaveBeenCalledWith(
+          expect.any(Array),
+          url,
+          [CipherType.Card],
+          undefined,
+        );
+      },
+    );
 
     it("returns the stored lookup as it is without revealed views", async () => {
       const ciphers = await policy.ciphersForUrl(url, userId, CipherUse.UserFill);

@@ -24,7 +24,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -129,7 +128,6 @@ export class Fido2Component implements OnInit, OnDestroy {
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
     private fillCipherPolicy: FillCipherPolicy,
-    private revealedCipherService: RevealedCipherService,
   ) {}
 
   ngOnInit() {
@@ -199,7 +197,7 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.accountService.activeAccount$.pipe(getUserId),
             );
             this.ciphers = (
-              await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.Passkey)
+              await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.PasskeyRegistration)
             ).filter((cipher) => cipher.type === CipherType.Login && !cipher.isDeleted);
 
             this.displayedCiphers = this.ciphers.filter(
@@ -221,13 +219,10 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.accountService.activeAccount$.pipe(getUserId),
             );
 
-            this.ciphers = await Promise.all(
-              message.cipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId, activeUserId);
-                const view = await this.cipherService.decrypt(cipher, activeUserId);
-                // A gated item's stored copy is partial; show its leased copy.
-                return firstValueFrom(this.revealedCipherService.displayView$(activeUserId, view));
-              }),
+            this.ciphers = await this.fillCipherPolicy.ciphersForIds(
+              activeUserId,
+              message.cipherIds,
+              CipherUse.PasskeySignIn,
             );
 
             this.displayedCiphers = [...this.ciphers];
