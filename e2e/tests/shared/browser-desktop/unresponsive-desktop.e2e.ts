@@ -1,9 +1,13 @@
 import { AccountSecurityPage } from "../../../src/browser/account-security";
+import { lockNow as lockExtensionNow } from "../../../src/browser/account-switcher";
 import { popupUrl, reopenPopup, watchShutdown } from "../../../src/browser/fixtures";
+import { DesktopSettings } from "../../../src/desktop/settings";
 import { FeatureFlag } from "../../../src/feature-flags";
+import { LockScreen } from "../../../src/lock-screen";
 import {
   desktopConnected,
   Extension,
+  lockExtension,
   logInToDesktop,
   logInToExtension,
   openExtensionVault,
@@ -27,6 +31,8 @@ const FLAGS = [FeatureFlag.SharedUnlock];
 const SLOW_CONNECT_MS = 2_500;
 // Two reconnect intervals, so a startup that only finishes after a retry still counts.
 const BOOTSTRAP_TIMEOUT_MS = 30_000;
+// The lock screen refreshes its unlock options every second; this covers several of those.
+const UNLOCK_OPTIONS_TIMEOUT_MS = 20_000;
 
 test.describe("desktop app that answers late or not at all", () => {
   test.setTimeout(300_000);
@@ -91,5 +97,38 @@ test.describe("desktop app that answers late or not at all", () => {
     await expect
       .poll(() => bootstrapCompleted(context), { timeout: BOOTSTRAP_TIMEOUT_MS })
       .toBe(true);
+  });
+
+  test("biometrics go unavailable while the desktop app stops answering, then come back", async ({
+    app,
+    biometrics,
+    context,
+    hostControl,
+    window,
+  }) => {
+    const settings = new DesktopSettings(app, window);
+    await settings.open();
+    await settings.enableBiometrics(biometrics);
+    await settings.close();
+
+    hostControl.useFakeHost();
+    hostControl.setMode(HostMode.Pass);
+    const connected = desktopConnected(context);
+    await restartExtension(context);
+    await connected();
+
+    extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
+    const lock = new LockScreen(extension.popup);
+    await lock.waitUntilShown();
+    await expect(lock.biometricUnlockButton()).toBeEnabled({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
+
+    // The connection stays up and the host stays alive; the desktop app's answers just stop
+    // arriving, which is what a wedged or suspended app looks like from here.
+    hostControl.setMode(HostMode.Silence);
+    await expect(lock.biometricUnlockButton()).toBeHidden({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
+    await expect(lock.biometricSwapButton()).toBeDisabled();
+
+    hostControl.setMode(HostMode.Pass);
+    await expect(lock.biometricUnlockButton()).toBeEnabled({ timeout: UNLOCK_OPTIONS_TIMEOUT_MS });
   });
 });
