@@ -132,6 +132,36 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(callout()).toBeNull();
   });
 
+  it("renders nothing while the read is in flight for a collection that arrives after the first render", async () => {
+    let resolveRules!: (rules: AccessRuleView[]) => void;
+    accessRuleSdkService.listAccessRules.mockReturnValue(
+      new Promise((resolve) => (resolveRules = resolve)),
+    );
+    await create(undefined);
+
+    fixture.componentRef.setInput("collection", GATED_COLLECTION);
+    fixture.detectChanges();
+
+    expect(callout()).toBeNull();
+
+    resolveRules([rule()]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain("Production access");
+  });
+
+  it("renders nothing while the read is in flight after the feature flag turns on", async () => {
+    accessRuleSdkService.listAccessRules.mockReturnValue(new Promise(() => {}));
+    enabled$.next(false);
+    await create();
+
+    enabled$.next(true);
+    fixture.detectChanges();
+
+    expect(callout()).toBeNull();
+  });
+
   it("summarises what the rule enforces", async () => {
     accessRuleSdkService.listAccessRules.mockResolvedValue([
       rule({ conditions: [{ kind: "human_approval" }], singleActiveLease: true }),

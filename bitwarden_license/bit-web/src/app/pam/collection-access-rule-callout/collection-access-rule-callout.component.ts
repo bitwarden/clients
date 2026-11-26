@@ -14,6 +14,7 @@ import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CollectionAccessRuleCallout } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
@@ -39,7 +40,7 @@ type CalloutCollection = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CalloutModule, LinkModule, I18nPipe],
 })
-export class CollectionAccessRuleCalloutComponent {
+export class CollectionAccessRuleCalloutComponent implements CollectionAccessRuleCallout {
   readonly collection = input<CalloutCollection | undefined>(undefined);
 
   private readonly governedCollections = inject(GovernedCollectionsService);
@@ -59,11 +60,14 @@ export class CollectionAccessRuleCalloutComponent {
     return this.pamEnabled() && collection?.hasEnabledAccessRule === true ? collection : undefined;
   });
 
-  /** Undefined until known, so a manager's callout doesn't flash the generic sentence first. */
+  /**
+   * Undefined until known, so a manager's callout doesn't flash the generic sentence first. An
+   * ungated collection is undefined too, since `gated()` turns true before this re-reads.
+   */
   protected readonly governingRules = toSignal(
     toObservable(this.gatedCollection).pipe(
       switchMap((collection) =>
-        collection == null ? of<AccessRuleView[]>([]) : this.rulesShownFor$(collection),
+        collection == null ? of(undefined) : this.rulesShownFor$(collection),
       ),
     ),
     { initialValue: undefined },
