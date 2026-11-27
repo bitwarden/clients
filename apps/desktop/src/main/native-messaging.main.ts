@@ -369,6 +369,7 @@ export class NativeMessagingMain {
       description: "Bitwarden desktop <-> DuckDuckGo bridge",
       path: this.binaryPath(),
       type: "stdio",
+      allowed_origins: await this.loadChromeIds(),
     };
 
     if (!existsSync(manifest.path)) {
@@ -528,12 +529,7 @@ export class NativeMessagingMain {
     /* eslint-enable no-useless-escape */
   }
 
-  /**
-   * Where each DuckDuckGo distribution reads native messaging hosts from.
-   *
-   * The App Store build is sandboxed, so its hosts live inside its container; the download from
-   * duckduckgo.com is not, and reads the regular Application Support location.
-   */
+  /** The location of the DuckDuckGo native messaging manifests. */
   private getDarwinDdgNMHS() {
     /* eslint-disable no-useless-escape */
     return {

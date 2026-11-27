@@ -370,7 +370,13 @@ describe("NativeMessagingMain", () => {
         await sut.generateDdgManifests();
 
         expect(manifestIn(ddg)).toEqual(
-          expect.objectContaining({ name: "com.8bit.bitwarden", path: binary }),
+          expect.objectContaining({
+            name: "com.8bit.bitwarden",
+            path: binary,
+            allowed_origins: expect.arrayContaining([
+              "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
+            ]),
+          }),
         );
       });
 
