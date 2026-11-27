@@ -20,6 +20,24 @@ loading = signal(false);
 isEnabled = signal(true); // because `enabled` is already an input
 ```
 
+## Nullable Values
+
+Never use a value that is invalid for what it represents in order to avoid `undefined` or `null`. An empty string is not a name or a GUID; `0` is not an ID. If the value can be absent, say so in its type (`T | undefined` or `T | null`) and handle the absent case where the value is used.
+
+This applies wherever a fallback can be introduced: `?? ""` when assigning, default parameters, and initial values such as `signal("")`.
+
+An empty value that is valid is fine: `[]` is a valid list of ciphers, and `""` is the valid value of an empty text field. The test is whether the value would be correct if it were displayed, saved or sent.
+
+```typescript
+// ❌ Wrong
+providerName = signal("");
+this.providerName.set(qParams.providerName ?? "");
+
+// ✅ Right
+providerName = signal<string | undefined>(undefined);
+this.providerName.set(qParams.providerName);
+```
+
 ## No TypeScript Enums (ADR-0025)
 
 Use const objects with derived type aliases. Don't add new enums; legacy ones remain.

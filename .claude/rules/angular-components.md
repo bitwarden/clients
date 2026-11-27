@@ -36,7 +36,8 @@ Signals are the default for component-local state and template I/O:
 - `computed()` for derived state — preferred over functions called from the template (re-runs only when dependencies change)
 
 ```typescript
-name = input<string>("");
+name = input<string>(); // optional: string | undefined
+disabled = input(false); // default that is a valid value
 id = input.required<string>();
 save = output<string>();
 inputEl = viewChild<ElementRef>("input");
