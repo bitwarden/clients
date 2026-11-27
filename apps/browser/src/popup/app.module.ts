@@ -12,11 +12,14 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
+  DefaultHealthScanService,
   DefaultVaultHealthReportService,
+  HealthScanService,
   VaultHealthReportService,
 } from "@bitwarden/common/dirt/vault-health/services";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   DialogModule,
   AvatarModule,
@@ -104,6 +107,11 @@ import "../platform/popup/locales";
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
       deps: [CipherRiskService, LogService],
+    }),
+    safeProvider({
+      provide: HealthScanService,
+      useClass: DefaultHealthScanService,
+      deps: [CipherService, VaultHealthReportService, LogService],
     }),
   ],
   bootstrap: [AppComponent],

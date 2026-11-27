@@ -16,7 +16,10 @@ import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
 } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
+import {
+  HealthScanService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -58,7 +61,6 @@ import {
 } from "./components/health-exclude-at-risk-item-dialog/health-exclude-at-risk-item-dialog.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
-import { HealthScanService } from "./services/health-scan.service";
 
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
 

@@ -9,7 +9,10 @@ import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
 } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
+import {
+  HealthScanService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -24,7 +27,6 @@ import { HealthOverviewComponent } from "./components/health-overview/health-ove
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthAccessService } from "./services/health-access.service";
-import { HealthScanService } from "./services/health-scan.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

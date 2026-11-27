@@ -14,7 +14,11 @@ import {
   VaultHealthReportStatus,
   VaultHealthReportView,
 } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
+import {
+  DefaultHealthScanService,
+  HealthScanService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -403,6 +407,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
           useValue: { activeAccount$: of({ id: userId } as Account) },
         },
         { provide: VaultHealthReportService, useValue: reportService },
+        {
+          provide: HealthScanService,
+          useFactory: () => new DefaultHealthScanService(cipherService, reportService, logService),
+        },
         { provide: CipherService, useValue: cipherService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
