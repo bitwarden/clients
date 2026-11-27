@@ -4,8 +4,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 /**
- * The shared unlock service for the CLI. A command is ephemeral, so this always spawns a new
- * connection.
+ * The shared unlock service for the CLI. One instance covers a single command, or the whole
+ * `bw serve` process, which reuses one service container across requests.
  */
 export class CliSharedUnlockService {
   private started: Promise<boolean> | null = null;
@@ -16,9 +16,19 @@ export class CliSharedUnlockService {
     private logService: LogService,
   ) {}
 
-  /** Whether a peer is running, after starting one if this invocation has not yet. */
+  /**
+   * Whether a peer is running, after starting one if none is. Only a running peer is remembered,
+   * so under `bw serve` a later request retries a start that failed while the desktop app was down.
+   */
   start(): Promise<boolean> {
-    this.started ??= this.startPeer();
+    this.started ??= this.startPeer().then((running) => {
+      if (!running) {
+        this.started = null;
+      }
+
+      return running;
+    });
+
     return this.started;
   }
 

@@ -40,6 +40,21 @@ describe("CliSharedUnlockService", () => {
     await expect(service.start()).resolves.toBe(false);
   });
 
+  it("starts a peer again after one failed to start", async () => {
+    sharedUnlockPeerService.start.mockRejectedValueOnce(new Error("no desktop proxy"));
+
+    await expect(service.start()).resolves.toBe(false);
+    await expect(service.start()).resolves.toBe(true);
+    expect(sharedUnlockPeerService.start).toHaveBeenCalledTimes(2);
+  });
+
+  it("starts a peer once the feature flag turns on", async () => {
+    configService.getFeatureFlag.mockResolvedValueOnce(false as never);
+
+    await expect(service.start()).resolves.toBe(false);
+    await expect(service.start()).resolves.toBe(true);
+  });
+
   it("starts at most one peer per invocation", async () => {
     await Promise.all([service.start(), service.start()]);
     await service.start();
