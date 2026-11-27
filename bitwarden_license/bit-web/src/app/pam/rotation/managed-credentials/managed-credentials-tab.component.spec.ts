@@ -624,6 +624,7 @@ describe("ManagedCredentialsTabComponent", () => {
         .map((option) => option.componentInstance.value());
 
       expect(values).toEqual([
+        "failed",
         "not-connected",
         "rotation-due",
         "rotating",
@@ -1912,10 +1913,11 @@ describe("ManagedCredentialsTabComponent table", () => {
       expect(chip("method").multiple()).toBe(false);
     });
 
-    it("offers the statuses in urgency order, without Failed", () => {
+    it("offers the statuses in urgency order, Failed first", () => {
       render();
 
       expect(chipValues("status")).toEqual([
+        "failed",
         "not-connected",
         "rotation-due",
         "rotating",
@@ -2131,7 +2133,7 @@ describe("ManagedCredentialsTabComponent table", () => {
     it("offers only the fixed chip options until the first rows land", () => {
       renderLoading([]);
 
-      expect(chipValues("status")).toHaveLength(6);
+      expect(chipValues("status")).toHaveLength(7);
       expect(chipValues("method")).toEqual([
         TargetSystemMethod.Automatic,
         TargetSystemMethod.Manual,

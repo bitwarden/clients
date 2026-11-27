@@ -1,11 +1,5 @@
 # E2e
 
-```
-NOTE: This package is currently a key-management team internal experiment. Please do not
-yet contribute to it, or place your tests here. We may in the future standardize this via
-an ADR at which point other teams may use it.
-```
-
 Playwright end-to-end suites for the web, browser extension and desktop clients, plus a
 `shared` suite, which can run tests involving multiple clients at the same time.
 

@@ -9,10 +9,8 @@ import {
 } from "../abstractions/access-rule";
 
 import {
+  DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
-  EXTENSION_DURATION_OPTIONS,
-  snapToNearestAccessRuleDuration,
-  snapToNearestDuration,
 } from "./lease-window.utils";
 
 /** The "no maximum" option in the max-duration picker; encodes to an absent cap. */
@@ -50,25 +48,24 @@ export interface AccessRuleFormValue {
 export type AccessRuleFormPatch = Omit<AccessRuleFormValue, "collections" | "ipAllowlistCidrs">;
 
 /**
- * Snaps durations to their pickers' options, so a value persisted outside a set still renders
- * instead of blanking the select.
+ * Keeps stored durations as they are, even outside the presets, so editing an unrelated field never
+ * changes one. The edit form adds such a value to its pickers' options.
  */
 export function accessRuleToFormValue(rule: AccessRuleView): AccessRuleFormPatch {
   return {
     name: rule.name,
     description: rule.description ?? "",
-    defaultLeaseDurationSeconds: snapToNearestAccessRuleDuration(rule.defaultLeaseDurationSeconds),
+    defaultLeaseDurationSeconds:
+      rule.defaultLeaseDurationSeconds ?? DEFAULT_ACCESS_RULE_DURATION_SECONDS,
     maxLeaseDurationSeconds:
-      rule.maxLeaseDurationSeconds == null
-        ? NO_DURATION_CAP
-        : snapToNearestAccessRuleDuration(rule.maxLeaseDurationSeconds),
+      rule.maxLeaseDurationSeconds == null ? NO_DURATION_CAP : rule.maxLeaseDurationSeconds,
     singleActiveLease: rule.singleActiveLease,
     enabled: rule.enabled,
     allowsExtensions: rule.allowsExtensions,
     maxExtensionDurationSeconds:
       rule.maxExtensionDurationSeconds == null
         ? DEFAULT_MAX_EXTENSION_DURATION_SECONDS
-        : snapToNearestDuration(rule.maxExtensionDurationSeconds, EXTENSION_DURATION_OPTIONS),
+        : rule.maxExtensionDurationSeconds,
     humanApprovalEnabled: rule.conditions?.some(isHumanApproval) ?? false,
     ipAllowlistEnabled: rule.conditions?.some(isIpAllowlist) ?? false,
   };

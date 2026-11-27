@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Помогите другим узнать, подходит ли им Bitwarden. Посетите магазин расширений вашего браузера и оставьте отзыв прямо сейчас."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Изменить мастер-пароль можно в веб-приложении Bitwarden."
-  },
   "fingerprintPhrase": {
     "message": "Фраза отпечатка",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
+  },
+  "nestFolderUnder": {
+    "message": "Создать папку в подкаталоге"
+  },
+  "nestFolderUnderNone": {
+    "message": "Нет",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не допускается в именах папок. Удалите /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Чтобы вложить папку, выберите ее родительскую папку в поле Вложить папку. Теперь не нужно добавлять слеш к названию."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (удалена)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Нет добавленных папок"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Использовать все элементы `span`, которые на сайте помечены атрибутом `data-bwautofill`."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Автозаполнение логинов в браузере",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Отвечать на базовую HTTP-аутентификацию, когда логин в хранилище соответствует сайту."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Хороший",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Скомпрометирован",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Пароль был скомпрометирован в результате утечки данных.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Пароль слишком короткий или простой.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Пароль повторно используется для нескольких логинов.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Подвержен риску",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Ваша организация попросила вас сменить этот пароль.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Слабый",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
-  "changeNow": {
-    "message": "Изменить сейчас"
-  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Сбросить по умолчанию"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаполнение логинов в браузере",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Включить запрос мастер-пароля?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Использовать метод обнаружения совпадений по умолчанию?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Элемент хранилища"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Доступ до $DURATION$, мгновенное утверждение, если вы соответствуете условиям",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Доступ на срок до $DURATION$. Если вы соответствуете условиям, вы получите мгновенное одобрение.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Доступ запрошен"
+  },
+  "cancelAnytime": {
+    "message": "Отменить в любое время",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Безопасная оплата через Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Не сейчас",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "месяц"
   }
 }

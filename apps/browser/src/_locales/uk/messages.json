@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Допоможіть іншим дізнатися про Bitwarden. Відвідайте вебмагазин розширень для вашого браузера і поставте оцінку."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Ви можете змінити головний пароль у вебпрограмі Bitwarden."
-  },
   "fingerprintPhrase": {
     "message": "Фраза відбитка",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
+  },
+  "nestFolderUnder": {
+    "message": "Створити теку в підкаталозі"
+  },
+  "nestFolderUnderNone": {
+    "message": "Немає",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не дозволяється в назвах тек. Видаліть /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Щоб вкласти теку, виберіть її батьківську теку в полі «Вкласти теку під». Більше не потрібно додавати косу риску до назви."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Видалено)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Немає доданих тек"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Використовувати будь-які елементи span, позначені на вебсайті атрибутом \"data-bwautofill\"."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Запити щодо автозаповнення входу в браузері",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Відповідати на загальні запити автентифікації HTTP, коли запис у вашому сховищі відповідає вебсайту."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Вебсайти можуть ініціювати ці запити без вашого відома, що може призвести до розкриття ваших облікових даних.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Хороший",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Викрито",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Пароль викрито внаслідок витоку даних.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Пароль занадто короткий або простий.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Пароль повторно використовувався для декількох входів.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "З ризиком",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Ваша організація попросила вас змінити цей пароль.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Ненадійний",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Вразливий пароль."
   },
-  "changeNow": {
-    "message": "Змінити зараз"
-  },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
   },
@@ -8975,49 +9005,48 @@
   "resetToDefault": {
     "message": "Відновити типові налаштування"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаповнення запитів на вхід у браузері",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Заповнити спливні підказки входу в браузері",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Відповідати на основні запити про HTTP-автентифікацію від вебсайтів, що збігаються з цим записом входу."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Заповнення спливних підказок",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Відкрити статтю довідки про автозаповнення запитів на вхід у браузері"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "Якщо цей параметр увімкнено, браузер може використовувати ваші облікові дані повторно без запиту після першого заповнення.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Вебсайти можуть ініціювати ці запити без вашого відома, що може призвести до розкриття ваших облікових даних.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Дізнайтеся більше про заповнення спливних підказок (відкриється в новій вкладці)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Щоб скористатися цим параметром, виберіть варіант виявлення збігів, відмінний від \"Типово\" для кожного вебсайту цього запису входу."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Увійти в $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Увімкнути автозаповнення запитів на вхід у браузері?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Оберіть вхід для $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Для цього запису буде вимкнено повторний запит головного пароля. Не можна ввімкнути обидва параметри одночасно."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Увімкнути повторний запит головного пароля?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері. Не можна ввімкнути обидва параметри одночасно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Використовувати типове виявлення збігів?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Вебсайти, для яких використовується типове виявлення збігів, не можна використовувати із запитами на вхід у браузері. Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автозаповнення запитів на вхід у браузері вимкнено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Для цього запису ввімкнено повторний запит головного пароля, тому автозаповнення запитів на вхід у браузері вимкнено. Збережіть запис, щоб застосувати цю зміну."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Використовувати браузер натомість",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
-    "message": "Vault item"
+    "message": "Запис сховища"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Затверджений період доступу ще не розпочався."
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Отримайте до $DURATION$, миттєве схвалення, якщо ви відповідаєте умовам",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Доступ на строк до $DURATION$. Якщо ви відповідаєте умовам, ви отримаєте миттєве схвалення.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Запитано доступ"
+  },
+  "cancelAnytime": {
+    "message": "Скасувати будь-коли",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Безпечна оплата через Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Не зараз",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "місяць"
   }
 }

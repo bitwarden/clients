@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "幫助其他人了解 Bitwarden 是否適合他們。立即造訪瀏覽器的擴充套件商店並留下評分。"
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden Web 應用程式上變更主密碼。"
-  },
   "fingerprintPhrase": {
     "message": "指紋短語",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "在資料夾名稱後面使用「/」來建立樹狀結構。\n例如：社交網路/論壇"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "未新增資料夾"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "使用網站以 `data-bwautofill` 屬性標記的任何 span 元素。"
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "自動填入瀏覽器登入提示",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "當密碼庫中的登入項目與網站相符時，回應 HTTP 基本驗證提示。"
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "良好",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "弱",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "有安全疑慮的密碼。"
   },
-  "changeNow": {
-    "message": "立即變更"
-  },
   "settingsVaultOptions": {
     "message": "密碼庫選項"
   },
@@ -8929,7 +8959,7 @@
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
-    "message": "匯出該新的密碼庫",
+    "message": "探索全新的密碼庫",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "coachmarkStepsIndicator": {
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "重設至預設值"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "自動填入瀏覽器登入提示",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "回應與此登入項目相符的網站所顯示的 HTTP 基本驗證提示。"
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "開啟自動填入瀏覽器登入提示的說明文章"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "若要使用此設定，請為此登入項目的每個網站選取「預設」以外的比對偵測選項。"
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "要開啟瀏覽器登入提示的自動填入功能嗎？"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此項目的主密碼重新提示功能將關閉。這兩項設定無法同時啟用。"
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "要開啟主密碼重新提示功能嗎？"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此項目的瀏覽器登入提示自動填入功能將關閉。這兩項設定無法同時啟用。"
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "要使用預設比對偵測嗎？"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用預設比對偵測的網站無法搭配瀏覽器登入提示使用。此項目的瀏覽器登入提示自動填入功能將關閉。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "已關閉瀏覽器登入提示自動填入功能"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "此項目已啟用主密碼重新提示功能，因此已關閉瀏覽器登入提示自動填入功能。請儲存項目以保留此變更。"
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Vault item"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Not now",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "month"
   }
 }

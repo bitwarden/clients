@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Şimdi eşitle"
   },
-  "changeMasterPass": {
-    "message": "Ana parolayı değiştir"
-  },
   "changeMasterPassword": {
     "message": "Ana parolayı değiştir"
-  },
-  "continueToWebApp": {
-    "message": "Web uygulamasına devam edilsin mi?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Ana parolanızı Bitwarden web uygulamasında değiştirebilirsiniz."
   },
   "fingerprintPhrase": {
     "message": "Parmak izi ifadesi",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Güvensiz parola."
   },
-  "changeNow": {
-    "message": "Şimdi değiştir"
-  },
   "missingPermissions": {
     "message": "Bu eylemi gerçekleştirmek için gereken izinlere sahip değilsiniz."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Hassas bilgileri güvenle paylaşın",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Tarayıcının oturum açma isteklerini otomatik doldur",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Bu hesap kaydıyla eşleşen web sitelerinden gelen temel HTTP kimlik doğrulama istemlerine yanıt ver."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Tarayıcı giriş istemlerini otomatik doldurma ile ilgili yardım makalesini aç"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Web siteleri bu istemleri sizin haberiniz olmadan tetikleyebilir ve bu da kimlik bilgilerinizi açığa çıkarabilir.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Bu ayarı kullanmak için bu hesap kaydının her web sitesi için \"Varsayılan\" dışında bir eşleşme algılama seçeneği belirleyin."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Tarayıcı giriş istemleri için otomatik doldurma açılsın mı?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Bu kayıt için ana parolayı yeniden sorma kapatılacak. İki ayar aynı anda açık olamaz."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ana parolayı yeniden sorma açılsın mı?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Bu kayıt için tarayıcı giriş istemlerinde otomatik doldurma kapatılacak. İki ayar aynı anda açık olamaz."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Varsayılan eşleşme algılama kullanılsın mı?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Varsayılan eşleşme algılamayı kullanan web siteleri tarayıcı giriş istemleriyle kullanılamaz. Bu kayıt için tarayıcı giriş istemlerinde otomatik doldurma kapatılacak."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Tarayıcı giriş istemleri için otomatik doldurma kapatıldı"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Bu kayıtta ana parolayı yeniden sorma açık olduğundan tarayıcı giriş istemleri için otomatik doldurma kapatıldı. Bu değişikliği korumak için kaydı kaydedin."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

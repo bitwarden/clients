@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Bitwarden'ı başkalarına da tanımak ister misiniz? Tarayıcınızın uzantı mağazasını ziyaret edip Bitwarden'ı değerlendirin."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Ana parolanızı Bitwarden web uygulamasında değiştirebilirsiniz."
-  },
   "fingerprintPhrase": {
     "message": "Parmak izi ifadesi",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Hiç klasör eklenmedi"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Bir web sitesinin `data-bwautofill` özelliğiyle işaretlediği yayılma öğelerini kullanın."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Tarayıcının oturum açma isteklerini otomatik doldur",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Kasanızdaki bir hesap kaydı web sitesiyle eşleştiğinde temel HTTP kimlik doğrulama istemlerine yanıt ver."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Web siteleri bu istemleri sizin haberiniz olmadan tetikleyebilir ve bu da kimlik bilgilerinizi açığa çıkarabilir.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "İyi",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Ele geçirilmiş",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Risk altında",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Zayıf",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Güvensiz parola."
   },
-  "changeNow": {
-    "message": "Şimdi değiştir"
-  },
   "settingsVaultOptions": {
     "message": "Kasa seçenekleri"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Varsayılanı geri yükle"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Tarayıcının oturum açma isteklerini otomatik doldur",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Bu hesap kaydıyla eşleşen web sitelerinden gelen temel HTTP kimlik doğrulama istemlerine yanıt ver."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Tarayıcı giriş istemlerini otomatik doldurma ile ilgili yardım makalesini aç"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Web siteleri bu istemleri sizin haberiniz olmadan tetikleyebilir ve bu da kimlik bilgilerinizi açığa çıkarabilir.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Bu ayarı kullanmak için bu hesap kaydının her web sitesi için \"Varsayılan\" dışında bir eşleşme algılama seçeneği belirleyin."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Tarayıcı giriş istemleri için otomatik doldurma açılsın mı?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Bu kayıt için ana parolayı yeniden sorma kapatılacak. İki ayar aynı anda açık olamaz."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ana parolayı yeniden sorma açılsın mı?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Bu kayıt için tarayıcı giriş istemlerinde otomatik doldurma kapatılacak. İki ayar aynı anda açık olamaz."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Varsayılan eşleşme algılama kullanılsın mı?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Varsayılan eşleşme algılamayı kullanan web siteleri tarayıcı giriş istemleriyle kullanılamaz. Bu kayıt için tarayıcı giriş istemlerinde otomatik doldurma kapatılacak."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Tarayıcı giriş istemleri için otomatik doldurma kapatıldı"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Bu kayıtta ana parolayı yeniden sorma açık olduğundan tarayıcı giriş istemleri için otomatik doldurma kapatıldı. Bu değişikliği korumak için kaydı kaydedin."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Vault item"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "En fazla $DURATION$ erişim, koşulları karşılarsanız anında onay",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Erişim istendi"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Not now",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "month"
   }
 }
