@@ -9228,6 +9228,12 @@
   "addEmergencyContact": {
     "message": "Add emergency contact"
   },
+  "emergencyContactUpgradeTitle": {
+    "message": "Add a trusted contact as a backup"
+  },
+  "emergencyContactUpgradeDescription": {
+    "message": "Designate a trusted person to access your vault in an emergency where you are locked out."
+  },
   "designatedEmergencyContacts": {
     "message": "Designated as emergency contact"
   },

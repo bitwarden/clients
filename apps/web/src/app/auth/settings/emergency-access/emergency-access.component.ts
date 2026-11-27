@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { lastValueFrom, Observable, firstValueFrom, switchMap, map } from "rxjs";
 
@@ -12,6 +12,10 @@ import { OrganizationManagementPreferencesService } from "@bitwarden/common/admi
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import {
+  PremiumUpgradeNudgeOptions,
+  PremiumUpgradeNudgeService,
+} from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +49,11 @@ import {
   EmergencyAccessTakeoverDialogResultType,
 } from "./takeover/emergency-access-takeover-dialog.component";
 
+const EMERGENCY_CONTACT_NUDGE_OPTIONS: PremiumUpgradeNudgeOptions = {
+  titleKey: "emergencyContactUpgradeTitle",
+  descriptionKey: "emergencyContactUpgradeDescription",
+};
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -58,6 +67,11 @@ export class EmergencyAccessComponent implements OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
+  protected readonly featureBasedUpgradePaths = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+    { initialValue: false },
+  );
+  private readonly premiumUpgradeNudgeService = inject(PremiumUpgradeNudgeService);
   canAccessPremium$: Observable<boolean>;
   trustedContacts: GranteeEmergencyAccess[];
   grantedContacts: GrantorEmergencyAccess[];
@@ -124,6 +138,14 @@ export class EmergencyAccessComponent implements OnInit {
   };
 
   invite = async () => {
+    if (
+      this.featureBasedUpgradePaths() &&
+      !(await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
+        EMERGENCY_CONTACT_NUDGE_OPTIONS,
+      ))
+    ) {
+      return;
+    }
     await this.edit(null);
   };
 
