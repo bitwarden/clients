@@ -9254,6 +9254,19 @@
   "pamUnavailableBannerBody": {
     "message": "This credential's access rule doesn't allow requests from your current network or at this time."
   },
+  "pamSlotTakenHeading": {
+    "message": "Someone else is using this credential",
+    "description": "Heading on a privileged item while another member has access and the access rule allows only one member at a time."
+  },
+  "pamSlotTakenRequestBody": {
+    "message": "You can request access, but it won't reserve this credential for you."
+  },
+  "pamSlotTakenStartBody": {
+    "message": "You can start access once they're done."
+  },
+  "pamSlotTakenRequestLaterBody": {
+    "message": "You can request access once they're done."
+  },
   "pamApprovedRequestBannerHeadingV2": {
     "message": "Ready to use"
   },

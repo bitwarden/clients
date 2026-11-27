@@ -161,6 +161,15 @@ export class AccessRequestDetailService {
     await this.fetch(id);
   }
 
+  /**
+   * Whether the request's item has its single-active-lease slot free, so the requester could start
+   * now. A hint: the server re-checks at start.
+   */
+  async canStartLease(request: AccessRequestView): Promise<boolean> {
+    const preCheck = await this.requestsApi.preCheck(uuidAsString(request.cipherId));
+    return preCheck.canStartLease;
+  }
+
   async activate(): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {

@@ -1,11 +1,20 @@
 <bit-card data-testid="cipher-view-banner-approved">
   <div class="tw-flex tw-flex-col tw-gap-4">
-    <app-pam-banner-card-header [icon]="badgeLook.ready.icon" variant="success">
-      <span slot="title">{{ "pamApprovedRequestBannerHeadingV2" | i18n }}</span>
-      <span slot="description" data-testid="cipher-view-banner-approved-hint">
-        {{ accessUntilLabel() }}
-      </span>
-    </app-pam-banner-card-header>
+    @if (slotTaken()) {
+      <app-pam-banner-card-header [icon]="badgeLook.unavailable.icon" variant="gray">
+        <span slot="title">{{ "pamSlotTakenHeading" | i18n }}</span>
+        <span slot="description" data-testid="cipher-view-banner-approved-hint">
+          {{ "pamSlotTakenStartBody" | i18n }} {{ accessUntilLabel() }}
+        </span>
+      </app-pam-banner-card-header>
+    } @else {
+      <app-pam-banner-card-header [icon]="badgeLook.ready.icon" variant="success">
+        <span slot="title">{{ "pamApprovedRequestBannerHeadingV2" | i18n }}</span>
+        <span slot="description" data-testid="cipher-view-banner-approved-hint">
+          {{ accessUntilLabel() }}
+        </span>
+      </app-pam-banner-card-header>
+    }
 
     <button
       type="button"
@@ -15,6 +24,7 @@
       [class.tw-w-full]="popupLayout"
       [class.tw-self-start]="!popupLayout"
       [bitAction]="startAction()"
+      [disabled]="slotTaken()"
       id="pam-cipher-view-banner_button_start"
     >
       {{ "pamStartLeaseButton" | i18n }}

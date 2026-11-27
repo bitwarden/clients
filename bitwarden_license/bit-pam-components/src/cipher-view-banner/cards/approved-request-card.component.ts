@@ -27,7 +27,10 @@ import { injectPopupLayout } from "../cipher-view-banner-layout";
 
 import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
-/** An approved request the requester has not started yet. */
+/**
+ * An approved request the requester has not started yet. Start access stays disabled while another
+ * member holds the rule's single active lease.
+ */
 @Component({
   selector: "app-pam-approved-request-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +43,7 @@ export class ApprovedRequestCardComponent {
   /** The banner's clock, so "today" turns over with it. */
   readonly nowMs = input.required<number>();
   readonly startAction = input.required<FunctionReturningAwaitable>();
+  readonly slotTaken = input(false);
 
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);

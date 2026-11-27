@@ -32,6 +32,7 @@ import {
 
 import {
   type AccessLeaseView,
+  type AccessPreCheckView,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -265,14 +266,23 @@ export class CipherViewBannerComponent implements OnInit {
       !this.unavailable(),
   );
 
-  /** The governing rule's terms for the resting banner, from `preCheck`, since {@link state} carries none. */
-  protected readonly restingRequestTerms = toSignal<RequestTerms | null>(
-    toObservable(computed(() => (this.canRequestAccess() ? this.cipher().id : null))).pipe(
-      switchMap((cipherId) =>
-        cipherId == null
+  /**
+   * The governing rule's terms and its single-active-lease slot, from `preCheck`, since
+   * {@link state} carries neither. Keyed on the state itself, so every re-read asks again and a
+   * freed slot shows on the next refresh.
+   */
+  private readonly preCheck = toSignal<AccessPreCheckView | null>(
+    toObservable(
+      computed(() => {
+        const state = this.state();
+        const startable = this.unlicensed() === false && this.approvedRequest() != null;
+        return state != null && (this.canRequestAccess() || startable) ? state : null;
+      }),
+    ).pipe(
+      switchMap((state) =>
+        state == null
           ? of(null)
-          : from(this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
-              map(requestTerms),
+          : from(this.accessRequestSdkService.preCheck(String(this.cipher().id))).pipe(
               catchError((e: unknown) => {
                 this.logService.error(e);
                 return of(null);
@@ -281,6 +291,28 @@ export class CipherViewBannerComponent implements OnInit {
       ),
     ),
     { initialValue: null },
+  );
+
+  /** The governing rule's terms for the resting banner. */
+  protected readonly restingRequestTerms = computed<RequestTerms | null>(() => {
+    const preCheck = this.preCheck();
+    return preCheck == null ? null : requestTerms(preCheck);
+  });
+
+  /**
+   * Another member holds the rule's single active lease. A hint: the server re-checks at start, and
+   * an unreadable pre-check reads as free.
+   */
+  protected readonly slotTaken = computed(() => this.preCheck()?.canStartLease === false);
+
+  /** An auto-approved request starts at once, so a taken slot refuses the request itself. */
+  protected readonly requestBlockedBySlot = computed(
+    () => this.slotTaken() && this.preCheck()?.approvalMode === "automatic",
+  );
+
+  /** Whether Request access is enabled, inside whichever card offers a new request. */
+  protected readonly offersRequest = computed(
+    () => this.canRequestAccess() && !this.requestBlockedBySlot(),
   );
 
   /**
@@ -336,7 +368,7 @@ export class CipherViewBannerComponent implements OnInit {
     // Closes the form with the card, so it never offers a request that no longer applies. The sheet
     // also closes with the banner, since DialogService leaves it open across navigation.
     effect(() => {
-      if (!this.canRequestAccess()) {
+      if (!this.offersRequest()) {
         this.requestFormOpen.set(false);
         void untracked(this.requestSheet)?.close();
       }
@@ -358,6 +390,9 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   protected openRequest(): void {
+    if (!this.offersRequest()) {
+      return;
+    }
     if (this.popupLayout) {
       void this.openRequestSheet();
       return;

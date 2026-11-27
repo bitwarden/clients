@@ -1,9 +1,16 @@
 <bit-card data-testid="cipher-view-banner-request">
   <div class="tw-flex tw-flex-col tw-gap-4">
-    <app-pam-banner-card-header [icon]="badgeLook.privileged.icon" variant="primary">
-      <span slot="title">{{ "pamRequestAccessBannerHeading" | i18n }}</span>
-      <span slot="description">{{ "pamRequestAccessBannerBody" | i18n }}</span>
-    </app-pam-banner-card-header>
+    @if (slotTaken()) {
+      <app-pam-banner-card-header [icon]="badgeLook.unavailable.icon" variant="gray">
+        <span slot="title">{{ "pamSlotTakenHeading" | i18n }}</span>
+        <span slot="description">{{ "pamSlotTakenRequestBody" | i18n }}</span>
+      </app-pam-banner-card-header>
+    } @else {
+      <app-pam-banner-card-header [icon]="badgeLook.privileged.icon" variant="primary">
+        <span slot="title">{{ "pamRequestAccessBannerHeading" | i18n }}</span>
+        <span slot="description">{{ "pamRequestAccessBannerBody" | i18n }}</span>
+      </app-pam-banner-card-header>
+    }
 
     @if (terms(); as rule) {
       <p

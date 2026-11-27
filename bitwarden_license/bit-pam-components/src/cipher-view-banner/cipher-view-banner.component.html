@@ -58,6 +58,7 @@
       class="tw-mb-5 bit-compact:tw-mb-4"
       [request]="request"
       [nowMs]="nowMs()"
+      [slotTaken]="slotTaken()"
       [startAction]="activateRequest"
     />
   } @else if (pendingRequest(); as request) {
@@ -86,16 +87,24 @@
         <ng-container [ngTemplateOutlet]="requestAccessAction" />
       }
     </app-pam-access-ended-card>
+  } @else if (requestBlockedBySlot()) {
+    <app-pam-unavailable-card class="tw-mb-5 bit-compact:tw-mb-4" [slotTaken]="true">
+      <ng-container [ngTemplateOutlet]="requestAccessAction" />
+    </app-pam-unavailable-card>
   } @else if (canRequestAccess()) {
     <app-pam-request-access-card
       class="tw-mb-5 bit-compact:tw-mb-4"
       [terms]="restingRequestTerms()"
+      [slotTaken]="slotTaken()"
     >
       <ng-container [ngTemplateOutlet]="requestAccessAction" />
     </app-pam-request-access-card>
   }
 
-  <!-- Request access, inside whichever card offers a new request. -->
+  <!--
+    Request access, inside whichever card offers a new request. Disabled while an auto-approving
+    rule's only lease is held by another member.
+  -->
   <ng-template #requestAccessAction>
     @if (!requestFormOpen()) {
       <button
@@ -107,6 +116,7 @@
         [class.tw-w-full]="popupLayout"
         [class.tw-self-start]="!popupLayout"
         [startIcon]="popupLayout ? 'bwi-lock' : undefined"
+        [disabled]="requestBlockedBySlot()"
         (click)="openRequest()"
         id="pam-cipher-view-banner_button_request-toggle"
       >

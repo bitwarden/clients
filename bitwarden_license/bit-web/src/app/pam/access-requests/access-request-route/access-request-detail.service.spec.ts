@@ -10,7 +10,12 @@ import {
   AccessRequestSdkService,
   LeasingErrorService,
 } from "@bitwarden/bit-pam";
-import type { AccessLeaseId, AccessRequestId, AccessRequestView } from "@bitwarden/bit-pam";
+import type {
+  AccessLeaseId,
+  AccessPreCheckView,
+  AccessRequestId,
+  AccessRequestView,
+} from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
 import { ApprovalRow } from "../../approvals/approval-row";
@@ -189,6 +194,19 @@ describe("AccessRequestDetailService", () => {
       expect(await firstValueFrom(service.loadError$)).toBeNull();
       expect((await firstValueFrom(service.request$))?.id).toBe("req-2");
     });
+  });
+
+  describe("canStartLease", () => {
+    it.each([true, false])(
+      "reads the pre-check's slot for the request's item (%s)",
+      async (free) => {
+        await setup();
+        requestsApi.preCheck.mockResolvedValue({ canStartLease: free } as AccessPreCheckView);
+
+        await expect(service.canStartLease(request())).resolves.toBe(free);
+        expect(requestsApi.preCheck).toHaveBeenCalledWith("cipher-1");
+      },
+    );
   });
 
   describe("mutations re-fetch to reconcile", () => {

@@ -9,7 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
+import type { AccessPreCheckView, CipherAccessStateView } from "@bitwarden/sdk-internal";
 
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge.component";
 
@@ -23,6 +23,7 @@ describe("ItemDetailsStateBadgeComponent", () => {
   let logService: { error: jest.Mock };
   let accessRequestSdkService: {
     getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
+    preCheck: jest.Mock<Promise<AccessPreCheckView>, [string]>;
   };
 
   function create(cipher: CipherView): void {
@@ -63,7 +64,11 @@ describe("ItemDetailsStateBadgeComponent", () => {
     revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
     activeAccount$ = new BehaviorSubject<Account | null>({ id: "user-1" } as Account);
     logService = { error: jest.fn() };
-    accessRequestSdkService = { getCipherAccessState: jest.fn() };
+    accessRequestSdkService = {
+      getCipherAccessState: jest.fn(),
+      // The slot is free unless a case takes it.
+      preCheck: jest.fn().mockResolvedValue({ canStartLease: true } as AccessPreCheckView),
+    };
 
     TestBed.configureTestingModule({
       imports: [ItemDetailsStateBadgeComponent],
@@ -346,6 +351,74 @@ describe("ItemDetailsStateBadgeComponent", () => {
     await settle();
 
     expect(logService.error).not.toHaveBeenCalled();
+  });
+
+  describe("while another member holds the single active lease", () => {
+    function badgeOnly(badgeState: CipherAccessStateView["badgeState"]): CipherAccessStateView {
+      return { cipherId: "cipher-1", badgeState } as unknown as CipherAccessStateView;
+    }
+
+    function takeSlot(): void {
+      accessRequestSdkService.preCheck.mockResolvedValue({
+        canStartLease: false,
+      } as AccessPreCheckView);
+    }
+
+    it.each(["privileged", "ready"] as const)("shows unavailable over %s", async (badgeState) => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(badgeOnly(badgeState));
+      takeSlot();
+
+      create(gatedCipher());
+      await settle();
+
+      expect(component["badge"]()?.kind).toBe("unavailable");
+      expect(accessRequestSdkService.preCheck).toHaveBeenCalledWith("cipher-1");
+    });
+
+    it("keeps the SDK's badge while the slot is free", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(badgeOnly("ready"));
+
+      create(gatedCipher());
+      await settle();
+
+      expect(component["badge"]()?.kind).toBe("ready");
+    });
+
+    it("keeps a pending badge without asking for the slot", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(badgeOnly("pending"));
+      takeSlot();
+
+      create(gatedCipher());
+      await settle();
+
+      expect(component["badge"]()?.kind).toBe("pending");
+      expect(accessRequestSdkService.preCheck).not.toHaveBeenCalled();
+    });
+
+    it("keeps the SDK's badge when the pre-check fails", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(badgeOnly("privileged"));
+      accessRequestSdkService.preCheck.mockRejectedValue(new Error("boom"));
+
+      create(gatedCipher());
+      await settle();
+
+      expect(component["badge"]()?.kind).toBe("privileged");
+    });
+
+    it("drops back to the SDK's badge once a refresh finds the slot free", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(badgeOnly("ready"));
+      takeSlot();
+      create(gatedCipher());
+      await settle();
+
+      accessRequestSdkService.preCheck.mockResolvedValue({
+        canStartLease: true,
+      } as AccessPreCheckView);
+      accessChanged$.next();
+      await settle();
+
+      expect(component["badge"]()?.kind).toBe("ready");
+    });
   });
 
   it("renders nothing when the access-state read fails", async () => {
