@@ -12,6 +12,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { BreadcrumbsModule, ButtonModule, DialogService, LinkModule } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
@@ -45,7 +47,6 @@ interface StepState {
   title: string;
   status: StepStatus;
   message?: string;
-  oldAttachmentCipherIds?: string[];
 }
 
 @Component({
@@ -77,6 +78,8 @@ export class DataRecoveryComponent {
   private keyService = inject(KeyService);
   private folderApiService = inject(FolderApiServiceAbstraction);
   private cipherEncryptService = inject(CipherEncryptionService);
+  private cipherService = inject(CipherService);
+  private cipherSdkService = inject(CipherSdkService);
   private dialogService = inject(DialogService);
   private privateKeyRegenerationService = inject(UserAsymmetricKeysRegenerationService);
   private logService = inject(LogService);
@@ -96,7 +99,13 @@ export class DataRecoveryComponent {
       this.keyService,
       this.i18nService,
     ),
-    new AttachmentStep(this.i18nService),
+    new AttachmentStep(
+      this.cipherService,
+      this.cipherSdkService,
+      this.cipherEncryptService,
+      this.dialogService,
+      this.i18nService,
+    ),
   ];
   private workingData: RecoveryWorkingData | null = null;
   /** Numbers each diagnostics pass so passes are distinguishable in the saved log. */
@@ -129,6 +138,7 @@ export class DataRecoveryComponent {
       userKey: null,
       isPrivateKeyCorrupt: false,
       ciphers: [],
+      decryptedCiphers: null,
       folders: [],
     };
 
@@ -160,7 +170,6 @@ export class DataRecoveryComponent {
         const success = await step.runDiagnostics(this.workingData, this.logger);
         currentSteps[i].status = success ? StepStatus.Completed : StepStatus.Failed;
         currentSteps[i].message = step.message;
-        currentSteps[i].oldAttachmentCipherIds = step.oldAttachmentCipherIds;
         if (!success) {
           hasAnyFailures = true;
         }
@@ -169,7 +178,6 @@ export class DataRecoveryComponent {
       } catch (error) {
         currentSteps[i].status = StepStatus.Failed;
         currentSteps[i].message = (error as Error).message;
-        currentSteps[i].oldAttachmentCipherIds = undefined;
         this.steps.set([...currentSteps]);
         this.logger.record(
           `Diagnostics failed for step: ${step.title} with error: ${(error as Error).message}`,

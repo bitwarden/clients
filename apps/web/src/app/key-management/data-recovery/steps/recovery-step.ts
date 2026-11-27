@@ -1,6 +1,7 @@
 import { UserKey } from "@bitwarden/common/types/key";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";
@@ -14,11 +15,6 @@ export abstract class RecoveryStep {
 
   /** Localized detail about the outcome, shown under the step once diagnostics have run. */
   message?: string;
-
-  /**
-   * IDs of ciphers that hold old attachments. Rendered under the step as links to the vault item.
-   */
-  oldAttachmentCipherIds?: string[];
 
   /**
    * Runs diagnostics on the provided working data.
@@ -45,5 +41,11 @@ export type RecoveryWorkingData = {
   userKey: UserKey | null;
   isPrivateKeyCorrupt: boolean;
   ciphers: Cipher[];
+  /**
+   * Ciphers that fully decrypt, filled in by the cipher step. Follows the strict-decryption
+   * setting: with it on, an item with any undecryptable field is left out. `null` when the cipher
+   * step couldn't decrypt at all, so later steps can tell "nothing decrypted" from "didn't run".
+   */
+  decryptedCiphers: CipherView[] | null;
   folders: Folder[];
 };

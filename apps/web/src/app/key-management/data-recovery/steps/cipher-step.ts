@@ -11,17 +11,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { LogRecorder } from "../log-recorder";
 
 import { RecoveryStep, RecoveryWorkingData } from "./recovery-step";
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-/**
- * Formats the ownership of a vault item for logging.
- */
-function ownership(cipher: Cipher): string {
-  return cipher.organizationId == null ? "personal" : `organization ${cipher.organizationId}`;
-}
+import { errorMessage, ownership } from "./step-utils";
 
 /**
  * Identifies the key a cipher's data is encrypted under: the user key for personal items, or the
@@ -63,6 +53,7 @@ export class CipherStep implements RecoveryStep {
     this.decryptableCiphers = [];
     this.deletableCiphers = [];
     this.message = undefined;
+    workingData.decryptedCiphers = null;
 
     if (!workingData.userId) {
       logger.record("Missing user ID");
@@ -79,8 +70,8 @@ export class CipherStep implements RecoveryStep {
       );
     }
 
-    // Decrypt through the same service and method the vault uses for full decryption, so this
-    // step flags exactly the items the vault shows as decryption failures.
+    // Decrypt through the same service and method the vault uses for full decryption. The vault
+    // list can show more items as failed than this step flags; see the data-recovery README.
     const failures = await this.decryptAndCollectFailures(checkable, workingData, logger);
     this.decryptableCiphers = checkable.filter((c) => !failures.includes(c));
     const keysWithDecryptableItems = new Set(this.decryptableCiphers.map(keyScope));
@@ -112,12 +103,22 @@ export class CipherStep implements RecoveryStep {
 
     this.logSummary(logger, skipped);
 
-    const notDeletableOrgCount = this.notDeletableOrgCiphers().length;
-    if (notDeletableOrgCount > 0) {
-      this.message = this.i18nService.t("recoveryOrgItemsContactSupport", notDeletableOrgCount);
-    }
+    this.updateMessage();
 
     return this.undecryptableCiphers.length === 0;
+  }
+
+  /** Tells the user what Repair will do in this step, and what it can't fix. */
+  private updateMessage() {
+    const parts: string[] = [];
+    if (this.deletableCiphers.length > 0) {
+      parts.push(this.i18nService.t("recoveryCiphersWillBeDeleted", this.deletableCiphers.length));
+    }
+    const notDeletableOrgCount = this.notDeletableOrgCiphers().length;
+    if (notDeletableOrgCount > 0) {
+      parts.push(this.i18nService.t("recoveryOrgItemsContactSupport", notDeletableOrgCount));
+    }
+    this.message = parts.length > 0 ? parts.join(" ") : undefined;
   }
 
   private notDeletableOrgCiphers(): Cipher[] {
@@ -159,6 +160,9 @@ export class CipherStep implements RecoveryStep {
    * Returns the encrypted ciphers that failed to decrypt. `decryptManyLegacy` reports failures as
    * placeholder views, so they are mapped back to the encrypted ciphers by ID to keep the key,
    * type and permission details this step needs.
+   *
+   * The views that did decrypt are stored in `workingData.decryptedCiphers` for later steps. It
+   * stays `null` if decryption can't run.
    */
   private async decryptAndCollectFailures(
     ciphers: Cipher[],
@@ -166,14 +170,16 @@ export class CipherStep implements RecoveryStep {
     logger: LogRecorder,
   ): Promise<Cipher[]> {
     if (ciphers.length === 0) {
+      workingData.decryptedCiphers = [];
       return [];
     }
 
     try {
-      const [, failedViews] = await this.cipherService.decryptManyLegacy(
+      const [decryptedViews, failedViews] = await this.cipherService.decryptManyLegacy(
         ciphers,
         workingData.userId!,
       );
+      workingData.decryptedCiphers = decryptedViews;
       const failedIds = new Set(failedViews.map((view) => view.id));
       return ciphers.filter((c) => failedIds.has(c.id));
     } catch (error) {

@@ -11,6 +11,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
@@ -76,6 +78,8 @@ describe("DataRecoveryComponent", () => {
         { provide: KeyService, useValue: mockKeyService },
         { provide: FolderApiServiceAbstraction, useValue: mockFolderApiService },
         { provide: CipherEncryptionService, useValue: mockCipherEncryptService },
+        { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: CipherSdkService, useValue: mock<CipherSdkService>() },
         { provide: DialogService, useValue: mockDialogService },
         {
           provide: UserAsymmetricKeysRegenerationService,
@@ -130,7 +134,6 @@ describe("DataRecoveryComponent", () => {
           const mockStep = mock<RecoveryStep>();
           mockStep.title = "mockStep";
           mockStep.message = undefined;
-          mockStep.oldAttachmentCipherIds = undefined;
           mockStep.runDiagnostics.mockResolvedValue(true);
           mockStep.canRecover.mockReturnValue(false);
           return mockStep;
@@ -195,38 +198,6 @@ describe("DataRecoveryComponent", () => {
       expect(steps[3].message).toBe("Test error");
     });
 
-    it("should copy the old attachment cipher ids of a step", async () => {
-      mockSteps[5].runDiagnostics.mockResolvedValue(false);
-      mockSteps[5].oldAttachmentCipherIds = ["cipher-1", "cipher-2"];
-
-      await component.runDiagnostics();
-
-      expect(component.steps()[5].oldAttachmentCipherIds).toEqual(["cipher-1", "cipher-2"]);
-    });
-
-    it("should not copy the old attachment cipher ids of a step that throws", async () => {
-      mockSteps[5].oldAttachmentCipherIds = ["cipher-1"];
-      mockSteps[5].runDiagnostics.mockRejectedValue(new Error("Test error"));
-
-      await component.runDiagnostics();
-
-      expect(component.steps()[5].oldAttachmentCipherIds).toBeUndefined();
-    });
-
-    it("should render a vault link for every old attachment cipher id", async () => {
-      mockSteps[5].runDiagnostics.mockResolvedValue(false);
-      mockSteps[5].oldAttachmentCipherIds = ["cipher-1", "cipher-2"];
-
-      await component.runDiagnostics();
-      fixture.detectChanges();
-
-      const links = fixture.nativeElement.querySelectorAll("a[href*='itemId']");
-      expect(links.length).toBe(2);
-      expect(links[0].getAttribute("href")).toBe("/vault?itemId=cipher-1&action=edit");
-      expect(links[0].textContent.trim()).toBe("cipher-1");
-      expect(links[1].getAttribute("href")).toBe("/vault?itemId=cipher-2&action=edit");
-    });
-
     it("should continue diagnostics even if a step fails", async () => {
       mockSteps[1].runDiagnostics.mockRejectedValue(new Error("Step 1 failed"));
       mockSteps[3].runDiagnostics.mockResolvedValue(false);
@@ -277,6 +248,7 @@ describe("DataRecoveryComponent", () => {
         userKey: null as any,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [],
       };
 
@@ -286,7 +258,6 @@ describe("DataRecoveryComponent", () => {
           const mockStep = mock<RecoveryStep>();
           mockStep.title = "mockStep";
           mockStep.message = undefined;
-          mockStep.oldAttachmentCipherIds = undefined;
           mockStep.canRecover.mockReturnValue(false);
           mockStep.runRecovery.mockResolvedValue();
           mockStep.runDiagnostics.mockResolvedValue(true);

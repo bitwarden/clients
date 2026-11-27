@@ -17234,6 +17234,15 @@
       }
     }
   },
+  "recoveryCiphersWillBeDeleted": {
+    "message": "$COUNT$ vault item(s) can't be decrypted and will be deleted when you repair issues.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "recoveryOrgItemsContactSupport": {
     "message": "$COUNT$ organization vault item(s) can't be deleted. Contact Bitwarden support for help.",
     "placeholders": {
@@ -17273,12 +17282,86 @@
   "recoveryStepAttachmentTitle": {
     "message": "Verifying attachment integrity"
   },
-  "recoveryStepAttachmentIssue": {
-    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+  "recoveryAttachmentsOldEncryption": {
+    "message": "$COUNT$ attachment(s) use old encryption and can be upgraded.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "recoveryAttachmentsNotChecked": {
+    "message": "Attachments couldn't be checked because vault items couldn't be decrypted."
+  },
+  "recoveryAttachmentsNameLost": {
+    "message": "$COUNT$ attachment(s) lost their file name but their contents can be read. They'll be saved again under a placeholder name that you can rename.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "recoveredAttachmentFileName": {
+    "message": "recovered-attachment-$ID$",
+    "description": "File name given to an attachment whose original name could not be recovered. Keep $ID$ in the name: it is used to find copies saved by an earlier repair.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1b2c3"
+      }
+    }
+  },
+  "recoveryAttachmentsUnrecoverable": {
+    "message": "$COUNT$ attachment(s) can't be decrypted and can only be deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "recoveryAttachmentsUnchecked": {
+    "message": "$COUNT$ attachment(s) couldn't be downloaded to check. Try again later.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "recoveryOrgAttachmentsContactSupport": {
+    "message": "$COUNT$ organization attachment(s) can't be repaired. Contact Bitwarden support for help.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "recoveryDeleteAttachmentsTitle": {
+    "message": "Delete unrecoverable attachments"
+  },
+  "recoveryDeleteAttachmentsCountDesc": {
+    "message": "This will permanently delete $COUNT$ attachment(s).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "recoveryDeleteAttachmentsWithUndeletableDesc": {
+    "message": "This will permanently delete $COUNT$ attachment(s). $UNDELETABLE$ other organization attachment(s) can't be deleted. Contact Bitwarden support for help.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "undeletable": {
+        "content": "$2",
+        "example": "1"
       }
     }
   },
