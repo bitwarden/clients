@@ -1192,6 +1192,17 @@ export class EventService {
           this.getShortId(ev.accessRequestId),
         );
         break;
+      // A refused submit creates no request, so the item is the only subject it can name.
+      case EventType.Pam_AccessRequest_SubmissionRejected:
+        msg = this.i18nService.t(
+          "pamEventRejectedAccessRequestSubmission",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRejectedAccessRequestSubmission",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       // Rule events name no subject: a rule spans collections and has no id column on the event.
       case EventType.Pam_AccessRule_Created:
         msg = humanReadableMsg = this.i18nService.t("pamEventCreatedAccessRule");

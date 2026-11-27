@@ -18,6 +18,7 @@ describe("access-audit event vocabulary", () => {
         "requestCancelled",
         "requestExpiredUnanswered",
         "requestExpiredUnactivated",
+        "requestSubmissionRejected",
         "leaseActivated",
         "leaseActivationRejected",
         "leaseExtended",

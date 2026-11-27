@@ -114,6 +114,7 @@ const KIND_LABEL_KEYS: Record<AccessAuditEventKind, string> = {
   [AccessAuditEventKind.TargetSystemPolicyUpdated]: "pamAuditKindTargetPolicyUpdated",
   [AccessAuditEventKind.TargetSystemDeleted]: "pamAuditKindTargetDeleted",
   [AccessAuditEventKind.TargetSystemUpdated]: "pamAuditKindTargetUpdated",
+  [AccessAuditEventKind.RequestSubmissionRejected]: "pamAuditKindRequestSubmissionRejected",
 };
 
 /** The fallback only serves a kind from a server running ahead of this client. */

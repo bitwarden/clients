@@ -166,6 +166,7 @@ describe("AccessAuditComponent", () => {
             pamAuditKindRequestCanceled: "Request canceled",
             pamAuditKindRequestExpiredUnanswered: "Request expired without a decision",
             pamAuditKindRequestExpiredUnactivated: "Approval expired unused",
+            pamAuditKindRequestSubmissionRejected: "Request rejected",
             pamAuditKindAccessActivated: "Access activated",
             pamAuditKindLeaseActivationRejected: "Activation rejected",
             pamAuditKindAccessExtended: "Access extended",

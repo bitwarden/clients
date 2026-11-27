@@ -19093,6 +19093,9 @@
   "pamAuditKindRequestExpiredUnactivated": {
     "message": "Approval expired unused"
   },
+  "pamAuditKindRequestSubmissionRejected": {
+    "message": "Request rejected"
+  },
   "pamAuditKindAccessActivated": {
     "message": "Access activated"
   },
@@ -22031,6 +22034,15 @@
       "id": {
         "content": "$2",
         "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessRequestSubmission": {
+    "message": "Request for privileged access to item $ITEM$ was rejected by its access rule.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
   },

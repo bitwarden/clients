@@ -196,4 +196,5 @@ export enum EventType {
   Pam_AccessRule_Deleted = 2611,
   Pam_Rotation_Succeeded = 2612,
   Pam_Rotation_Failed = 2613,
+  Pam_AccessRequest_SubmissionRejected = 2614,
 }
