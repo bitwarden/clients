@@ -127,9 +127,6 @@ for (const type of KEY_TYPES) {
 for (const hostKeyType of KEY_TYPES) {
   test.describe(`${hostKeyType} host key`, () => {
     test("authenticates through a forwarded agent", async ({ approval, agentSocket }) => {
-      // The agent rejects ECDSA host keys in session binds, so it cannot flag the forward.
-      test.fail(hostKeyType === SshKeyType.Ecdsa, "ECDSA host keys are not yet supported");
-
       const key = keyOf(SshKeyType.Ed25519);
       const client = new SshClient(dir, agentSocket, await serverWith(hostKeyType));
 

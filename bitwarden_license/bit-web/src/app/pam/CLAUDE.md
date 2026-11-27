@@ -152,8 +152,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   banner escalates on it too: that surface has the `active` badge suppressed, so its heading is
   the only countdown there and has to carry the warning itself. A new countdown must read this
   constant, not restate five minutes.
-- `collection-access-rule-callout/`, the callout naming the rules that govern a collection,
-  inside the collection edit dialog. Renders only for users who can manage access rules.
+- `collection-access-rule-callout/`, the callout flagging a gated collection inside the collection
+  edit dialog. Like the sidebar lock and the banner, gating comes from the collection's
+  server-derived `hasEnabledAccessRule`, not from the rule read. Only users who can manage access
+  rules see the governing rules named and linked.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.

@@ -40,6 +40,7 @@ describe("BrowserVaultRowAccessService", () => {
   let pamEnabled$: BehaviorSubject<boolean>;
   let revealed$: BehaviorSubject<ReadonlyMap<string, unknown>>;
   let account$: BehaviorSubject<{ id: string }>;
+  let organizations$: BehaviorSubject<unknown[]>;
 
   const gated = { id: "c1", name: "Amazon", partial: true } as unknown as CipherViewLike;
   const normal = { id: "c2", name: "Plain" } as unknown as CipherViewLike;
@@ -64,13 +65,14 @@ describe("BrowserVaultRowAccessService", () => {
     pamEnabled$ = new BehaviorSubject(true);
     revealed$ = new BehaviorSubject<ReadonlyMap<string, unknown>>(new Map());
     account$ = new BehaviorSubject({ id: "u1" });
+    organizations$ = new BehaviorSubject<unknown[]>([]);
 
     TestBed.configureTestingModule({
       providers: [
         BrowserVaultRowAccessService,
         { provide: ConfigService, useValue: { getFeatureFlag$: () => pamEnabled$ } },
         { provide: AccountService, useValue: { activeAccount$: account$ } },
-        { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: Router, useValue: router },
         { provide: VaultRowAccessStateService, useValue: rowState },
@@ -159,8 +161,13 @@ describe("BrowserVaultRowAccessService", () => {
         return (await latest())?.label;
       };
 
-      it("shows whole hours", async () => {
+      it("shows whole hours when no minutes remain", async () => {
         expect(await labelAt(8 * 3_600_000 - 500)).toBe("pamAccessBadgeTimeLeft:8h");
+      });
+
+      it("shows hours and minutes, so an extended lease reads exactly (PAM-682)", async () => {
+        expect(await labelAt((60 + 59) * 60_000 - 500)).toBe("pamAccessBadgeTimeLeft:1h 59m");
+        expect(await labelAt((2 * 60 + 5) * 60_000 - 500)).toBe("pamAccessBadgeTimeLeft:2h 5m");
       });
 
       it("shows minutes under an hour", async () => {
@@ -193,6 +200,31 @@ describe("BrowserVaultRowAccessService", () => {
       pamEnabled$.next(false);
 
       expect(await latest()).toBeNull();
+    });
+
+    describe("a member without a Privileged Controls license", () => {
+      const unlicensedOrg = { id: "o1", enabled: true, usePam: true, accessPam: false };
+
+      beforeEach(() => {
+        organizations$.next([unlicensedOrg]);
+      });
+
+      it("still marks a restricted item as privileged, without reading its state", async () => {
+        const inOrg = { ...gated, organizationId: "o1" } as unknown as CipherViewLike;
+
+        expect(await firstValueFrom(service.status$(inOrg))).toEqual({
+          kind: "unavailable",
+          label: "pamAccessBadgePrivileged",
+          canExtend: false,
+        });
+        expect(rowState.state$).not.toHaveBeenCalled();
+      });
+
+      it("reports nothing for an item that is not restricted", async () => {
+        const inOrg = { ...normal, organizationId: "o1" } as unknown as CipherViewLike;
+
+        expect(await firstValueFrom(service.status$(inOrg))).toBeNull();
+      });
     });
   });
 

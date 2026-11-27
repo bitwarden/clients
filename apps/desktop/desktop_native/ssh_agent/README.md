@@ -13,6 +13,14 @@ The agent currently supports the following high level functionalities:
     - Ed25519
     - RSA SHA-256 and SHA-512
     - ECDSA
+- Session binding (`session-bind@openssh.com`), used to identify the host and detect forwarding. Supported host key types:
+    - Ed25519
+    - RSA (`rsa-sha2-256`, `rsa-sha2-512`)
+    - ECDSA (`nistp256`, `nistp384`, `nistp521`)
+
+  A session-bind that is malformed, fails verification, or uses an unsupported host key type closes the connection, so requests on it are never treated as local.
+
+  **Known limitation — host certificates:** OpenSSH host certificates (`*-cert-v01@openssh.com`, e.g. servers trusted via `@cert-authority` in `known_hosts`) are not supported as session-bind host keys. The `ssh` client sends the certificate as the host key, the bind is rejected, and the agent closes the connection, so agent authentication to such servers is expected to fail. This is intentional fail-closed behavior: these connections were previously served as local, which bypassed the forwarded-host approval.
 
 # Architecture
 

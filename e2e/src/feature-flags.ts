@@ -5,8 +5,6 @@ import { automationDriver } from "./automation-driver";
 /** Keys of `FeatureFlag` (libs/common/src/enums/feature-flag.enum.ts) the suites turn on. */
 export const FeatureFlag = Object.freeze({
   SharedUnlock: "innovation-sprint-shared-unlock-part-2",
-  // Registers the web ↔ extension IPC content script; read once when the extension starts.
-  ContentScriptIpc: "content-script-ipc-channel-framework",
   // The redesigned vault, whose onboarding opens dialogs and the side nav on its own after login.
   VFO1Foundation: "vfo1-foundation",
 } as const);

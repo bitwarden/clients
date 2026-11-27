@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Help anderen met beslissen of Bitwarden iets voor hen is. Bezoek de app store voor extensies en laat een beoordeling achter."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Je kunt je hoofdwachtwoord wijzigen in de Bitwarden webapp."
-  },
   "fingerprintPhrase": {
     "message": "Vingerafdrukzin",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest gedeelde map onder"
+  },
+  "nestFolderUnderNone": {
+    "message": "Geen",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is niet toegestaan in mapnamen. Verwijder de /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Om een map te negeren, kies de bovenliggende map onder veld. Je hoeft niet langer een schuine streep toe te voegen aan de naam."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (verwijderd)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Geen mappen toegevoegd"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Gebruik alle span-elementen die een website met het `data-bwautofill` attribuut markeert."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Inlogverzoeken webbrowser automatisch invullen",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Reageer op basis HTTP-authenticatieverzoeken als een inlogitem in je kluis overeenkomt met de website."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Contextmenu-opties weergeven"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Goed",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Gelekt",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Gelekte wachtwoord in gegevenslek.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Wachtwoord is te kort of eenvoudig.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Wachtwoord hergebruikt voor verschillende logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Risicovol",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Je organisatie heeft je gevraagd dit wachtwoord te wijzigen.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Zwak",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
   },
-  "changeNow": {
-    "message": "Nu wijzigen"
-  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Standaardinstellingen herstellen"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Inlogverzoeken webbrowser automatisch invullen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Browser pop-upverzoeken voor inloggen invullen",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reageren op basis van HTTP-authenticatieprompts van websites die overeenkomen met dit inlogitem."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Pop-upverzoeken invullen",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open helpartikel over automatisch invullen van inlogverzoeken van de webbrowser"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "Wanneer deze instelling is ingeschakeld, kan de browser na de eerste invulling je inloggegevens zonder te vragen opnieuw gebruiken.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Leer meer over het invullen van pop-upverzoeken (opent in een nieuw tabblad)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Om deze instelling te gebruiken, kies een andere overeenkomstdetectie dan \"Standaard\" voor elke website van dit inlogitem."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Inloggen op $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser inschakelen?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Kies een login voor $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Opnieuw vragen van het hoofdwachtwoord zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Hoofdwachtwoord opnieuw vragen"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standaard overeenkomstdetectie gebruiken?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites die de standaard oveenkomstdetectie gebruiken kunnen niet worden gebruikt met inlogverzoeken van de webbrowser. Automatisch invullen van inlogverzoeken zal voor dit item worden uitgeschakeld."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser uitgeschakeld"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Webbrowser gebruiken",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Kluis-items"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Toegang tot $DURATION$. Als je aan de voorwaarden voldoet, krijg je onmiddellijk goedkeuring.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "cancelAnytime": {
+    "message": "Op elk moment opzeggen",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Veilig afrekenen via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Niet nu",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "maand"
   }
 }

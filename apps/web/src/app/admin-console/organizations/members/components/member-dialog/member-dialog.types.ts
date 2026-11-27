@@ -1,4 +1,4 @@
-import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
@@ -20,26 +20,16 @@ export type MemberDialogResult = (typeof MemberDialogResult)[keyof typeof Member
 
 interface CommonMemberDialogParams {
   isOnSecretsManagerStandalone: boolean;
-  organizationId: OrganizationId;
-}
-
-export interface AddMemberDialogParams extends CommonMemberDialogParams {
-  kind: "Add";
-  occupiedSeatCount: number;
-  allOrganizationUsers: OrganizationUserView[];
+  organization: Organization;
 }
 
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
-  kind: "Edit";
-  name: string;
-  profileName?: string;
-  email?: string;
-  createdDate?: Date;
-  organizationUserId: Guid;
-  usesKeyConnector: boolean;
-  claimedByOrganization?: boolean;
-  hasMasterPassword?: boolean;
+  member: OrganizationUserView;
   initialTab: MemberDialogTab;
+  createdDate?: Date;
+  /**
+   * Disables the form and hides Save, Remove and Revoke. A readonly dialog reads the member from
+   * `member`, since reading a single member requires Manage users.
+   */
+  readonly: boolean;
 }
-
-export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;

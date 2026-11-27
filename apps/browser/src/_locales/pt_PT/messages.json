@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma classificação agora."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Pode alterar a sua palavra-passe mestra na aplicação web Bitwarden."
-  },
   "fingerprintPhrase": {
     "message": "Frase de impressão digital",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+  },
+  "nestFolderUnder": {
+    "message": "Criar subpasta em"
+  },
+  "nestFolderUnderNone": {
+    "message": "Nenhuma",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "Não é permitido utilizar / nos nomes das pastas. Remova o /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Para criar uma subpasta, escolha a pasta principal no campo Criar subpasta em. Já não precisa de adicionar uma barra ao nome."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Eliminada)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Nenhuma pasta adicionada"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Utilizar quaisquer elementos span que um site marque com o atributo `data-bwautofill`."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Responder a pedidos de autenticação HTTP básica quando uma credencial no seu cofre corresponder ao site."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Boa",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Exposta",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Palavra-passe exposta numa violação de dados.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Palavra-passe demasiado curta ou simples.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Palavra-passe reutilizada em várias credenciais.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Em risco",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "A sua organização pediu-lhe que alterasse esta palavra-passe.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Fraca",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
-  "changeNow": {
-    "message": "Alterar agora"
-  },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Repor predefinições"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Preencher pedidos de início de sessão do navegador",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Responda aos pedidos de autenticação HTTP básica dos sites que correspondam a esta credencial."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Preenchimento de pedidos de início de sessão",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Abrir artigo de ajuda sobre o preenchimento automático de pedidos de início de sessão no navegador"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "Com esta opção ativada, o navegador pode voltar a utilizar as suas credenciais sem pedir confirmação após o primeiro preenchimento.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Saiba mais sobre o preenchimento de pedidos de início de sessão em janelas pop-up (abre num novo separador)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Para utilizar esta definição, selecione uma opção de deteção de correspondências diferente de «Predefinição» para cada site associado a esta credencial."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Iniciar sessão em $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Ativar o preenchimento automático dos pedidos de início de sessão no navegador?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Escolha uma credencial para $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "O pedido da palavra-passe mestra será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ativar o pedido de nova introdução da palavra-passe mestra?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "O preenchimento automático dos pedidos de início de sessão no navegador será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Utilizar a deteção de correspondências predefinida?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Os sites que utilizam a deteção de correspondências predefinida não podem ser utilizados com pedidos de início de sessão no navegador. O preenchimento automático destes pedidos será desativado para esta credencial."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Preenchimento automático dos pedidos de início de sessão no navegador desativado"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Utilizar o navegador em alternativa",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Item do cofre"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Acesso até $DURATION$, com aprovação imediata se cumprir as condições",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Acesso por um período máximo de $DURATION$. Se cumprir os requisitos, a aprovação será imediata.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Acesso pedido"
+  },
+  "cancelAnytime": {
+    "message": "Cancele quando quiser",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Pagamento seguro através do Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Agora não",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "mês"
   }
 }

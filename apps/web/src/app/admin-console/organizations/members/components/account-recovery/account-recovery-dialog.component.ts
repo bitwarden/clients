@@ -1,8 +1,9 @@
 import { AsyncPipe, NgIf } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Inject, viewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map, of, switchMap } from "rxjs";
+import { catchError, combineLatest, defer, map, of, startWith, switchMap } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -13,6 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutModule,
   CheckboxModule,
   DIALOG_DATA,
   DialogConfig,
@@ -20,6 +22,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -83,9 +86,11 @@ export type AccountRecoveryDialogResultType =
     AsyncActionsModule,
     AsyncPipe,
     ButtonModule,
+    CalloutModule,
     CheckboxModule,
     DialogModule,
     FormFieldModule,
+    LinkModule,
     NgIf,
     ReactiveFormsModule,
     I18nPipe,
@@ -144,6 +149,22 @@ export class AccountRecoveryDialogComponent {
     resetTwoFactor: [{ value: false, disabled: !this.dialogData.twoFactorEnabled }],
   });
 
+  protected readonly showSoleOwnerCallout$ = combineLatest([
+    defer(() =>
+      this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
+        this.dialogData.organizationId,
+        this.dialogData.organizationUserId,
+      ),
+    ).pipe(
+      map((details) => details.isSoleOwnerOfOtherOrganization),
+      // Submitting fetches the details again and surfaces any error there
+      catchError(() => of(false)),
+    ),
+    this.form.controls.resetMasterPassword.valueChanges.pipe(
+      startWith(this.form.controls.resetMasterPassword.value),
+    ),
+  ]).pipe(map(([isSoleOwner, resetMasterPassword]) => isSoleOwner && resetMasterPassword === true));
+
   constructor(
     @Inject(DIALOG_DATA) protected readonly dialogData: AccountRecoveryDialogData,
     private readonly accountService: AccountService,
@@ -153,6 +174,7 @@ export class AccountRecoveryDialogComponent {
     private readonly policyService: PolicyService,
     private readonly resetPasswordService: OrganizationUserResetPasswordService,
     private readonly toastService: ToastService,
+    private readonly organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   readonly handlePrimaryButtonClick = async () => {

@@ -47,7 +47,7 @@ import type {
   TargetSystemId,
   TargetSystemView,
 } from "../rotation";
-import { QuartzSchedulePreset, TargetSystemStatus } from "../rotation";
+import { QuartzSchedulePreset, TargetSystemKind, TargetSystemStatus } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import { RotationSdkService } from "../rotation-sdk.service";
@@ -1137,6 +1137,77 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
     expect(component.accountForm.controls.terminateSessions.disabled).toBe(true);
     expect(component.settingsForm.controls.scheduleCron.disabled).toBe(false);
     expect(component.settingsForm.controls.rotateOnAccessEnd.disabled).toBe(false);
+  });
+
+  describe("End active sessions saved on a target that no longer ends sessions", () => {
+    function endsSessions(): RotationConfigDetailView {
+      return loadedConfig({ sealed: rotationConfigSealedFields({ terminateSessions: true }) });
+    }
+
+    function customScriptTarget(supportsSessionTermination: boolean): TargetSystemView {
+      return targetSystem({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.CustomScript,
+          supportsSessionTermination,
+        }),
+      });
+    }
+
+    it("shows the box unticked and saves false", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [customScriptTarget(false)],
+      });
+      await fixture.whenStable();
+
+      expect(component.accountForm.controls.terminateSessions.value).toBe(false);
+      expect(component.accountForm.controls.terminateSessions.disabled).toBe(true);
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: false }),
+      );
+    });
+
+    it("keeps it on for a target that still ends sessions", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [customScriptTarget(true)],
+      });
+      await fixture.whenStable();
+
+      expect(component.accountForm.controls.terminateSessions.value).toBe(true);
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: true }),
+      );
+    });
+
+    it("keeps the saved value when the target isn't loaded", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [],
+      });
+      await fixture.whenStable();
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: true }),
+      );
+    });
   });
 
   describe("an unverifiable config", () => {

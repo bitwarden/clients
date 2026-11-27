@@ -16,6 +16,8 @@ import {
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
@@ -37,7 +39,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ProviderService } from "@bitwarden/common/provider";
-import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
+import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   DialogService,
@@ -49,38 +51,58 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
+import { OrganizationUserView } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { MemberAccessReportComponent } from "./member-access-report.component";
 import { MemberAccessReportApiService } from "./services/member-access-report-api.service";
 import { MemberAccessReportService } from "./services/member-access-report.service";
-import { MemberAccessReportView } from "./view/member-access-report.view";
+import { MemberAccessReportViewV2 } from "./view/member-access-report.view";
 
 // ============================================================================
 // Mock Data Factory Functions
 // ============================================================================
 
-function createMockMember(index: number): MemberAccessReportView {
+function createMockMember(index: number): MemberAccessReportViewV2 {
   const names = ["Alice Johnson", "Bob Smith", "Carol Williams", "David Brown", "Eve Martinez"];
   const colors = ["#175ddc", "#7c5cdb", "#c93d63", "#d1860a", "#178d5c"];
 
+  const name = names[index % names.length] || `User ${index}`;
+  const email = `user${index}@example.com`;
+  const avatarColor = colors[index % colors.length];
+  const usesKeyConnector = index % 2 === 0; // Deterministic: alternating true/false
+  const member = new OrganizationUserView({
+    id: `user-${index}` as Guid,
+    userId: `userIdFromOrgUser${index}` as UserId,
+    email,
+    type: OrganizationUserType.User,
+    revocationReason: RevocationReasonType.Unknown,
+    status: OrganizationUserStatusType.Confirmed,
+    permissions: new PermissionsApi(),
+    avatarColor,
+    name,
+  });
+  member.usesKeyConnector = usesKeyConnector;
+
   return {
     userGuid: `user-${index}` as Guid,
-    name: names[index % names.length] || `User ${index}`,
-    email: `user${index}@example.com`,
-    avatarColor: colors[index % colors.length],
+    name,
+    email,
+    avatarColor,
     collectionsCount: ((index * 3) % 10) + 1, // Deterministic: 1-10
     groupsCount: ((index * 2) % 5) + 1, // Deterministic: 1-5
     itemsCount: ((index * 17) % 200) + 1, // Deterministic: 1-200
-    usesKeyConnector: index % 2 === 0, // Deterministic: alternating true/false
+    usesKeyConnector,
     userIdFromOrgUser: `userIdFromOrgUser${index}`,
+    member,
   };
 }
 
-const mockMemberData: MemberAccessReportView[] = [...Array(5).keys()].map(createMockMember);
+const mockMemberData: MemberAccessReportViewV2[] = [...Array(5).keys()].map(createMockMember);
 const mockOrganizationId = "org-123" as OrganizationId;
 
 // ============================================================================

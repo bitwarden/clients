@@ -16,7 +16,12 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { TargetSystemId } from "../rotation";
-import { AccessConnectorStatus, TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import {
+  AccessConnectorStatus,
+  TargetSystemKind,
+  TargetSystemMethod,
+  TargetSystemStatus,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   accessConnector,
@@ -74,6 +79,16 @@ const RETIRED_CONNECTOR_SYSTEM = targetSystem({
   name: "Legacy ERP admin",
 });
 
+/** A custom script target that has opted in to ending sessions. */
+const CUSTOM_SCRIPT_SYSTEM = targetSystem({
+  id: sysId("9"),
+  name: "Payroll API",
+  sealed: targetSystemSealedFields({
+    kind: TargetSystemKind.CustomScript,
+    supportsSessionTermination: true,
+  }),
+});
+
 const SYSTEMS = [
   SAMPLE_SYSTEM,
   ASSIGNED_SYSTEM,
@@ -84,6 +99,7 @@ const SYSTEMS = [
   UNVERIFIABLE_SYSTEM,
   DISCONNECTED_SYSTEM,
   RETIRED_CONNECTOR_SYSTEM,
+  CUSTOM_SCRIPT_SYSTEM,
 ];
 
 const CONNECTORS = [
@@ -216,6 +232,20 @@ export const NotConnectedInactiveConnector: Story = {
   decorators: [at(RETIRED_CONNECTOR_SYSTEM.id)],
 };
 
+/** A custom script that opted in to ending sessions, so the checkbox renders ticked. */
+export const EditCustomScript: Story = {
+  decorators: [at(CUSTOM_SCRIPT_SYSTEM.id)],
+};
+
+/** Unticking the checkbox on a script that was ending sessions shows the withdrawn note. */
+export const EditCustomScriptWithdrawn: Story = {
+  decorators: [at(CUSTOM_SCRIPT_SYSTEM.id)],
+  play: async ({ canvasElement }) => {
+    const checkbox = await within(canvasElement).findByLabelText(/can sign out active sessions/);
+    await userEvent.click(checkbox);
+  },
+};
+
 /** No Automatic rotation section, and no connector setup step. */
 export const ManualTarget: Story = {
   decorators: [at(MANUAL_SYSTEM.id)],
@@ -314,12 +344,23 @@ export const CreateEntraConnected: Story = {
 };
 
 /**
- * Figma 3b "Select Save": a custom script, which can't end sessions, with only a disconnected
- * connector chosen. The warning shows, but Save still works.
+ * Figma 3b "Select Save": a custom script, which doesn't end sessions unless opted in, with only a
+ * disconnected connector chosen. The warning shows, but Save still works.
  */
 export const CreateCustomScriptNoneConnected: Story = {
   decorators: [atUrl(`${CREATE_URL}?template=custom-script`), withConnectors(CREATE_CONNECTORS)],
   play: ({ canvasElement }) => fillCreateForm(canvasElement, "Payroll API", ["West datacenter"]),
+};
+
+/** A custom script with East datacenter chosen and the ending sessions opt-in ticked. */
+export const CreateCustomScriptSignsOutSessions: Story = {
+  decorators: [atUrl(`${CREATE_URL}?template=custom-script`), withConnectors(CREATE_CONNECTORS)],
+  play: async ({ canvasElement }) => {
+    await fillCreateForm(canvasElement, "Payroll API", ["East datacenter"]);
+    await userEvent.click(
+      await within(canvasElement).findByLabelText(/can sign out active sessions/),
+    );
+  },
 };
 
 /** Figma "Automatic, no access connectors in the organization yet": the picker is disabled. */

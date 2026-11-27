@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -41,11 +43,22 @@ describe("AddEditFolderDialogComponent", () => {
   };
 
   let vfo1Enabled$: BehaviorSubject<boolean>;
+  let folders$: BehaviorSubject<FolderView[]>;
+  let showCallout$: BehaviorSubject<boolean>;
+  const nudgesService = mock<NudgesService>();
+
+  const buildFolder = (id: string | null, name: string) =>
+    Object.assign(new FolderView(), { id, name });
 
   beforeEach(async () => {
     vfo1Enabled$ = new BehaviorSubject<boolean>(false);
     // Shared across specs; the edit variant sets it and would otherwise leak into later tests.
     delete dialogData.editFolderConfig;
+    delete dialogData.parentFolderId;
+    folders$ = new BehaviorSubject<FolderView[]>([]);
+    showCallout$ = new BehaviorSubject<boolean>(false);
+    nudgesService.showNudgeSpotlight$.mockReturnValue(showCallout$);
+    nudgesService.dismissNudge.mockClear();
     encrypt.mockClear();
     save.mockClear();
     deleteFolder.mockClear();
@@ -60,7 +73,8 @@ describe("AddEditFolderDialogComponent", () => {
       imports: [AddEditFolderDialogComponent, NoopAnimationsModule],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: FolderService, useValue: { encrypt } },
+        { provide: FolderService, useValue: { encrypt, folderViews$: () => folders$ } },
+        { provide: NudgesService, useValue: nudgesService },
         { provide: FolderApiServiceAbstraction, useValue: { save, delete: deleteFolder } },
         {
           provide: AccountService,
@@ -149,10 +163,10 @@ describe("AddEditFolderDialogComponent", () => {
     folderView.id = "1";
     folderView.name = "Folder 1";
 
-    beforeEach(() => {
+    beforeEach(async () => {
       dialogData.editFolderConfig = { folder: folderView };
 
-      component.ngOnInit();
+      await component.ngOnInit();
     });
 
     it("populates form with folder name", () => {
@@ -198,6 +212,198 @@ describe("AddEditFolderDialogComponent", () => {
       expect(Object.keys(errors)[0]).toBe("folderNameRequired");
       expect(errors.folderNameRequired).toEqual({ message: "enterAName" });
       expect(encrypt).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("VFO1 nesting", () => {
+    /** Builds a fresh dialog so the dialog data and flag are in place before it initializes. */
+    const createWithVfo1 = async () => {
+      vfo1Enabled$.next(true);
+      fixture = TestBed.createComponent(AddEditFolderDialogComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await component.ngOnInit();
+      fixture.detectChanges();
+    };
+
+    const parentOptions = () => component["parentOptions"]();
+
+    beforeEach(() => {
+      folders$.next([
+        buildFolder(null, "No folder"),
+        buildFolder("family", "Family"),
+        buildFolder("house", "Family/House"),
+        buildFolder("garage", "Family/House/Garage"),
+        buildFolder("work", "/Work/"),
+      ]);
+    });
+
+    describe("adding a folder", () => {
+      it("offers every folder path, sorted, without the no-folder entry", async () => {
+        await createWithVfo1();
+
+        expect(parentOptions()).toEqual(["Family", "Family/House", "Family/House/Garage", "Work"]);
+      });
+
+      it("prefills the parent from the folder it was opened from", async () => {
+        dialogData.parentFolderId = "house";
+
+        await createWithVfo1();
+
+        expect(component.folderForm.controls.parent.value).toBe("Family/House");
+      });
+
+      it("leaves the parent empty when the given folder does not exist", async () => {
+        dialogData.parentFolderId = "missing";
+
+        await createWithVfo1();
+
+        expect(component.folderForm.controls.parent.value).toBeNull();
+      });
+
+      it("saves the name nested under the selected parent", async () => {
+        await createWithVfo1();
+        component.folderForm.patchValue({ name: " Kids ", parent: "Family" });
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(expect.objectContaining({ name: "Family/Kids" }), "");
+      });
+
+      it("saves a top-level folder when no parent is selected", async () => {
+        await createWithVfo1();
+        component.folderForm.patchValue({ name: "Kids" });
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(expect.objectContaining({ name: "Kids" }), "");
+      });
+
+      it("rejects a slash in the name", async () => {
+        await createWithVfo1();
+        component.folderForm.controls.name.setValue("Family/Kids");
+
+        await component.submit();
+
+        expect(component.folderForm.controls.name.errors).toEqual({
+          folderNameSlashNotAllowed: { message: "folderNameSlashNotAllowed" },
+        });
+        expect(encrypt).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("editing a nested folder", () => {
+      beforeEach(() => {
+        dialogData.editFolderConfig = { folder: buildFolder("house", "Family/House") };
+      });
+
+      it("splits the stored name across the name field and the parent select", async () => {
+        await createWithVfo1();
+
+        expect(component.folderForm.controls.name.value).toBe("House");
+        expect(component.folderForm.controls.parent.value).toBe("Family");
+      });
+
+      it("does not offer the folder itself or anything nested under it", async () => {
+        await createWithVfo1();
+
+        expect(parentOptions()).toEqual(["Family", "Work"]);
+      });
+
+      it("shows a parent that no folder holds as deleted rather than as an option", async () => {
+        dialogData.editFolderConfig = { folder: buildFolder("kids", "Relatives/Kids") };
+
+        await createWithVfo1();
+
+        expect(component["deletedParent"]()).toBe("Relatives");
+        expect(parentOptions()).not.toContain("Relatives");
+        expect(component.folderForm.controls.parent.value).toBe("Relatives");
+      });
+
+      it("keeps the deleted parent when saving without changes", async () => {
+        dialogData.editFolderConfig = { folder: buildFolder("kids", "Relatives/Kids") };
+        await createWithVfo1();
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(
+          expect.objectContaining({ name: "Relatives/Kids" }),
+          "",
+        );
+      });
+
+      it("has no deleted parent when the parent folder exists", async () => {
+        await createWithVfo1();
+
+        expect(component["deletedParent"]()).toBeUndefined();
+      });
+
+      it("saves the stored name unchanged when nothing was edited", async () => {
+        await createWithVfo1();
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "house", name: "Family/House" }),
+          "",
+        );
+      });
+
+      it("moves the folder when a different parent is selected", async () => {
+        await createWithVfo1();
+        component.folderForm.controls.parent.setValue("Work");
+
+        await component.submit();
+
+        expect(encrypt).toHaveBeenCalledWith(expect.objectContaining({ name: "Work/House" }), "");
+      });
+    });
+
+    describe("nesting callout", () => {
+      it("shows while the nudge is pending", async () => {
+        showCallout$.next(true);
+
+        await createWithVfo1();
+
+        expect(component["showNestingCallout"]()).toBe(true);
+        expect(nudgesService.showNudgeSpotlight$).toHaveBeenCalledWith(
+          NudgeType.Vfo1FolderNestingCallout,
+          "",
+        );
+      });
+
+      it("stays hidden once the nudge is dismissed", async () => {
+        await createWithVfo1();
+
+        expect(component["showNestingCallout"]()).toBe(false);
+      });
+
+      it("never shows without VFO1", () => {
+        showCallout$.next(true);
+
+        expect(component["showNestingCallout"]()).toBe(false);
+      });
+
+      it("dismisses the nudge from the close button", async () => {
+        showCallout$.next(true);
+        await createWithVfo1();
+
+        await component["dismissNestingCallout"]();
+
+        expect(nudgesService.dismissNudge).toHaveBeenCalledWith(
+          NudgeType.Vfo1FolderNestingCallout,
+          "",
+        );
+      });
+    });
+
+    it("does not nest when VFO1 is off", async () => {
+      dialogData.editFolderConfig = { folder: buildFolder("house", "Family/House") };
+
+      await component.ngOnInit();
+
+      expect(component.folderForm.controls.name.value).toBe("Family/House");
+      expect(component.folderForm.controls.parent.value).toBeNull();
     });
   });
 });

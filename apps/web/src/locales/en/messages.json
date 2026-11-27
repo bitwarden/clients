@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Are you sure you want to permanently delete this folder?"
   },
@@ -6005,6 +6028,9 @@
   },
   "editMember": {
     "message": "Edit member"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "A field on the '$TAB$' tab requires your attention.",
@@ -12887,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Needs confirmation"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Member role"
   },
@@ -13782,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
@@ -21795,8 +21836,11 @@
   "pamTargetSystemEndingSessionsEntraHint": {
     "message": "Entra can sign out active sessions after rotation."
   },
-  "pamTargetSystemEndingSessionsCustomScriptHint": {
-    "message": "This system type can't sign out active sessions after rotation."
+  "pamTargetSystemSignsOutSessionsHint": {
+    "message": "Managed credentials can then sign out active sessions after rotation. Only turn this on if the script handles the terminate operation."
+  },
+  "pamTargetSystemSignsOutSessionsWithdrawnHint": {
+    "message": "Managed credentials set to sign out active sessions will stop once you save."
   },
   "pamTargetSystemEndingSessionsUnsetHint": {
     "message": "Shows once you choose a system type."

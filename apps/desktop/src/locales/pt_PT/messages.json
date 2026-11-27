@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Sincronizar agora"
   },
-  "changeMasterPass": {
-    "message": "Alterar palavra-passe mestra"
-  },
   "changeMasterPassword": {
     "message": "Alterar palavra-passe mestra"
-  },
-  "continueToWebApp": {
-    "message": "Continuar para a aplicação web?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Pode alterar a sua palavra-passe mestra na aplicação web Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase de impressão digital",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
-  "changeNow": {
-    "message": "Alterar agora"
-  },
   "missingPermissions": {
     "message": "Não tem as permissões necessárias para realizar esta ação."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+  },
+  "nestFolderUnder": {
+    "message": "Criar subpasta em"
+  },
+  "nestFolderUnderNone": {
+    "message": "Nenhuma",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "Não é permitido utilizar / nos nomes das pastas. Remova o /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Para criar uma subpasta, escolha a pasta principal no campo Criar subpasta em. Já não precisa de adicionar uma barra ao nome."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Eliminada)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Envie informações sensíveis com segurança",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reutilizada",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Responda aos pedidos de autenticação HTTP básica dos sites que correspondam a esta credencial."
+  "exposed": {
+    "message": "Exposta",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Abrir artigo de ajuda sobre o preenchimento automático de pedidos de início de sessão no navegador"
+  "changePassword": {
+    "message": "Alterar palavra-passe"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Palavra-passe exposta numa violação de dados.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Para utilizar esta definição, selecione uma opção de deteção de correspondências diferente de «Predefinição» para cada site associado a esta credencial."
+  "passwordTooShortOrSimple": {
+    "message": "Palavra-passe demasiado curta ou simples.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Ativar o preenchimento automático dos pedidos de início de sessão no navegador?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Palavra-passe reutilizada em várias credenciais.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "O pedido da palavra-passe mestra será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
+  "passwordAtRisk": {
+    "message": "Em risco",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ativar o pedido de nova introdução da palavra-passe mestra?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "O preenchimento automático dos pedidos de início de sessão no navegador será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Utilizar a deteção de correspondências predefinida?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Os sites que utilizam a deteção de correspondências predefinida não podem ser utilizados com pedidos de início de sessão no navegador. O preenchimento automático destes pedidos será desativado para esta credencial."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Preenchimento automático dos pedidos de início de sessão no navegador desativado"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
+  "passwordFlaggedByOrganization": {
+    "message": "A sua organização pediu-lhe que alterasse esta palavra-passe.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancele quando quiser",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Pagamento seguro através do Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }
