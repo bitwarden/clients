@@ -420,6 +420,15 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     return this.allTargetSystems().find((s) => s.id === targetSystemId) ?? null;
   });
 
+  /**
+   * True once the config's target is loaded and doesn't confirm it can end sessions, so the server
+   * would refuse `terminateSessions`.
+   */
+  private readonly configTargetRefusesTermination = computed(() => {
+    const target = this.configTargetSystem();
+    return target != null && target.sealed?.supportsSessionTermination !== true;
+  });
+
   private readonly connectorState = computed<ConnectorState>(() => {
     const config = this.config();
     return config == null ? "unknown" : connectorStateFor(this.connectors(), config.targetSystemId);
@@ -696,7 +705,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     if (sealed != null) {
       this.accountForm.patchValue({
         accountIdentity: sealed.accountIdentity,
-        terminateSessions: sealed.terminateSessions,
+        terminateSessions: sealed.terminateSessions && !this.configTargetRefusesTermination(),
       });
     }
   }
@@ -857,7 +866,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       cipherId: existing.cipherId,
       targetSystemId: existing.targetSystemId,
       accountIdentity: account.accountIdentity,
-      terminateSessions: account.terminateSessions,
+      terminateSessions: account.terminateSessions && !this.configTargetRefusesTermination(),
       scheduleCron: settings.scheduleCron ?? undefined,
       rotateOnAccessEnd: settings.rotateOnAccessEnd,
     };
