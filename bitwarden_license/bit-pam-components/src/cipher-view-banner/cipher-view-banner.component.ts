@@ -275,8 +275,12 @@ export class CipherViewBannerComponent implements OnInit {
     toObservable(
       computed(() => {
         const state = this.state();
+        if (state == null) {
+          return null;
+        }
         const startable = this.unlicensed() === false && this.approvedRequest() != null;
-        return state != null && (this.canRequestAccess() || startable) ? state : null;
+        const eligible = this.canRequestAccess() || startable;
+        return eligible ? state : null;
       }),
     ).pipe(
       switchMap((state) =>
