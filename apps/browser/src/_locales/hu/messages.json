@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Segítsünk másoknak megtudni, hogy a Bitwarden megfelelő-e számukra. Látogassunk el a böngésző bővítmény áruházba és értékeljük most."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "A mesterjelszó a Bitwarden webalkalmazásban módosítható."
-  },
   "fingerprintPhrase": {
     "message": "Ujjlenyomat kifejezés",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Nem lett mappa hozzáadva."
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Használjunk minden olyan span elemet, amelyet a webhely `data-bwautofill` attribútummal jelöl meg."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Válaszoljunk az alapvető HTTP hitelesítési felszólításokra, ha a széf bejelentkezési eleme megegyezik a webhellyel."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "A webhelyek tudtunk nélkül is elindíthatják ezeket a felszólításokat, amelyek felfedhetik hitelesítő adatait.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Jó",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Gyenge",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "A jelszó sérülékeny."
   },
-  "changeNow": {
-    "message": "Módosítás most"
-  },
   "settingsVaultOptions": {
     "message": "Széf opciók"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Visszaállítás alaphelyzetbe"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Válaszoljunk az alapvető HTTP hitelesítési kérdésekre azokról a webhelyekről, amelyek megfelelnek ennek a bejelentkezési elemnek."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Súgó cikk megnyitása a böngészőbeli bejelentkezési adatok automatikus kitöltéséről"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "A webhelyek a tudtunk nélkül aktiválhatják ezeket az utasításokat, ami felfedheti a hitelesítéseket.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "A beállítás használatához válasszunk egy \"Alapértelmezett\" beállítástól eltérő egyezés érzékelési lehetőséget a bejelentkezési elem minden webhelyéhez."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Kapcsoljuk be az automatikus kitöltést a böngésző bejelentkezési utasításaihoz?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "A mesterjelszó új bekérés kikapcsolásra kerül ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "A mesterjelszó újbóli bekérése?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Alapértelmezett találat érzékelés?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Az automatikus kitöltés a böngésző bejelentkezési utasításaihoz kikapcsolásra került."
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Ez az elemhez be van kapcsolva a mesterjelszó újra bekérése, így a böngésző bejelentkezési utasításainak automatikus kitöltése ki volt kapcsolva. Mentsük el az elemet a módosítás megtartásához."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Vault item"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Access requested"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Not now",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "month"
   }
 }
