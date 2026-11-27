@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Synchronizovať teraz"
   },
-  "changeMasterPass": {
-    "message": "Zmeniť hlavné heslo"
-  },
   "changeMasterPassword": {
     "message": "Zmeniť hlavné heslo"
-  },
-  "continueToWebApp": {
-    "message": "Pokračovať vo webovej aplikácii?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Hlavné heslo si môžete zmeniť vo webovej aplikácii Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Jedinečný identifikátor",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
-  "changeNow": {
-    "message": "Zmeniť teraz"
-  },
   "missingPermissions": {
     "message": "Na vykonanie tejto akcie vám chýbajú potrebné povolenia."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
+  },
+  "nestFolderUnder": {
+    "message": "Vnoriť priečinok do"
+  },
+  "nestFolderUnderNone": {
+    "message": "Žiadny",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ nie je povolené v názvoch priečinkov. Odstráňte /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Ak chcete vnoriť priečinok, vyberte jeho nadradený priečinok z poľa \"Vnoriť priečinok do\". K názvu už nemusíte pridávať lomku."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (odstránené)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Send, citlivé informácie bezpečne",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Opakovane použité",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  "exposed": {
+    "message": "Uniknuté",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Otvoriť článok pomocníka o automatickom vyplňovaní prihlasovacích údajov v prehliadači"
+  "changePassword": {
+    "message": "Zmeniť heslo"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Heslo bolo odhalené v dôsledku úniku dát.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Ak chcete použiť toto nastavenie, vyberte pre každú webovú stránku tejto položky prihlásenia inú možnosť zisťovania zhody ako \"Predvolené\"."
+  "passwordTooShortOrSimple": {
+    "message": "Heslo je príliš krátke alebo jednoduché.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Zapnúť automatické vypĺňanie pri výzvach na prihlásenie v prehliadači?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Rovnaké heslo použité pre viaceré prihlásenia.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Pre túto položku bude vypnutá opätovná výzva na zadanie hlavného hesla. Obe nastavenia nemôžu byť zapnuté súčasne."
+  "passwordAtRisk": {
+    "message": "V ohrození",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Zapnúť opätovné vyžiadanie hlavného hesla?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači bude pre túto položku vypnuté. Obe nastavenia nemôžu byť zapnuté súčasne."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Použiť predvolenú detekciu zhôd?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Webové stránky, ktoré využívajú predvolenú detekciu zhôd, nie je možné používať s prihlasovacími výzvami prehliadača. Funkcia automatického vypĺňania pre prihlasovacie výzvy prehliadača bude pre túto položku vypnutá."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači je vypnuté"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
+  "passwordFlaggedByOrganization": {
+    "message": "Vaša organizácia vás požiadala, aby ste si toto heslo zmenili.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Položka"
+  },
+  "cancelAnytime": {
+    "message": "Možnosť zrušiť kedykoľvek",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Bezpečná platba cez službu Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

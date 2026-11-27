@@ -21836,8 +21836,11 @@
   "pamTargetSystemEndingSessionsEntraHint": {
     "message": "Entra can sign out active sessions after rotation."
   },
-  "pamTargetSystemEndingSessionsCustomScriptHint": {
-    "message": "This system type can't sign out active sessions after rotation."
+  "pamTargetSystemSignsOutSessionsHint": {
+    "message": "Managed credentials can then sign out active sessions after rotation. Only turn this on if the script handles the terminate operation."
+  },
+  "pamTargetSystemSignsOutSessionsWithdrawnHint": {
+    "message": "Managed credentials set to sign out active sessions will stop once you save."
   },
   "pamTargetSystemEndingSessionsUnsetHint": {
     "message": "Shows once you choose a system type."

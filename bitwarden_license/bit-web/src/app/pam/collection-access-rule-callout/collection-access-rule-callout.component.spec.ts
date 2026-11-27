@@ -20,6 +20,18 @@ import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-c
 const ORG_ID = "org-1" as OrganizationId;
 const COLLECTION_ID = "col-1" as CollectionId;
 
+type CalloutCollection = {
+  id: CollectionId;
+  organizationId: OrganizationId;
+  hasEnabledAccessRule?: boolean;
+};
+
+const GATED_COLLECTION: CalloutCollection = {
+  id: COLLECTION_ID,
+  organizationId: ORG_ID,
+  hasEnabledAccessRule: true,
+};
+
 function rule(overrides: Record<string, unknown> = {}): AccessRuleView {
   return {
     id: "rule-1",
@@ -41,22 +53,12 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   let organizations$: BehaviorSubject<{ id: string; canManageAccessRules: boolean }[]>;
 
   /**
-   * Takes an object rather than defaulted parameters, since a default would replace the explicit
-   * `undefined` these tests pass.
+   * Takes a rest parameter rather than a defaulted one, since a default would replace the explicit
+   * `undefined` a test passes.
    */
-  async function create(
-    inputs: { organizationId?: OrganizationId; collectionId?: CollectionId } = {},
-  ): Promise<void> {
-    const { organizationId = ORG_ID, collectionId = COLLECTION_ID } = inputs;
+  async function create(...args: [] | [CalloutCollection | undefined]): Promise<void> {
     fixture = TestBed.createComponent(CollectionAccessRuleCalloutComponent);
-    fixture.componentRef.setInput(
-      "organizationId",
-      "organizationId" in inputs ? inputs.organizationId : organizationId,
-    );
-    fixture.componentRef.setInput(
-      "collectionId",
-      "collectionId" in inputs ? inputs.collectionId : collectionId,
-    );
+    fixture.componentRef.setInput("collection", args.length > 0 ? args[0] : GATED_COLLECTION);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -64,6 +66,11 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
   function callout(): HTMLElement | null {
     return fixture.nativeElement.querySelector('[data-testid="collection-access-rule-callout"]');
+  }
+
+  function expectGenericCallout(): void {
+    expect(callout()?.textContent).toContain("pamSharedFolderRequiresRequest");
+    expect(fixture.nativeElement.querySelector("a")).toBeNull();
   }
 
   beforeEach(() => {
@@ -98,9 +105,12 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     });
   });
 
-  it("renders nothing when no rule governs the collection", async () => {
-    await create();
+  it("renders nothing and reads nothing for a collection without an enabled rule", async () => {
+    accessRuleSdkService.listAccessRules.mockResolvedValue([rule()]);
 
+    await create({ ...GATED_COLLECTION, hasEnabledAccessRule: false });
+
+    expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
     expect(callout()).toBeNull();
   });
 
@@ -111,6 +121,45 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
     expect(callout()).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain("Production access");
+    expect(fixture.nativeElement.textContent).not.toContain("pamSharedFolderRequiresRequest");
+  });
+
+  it("renders nothing while a manager's rule read is in flight, rather than the generic sentence", async () => {
+    accessRuleSdkService.listAccessRules.mockReturnValue(new Promise(() => {}));
+
+    await create();
+
+    expect(callout()).toBeNull();
+  });
+
+  it("renders nothing while the read is in flight for a collection that arrives after the first render", async () => {
+    let resolveRules!: (rules: AccessRuleView[]) => void;
+    accessRuleSdkService.listAccessRules.mockReturnValue(
+      new Promise((resolve) => (resolveRules = resolve)),
+    );
+    await create(undefined);
+
+    fixture.componentRef.setInput("collection", GATED_COLLECTION);
+    fixture.detectChanges();
+
+    expect(callout()).toBeNull();
+
+    resolveRules([rule()]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain("Production access");
+  });
+
+  it("renders nothing while the read is in flight after the feature flag turns on", async () => {
+    accessRuleSdkService.listAccessRules.mockReturnValue(new Promise(() => {}));
+    enabled$.next(false);
+    await create();
+
+    enabled$.next(true);
+    fixture.detectChanges();
+
+    expect(callout()).toBeNull();
   });
 
   it("summarises what the rule enforces", async () => {
@@ -137,41 +186,42 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(fixture.nativeElement.textContent).toContain("Second rule");
   });
 
-  it("ignores rules that cover a different collection", async () => {
+  it("falls back to the generic sentence when the rules read covers a different collection", async () => {
     accessRuleSdkService.listAccessRules.mockResolvedValue([
       rule({ name: "Elsewhere", collections: ["col-9"] }),
     ]);
 
     await create();
 
-    expect(callout()).toBeNull();
+    expectGenericCallout();
+    expect(fixture.nativeElement.textContent).not.toContain("Elsewhere");
   });
 
-  it("ignores a disabled rule", async () => {
+  it("falls back to the generic sentence when the only matching rule is disabled", async () => {
     accessRuleSdkService.listAccessRules.mockResolvedValue([rule({ enabled: false })]);
 
     await create();
 
-    expect(callout()).toBeNull();
+    expectGenericCallout();
   });
 
-  it("reads nothing for a user who can't manage access rules", async () => {
+  it("shows a user who can't manage access rules the generic sentence, without reading rules", async () => {
     organizations$.next([{ id: ORG_ID, canManageAccessRules: false }]);
     accessRuleSdkService.listAccessRules.mockResolvedValue([rule()]);
 
     await create();
 
     expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
-    expect(callout()).toBeNull();
+    expectGenericCallout();
   });
 
-  it("reads nothing for an organization the user isn't a member of", async () => {
+  it("shows the generic sentence for an organization the user isn't a member of", async () => {
     organizations$.next([]);
 
     await create();
 
     expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
-    expect(callout()).toBeNull();
+    expectGenericCallout();
   });
 
   it("reads nothing while the PAM feature flag is off", async () => {
@@ -183,24 +233,19 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     expect(callout()).toBeNull();
   });
 
-  it("reads nothing without a collection id, that is the create-mode dialog", async () => {
-    await create({ organizationId: ORG_ID, collectionId: undefined });
+  it("renders nothing before the dialog has loaded the collection", async () => {
+    await create(undefined);
 
     expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
+    expect(callout()).toBeNull();
   });
 
-  it("reads nothing without an organization id", async () => {
-    await create({ organizationId: undefined, collectionId: COLLECTION_ID });
-
-    expect(accessRuleSdkService.listAccessRules).not.toHaveBeenCalled();
-  });
-
-  it("hides itself and logs when the rule read fails, rather than blocking the dialog", async () => {
+  it("falls back to the generic sentence and logs when the rule read fails", async () => {
     accessRuleSdkService.listAccessRules.mockRejectedValue(new Error("boom"));
 
     await create();
 
-    expect(callout()).toBeNull();
+    expectGenericCallout();
     expect(logService.error).toHaveBeenCalled();
   });
 

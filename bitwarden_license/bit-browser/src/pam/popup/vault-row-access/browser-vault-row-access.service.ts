@@ -135,13 +135,18 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
           );
     return combineLatest([this.pamEnabled$, unlicensed$, governed$]).pipe(
       distinctUntilChanged(([a, b, c], [d, e, f]) => a === d && b === e && c === f),
-      switchMap(([enabled, unlicensed, governed]) =>
-        !enabled || unlicensed || !governed
-          ? of(null)
-          : this.rowState
-              .state$(cipherId)
-              .pipe(switchMap((state) => this.toStatus$(cipherId, state))),
-      ),
+      switchMap(([enabled, unlicensed, governed]) => {
+        if (!enabled || !governed) {
+          return of(null);
+        }
+        if (unlicensed) {
+          // A member without a license can't request, but the row still has to read as privileged.
+          return of(restricted ? this.unlicensedStatus() : null);
+        }
+        return this.rowState
+          .state$(cipherId)
+          .pipe(switchMap((state) => this.toStatus$(cipherId, state)));
+      }),
       tap((status) => this.record(cipherId, status)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -282,6 +287,15 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
     return of(this.staticStatus(badge));
   }
 
+  /** A gated item the member has no license to request: the lock, labelled just "Privileged". */
+  private unlicensedStatus(): VaultRowAccessStatus {
+    return {
+      kind: "unavailable",
+      label: this.i18nService.t("pamAccessBadgePrivileged"),
+      canExtend: false,
+    };
+  }
+
   private staticStatus(badge: Exclude<AccessBadgeState, { kind: "active" }>): VaultRowAccessStatus {
     const status = (kind: VaultRowAccessStatus["kind"], key: string): VaultRowAccessStatus => ({
       kind,
@@ -323,16 +337,13 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
     );
   }
 
-  /** Whole hours ("8h"), then minutes ("14m"), then "<1m": a row needs no finer than a minute. */
+  /** Hours and minutes ("1h 59m", "8h"), then minutes ("14m"), then "<1m": a row needs no finer than a minute. */
   private countdownLabel(locale: string, remainingMs: number): string {
     if (remainingMs < 60_000) {
       return this.i18nService.t("pamAccessBadgeLessThanMinuteLeft");
     }
     const totalMinutes = Math.ceil(remainingMs / 60_000);
-    const duration =
-      totalMinutes < 60
-        ? formatRemaining(locale, totalMinutes * 60_000)
-        : formatRemaining(locale, Math.floor(totalMinutes / 60) * 3_600_000);
+    const duration = formatRemaining(locale, totalMinutes * 60_000);
     return this.i18nService.t("pamAccessBadgeTimeLeft", duration);
   }
 
