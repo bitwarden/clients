@@ -815,10 +815,10 @@ rule MemberSubmitsAccessRequest {
     -- against one of them, and that collection's managers are its approvers.
     let paired_memberships = memberships where collection.access_rule = gating_rule
     -- A rule without human approval checks its automated conditions HERE, against
-    -- the member's current request context. A failure refuses the submit and nothing
-    -- is saved: no request, no decision, and today no audit event either (PAM-229
-    -- adds one; whether to save a denied request too is PAM-206). A rule with human
-    -- approval leaves them to activation.
+    -- the member's current request context. A failure refuses the submit and saves
+    -- nothing: no request and no decision. It emits a request_submission_rejected
+    -- audit event (PAM-229); whether to save a denied request too is PAM-206. A rule
+    -- with human approval leaves them to activation.
     requires: gating_rule.has_human_approval
               or RuleAutomatedConditionsPass(gating_rule, caller)
     -- The window, and its cap. The lease minted from this request runs to the
@@ -1593,7 +1593,7 @@ deferred EligibleRevokers     -- see: server RevokeAccessLeaseCommand; cipher-vi
 -- each ip_allowlist). True when the rule governs nothing (disabled). Asked at two
 -- points:
 --   - At submit, on a rule WITHOUT human approval only (MemberSubmitsAccessRequest):
---     a failure refuses the submit and saves nothing.
+--     a failure refuses the submit, saves nothing, and audits request_submission_rejected.
 --   - At every activation (ActivateLease), on any rule, asked of the request's pin
 --     as the rule stands now; a pin cleared by a delete re-resolves first (see
 --     AccessRequest.rule). A failure rejects the activation without consuming the

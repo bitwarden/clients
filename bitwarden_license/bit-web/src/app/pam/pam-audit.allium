@@ -109,6 +109,13 @@ enum AccessAuditEventKind {
     -- (DEFERRED) an approved request whose window lapsed unused. Time-derived like
     -- the above, with no sweep.
     request_expired_unactivated |
+    -- (EMITTED) by the submit command, as an outcome alone, when a rule without human
+    -- approval refuses the submit on its automated conditions (PAM-229). No request is
+    -- created, so it names none. No actor, as for an automatic approval; requester =
+    -- the member, detail = the internal reason code
+    -- (NotWithinIpRange, NotWithinTimeWindow), not the requester-facing copy. Input
+    -- refusals (window, duration, cap) and the human-approval path write nothing.
+    request_submission_rejected |
 
     -- Access leases ----------------------------------------------------------
     -- (EMITTED) by the activation command, as a pair around minting the lease.
@@ -331,8 +338,9 @@ config {
 -- the event into the organization event log. It is a lossy projection:
 --   - Only OUTCOMES cross over. The org event log has no phase or correlation, so
 --     an in-doubt attempt never appears there.
---   - Only fifteen kinds have an org event log equivalent: request_submitted,
---     request_approved, request_denied, request_cancelled, lease_activated,
+--   - Only sixteen kinds have an org event log equivalent: request_submitted,
+--     request_approved, request_denied, request_cancelled,
+--     request_submission_rejected, lease_activated,
 --     lease_activation_rejected, lease_extended, lease_revoked, lease_expired,
 --     rule_created, rule_updated, rule_deleted, and the three that say how a
 --     rotation job ended. rotation_succeeded copies as Pam_Rotation_Succeeded;

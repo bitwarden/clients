@@ -59,6 +59,7 @@ export const AccessAuditEventKind = Object.freeze({
   TargetSystemPolicyUpdated: "targetSystemPolicyUpdated",
   TargetSystemDeleted: "targetSystemDeleted",
   TargetSystemUpdated: "targetSystemUpdated",
+  RequestSubmissionRejected: "requestSubmissionRejected",
 } as const);
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 

@@ -503,6 +503,13 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
   });
 
+  it("renders a refused submission naming only the item", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_SubmissionRejected));
+
+    expect(info.message).toContain("pamEventRejectedAccessRequestSubmission");
+    expect(info.message).toContain(`<code>${cipherId.substring(0, 8)}</code>`);
+  });
+
   // A rotation has no request or lease, so the message names only the item.
   it.each([
     [EventType.Pam_Rotation_Succeeded, "pamEventRotatedCredential"],
