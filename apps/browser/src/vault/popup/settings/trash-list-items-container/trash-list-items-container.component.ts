@@ -4,23 +4,17 @@
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, of, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  RestrictedCipherAction,
-  RestrictedCipherPolicy,
-} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   DialogService,
   IconButtonModule,
@@ -71,22 +65,7 @@ export class TrashListItemsContainerComponent {
   @Input()
   headerText: string;
 
-  protected readonly RestrictedCipherAction = RestrictedCipherAction;
-  private readonly revealedCipherService = inject(RevealedCipherService);
-  private readonly activeAccount$ = inject(AccountService).activeAccount$;
-
-  /** The active user's live revealed views. A restricted row offers restore only while revealed. */
-  private readonly revealed = toSignal(
-    this.activeAccount$.pipe(
-      getOptionalUserId,
-      switchMap((userId) =>
-        userId == null
-          ? of(new Map<CipherId, CipherView>())
-          : this.revealedCipherService.revealed$(userId),
-      ),
-    ),
-    { initialValue: new Map<CipherId, CipherView>() },
-  );
+  protected readonly cipherAuthorizationService = inject(CipherAuthorizationService);
 
   constructor(
     private cipherService: CipherService,
@@ -138,15 +117,6 @@ export class TrashListItemsContainerComponent {
    */
   hasDecryptionFailure(cipher: PopupCipherViewLike): boolean {
     return "decryptionFailure" in cipher && cipher.decryptionFailure;
-  }
-
-  /** False when the restricted-cipher rule blocks the action on this row. */
-  allows(cipher: PopupCipherViewLike, action: RestrictedCipherAction): boolean {
-    return RestrictedCipherPolicy.allows(
-      cipher,
-      action,
-      this.revealed().get(cipher.id as CipherId),
-    );
   }
 
   async restore(cipher: PopupCipherViewLike) {

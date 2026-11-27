@@ -1,16 +1,19 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -19,29 +22,23 @@ import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 import { TrashListItemsContainerComponent } from "./trash-list-items-container.component";
 
 describe("TrashListItemsContainerComponent", () => {
-  let component: TrashListItemsContainerComponent;
   let fixture: ComponentFixture<TrashListItemsContainerComponent>;
-  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
-  let activeAccount$: BehaviorSubject<{ id: string } | null>;
+  const cipherAuthorizationService = mock<CipherAuthorizationService>();
 
-  const restrictedRow = () =>
-    Object.assign(new CipherView(), {
-      id: "restricted" as CipherId,
-      partial: true,
-      deletedDate: new Date(),
-    }) as PopupCipherViewLike;
+  const trashedCipher = Object.assign(new CipherView(), {
+    id: "trashed" as CipherId,
+    name: "Trashed item",
+    deletedDate: new Date(),
+  }) as PopupCipherViewLike;
 
   beforeEach(async () => {
-    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
-    activeAccount$ = new BehaviorSubject<{ id: string } | null>({ id: "user-id" });
-    const revealedCipherService = mock<RevealedCipherService>();
-    revealedCipherService.revealed$.mockReturnValue(revealed$);
+    cipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [TrashListItemsContainerComponent],
       providers: [
-        { provide: AccountService, useValue: { activeAccount$ } },
-        { provide: RevealedCipherService, useValue: revealedCipherService },
+        { provide: CipherAuthorizationService, useValue: cipherAuthorizationService },
+        { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
@@ -49,50 +46,35 @@ describe("TrashListItemsContainerComponent", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
         { provide: Router, useValue: { url: "/trash", navigate: jest.fn() } },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: (): string => null }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(false) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TrashListItemsContainerComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.componentInstance.ciphers = [trashedCipher];
   });
 
-  describe("allows", () => {
-    it("allows restore and delete for an unrestricted cipher", () => {
-      const cipher = Object.assign(new CipherView(), {
-        id: "regular" as CipherId,
-        deletedDate: new Date(),
-      }) as PopupCipherViewLike;
+  const moreOptionsButton = () => fixture.debugElement.query(By.css("button[bitIconButton]"));
 
-      expect(component.allows(cipher, RestrictedCipherAction.Restore)).toBe(true);
-      expect(component.allows(cipher, RestrictedCipherAction.Delete)).toBe(true);
-    });
+  it("shows the row menu when the cipher can be restored", () => {
+    cipherAuthorizationService.canRestoreCipher$.mockReturnValue(of(true));
 
-    it("blocks restore and delete for a restricted cipher without a revealed view", () => {
-      const cipher = restrictedRow();
+    fixture.detectChanges();
 
-      expect(component.allows(cipher, RestrictedCipherAction.Restore)).toBe(false);
-      expect(component.allows(cipher, RestrictedCipherAction.Delete)).toBe(false);
-    });
+    expect(cipherAuthorizationService.canRestoreCipher$).toHaveBeenCalledWith(trashedCipher);
+    expect(moreOptionsButton()).not.toBeNull();
+  });
 
-    it("allows restore and delete for a restricted cipher while it is revealed", () => {
-      const cipher = restrictedRow();
-      revealed$.next(
-        new Map([["restricted" as CipherId, Object.assign(new CipherView(), { id: cipher.id })]]),
-      );
+  it("hides the row menu when the cipher cannot be restored", () => {
+    cipherAuthorizationService.canRestoreCipher$.mockReturnValue(of(false));
 
-      expect(component.allows(cipher, RestrictedCipherAction.Restore)).toBe(true);
-      expect(component.allows(cipher, RestrictedCipherAction.Delete)).toBe(true);
-    });
+    fixture.detectChanges();
 
-    it("blocks restore for a restricted cipher when there is no active account", () => {
-      const cipher = restrictedRow();
-      revealed$.next(
-        new Map([["restricted" as CipherId, Object.assign(new CipherView(), { id: cipher.id })]]),
-      );
-      activeAccount$.next(null);
-
-      expect(component.allows(cipher, RestrictedCipherAction.Restore)).toBe(false);
-    });
+    expect(moreOptionsButton()).toBeNull();
   });
 });
