@@ -194,11 +194,18 @@ export class HealthRiskCategoryDetailDesktopComponent {
     { initialValue: new Map<string, CipherView>() },
   );
 
+  // The scan reports in network-completion order, so the list is sorted here, and a
+  // soft-deleted login leaves it at once instead of when the next report lands.
   protected readonly rows = computed(() => {
     const cipherMap = this.cipherMap();
+    const compare = this.cipherService.getLocaleSortingFunction();
     return this.items()
       .map((item) => ({ health: item, cipher: cipherMap.get(item.cipherId) }))
-      .filter((row): row is { health: CipherHealthView; cipher: CipherView } => row.cipher != null);
+      .filter(
+        (row): row is { health: CipherHealthView; cipher: CipherView } =>
+          row.cipher != null && !row.cipher.isDeleted,
+      )
+      .sort((a, b) => compare(a.cipher, b.cipher));
   });
 
   constructor() {

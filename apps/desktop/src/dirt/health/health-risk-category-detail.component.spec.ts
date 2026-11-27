@@ -332,6 +332,9 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();
     cipherService.cipherViews$.mockReturnValue(cipherViews$);
+    cipherService.getLocaleSortingFunction.mockReturnValue((a, b) =>
+      (a as CipherView).name.localeCompare((b as CipherView).name),
+    );
 
     setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
@@ -715,6 +718,39 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
       await initComponent();
 
       expect(itemCount()).toContain("3");
+    });
+  });
+
+  describe("the list of items", () => {
+    it("sorts the items by name whatever order the report lists them in", async () => {
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "c", name: "Charlie" }),
+        buildLogin({ id: "a", name: "Alpha" }),
+        buildLogin({ id: "b", name: "Bravo" }),
+      ]);
+
+      await initComponent();
+
+      const names = rows().map((row) =>
+        ["Alpha", "Bravo", "Charlie"].find((name) => row.textContent?.includes(name)),
+      );
+      expect(names).toEqual(["Alpha", "Bravo", "Charlie"]);
+    });
+
+    it("drops a soft-deleted login without waiting for the next report", async () => {
+      const alpha = buildLogin({ id: "a", name: "Alpha" });
+      const bravo = buildLogin({ id: "b", name: "Bravo" });
+      setReport(RiskCategory.Exposed, [alpha, bravo]);
+      await initComponent();
+      expect(rows()).toHaveLength(2);
+
+      alpha.deletedDate = new Date();
+      cipherViews$.next([alpha, bravo]);
+      fixture.detectChanges();
+      await settle();
+
+      expect(rows()).toHaveLength(1);
+      expect(rows()[0].textContent).toContain("Bravo");
     });
   });
 
