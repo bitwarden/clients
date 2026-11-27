@@ -317,23 +317,4 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .mcp.json                          @bitwarden/team-ai-sme
 
 ## BitHub review rules: each team owns its own folder
-.claude/rules/review/dept-bre/                                 @bitwarden/dept-bre
-.claude/rules/review/team-admin-console-dev/                   @bitwarden/team-admin-console-dev
-.claude/rules/review/team-ai-sme/                              @bitwarden/team-ai-sme
-.claude/rules/review/team-appsec/                              @bitwarden/team-appsec
-.claude/rules/review/team-auth-dev/                            @bitwarden/team-auth-dev
-.claude/rules/review/team-autofill-dev/                        @bitwarden/team-autofill-dev
-.claude/rules/review/team-billing-dev/                         @bitwarden/team-billing-dev
-.claude/rules/review/team-data-insights-and-reporting-dev/     @bitwarden/team-data-insights-and-reporting-dev
-.claude/rules/review/team-desktop-native-dev/                  @bitwarden/team-desktop-native-dev
-.claude/rules/review/team-key-management-dev/                  @bitwarden/team-key-management-dev
-.claude/rules/review/team-pam-dev/                             @bitwarden/team-pam-dev
-.claude/rules/review/team-platform-dev/                        @bitwarden/team-platform-dev
-.claude/rules/review/team-provider-business-unit-portals-dev/  @bitwarden/team-provider-business-unit-portals-dev
-.claude/rules/review/team-secrets-manager-dev/                 @bitwarden/team-secrets-manager-dev
-.claude/rules/review/team-skunkworks/                          @bitwarden/team-skunkworks
-.claude/rules/review/team-tools-dev/                           @bitwarden/team-tools-dev
-.claude/rules/review/team-ui-foundation/                       @bitwarden/team-ui-foundation
-.claude/rules/review/team-vault-dev/                           @bitwarden/team-vault-dev
-.claude/rules/review/tech-leads/                               @bitwarden/tech-leads
-.claude/rules/review/wg-ssh-keys/                              @bitwarden/wg-ssh-keys
+.claude/rules/review/team-auth-dev/  @bitwarden/team-auth-dev
