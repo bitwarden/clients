@@ -41,7 +41,7 @@ export class IpcContentScriptManagerService {
         continue;
       }
 
-      // Not awaited, so a tab that never responds can't stall startup.
+      // Don't await so that a bad tab (busy, dialog, etc) can't block.
       BrowserApi.executeScriptInTab(tab.id, {
         file: IPC_CONTENT_SCRIPT_FILE,
         runAt: "document_start",
