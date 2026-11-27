@@ -16,7 +16,6 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -215,13 +214,6 @@ export class TargetingRulesDataService {
   }
 
   private async _fetchAndStoreRules(skipCacheAgeCheck = false): Promise<void> {
-    const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
-    if (!isEnabled) {
-      this.logService.debug("[TargetingRulesDataService] Feature is not enabled, skipping fetch.");
-
-      return;
-    }
-
     // Skip when fill assist is off — otherwise an opted-out user would still
     // have outbound traffic to the (potentially org-admin-configured) rules
     // feed URL. Cache warmth on opt-in is handled from the settings toggle.

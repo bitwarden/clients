@@ -7,7 +7,6 @@ import { PolicyType } from "../../admin-console/enums";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 import { Utils } from "../../platform/misc/utils";
@@ -28,7 +27,6 @@ describe("DefaultDomainSettingsService", () => {
   let fakeStateProvider: FakeStateProvider;
   let environmentService: MockProxy<EnvironmentService>;
   let authService: MockProxy<AuthService>;
-  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
   let fillAssistPolicyMock$: BehaviorSubject<Policy[]>;
   let serverConfigMock$: BehaviorSubject<any>;
 
@@ -58,11 +56,6 @@ describe("DefaultDomainSettingsService", () => {
 
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
-
-    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
-    configService.getFeatureFlag$
-      .calledWith(FeatureFlag.FillAssistTargetingRules)
-      .mockReturnValue(fillAssistFeatureFlagMock$);
 
     fillAssistPolicyMock$ = new BehaviorSubject<Policy[]>([]);
     // Broadly mock so any call returns the fill assist mock; other policy-type
@@ -145,7 +138,6 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      fillAssistFeatureFlagMock$.next(true);
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -734,20 +726,7 @@ describe("DefaultDomainSettingsService", () => {
     });
 
     describe("handles state gates", () => {
-      it("returns null when feature flag is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(false);
-        await domainSettingsService.setEnableFillAssist(true);
-        await setupRules(mockRules);
-
-        const result = await domainSettingsService.getTargetingRulesForUrl(
-          "https://example.com/login",
-        );
-
-        expect(result).toBeNull();
-      });
-
       it("returns null when fill assist setting is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
         await domainSettingsService.setTargetingRules(mockRules);
 
@@ -759,7 +738,6 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no active account (logged out)", async () => {
-        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         accountService.activeAccountSubject.next(null);
         await setupRules(mockRules);
@@ -772,7 +750,6 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no rules exist in state", async () => {
-        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 
@@ -1032,7 +1009,6 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      fillAssistFeatureFlagMock$.next(true);
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -1096,17 +1072,6 @@ describe("DefaultDomainSettingsService", () => {
   describe("resolvedEnableFillAssist$ (user-explicit-wins semantics)", () => {
     beforeEach(() => {
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
-      fillAssistFeatureFlagMock$.next(true);
-    });
-
-    it("returns false when feature flag is off, regardless of user setting or policy", async () => {
-      fillAssistFeatureFlagMock$.next(false);
-      await domainSettingsService.setEnableFillAssist(true);
-      fillAssistPolicyMock$.next([makeFillAssistPolicy({ rulesUrl: "https://example.com/rules" })]);
-
-      const result = await firstValueFrom(domainSettingsService.resolvedEnableFillAssist$);
-
-      expect(result).toBe(false);
     });
 
     it("returns false when user is pristine (untouched) and no policy applies", async () => {
