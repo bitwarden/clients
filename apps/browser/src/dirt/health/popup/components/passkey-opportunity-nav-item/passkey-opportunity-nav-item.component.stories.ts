@@ -22,7 +22,7 @@ export default {
               passkeyOpportunity: "1 login can use a passkey",
               passkeyOpportunitiesPlural: "__$1__ logins can use passkeys",
               passkeyOpportunitiesDesc: "Log in more safely on these sites",
-              passkeyOpportunitiesNoneDesc: "None of your saved sites support passkeys yet",
+              passkeyOpportunitiesNoneDesc: "No saved logins are waiting for a passkey",
               passkeyOpportunitiesChecking: "Checking for passkey support...",
               passkeyOpportunitiesFailed: "Passkey support couldn't be checked",
               passkeyOpportunitiesFailedDesc: "An error occurred. Please try again.",

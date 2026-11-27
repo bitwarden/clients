@@ -8790,7 +8790,7 @@
   },
   "passkeyOpportunitiesNone": {
     "message": "No passkey upgrades",
-    "description": "Title of the passkeys row on the Health Overview when no saved login's site supports passkeys."
+    "description": "Title of the passkeys row on the Health Overview when no saved login can use a passkey."
   },
   "passkeyOpportunity": {
     "message": "1 login can use a passkey",
@@ -8811,8 +8811,8 @@
     "description": "The benefit of the logins in the passkeys row on the Health Overview."
   },
   "passkeyOpportunitiesNoneDesc": {
-    "message": "None of your saved sites support passkeys yet",
-    "description": "Description of the passkeys row on the Health Overview when no saved login's site supports passkeys."
+    "message": "No saved logins are waiting for a passkey",
+    "description": "Description of the passkeys row on the Health Overview when no saved login can use a passkey: its site does not support them, or the login already has one."
   },
   "passkeyOpportunitiesChecking": {
     "message": "Checking for passkey support...",
@@ -8839,8 +8839,8 @@
     "description": "Page title for the list of logins whose sites support passkeys."
   },
   "passkeyOpportunitiesEmpty": {
-    "message": "None of your saved sites support passkeys yet.",
-    "description": "Empty state on the page listing logins whose sites support passkeys."
+    "message": "No saved logins are waiting for a passkey.",
+    "description": "Empty state on the page listing logins whose sites support passkeys, shown when none is left to set up."
   },
   "setUpPasskey": {
     "message": "Set up",
