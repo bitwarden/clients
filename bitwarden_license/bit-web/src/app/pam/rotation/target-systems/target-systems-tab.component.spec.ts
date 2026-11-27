@@ -62,6 +62,13 @@ function rowsOf(component: TargetSystemsTabComponent): TargetSystemRow[] {
   return (component as unknown as { rows: () => TargetSystemRow[] }).rows();
 }
 
+/** A cell owning no control of its own — what a click on a row's whitespace lands on. */
+function inertCell(row: Element): HTMLElement {
+  return Array.from(row.querySelectorAll<HTMLElement>('[role="cell"]')).find(
+    (cell) => cell.querySelector("a, button, input, label") == null,
+  )!;
+}
+
 describe("TargetSystemsTabComponent", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
   let component: TargetSystemsTabComponent;
@@ -685,6 +692,19 @@ describe("TargetSystemsTabComponent", () => {
         "bit-table-v2 bit-row button[bitLink]",
       )!;
     }
+
+    it("opens the target system from anywhere in its row, not only from the name", async () => {
+      await nameCellButton();
+      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      const row = (fixture.nativeElement as HTMLElement).querySelector("bit-table-v2 bit-row")!;
+
+      inertCell(row).dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ["..", "target-systems", expect.anything()],
+        expect.objectContaining({ relativeTo: expect.anything() }),
+      );
+    });
 
     it("renders the name as a dark link, since only the count is drawn as a link", async () => {
       const button = await nameCellButton();

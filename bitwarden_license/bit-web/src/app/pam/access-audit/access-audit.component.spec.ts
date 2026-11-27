@@ -1895,6 +1895,30 @@ describe("AccessAuditComponent", () => {
       expect(dialogService.openDrawer).toHaveBeenCalledTimes(ALL_COLUMNS.length);
     });
 
+    it("leaves a modified click to the browser", async () => {
+      await render([event()]);
+
+      cell(ITEM).dispatchEvent(new MouseEvent("click", { bubbles: true, metaKey: true }));
+
+      expect(dialogService.openDrawer).not.toHaveBeenCalled();
+    });
+
+    it("does not open the drawer when the click ends a text selection", async () => {
+      await render([event()]);
+      const selection = jest.spyOn(window, "getSelection").mockReturnValue({
+        isCollapsed: false,
+        toString: () => "selected text",
+      } as unknown as Selection);
+
+      try {
+        cell(ITEM).click();
+      } finally {
+        selection.mockRestore();
+      }
+
+      expect(dialogService.openDrawer).not.toHaveBeenCalled();
+    });
+
     // `openDrawer` defaults `closeOnNavigation` to false, so the page must pass it.
     it("closes the drawer when the auditor navigates away", async () => {
       await render([event()]);
@@ -2018,7 +2042,7 @@ describe("AccessAuditComponent", () => {
       expect(keydown.defaultPrevented).toBe(true);
     });
 
-    // Pointer activation sits on the cells, so the activator must not repeat it.
+    // The row forwards to the activator, so a click on the activator itself must not open twice.
     it("opens the drawer once when the activator itself is clicked", async () => {
       await render([event()]);
 

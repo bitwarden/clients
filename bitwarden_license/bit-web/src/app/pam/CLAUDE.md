@@ -156,6 +156,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   edit dialog. Like the sidebar lock and the banner, gating comes from the collection's
   server-derived `hasEnabledAccessRule`, not from the rule read. Only users who can manage access
   rules see the governing rules named and linked.
+- `row-activation/`, `pamActivateRow`: forwards a click on a table row's empty space to the row's
+  `data-pam-row-activator` control, through vault's `isRowActivationClick`.
 - `services/`, this folder's own services, among them `AccessRulesService`,
   `GovernedCollectionsService`, `PamRevealedCipherService` and the nav badge. The SDK-backed
   implementations of the `abstractions/` contracts are in `bit-pam/src/services/`.
