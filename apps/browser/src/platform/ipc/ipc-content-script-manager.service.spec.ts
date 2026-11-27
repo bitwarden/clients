@@ -36,11 +36,8 @@ describe("IpcContentScriptManagerService", () => {
   });
 
   it("does not wait for a tab that never responds", async () => {
-    jest
-      .spyOn(BrowserApi, "executeScriptInTab")
-      .mockImplementation((tabId) =>
-        tabId === 1 ? new Promise(() => {}) : Promise.resolve(undefined),
-      );
+    // Tab 1 never responds.
+    jest.spyOn(BrowserApi, "executeScriptInTab").mockReturnValueOnce(new Promise(() => {}));
 
     await service.init();
 
