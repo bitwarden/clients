@@ -21,12 +21,7 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
-import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
-import {
-  DeviceKeysUpdateRequest,
-  OtherDeviceKeysUpdateRequest,
-  UpdateDevicesTrustRequest,
-} from "../../../auth/models/request/update-devices-trust.request";
+import { OtherDeviceKeysUpdateRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -269,75 +264,6 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       await this.devicesApiService.untrustDevices(devicesToUntrust);
     }
     return rotatedData;
-  }
-
-  async rotateDevicesTrust(
-    userId: UserId,
-    newUserKey: UserKey,
-    masterPasswordHash: string,
-  ): Promise<void> {
-    this.logService.info("[Device trust rotation] Rotating device trust...");
-    if (!userId) {
-      throw new Error("UserId is required. Cannot rotate device's trust.");
-    }
-
-    const currentDeviceKey = await this.getDeviceKey(userId);
-    if (currentDeviceKey == null) {
-      // If the current device doesn't have a device key available to it, then we can't
-      // rotate any trust at all, so early return.
-      this.logService.info("[Device trust rotation] No device key available to rotate trust!");
-      return;
-    }
-
-    // At this point of rotating their keys, they should still have their old user key in state
-    const oldUserKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (oldUserKey == newUserKey) {
-      this.logService.info("[Device trust rotation] Old user key is the same as the new user key.");
-    }
-
-    const deviceIdentifier = await this.appIdService.getAppId();
-    const secretVerificationRequest = new SecretVerificationRequest();
-    secretVerificationRequest.masterPasswordHash = masterPasswordHash;
-
-    // Get the keys that are used in rotating a devices keys from the server
-    const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(deviceIdentifier);
-
-    // Decrypt the existing device public key with the old user key
-    const decryptedDevicePublicKey = await this.encryptService.unwrapEncapsulationKey(
-      currentDeviceKeys.encryptedPublicKey,
-      oldUserKey,
-    );
-
-    // Encrypt the brand new user key with the now-decrypted public key for the device
-    const encryptedNewUserKey = await this.encryptService.encapsulateKeyUnsigned(
-      newUserKey,
-      decryptedDevicePublicKey,
-    );
-
-    // Re-encrypt the device public key with the new user key
-    const encryptedDevicePublicKey = await this.encryptService.wrapEncapsulationKey(
-      decryptedDevicePublicKey,
-      newUserKey,
-    );
-
-    const currentDeviceUpdateRequest = new DeviceKeysUpdateRequest();
-    currentDeviceUpdateRequest.encryptedUserKey = encryptedNewUserKey.encryptedString;
-    currentDeviceUpdateRequest.encryptedPublicKey = encryptedDevicePublicKey.encryptedString;
-
-    // TODO: For device management, allow this method to take an array of device ids that can be looped over and individually rotated
-    // then it can be added to trustRequest.otherDevices.
-
-    const trustRequest = new UpdateDevicesTrustRequest();
-    trustRequest.masterPasswordHash = masterPasswordHash;
-    trustRequest.currentDevice = currentDeviceUpdateRequest;
-    trustRequest.otherDevices = [];
-
-    this.logService.info(
-      "[Device trust rotation] Posting device trust update with current device:",
-      deviceIdentifier,
-    );
-    await this.devicesApiService.updateTrust(trustRequest, deviceIdentifier);
-    this.logService.info("[Device trust rotation] Device trust update posted successfully.");
   }
 
   async getDeviceKey(userId: UserId): Promise<DeviceKey | null> {
