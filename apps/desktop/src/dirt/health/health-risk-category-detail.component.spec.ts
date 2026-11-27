@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, combineLatest, map, of } from "rxjs";
 
@@ -29,7 +29,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogRef, DialogService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
@@ -62,11 +62,28 @@ console.error = (...args: unknown[]) => {
 
 @Component({
   selector: "app-header",
-  template: ``,
+  template: `<ng-content select="[slot=breadcrumbs]" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockDesktopHeaderComponent {
   readonly title = input<string | undefined>(undefined);
+}
+
+/** The real breadcrumbs need a real Router, and this spec drives the page with a mock one. */
+@Component({
+  selector: "bit-breadcrumbs",
+  template: `<ng-content />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockBreadcrumbsComponent {}
+
+@Component({
+  selector: "bit-breadcrumb",
+  template: `<ng-content />`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockBreadcrumbComponent {
+  readonly route = input<string | unknown[] | undefined>(undefined);
 }
 
 /** The real vault icon needs domain settings, config and environment services to resolve favicons. */
@@ -200,6 +217,13 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
 
   function pageTitle(): string | undefined {
     return fixture.debugElement.query(By.css("app-header")).componentInstance.title();
+  }
+
+  function crumbs(): { text: string; route: unknown }[] {
+    return fixture.debugElement.queryAll(By.css("bit-breadcrumb")).map((crumb) => ({
+      text: crumb.nativeElement.textContent.trim(),
+      route: crumb.componentInstance.route(),
+    }));
   }
 
   /** All rendered text. The i18n mock echoes keys, so keys are matched directly. */
@@ -363,8 +387,7 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
       .overrideComponent(HealthRiskCategoryDetailDesktopComponent, {
         remove: {
           imports: [
-            // The Router is a mock, which RouterLink cannot be built against.
-            RouterModule,
+            BreadcrumbsModule,
             DesktopHeaderComponent,
             AppVaultIconComponent,
             HealthScanningComponent,
@@ -374,6 +397,8 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
         add: {
           imports: [
             MockDesktopHeaderComponent,
+            MockBreadcrumbsComponent,
+            MockBreadcrumbComponent,
             MockAppVaultIcon,
             MockHealthScanningComponent,
             MockHealthScanErrorComponent,
@@ -389,6 +414,37 @@ describe("HealthRiskCategoryDetailDesktopComponent", () => {
     openDrawerSpy.mockRestore();
     // Overlays are attached to the document body, so they outlive the fixture unless removed.
     document.querySelectorAll(".cdk-overlay-container").forEach((overlay) => overlay.remove());
+  });
+
+  describe("breadcrumbs", () => {
+    it.each(categories.map((c) => [c.category, c.titleKey] as const))(
+      "renders Health / title for the %s category, with the current crumb routing to itself",
+      async (category, titleKey) => {
+        params$.next({ category });
+
+        await initComponent();
+
+        expect(crumbs()).toEqual([
+          { text: "health", route: "/health" },
+          { text: titleKey, route: [] },
+        ]);
+      },
+    );
+
+    it("updates the current crumb when the category changes", async () => {
+      await initComponent();
+
+      params$.next({ category: RiskCategory.Weak });
+      fixture.detectChanges();
+
+      expect(crumbs().map((c) => c.text)).toEqual(["health", "weakPasswordsTitle"]);
+    });
+
+    it("no longer renders a separate back link", async () => {
+      await initComponent();
+
+      expect(fixture.nativeElement.querySelector("a[bitLink]")).toBeNull();
+    });
   });
 
   describe("category content", () => {

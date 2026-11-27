@@ -1,15 +1,11 @@
-<div class="tw-m-4 tw-p-4">
-  <app-header [title]="pageTitle()" />
+<div class="tw-px-8 tw-pb-6">
+  <app-header [title]="pageTitle()">
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb route="/health">{{ "health" | i18n }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]">{{ pageTitle() }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  </app-header>
   <div>
-    <a
-      bitLink
-      routerLink="/health"
-      startIcon="bwi-angle-left"
-      class="tw-mb-4 tw-inline-block"
-      data-testid="health-detail-back-link"
-    >
-      {{ "back" | i18n }}
-    </a>
     @if (invalidCategory()) {
       <!-- shown while the page routes back to the health overview -->
     } @else if (loading()) {
@@ -20,11 +16,11 @@
       <!-- a scan is about to start; showing the empty state here would read as "all clear" -->
       <dirt-health-scanning />
     } @else if (rows().length > 0) {
-      <p bitTypography="body1">
+      <p bitTypography="body1" class="!tw-mb-6">
         {{ contentKeys()?.descriptionKey | i18n }}
       </p>
       <bit-section>
-        <bit-section-header>
+        <bit-section-header class="tw-mb-2">
           <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
           <span slot="end">{{ rows().length }}</span>
         </bit-section-header>

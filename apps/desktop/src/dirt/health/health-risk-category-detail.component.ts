@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -26,13 +26,13 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
+  BreadcrumbsModule,
   ButtonModule,
   CenterPositionStrategy,
   DialogService,
   IconButtonModule,
   IconModule,
   ItemModule,
-  LinkModule,
   MenuModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -65,7 +65,7 @@ const HEALTH_OVERVIEW_ROUTE = "/health";
   templateUrl: "./health-risk-category-detail.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
   imports: [
-    RouterModule,
+    BreadcrumbsModule,
     ItemModule,
     TypographyModule,
     DesktopHeaderComponent,
@@ -73,7 +73,6 @@ const HEALTH_OVERVIEW_ROUTE = "/health";
     SectionHeaderComponent,
     ButtonModule,
     IconButtonModule,
-    LinkModule,
     AppVaultIconComponent,
     I18nPipe,
     MenuModule,
