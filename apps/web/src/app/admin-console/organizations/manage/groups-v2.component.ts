@@ -70,7 +70,7 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -116,7 +116,6 @@ type GroupFilters = {
     BulkActionComponent,
     StatusLockupComponent,
     TooltipDirective,
-    Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -226,6 +225,12 @@ export class GroupsV2Component {
   protected readonly table = defineTable<GroupRow, "actions">(this.rows);
 
   protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
+
+  /**
+   * The collection filter has nothing to offer when the organization has no collections, so the
+   * chip is disabled rather than opening onto an empty menu.
+   */
+  protected readonly hasNoCollections = computed(() => this.collectionFilterOptions().length === 0);
 
   constructor() {
     effect(() => {

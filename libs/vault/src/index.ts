@@ -37,6 +37,7 @@ export { DownloadAttachmentComponent } from "./components/download-attachment/do
 export { TruncatedFilenameComponent } from "./components/truncated-filename";
 export { truncateFilename } from "./components/truncated-filename/truncate-filename";
 export { deleteFailureMessageKey } from "./utils/delete-failure-message";
+export { isRowActivationClick } from "./utils/row-activation";
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";

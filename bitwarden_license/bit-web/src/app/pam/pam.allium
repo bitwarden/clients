@@ -730,6 +730,11 @@ rule VaultExportBypassesLeasing {
     ensures:
         for c in ExportedCiphers(caller, organization):
             CipherOpened(caller, c, null)
+    @guidance
+        -- An export that carries at least one gated cipher writes a vault_exported
+        -- audit event (PAM-204, pam-audit.allium). The client sends
+        -- Organization_ClientExportedVault to the org event log as well, but a
+        -- modified client can skip that one.
 }
 
 rule ManagedCollectionsExportExcludesGated {
@@ -1642,6 +1647,17 @@ deferred RuleAutomatedConditionsPass    -- see: server SubmitAccessRequestComman
 -- The server-side resolver still owns the implementation.
 deferred oldest_rule    -- see: server-side GoverningRuleResolver
 
+-- `latest_lease_end(leases)`: the latest not_after in a set of leases, or null for an
+-- empty set. RequestAccessModal applies it to the active leases on the target cipher
+-- to get slot_frees_at, the time a single_active_lease slot frees.
+--
+-- WHY the latest: the start check (RuleAllowsLease) refuses while ANY lease on the
+-- cipher is active, and several can be. A holder with an escape path is not bound by
+-- the singleton (SingleActiveLeaseRespected), and a lease started before its rule
+-- turned single_active_lease on keeps running. The slot frees only when the last of
+-- them ends, so an earlier time would send the member back to a start that still fails.
+deferred latest_lease_end    -- see: server AccessLease_ReadActiveByCipherId, AccessPreCheckQuery
+
 -- `RuleBypassableCiphers(rule)`: the ciphers in this rule's collections that a
 -- member could also reach through some collection with NO enabled access rule,
 -- so the rule's gating does not actually protect them (see the cipher-open
@@ -1669,16 +1685,16 @@ deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQ
 -- gated item change which collections it is in, including adding it to a collection
 -- with no rule. The review kept this: a lease holder may re-file what they hold. From
 -- then on the item has an ungated path, so it is ungated for them and for everyone in
--- that collection, with no lease, no approver and no PAM audit event (the org event
--- log records only Cipher_UpdatedCollections). RuleBypassableCiphers then counts the
--- new path like any other.
+-- that collection, with no lease and no approver. The server records the change as a
+-- credential_ungated audit event (PAM-203, pam-audit.allium) next to the org event
+-- log's Cipher_UpdatedCollections, and nothing warns. RuleBypassableCiphers then counts
+-- the new path like any other.
 --
 -- It interacts with RotateOnAccessEnd. Rotation exists so that a copy taken during a
 -- lease goes stale when the lease ends; a re-filed item keeps the member attached to
 -- every future rotated value, so a time-boxed grant becomes standing access that
--- outlives rotation. Whether the move should warn or be audited is PAM-203. The same
--- re-file through the admin endpoint, by a Custom user with Edit any collection and
--- no lease, is PAM-202.
+-- outlives rotation. The same re-file through the admin endpoint, by a Custom user
+-- with Edit any collection and no lease, is PAM-202; it writes the same audit event.
 
 -- `GatedFor(member, cipher)`: the member reaches the cipher, and only through
 -- collections that carry an enabled AccessRule. It is the has_ungated_path test the
@@ -1726,7 +1742,7 @@ deferred ManagedExportCiphers    -- see: vault export stack (outside PAM)
 -- single_active_lease. Evaluated independently of which rule governs the request
 -- decision: it is a property of the member's whole set of paths to the cipher, not
 -- the single resolved gating rule.
-deferred SingleActiveLeaseApplies    -- see: server-side lease start / rule evaluation
+deferred SingleActiveLeaseApplies    -- see: server GoverningRuleResolver (GoverningRule.SingleActiveLease)
 
 -- `RuleAllowsLease(member, cipher)`: gate on single_active_lease, honored by union.
 -- When SingleActiveLeaseApplies(member, cipher) holds (all of the member's paths to
@@ -1741,9 +1757,9 @@ deferred SingleActiveLeaseApplies    -- see: server-side lease start / rule eval
 -- Contention policy: when the cipher's slot is taken the start is rejected and the
 -- approved request stays `approved`; the member retries when it frees, bounded by
 -- the activation window. No server-side queue; the member polls, with availability
--- surfaced by pre_check (can_start_lease / slot_frees_at, PM-42446) in
--- RequestAccessModal and by the cipher-view banner.
-deferred RuleAllowsLease    -- see: server SingleActiveLeaseEvaluator
+-- surfaced by pre_check in RequestAccessModal (can_start_lease, and slot_frees_at
+-- from latest_lease_end, PM-42446).
+deferred RuleAllowsLease    -- see: server ActivateAccessRequestCommand, AccessLease_CreateFromApprovedRequest
 
 -- `HoldsPamSeat(member, organization)`: the member may use PAM in that
 -- organization. All three must hold: the member has a PAM seat (AccessPam), the
@@ -1935,6 +1951,8 @@ surface RequestAccessModal {
     let governing_candidates = AccessRule where enabled
                                             and collections.any(c => c in member_collections)
     let gating_rule = oldest_rule(governing_candidates)
+    let active_cipher_leases = AccessLease where cipher = target_cipher and status = active
+    let slot_frees_at = latest_lease_end(active_cipher_leases)
 
     -- Exactly what pre_check returns, and nothing about the rule beyond it: the
     -- form never shows the rule's conditions.
@@ -1954,14 +1972,13 @@ surface RequestAccessModal {
         -- (union/OR); otherwise always startable. Lets the modal warn that an
         -- otherwise-auto_approve request could not be started yet because another lease
         -- is active on this cipher. A current-state hint, re-checked for real at start.
-        --
-        -- Surfaced with the time the slot frees (the blocking lease's not_after, latest
-        -- one wins), so the requester gets a retry time rather than polling. Deliberately
-        -- WITHOUT the holder's identity: same-collection members can already enumerate
-        -- each other, but who is using which privileged credential right now is
-        -- behavioural data only approvers see (ActiveLeasesPage). Revisit only behind an
-        -- org opt-in.
         RuleAllowsLease(requester, target_cipher)
+        -- When the slot is taken, the time it frees (latest end wins), so the requester
+        -- gets a retry time rather than polling. Deliberately WITHOUT the holder's
+        -- identity: same-collection members can already enumerate each other, but who is
+        -- using which privileged credential right now is behavioural data only approvers
+        -- see (ActiveLeasesPage). Revisit only behind an org opt-in.
+        slot_frees_at when not RuleAllowsLease(requester, target_cipher)
 
     provides:
         MemberSubmitsRequest(requester, target_cipher, reason, window_start, window_end)
@@ -2383,11 +2400,12 @@ invariant OrgUniqueRuleNames {
 -- export, which mints no lease and so keeps working under a freeze.
 --
 -- Governance dashboard: epic PAM-115, story PAM-85, design in PAM-140. The server
--- already serves the scope-wide lease lists (GET /leases/active and
--- /leases/history, scoped to the collections the caller manages); the SDK wraps
--- list_active only, and there is no summary read and no client. The surface below
--- is the POC's design, to be re-derived from PAM-140 once it is groomed, audience
--- included.
+-- serves the scope-wide active lease list (GET /leases/active, scoped to the
+-- collections the caller manages), which the SDK wraps as list_active. It no longer
+-- serves the recently-ended list: PAM-581 removed GET /leases/history, which was
+-- unpaged and had no caller, so the dashboard needs a new paged read for it. There
+-- is no summary read and no client. The surface below is the POC's design, to be
+-- re-derived from PAM-140 once it is groomed, audience included.
 
 -- An org-wide block on starting new leases, engaged by an admin (typically
 -- alongside the kill switch). While one exists for an organization, no approved
@@ -2436,8 +2454,8 @@ invariant AtMostOneLeasingFreezePerOrg {
 surface GovernanceDashboard {
     -- The POC's design: a per-collection summary table for org admins (rule,
     -- pending counts, active counts, last activity) and the scope-wide active and
-    -- recently-ended lease lists. The lease lists are the part the server already
-    -- serves (GET /leases/active, /leases/history).
+    -- recently-ended lease lists. Of these the server serves only the active list
+    -- (GET /leases/active); the recently-ended list needs a new paged read.
     facing admin: OrgAdmin
 
     context org: Organization
@@ -2450,8 +2468,9 @@ surface GovernanceDashboard {
         -- All active leases in scope, surfaced by GET /leases/active.
         AccessLease where collection.organization = org and status = active
         -- All recently-ended leases (expired, revoked or canceled) in scope, within the
-        -- shared history window, surfaced by GET /leases/history. A lease's end is its
-        -- ended_at (revoked or canceled) or its not_after (expired).
+        -- shared history window. No endpoint serves this since PAM-581 removed
+        -- GET /leases/history. A lease's end is its ended_at (revoked or canceled) or
+        -- its not_after (expired).
         AccessLease where collection.organization = org
                      and ((status in {revoked, canceled} and ended_at >= now - config.history_window)
                           or (status = expired and not_after >= now - config.history_window))
@@ -2496,8 +2515,6 @@ surface KillSwitchControl {
 open question "Should a disabled pinned rule behave like a deleted one (PAM-211)? Today they differ (see AccessRequest.rule). A deleted rule's pin is cleared and re-resolves at activation, so a younger rule on another path can take over. A disabled rule's pin survives and governs nothing, so its approved requests activate with no condition check ('instant access') even when a younger enabled rule on another path would have checked them, and extensions under it are refused. The reviewer's lean: a disabled pin should re-resolve at activation too. The answer decides the formal projection of the rule a pin governs by, which this spec leaves in prose until then."
 
 open question "When a rule's automated conditions refuse a submit, should a visible denied request be saved as well (PAM-206), as PM-42632 chose for late extensions, or is an audit event enough? Today nothing is saved and nothing is audited; PAM-229 adds the audit event. A refused out-of-network attempt that leaves no trace is a detection gap in a privileged-access product, which activation (LeaseActivationRejected) does not have."
-
-open question "Should the server audit a whole-vault export (PAM-204)? It is the only export that carries gated credentials in full (a member's own export leaves them out): a bulk, lease-free release of exactly what the trail exists to account for. Nothing in PAM records it (pam-audit's CredentialAccessed is itself deferred). The only trace is the organization event log's Organization_ClientExportedVault, which the CLIENT sends, so a modified client can skip it, and which never names the ciphers exported. Undecided: a server-written PAM event per export (or per gated cipher in it), or leave export accounting to the org event log."
 
 open question "One extension per lease, or several within a total (PAM-212)? Today a lease extends at most once (AtMostOneExtensionPerLease, since PM-40526), so its whole life is bounded by its window plus one max_extension_duration, and a denied late attempt uses up that one extension. The alternative is any number of extensions while the total stays within the rule's maximum access time. A narrower worry survives either way: on a human-approval rule, is one unapproved increment of up to max_extension_duration (which may be as long as the global ceiling) too much?"
 

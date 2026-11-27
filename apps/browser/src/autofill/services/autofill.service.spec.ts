@@ -56,7 +56,6 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { stampWebExtSender } from "../../platform/utils/web-ext-sender";
-import { DefaultAutofillOrchestrator } from "../background/autofill-orchestrator";
 import AutofillInit from "../content/autofill-init";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
@@ -64,6 +63,7 @@ import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { DefaultAutofillOrchestrator } from "../orchestration";
 import {
   createAutofillFieldMock,
   createAutofillFormMock,
@@ -124,13 +124,10 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
-  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
   const autofillLifecycleService = mock<AutofillLifecycleService>();
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
-    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -1722,8 +1719,7 @@ describe("AutofillService", () => {
           .mockReturnValue(new AutofillScript());
       });
 
-      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
-        fillAssistFeatureFlagMock$.next(true);
+      it("routes to the targeted fill path when the user setting is enabled", async () => {
         await domainSettingsService.setEnableFillAssist(true);
 
         await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
@@ -1735,22 +1731,7 @@ describe("AutofillService", () => {
         expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
       });
 
-      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(false);
-        await domainSettingsService.setEnableFillAssist(true);
-
-        const result = await autofillService["generateFillScript"](
-          targetedPageDetail,
-          generateFillScriptOptions,
-        );
-
-        expect(result).toBeNull();
-        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
-        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
-      });
-
       it("abandons the fill (returns null) when the user setting is disabled", async () => {
-        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
 
         const result = await autofillService["generateFillScript"](

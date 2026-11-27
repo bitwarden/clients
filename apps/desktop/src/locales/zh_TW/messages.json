@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "立即同步"
   },
-  "changeMasterPass": {
-    "message": "變更主密碼"
-  },
   "changeMasterPassword": {
     "message": "變更主密碼"
-  },
-  "continueToWebApp": {
-    "message": "前往網頁應用程式嗎？"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden 網頁應用程式上變更主密碼。"
   },
   "fingerprintPhrase": {
     "message": "指紋短語",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "有安全疑慮的密碼。"
   },
-  "changeNow": {
-    "message": "立即變更"
-  },
   "missingPermissions": {
     "message": "您欠缺執行本動作必要的權限。"
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "在資料夾名稱後面使用「/」來建立樹狀結構。\n例如：社交網路/論壇"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "安全傳送機密的資訊",
@@ -7742,7 +7753,7 @@
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
-    "message": "匯出該新的密碼庫",
+    "message": "探索全新的密碼庫",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "customize": {
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "自動填入瀏覽器登入提示",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "回應與此登入項目相符的網站所顯示的 HTTP 基本驗證提示。"
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "開啟自動填入瀏覽器登入提示的說明文章"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "若要使用此設定，請為此登入項目的每個網站選取「預設」以外的比對偵測選項。"
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "要開啟瀏覽器登入提示的自動填入功能嗎？"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此項目的主密碼重新提示功能將關閉。這兩項設定無法同時啟用。"
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "要開啟主密碼重新提示功能嗎？"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此項目的瀏覽器登入提示自動填入功能將關閉。這兩項設定無法同時啟用。"
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "要使用預設比對偵測嗎？"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用預設比對偵測的網站無法搭配瀏覽器登入提示使用。此項目的瀏覽器登入提示自動填入功能將關閉。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "已關閉瀏覽器登入提示自動填入功能"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "此項目已啟用主密碼重新提示功能，因此已關閉瀏覽器登入提示自動填入功能。請儲存項目以保留此變更。"
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

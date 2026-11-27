@@ -229,9 +229,19 @@ apps/browser/src/popup/components/extension-anon-layout-wrapper  @bitwarden/team
 apps/web/src/app/layouts                                         @bitwarden/team-ui-foundation
 
 ## Key management team files ##
-e2e                                               @bitwarden/team-key-management-dev
 .github/workflows/test-e2e-usdev.yml              @bitwarden/team-key-management-dev
 .github/workflows/test-e2e-usdev-changes.yml      @bitwarden/team-key-management-dev
+e2e/tests/browser/login                           @bitwarden/team-key-management-dev
+e2e/tests/browser/pin                             @bitwarden/team-key-management-dev
+e2e/tests/desktop/biometric-unlock.e2e.ts         @bitwarden/team-key-management-dev
+e2e/tests/desktop/login                           @bitwarden/team-key-management-dev
+e2e/tests/desktop/pin                             @bitwarden/team-key-management-dev
+e2e/tests/desktop/ssh-agent.e2e.ts                @bitwarden/team-key-management-dev
+e2e/tests/shared/browser-desktop                  @bitwarden/team-key-management-dev
+e2e/tests/shared/passkey-unlock.e2e.ts            @bitwarden/team-key-management-dev
+e2e/tests/shared/web-browser                      @bitwarden/team-key-management-dev
+e2e/tests/web/login                               @bitwarden/team-key-management-dev
+e2e/tests/web/passkey.e2e.ts                      @bitwarden/team-key-management-dev
 apps/desktop/src/key-management                   @bitwarden/team-key-management-dev
 apps/web/src/app/key-management                   @bitwarden/team-key-management-dev
 apps/browser/src/key-management                   @bitwarden/team-key-management-dev
@@ -254,12 +264,15 @@ apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
 
 ## PAM
-apps/web/src/app/pam                   @bitwarden/team-pam-dev
-bitwarden_license/bit-browser/src/pam  @bitwarden/team-pam-dev
-bitwarden_license/bit-pam              @bitwarden/team-pam-dev
-bitwarden_license/bit-pam-components   @bitwarden/team-pam-dev
-bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
-libs/pam                               @bitwarden/team-pam-dev
+apps/web/src/app/pam                                     @bitwarden/team-pam-dev
+bitwarden_license/bit-browser/src/pam                    @bitwarden/team-pam-dev
+bitwarden_license/bit-pam                                @bitwarden/team-pam-dev
+bitwarden_license/bit-pam-components                     @bitwarden/team-pam-dev
+bitwarden_license/bit-web/src/app/pam                    @bitwarden/team-pam-dev
+e2e/src/seeder/scenes/organization-access-rule.scene.ts  @bitwarden/team-pam-dev
+e2e/src/web/pam                                          @bitwarden/team-pam-dev
+e2e/tests/web/pam                                        @bitwarden/team-pam-dev
+libs/pam                                                 @bitwarden/team-pam-dev
 
 ## Automation driver ##
 ### Temporary Code-owner.

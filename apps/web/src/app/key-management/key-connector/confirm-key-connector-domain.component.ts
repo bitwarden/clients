@@ -18,11 +18,21 @@ export class ConfirmKeyConnectorDomainComponent {
     private organizationInviteService: OrganizationInviteService,
   ) {}
 
-  onBeforeNavigation = async () => {
-    // Key Connector conversion accepts a stashed org invite on the server, so clear the stashed
-    // invite and its accept URL redirect. Without a stashed invite, the redirect is an
+  onBeforeNavigation = async (organizationInviteAccepted: boolean) => {
+    // When we send `acceptOrganizationInvite: true` for the Key Connector org invite, clear the
+    // stashed invite and its accept URL redirect. Without a stashed invite, the redirect is an
     // unrelated deep link which we don't want to clear.
-    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+    //
+    // Exception: while `InviteLinkAutoConfirm` is on, we send `acceptOrganizationInvite: false`
+    // when the stashed open invite is for this organization. The organization user stays
+    // Invited, so keep the open invite and its /join redirect. `deepLinkGuard` then sends the
+    // user to AcceptOrgOpenInviteComponent, which runs the Admin Console accept flow. A stashed
+    // open invite for a different organization is cleared.
+    // `SsoJitProvisionFinishService.shouldAcceptOrganizationInvite` makes this decision.
+    if (
+      organizationInviteAccepted &&
+      (await this.organizationInviteService.getOrganizationInvite()) != null
+    ) {
       await this.routerService.getAndClearLoginRedirectUrl();
       await this.organizationInviteService.clearOrganizationInvite();
     }

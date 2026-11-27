@@ -2,13 +2,15 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ProviderService, ProviderStatusType, Provider } from "@bitwarden/common/provider";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -17,6 +19,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services/organization-warnings.service";
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
+import { NeedsConfirmationCountService } from "../members/services/needs-confirmation-count/needs-confirmation-count.service";
 
 import { OrganizationLayoutComponent } from "./organization-layout.component";
 
@@ -32,6 +35,8 @@ describe("OrganizationLayoutComponent", () => {
   let mockOrganizationWarningsService: MockProxy<OrganizationWarningsService>;
   let mockInviteLinkCalloutService: MockProxy<InviteLinkCalloutService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
+  let mockNeedsConfirmationCountService: MockProxy<NeedsConfirmationCountService>;
+  let membersTableV2: boolean;
 
   let routeParamsSubject: BehaviorSubject<{ organizationId: OrganizationId }>;
 
@@ -87,6 +92,13 @@ describe("OrganizationLayoutComponent", () => {
     mockOrganizationWarningsService = mock<OrganizationWarningsService>();
     mockInviteLinkCalloutService = mock<InviteLinkCalloutService>();
     mockAccountService = mockAccountServiceWith(userId);
+    mockNeedsConfirmationCountService = mock<NeedsConfirmationCountService>();
+    mockNeedsConfirmationCountService.count$.mockReturnValue(of(0));
+    membersTableV2 = true;
+    const mockI18nService = mock<I18nService>();
+    mockI18nService.t.mockImplementation((key: string, ...args: unknown[]) =>
+      [key, ...args].join(" "),
+    );
 
     mockOrganizationService.organizations$.mockReturnValue(of([makeOrg()]));
     mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
@@ -108,7 +120,15 @@ describe("OrganizationLayoutComponent", () => {
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
         { provide: InviteLinkCalloutService, useValue: mockInviteLinkCalloutService },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) =>
+              of(flag === FeatureFlag.MembersTableV2 && membersTableV2),
+          },
+        },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: NeedsConfirmationCountService, useValue: mockNeedsConfirmationCountService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -129,6 +149,61 @@ describe("OrganizationLayoutComponent", () => {
 
       const result = await firstValueFrom(component.organization$);
       expect(result.id).toBe(orgId);
+    });
+  });
+
+  describe("needsConfirmation$", () => {
+    const needsConfirmation$ = () => (component as any).needsConfirmation$;
+
+    it("describes the organization's count for the Members nav item", async () => {
+      mockNeedsConfirmationCountService.count$.mockReturnValue(of(2));
+
+      expect(await firstValueFrom(needsConfirmation$())).toEqual({
+        count: 2,
+        tooltip: "membersNeedConfirmation 2",
+        ariaLabel: "members, membersNeedConfirmation 2",
+      });
+      expect(mockNeedsConfirmationCountService.count$).toHaveBeenCalledWith(orgId);
+    });
+
+    it("uses the singular for one member", async () => {
+      mockNeedsConfirmationCountService.count$.mockReturnValue(of(1));
+
+      expect((await firstValueFrom(needsConfirmation$())).tooltip).toBe("memberNeedsConfirmation");
+    });
+
+    it("is undefined when no member needs confirmation", async () => {
+      expect(await firstValueFrom(needsConfirmation$())).toBeUndefined();
+    });
+
+    it("follows the count as it changes", () => {
+      const counts = new Subject<number>();
+      mockNeedsConfirmationCountService.count$.mockReturnValue(counts);
+      const seen: (number | undefined)[] = [];
+      needsConfirmation$().subscribe((n: { count: number } | undefined) => seen.push(n?.count));
+
+      counts.next(3);
+      counts.next(0);
+
+      expect(seen).toEqual([3, undefined]);
+    });
+
+    it("doesn't fetch for admins who can't manage users", async () => {
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([makeOrg({ canManageUsers: false, canManageUsersPassword: true })]),
+      );
+
+      expect(await firstValueFrom(needsConfirmation$())).toBeUndefined();
+      expect(mockNeedsConfirmationCountService.count$).not.toHaveBeenCalled();
+    });
+
+    it("doesn't fetch with the members table v2 flag off", async () => {
+      membersTableV2 = false;
+      // The flag is read as the component is created.
+      component = TestBed.createComponent(OrganizationLayoutComponent).componentInstance;
+
+      expect(await firstValueFrom(needsConfirmation$())).toBeUndefined();
+      expect(mockNeedsConfirmationCountService.count$).not.toHaveBeenCalled();
     });
   });
 

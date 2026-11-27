@@ -108,8 +108,6 @@ describe("TargetingRulesDataService", () => {
     });
     globalStateProvider.get.mockReturnValue(metaState as any);
 
-    configService.getFeatureFlag.mockResolvedValue(true);
-
     service = new TargetingRulesDataService(
       apiService,
       domainSettingsService,
@@ -252,7 +250,7 @@ describe("TargetingRulesDataService", () => {
   });
 
   describe("resolvedEnableFillAssist$ gate", () => {
-    it("skips fetch when fill assist is off, even with the feature flag on", async () => {
+    it("skips fetch when fill assist is off", async () => {
       // An opted-out user should have zero outbound traffic to the
       // (potentially org-admin-configured) rules feed URL.
       resolvedEnableFillAssistMock$.next(false);

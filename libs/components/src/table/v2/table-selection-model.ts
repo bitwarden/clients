@@ -9,10 +9,7 @@ export type TableSelectionConfig<T> = {
   canSelect?: (row: T) => boolean;
   /** Upper bound on how many rows may be selected at once. */
   max?: number;
-  /**
-   * The rows in scope for select-all / indeterminate — the table's filtered
-   * view. Read reactively, so the aggregates track filtering.
-   */
+  /** The rows select-all and indeterminate cover; read reactively so the aggregates follow. */
   rows: Signal<readonly T[]>;
 };
 

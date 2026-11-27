@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import {
   Environment,
@@ -38,7 +39,7 @@ describe("ConvertToKeyConnectorCommand", () => {
   const keyConnectorService = mock<KeyConnectorService>();
   const environmentService = mock<EnvironmentService>();
   const organizationApiService = mock<OrganizationApiServiceAbstraction>();
-  const logout = jest.fn();
+  const logoutService = mock<LogoutService>();
   const i18nService = mock<I18nService>();
 
   beforeEach(async () => {
@@ -47,7 +48,7 @@ describe("ConvertToKeyConnectorCommand", () => {
       keyConnectorService,
       environmentService,
       organizationApiService,
-      logout,
+      logoutService,
       i18nService,
     );
 
@@ -87,7 +88,22 @@ describe("ConvertToKeyConnectorCommand", () => {
           ),
         ),
       );
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorRequiresInteraction");
+    });
+
+    it("should logout and return error response if the organization has no key connector url", async () => {
+      process.env.BW_NOINTERACTION = "false";
+      keyConnectorService.getManagingOrganization.mockResolvedValue({
+        id: "test-organization-id",
+        name: "Test Organization",
+        keyConnectorUrl: undefined,
+      } as Organization);
+
+      const response = await command.run();
+
+      expect(response).toEqual(Response.error("You have been logged out."));
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
+      expect(keyConnectorService.migrateUser).not.toHaveBeenCalled();
     });
 
     it("should logout and return error response if interaction answer is exit", async () => {
@@ -106,7 +122,7 @@ describe("ConvertToKeyConnectorCommand", () => {
       expect(response).not.toBeNull();
       expect(response.success).toEqual(false);
       expect(response).toEqual(Response.error("You have been logged out."));
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "userInitiated");
     });
 
     it("should key connector migrate user and return success response if answer is remove", async () => {
@@ -153,7 +169,7 @@ describe("ConvertToKeyConnectorCommand", () => {
       keyConnectorService.migrateUser.mockRejectedValue(new Error("Migration failed"));
 
       await expect(command.run()).rejects.toThrow("Migration failed");
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
     });
 
     it("should leave organization and return success response if answer is leave", async () => {

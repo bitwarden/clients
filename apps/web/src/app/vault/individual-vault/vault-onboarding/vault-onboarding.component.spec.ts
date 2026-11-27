@@ -3,7 +3,6 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,7 +20,6 @@ describe("VaultOnboardingComponent", () => {
   let component: VaultOnboardingComponent;
   let fixture: ComponentFixture<VaultOnboardingComponent>;
   let mockPlatformUtilsService: Partial<PlatformUtilsService>;
-  let mockApiService: Partial<ApiService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockVaultOnboardingService: MockProxy<VaultOnboardingServiceAbstraction>;
   let setInstallExtLinkSpy: jest.SpyInstance;
@@ -32,9 +30,6 @@ describe("VaultOnboardingComponent", () => {
   beforeEach(async () => {
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
-    mockApiService = {
-      getProfile: jest.fn(),
-    };
     mockVaultOnboardingService = mock<VaultOnboardingServiceAbstraction>();
     mockVaultOnboardingService.vaultOnboardingState$.mockReturnValue(
       of({
@@ -59,7 +54,6 @@ describe("VaultOnboardingComponent", () => {
         provideRouter([]),
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: I18nService, useValue: mockI18nService },
-        { provide: ApiService, useValue: mockApiService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: StateProvider, useValue: mockStateProvider },

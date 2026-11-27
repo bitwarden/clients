@@ -9,7 +9,6 @@ import {
   firstValueFrom,
   map,
   Observable,
-  of,
   pairwise,
   shareReplay,
   startWith,
@@ -36,12 +35,10 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -133,15 +130,6 @@ export class AutofillComponent implements OnInit {
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;
-  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.FillAssistTargetingRules,
-  );
-  /** Safari cannot answer HTTP auth challenges from an extension, so the setting is never offered there. */
-  protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
-    this.platformUtilsService.isSafari()
-      ? of(false)
-      : this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
-
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
     defaultAutofill: new FormControl(),
@@ -161,7 +149,6 @@ export class AutofillComponent implements OnInit {
     honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
-    enableBasicAuthResponse: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
   });
@@ -191,7 +178,6 @@ export class AutofillComponent implements OnInit {
   accountSwitcherEnabled: boolean = false;
 
   constructor(
-    private configService: ConfigService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,
@@ -389,21 +375,6 @@ export class AutofillComponent implements OnInit {
     this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
       emitEvent: false,
     });
-
-    const enableBasicAuthResponse = await firstValueFrom(
-      this.autofillSettingsService.enableBasicAuthResponse$,
-    );
-
-    this.additionalOptionsForm.controls.enableBasicAuthResponse.patchValue(
-      enableBasicAuthResponse,
-      { emitEvent: false },
-    );
-
-    this.additionalOptionsForm.controls.enableBasicAuthResponse.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        void this.autofillSettingsService.setEnableBasicAuthResponse(value);
-      });
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 

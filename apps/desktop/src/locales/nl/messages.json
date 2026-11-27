@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Nu synchroniseren"
   },
-  "changeMasterPass": {
-    "message": "Hoofdwachtwoord wijzigen"
-  },
   "changeMasterPassword": {
     "message": "Hoofdwachtwoord wijzigen"
-  },
-  "continueToWebApp": {
-    "message": "Doorgaan naar web-app?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Je kunt je hoofdwachtwoord wijzigen in de Bitwarden-webapp."
   },
   "fingerprintPhrase": {
     "message": "Vingerafdrukzin",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
   },
-  "changeNow": {
-    "message": "Nu wijzigen"
-  },
   "missingPermissions": {
     "message": "Je hebt geen rechten om deze actie uit te voeren."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest gedeelde map onder"
+  },
+  "nestFolderUnderNone": {
+    "message": "Geen",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is niet toegestaan in mapnamen. Verwijder de /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Om een map te negeren, kies de bovenliggende map onder veld. Je hoeft niet langer een schuine streep toe te voegen aan de naam."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (verwijderd)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Gevoelige informatie veilig versturen",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Inlogverzoeken webbrowser automatisch invullen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Hergebruikt",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reageren op basis van HTTP-authenticatieprompts van websites die overeenkomen met dit inlogitem."
+  "exposed": {
+    "message": "Gelekt",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open helpartikel over automatisch invullen van inlogverzoeken van de webbrowser"
+  "changePassword": {
+    "message": "Wachtwoord wijzigen"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Gelekte wachtwoord in gegevenslek.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Om deze instelling te gebruiken, kies een andere overeenkomstdetectie dan \"Standaard\" voor elke website van dit inlogitem."
+  "passwordTooShortOrSimple": {
+    "message": "Wachtwoord is te kort of eenvoudig.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser inschakelen?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Wachtwoord hergebruikt voor verschillende logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Opnieuw vragen van het hoofdwachtwoord zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
+  "passwordAtRisk": {
+    "message": "Risicovol",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Hoofdwachtwoord opnieuw vragen"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standaard overeenkomstdetectie gebruiken?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites die de standaard oveenkomstdetectie gebruiken kunnen niet worden gebruikt met inlogverzoeken van de webbrowser. Automatisch invullen van inlogverzoeken zal voor dit item worden uitgeschakeld."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser uitgeschakeld"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
+  "passwordFlaggedByOrganization": {
+    "message": "Je organisatie heeft je gevraagd dit wachtwoord te wijzigen.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Op elk moment opzeggen",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Veilig afrekenen via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

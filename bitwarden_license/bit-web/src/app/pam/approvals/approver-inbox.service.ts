@@ -34,12 +34,7 @@ import {
   emptyResolvedNames,
   organizationNameFor,
 } from "../access-requests/access-name-resolver.service";
-import {
-  MyAccessRequestRow,
-  buildMyAccessRequestRows,
-  extensionsByLeaseId,
-  resolvedOrSubmittedMs,
-} from "../access-requests/my-access-row";
+import { extensionsByLeaseId } from "../access-requests/my-access-row";
 
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
 import {
@@ -73,7 +68,8 @@ export class ApproverInboxService {
   private readonly locale = inject(LOCALE_ID);
 
   private readonly _inbox$ = new BehaviorSubject<AccessRequestView[]>([]);
-  private readonly _history$ = new BehaviorSubject<AccessRequestView[]>([]);
+  /** The approved requests that can still give access, which the Approvals tab lists. */
+  private readonly _approved$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _names$ = new BehaviorSubject<ResolvedNames>(emptyResolvedNames());
   private readonly _userId$ = new BehaviorSubject<string | null>(null);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
@@ -114,26 +110,11 @@ export class ApproverInboxService {
   );
 
   /**
-   * The decided requests on managed collections, newest first. An applied extension folds into its
-   * original row, as on the caller's own requests; alone it reads as an unused grant.
-   */
-  readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
-    this._history$,
-    this._names$,
-  ]).pipe(
-    map(([requests, names]) =>
-      buildMyAccessRequestRows(requests, names).sort(
-        (a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a),
-      ),
-    ),
-  );
-
-  /**
    * The leases live right now on managed collections, soonest to end first. Tests the effective
-   * end as well as the status, since a lease can lapse after the history was read.
+   * end as well as the status, since a lease can lapse after the read.
    */
   readonly activeLeaseRows$: Observable<ManagedLeaseRow[]> = combineLatest([
-    this._history$,
+    this._approved$,
     this._names$,
     this._renderedAt$,
   ]).pipe(
@@ -156,14 +137,14 @@ export class ApproverInboxService {
    */
   readonly approverRows$: Observable<ApproverRow[]> = combineLatest([
     this.inboxRows$,
-    this._history$,
+    this._approved$,
     this._names$,
     this.activeLeaseRows$,
     this._renderedAt$,
   ]).pipe(
-    map(([pending, history, names, leases, now]) => [
+    map(([pending, approved, names, leases, now]) => [
       ...pending.map(fromApprovalRow),
-      ...history
+      ...approved
         .filter(
           (request) =>
             isUnstartedApproval(request) &&
@@ -177,8 +158,11 @@ export class ApproverInboxService {
     ]),
   );
 
-  /** The request ids on managed collections, the only History rows the caller may act on. */
-  readonly managedIds$: Observable<Set<string>> = this._history$.pipe(
+  /**
+   * The approved requests on managed collections that can still give access, the only ones the
+   * caller may withdraw or revoke.
+   */
+  readonly managedIds$: Observable<Set<string>> = this._approved$.pipe(
     map((requests) => new Set(requests.map((request) => uuidAsString(request.id)))),
   );
 
@@ -204,14 +188,14 @@ export class ApproverInboxService {
       const userId = uuidAsString(
         await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
       );
-      const [inbox, history] = await Promise.all([
+      const [inbox, approved] = await Promise.all([
         this.approvalApi.listInbox(),
-        this.approvalApi.listHistory(),
+        this.approvalApi.listApproved(),
       ]);
-      const names = await this.nameResolver.resolveNames(refsFor([...inbox, ...history]));
+      const names = await this.nameResolver.resolveNames(refsFor([...inbox, ...approved]));
       this._userId$.next(userId);
       this._inbox$.next(inbox);
-      this._history$.next(history);
+      this._approved$.next(approved);
       this._names$.next(names);
       this._renderedAt$.next(new Date());
     } catch (e) {
@@ -258,12 +242,12 @@ export class ApproverInboxService {
    * re-buckets.
    */
   async revokeLease(requestId: AccessRequestId, leaseId: AccessLeaseId): Promise<void> {
-    const current = this._history$.value;
-    this._history$.next(patchRequest(current, requestId, { producedLeaseStatus: "revoked" }));
+    const current = this._approved$.value;
+    this._approved$.next(patchRequest(current, requestId, { producedLeaseStatus: "revoked" }));
     try {
       await this.leasesApi.endLease(leaseId, { reason: undefined });
     } catch (e) {
-      this._history$.next(current);
+      this._approved$.next(current);
       throw e;
     }
     this.accessRefresh.notifyAccessChanged();
@@ -276,7 +260,7 @@ export class ApproverInboxService {
   managedRequestParties(
     requestId: string,
   ): { requesterName: string; organizationName: string | null } | null {
-    const request = this._history$.value.find((r) => uuidAsString(r.id) === requestId);
+    const request = this._approved$.value.find((r) => uuidAsString(r.id) === requestId);
     if (request == null) {
       return null;
     }

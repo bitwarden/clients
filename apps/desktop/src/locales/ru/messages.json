@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Синхронизировать"
   },
-  "changeMasterPass": {
-    "message": "Изменить мастер-пароль"
-  },
   "changeMasterPassword": {
     "message": "Изменить мастер-пароль"
-  },
-  "continueToWebApp": {
-    "message": "Перейти к веб-приложению?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Изменить мастер-пароль можно в веб-приложении Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Фраза отпечатка",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
-  "changeNow": {
-    "message": "Изменить сейчас"
-  },
   "missingPermissions": {
     "message": "У вас нет необходимых разрешений для выполнения этого действия."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
+  },
+  "nestFolderUnder": {
+    "message": "Создать папку в подкаталоге"
+  },
+  "nestFolderUnderNone": {
+    "message": "Нет",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не допускается в именах папок. Удалите /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Чтобы вложить папку, выберите ее родительскую папку в поле Вложить папку. Теперь не нужно добавлять слеш к названию."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (удалена)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Безопасная отправка конфиденциальной информации",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаполнение логинов в браузере",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Повторный",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
+  "exposed": {
+    "message": "Скомпрометирован",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
+  "changePassword": {
+    "message": "Изменить пароль"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Пароль был скомпрометирован в результате утечки данных.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
+  "passwordTooShortOrSimple": {
+    "message": "Пароль слишком короткий или простой.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Пароль повторно используется для нескольких логинов.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
+  "passwordAtRisk": {
+    "message": "Подвержен риску",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Включить запрос мастер-пароля?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Использовать метод обнаружения совпадений по умолчанию?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
+  "passwordFlaggedByOrganization": {
+    "message": "Ваша организация попросила вас сменить этот пароль.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Элемент"
+  },
+  "cancelAnytime": {
+    "message": "Отменить в любое время",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Безопасная оплата через Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

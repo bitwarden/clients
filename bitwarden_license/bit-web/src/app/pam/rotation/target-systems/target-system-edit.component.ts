@@ -40,6 +40,7 @@ import {
   BadgeModule,
   BadgeVariant,
   BitwardenIcon,
+  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -77,7 +78,6 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import { DetailBreadcrumbComponent, DetailBreadcrumbStep } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import { ManagedCredentialsTabComponent } from "../managed-credentials/managed-credentials-tab.component";
 import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
@@ -310,7 +310,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
-    DetailBreadcrumbComponent,
+    BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
     CardComponent,
@@ -382,28 +382,20 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     ROTATION_TABS.targetSystems,
   );
 
-  private readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
+  /** The add-credential page this flow started on, shown as the middle breadcrumb. */
+  protected readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
 
   private readonly credentialDetailRoute = [...this.credentialsListRoute, this.returnConfigId];
 
-  private readonly breadcrumbsFromCredentials = this.returnsToCredential;
-
-  protected readonly breadcrumbParentKey = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentKey = this.returnsToCredential
     ? "pamRotationTabManagedCredentials"
     : "pamRotationTabTargetSystems";
-  protected readonly breadcrumbParentRoute: unknown[] = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentRoute: unknown[] = this.returnsToCredential
     ? this.credentialsListRoute
     : this.targetSystemsListRoute;
-  protected readonly breadcrumbParentIcon = this.breadcrumbsFromCredentials
+  protected readonly breadcrumbParentIcon = this.returnsToCredential
     ? ("bwi-managed-credential" as const)
     : ("bwi-target-system" as const);
-  protected readonly breadcrumbStep: DetailBreadcrumbStep | undefined = this.returnsToCredential
-    ? {
-        labelKey: "pamRotationConfigCreateTitle",
-        route: this.addCredentialRoute,
-        tileIcon: "bwi-plus",
-      }
-    : undefined;
   protected readonly loading = signal(true);
 
   protected readonly loadError = signal<unknown | null>(null);
@@ -543,7 +535,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     return kind == null ? null : (SESSION_TERMINATION_CAPABILITY[kind] ?? "never");
   });
 
-  /** A custom script cannot be assumed to end sessions, so the create form says so. */
+  /** A custom script declares for itself whether it handles the terminate operation. */
   protected readonly isCustomScript = computed(
     () => this.selectedKind() === TargetSystemKind.CustomScript,
   );
@@ -565,14 +557,20 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   );
 
   /**
-   * Whether the target ends sessions after rotating: always for a kind that does, never for one
-   * that can't, and for a custom script only when its verified settings say so.
+   * Whether the target always ends sessions after rotating. A custom script is not covered: it
+   * opts in through the "supportsSessionTermination" checkbox instead.
    */
-  protected readonly endsSessions = computed(
-    () =>
-      this.sessionTerminationAlways() ||
-      (this.isCustomScript() && this.sealed()?.supportsSessionTermination === true),
-  );
+  protected readonly endsSessions = computed(() => this.sessionTerminationAlways());
+
+  /** A custom script sealed as ending sessions, with the box unchecked on the edit page. */
+  protected showSessionTerminationWithdrawn(): boolean {
+    return (
+      this.editing &&
+      this.isCustomScript() &&
+      this.sealed()?.supportsSessionTermination === true &&
+      !this.policyForm.controls.supportsSessionTermination.value
+    );
+  }
 
   protected readonly nameForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],

@@ -15,12 +15,12 @@ import {
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { LockService } from "@bitwarden/unlock";
 
-import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
+import { AutofillOrchestrator } from "../autofill/orchestration";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, flushPromises } from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";

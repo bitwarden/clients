@@ -3,7 +3,7 @@
 <p bitTypography="body1">{{ "pamAccessRulesSubheading" | i18n }}</p>
 
 @if (loading() || rules().length > 0) {
-  <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter" [loading]="loading()">
+  <bit-table-v2 pamActivateRow [tableDef]="table" [filter]="rowMatchesFilter" [loading]="loading()">
     <bit-table-toolbar>
       <bit-search class="tw-flex-1" [placeholder]="'pamSearchRules' | i18n" />
       <button
@@ -49,7 +49,13 @@
           "selectAll" | i18n
         }}</label>
       </bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.select; let r">
+      <!-- A `label` so the whole cell, not just the box, toggles the checkbox. -->
+      <label
+        bit-cell
+        *bitCellDef="table.columns.select; let r"
+        [for]="'access-rules_checkbox_' + r.id"
+        class="tw-cursor-pointer"
+      >
         <input
           slot="start"
           data-selection-input
@@ -59,13 +65,20 @@
           [checked]="selection.isSelected(r.id)"
           (change)="selection.toggle(r.id)"
         />
-        <label [for]="'access-rules_checkbox_' + r.id" class="tw-sr-only">{{ r.name }}</label>
-      </bit-cell>
+        <span class="tw-sr-only">{{ r.name }}</span>
+      </label>
     </bit-column>
     <bit-column sortable width="minmax(240px, 1fr)">
       <bit-header-cell>{{ "pamAccessRuleName" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.name; let r" [truncate]="false">
-        <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
+        <button
+          data-pam-row-activator
+          type="button"
+          bitLink
+          linkType="primary"
+          (click)="openEdit(r)"
+          data-testid="access-rules-name-link"
+        >
           {{ r.name }}
         </button>
         @if (r.description) {
@@ -104,11 +117,17 @@
       <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.enabled; let r">
         @if (r.enabled) {
-          <span bitBadge variant="success">{{ "pamAccessRuleActive" | i18n }}</span>
-        } @else {
-          <span bitBadge variant="subtle" startIcon="bwi-subtract-circle">{{
-            "pamAccessRuleInactive" | i18n
+          <span bitBadge variant="success" data-testid="access-rules-active-badge">{{
+            "pamAccessRuleActive" | i18n
           }}</span>
+        } @else {
+          <span
+            bitBadge
+            variant="subtle"
+            startIcon="bwi-subtract-circle"
+            data-testid="access-rules-inactive-badge"
+            >{{ "pamAccessRuleInactive" | i18n }}</span
+          >
         }
       </bit-cell>
     </bit-column>
@@ -132,6 +151,7 @@
           bitIconButton="bwi-ellipsis-h"
           [bitMenuTriggerFor]="rowMenu"
           label="{{ 'options' | i18n }}"
+          data-testid="access-rules-row-options-button"
         ></button>
         <bit-menu #rowMenu>
           <!--
@@ -146,7 +166,14 @@
             <bit-icon name="bwi-clone" class="tw-text-muted" />
             {{ "makeACopy" | i18n }}
           </button>
-          <button type="button" bitMenuItem (click)="toggleEnabled(r)">
+          <button
+            type="button"
+            bitMenuItem
+            (click)="toggleEnabled(r)"
+            [attr.data-testid]="
+              r.enabled ? 'access-rules-deactivate-menu-item' : 'access-rules-activate-menu-item'
+            "
+          >
             @if (r.enabled) {
               <bit-icon name="bwi-subtract-circle" class="tw-text-muted" />
               {{ "pamAccessRuleDeactivate" | i18n }}
@@ -155,7 +182,12 @@
               {{ "pamAccessRuleActivate" | i18n }}
             }
           </button>
-          <button type="button" bitMenuItem (click)="remove(r)">
+          <button
+            type="button"
+            bitMenuItem
+            (click)="remove(r)"
+            data-testid="access-rules-delete-menu-item"
+          >
             <bit-icon name="bwi-trash" class="tw-text-danger" />
             <span class="tw-text-danger">{{ "delete" | i18n }}</span>
           </button>

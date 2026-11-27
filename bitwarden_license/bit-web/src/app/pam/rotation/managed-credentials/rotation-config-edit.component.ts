@@ -31,6 +31,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   BadgeModule,
+  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -64,7 +65,6 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
 import { tabFromSegment } from "../detail-tab";
 import {
   ManagedCredentialDraft,
@@ -112,6 +112,8 @@ const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
 
 export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
+const ADD_TARGET_SYSTEM_OPTION = "__add-target-system__";
+
 function setControlEnabled(control: AbstractControl, enabled: boolean): void {
   if (enabled) {
     control.enable();
@@ -133,7 +135,7 @@ function setControlEnabled(control: AbstractControl, enabled: boolean): void {
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
-    DetailBreadcrumbComponent,
+    BreadcrumbsModule,
     FormFieldModule,
     ButtonModule,
     CalloutModule,
@@ -230,14 +232,6 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     initialValue: new Map<CipherId, string>(),
   });
 
-  /** The vault item's name, or its id when the item isn't among the org's loaded ciphers. */
-  protected readonly cipherName = computed(() => {
-    const config = this.config();
-    return config == null
-      ? ""
-      : (this.cipherNameById().get(config.cipherId) ?? String(config.cipherId));
-  });
-
   /** `true` once loaded if the blob failed to verify, a config always has one, unlike a target. */
   protected readonly configSealUnverified = computed(
     () => this.config() != null && this.config()?.sealed == null,
@@ -256,13 +250,18 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       : (this.allCiphers().find((c) => asUuid<CipherId>(c.id) === cipherId) ?? null);
   });
 
-  /** Empty until the vault item resolves, so the page never titles itself with an id. */
-  /** The org's name for the item when known, else the loaded item's; empty while unresolved. */
+  /**
+   * The vault item's name. Empty only while loading, so the page never flashes an id; once loaded
+   * it falls back to the cipher id when the item is unknown or has no name, so it is never blank.
+   */
   protected readonly vaultItemName = computed(() => {
     const config = this.config();
-    return config == null
-      ? ""
-      : (this.cipherNameById().get(config.cipherId) ?? this.cipher()?.name ?? "");
+    if (config == null || this.loading()) {
+      return "";
+    }
+    return (
+      this.cipherNameById().get(config.cipherId) || this.cipher()?.name || String(config.cipherId)
+    );
   });
 
   protected readonly titleText = computed(() =>
@@ -331,6 +330,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     scheduleCron: [null as string | null],
     rotateOnAccessEnd: [false],
   });
+
+  /** Sentinel value of the picker's last option; it launches target creation and is never kept. */
+  protected readonly addTargetSystemOption = ADD_TARGET_SYSTEM_OPTION;
+
+  private readonly lastTargetId = signal("");
 
   private readonly selectedTargetId = toSignal(
     this.createForm.controls.targetSystemId.valueChanges,
@@ -414,6 +418,15 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private readonly configTargetSystem = computed(() => {
     const targetSystemId = this.config()?.targetSystemId;
     return this.allTargetSystems().find((s) => s.id === targetSystemId) ?? null;
+  });
+
+  /**
+   * True once the config's target is loaded and doesn't confirm it can end sessions, so the server
+   * would refuse `terminateSessions`.
+   */
+  private readonly configTargetRefusesTermination = computed(() => {
+    const target = this.configTargetSystem();
+    return target != null && target.sealed?.supportsSessionTermination !== true;
   });
 
   private readonly connectorState = computed<ConnectorState>(() => {
@@ -692,7 +705,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     if (sealed != null) {
       this.accountForm.patchValue({
         accountIdentity: sealed.accountIdentity,
-        terminateSessions: sealed.terminateSessions,
+        terminateSessions: sealed.terminateSessions && !this.configTargetRefusesTermination(),
       });
     }
   }
@@ -768,7 +781,16 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
   private coupleTargetControls(): void {
     this.createForm.controls.targetSystemId.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.applyTargetCoupling());
+      .subscribe((value) => {
+        if (value === ADD_TARGET_SYSTEM_OPTION) {
+          // Put the previous choice back first, so the draft never holds the sentinel.
+          this.createForm.controls.targetSystemId.setValue(this.lastTargetId());
+          void this.createTargetSystem();
+          return;
+        }
+        this.lastTargetId.set(value ?? "");
+        this.applyTargetCoupling();
+      });
   }
 
   private applyTargetCoupling(): void {
@@ -844,7 +866,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       cipherId: existing.cipherId,
       targetSystemId: existing.targetSystemId,
       accountIdentity: account.accountIdentity,
-      terminateSessions: account.terminateSessions,
+      terminateSessions: account.terminateSessions && !this.configTargetRefusesTermination(),
       scheduleCron: settings.scheduleCron ?? undefined,
       rotateOnAccessEnd: settings.rotateOnAccessEnd,
     };
@@ -1079,7 +1101,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /**
    * Read by the CanDeactivate guard, which a `:tab` change doesn't trigger. Nothing is unsaved
-   * while loading, since `savedValue` has no snapshot until `initialize()` settles.
+   * while loading, since `savedValue` has no snapshot until `initialize()` settles. The form
+   * outlives a switch to the history tab, so an edit still counts there.
    */
   unsavedChanges(): boolean {
     return !this.loading() && JSON.stringify(this.liveForm().getRawValue()) !== this.savedValue();

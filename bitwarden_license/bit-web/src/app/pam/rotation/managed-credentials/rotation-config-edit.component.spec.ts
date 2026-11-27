@@ -27,6 +27,7 @@ import {
   LayoutFooterService,
   TabsModule,
   ToastService,
+  OptionComponent,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
@@ -46,7 +47,7 @@ import type {
   TargetSystemId,
   TargetSystemView,
 } from "../rotation";
-import { QuartzSchedulePreset, TargetSystemStatus } from "../rotation";
+import { QuartzSchedulePreset, TargetSystemKind, TargetSystemStatus } from "../rotation";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import { RotationSdkService } from "../rotation-sdk.service";
@@ -729,17 +730,48 @@ describe("RotationConfigEditComponent: add form", () => {
       expect(el.querySelector("select#rotation-config-edit_select_target-system")).toBeNull();
     });
 
-    it("renders Add target system as a link between the target and the account ID", async () => {
+    it("offers Add target system as the last option in the target menu, not as a link", async () => {
       const { fixture } = await ready({ template: "real" });
       const el = fixture.nativeElement as HTMLElement;
 
-      const button = el.querySelector("#rotation-config-edit_button_new-target-system")!;
-      expect(button.tagName).toBe("BUTTON");
-      expect(button.hasAttribute("bitlink")).toBe(true);
-      const username = el.querySelector("#rotation-config-edit_input_account-identity")!;
-      expect(
-        button.compareDocumentPosition(username) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
+      expect(el.querySelector("#rotation-config-edit_button_new-target-system")).toBeNull();
+      const select = fixture.debugElement.query(
+        By.css("#rotation-config-edit_select_target-system"),
+      ).componentInstance;
+      const options = select["options"]() as OptionComponent<string>[];
+      expect(options.at(-1)?.label()).toBe("pamTargetSystemCreateTitle");
+      expect(options.at(-1)?.icon()).toBe("bwi-plus");
+    });
+
+    it("saves the previous target in the draft and leaves for target creation on choosing it", async () => {
+      const { component } = await ready();
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      component.createForm.patchValue({ targetSystemId: uuidAsString(TARGET_SYSTEM_ID) });
+
+      component.createForm.controls.targetSystemId.setValue("__add-target-system__");
+
+      expect(component.createForm.controls.targetSystemId.value).toBe(
+        uuidAsString(TARGET_SYSTEM_ID),
+      );
+      expect(TestBed.inject(ManagedCredentialDraftService).take(ORG_ID)).toEqual(
+        expect.objectContaining({ targetSystemId: uuidAsString(TARGET_SYSTEM_ID) }),
+      );
+      expect(nav).toHaveBeenCalledWith(
+        ["target-systems", "new"],
+        expect.objectContaining({ queryParams: { then: "managed-credential" } }),
+      );
+    });
+
+    it("restores an empty target when Add target system is chosen with nothing selected", async () => {
+      const { component } = await ready();
+      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      component.createForm.controls.targetSystemId.setValue("__add-target-system__");
+
+      expect(component.createForm.controls.targetSystemId.value).toBe("");
+      expect(TestBed.inject(ManagedCredentialDraftService).take(ORG_ID)).toEqual(
+        expect.objectContaining({ targetSystemId: "" }),
+      );
     });
 
     it("shows the manual callout without a link, and the not-connected warning for an automatic target", async () => {
@@ -1107,6 +1139,77 @@ describe("RotationConfigEditComponent: EDIT mode", () => {
     expect(component.settingsForm.controls.rotateOnAccessEnd.disabled).toBe(false);
   });
 
+  describe("End active sessions saved on a target that no longer ends sessions", () => {
+    function endsSessions(): RotationConfigDetailView {
+      return loadedConfig({ sealed: rotationConfigSealedFields({ terminateSessions: true }) });
+    }
+
+    function customScriptTarget(supportsSessionTermination: boolean): TargetSystemView {
+      return targetSystem({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.CustomScript,
+          supportsSessionTermination,
+        }),
+      });
+    }
+
+    it("shows the box unticked and saves false", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [customScriptTarget(false)],
+      });
+      await fixture.whenStable();
+
+      expect(component.accountForm.controls.terminateSessions.value).toBe(false);
+      expect(component.accountForm.controls.terminateSessions.disabled).toBe(true);
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: false }),
+      );
+    });
+
+    it("keeps it on for a target that still ends sessions", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [customScriptTarget(true)],
+      });
+      await fixture.whenStable();
+
+      expect(component.accountForm.controls.terminateSessions.value).toBe(true);
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: true }),
+      );
+    });
+
+    it("keeps the saved value when the target isn't loaded", async () => {
+      const { component, fixture, rotationSdk } = setup({
+        configId: configId("cfg-1"),
+        existingConfig: endsSessions(),
+        targetSystems: [],
+      });
+      await fixture.whenStable();
+
+      await component.submitEdit();
+
+      expect(rotationSdk.updateConfig).toHaveBeenCalledWith(
+        ORG_ID,
+        configId("cfg-1"),
+        expect.objectContaining({ terminateSessions: true }),
+      );
+    });
+  });
+
   describe("an unverifiable config", () => {
     /** A rotation config always carries a blob, so a missing `sealed` always means "invalid". */
     function unverifiable(): RotationConfigDetailView {
@@ -1404,6 +1507,32 @@ describe("RotationConfigEditComponent: unsaved changes", () => {
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
   });
 
+  it("still asks on the History tab when holding an edit", async () => {
+    const { component, fixture, dialogService } = setup({
+      configId: configId("cfg-1"),
+      tab: "history",
+    });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+    expect(component.unsavedChanges()).toBe(true);
+    await leaveThroughGuard(component);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(DISCARD_DIALOG);
+  });
+
+  it("does not ask once an edit is reverted", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    const original = component.accountForm.controls.accountIdentity.value;
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+    expect(component.unsavedChanges()).toBe(true);
+    component.accountForm.controls.accountIdentity.setValue(original);
+
+    expect(component.unsavedChanges()).toBe(false);
+    await expect(leaveThroughGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
   it("asks about an abandoned new managed credential", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
@@ -1644,7 +1773,7 @@ describe("RotationConfigEditComponent: loading skeleton", () => {
     expect(
       el.querySelector('[data-testid="rotation-config-edit-loading"] bit-skeleton'),
     ).not.toBeNull();
-    expect(el.querySelector("pam-detail-breadcrumb")).not.toBeNull();
+    expect(el.querySelector('bit-breadcrumbs[slot="breadcrumbs"]')).not.toBeNull();
   });
 
   it("keeps the placeholder itself out of the accessibility tree", () => {
@@ -1728,11 +1857,28 @@ describe("RotationConfigEditComponent: managed credential detail", () => {
       expect(component.titleText()).toBe("Splunk forwarder account");
     });
 
-    it("stays empty rather than showing the cipher id while the item is unresolved", async () => {
+    it("stays empty rather than showing the cipher id while loading", async () => {
+      const { component } = setup({ configId: configId("cfg-1"), ciphers: [] });
+      expect(component.titleText()).toBe("");
+    });
+  });
+
+  describe("a vault item the org list cannot name", () => {
+    it("falls back to the cipher id once loaded, so the title is never blank", async () => {
       const { component, fixture } = setup({ configId: configId("cfg-1"), ciphers: [] });
       await fixture.whenStable();
-      expect(component.titleText()).toBe("");
-      expect(component.titleText()).not.toContain(CIPHER_ID);
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
+      expect(component.titleText()).toBe(String(CIPHER_ID));
+    });
+
+    it("falls through an empty name", async () => {
+      const { component, fixture, orgCiphersService } = setup({
+        configId: configId("cfg-1"),
+        ciphers: [],
+      });
+      orgCiphersService.cipherNameById$.next(new Map([[CIPHER_ID, ""]]));
+      await fixture.whenStable();
+      expect(component.vaultItemName()).toBe(String(CIPHER_ID));
     });
   });
 
@@ -2378,6 +2524,33 @@ describe("RotationConfigEditComponent: while a rotation job runs", () => {
     await jest.advanceTimersByTimeAsync(TEN_MINUTES);
 
     expect(rotationSdk.getConfig).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("RotationConfigEditComponent: breadcrumbs", () => {
+  async function render(): Promise<HTMLElement> {
+    const { fixture } = setup({ template: "real" });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it("slots a bit-breadcrumbs straight into the header, with no wrapper or extra content", async () => {
+    const el = await render();
+
+    const slotted = el.querySelectorAll('bit-header [slot="breadcrumbs"]');
+    expect(slotted).toHaveLength(1);
+    expect(slotted[0].tagName).toBe("BIT-BREADCRUMBS");
+  });
+
+  it("leads back to the managed credentials list from the page title", async () => {
+    const el = await render();
+
+    const crumbs = Array.from(el.querySelectorAll("bit-breadcrumbs [bitOverflowItem]")).map(
+      (crumb) => crumb.textContent?.trim(),
+    );
+    expect(crumbs).toEqual(["pamRotationTabManagedCredentials", "pamRotationConfigCreateTitle"]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-managed-credential")).not.toBeNull();
   });
 });
 
