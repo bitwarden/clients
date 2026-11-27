@@ -847,7 +847,38 @@ describe("TargetSystemEditComponent: create mode", () => {
     expect(request).toMatchObject({ supportsSessionTermination: false });
   });
 
-  it("honors the checkbox for a custom script", async () => {
+  it("submits supportsSessionTermination=true for a custom script with the box checked", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Legacy DB",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.CustomScript,
+    });
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: true,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("automatic");
+    expect(request).toMatchObject({ supportsSessionTermination: true });
+  });
+
+  it("submits supportsSessionTermination=false for a custom script with the box unchecked", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
@@ -1078,13 +1109,13 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
     expect(block.textContent).not.toContain("pamTargetSystemSessionTerminationSupported");
   });
 
-  it("shows Not supported for a custom script, with no session-termination checkbox", () => {
+  it("offers a session-termination checkbox for a custom script instead of a fixed badge", () => {
     patchKind(TargetSystemKind.CustomScript);
     const el = fixture.nativeElement as HTMLElement;
     const block = el.querySelector('[data-testid="target-system-edit-ending-sessions"]')!;
-    expect(block.textContent).toContain("pamTargetSystemSessionTerminationNo");
-    expect(block.textContent).toContain("pamTargetSystemEndingSessionsCustomScriptHint");
-    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+    expect(block.textContent).toContain("pamTargetSystemEndingSessionsCustomScriptSupportedHint");
+    expect(block.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
+    expect(block.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
 
   it("shows Supported and the Entra helper for Entra, with no session-termination checkbox", () => {
@@ -1502,6 +1533,40 @@ describe("TargetSystemEditComponent: edit mode", () => {
     );
     expect(comp.showRetainedTermination()).toBe(true);
   });
+
+  it.each([
+    [false, true],
+    [true, false],
+  ])(
+    "saves a custom script's toggled session termination (sealed %s -> %s)",
+    async (sealedValue, toggled) => {
+      const [fx, sdk] = await buildEditFixture(
+        makeSystem({
+          sealed: targetSystemSealedFields({
+            kind: TargetSystemKind.CustomScript,
+            supportsSessionTermination: sealedValue,
+          }),
+        }),
+      );
+      const comp = fx.componentInstance as unknown as {
+        policyForm: {
+          controls: { supportsSessionTermination: { value: boolean } };
+          patchValue: (v: unknown) => void;
+        };
+        submitEdit: () => Promise<void>;
+      };
+
+      expect(comp.policyForm.controls.supportsSessionTermination.value).toBe(sealedValue);
+      comp.policyForm.patchValue({ supportsSessionTermination: toggled });
+      await comp.submitEdit();
+
+      expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
+        ORG_ID,
+        sysId("sys-1"),
+        expect.objectContaining({ supportsSessionTermination: toggled }),
+      );
+    },
+  );
 
   it("claims no session-termination capability the target was not sealed with", async () => {
     const [fx, sdk] = await buildEditFixture(
@@ -3355,15 +3420,18 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
   const endingSessions = () =>
     el().querySelector('[data-testid="target-system-edit-ending-sessions"]')!.textContent;
 
-  it("shows what a custom script confirmed, with no checkbox to change it", async () => {
+  const checkbox = () =>
+    el().querySelector<HTMLInputElement>("#target-system-edit_checkbox_session-termination");
+
+  it("prefills the checkbox from what the custom script was sealed with", async () => {
     await render();
 
-    expect(endingSessions()).toContain("pamTargetSystemSessionTerminationSupported");
-    expect(endingSessions()).toContain("pamTargetSystemEndingSessionsCustomScriptSupportedHint");
-    expect(el().querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+    expect(checkbox()!.checked).toBe(true);
+    expect(endingSessions()).not.toContain("pamTargetSystemSessionTerminationSupported");
+    expect(el().querySelector("#target-system-edit_session-termination-withdrawn")).toBeNull();
   });
 
-  it("says a custom script that never confirmed it can't end sessions", async () => {
+  it("leaves the checkbox clear for a custom script sealed without it", async () => {
     await render({
       sealed: targetSystemSealedFields({
         kind: TargetSystemKind.CustomScript,
@@ -3371,8 +3439,17 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
       }),
     });
 
-    expect(endingSessions()).toContain("pamTargetSystemSessionTerminationNo");
-    expect(endingSessions()).toContain("pamTargetSystemEndingSessionsCustomScriptHint");
+    expect(checkbox()!.checked).toBe(false);
+    expect(endingSessions()).not.toContain("pamTargetSystemSessionTerminationNo");
+  });
+
+  it("warns that managed credentials stop ending sessions when the box is cleared", async () => {
+    await render();
+
+    checkbox()!.click();
+    fixture.detectChanges();
+
+    expect(el().querySelector("#target-system-edit_session-termination-withdrawn")).toBeTruthy();
   });
 
   it("always reads Supported for a native integration", async () => {
