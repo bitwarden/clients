@@ -377,9 +377,21 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.writeManifest(path, manifest);
+        for (const [variant, browserDirectory] of Object.entries(this.getDarwinDdgNMHS())) {
+          if (!existsSync(browserDirectory)) {
+            this.logService.warning(`${variant} not found, skipping.`);
+            continue;
+          }
+
+          const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
+
+          try {
+            await fs.mkdir(nmhsPath, { recursive: true });
+            await this.writeManifest(path.join(nmhsPath, "com.8bit.bitwarden.json"), manifest);
+          } catch (e) {
+            this.logService.error(`Unable to install the ${variant} manifest in ${nmhsPath}: ${e}`);
+          }
+        }
         break;
       }
       default:
@@ -437,9 +449,11 @@ export class NativeMessagingMain {
   async removeDdgManifests() {
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.removeIfExists(path);
+        for (const browserDirectory of Object.values(this.getDarwinDdgNMHS())) {
+          await this.removeIfExists(
+            path.join(browserDirectory, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
+          );
+        }
         break;
       }
       default:
@@ -510,6 +524,21 @@ export class NativeMessagingMain {
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
       Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
       "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
+    };
+    /* eslint-enable no-useless-escape */
+  }
+
+  /**
+   * Where each DuckDuckGo distribution reads native messaging hosts from.
+   *
+   * The App Store build is sandboxed, so its hosts live inside its container; the download from
+   * duckduckgo.com is not, and reads the regular Application Support location.
+   */
+  private getDarwinDdgNMHS() {
+    /* eslint-disable no-useless-escape */
+    return {
+      DuckDuckGo: `${this.homedir()}/Library/Application\ Support/DuckDuckGo/`,
+      "DuckDuckGo App Store": `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/`,
     };
     /* eslint-enable no-useless-escape */
   }
