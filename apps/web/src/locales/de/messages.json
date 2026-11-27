@@ -664,7 +664,7 @@
     }
   },
   "invalidAppPairing": {
-    "message": "Invalid app pairing",
+    "message": "Ungültige App-Kopplung",
     "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
@@ -947,6 +947,29 @@
   },
   "folderHintText": {
     "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Sozial/Foren"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "deleteFolderPermanently": {
     "message": "Bist du sicher, dass du diesen Ordner dauerhaft löschen willst?"
@@ -3492,10 +3515,10 @@
     }
   },
   "importSuccessful": {
-    "message": "Import successful"
+    "message": "Import erfolgreich"
   },
   "importConfirmationBody": {
-    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "message": "Du hast erfolgreich $AMOUNT$ Einträge in Bitwarden importiert.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -3504,13 +3527,13 @@
     }
   },
   "importConfirmationBodySingular": {
-    "message": "You’ve successfully imported 1 item into Bitwarden."
+    "message": "Du hast erfolgreich 1 Eintrag in Bitwarden importiert."
   },
   "importConfirmationTipLabel": {
-    "message": "Tip:"
+    "message": "Tipp:"
   },
   "importDeleteFileTip": {
-    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "message": "Vergiss nicht, $FILENAME$ zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt.",
     "placeholders": {
       "filename": {
         "content": "$1",
@@ -3519,13 +3542,13 @@
     }
   },
   "importDeleteFileTipGeneric": {
-    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+    "message": "Vergiss nicht, deine Importdatei zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt."
   },
   "importingTitle": {
-    "message": "Importing"
+    "message": "Wird importiert"
   },
   "importingDescription": {
-    "message": "This process may take a few minutes."
+    "message": "Dieser Prozess kann einige Minuten dauern."
   },
   "dataExportSuccess": {
     "message": "Daten erfolgreich exportiert"
@@ -5812,10 +5835,10 @@
     "message": "Deine neue Organisation ist einsatzbereit!"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Testversion gestartet"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Ihre kostenlose Testversion ist jetzt aktiv."
   },
   "organizationUpgraded": {
     "message": "Organisation geupgraded"
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Gruppe hinzufügen"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
   },
   "editGroup": {
     "message": "Gruppe bearbeiten"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Mitglied bearbeiten"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Ein Feld im '$TAB$'-Tab erfordert deine Aufmerksamkeit.",
@@ -8403,6 +8435,37 @@
     "message": "Gut",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
+  "reused": {
+    "message": "Wiederverwendet",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Kompromittiert",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Passwort ändern"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Passwort bei einem Datendiebstahl kompromittiert.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Passwort zu kurz oder zu einfach.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Passwort wurde für mehrere Zugangsdaten wiederverwendet.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Gefährdet",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Deine Organisation hat dich gebeten, dieses Passwort zu ändern.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
+  },
   "weak": {
     "message": "Schwach",
     "description": "ex. A weak password. Scale: Very Weak -> Weak -> Good -> Strong"
@@ -8993,7 +9056,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendConfirmation": {
-    "message": "Are you sure you want to delete this Send?",
+    "message": "Bist du sicher, dass du dieses Send löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
@@ -9596,10 +9659,10 @@
     "message": "Verwende Strg, Alt oder Win und mindestens 1 Buchstaben."
   },
   "alwaysAskBeforeFilling": {
-    "message": "Always ask before filling"
+    "message": "Vor dem Ausfüllen immer fragen"
   },
   "alwaysAskBeforeFillingDesc": {
-    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+    "message": "Mitgliedern immer eine Bestätigungsabfrage anzeigen, wenn die Desktop-Verknüpfung aufgerufen wird."
   },
   "invalidShortcut": {
     "message": "Ungültiges Tastaturkürzel"
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Bestätigung erforderlich"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Mitgliedsrolle"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Wenn du das Passwort oder die Zwei-Faktor-Authentifizierung für dieses Mitglied zurücksetzt, wird es über die Änderung benachrichtigt und abgemeldet."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Konten wiederherstellen, wenn das Master-Passwort, die Zwei-Faktor-Authentifizierung oder vertrauenswürdige Geräte vergessen wurden oder verloren gegangen sind."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
   },
-  "atRiskPassword": {
-    "message": "Gefährdetes Passwort"
-  },
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
-  },
-  "changeNow": {
-    "message": "Jetzt ändern"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
@@ -16655,7 +16727,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItemsV2": {
-    "message": "You have no Sends",
+    "message": "Du hast keine Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
@@ -16663,7 +16735,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItemsV2": {
-    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
+    "message": "Teile Texte oder Dateien sicher mit anderen. Deine Daten werden Ende-zu-Ende verschlüsselt."
   },
   "generatorNudgeTitle": {
     "message": "Passwörter schnell erstellen"
@@ -17479,7 +17551,7 @@
     "message": "Wie kann ich meinen Tresor verwalten?"
   },
   "transferYourItemsToOrganizationTitle": {
-    "message": "Transfer your items to $ORGANIZATION$",
+    "message": "Übertrage deine Einträge zu $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17488,7 +17560,7 @@
     }
   },
   "transferItemsToOrganizationRequiredDescription": {
-    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
+    "message": "$ORGANIZATION$ verlangt nun, dass alle Einträge der Mitglieder im Besitz der Organisation sind. Deine persönlichen Einträge werden in einen Ordner namens „Meine Einträge“ verschoben, den nur du sehen kannst.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -18005,7 +18077,7 @@
     "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "onePasswordUnsupportedSignIn": {
-    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
+    "message": "Dieses 1Password-Konto verwendet eine Anmeldemethode, die nicht unterstützt wird. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
@@ -18026,7 +18098,7 @@
     "message": "Gib eine gültige Anmeldeadresse ein."
   },
   "onePasswordSignInAddressHint": {
-    "message": "Find this in your 1Password Emergency Kit."
+    "message": "Das findest du in deinem 1Password-Notfall-Kit."
   },
   "secretKeyIsRequired": {
     "message": "Ein geheimer Schlüssel ist erforderlich."
@@ -18050,7 +18122,7 @@
     "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
   },
   "onePasswordEmailHintPasswordLoginOnly": {
-    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest. Es wird nur die Anmeldung mit Passwort unterstützt."
   },
   "secretKey": {
     "message": "Geheimer Schlüssel"
@@ -18062,28 +18134,28 @@
     "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
   },
   "onePasswordSsoLogInTitle": {
-    "message": "Log in with SSO"
+    "message": "Mit SSO anmelden"
   },
   "onePasswordSsoSwitchToSignInPage": {
-    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+    "message": "Wechsel zur SSO-Anmeldeseite, um den Import in Bitwarden abzuschließen."
   },
   "onePasswordSsoEncryptionKeyTransfer": {
-    "message": "Encryption key transfer"
+    "message": "Übertragung des Verschlüsselungsschlüssels"
   },
   "onePasswordSsoVerifyInPendingSignIns": {
-    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+    "message": "Melde dich bei 1Password an und gehe zu \"Ausstehende Anmeldungen\", um diese Anfrage zu verifizieren."
   },
   "onePasswordSsoCodeDidNotWork": {
-    "message": "That code didn't work. Check your other device for a new one."
+    "message": "Dieser Code hat nicht funktioniert. Schau auf deinem anderen Gerät nach, ob dort ein neuer Code verfügbar ist."
   },
   "onePasswordSsoSignInClosed": {
-    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+    "message": "Die SSO-Anmeldeseite wurde geschlossen, bevor du die Anmeldung abgeschlossen hattest. Versuche es erneut, um den Import fortzusetzen."
   },
   "onePasswordSsoDeviceDenied": {
-    "message": "This device was not approved on your other device. Try again or use a different import method."
+    "message": "Dieses Gerät wurde auf deinem anderen Gerät nicht autorisiert. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "onePasswordSsoTooManyWrongCodes": {
-    "message": "Too many incorrect verification codes. Try again or use a different import method."
+    "message": "Zu viele falsche Verifizierungscodes. Bitte versuche es erneut oder verwende eine andere Importmethode."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Zugriff auf Zugangsdaten abgelehnt"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Zugriffsregel erstellt"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Zugriff für bis zu $DURATION$. Sofortige Genehmigung, sofern du die Bedingungen erfüllst",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Zugriff für bis zu $DURATION$. Wenn du die Voraussetzungen erfüllst, erhältst du sofort eine Genehmigung.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Posteingang konnte nicht geladen werden"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Grund der Anfrage"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Auf Standard zurücksetzen"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Anmelde-Aufforderungen im Browser automatisch ausfüllen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Auf einfache HTTP-Authentifizierungsanfragen von Websites antworten, die mit diesem Zugangsdaten-Eintrag übereinstimmen."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Hilfe-Artikel zum automatischen Ausfüllen von Anmelde-Aufforderungen im Browser öffnen"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Um diese Einstellung zu verwenden, wähle für jede Website dieses Zugangsdaten-Eintrags eine andere Option zur Übereinstimmungserkennung als \"Standard\"."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" aktivieren?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "\"Master-Passwort erneut abfragen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "\"Master-Passwort erneut abfragen\" aktivieren?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standard-Übereinstimmungserkennung verwenden?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites, die die Standard-Übereinstimmungserkennung verwenden, können nicht mit Anmelde-Aufforderungen des Browsers genutzt werden. \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
   },
   "pamRotation": {
     "message": "Erneuerung"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Jederzeit kündbar",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
   },
+  "nestFolderUnder": {
+    "message": "Criar subpasta em"
+  },
+  "nestFolderUnderNone": {
+    "message": "Nenhuma",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "Não é permitido utilizar / nos nomes das pastas. Remova o /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Para criar uma subpasta, escolha a pasta principal no campo Criar subpasta em. Já não precisa de adicionar uma barra ao nome."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Eliminada)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Tem a certeza de que pretende eliminar permanentemente esta pasta?"
   },
@@ -5874,6 +5897,12 @@
   "addGroup": {
     "message": "Adicionar grupo"
   },
+  "addCollectionsToUseThisFilter": {
+    "message": "Adicione coleções para utilizar este filtro."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Adicione pastas partilhadas para utilizar este filtro."
+  },
   "editGroup": {
     "message": "Editar grupo"
   },
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Editar membro"
+  },
+  "viewMember": {
+    "message": "Ver membro"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Um campo no separador '$TAB$' precisa da sua atenção.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Boa",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Reutilizada",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposta",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Alterar palavra-passe"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Palavra-passe exposta numa violação de dados.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Palavra-passe demasiado curta ou simples.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Palavra-passe reutilizada em várias credenciais.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Em risco",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "A sua organização pediu-lhe que alterasse esta palavra-passe.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Fraca",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Precisa de confirmação"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ membros precisam de confirmação",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 membro precisa de confirmação"
+  },
   "memberRole": {
     "message": "Função do membro"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Ao redefinir a palavra-passe ou a verificação de dois passos deste membro, este será notificado da alteração e a sessão será terminada."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "A recuperação desta conta remove o utilizador das restantes organizações, exceto daquelas que detém em exclusivo."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Recuperar contas quando a palavra-passe principal, a verificação de dois passos ou os dispositivos fidedignos são esquecidos ou perdidos."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Chaves de encriptação não fidedignas"
   },
-  "atRiskPassword": {
-    "message": "Palavra-passe em risco"
-  },
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
-  },
-  "changeNow": {
-    "message": "Alterar agora"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover o desbloqueio com PIN"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Acesso à credencial recusado"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Acesso controlado contornado"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Cofre exportado"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Regra de acesso criada"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Acesso até $DURATION$, com aprovação imediata se cumprir as condições",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Acesso por um período máximo de $DURATION$. Se cumprir os requisitos, a aprovação será imediata.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Não foi possível carregar a caixa de entrada"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Não foi possível carregar o histórico"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ pedidos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 pedido"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ de $TOTAL$ pedidos",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Motivo do pedido"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Repor predefinições"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Responda aos pedidos de autenticação HTTP básica dos sites que correspondam a esta credencial."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Abrir artigo de ajuda sobre o preenchimento automático de pedidos de início de sessão no navegador"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Para utilizar esta definição, selecione uma opção de deteção de correspondências diferente de «Predefinição» para cada site associado a esta credencial."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Ativar o preenchimento automático dos pedidos de início de sessão no navegador?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "O pedido da palavra-passe mestra será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ativar o pedido de nova introdução da palavra-passe mestra?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "O preenchimento automático dos pedidos de início de sessão no navegador será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Utilizar a deteção de correspondências predefinida?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Os sites que utilizam a deteção de correspondências predefinida não podem ser utilizados com pedidos de início de sessão no navegador. O preenchimento automático destes pedidos será desativado para esta credencial."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Preenchimento automático dos pedidos de início de sessão no navegador desativado"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
   },
   "pamRotation": {
     "message": "Rotação"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Cancele quando quiser",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

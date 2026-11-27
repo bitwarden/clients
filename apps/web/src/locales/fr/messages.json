@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Créez un sous-dossier en ajoutant le nom du dossier parent suivi d'un \"/\". Par exemple : Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Imbriquer le dossier sous"
+  },
+  "nestFolderUnderNone": {
+    "message": "Aucun",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ n'est pas autorisé dans les noms de dossiers. Supprimez le /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Pour imbriquer un dossier, choisissez son parent dans le dossier imbriqué sous le champ. Vous n'avez plus besoin d'ajouter un slash au nom."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Supprimé)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Êtes-vous sûr de vouloir supprimer définitivement ce dossier ?"
   },
@@ -5812,10 +5835,10 @@
     "message": "Votre nouvelle organisation est prête !"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Essai démarré"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Votre essai gratuit est maintenant actif."
   },
   "organizationUpgraded": {
     "message": "Votre organisation a été mise à niveau."
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Ajouter un groupe"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Ajouter des collections pour utiliser ce filtre."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Ajouter des dossiers partagés pour utiliser ce filtre."
   },
   "editGroup": {
     "message": "Éditer le groupe"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Éditer le membre"
+  },
+  "viewMember": {
+    "message": "Afficher le membre"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Un champ de l'onglet '$TAB$' requiert votre attention.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Suffisant",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Réutilisé",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposé",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Changer le mot de passe"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Mot de passe exposé en cas de fuite de données.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Le mot de passe est trop court ou simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Mot de passe réutilisé pour plusieurs identifiants.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "À risque",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Votre organisation vous a demandé de changer ce mot de passe.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Faible",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Confirmation nécessaire"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ membres ont besoin d'une confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 membre a besoin d'une confirmation"
+  },
   "memberRole": {
     "message": "Rôle du membre"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Lorsque vous réinitialisez le mot de passe ou la connexion en deux étapes pour ce membre, il sera informé de la modification et déconnecté."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "La récupération de ce compte supprime l'utilisateur de ses autres organisations, sauf celles qu'il est le seul à posséder."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Récupérer les comptes lorsque le mot de passe maître, la connexion en deux étapes ou les appareils de confiance sont oubliés ou perdus."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Clés de chiffrement non fiables"
   },
-  "atRiskPassword": {
-    "message": "Mot de passe à risque"
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
-  },
-  "changeNow": {
-    "message": "Changer maintenant"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Accès aux informations d'identification refusé"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Accès contrôlé contourné"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Coffre-fort exporté"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Règle d'accès créée"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Accédez pendant $DURATION$, approbation instantanée si vous remplissez les conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Accès jusqu'à $DURATION$. Si vous remplissez les conditions, vous obtiendrez une approbation instantanée.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Ne peut charger la boîte de réception"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Impossible de charger l'historique"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ demandes",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 demande"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ de $TOTAL$ demandes",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Raison de la demande"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Revenir aux valeurs par défaut"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Saisir automatiquement les invites de connexion du navigateur",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Répondre aux demandes d'authentification HTTP basiques des sites Web qui correspondent à cet élément de connexion."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Ouvrir l'article d'aide sur la saisie automatique des invites de connexion du navigateur"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Les sites Web peuvent cibler ces invites à votre insu, ce qui peut exposer vos identifiants.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Pour utiliser ce paramètre, choisissez une option de détection de correspondances autre que \"Défaut\" pour chaque site Web de cet élément de connexion."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Activer la saisie automatique pour les invites de connexion du navigateur?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "La ressaisie du mot de passe principal sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Activer la ressaisie du mot de passe principal?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "La saisie automatique pour les invites de connexion du navigateur sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Détection de correspondance par défaut?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Les sites Web utilisant la détection de correspondance par défaut ne peuvent pas être utilisés avec les invites de connexion du navigateur. La saisie automatique des invites de connexion du navigateur sera désactivée pour cet élément."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "La saisie automatique des invites de connexion au navigateur a été désactivée"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Cet élément a la ressaisie du mot de passe principal activée, donc la saisie automatique pour les invites de connexion au navigateur a été désactivée . Enregistrez l'élément pour conserver ce changement."
   },
   "pamRotation": {
     "message": "Rotation"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Annulez à tout moment",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

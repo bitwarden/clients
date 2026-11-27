@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Vnořte složku přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
   },
+  "nestFolderUnder": {
+    "message": "Vnořit složku do"
+  },
+  "nestFolderUnderNone": {
+    "message": "Žádná",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ není povoleno v názvech složek. Odeberte jej."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Chcete-li vnořit složku, vyberte její nadřazenou složku v poli \"Vnořit složku do\". K názvu již nemusíte přidávat lomítko."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Smazáno)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Opravdu chcete trvale smazat tuto složku?"
   },
@@ -1631,7 +1654,7 @@
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Vytořit",
+    "message": "Vytvořit",
     "description": "for adding new items"
   },
   "new": {
@@ -5812,10 +5835,10 @@
     "message": "Vaše nová organizace je připravena!"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Zkušební doba začala"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Vaše bezplatné zkušební období je nyní aktivní."
   },
   "organizationUpgraded": {
     "message": "Organizace byla aktualizována"
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Přidat skupinu"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Přidejte sbírky pro použití tohoto filtru."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Přidejte sdílené složky pro použití tohoto filtru."
   },
   "editGroup": {
     "message": "Upravit skupinu"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Upravit člena"
+  },
+  "viewMember": {
+    "message": "Zobrazit člena"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Pole na kartě '$TAB$' vyžaduje Vaši pozornost.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Dobré",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Znovu použito",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Uniklé",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Změnit heslo"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Heslo uniklo při úniku dat.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Heslo je příliš krátké nebo jednoduché.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Heslo bylo znovu použito pro několik přihlášení.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Zranitelné",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Vaše organizace Vás požádala o změnu tohoto hesla.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Slabé",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Vyžaduje potvrzení"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ členů potřebuje potvrzení",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 člen potřebuje potvrzení"
+  },
   "memberRole": {
     "message": "Role člena"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Po resetování hesla nebo dvoufázového přihlášení pro tohoto člena, budou informováni o změně a odhlášeni."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Obnovení tohoto účtu odebere uživatele z jiných organizací, kromě těch, které vlastní."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Obnoví účty, když je zapomenuto nebo ztraceno hlavní heslo, dvoufázové přihlášení nebo důvěryhodná zařízení."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Nedůvěryhodné šifrovací klíče"
   },
-  "atRiskPassword": {
-    "message": "Zranitelné heslo"
-  },
   "vulnerablePassword": {
     "message": "Zranitelné heslo."
-  },
-  "changeNow": {
-    "message": "Změnit nyní"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Přístup k pověření byl zamítnut"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Kontrolovaný přístup byl vynechán"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Trezor byl exportován"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Přístupové pravidlo bylo vytvořeno"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Přístup až na $DURATION$, okamžité schválení, pokud splníte podmínky",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Přístup až na $DURATION$. Pokud splníte podmínky, získáte okamžité schválení.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Nelze načíst Inbox"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Historii se nepodařilo načíst"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ žádostí",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 žádost"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$-$END$ z $TOTAL$ žádostí",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Důvod žádosti"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Obnovit výchozí"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Automaticky vyplňovat výzvy k přihlášení do prohlížeče",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reagovat na základní HTTP ověřovací výzvy z webů, které odpovídají této přihlašovací položce."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Otevřít článek nápovědy o automatickém vyplňování přihlašovacích údajů v prohlížeči"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webové stránky mohou spustit tyto výzvy bez Vašich znalostí, které mohou odhalit Vaše přihlašovací údaje.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Chcete-li použít toto nastavení, vyberte jinou volbu detekce shody než \"Výchozí\" pro každou stránku této přihlašovací položky."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Zapnout automatické vyplňování pro výzvy k přihlášení do prohlížeče?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "U této položky bude vypnuto opakované zadávání hlavního hesla. Obě nastavení nelze mít zapnutá současně."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Zapnout výzvu k obnovení hlavního hesla?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "U této položky bude vypnuto automatické vyplňování při zadávání přihlašovacích údajů v prohlížeči. Obě nastavení nelze mít zapnutá současně."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Použít výchozí zjišťování shody?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Weby, které používají výchozí detekci shody, nemohou být použity s výzvami k přihlášení do prohlížeče. Automatické vyplňování žádostí o přihlášení do prohlížeče bude pro tuto položku vypnuto."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatické vyplňování žádostí o přihlášení do prohlížeče vypnuto"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Tato položka má zapnutý požadavek na hlavní heslo, takže automatické vyplňování dotazů na přihlášení v prohlížeči bylo vypnuto. Uložte položku pro zachování této změny."
   },
   "pamRotation": {
     "message": "Rotace"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Můžete zrušit kdykoli",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

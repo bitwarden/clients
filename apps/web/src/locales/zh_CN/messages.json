@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "确定要永久删除此文件夹吗？"
   },
@@ -5812,10 +5835,10 @@
     "message": "您的新组织已准备就绪！"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "试用已开始"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "您的免费试用现已激活。"
   },
   "organizationUpgraded": {
     "message": "组织已升级"
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "添加群组"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
   },
   "editGroup": {
     "message": "编辑群组"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "编辑成员"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "「$TAB$」选项卡中的字段需要您注意。",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "良",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "弱",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "需要确认"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "成员角色"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "当您重置此成员的密码或两步登录时，他们将收到关于此更改的通知并被注销。"
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "当主密码、两步登录或受信任设备被遗忘或丢失时恢复账户。"
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "未信任的加密密钥"
   },
-  "atRiskPassword": {
-    "message": "存在风险的密码"
-  },
   "vulnerablePassword": {
     "message": "易受攻击的密码。"
-  },
-  "changeNow": {
-    "message": "立即更改"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "禁用 PIN 码解锁"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "凭据访问被拒绝"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "访问规则已创建"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "访问时长最多 $DURATION$，符合条件即可即时获批",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "访问权限最多 $DURATION$。若符合条件，您将获得即时批准。",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "无法加载收件箱"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "请求的理由"
@@ -20191,7 +20301,7 @@
     "message": "保留并重新激活"
   },
   "subscriptionIsNowActive": {
-    "message": "订阅现已生效"
+    "message": "订阅现已激活"
   },
   "undoCancellationRequestConfirmation": {
     "message": "这将撤销您的取消请求并重新激活您的订阅。"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "恢复默认设置"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "浏览器登录自动填充提示",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "打开浏览器登录自动填充提示帮助文章"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "开启浏览器登录自动填充提示吗？"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "开启主密码二次验证吗？"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "使用默认匹配检测吗？"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "浏览器登录自动填充提示已关闭"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存项目以保留此更改。"
   },
   "pamRotation": {
     "message": "轮换"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "随时取消",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }
