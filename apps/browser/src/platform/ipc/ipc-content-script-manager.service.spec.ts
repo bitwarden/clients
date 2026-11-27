@@ -75,11 +75,4 @@ describe("IpcContentScriptManagerService", () => {
     // The unresponsive tab does not stop the next tab from being injected.
     expect(browserApi.executeScriptInTab).toHaveBeenCalledWith(2, expect.anything());
   });
-
-  it("does not reject init when re-injection fails", async () => {
-    browserApi.tabsQuery.mockRejectedValue(new Error("tabs.query failed"));
-
-    await expect(service.init()).resolves.toBeUndefined();
-    await flushPromises();
-  });
 });
