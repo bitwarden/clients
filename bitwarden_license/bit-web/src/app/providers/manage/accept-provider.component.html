@@ -6,18 +6,18 @@
       [ariaLabel]="'appLogoLabel' | i18n"
     ></bit-svg>
     <p class="tw-text-center">
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin bwi-2x tw-text-muted"
         title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
+      ></bit-icon>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </p>
   </div>
 </div>
 <div *ngIf="!loading && !authed">
   <p bitTypography="body1" class="tw-text-center">
-    {{ providerName }}
+    {{ providerName() }}
     <span bitTypography="body1" class="tw-font-medium">{{ email }}</span>
   </p>
   <p bitTypography="body1">{{ "joinProviderDesc" | i18n }}</p>
