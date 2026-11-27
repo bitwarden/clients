@@ -1,0 +1,29 @@
+<div
+  class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center tw-px-6 tw-text-center"
+  role="status"
+  aria-live="polite"
+>
+  <div class="tw-w-full tw-max-w-64">
+    <!-- The heading is projected as the label because an unprojected bar renders a screen-reader-only
+         copy of accessibleName that this live region would announce alongside the heading.
+         ariaValueText must differ from the heading or screen readers speak the same phrase twice. -->
+    <bit-progress-bar
+      [value]="progress()"
+      [hideStartHint]="true"
+      [ariaValueText]="'scanInProgress' | i18n"
+    >
+      <h2
+        slot="label"
+        tabindex="-1"
+        bitTypography="body1"
+        class="tw-mb-2 tw-font-medium tw-text-fg-heading focus:tw-outline-none"
+      >
+        {{ "scanningYourVault" | i18n }}
+      </h2>
+    </bit-progress-bar>
+  </div>
+
+  <p bitTypography="body2" class="tw-mb-0 tw-mt-3 tw-text-fg-body-subtle">
+    {{ "scanningYourVaultDescription" | i18n }}
+  </p>
+</div>

@@ -1,0 +1,18 @@
+<div
+  class="tw-mx-auto tw-my-8 tw-flex tw-max-w-lg tw-flex-col tw-items-start tw-gap-4 tw-rounded-xl tw-border tw-border-solid tw-border-border-brand-soft tw-p-6"
+>
+  <img [src]="introImage()" alt="" class="tw-w-full" data-testid="health-intro-illustration" />
+  <h2 bitTypography="h2" class="!tw-mb-0 !tw-text-fg-brand">{{ "introducingHealth" | i18n }}</h2>
+  <p bitTypography="body1" class="!tw-mb-0">
+    {{ "healthIntroDescription" | i18n }}
+  </p>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    data-testid="health-intro-scan-button"
+    (click)="handleScanVaultClick()"
+  >
+    {{ "scanMyVault" | i18n }}
+  </button>
+</div>

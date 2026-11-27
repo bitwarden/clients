@@ -74,6 +74,12 @@ import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2RpIdNotAllowedComponent } from "../autofill/modal/credentials/fido2-rp-id-not-allowed.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
+import {
+  canAccessHealthDesktop,
+  canAccessHealthDetailDesktop,
+  HealthDesktopComponent,
+  HealthRiskCategoryDetailDesktopComponent,
+} from "../dirt/health";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
@@ -568,6 +574,18 @@ export const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "health",
+        component: HealthDesktopComponent,
+        canActivate: [canAccessHealthDesktop],
+        data: { pageTitle: { key: "health" } } satisfies RouteDataProperties,
+      },
+      {
+        path: "health/:category",
+        component: HealthRiskCategoryDetailDesktopComponent,
+        canActivate: [canAccessHealthDesktop, canAccessHealthDetailDesktop],
+        data: { pageTitle: { key: "health" } } satisfies RouteDataProperties,
       },
       {
         path: "import",

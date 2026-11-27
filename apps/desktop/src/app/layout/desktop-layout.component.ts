@@ -1,9 +1,10 @@
 import { Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { map } from "rxjs";
+import { map, of, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -13,6 +14,7 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 
+import { DesktopHealthAccessService } from "../../dirt/health";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
@@ -44,6 +46,8 @@ export class DesktopLayoutComponent {
   private configService = inject(ConfigService);
   private platformUtilsService = inject(PlatformUtilsService);
   private router = inject(Router);
+  private accountService = inject(AccountService);
+  private healthAccessService = inject(DesktopHealthAccessService);
 
   protected readonly logo = PasswordManagerLogo;
 
@@ -60,6 +64,15 @@ export class DesktopLayoutComponent {
   // TODO: remove once pm-35053-import-upgrade is retired
   protected readonly importUpgradeEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.ImportUpgrade),
+    { initialValue: false },
+  );
+
+  protected readonly healthEnabled = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account?.id ? this.healthAccessService.healthEnabled$(account.id) : of(false),
+      ),
+    ),
     { initialValue: false },
   );
 
