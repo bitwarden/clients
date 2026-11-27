@@ -223,9 +223,17 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   }
 
   collectPageDetails(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
+    return this.collectTabPageDetails(tab, frameId);
+  }
+
+  private collectTabPageDetails(
+    tab: chrome.tabs.Tab,
+    frameId?: number,
+    forceRescan?: boolean,
+  ): Promise<PageDetail[]> {
     return firstValueFrom(
       this.autofillService
-        .collectPageDetailsFromTab$(tab, frameId)
+        .collectPageDetailsFromTab$(tab, frameId, forceRescan)
         .pipe(debounceTime(COLLECT_SETTLE_MS), take(1)),
     );
   }
@@ -260,7 +268,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
   ): Promise<FillResult> {
-    const pageDetails = await this.collectPageDetails(tab);
+    const pageDetails = await this.collectTabPageDetails(tab, undefined, true);
     if (pageDetails.length === 0) {
       return AUTOFILL_ABSENT;
     }
@@ -273,7 +281,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
   ): Promise<FillResult> {
-    const pageDetails = await this.collectPageDetails(tab);
+    const pageDetails = await this.collectTabPageDetails(tab, undefined, true);
     if (pageDetails.length === 0) {
       return AUTOFILL_ABSENT;
     }
@@ -354,7 +362,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       }
 
       const [pageDetails, plan] = await Promise.all([
-        this.read(target, request.frameId),
+        this.read(target, request.frameId, request.kind === "pageLoad" ? undefined : true),
         this.selectFill(request, target),
       ]);
       if (
@@ -406,8 +414,12 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * independently and accumulate into one settled result. A frame-scoped collect gets exactly one
    * response, already complete, so it needs no settle.
    */
-  private async read(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
-    const pageDetails$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId);
+  private async read(
+    tab: chrome.tabs.Tab,
+    frameId?: number,
+    forceRescan?: boolean,
+  ): Promise<PageDetail[]> {
+    const pageDetails$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId, forceRescan);
     const pageDetails = await firstValueFrom(
       frameId == null ? pageDetails$.pipe(debounceTime(COLLECT_SETTLE_MS), take(1)) : pageDetails$,
     );

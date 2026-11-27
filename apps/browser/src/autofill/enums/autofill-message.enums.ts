@@ -10,6 +10,7 @@ export type AutofillMessageCommandType =
   (typeof AutofillMessageCommand)[keyof typeof AutofillMessageCommand];
 
 export const AutofillMessageSender = {
+  collectFreshPageDetailsFromTabObservable: "collectFreshPageDetailsFromTabObservable",
   collectPageDetailsFromTabObservable: "collectPageDetailsFromTabObservable",
 } as const;
 
