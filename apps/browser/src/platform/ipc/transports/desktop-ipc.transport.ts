@@ -30,14 +30,26 @@ type NativePort = browser.runtime.Port | chrome.runtime.Port;
  * The lifecycle of the native messaging connection, modelled as a state machine
  *
  * - `disconnected` — no live port. The initial state and the state after any failure/disconnect.
- * - `connecting`   — the port is open but the proxy has not reported a connection yet. `ready`
- *                    resolves once the outcome is known (either the proxy connects, or the port
- *                    disconnects), so callers can await it without risking a permanent hang.
+ * - `connecting`   — the port is open but the proxy has not reported a connection yet.
  * - `connected`    — the proxy has reported a connection and the port is ready to send messages.
  */
 type ConnectionState =
   | { kind: "disconnected" }
-  | { kind: "connecting"; port: NativePort; ready: Promise<void> }
+  | {
+      kind: "connecting";
+      port: NativePort;
+      /**
+       * Resolves when this state ends, whichever way it ends: the proxy reports a connection, the
+       * port disconnects, or the attempt times out. A caller awaits this to wait out an attempt
+       * that is already in flight, then reads the state to see what it became.
+       */
+      ready: Promise<void>;
+      /**
+       * Resolves {@link ready}. Called by {@link DesktopIpcTransport.setState} on any state
+       * transition away from `connecting`.
+       */
+      settle: () => void;
+    }
   | { kind: "connected"; port: NativePort };
 
 /**
@@ -107,16 +119,15 @@ export class DesktopIpcTransport {
       const port = BrowserApi.connectNative("com.8bit.bitwarden");
       activePort = port;
 
-      let resolveReady: () => void;
+      let settle!: () => void;
       const ready = new Promise<void>((resolve) => {
-        resolveReady = resolve;
+        settle = resolve;
       });
-      this.setState({ kind: "connecting", port, ready });
+      this.setState({ kind: "connecting", port, ready, settle });
 
       port.onMessage.addListener((ipcMessage: any) => {
         if (isProxyConnectedMessage(ipcMessage)) {
           this.setState({ kind: "connected", port });
-          resolveReady();
           this.logService.info("[IPC] Connected to Bitwarden Desktop App Transport");
         }
 
@@ -142,8 +153,6 @@ export class DesktopIpcTransport {
         }
 
         this.setState({ kind: "disconnected" });
-        // Unblock anyone waiting on the connection attempt (both connect() and send()).
-        resolveReady();
 
         // Suppress error message
         void chrome.runtime.lastError;
@@ -191,7 +200,13 @@ export class DesktopIpcTransport {
   }
 
   private setState(state: ConnectionState) {
+    const previous = this._state;
     this._state = state;
+
+    // Leaving `connecting` always releases whoever is waiting on it.
+    if (previous.kind === "connecting" && previous !== state) {
+      previous.settle();
+    }
   }
 
   // Runs a single long-lived timer that re-invokes connect() while the connection is down, plus one
