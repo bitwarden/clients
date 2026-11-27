@@ -219,7 +219,6 @@ export class HealthPasskeyDetailComponent {
       )
       .subscribe();
 
-    // Back from the item: focus the row the user opened, once the rows are on screen.
     toObservable(computed(() => this.rows().length > 0))
       .pipe(filter(Boolean), take(1), takeUntilDestroyed())
       .subscribe(() => {
@@ -230,7 +229,6 @@ export class HealthPasskeyDetailComponent {
         }
       });
 
-    // A focused row that leaves the list hands focus to the row now in its place.
     toObservable(this.rows)
       .pipe(pairwise(), takeUntilDestroyed())
       .subscribe(([previous, current]) => this.moveFocusFromRemovedRow(previous, current));

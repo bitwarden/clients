@@ -38,7 +38,6 @@ export type PasskeyDirectoryEntry = {
 
 /** A login whose site supports passkeys and that has none saved yet. */
 export type PasskeyOpportunity = {
-  /** The cipher's id. */
   id: string;
   supportsPasskeyLogin: boolean;
   supportsPasskeyMfa: boolean;
