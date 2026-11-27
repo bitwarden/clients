@@ -413,6 +413,11 @@ const miscObjects = [
     usage: "Link to specific ID.",
   },
   {
+    id: "bwi-health",
+    usage:
+      "Indicates Health, the report on the strength and exposure of the passwords in the user's vault.",
+  },
+  {
     id: "bwi-key",
     usage: "Key or password related objects or actions.",
   },
