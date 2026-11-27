@@ -1,9 +1,17 @@
-<bit-dialog [loading]="loading">
+<bit-dialog [loading]="loading()">
   <span bitDialogTitle>
     {{ "addExistingOrganization" | i18n }}
   </span>
   <ng-container bitDialogContent>
-    <ng-container *ngIf="!selectedOrganization; else organizationSelected">
+    @if (selectedOrganization(); as selectedOrganization) {
+      <p>{{ "yourProviderSubscriptionCredit" | i18n }}</p>
+      <p>{{ "doYouWantToAddThisOrg" | i18n: dialogParams.provider.name }}</p>
+      <div class="tw-flex tw-flex-col">
+        <div>{{ "organization" | i18n }}: {{ selectedOrganization.name }}</div>
+        <div>{{ "billingPlan" | i18n }}: {{ selectedOrganization.plan }}</div>
+        <div>{{ "assignedSeats" | i18n }}: {{ selectedOrganization.seats }}</div>
+      </div>
+    } @else {
       <p>{{ "selectOrganizationProviderPortal" | i18n }}</p>
       <bit-table>
         <ng-container header>
@@ -13,60 +21,62 @@
           </tr>
         </ng-container>
         <ng-template body>
-          <tr
-            bitRow
-            *ngFor="let addable of addableOrganizations"
-            [ngClass]="{ 'tw-text-muted': addable.disabled }"
-          >
-            <td bitCell class="tw-w-8">
-              <bit-avatar [text]="addable.name" [id]="addable.id"></bit-avatar>
-            </td>
-            <td bitCell>
-              {{ addable.name }}
-              <div *ngIf="addable.disabled" class="tw-text-xs">
-                {{ "assignedExceedsAvailable" | i18n }}
-              </div>
-            </td>
-            <td bitCell>{{ addable.seats }}</td>
-            <td bitCell class="tw-text-right">
-              <button
-                type="button"
-                bitButton
-                buttonType="secondary"
-                [disabled]="addable.disabled"
-                (click)="selectOrganization(addable.id)"
-              >
-                {{ "next" | i18n }}
-              </button>
-            </td>
-          </tr>
+          @for (addable of addableOrganizations(); track addable.id) {
+            <tr bitRow [class.tw-text-muted]="addable.disabled">
+              <td bitCell class="tw-w-8">
+                <bit-avatar [text]="addable.name" [id]="addable.id"></bit-avatar>
+              </td>
+              <td bitCell>
+                {{ addable.name }}
+                @if (addable.disabled) {
+                  <div class="tw-text-xs">
+                    {{ "assignedExceedsAvailable" | i18n }}
+                  </div>
+                }
+              </td>
+              <td bitCell>{{ addable.seats }}</td>
+              <td bitCell class="tw-text-right">
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  [id]="'add-existing-organization-dialog_button_next-' + addable.id"
+                  [disabled]="addable.disabled"
+                  (click)="selectOrganization(addable.id)"
+                >
+                  {{ "next" | i18n }}
+                </button>
+              </td>
+            </tr>
+          }
         </ng-template>
       </bit-table>
-      <p *ngIf="addableOrganizations.length === 0" class="tw-text-muted tw-mt-2">
-        {{ "noOrganizations" | i18n }}
-      </p>
-    </ng-container>
-    <ng-template #organizationSelected>
-      <p>{{ "yourProviderSubscriptionCredit" | i18n }}</p>
-      <p>{{ "doYouWantToAddThisOrg" | i18n: dialogParams.provider.name }}</p>
-      <div class="tw-flex tw-flex-col">
-        <div>{{ "organization" | i18n }}: {{ selectedOrganization.name }}</div>
-        <div>{{ "billingPlan" | i18n }}: {{ selectedOrganization.plan }}</div>
-        <div>{{ "assignedSeats" | i18n }}: {{ selectedOrganization.seats }}</div>
-      </div>
-    </ng-template>
+      @if (addableOrganizations().length === 0) {
+        <p class="tw-text-muted tw-mt-2">
+          {{ "noOrganizations" | i18n }}
+        </p>
+      }
+    }
   </ng-container>
   <ng-container bitDialogFooter>
+    @if (selectedOrganization()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="add-existing-organization-dialog_button_add"
+        [bitAction]="addExistingOrganization"
+      >
+        {{ "addOrganization" | i18n }}
+      </button>
+    }
     <button
-      *ngIf="selectedOrganization"
       type="button"
       bitButton
-      buttonType="primary"
-      [bitAction]="addExistingOrganization"
+      buttonType="secondary"
+      id="add-existing-organization-dialog_button_close"
+      [bitDialogClose]="ResultType.Closed"
     >
-      {{ "addOrganization" | i18n }}
-    </button>
-    <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
       {{ "close" | i18n }}
     </button>
   </ng-container>
