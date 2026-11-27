@@ -440,12 +440,20 @@
                     {{ "pamTargetSystemEndingSessionsEntraHint" | i18n }}
                   </p>
                 } @else if (isCustomScript()) {
-                  <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
-                    "pamTargetSystemSessionTerminationNo" | i18n
-                  }}</span>
-                  <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
-                    {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
-                  </p>
+                  <div [formGroup]="policyForm" class="tw-w-full">
+                    <bit-form-control disableMargin>
+                      <input
+                        type="checkbox"
+                        bitCheckbox
+                        formControlName="supportsSessionTermination"
+                        id="target-system-edit_checkbox_session-termination"
+                      />
+                      <bit-label>{{
+                        "pamTargetSystemEndingSessionsCustomScriptSupportedHint" | i18n
+                      }}</bit-label>
+                      <bit-hint>{{ "pamTargetSystemSignsOutSessionsHint" | i18n }}</bit-hint>
+                    </bit-form-control>
+                  </div>
                 } @else if (sessionTerminationNever()) {
                   <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
                     "pamTargetSystemSessionTerminationNo" | i18n
@@ -628,17 +636,36 @@
                 <p bitTypography="body2" class="tw-mb-0 tw-font-medium tw-text-fg-heading">
                   {{ "pamTargetSystemEndingSessions" | i18n }}
                 </p>
-                @if (endsSessions()) {
+                @if (isCustomScript()) {
+                  <div [formGroup]="policyForm" class="tw-w-full">
+                    <bit-form-control disableMargin>
+                      <input
+                        type="checkbox"
+                        bitCheckbox
+                        formControlName="supportsSessionTermination"
+                        id="target-system-edit_checkbox_session-termination"
+                      />
+                      <bit-label>{{
+                        "pamTargetSystemEndingSessionsCustomScriptSupportedHint" | i18n
+                      }}</bit-label>
+                      <bit-hint>{{ "pamTargetSystemSignsOutSessionsHint" | i18n }}</bit-hint>
+                    </bit-form-control>
+                  </div>
+                  @if (showSessionTerminationWithdrawn()) {
+                    <p
+                      bitTypography="helper"
+                      class="tw-mb-0 tw-text-fg-body"
+                      id="target-system-edit_session-termination-withdrawn"
+                    >
+                      {{ "pamTargetSystemSignsOutSessionsWithdrawnHint" | i18n }}
+                    </p>
+                  }
+                } @else if (endsSessions()) {
                   <span bitBadge size="small" variant="success" startIcon="bwi-check-circle">{{
                     "pamTargetSystemSessionTerminationSupported" | i18n
                   }}</span>
                   <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
-                    {{
-                      (sessionTerminationAlways()
-                        ? "pamTargetSystemEndingSessionsEntraHint"
-                        : "pamTargetSystemEndingSessionsCustomScriptSupportedHint"
-                      ) | i18n
-                    }}
+                    {{ "pamTargetSystemEndingSessionsEntraHint" | i18n }}
                   </p>
                 } @else {
                   <span bitBadge size="small" variant="warning" startIcon="bwi-warning">{{
@@ -661,10 +688,6 @@
                         {{ "pamTargetSystemSessionTerminationRetainedHint" | i18n }}
                       </p>
                     }
-                  } @else {
-                    <p bitTypography="helper" class="tw-mb-0 tw-text-fg-body">
-                      {{ "pamTargetSystemEndingSessionsCustomScriptHint" | i18n }}
-                    </p>
                   }
                 }
               </div>
