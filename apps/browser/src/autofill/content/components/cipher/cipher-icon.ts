@@ -54,4 +54,10 @@ const cipherIconStyle = ({ width }: { width: string }) => css`
   width: ${width};
   height: fit-content;
   max-height: 24px; /* fallback for Safari */
+
+  /* The notification's cipher item sets display: flex on its img and span children, which
+     would override the hidden attribute. This rule's attribute selector outranks that one. */
+  &[hidden] {
+    display: none;
+  }
 `;

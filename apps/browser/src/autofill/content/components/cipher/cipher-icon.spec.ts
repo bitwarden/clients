@@ -54,6 +54,19 @@ describe("CipherIcon", () => {
     expect(globe.hidden).toBe(false);
   });
 
+  // The notification bar's cipher item sets `display: flex` on its img and span children
+  // (`> img, > span`), which would override the `hidden` attribute. The icon's own class
+  // hides a `[hidden]` element with an attribute selector, which outranks that rule.
+  it("hides a hidden icon element through its own class", () => {
+    const values = litValues(CipherIcon({ ...props, uri: "https://192.168.1.10/favicon.ico" }));
+    const iconClass = values[0] as string;
+    const rules = Array.from(document.styleSheets).flatMap((sheet) =>
+      Array.from(sheet.cssRules).map((rule) => rule.cssText.replace(/\s+/g, "")),
+    );
+
+    expect(rules).toContain(`.${iconClass}[hidden]{display:none;}`);
+  });
+
   it("shows the icon again once an icon loads", () => {
     const values = litValues(CipherIcon({ ...props, uri: "https://example.com/favicon.ico" }));
     const { image, globe } = renderedIcon();
