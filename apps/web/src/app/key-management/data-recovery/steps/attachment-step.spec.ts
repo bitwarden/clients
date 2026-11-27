@@ -237,7 +237,7 @@ describe("AttachmentStep", () => {
       expect(step.message).toBe("recoveryAttachmentsNameLost:1");
       expect(step.canRecover(workingData)).toBe(true);
       expect(logLines()).toContain(
-        "Attachment a1 on cipher cipher-1 (personal) has readable contents and can be saved again",
+        "Attachment a1 on cipher cipher-1 (personal) has readable contents and can be renamed",
       );
     });
 
@@ -375,10 +375,22 @@ describe("AttachmentStep", () => {
         },
       );
 
-      it("tells the user to contact support for lost-name attachments without delete permission", async () => {
+      it("renames lost-name attachments with edit access, even without delete permission", async () => {
         const workingData = workingDataWith([
           orgItem("org-1", [attachment("a1", { nameOrKeyError: true, readable: true })], {
             canDelete: false,
+          }),
+        ]);
+
+        await step.runDiagnostics(workingData, logger);
+
+        expect(step.canRecover(workingData)).toBe(true);
+      });
+
+      it("tells the user to contact support for lost-name attachments without edit access", async () => {
+        const workingData = workingDataWith([
+          orgItem("org-1", [attachment("a1", { nameOrKeyError: true, readable: true })], {
+            edit: false,
           }),
         ]);
 
@@ -438,123 +450,62 @@ describe("AttachmentStep", () => {
   });
 
   describe("runRecovery", () => {
-    it("saves each lost-name attachment on one item, re-reading the item before each", async () => {
-      const item = personalItem("cipher-1", [
-        attachment("a1", { nameOrKeyError: true, readable: true }),
-        attachment("a2", { nameOrKeyError: true, readable: true }),
-      ]);
-      const workingData = workingDataWith([item]);
-      cipherService.get.mockResolvedValue(item.cipher);
-      cipherEncryptionService.decrypt.mockResolvedValue(item.view);
-      await step.runDiagnostics(workingData, logger);
-
-      await step.runRecovery(workingData, logger);
-
-      // Each re-save changes the item's revision date, so it is read again every time.
-      expect(cipherService.get).toHaveBeenCalledTimes(2);
-      expect(cipherService.saveAttachmentRawWithServer.mock.calls.map((c) => c[1])).toEqual([
-        "recoveredAttachmentFileName:a1",
-        "recoveredAttachmentFileName:a2",
-      ]);
-      expect(cipherService.deleteAttachmentWithServer.mock.calls.map((c) => c[1])).toEqual([
-        "a1",
-        "a2",
-      ]);
-    });
-
     describe("lost-name attachments", () => {
       let item: Item;
       let workingData: RecoveryWorkingData;
-      const current = { id: "cipher-1", revisionDate: new Date() } as unknown as Cipher;
+
+      /** The item view the step saved. */
+      const savedView = () => cipherService.updateWithServer.mock.calls[0][0];
 
       beforeEach(async () => {
         item = personalItem("cipher-1", [
           attachment("a1", { nameOrKeyError: true, readable: true }),
         ]);
         workingData = workingDataWith([item]);
-        cipherService.get.mockResolvedValue(current);
-        // By default the item is unchanged since diagnostics.
-        cipherEncryptionService.decrypt.mockResolvedValue(item.view);
+        cipherService.get.mockResolvedValue(item.cipher);
+        // The item as it is now, decrypted again before the rename.
+        cipherEncryptionService.decrypt.mockImplementation(
+          async () =>
+            ({
+              id: "cipher-1",
+              attachments: [attachment("a1", { nameOrKeyError: true, readable: true })],
+            }) as unknown as CipherView,
+        );
         await step.runDiagnostics(workingData, logger);
         fetchMock.mockClear();
       });
 
-      it("only retries removing the original when an earlier repair already saved the copy", async () => {
-        const copy = {
-          id: "a-copy",
-          fileName: "recoveredAttachmentFileName:a1",
-          hasDecryptionError: false,
-        } as unknown as AttachmentView;
-        cipherEncryptionService.decrypt.mockResolvedValue({
-          id: "cipher-1",
-          attachments: [...item.view.attachments, copy],
-        } as unknown as CipherView);
-
+      it("renames the attachment in place by saving the item, without asking", async () => {
         await step.runRecovery(workingData, logger);
 
-        // Only the copy is downloaded, to check it is readable.
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(fetchMock).toHaveBeenCalledWith("https://download/a-copy", { cache: "no-store" });
+        expect(cipherService.get).toHaveBeenCalledWith("cipher-1", userId);
+        expect(cipherService.updateWithServer).toHaveBeenCalledTimes(1);
+        expect(cipherService.updateWithServer).toHaveBeenCalledWith(expect.anything(), userId);
+        expect(savedView().attachments[0].id).toBe("a1");
+        expect(savedView().attachments[0].fileName).toBe("recoveredAttachmentFileName:a1");
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        // The file is never downloaded, uploaded or deleted.
+        expect(fetchMock).not.toHaveBeenCalled();
         expect(cipherService.saveAttachmentRawWithServer).not.toHaveBeenCalled();
-        expect(cipherService.deleteAttachmentWithServer).toHaveBeenCalledWith(
-          "cipher-1",
-          "a1",
-          userId,
-          false,
-        );
-        expect(logLines()).toContain(
-          "Attachment a1 on cipher cipher-1 (personal) was already saved again by an earlier repair",
-        );
+        expect(cipherService.deleteAttachmentWithServer).not.toHaveBeenCalled();
+        expect(logLines()).toContain("Attachment a1 on cipher cipher-1 (personal) was renamed");
       });
 
-      it("finds an earlier copy by the original's ID, whatever language its name is in", async () => {
-        const copy = {
-          id: "a-copy",
-          fileName: "wiederhergestellter-anhang-a1",
-          hasDecryptionError: false,
-        } as unknown as AttachmentView;
+      it("skips an attachment an earlier repair already renamed", async () => {
         cipherEncryptionService.decrypt.mockResolvedValue({
           id: "cipher-1",
-          attachments: [...item.view.attachments, copy],
+          attachments: [{ id: "a1", fileName: "recovered", hasDecryptionError: false }],
         } as unknown as CipherView);
 
         await step.runRecovery(workingData, logger);
 
-        expect(cipherService.saveAttachmentRawWithServer).not.toHaveBeenCalled();
-        expect(cipherService.deleteAttachmentWithServer).toHaveBeenCalledWith(
-          "cipher-1",
-          "a1",
-          userId,
-          false,
-        );
-      });
-
-      it("saves a new copy when an earlier copy can't be read, before removing the original", async () => {
-        // An earlier upload can fail after the attachment entry was created, leaving an entry
-        // without a usable file. Removing the original on the strength of it would lose data.
-        undecryptableIds.add("a-copy");
-        const copy = {
-          id: "a-copy",
-          fileName: "recoveredAttachmentFileName:a1",
-          hasDecryptionError: false,
-        } as unknown as AttachmentView;
-        cipherEncryptionService.decrypt.mockResolvedValue({
-          id: "cipher-1",
-          attachments: [...item.view.attachments, copy],
-        } as unknown as CipherView);
-
-        await step.runRecovery(workingData, logger);
-
-        expect(cipherService.saveAttachmentRawWithServer).toHaveBeenCalledTimes(1);
-        expect(cipherService.saveAttachmentRawWithServer.mock.invocationCallOrder[0]).toBeLessThan(
-          cipherService.deleteAttachmentWithServer.mock.invocationCallOrder[0],
-        );
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
         expect(logLines()).toContain(
-          "Attachment a-copy on cipher cipher-1 (personal) looks like an earlier copy but can't be read",
+          "Attachment a1 on cipher cipher-1 (personal) was already renamed",
         );
       });
 
-      it("does nothing when the original was already removed", async () => {
+      it("skips an attachment that was already removed", async () => {
         cipherEncryptionService.decrypt.mockResolvedValue({
           id: "cipher-1",
           attachments: [],
@@ -562,83 +513,109 @@ describe("AttachmentStep", () => {
 
         await step.runRecovery(workingData, logger);
 
-        expect(cipherService.saveAttachmentRawWithServer).not.toHaveBeenCalled();
-        expect(cipherService.deleteAttachmentWithServer).not.toHaveBeenCalled();
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
         expect(logLines()).toContain(
           "Attachment a1 on cipher cipher-1 (personal) was already removed",
         );
       });
 
-      it("keeps the broken attachment when the item can't be read again", async () => {
-        cipherEncryptionService.decrypt.mockRejectedValue(new Error("decrypt failed"));
-
-        await expect(step.runRecovery(workingData, logger)).rejects.toThrow("1 re-saves");
-
-        expect(cipherService.saveAttachmentRawWithServer).not.toHaveBeenCalled();
-        expect(cipherService.deleteAttachmentWithServer).not.toHaveBeenCalled();
-      });
-
-      it("saves the contents again under a placeholder name, then removes the broken one", async () => {
-        await step.runRecovery(workingData, logger);
-
-        // The item is read again so the upload carries its current revision date.
-        expect(cipherService.get).toHaveBeenCalledWith("cipher-1", userId);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(cipherEncryptionService.decryptAttachmentContent).toHaveBeenLastCalledWith(
-          current,
-          item.view.attachments[0],
-          expect.any(Uint8Array),
-          userId,
-        );
-        expect(cipherService.saveAttachmentRawWithServer).toHaveBeenCalledWith(
-          current,
-          "recoveredAttachmentFileName:a1",
-          new Uint8Array([1, 2, 3]),
-          userId,
-        );
-        expect(cipherService.deleteAttachmentWithServer).toHaveBeenCalledWith(
-          "cipher-1",
-          "a1",
-          userId,
-          false,
-        );
-        expect(cipherService.saveAttachmentRawWithServer.mock.invocationCallOrder[0]).toBeLessThan(
-          cipherService.deleteAttachmentWithServer.mock.invocationCallOrder[0],
-        );
-        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-      });
-
-      it("keeps the broken attachment when saving the new copy fails", async () => {
-        cipherService.saveAttachmentRawWithServer.mockRejectedValue(new Error("upload failed"));
+      it("reports a failed save and deletes nothing", async () => {
+        cipherService.updateWithServer.mockRejectedValue(new Error("conflict"));
 
         await expect(step.runRecovery(workingData, logger)).rejects.toThrow(
-          "0 upgrades, 1 re-saves and 0 deletions failed",
+          "0 upgrades, 1 renames and 0 deletions failed",
         );
 
         expect(cipherService.deleteAttachmentWithServer).not.toHaveBeenCalled();
         expect(logLines()).toContain(
-          "Attachment a1 on cipher cipher-1 (personal) could not be saved again: upload failed",
+          "Attachment a1 on cipher cipher-1 (personal) could not be renamed or upgraded: conflict",
         );
       });
 
-      it("keeps the broken attachment when the file can no longer be downloaded", async () => {
-        downloadStatus.set("a1", 503);
+      it("reports when the item can't be read again, without saving", async () => {
+        cipherEncryptionService.decrypt.mockRejectedValue(new Error("decrypt failed"));
 
-        await expect(step.runRecovery(workingData, logger)).rejects.toThrow("1 re-saves");
+        await expect(step.runRecovery(workingData, logger)).rejects.toThrow("1 renames");
 
-        expect(cipherService.saveAttachmentRawWithServer).not.toHaveBeenCalled();
+        expect(cipherService.updateWithServer).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("legacy lost-name attachments", () => {
+      const legacyLostName = () =>
+        attachment("a1", { legacy: true, nameOrKeyError: true, readable: true });
+      const renamedView = { id: "cipher-1", attachments: [] } as unknown as CipherView;
+
+      async function repair(item: Item) {
+        const workingData = workingDataWith([item]);
+        cipherService.get.mockResolvedValue(item.cipher);
+        cipherEncryptionService.decrypt.mockImplementation(
+          async () =>
+            ({ id: item.cipher.id, attachments: [legacyLostName()] }) as unknown as CipherView,
+        );
+        cipherService.updateWithServer.mockResolvedValue(renamedView);
+        await step.runDiagnostics(workingData, logger);
+        return step.runRecovery(workingData, logger);
+      }
+
+      it("upgrades a legacy attachment right after renaming it, using the saved item", async () => {
+        await repair(personalItem("cipher-1", [legacyLostName()]));
+
+        expect(cipherService.upgradeOldCipherAttachments).toHaveBeenCalledWith(
+          renamedView,
+          userId,
+          "a1",
+        );
+        expect(cipherService.updateWithServer.mock.invocationCallOrder[0]).toBeLessThan(
+          cipherService.upgradeOldCipherAttachments.mock.invocationCallOrder[0],
+        );
+      });
+
+      it("only renames it when the user may not upgrade", async () => {
+        await repair(orgItem("org-1", [legacyLostName()], { canDelete: false }));
+
+        expect(cipherService.updateWithServer).toHaveBeenCalledTimes(1);
+        expect(cipherService.upgradeOldCipherAttachments).not.toHaveBeenCalled();
+      });
+
+      it("reports a failed upgrade after the rename, and deletes nothing", async () => {
+        cipherService.upgradeOldCipherAttachments.mockRejectedValue(new Error("upload failed"));
+
+        await expect(repair(personalItem("cipher-1", [legacyLostName()]))).rejects.toThrow(
+          "1 renames",
+        );
+
         expect(cipherService.deleteAttachmentWithServer).not.toHaveBeenCalled();
       });
+    });
 
-      it("reports when the new copy was saved but the broken one could not be removed", async () => {
-        cipherService.deleteAttachmentWithServer.mockRejectedValue(new Error("server error"));
+    it("renames each lost-name attachment on one item, re-reading the item before each", async () => {
+      const item = personalItem("cipher-1", [
+        attachment("a1", { nameOrKeyError: true, readable: true }),
+        attachment("a2", { nameOrKeyError: true, readable: true }),
+      ]);
+      const workingData = workingDataWith([item]);
+      cipherService.get.mockResolvedValue(item.cipher);
+      cipherEncryptionService.decrypt.mockImplementation(
+        async () =>
+          ({
+            id: "cipher-1",
+            attachments: [
+              attachment("a1", { nameOrKeyError: true, readable: true }),
+              attachment("a2", { nameOrKeyError: true, readable: true }),
+            ],
+          }) as unknown as CipherView,
+      );
+      await step.runDiagnostics(workingData, logger);
 
-        await expect(step.runRecovery(workingData, logger)).rejects.toThrow("1 re-saves");
+      await step.runRecovery(workingData, logger);
 
-        expect(logLines()).toContain(
-          "Attachment a1 on cipher cipher-1 (personal) was saved again but could not be removed: server error",
-        );
-      });
+      // Each save changes the item's revision date, so it is read again every time.
+      expect(cipherService.get).toHaveBeenCalledTimes(2);
+      const renamed = cipherService.updateWithServer.mock.calls.map(
+        ([view], i) => view.attachments.find((a) => a.id === `a${i + 1}`)?.fileName,
+      );
+      expect(renamed).toEqual(["recoveredAttachmentFileName:a1", "recoveredAttachmentFileName:a2"]);
     });
 
     it("upgrades legacy attachments without asking", async () => {
@@ -665,7 +642,7 @@ describe("AttachmentStep", () => {
       await step.runDiagnostics(workingData, logger);
 
       await expect(step.runRecovery(workingData, logger)).rejects.toThrow(
-        "1 upgrades, 0 re-saves and 0 deletions failed",
+        "1 upgrades, 0 renames and 0 deletions failed",
       );
 
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
@@ -764,7 +741,7 @@ describe("AttachmentStep", () => {
       await step.runDiagnostics(workingData, logger);
 
       await expect(step.runRecovery(workingData, logger)).rejects.toThrow(
-        "0 upgrades, 0 re-saves and 1 deletions failed",
+        "0 upgrades, 0 renames and 1 deletions failed",
       );
       expect(cipherService.deleteAttachmentWithServer).toHaveBeenCalledTimes(2);
     });

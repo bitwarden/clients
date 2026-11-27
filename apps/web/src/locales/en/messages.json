@@ -17295,7 +17295,7 @@
     "message": "Attachments couldn't be checked because vault items couldn't be decrypted."
   },
   "recoveryAttachmentsNameLost": {
-    "message": "$COUNT$ attachment(s) lost their file name but their contents can be read. They'll be saved again under a placeholder name that you can rename.",
+    "message": "$COUNT$ attachment(s) lost their file name but their contents can be read. They'll be given a placeholder name that you can change.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17305,7 +17305,7 @@
   },
   "recoveredAttachmentFileName": {
     "message": "recovered-attachment-$ID$",
-    "description": "File name given to an attachment whose original name could not be recovered. Keep $ID$ in the name: it is used to find copies saved by an earlier repair.",
+    "description": "File name given to an attachment whose original name could not be recovered.",
     "placeholders": {
       "id": {
         "content": "$1",

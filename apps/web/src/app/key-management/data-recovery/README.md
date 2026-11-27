@@ -36,11 +36,11 @@ The vault decrypts an item in one of two ways:
 They react differently to a broken attachment. With the strict-decryption flag
 (`pm-34500-strict-cipher-decryption`):
 
-| What's broken        | Vault list and popup     | Data Recovery                            |
-| -------------------- | ------------------------ | ---------------------------------------- |
-| Attachment file name | **Item shows as failed** | Item decrypts; `AttachmentStep` re-saves |
-| Attachment key       | Item shows normally      | Item decrypts; `AttachmentStep` deletes  |
-| Attachment contents  | Item shows normally      | Item decrypts; `AttachmentStep` deletes  |
+| What's broken        | Vault list and popup     | Data Recovery                           |
+| -------------------- | ------------------------ | --------------------------------------- |
+| Attachment file name | **Item shows as failed** | Item decrypts; `AttachmentStep` renames |
+| Attachment key       | Item shows normally      | Item decrypts; `AttachmentStep` deletes |
+| Attachment contents  | Item shows normally      | Item decrypts; `AttachmentStep` deletes |
 
 Without the flag, all three show normally in the vault list, and Data Recovery is unchanged.
 

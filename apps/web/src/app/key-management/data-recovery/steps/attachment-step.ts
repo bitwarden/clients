@@ -38,17 +38,18 @@ type ContentCheck = (typeof ContentCheck)[keyof typeof ContentCheck];
  */
 const MAX_BYTES_TO_JUDGE_UNRECOVERABLE = 100 * 1024 * 1024;
 
-type ContentResult =
-  | { check: typeof ContentCheck.Decrypted; data: Uint8Array }
-  | { check: typeof ContentCheck.Undecryptable | typeof ContentCheck.NotChecked };
-
 function label(ref: AttachmentRef): string {
   return `Attachment ${ref.attachment.id} on cipher ${ref.cipher.id} (${ownership(ref.cipher)})`;
 }
 
+/** Renaming saves the item, which needs write access. */
+function canEdit(cipher: Cipher): boolean {
+  return cipher.organizationId == null || cipher.edit;
+}
+
 /**
- * Mirrors the server: deleting an attachment needs both write access and delete permission. Every
- * repair here deletes an attachment (upgrading and re-saving remove the old one), so all need it.
+ * Mirrors the server: deleting an attachment needs both write access and delete permission.
+ * Upgrading deletes the old attachment too, so it needs the same.
  */
 function canDelete(cipher: Cipher): boolean {
   return cipher.organizationId == null || (cipher.edit && cipher.permissions?.delete === true);
@@ -64,7 +65,7 @@ function canDelete(cipher: Cipher): boolean {
  * | File name | Attachment key  | Contents        | Group           | Repair                     |
  * |-----------|-----------------|-----------------|-----------------|----------------------------|
  * | any       | any             | not checked     | `unchecked`     | none, reported only        |
- * | broken    | ok, or legacy   | decrypt         | `nameLost`      | re-save, placeholder name  |
+ * | broken    | ok, or legacy   | decrypt         | `nameLost`      | rename                     |
  * | any       | broken          | can't decrypt   | `unrecoverable` | delete, after confirmation |
  * | any       | ok, or legacy   | don't decrypt   | `unrecoverable` | delete, after confirmation |
  * | ok        | legacy          | decrypt         | `needsUpgrade`  | upgrade to attachment key  |
@@ -75,14 +76,14 @@ function canDelete(cipher: Cipher): boolean {
  *
  * Safety rules:
  * 1. An attachment is deleted only if its contents were downloaded and failed to decrypt. A failed
- *    download, a failed upgrade or a failed re-save never leads to deletion.
- * 2. Repairs that keep the user's data (upgrade, re-save) run without asking. Deletion always asks.
- * 3. A re-save removes the broken attachment only after a readable copy exists. Re-saving is safe
- *    to repeat: if an earlier repair already saved a copy that decrypts, only the removal is
- *    retried.
- * 4. Personal items can always be repaired. Organization items need edit access and delete
- *    permission for any repair, matching the server, because every repair deletes an attachment.
- *    Otherwise the message tells the user to contact support.
+ *    download, a failed upgrade or a failed rename never leads to deletion.
+ * 2. Repairs that keep the user's data (upgrade, rename) run without asking. Deletion always asks.
+ * 3. Renaming keeps the attachment and its contents; only its name changes. It saves the whole
+ *    item, so with strict decryption off any other field of the item that can't be decrypted is
+ *    saved as empty.  
+ * 4. Personal items can always be repaired. Organization items need edit access to rename, and
+ *    edit access plus delete permission to upgrade or delete, matching the server. Otherwise the
+ *    message tells the user to contact support.
  */
 export class AttachmentStep implements RecoveryStep {
   title = "recoveryStepAttachmentTitle";
@@ -144,11 +145,11 @@ export class AttachmentStep implements RecoveryStep {
 
       // Follows the table in the class comment, row by row. If only the file name is broken, the
       // contents still decrypt.
-      const { check } = await this.downloadAndDecrypt(ref, ref.cipher, workingData.userId, logger);
+      const check = await this.checkContents(ref, workingData.userId, logger);
       if (check === ContentCheck.NotChecked) {
         this.unchecked.push(ref);
       } else if (nameOrKeyBroken && check === ContentCheck.Decrypted) {
-        logger.record(`${label(ref)} has readable contents and can be saved again`);
+        logger.record(`${label(ref)} has readable contents and can be renamed`);
         this.nameLost.push(ref);
       } else if (check === ContentCheck.Undecryptable) {
         this.unrecoverable.push(ref);
@@ -171,20 +172,16 @@ export class AttachmentStep implements RecoveryStep {
   /**
    * Downloads the attachment the same way the vault does and decrypts it. Only a failed decryption
    * of a file small enough to judge counts as undecryptable; anything else means it couldn't be
-   * checked.
-   *
-   * @param currentCipher The item as it is stored now. Diagnostics pass the synced item; repairs
-   * pass the item read again, since earlier repairs may have changed it.
+   * checked. The decrypted contents are discarded.
    */
-  private async downloadAndDecrypt(
+  private async checkContents(
     ref: AttachmentRef,
-    currentCipher: Cipher,
     userId: UserId,
     logger: LogRecorder,
-  ): Promise<ContentResult> {
+  ): Promise<ContentCheck> {
     const url = await this.downloadUrl(ref, userId, logger);
     if (url == null) {
-      return { check: ContentCheck.NotChecked };
+      return ContentCheck.NotChecked;
     }
 
     let encryptedContent: Uint8Array;
@@ -192,22 +189,22 @@ export class AttachmentStep implements RecoveryStep {
       const response = await fetch(url, { cache: "no-store" });
       if (response.status !== 200) {
         logger.record(`${label(ref)} could not be downloaded: HTTP ${response.status}`);
-        return { check: ContentCheck.NotChecked };
+        return ContentCheck.NotChecked;
       }
       encryptedContent = new Uint8Array(await response.arrayBuffer());
     } catch (error) {
       logger.record(`${label(ref)} could not be downloaded: ${errorMessage(error)}`);
-      return { check: ContentCheck.NotChecked };
+      return ContentCheck.NotChecked;
     }
 
     try {
-      const data = await this.cipherEncryptionService.decryptAttachmentContent(
-        currentCipher,
+      await this.cipherEncryptionService.decryptAttachmentContent(
+        ref.cipher,
         ref.attachment,
         encryptedContent,
         userId,
       );
-      return { check: ContentCheck.Decrypted, data };
+      return ContentCheck.Decrypted;
     } catch (error) {
       // The service swallows the SDK error, so this is usually a generic "no elements" error.
       const size = Math.max(Number(ref.attachment.size) || 0, encryptedContent.byteLength);
@@ -215,10 +212,10 @@ export class AttachmentStep implements RecoveryStep {
         logger.record(
           `${label(ref)} failed to decrypt but is too large (${size} bytes) to treat as unrecoverable: ${errorMessage(error)}`,
         );
-        return { check: ContentCheck.NotChecked };
+        return ContentCheck.NotChecked;
       }
       logger.record(`${label(ref)} has undecryptable contents: ${errorMessage(error)}`);
-      return { check: ContentCheck.Undecryptable };
+      return ContentCheck.Undecryptable;
     }
   }
 
@@ -261,16 +258,15 @@ export class AttachmentStep implements RecoveryStep {
     return this.unrecoverable.filter((ref) => !deletable.includes(ref));
   }
 
-  /** Re-saving adds a new attachment and removes the broken one, so it needs delete permission. */
-  private resavable(): AttachmentRef[] {
-    return this.nameLost.filter((ref) => canDelete(ref.cipher));
+  private renamable(): AttachmentRef[] {
+    return this.nameLost.filter((ref) => canEdit(ref.cipher));
   }
 
   /** Attachments with an issue the user isn't allowed to repair. */
   private notActionable(): AttachmentRef[] {
     return [
       ...this.needsUpgrade.filter((ref) => !canDelete(ref.cipher)),
-      ...this.nameLost.filter((ref) => !canDelete(ref.cipher)),
+      ...this.nameLost.filter((ref) => !canEdit(ref.cipher)),
       ...this.notDeletable(),
     ];
   }
@@ -313,7 +309,7 @@ export class AttachmentStep implements RecoveryStep {
 
   canRecover(workingData: RecoveryWorkingData): boolean {
     return (
-      this.upgradable().length > 0 || this.resavable().length > 0 || this.deletable().length > 0
+      this.upgradable().length > 0 || this.renamable().length > 0 || this.deletable().length > 0
     );
   }
 
@@ -325,114 +321,63 @@ export class AttachmentStep implements RecoveryStep {
     const userId = workingData.userId;
 
     const failedUpgrades = await this.upgrade(userId, logger);
-    const failedResaves = await this.resaveNameLost(userId, logger);
+    const failedRenames = await this.renameNameLost(userId, logger);
     const failedDeletions = await this.deleteUnrecoverable(userId, logger);
 
-    if (failedUpgrades > 0 || failedResaves > 0 || failedDeletions > 0) {
+    if (failedUpgrades > 0 || failedRenames > 0 || failedDeletions > 0) {
       throw new Error(
-        `Attachment recovery failed: ${failedUpgrades} upgrades, ${failedResaves} re-saves and ${failedDeletions} deletions failed`,
+        `Attachment recovery failed: ${failedUpgrades} upgrades, ${failedRenames} renames and ${failedDeletions} deletions failed`,
       );
     }
   }
 
   /**
-   * Saves each attachment whose file name was lost again under a placeholder name, then removes
-   * the broken one. Nothing is removed unless the new copy was saved. Like upgrading, this keeps
-   * the user's data, so it runs without asking. Returns the number of failures.
+   * Gives each attachment whose file name was lost a placeholder name, by saving the item with the
+   * new name. The SDK encrypts the name and re-wraps the attachment's recovered key; the file
+   * itself isn't touched. Like upgrading, this keeps the user's data, so it runs without asking.
+   * Returns the number of failures.
    */
-  private async resaveNameLost(userId: UserId, logger: LogRecorder): Promise<number> {
-    const resavable = this.resavable();
-    if (resavable.length === 0) {
+  private async renameNameLost(userId: UserId, logger: LogRecorder): Promise<number> {
+    const renamable = this.renamable();
+    if (renamable.length === 0) {
       return 0;
     }
 
-    logger.record(`Saving ${resavable.length} attachments with a lost file name again`);
+    logger.record(`Renaming ${renamable.length} attachments with a lost file name`);
     let failed = 0;
-    for (const ref of resavable) {
-      const fileName = this.i18nService.t("recoveredAttachmentFileName", ref.attachment.id!);
+    for (const ref of renamable) {
       try {
         // Read and decrypt the item again rather than trusting diagnostics: an earlier repair may
-        // already have saved the copy or removed the original, and the upload has to send the
-        // item's current revision date.
+        // already have changed it, and the save has to send its current revision date.
         const current = await this.cipherService.get(ref.cipher.id, userId);
         const currentView = await this.cipherEncryptionService.decrypt(current, userId);
-        const currentAttachments = currentView.attachments ?? [];
-        const originalPresent = currentAttachments.some((a) => a.id === ref.attachment.id);
+        const attachment = currentView.attachments?.find((a) => a.id === ref.attachment.id);
 
-        if (!originalPresent) {
+        if (attachment == null) {
           logger.record(`${label(ref)} was already removed`);
           continue;
         }
+        if (!attachment.hasDecryptionError) {
+          logger.record(`${label(ref)} was already renamed`);
+          continue;
+        }
 
-        if (await this.hasReadableCopy(ref, current, currentView, userId, logger)) {
-          // A previous repair saved the copy but failed to remove the original. Uploading again
-          // would add a duplicate, so only the removal is retried.
-          logger.record(`${label(ref)} was already saved again by an earlier repair`);
-        } else {
-          const result = await this.downloadAndDecrypt(ref, current, userId, logger);
-          if (result.check !== ContentCheck.Decrypted) {
-            throw new Error("contents could no longer be read");
-          }
-          await this.cipherService.saveAttachmentRawWithServer(
-            current,
-            fileName,
-            result.data,
-            userId,
-          );
-          logger.record(`${label(ref)} was saved again as a new attachment`);
+        attachment.fileName = this.i18nService.t("recoveredAttachmentFileName", ref.attachment.id!);
+        const renamed = await this.cipherService.updateWithServer(currentView, userId);
+        logger.record(`${label(ref)} was renamed`);
+
+        // A legacy attachment couldn't be upgraded while its name was broken: the upgrade
+        // decrypts the name first. Now that it has one, upgrade it in the same repair.
+        if (attachment.key == null && canDelete(ref.cipher)) {
+          await this.cipherService.upgradeOldCipherAttachments(renamed, userId, ref.attachment.id);
+          logger.record(`${label(ref)} was upgraded after being renamed`);
         }
       } catch (error) {
         failed++;
-        logger.record(`${label(ref)} could not be saved again: ${errorMessage(error)}`);
-        continue;
-      }
-
-      try {
-        await this.cipherService.deleteAttachmentWithServer(
-          ref.cipher.id,
-          ref.attachment.id!,
-          userId,
-          false,
-        );
-        logger.record(`${label(ref)} was removed after being saved again`);
-      } catch (error) {
-        failed++;
-        logger.record(
-          `${label(ref)} was saved again but could not be removed: ${errorMessage(error)}`,
-        );
+        logger.record(`${label(ref)} could not be renamed or upgraded: ${errorMessage(error)}`);
       }
     }
     return failed;
-  }
-
-  /**
-   * Whether an earlier repair already saved a readable copy of `ref`. Copies are found by the
-   * original attachment's ID in their name, which doesn't depend on the language the placeholder
-   * name was written in. A copy only counts if it downloads and decrypts: an earlier upload may
-   * have failed after the attachment was created, leaving an entry without a usable file.
-   */
-  private async hasReadableCopy(
-    ref: AttachmentRef,
-    current: Cipher,
-    currentView: CipherView,
-    userId: UserId,
-    logger: LogRecorder,
-  ): Promise<boolean> {
-    const copies = (currentView.attachments ?? []).filter(
-      (a) =>
-        a.id !== ref.attachment.id &&
-        !a.hasDecryptionError &&
-        a.fileName?.includes(ref.attachment.id!) === true,
-    );
-    for (const copy of copies) {
-      const copyRef: AttachmentRef = { cipher: current, view: currentView, attachment: copy };
-      const { check } = await this.downloadAndDecrypt(copyRef, current, userId, logger);
-      if (check === ContentCheck.Decrypted) {
-        return true;
-      }
-      logger.record(`${label(copyRef)} looks like an earlier copy but can't be read`);
-    }
-    return false;
   }
 
   /**
