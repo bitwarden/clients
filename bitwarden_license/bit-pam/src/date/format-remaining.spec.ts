@@ -59,6 +59,8 @@ describe("formatRemainingLong", () => {
     [20 * DAY + 23 * 60 * 60_000, "20 days, 23 hours"],
     [20 * DAY + 59 * 60_000, "20 days"], // minutes are dropped at day level
     [(23 * 60 + 30 + 8 * 60) * 60_000, "1 day, 7 hours"], // 23h 30m left + 8h extension
+    [DAY + (7 * 60 + 10) * 60_000, "1 day, 7 hours"], // a 30-minute extension can leave the text as is
+    [DAY + (7 * 60 + 40) * 60_000, "1 day, 7 hours"],
   ])("formats %dms as %s", (ms, expected) => {
     expect(formatRemainingLong("en-US", ms)).toBe(expected);
   });

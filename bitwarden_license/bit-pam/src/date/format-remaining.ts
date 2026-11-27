@@ -30,9 +30,10 @@ export function formatRemaining(locale: string, remainingMs: number): string {
 
 /**
  * The time left, spelled out, such as "4 minutes", "1 hour, 59 minutes" or "1 day, 7 hours". Under
- * a day it shows hours and minutes; from a day up it shows days and hours, so an extension (presets
- * are whole hours) always changes the text. Seconds and minutes round up so a countdown never
- * undersells; hours within a day-level reading round down so it never promises time that is not left.
+ * a day it shows hours and minutes; from a day up it shows days and hours, dropping minutes, so a
+ * small change at that scale (such as a 30-minute extension) may leave the text unchanged. Seconds
+ * and minutes round up so a countdown never undersells; hours within a day-level reading round
+ * down so it never promises time that is not left.
  */
 export function formatRemainingLong(locale: string, remainingMs: number): string {
   if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
