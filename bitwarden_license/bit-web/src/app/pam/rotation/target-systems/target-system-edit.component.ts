@@ -535,7 +535,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
     return kind == null ? null : (SESSION_TERMINATION_CAPABILITY[kind] ?? "never");
   });
 
-  /** A custom script cannot be assumed to end sessions, so the create form says so. */
+  /** A custom script declares for itself whether it handles the terminate operation. */
   protected readonly isCustomScript = computed(
     () => this.selectedKind() === TargetSystemKind.CustomScript,
   );
@@ -557,14 +557,20 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog, OnDes
   );
 
   /**
-   * Whether the target ends sessions after rotating: always for a kind that does, never for one
-   * that can't, and for a custom script only when its verified settings say so.
+   * Whether the target always ends sessions after rotating. A custom script is not covered: it
+   * opts in through the "supportsSessionTermination" checkbox instead.
    */
-  protected readonly endsSessions = computed(
-    () =>
-      this.sessionTerminationAlways() ||
-      (this.isCustomScript() && this.sealed()?.supportsSessionTermination === true),
-  );
+  protected readonly endsSessions = computed(() => this.sessionTerminationAlways());
+
+  /** A custom script sealed as ending sessions, with the box unchecked on the edit page. */
+  protected showSessionTerminationWithdrawn(): boolean {
+    return (
+      this.editing &&
+      this.isCustomScript() &&
+      this.sealed()?.supportsSessionTermination === true &&
+      !this.policyForm.controls.supportsSessionTermination.value
+    );
+  }
 
   protected readonly nameForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],

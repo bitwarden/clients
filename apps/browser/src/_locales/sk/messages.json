@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Pomôžte ostatným zistiť, či je Bitwarden pre nich vhodný. Navštívte obchod s rozšíreniami pre prehliadače a pridajte hodnotenie."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Hlavné heslo si môžete zmeniť vo webovej aplikácii Bitwarden."
-  },
   "fingerprintPhrase": {
     "message": "Fráza odtlačku",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
+  },
+  "nestFolderUnder": {
+    "message": "Vnoriť priečinok do"
+  },
+  "nestFolderUnderNone": {
+    "message": "Žiadny",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ nie je povolené v názvoch priečinkov. Odstráňte /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Ak chcete vnoriť priečinok, vyberte jeho nadradený priečinok z poľa \"Vnoriť priečinok do\". K názvu už nemusíte pridávať lomku."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (odstránené)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Neboli pridané žiadne priečinky"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Použiť všetky prvky typu span, ktoré webová stránka označuje atribútom `data-bwautofill`."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "Dobré",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "Uniknuté",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Heslo bolo odhalené v dôsledku úniku dát.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Heslo je príliš krátke alebo jednoduché.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Rovnaké heslo použité pre viaceré prihlásenia.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "V ohrození",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Vaša organizácia vás požiadala, aby ste si toto heslo zmenili.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Slabé",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
   },
-  "changeNow": {
-    "message": "Zmeniť teraz"
-  },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "Obnoviť na predvolené"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Vyplniť prihlasovacie okno prehliadača",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Vyplňovanie vyskakujúcich okien",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Otvoriť článok pomocníka o automatickom vyplňovaní prihlasovacích údajov v prehliadači"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "Ak je táto funkcia zapnutá, prehliadač môže po prvom vyplnení opäť použiť vaše prihlasovacie údaje bez ďalšieho žiadania.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Viac informácií o vypĺňaní vyskakovacích okien (otvorí sa na novej karte)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Ak chcete použiť toto nastavenie, vyberte pre každú webovú stránku tejto položky prihlásenia inú možnosť zisťovania zhody ako \"Predvolené\"."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Prihlásiť sa do $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Zapnúť automatické vypĺňanie pri výzvach na prihlásenie v prehliadači?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Vyberte prihlásenie pre $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Pre túto položku bude vypnutá opätovná výzva na zadanie hlavného hesla. Obe nastavenia nemôžu byť zapnuté súčasne."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Zapnúť opätovné vyžiadanie hlavného hesla?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači bude pre túto položku vypnuté. Obe nastavenia nemôžu byť zapnuté súčasne."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Použiť predvolenú detekciu zhôd?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Webové stránky, ktoré využívajú predvolenú detekciu zhôd, nie je možné používať s prihlasovacími výzvami prehliadača. Funkcia automatického vypĺňania pre prihlasovacie výzvy prehliadača bude pre túto položku vypnutá."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači je vypnuté"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Namiesto toho použiť prehliadač",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "Položka trezora"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Prístup až $DURATION$, okamžité schválenie, ak spĺňate podmienky",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Prístup na dobu až $DURATION$. Ak splníte podmienky, získate okamžité schválenie.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Vyžiadaný prístup"
+  },
+  "cancelAnytime": {
+    "message": "Možnosť zrušiť kedykoľvek",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Bezpečná platba cez službu Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Teraz nie",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "mesiac"
   }
 }

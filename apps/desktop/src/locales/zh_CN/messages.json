@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "立即同步"
   },
-  "changeMasterPass": {
-    "message": "更改主密码"
-  },
   "changeMasterPassword": {
     "message": "更改主密码"
-  },
-  "continueToWebApp": {
-    "message": "前往网页 App 吗？"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
   },
   "fingerprintPhrase": {
     "message": "指纹短语",
@@ -4874,7 +4865,7 @@
     "message": "组织密码库"
   },
   "importSharedWithOnePerson": {
-    "message": "Shared with one person"
+    "message": "已与某人共享"
   },
   "importFamilyVault": {
     "message": "家庭密码库"
@@ -5699,7 +5690,7 @@
     "message": "仅支持密码方式登录。请重试或使用其他导入方式。"
   },
   "onePasswordUnsupportedSignIn": {
-    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
+    "message": "此 1Password 账户所使用的登录方式不受支持。请重试或使用其他导入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
@@ -5720,7 +5711,7 @@
     "message": "请输入有效的登录地址。"
   },
   "onePasswordSignInAddressHint": {
-    "message": "Find this in your 1Password Emergency Kit."
+    "message": "请在您的 1Password 应急工具包中查找。"
   },
   "secretKeyIsRequired": {
     "message": "必须填写安全密钥。"
@@ -5744,7 +5735,7 @@
     "message": "输入您用于登录 1Password 的电子邮箱"
   },
   "onePasswordEmailHintPasswordLoginOnly": {
-    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+    "message": "输入您用于登录 1Password 的电子邮箱。仅支持密码方式登录。"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -5756,28 +5747,28 @@
     "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
   },
   "onePasswordSsoLogInTitle": {
-    "message": "Log in with SSO"
+    "message": "通过 SSO 登录"
   },
   "onePasswordSsoSwitchToSignInPage": {
-    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+    "message": "切换到 SSO 登录页面来完成导入到Bitwarden。"
   },
   "onePasswordSsoEncryptionKeyTransfer": {
-    "message": "Encryption key transfer"
+    "message": "加密密钥传输"
   },
   "onePasswordSsoVerifyInPendingSignIns": {
-    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+    "message": "登录 1Password，进入“待处理的登录请求”页面以确认此请求。"
   },
   "onePasswordSsoCodeDidNotWork": {
-    "message": "That code didn't work. Check your other device for a new one."
+    "message": "此代码无效。请在您的其他设备上查看新的代码。"
   },
   "onePasswordSsoSignInClosed": {
-    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+    "message": "SSO 登录页面在您完成登录前已关闭。请重试以继续导入。"
   },
   "onePasswordSsoDeviceDenied": {
-    "message": "This device was not approved on your other device. Try again or use a different import method."
+    "message": "此设备在您的其他设备上未被批准。请重试或使用其他导入方式。"
   },
   "onePasswordSsoTooManyWrongCodes": {
-    "message": "Too many incorrect verification codes. Try again or use a different import method."
+    "message": "验证码错误次数过多。请重试或使用其他导入方式。"
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "易受攻击的密码。"
   },
-  "changeNow": {
-    "message": "立即更改"
-  },
   "missingPermissions": {
     "message": "您缺乏执行此操作所需的权限。"
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "安全地发送敏感信息",
@@ -6462,7 +6473,7 @@
     "message": "项目"
   },
   "itemUpper": {
-    "message": "Item"
+    "message": "项目"
   },
   "itemsLower": {
     "message": "项目"
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "浏览器登录自动填充提示",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "重复使用",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
+  "exposed": {
+    "message": "已暴露",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "打开浏览器登录自动填充提示帮助文章"
+  "changePassword": {
+    "message": "更改密码"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "数据泄露导致密码暴露。",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "要使用此设置，请为此登录项目的每个网站选择「默认」以外的匹配检测选项。"
+  "passwordTooShortOrSimple": {
+    "message": "密码太短或太简单。",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "开启浏览器登录自动填充提示吗？"
+  "passwordReusedForSeveralLogins": {
+    "message": "多个登录账户重复使用同一密码。",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此项目的主密码二次验证将被关闭。这两项设置无法同时开启。"
+  "passwordAtRisk": {
+    "message": "存在风险",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "开启主密码二次验证吗？"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此项目的浏览器登录自动填充提示将被关闭。这两项设置无法同时开启。"
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "使用默认匹配检测吗？"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用默认匹配检测的网站无法使用浏览器登录提示。此项目的浏览器登录自动填充提示将被关闭。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "浏览器登录自动填充提示已关闭"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "此项目已开启主密码二次验证，因此浏览器登录自动填充提示功能被关闭。请保存项目以保留此更改。"
+  "passwordFlaggedByOrganization": {
+    "message": "您的组织要求您更改这个密码。",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "项目"
+  },
+  "cancelAnytime": {
+    "message": "随时取消",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "通过 Stripe 实现安全的结账流程",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

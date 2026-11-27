@@ -48,7 +48,12 @@
     }
   </bit-status-lockup>
 } @else {
-  <bit-table-v2 [tableDef]="table" [displayedColumns]="displayedColumns()" [loading]="loading()">
+  <bit-table-v2
+    pamActivateRow
+    [tableDef]="table"
+    [displayedColumns]="displayedColumns()"
+    [loading]="loading()"
+  >
     <bit-table-toolbar>
       <ng-container slot="end">
         @if (customRangeApplied()) {
@@ -197,27 +202,17 @@
     </ng-container>
     <bit-column width="minmax(224px, 1fr)">
       <bit-header-cell>{{ "timestamp" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.occurredAt; let row"
-        class="tw-cursor-pointer"
-        (click)="openDetails(row)"
-        >{{ row.occurredAt | timestamp: "second" }}</bit-cell
-      >
+      <bit-cell *bitCellDef="table.columns.occurredAt; let row">{{
+        row.occurredAt | timestamp: "second"
+      }}</bit-cell>
     </bit-column>
     <bit-column width="minmax(240px, 1fr)">
       <bit-header-cell>{{ "pamAuditColumnEvent" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.kindLabelKey; let row"
-        class="tw-cursor-pointer"
-        [truncate]="false"
-        (click)="openDetails(row)"
-      >
-        <!--
-          A `bit-cell` host is `display: contents` and can't take focus, so the row's keyboard
-          activator is this span. Pointer activation stays on the cells, so the span must not
-          repeat it.
-        -->
+      <bit-cell *bitCellDef="table.columns.kindLabelKey; let row" [truncate]="false">
+        <!-- A `bit-cell` host is `display: contents` and can't take focus, so the row's activator
+             is this span. -->
         <span
+          data-pam-row-activator
           role="button"
           tabindex="0"
           class="focus-visible:tw-outline-none"
@@ -228,6 +223,7 @@
             (row.occurredAt | timestamp: 'second') +
             (row.inDoubt ? ' ' + ('pamAuditIncomplete' | i18n) : '')
           "
+          (click)="openDetails(row)"
           (keydown.enter)="openDetails(row)"
           (keydown.space)="openDetails(row); $event.preventDefault()"
         >
@@ -244,11 +240,7 @@
     </bit-column>
     <bit-column width="minmax(128px, 1fr)">
       <bit-header-cell>{{ "pamAuditColumnActor" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.actor; let row"
-        class="tw-cursor-pointer"
-        (click)="openDetails(row)"
-      >
+      <bit-cell *bitCellDef="table.columns.actor; let row">
         @if (row.automated) {
           <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
         } @else if (linkedMember(row.actorId, row.actor); as member) {
@@ -270,11 +262,7 @@
     </bit-column>
     <bit-column width="minmax(128px, 1fr)">
       <bit-header-cell>{{ "pamAuditColumnRequester" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.requester; let row"
-        class="tw-cursor-pointer"
-        (click)="openDetails(row)"
-      >
+      <bit-cell *bitCellDef="table.columns.requester; let row">
         @if (linkedMember(row.requesterId, row.requester); as member) {
           <a
             bitLink
@@ -294,12 +282,7 @@
     </bit-column>
     <bit-column width="minmax(192px, 256px)">
       <bit-header-cell>{{ "pamAuditColumnItem" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.item; let row"
-        class="tw-cursor-pointer"
-        [truncate]="false"
-        (click)="openDetails(row)"
-      >
+      <bit-cell *bitCellDef="table.columns.item; let row" [truncate]="false">
         @if (row.cipherName && row.cipherId) {
           <a
             bitLink
@@ -324,12 +307,7 @@
     </bit-column>
     <bit-column width="minmax(224px, 1fr)">
       <bit-header-cell>{{ "pamAuditColumnDuration" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.duration; let row"
-        class="tw-cursor-pointer"
-        [truncate]="false"
-        (click)="openDetails(row)"
-      >
+      <bit-cell *bitCellDef="table.columns.duration; let row" [truncate]="false">
         @if (row.duration; as duration) {
           <span [bitTooltip]="row.exactWindow">{{ duration }}</span>
         } @else if (row.extendedUntil) {

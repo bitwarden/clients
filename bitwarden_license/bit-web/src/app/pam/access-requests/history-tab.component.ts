@@ -55,6 +55,8 @@ import {
 import type { CollectionId as SdkCollectionId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
+
 import { announcementHoldMs } from "./announcement-hold";
 import { HistoryPageService } from "./history-page.service";
 import {
@@ -97,6 +99,7 @@ const SDK_STATUS: Readonly<Record<HistoryStatus, AccessRequestHistoryStatus>> = 
   templateUrl: "./history-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     RouterModule,
     BitCellComponent,
     BitCellDefDirective,

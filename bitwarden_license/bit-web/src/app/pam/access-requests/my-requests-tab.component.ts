@@ -62,6 +62,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
+
 import { announcementHoldMs } from "./announcement-hold";
 import {
   MyAccessLeaseRow,
@@ -103,6 +105,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
   templateUrl: "./my-requests-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PamActivateRowDirective,
     ReactiveFormsModule,
     RouterModule,
     AccessStateBadgeComponent,
