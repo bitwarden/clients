@@ -46,8 +46,7 @@ export class IpcContentScriptManagerService {
         file: IPC_CONTENT_SCRIPT_FILE,
         runAt: "document_start",
       }).catch(() => {
-        // Per-tab failures (closed tab, restricted URL, etc.) shouldn't abort
-        // the rest of the re-injection pass.
+        // Ignore per-tab failures (closed tab, restricted URL, etc.)
       });
     }
   }
