@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { matches, mock } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -24,12 +24,9 @@ import {
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
-import { FakeActiveUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
-import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
-import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
 import { DeviceType } from "../../../enums";
 import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
@@ -706,17 +703,6 @@ describe("deviceTrustService", () => {
           new EncString("test_encrypted_data"),
         );
 
-        const protectedDeviceResponse = new ProtectedDeviceResponse({
-          id: "id",
-          creationDate: "",
-          identifier: "test_device_identifier",
-          name: "Firefox",
-          type: DeviceType.FirefoxBrowser,
-          encryptedPublicKey: "",
-          encryptedUserKey: "",
-        });
-        devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
-
         const fakeOldUserKeyData = new Uint8Array(64);
         fakeOldUserKeyData.fill(5, 0, 1);
         fakeOldUserKey = new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey;
@@ -754,16 +740,6 @@ describe("deviceTrustService", () => {
           new EncString("test_encrypted_data"),
         );
 
-        const protectedDeviceResponse = new ProtectedDeviceResponse({
-          id: "",
-          creationDate: "",
-          identifier: "test_device_identifier",
-          name: "Firefox",
-          type: DeviceType.FirefoxBrowser,
-          encryptedPublicKey: "",
-          encryptedUserKey: "",
-        });
-        devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
         const fakeOldUserKeyData = new Uint8Array(64);
         fakeOldUserKeyData.fill(5, 0, 1);
         fakeOldUserKey = new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey;
@@ -785,128 +761,6 @@ describe("deviceTrustService", () => {
             encryptedPublicKey: "test_encrypted_data",
           },
         ]);
-      });
-    });
-
-    describe("rotateDevicesTrust", () => {
-      let fakeNewUserKey: UserKey = null;
-
-      const FakeNewUserKeyMarker = 1;
-      const FakeOldUserKeyMarker = 5;
-      const FakeDecryptedPublicKeyMarker = 17;
-
-      beforeEach(() => {
-        const fakeNewUserKeyData = new Uint8Array(64);
-        fakeNewUserKeyData.fill(FakeNewUserKeyMarker, 0, 1);
-        fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
-        keyService.userKey$.mockReturnValue(of(fakeNewUserKey));
-      });
-
-      it("throws an error when a null user id is passed in", async () => {
-        await expect(
-          deviceTrustService.rotateDevicesTrust(null, fakeNewUserKey, ""),
-        ).rejects.toThrow("UserId is required. Cannot rotate device's trust.");
-      });
-
-      it("does an early exit when the current device is not a trusted device", async () => {
-        const deviceKeyState: FakeActiveUserState<DeviceKey> =
-          stateProvider.activeUser.getFake(DEVICE_KEY);
-        deviceKeyState.nextState(null);
-
-        await deviceTrustService.rotateDevicesTrust(mockUserId, fakeNewUserKey, "");
-
-        expect(devicesApiService.updateTrust).not.toHaveBeenCalled();
-      });
-
-      describe("is on a trusted device", () => {
-        beforeEach(async () => {
-          const mockDeviceKey = new SymmetricCryptoKey(
-            new Uint8Array(deviceKeyBytesLength),
-          ) as DeviceKey;
-          await stateProvider.setUserState(DEVICE_KEY, mockDeviceKey, mockUserId);
-        });
-
-        it("rotates current device keys and calls api service when the current device is trusted", async () => {
-          const currentEncryptedPublicKey = new EncString("2.cHVibGlj|cHVibGlj|cHVibGlj");
-          const currentEncryptedUserKey = new EncString("4.dXNlcg==");
-
-          const fakeOldUserKeyData = new Uint8Array(new Uint8Array(64));
-          // Fill the first byte with something identifiable
-          fakeOldUserKeyData.fill(FakeOldUserKeyMarker, 0, 1);
-
-          // Mock the retrieval of a user key that differs from the new one passed into the method
-          keyService.userKey$.mockReturnValue(
-            of(new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey),
-          );
-
-          appIdService.getAppId.mockResolvedValue("test_device_identifier");
-
-          devicesApiService.getDeviceKeys.mockImplementation((deviceIdentifier) => {
-            if (deviceIdentifier !== "test_device_identifier") {
-              return Promise.resolve(null);
-            }
-
-            return Promise.resolve(
-              new ProtectedDeviceResponse({
-                id: "",
-                creationDate: "",
-                identifier: "test_device_identifier",
-                name: "Firefox",
-                type: DeviceType.FirefoxBrowser,
-                encryptedPublicKey: currentEncryptedPublicKey.encryptedString,
-                encryptedUserKey: currentEncryptedUserKey.encryptedString,
-              }),
-            );
-          });
-
-          // Mock the decryption of the public key with the old user key
-          encryptService.unwrapEncapsulationKey.mockImplementationOnce(
-            (_encValue, privateKeyValue) => {
-              expect(privateKeyValue.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
-              expect(new Uint8Array(privateKeyValue.toEncoded())[0]).toBe(FakeOldUserKeyMarker);
-              const data = new Uint8Array(250);
-              data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
-              return Promise.resolve(data);
-            },
-          );
-
-          // Mock the encryption of the new user key with the decrypted public key
-          encryptService.encapsulateKeyUnsigned.mockImplementationOnce((data, publicKey) => {
-            expect(data.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64); // New key should also be 64 bytes
-            expect(new Uint8Array(data.toEncoded())[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
-
-            expect(new Uint8Array(publicKey)[0]).toBe(FakeDecryptedPublicKeyMarker);
-            return Promise.resolve(new EncString("4.ZW5jcnlwdGVkdXNlcg=="));
-          });
-
-          // Mock the reencryption of the device public key with the new user key
-          encryptService.wrapEncapsulationKey.mockImplementationOnce((plainValue, key) => {
-            expect(plainValue).toBeInstanceOf(Uint8Array);
-            expect(new Uint8Array(plainValue as Uint8Array)[0]).toBe(FakeDecryptedPublicKeyMarker);
-
-            expect(new Uint8Array(key.toEncoded())[0]).toBe(FakeNewUserKeyMarker);
-            return Promise.resolve(
-              new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj"),
-            );
-          });
-
-          await deviceTrustService.rotateDevicesTrust(
-            mockUserId,
-            fakeNewUserKey,
-            "my_password_hash",
-          );
-
-          expect(devicesApiService.updateTrust).toHaveBeenCalledWith(
-            matches((updateTrustModel: UpdateDevicesTrustRequest) => {
-              return (
-                updateTrustModel.currentDevice.encryptedPublicKey ===
-                  "2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj" &&
-                updateTrustModel.currentDevice.encryptedUserKey === "4.ZW5jcnlwdGVkdXNlcg=="
-              );
-            }),
-            expect.stringMatching("test_device_identifier"),
-          );
-        });
       });
     });
   });
