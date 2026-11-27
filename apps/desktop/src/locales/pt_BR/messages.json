@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Sincronizar agora"
   },
-  "changeMasterPass": {
-    "message": "Alterar senha principal"
-  },
   "changeMasterPassword": {
     "message": "Alterar senha principal"
-  },
-  "continueToWebApp": {
-    "message": "Continuar no aplicativo web?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Você pode alterar a sua senha principal no aplicativo web do Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase biométrica",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Senha vulnerável."
   },
-  "changeNow": {
-    "message": "Alterar agora"
-  },
   "missingPermissions": {
     "message": "Você não tem a permissão necessária para executar esta ação."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Agrupe uma pasta adicionando o nome da pasta mãe seguido de uma \"/\". Exemplo: Social/Fóruns"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Envie informações sensíveis com segurança",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Preencher solicitações de acesso do navegador",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Responder a solicitações de autenticação HTTP básica de sites que correspondam a este item de credencial."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Abrir artigo de ajuda sobre o preenchimento automático de solicitações de acesso do navegador"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Sites podem acionar essas solicitações sem o seu conhecimento, o que pode expor suas credenciais.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Para usar esta configuração, escolha uma opção de detecção de correspondência diferente de \"Padrão\" para cada site deste item de credencial."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Ativar preenchimento automático para solicitações de acesso do navegador?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "A resolicitação de senha principal será desativada para este item. As duas configurações não podem ficar ativadas ao mesmo tempo."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ativar resolicitação de senha principal?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "O preenchimento automático para solicitações de acesso do navegador será desativado para este item. As duas configurações não podem ficar ativadas ao mesmo tempo."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Usar detecção de correspondência padrão?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Sites que usam a detecção de correspondência padrão não podem ser usados com solicitações de acesso do navegador. O preenchimento automático para solicitações de acesso do navegador será desativado para este item."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Preenchimento automático para solicitações de acesso do navegador desativado"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Este item tem a resolicitação de senha principal ativada, portanto o preenchimento automático para solicitações de acesso do navegador foi desativado. Salve o item para manter essa alteração."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

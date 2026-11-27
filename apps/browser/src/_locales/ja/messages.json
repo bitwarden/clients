@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Bitwarden を他のユーザーにもおすすめしましょう。ブラウザーの拡張機能ストアにアクセスして、レビューをしてください。"
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Bitwarden ウェブアプリでマスターパスワードを変更できます。"
-  },
   "fingerprintPhrase": {
     "message": "パスフレーズ",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "親フォルダーの名前の後に「/」を追加するとフォルダをネストします。例: ソーシャル/フォーラム"
+  },
+  "nestFolderUnder": {
+    "message": "ネストされたフォルダー"
+  },
+  "nestFolderUnderNone": {
+    "message": "なし",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ はフォルダー名では許可されていません。/ を削除してください。"
+  },
+  "folderNestingCalloutDesc": {
+    "message": "フォルダーをネストするには、下のネストフォルダーからその親を選択してください。名前にスラッシュを追加する必要はなくなります。"
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (削除済み)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "フォルダーが追加されていません"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "ウェブサイトが「data-bwautofill」属性でマークしたすべての span 要素を使用します。"
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "ブラウザーのログインプロンプトの自動入力",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "保管庫のログインアイテムがウェブサイトと一致したとき、HTTP Basic 認証プロンプトに応答します。"
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "ウェブサイトはあなたへの確認なしにプロンプトをトリガーできるため、ログイン情報を予期せず漏洩する可能性があります。",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -3199,6 +3208,30 @@
   "good": {
     "message": "良好",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
+  },
+  "exposed": {
+    "message": "流出済み",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "データ漏洩で流出したパスワードです。",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "パスワードが短すぎるか、単純です。",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "複数のログイン情報にパスワードが再利用されています。",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "リスクあり",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "組織がこのパスワードの変更を求めています。",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "脆弱",
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "脆弱なパスワードです。"
   },
-  "changeNow": {
-    "message": "今すぐ変更"
-  },
   "settingsVaultOptions": {
     "message": "保管庫オプション"
   },
@@ -8975,46 +9005,45 @@
   "resetToDefault": {
     "message": "初期設定に戻す"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "ブラウザーのログインプロンプトの自動入力",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "ブラウザーの HTTP 認証のログインポップアップに入力",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "このログインアイテムに一致するウェブサイトからのベーシック HTTP 認証プロンプトに応答します。"
+  "fillLoginPopUpPromptsTitle": {
+    "message": "ポップアップへの入力",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "ブラウザーのログインプロンプトの自動入力に関するヘルプ記事を開く"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "この設定がオンの場合、ブラウザーは最初の入力後に確認を求めることなく、再び資格情報を使用できるようになります。",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "ウェブサイトはあなたへの確認なしにプロンプトをトリガーできるため、ログイン情報を予期せず漏洩する可能性があります。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "ポップアップの入力について詳しくはこちら (新しいタブで開きます)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "この設定を使用するには、ログインアイテムのウェブサイトごとに「デフォルト」以外の一致検出オプションを選択してください。"
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "$ORIGIN$ にログイン",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "ブラウザーのログインプロンプトの自動入力をオンにしますか？"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "$ORIGIN$ のログインを選択してください",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "マスターパスワードの再プロンプトはこのアイテムに対してオフになります。両方の設定は同時にオンにできません。"
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "マスターパスワードの再プロンプトをオンにしますか？"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "ブラウザーのログインプロンプトの自動入力はこのアイテムに対してオフになります。両方の設定は同時にオンにできません。"
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "デフォルトの一致検出を使用しますか？"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "デフォルトの一致検出を使用しているウェブサイトは、ブラウザーのログインプロンプトは使用できません。ブラウザーのログインプロンプトの自動入力は、このアイテムに対してオフになります。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "ブラウザーのログインプロンプトの自動入力をオフにする"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "このアイテムにはマスターパスワードの再プロンプトが有効になっているため、ブラウザーのログインプロンプトの自動入力がオフになりました。この変更を維持するにはアイテムを保存してください。"
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "代わりにブラウザを使用",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
     "message": "保管庫のアイテム"
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "$DURATION$ までアクセスできます。条件を満たすと即座に承認されます",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "$DURATION$までアクセスできます。条件を満たした場合、即座に承認されます。",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "アクセスをリクエストしました"
+  },
+  "cancelAnytime": {
+    "message": "いつでも解約可",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Stripe 経由で安全な決済",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "後でする",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "月"
   }
 }

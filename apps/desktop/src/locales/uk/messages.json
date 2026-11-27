@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Синхронізувати"
   },
-  "changeMasterPass": {
-    "message": "Змінити головний пароль"
-  },
   "changeMasterPassword": {
     "message": "Змінити головний пароль"
-  },
-  "continueToWebApp": {
-    "message": "Продовжити у вебпрограмі?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Ви можете змінити головний пароль у вебпрограмі Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Фраза відбитка",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Вразливий пароль."
   },
-  "changeNow": {
-    "message": "Змінити зараз"
-  },
   "missingPermissions": {
     "message": "У вас недостатньо повноважень для виконання цієї дії."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Безпечно надсилайте конфіденційну інформацію",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаповнення запитів на вхід у браузері",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Відповідати на основні запити про HTTP-автентифікацію від вебсайтів, що збігаються з цим записом входу."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Відкрити статтю довідки про автозаповнення запитів на вхід у браузері"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Вебсайти можуть ініціювати ці запити без вашого відома, що може призвести до розкриття ваших облікових даних.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Щоб скористатися цим параметром, виберіть варіант виявлення збігів, відмінний від \"Типово\" для кожного вебсайту цього запису входу."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Увімкнути автозаповнення запитів на вхід у браузері?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Для цього запису буде вимкнено повторний запит головного пароля. Не можна ввімкнути обидва параметри одночасно."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Увімкнути повторний запит головного пароля?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері. Не можна ввімкнути обидва параметри одночасно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Використовувати типове виявлення збігів?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Вебсайти, для яких використовується типове виявлення збігів, не можна використовувати із запитами на вхід у браузері. Для цього запису буде вимкнено автозаповнення запитів на вхід у браузері."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автозаповнення запитів на вхід у браузері вимкнено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Для цього запису ввімкнено повторний запит головного пароля, тому автозаповнення запитів на вхід у браузері вимкнено. Збережіть запис, щоб застосувати цю зміну."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

@@ -94,10 +94,10 @@
     "message": "Səyahət sənədi"
   },
   "folderSubtitle": {
-    "message": "Elementlərinizi təşkil edin"
+    "message": "Elementlərinizi düzənləyin"
   },
   "collectionSubtitle": {
-    "message": "Paylaşılan elementləri təşkil edin"
+    "message": "Paylaşılan elementləri düzənlə"
   },
   "typeDriversLicense": {
     "message": "Sür. vəsiqəsi"
@@ -972,11 +972,11 @@
     }
   },
   "desktopApp": {
-    "message": "Desktop app",
+    "message": "Masaüstü tətbiqi",
     "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
-    "message": "Desktop app $COUNT$",
+    "message": "Masaüstü tətbiqi $COUNT$",
     "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -986,7 +986,7 @@
     }
   },
   "invalidAppPairing": {
-    "message": "Invalid app pairing",
+    "message": "Keçərsiz tətbiq cütləşdirməsi",
     "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
@@ -1822,7 +1822,7 @@
     "message": "İki addımlı giriş üsulunu seçin"
   },
   "selfHostedEnvironment": {
-    "message": "Self-hosted mühit"
+    "message": "Self-hosted ortam"
   },
   "selfHostedBaseUrlHint": {
     "message": "Öz-özünə sahiblik edən Bitwarden quraşdırmasının təməl URL-sini müəyyənləşdirin. Nümunə: https://bitwarden.company.com"
@@ -1831,13 +1831,13 @@
     "message": "Qabaqcıl konfiqurasiya üçün hər xidmətin təməl URL-sini müstəqil olaraq qeyd edə bilərsiniz."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "Təməl server URL-sini və ya ən azı bir özəl mühiti əlavə etməlisiniz."
+    "message": "Təməl server URL-sini və ya ən azı bir özəl ortamı əlavə etməlisiniz."
   },
   "selfHostedEnvMustUseHttps": {
     "message": "URL-lər, HTTPS istifadə etməlidir."
   },
   "customEnvironment": {
-    "message": "Özəl mühit"
+    "message": "Özəl ortam"
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -1871,7 +1871,7 @@
     "message": "Send server URL-si"
   },
   "environmentSaved": {
-    "message": "Mühit URL-ləri saxlanıldı."
+    "message": "Ortam URL-ləri saxlanıldı"
   },
   "ok": {
     "message": "Oldu"
@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "İndi sinxr."
   },
-  "changeMasterPass": {
-    "message": "Ana parolu dəyişdir"
-  },
   "changeMasterPassword": {
     "message": "Ana parolu dəyişdir"
-  },
-  "continueToWebApp": {
-    "message": "Veb tətbiqlə davam edilsin?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Ana parolunuzu Bitwarden veb tətbiqində dəyişdirə bilərsiniz."
   },
   "fingerprintPhrase": {
     "message": "Barmaq izi ifadəsi",
@@ -2437,7 +2428,7 @@
     }
   },
   "itemSingular": {
-    "message": "1 item",
+    "message": "1 element",
     "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
@@ -3382,7 +3373,7 @@
     "message": "Özəl"
   },
   "deleteSend": {
-    "message": "Delete Send",
+    "message": "\"Send\"i sil",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendConfirmation": {
@@ -4627,10 +4618,10 @@
     }
   },
   "importSuccessful": {
-    "message": "Import successful"
+    "message": "Daxilə köçürmə uğurludur"
   },
   "importConfirmationBody": {
-    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "message": "$AMOUNT$ elementi uğurla Bitwarden-ə köçürdünüz.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -4639,10 +4630,10 @@
     }
   },
   "importConfirmationBodySingular": {
-    "message": "You’ve successfully imported 1 item into Bitwarden."
+    "message": "1 elementi uğurla Bitwarden-ə köçürdünüz."
   },
   "importConfirmationTipLabel": {
-    "message": "Tip:"
+    "message": "İpucu:"
   },
   "importDeleteFileTip": {
     "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Zəifliyi olan parol."
   },
-  "changeNow": {
-    "message": "İndi dəyişdir"
-  },
   "missingPermissions": {
     "message": "Bu əməliyyatı icra etmək üçün gərəkli izinləri əldə etməmisiniz."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Send ilə həssas məlumatlar əmniyyətdədir",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Brauzerin giriş istəklərini avto-doldur",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Bu giriş elementi ilə uyuşan veb-saytlardan gələn təməl HTTP kimlik doğrulama istəklərinə cavab ver."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Brauzer giriş istəklərini avto-doldurma barədə yardım məqaləsini aç"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Veb-saytlar sizin məlumatınız olmadan bu istəkləri tətikləyə bilər, bu da kimlik məlumatlarınızı üzə çıxara bilər.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Brauzer giriş istəkləri üçün avto-doldurma işə salınsın?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Bu element üçün ana parolu təkrar soruşma söndürüləcək. Hər iki ayar eyni anda işlək ola bilməz."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Ana parolu təkrar soruşma işə salınsın?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Bu element üçün brauzer giriş istəklərini avto-doldurma söndürüləcək. Hər iki ayar eyni anda işlək ola bilməz."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "İlkin uyuşma aşkarlaması istifadə edilsin?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "İlkin uyuşma aşkarlamasını istifadə edən veb-saytlar, brauzer giriş istəkləri ilə istifadə edilə bilməz. Bu element üçün brauzer giriş istəklərini avto-doldurma söndürüləcək."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Brauzer giriş istəklərini avto-doldurma söndürüldü"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Bu element üçün ana parolu təkrar soruşma işlək olduğuna görə, brauzer giriş istəklərini avto-doldurma söndürüldü. Bu dəyişikliyi qorumaq üçün elementi saxla."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }
