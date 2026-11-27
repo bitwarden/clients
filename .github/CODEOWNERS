@@ -229,9 +229,19 @@ apps/browser/src/popup/components/extension-anon-layout-wrapper  @bitwarden/team
 apps/web/src/app/layouts                                         @bitwarden/team-ui-foundation
 
 ## Key management team files ##
-e2e                                               @bitwarden/team-key-management-dev
 .github/workflows/test-e2e-usdev.yml              @bitwarden/team-key-management-dev
 .github/workflows/test-e2e-usdev-changes.yml      @bitwarden/team-key-management-dev
+e2e/tests/browser/login                           @bitwarden/team-key-management-dev
+e2e/tests/browser/pin                             @bitwarden/team-key-management-dev
+e2e/tests/desktop/biometric-unlock.e2e.ts         @bitwarden/team-key-management-dev
+e2e/tests/desktop/login                           @bitwarden/team-key-management-dev
+e2e/tests/desktop/pin                             @bitwarden/team-key-management-dev
+e2e/tests/desktop/ssh-agent.e2e.ts                @bitwarden/team-key-management-dev
+e2e/tests/shared/browser-desktop                  @bitwarden/team-key-management-dev
+e2e/tests/shared/passkey-unlock.e2e.ts            @bitwarden/team-key-management-dev
+e2e/tests/shared/web-browser                      @bitwarden/team-key-management-dev
+e2e/tests/web/login                               @bitwarden/team-key-management-dev
+e2e/tests/web/passkey.e2e.ts                      @bitwarden/team-key-management-dev
 apps/desktop/src/key-management                   @bitwarden/team-key-management-dev
 apps/web/src/app/key-management                   @bitwarden/team-key-management-dev
 apps/browser/src/key-management                   @bitwarden/team-key-management-dev
