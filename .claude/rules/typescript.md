@@ -22,9 +22,11 @@ isEnabled = signal(true); // because `enabled` is already an input
 
 ## Nullable Values
 
-If a value can be absent, say so in its type (`T | undefined` or `T | null`) and handle the absent case where the value is used. Don't replace it with a placeholder like `""`, `0`, `[]` or `{}` to get rid of the `undefined`. That includes `?? ""` when assigning, default parameters, and initial values (`signal("")`, `toSignal(..., { initialValue: [] })`, `new FormControl("")`).
+Never use a value that is invalid for what it represents in order to avoid `undefined` or `null`. An empty string is not a name or a GUID; `0` is not an ID. If the value can be absent, say so in its type (`T | undefined` or `T | null`) and handle the absent case where the value is used.
 
-A placeholder is usually not a valid value: an empty string isn't a name or a GUID. It also hides the "not set yet" state from the type checker, so code that should handle that state compiles anyway.
+This applies wherever a fallback can be introduced: `?? ""` when assigning, default parameters, and initial values such as `signal("")`.
+
+An empty value that is valid is fine: `[]` is a valid list of ciphers, and `""` is the valid value of an empty text field. The test is whether the value would be correct if it were displayed, saved or sent.
 
 ```typescript
 // ❌ Wrong
@@ -35,8 +37,6 @@ this.providerName.set(qParams.providerName ?? "");
 providerName = signal<string | undefined>(undefined);
 this.providerName.set(qParams.providerName);
 ```
-
-Use a default only when it has real meaning, e.g. `[]` for "no items" rather than "not loaded".
 
 ## No TypeScript Enums (ADR-0025)
 
