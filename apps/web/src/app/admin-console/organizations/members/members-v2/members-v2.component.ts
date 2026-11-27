@@ -409,7 +409,10 @@ export class MembersV2Component {
 
   /** Exports every member, regardless of the search and filters, as on the v1 page. */
   exportMembers() {
-    const result = this.memberExportService.getMemberExport(this.members());
+    const result = this.memberExportService.getMemberExport(
+      this.members(),
+      this.canUsePrivilegedControls(),
+    );
     if (result.success) {
       this.toastService.showToast({
         variant: "success",
