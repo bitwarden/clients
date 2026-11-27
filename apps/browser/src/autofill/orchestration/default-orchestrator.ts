@@ -223,10 +223,10 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   }
 
   collectPageDetails(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
-    return this.collect(tab, frameId);
+    return this.collectTabPageDetails(tab, frameId);
   }
 
-  private collect(
+  private collectTabPageDetails(
     tab: chrome.tabs.Tab,
     frameId?: number,
     forceRescan?: boolean,
@@ -268,7 +268,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
   ): Promise<FillResult> {
-    const pageDetails = await this.collect(tab, undefined, true);
+    const pageDetails = await this.collectTabPageDetails(tab, undefined, true);
     if (pageDetails.length === 0) {
       return AUTOFILL_ABSENT;
     }
@@ -281,7 +281,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     cipher: CipherView,
     options?: Partial<AutoFillOptions>,
   ): Promise<FillResult> {
-    const pageDetails = await this.collect(tab, undefined, true);
+    const pageDetails = await this.collectTabPageDetails(tab, undefined, true);
     if (pageDetails.length === 0) {
       return AUTOFILL_ABSENT;
     }
