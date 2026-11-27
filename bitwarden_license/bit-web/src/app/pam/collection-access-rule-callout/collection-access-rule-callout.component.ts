@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest, distinctUntilChanged, map, Observable, of, switchMap } from "rxjs";
+import { distinctUntilChanged, map, Observable, of, switchMap } from "rxjs";
 
 import { AccessRuleView } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,16 +14,25 @@ import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CollectionAccessRuleCallout } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";
 
+/** Structural, so this needn't import the host's collection model. */
+type CalloutCollection = {
+  id: CollectionId;
+  organizationId: OrganizationId;
+  hasEnabledAccessRule?: boolean;
+};
+
 /**
- * Names the rule gating a collection inside its edit dialog, where the member list alone isn't the
- * whole story. Renders only for a user who can manage access rules, since the server refuses
- * everyone else the read and the links lead to pages they can't open. A failed read hides the
- * callout rather than blocking the dialog.
+ * Flags a gated collection inside its edit dialog, where the member list alone isn't the whole
+ * story. Whether the collection is gated comes from the server-derived `hasEnabledAccessRule`, like
+ * the vault banner and the sidebar lock. A user who can manage access rules also sees each governing
+ * rule, linked to its page. Everyone else, and a manager whose rule read fails or names no rule for
+ * the collection, sees the sentence the banner and lock use.
  */
 @Component({
   selector: "app-pam-collection-access-rule-callout",
@@ -31,9 +40,8 @@ import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-s
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CalloutModule, LinkModule, I18nPipe],
 })
-export class CollectionAccessRuleCalloutComponent {
-  readonly organizationId = input<OrganizationId | undefined>(undefined);
-  readonly collectionId = input<CollectionId | undefined>(undefined);
+export class CollectionAccessRuleCalloutComponent implements CollectionAccessRuleCallout {
+  readonly collection = input<CalloutCollection | undefined>(undefined);
 
   private readonly governedCollections = inject(GovernedCollectionsService);
   private readonly configService = inject(ConfigService);
@@ -43,32 +51,42 @@ export class CollectionAccessRuleCalloutComponent {
   /** Optional, since a story renders the callout without a dialog. */
   private readonly dialogRef = inject(DialogRef, { optional: true });
 
-  private readonly rules = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.Pam),
-      toObservable(this.organizationId),
-      toObservable(this.collectionId),
-    ]).pipe(
-      switchMap(([enabled, organizationId, collectionId]) => {
-        if (!enabled || organizationId == null || collectionId == null) {
-          return of<AccessRuleView[]>([]);
-        }
-        return this.canManageAccessRules$(organizationId).pipe(
-          switchMap((canManage) =>
-            canManage
-              ? // The shared per-org cached read resolves a failure to no rules, hiding the callout.
-                this.governedCollections
-                  .rules$(organizationId)
-                  .pipe(map((rules) => rulesGoverningCollection(rules, collectionId)))
-              : of<AccessRuleView[]>([]),
-          ),
-        );
-      }),
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
+  private readonly gatedCollection = computed(() => {
+    const collection = this.collection();
+    return this.pamEnabled() && collection?.hasEnabledAccessRule === true ? collection : undefined;
+  });
+
+  /**
+   * Undefined until known, so a manager's callout doesn't flash the generic sentence first. An
+   * ungated collection is undefined too, since `gated()` turns true before this re-reads.
+   */
+  protected readonly governingRules = toSignal(
+    toObservable(this.gatedCollection).pipe(
+      switchMap((collection) =>
+        collection == null ? of(undefined) : this.rulesShownFor$(collection),
+      ),
     ),
-    { initialValue: [] as AccessRuleView[] },
+    { initialValue: undefined },
   );
 
-  protected readonly governingRules = this.rules;
+  protected readonly gated = computed(() => this.gatedCollection() != null);
+
+  private rulesShownFor$({ id, organizationId }: CalloutCollection): Observable<AccessRuleView[]> {
+    return this.canManageAccessRules$(organizationId).pipe(
+      switchMap((canManage) =>
+        canManage
+          ? // The shared per-org cached read resolves a failure to no rules.
+            this.governedCollections
+              .rules$(organizationId)
+              .pipe(map((rules) => rulesGoverningCollection(rules, id)))
+          : of<AccessRuleView[]>([]),
+      ),
+    );
+  }
 
   private canManageAccessRules$(organizationId: OrganizationId): Observable<boolean> {
     return this.accountService.activeAccount$.pipe(
