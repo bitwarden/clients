@@ -50,7 +50,7 @@ export class HealthPasskeyScanService {
    * `bit-table-v2` list, so it also waits for that (VFO1).
    */
   readonly enabled$: Observable<boolean> = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.PasskeyLoginReport),
+    this.configService.getFeatureFlag$(FeatureFlag.PM35248_BrowserPasskeyReport),
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(map(([passkeys, vfo1]) => passkeys && vfo1));
 

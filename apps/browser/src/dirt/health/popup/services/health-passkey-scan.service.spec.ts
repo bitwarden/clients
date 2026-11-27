@@ -37,7 +37,7 @@ describe("HealthPasskeyScanService", () => {
     opportunityService.findPasskeyOpportunities.mockResolvedValue();
     logService = mock<LogService>();
     flags = {
-      [FeatureFlag.PasskeyLoginReport]: new BehaviorSubject(true),
+      [FeatureFlag.PM35248_BrowserPasskeyReport]: new BehaviorSubject(true),
       [FeatureFlag.VFO1Foundation]: new BehaviorSubject(true),
     };
     const configService = mock<ConfigService>();
@@ -70,11 +70,11 @@ describe("HealthPasskeyScanService", () => {
       return value;
     }
 
-    it("is on with the passkey report flag and VFO1", async () => {
+    it("is on with the browser passkey report flag and VFO1", async () => {
       expect(await enabled()).toBe(true);
     });
 
-    it.each([FeatureFlag.PasskeyLoginReport, FeatureFlag.VFO1Foundation])(
+    it.each([FeatureFlag.PM35248_BrowserPasskeyReport, FeatureFlag.VFO1Foundation])(
       "is off without %s",
       async (flag) => {
         flags[flag].next(false);
