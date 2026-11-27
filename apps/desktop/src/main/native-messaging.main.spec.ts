@@ -347,6 +347,94 @@ describe("NativeMessagingMain", () => {
       });
     });
 
+    describe("generateDdgManifests", () => {
+      let ddg: string;
+      let ddgAppStore: string;
+
+      beforeEach(() => {
+        ddg = path.join(home, "Library", "Application Support", "DuckDuckGo");
+        ddgAppStore = path.join(
+          home,
+          "Library",
+          "Containers",
+          "com.duckduckgo.macos.browser",
+          "Data",
+          "Library",
+          "Application Support",
+        );
+      });
+
+      it("installs the manifest for the download from duckduckgo.com", async () => {
+        mkdirSync(ddg, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddg)).toEqual(
+          expect.objectContaining({
+            name: "com.8bit.bitwarden",
+            path: binary,
+            allowed_origins: expect.arrayContaining([
+              "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
+            ]),
+          }),
+        );
+      });
+
+      it("installs the manifest inside the App Store build's container", async () => {
+        mkdirSync(ddgAppStore, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+      });
+
+      it("installs the manifest for both distributions when both are present", async () => {
+        mkdirSync(ddg, { recursive: true });
+        mkdirSync(ddgAppStore, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddg)).toBeDefined();
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+      });
+
+      it("skips a distribution that is not installed", async () => {
+        mkdirSync(ddg, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddgAppStore)).toBeUndefined();
+        expect(logService.warning).toHaveBeenCalledWith(
+          "DuckDuckGo App Store not found, skipping.",
+        );
+      });
+
+      it("still installs the other distribution when one manifest cannot be written", async () => {
+        mkdirSync(ddg, { recursive: true });
+        mkdirSync(ddgAppStore, { recursive: true });
+        jest
+          .spyOn(sut as any, "writeManifest")
+          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+
+        await expect(sut.generateDdgManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("DuckDuckGo"));
+      });
+
+      it("removes both manifests", async () => {
+        for (const directory of [ddg, ddgAppStore]) {
+          mkdirSync(path.join(directory, "NativeMessagingHosts"), { recursive: true });
+          writeFileSync(path.join(directory, "NativeMessagingHosts", manifestName), "{}");
+        }
+
+        await sut.removeDdgManifests();
+
+        expect(manifestIn(ddg)).toBeUndefined();
+        expect(manifestIn(ddgAppStore)).toBeUndefined();
+      });
+    });
+
     describe("removeManifests", () => {
       it("removes the Firefox manifest from Mozilla/NativeMessagingHosts", async () => {
         const manifestPath = path.join(mozilla, "NativeMessagingHosts", manifestName);
