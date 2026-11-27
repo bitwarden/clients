@@ -135,13 +135,18 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
           );
     return combineLatest([this.pamEnabled$, unlicensed$, governed$]).pipe(
       distinctUntilChanged(([a, b, c], [d, e, f]) => a === d && b === e && c === f),
-      switchMap(([enabled, unlicensed, governed]) =>
-        !enabled || unlicensed || !governed
-          ? of(null)
-          : this.rowState
-              .state$(cipherId)
-              .pipe(switchMap((state) => this.toStatus$(cipherId, state))),
-      ),
+      switchMap(([enabled, unlicensed, governed]) => {
+        if (!enabled || !governed) {
+          return of(null);
+        }
+        if (unlicensed) {
+          // A member without a license can't request, but the row still has to read as privileged.
+          return of(restricted ? this.unlicensedStatus() : null);
+        }
+        return this.rowState
+          .state$(cipherId)
+          .pipe(switchMap((state) => this.toStatus$(cipherId, state)));
+      }),
       tap((status) => this.record(cipherId, status)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -280,6 +285,15 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
       return this.activeStatus$(cipherId, badge.expiresAt, state?.extensionsAllowed === true);
     }
     return of(this.staticStatus(badge));
+  }
+
+  /** A gated item the member has no license to request: the lock, labelled just "Privileged". */
+  private unlicensedStatus(): VaultRowAccessStatus {
+    return {
+      kind: "unavailable",
+      label: this.i18nService.t("pamAccessBadgePrivileged"),
+      canExtend: false,
+    };
   }
 
   private staticStatus(badge: Exclude<AccessBadgeState, { kind: "active" }>): VaultRowAccessStatus {

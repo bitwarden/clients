@@ -18,6 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { HOUR, startClockAtStoryNow, STORY_NOW } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorStatus, TargetSystemKind, TargetSystemStatus } from "../rotation";
@@ -42,8 +43,8 @@ import { atUrl } from "../testing/story-helpers";
 
 import { AccessConnectorDetailComponent } from "./access-connector-detail.component";
 
-const HOUR_MS = 60 * 60 * 1000;
-const hoursAgo = (hours: number): string => new Date(Date.now() - hours * HOUR_MS).toISOString();
+const hoursAgo = (hours: number): string =>
+  new Date(STORY_NOW.getTime() - hours * HOUR).toISOString();
 
 // The builders hash labels onto 16 ids, so these labels are picked to stay distinct per type.
 const LEGACY_REPORTING_DB = targetSystem({
@@ -103,7 +104,7 @@ const CONNECTED_DETAIL = accessConnectorDetail({
   connector: accessConnector({
     id: connectorId("east"),
     name: "East datacenter",
-    lastHeartbeatAt: new Date().toISOString(),
+    lastHeartbeatAt: STORY_NOW.toISOString(),
     assignedTargetSystemIds: [
       LEGACY_REPORTING_DB.id,
       DATA_WAREHOUSE.id,
@@ -156,7 +157,7 @@ const NO_TARGETS_DETAIL = accessConnectorDetail({
   connector: accessConnector({
     id: connectorId("aws-vpc"),
     name: "AWS production VPC",
-    lastHeartbeatAt: new Date().toISOString(),
+    lastHeartbeatAt: STORY_NOW.toISOString(),
     assignedTargetSystemIds: [],
   }),
 });
@@ -166,7 +167,7 @@ const AZURE_DETAIL = accessConnectorDetail({
   connector: accessConnector({
     id: connectorId("azure"),
     name: "Azure production",
-    lastHeartbeatAt: new Date().toISOString(),
+    lastHeartbeatAt: STORY_NOW.toISOString(),
     assignedTargetSystemIds: [ENTRA_PRODUCTION.id],
   }),
   jobs: [
@@ -253,6 +254,7 @@ const routes: Routes = [
 export default {
   title: "Web/PAM/Rotation/Access Connector Detail",
   component: AccessConnectorDetailComponent,
+  beforeEach: startClockAtStoryNow,
   render: () => ({ template: `<router-outlet></router-outlet>` }),
   decorators: [
     componentWrapperDecorator((story) => `<div class="tw-p-6">${story}</div>`),

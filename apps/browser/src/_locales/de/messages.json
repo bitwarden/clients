@@ -344,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Hilf anderen herauszufinden, ob Bitwarden für sie das Richtige ist. Besuch den Erweiterungs-Store deines Browsers und hinterlasse jetzt eine Bewertung."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern."
-  },
   "fingerprintPhrase": {
     "message": "Fingerabdruck-Phrase",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -438,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Social/Foren"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Keine Ordner hinzugefügt"
@@ -1514,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Alle Span-Elemente verwenden, die eine Website mit dem Attribut \"data-bwautofill\" markiert."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Anmeldefelder im Browser automatisch Ausfüllen",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Auf Aufforderungen zur einfachen HTTP-Authentifizierung reagieren, wenn ein Zugangsdaten-Eintrag in deinem Tresor mit der Website übereinstimmt."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -3200,6 +3209,30 @@
     "message": "Gut",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
+  "exposed": {
+    "message": "Kompromittiert",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Passwort bei einem Datendiebstahl kompromittiert.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Passwort zu kurz oder zu einfach.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Passwort wurde für mehrere Zugangsdaten wiederverwendet.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Gefährdet",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Deine Organisation hat dich gebeten, dieses Passwort zu ändern.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
+  },
   "weak": {
     "message": "Schwach",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
@@ -3820,7 +3853,7 @@
     "message": "Datei"
   },
   "item": {
-    "message": "Item"
+    "message": "Eintrag"
   },
   "sendsCount": {
     "message": "$COUNT$ Sends",
@@ -3837,14 +3870,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItemsV2": {
-    "message": "You have no Sends",
+    "message": "Du hast keine Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItemsV2": {
-    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
+    "message": "Teile Texte oder Dateien sicher mit anderen. Deine Daten werden Ende-zu-Ende verschlüsselt."
   },
   "pendingDeletion": {
-    "message": "Pending deletion"
+    "message": "Ausstehende Löschung"
   },
   "allSends": {
     "message": "Alle Sends",
@@ -5265,10 +5298,10 @@
     }
   },
   "importSuccessful": {
-    "message": "Import successful"
+    "message": "Import erfolgreich"
   },
   "importConfirmationBody": {
-    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "message": "Du hast erfolgreich $AMOUNT$ Einträge in Bitwarden importiert.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -5277,13 +5310,13 @@
     }
   },
   "importConfirmationBodySingular": {
-    "message": "You’ve successfully imported 1 item into Bitwarden."
+    "message": "Du hast erfolgreich 1 Eintrag in Bitwarden importiert."
   },
   "importConfirmationTipLabel": {
-    "message": "Tip:"
+    "message": "Tipp:"
   },
   "importDeleteFileTip": {
-    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "message": "Vergiss nicht, $FILENAME$ zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt.",
     "placeholders": {
       "filename": {
         "content": "$1",
@@ -5292,16 +5325,16 @@
     }
   },
   "importDeleteFileTipGeneric": {
-    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+    "message": "Vergiss nicht, deine Importdatei zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt."
   },
   "importingTitle": {
-    "message": "Importing"
+    "message": "Wird importiert"
   },
   "importingDescription": {
-    "message": "This process may take a few minutes."
+    "message": "Dieser Prozess kann einige Minuten dauern."
   },
   "importingItemsTitle": {
-    "message": "Importing $COUNT$ items!",
+    "message": "$COUNT$ Einträge werden importiert!",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5310,29 +5343,29 @@
     }
   },
   "importingItemsTitleSingular": {
-    "message": "Importing 1 item!"
+    "message": "1 Eintrag wird importiert!"
   },
   "openingExtensionSubtitle": {
-    "message": "Opening the browser extension"
+    "message": "Browser-Erweiterung wird geöffnet"
   },
   "openedExtensionTitle": {
-    "message": "Opened the browser extension"
+    "message": "Browser-Erweiterung geöffnet"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Etwas ist schiefgelaufen..."
   },
   "openingExtensionError": {
-    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Klick auf den Button, um sie jetzt zu öffnen."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Erweiterung öffnen"
   },
   "openingExtensionToolbarErrorPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon ",
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol ",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openingExtensionToolbarErrorPart2": {
-    "message": " from the toolbar.",
+    "message": " in der Symbolleiste.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "tryAgain": {
@@ -6261,7 +6294,7 @@
     "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "onePasswordUnsupportedSignIn": {
-    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
+    "message": "Dieses 1Password-Konto verwendet eine Anmeldemethode, die nicht unterstützt wird. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
@@ -6282,7 +6315,7 @@
     "message": "Gib eine gültige Anmeldeadresse ein."
   },
   "onePasswordSignInAddressHint": {
-    "message": "Find this in your 1Password Emergency Kit."
+    "message": "Das findest du in deinem 1Password-Notfall-Kit."
   },
   "secretKeyIsRequired": {
     "message": "Ein geheimer Schlüssel ist erforderlich."
@@ -6306,7 +6339,7 @@
     "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
   },
   "onePasswordEmailHintPasswordLoginOnly": {
-    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest. Es wird nur die Anmeldung mit Passwort unterstützt."
   },
   "secretKey": {
     "message": "Geheimer Schlüssel"
@@ -6318,28 +6351,28 @@
     "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
   },
   "onePasswordSsoLogInTitle": {
-    "message": "Log in with SSO"
+    "message": "Mit SSO anmelden"
   },
   "onePasswordSsoSwitchToSignInPage": {
-    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+    "message": "Wechsel zur SSO-Anmeldeseite, um den Import in Bitwarden abzuschließen."
   },
   "onePasswordSsoEncryptionKeyTransfer": {
-    "message": "Encryption key transfer"
+    "message": "Übertragung des Verschlüsselungsschlüssels"
   },
   "onePasswordSsoVerifyInPendingSignIns": {
-    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+    "message": "Melde dich bei 1Password an und gehe zu \"Ausstehende Anmeldungen\", um diese Anfrage zu verifizieren."
   },
   "onePasswordSsoCodeDidNotWork": {
-    "message": "That code didn't work. Check your other device for a new one."
+    "message": "Dieser Code hat nicht funktioniert. Schau auf deinem anderen Gerät nach, ob dort ein neuer Code verfügbar ist."
   },
   "onePasswordSsoSignInClosed": {
-    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+    "message": "Die SSO-Anmeldeseite wurde geschlossen, bevor du die Anmeldung abgeschlossen hattest. Versuche es erneut, um den Import fortzusetzen."
   },
   "onePasswordSsoDeviceDenied": {
-    "message": "This device was not approved on your other device. Try again or use a different import method."
+    "message": "Dieses Gerät wurde auf deinem anderen Gerät nicht autorisiert. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "onePasswordSsoTooManyWrongCodes": {
-    "message": "Too many incorrect verification codes. Try again or use a different import method."
+    "message": "Zu viele falsche Verifizierungscodes. Bitte versuche es erneut oder verwende eine andere Importmethode."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -7218,7 +7251,7 @@
     }
   },
   "invalidAppPairing": {
-    "message": "Invalid app pairing",
+    "message": "Ungültige App-Kopplung",
     "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
@@ -7909,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
-  "changeNow": {
-    "message": "Jetzt ändern"
-  },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
   },
@@ -8317,7 +8347,7 @@
     "message": "Wie kann ich meinen Tresor verwalten?"
   },
   "transferYourItemsToOrganizationTitle": {
-    "message": "Transfer your items to $ORGANIZATION$",
+    "message": "Übertrage deine Einträge zu $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8326,7 +8356,7 @@
     }
   },
   "transferItemsToOrganizationRequiredDescription": {
-    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
+    "message": "$ORGANIZATION$ verlangt nun, dass alle Einträge der Mitglieder im Besitz der Organisation sind. Deine persönlichen Einträge werden in einen Ordner namens „Meine Einträge“ verschoben, den nur du sehen kannst.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8975,49 +9005,48 @@
   "resetToDefault": {
     "message": "Auf Standard zurücksetzen"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Anmelde-Aufforderungen im Browser automatisch ausfüllen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Auf einfache HTTP-Authentifizierungsanfragen von Websites antworten, die mit diesem Zugangsdaten-Eintrag übereinstimmen."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Hilfe-Artikel zum automatischen Ausfüllen von Anmelde-Aufforderungen im Browser öffnen"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Um diese Einstellung zu verwenden, wähle für jede Website dieses Zugangsdaten-Eintrags eine andere Option zur Übereinstimmungserkennung als \"Standard\"."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" aktivieren?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "\"Master-Passwort erneut abfragen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "\"Master-Passwort erneut abfragen\" aktivieren?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standard-Übereinstimmungserkennung verwenden?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites, die die Standard-Übereinstimmungserkennung verwenden, können nicht mit Anmelde-Aufforderungen des Browsers genutzt werden. \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
   "vaultItem": {
-    "message": "Vault item"
+    "message": "Tresoreintrag"
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Das genehmigte Zugriffszeitfenster hat noch nicht begonnen."
@@ -9281,8 +9310,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Zugriff bis zu $DURATION$, sofortige Genehmigung, wenn du die Bedingungen erfüllst",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Zugriff für bis zu $DURATION$. Wenn du die Voraussetzungen erfüllst, erhältst du sofort eine Genehmigung.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -9442,5 +9471,20 @@
   },
   "requestAccessModalRequestCreatedSuccessV2": {
     "message": "Zugriff angefragt"
+  },
+  "cancelAnytime": {
+    "message": "Jederzeit kündbar",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Sichere Bezahlung über Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Nicht jetzt",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "Monat"
   }
 }
