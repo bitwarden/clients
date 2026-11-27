@@ -22,10 +22,11 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
   ) {}
 
   /**
-   * Observable that contains the list of ciphers that have been archived.
+   * Observable that contains the list of ciphers that have been archived. Includes restricted
+   * (PAM-gated) ciphers, which the user can archive and must still find in the archive.
    */
   archivedCiphers$(userId: UserId): Observable<CipherViewLike[]> {
-    return this.cipherService.cipherListViews$(userId).pipe(
+    return this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(
       filter((cipher) => cipher != null),
       map((ciphers) =>
         ciphers.filter(

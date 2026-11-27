@@ -59,12 +59,27 @@ describe("DefaultCipherArchiveService", () => {
         } as unknown as CipherListView,
       ];
 
-      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of(mockCiphers));
 
       const result = await firstValueFrom(service.archivedCiphers$(userId));
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toEqual("1");
+    });
+
+    it("includes archived restricted ciphers, which cipherListViews$ omits", async () => {
+      const restricted = {
+        id: "1",
+        archivedDate: "2024-01-15T10:30:00.000Z",
+        type: "login",
+        partial: true,
+      } as unknown as CipherListView;
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of([restricted]));
+      mockCipherService.cipherListViews$.mockReturnValue(of([]));
+
+      const result = await firstValueFrom(service.archivedCiphers$(userId));
+
+      expect(result).toEqual([restricted]);
     });
 
     it("should return empty array when no archived ciphers exist", async () => {
@@ -75,7 +90,7 @@ describe("DefaultCipherArchiveService", () => {
         } as unknown as CipherListView,
       ];
 
-      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of(mockCiphers));
 
       const result = await firstValueFrom(service.archivedCiphers$(userId));
 
@@ -135,7 +150,7 @@ describe("DefaultCipherArchiveService", () => {
         } as unknown as CipherListView,
       ];
 
-      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of(mockCiphers));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
@@ -152,7 +167,7 @@ describe("DefaultCipherArchiveService", () => {
         } as unknown as CipherListView,
       ];
 
-      mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of(mockCiphers));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
@@ -161,7 +176,7 @@ describe("DefaultCipherArchiveService", () => {
     });
 
     it("returns false when user has no archived ciphers and no premium", async () => {
-      mockCipherService.cipherListViews$.mockReturnValue(of([]));
+      mockCipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of([]));
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       const result = await firstValueFrom(service.showSubscriptionEndedMessaging$(userId));
