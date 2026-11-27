@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Synkronisera nu"
   },
-  "changeMasterPass": {
-    "message": "Ändra huvudlösenord"
-  },
   "changeMasterPassword": {
     "message": "Ändra huvudlösenord"
-  },
-  "continueToWebApp": {
-    "message": "Fortsätt till webapp?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Du kan ändra ditt huvudlösenord i Bitwardens webbapp."
   },
   "fingerprintPhrase": {
     "message": "Fingeravtrycksfras",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Sårbart lösenord."
   },
-  "changeNow": {
-    "message": "Ändra nu"
-  },
   "missingPermissions": {
     "message": "Du saknar de nödvändiga behörigheterna för att utföra denna åtgärd."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Nästla en mapp genom att lägga till namnet på den överordnade mappen följt av \"/\". Exempel: Sociala/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Skicka känslig information på ett säkert sätt",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Autofyll för webbläsarens inloggningsfrågor",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Svara på grundläggande HTTP-autentiseringsfrågor från webbplatser som matchar det här inloggningsobjektet."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Öppna hjälpartikeln om automatisk ifyllning av webbläsarens inloggningsfrågor"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webbplatser kan utlösa dessa frågor utan din vetskap, vilket kan exponera dina inloggningsuppgifter.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Om du vill använda den här inställningen väljer du ett annat matchningsalternativ än ”Standard” för varje webbplats i det här inloggningsobjektet."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Vill du aktivera automatisk ifyllning för webbläsarens inloggningsfrågor?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Återfrågan om huvudlösenord stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Vill du aktivera återfrågan om huvudlösenord?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Vill du använda standardmatchning?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Webbplatser som använder standardmatchning kan inte användas med webbläsarens inloggningsfrågor. Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Återfrågan om huvudlösenord är aktiverad för det här objektet, så automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av. Spara objektet om du vill behålla ändringen."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

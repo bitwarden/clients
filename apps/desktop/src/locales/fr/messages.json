@@ -2002,17 +2002,8 @@
   "syncNow": {
     "message": "Synchroniser maintenant"
   },
-  "changeMasterPass": {
-    "message": "Changer le mot de passe principal"
-  },
   "changeMasterPassword": {
     "message": "Changer le mot de passe principal"
-  },
-  "continueToWebApp": {
-    "message": "Poursuivre vers l'application web ?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Vous pouvez modifier votre mot de passe principal sur l'application web de Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Phrase d'empreinte",
@@ -6317,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Mot de passe faible."
   },
-  "changeNow": {
-    "message": "Changer maintenant"
-  },
   "missingPermissions": {
     "message": "Vous n’avez pas les permissions requises pour accomplir cette action."
   },
@@ -6352,6 +6340,29 @@
   },
   "folderHintText": {
     "message": "Imbriquer un dossier en ajoutant le nom du dossier parent suivi d'un « / ». Exemple : Sociaux/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "sendsTitleNoItems": {
     "message": "Envoyez des informations sensibles, en toute sécurité",
@@ -7821,48 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Remplir automatiquement les invites de connexion du navigateur",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Répondre aux demandes d'authentification HTTP basiques des sites Web qui correspondent à cet élément de connexion."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Ouvrir un article d'aide sur le remplissage automatique des invites de connexion du navigateur"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Les sites Web peuvent déclencher ces invites à votre insu, ce qui peut exposer vos identifiants.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Pour utiliser ce paramètre, choisissez une option de détection de correspondances autre que \"Défaut\" pour chaque site Web de cet élément de connexion."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Activer le remplissage automatique pour les invites de connexion au navigateur?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "La réactivation du mot de passe principal sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Activer la réactivation du mot de passe maître ?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Le remplissage automatique pour les invites de connexion du navigateur sera désactivé pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Utiliser la détection de correspondance par défaut ?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Les sites Web utilisant la détection de correspondance par défaut ne peuvent pas être utilisés avec les invites de connexion du navigateur. Le remplissage automatique des invites de connexion du navigateur sera désactivé pour cet élément."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Le remplissage automatique des invites de connexion au navigateur a été désactivé"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Cet élément a une nouvelle demande de mot de passe principal activée, donc le remplissage automatique pour les invites de connexion au navigateur a été désactivé. Enregistrez l'élément pour conserver ce changement."
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "item": {
     "message": "Item"
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }
