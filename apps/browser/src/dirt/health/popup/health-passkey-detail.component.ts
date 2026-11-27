@@ -185,12 +185,12 @@ export class HealthPasskeyDetailComponent {
   /** The row focus was last in, to move focus on if that row leaves the list. */
   private readonly focusedRowId = signal<string | null>(null);
 
-  constructor() {
-    const scrollRestored = rememberHealthListScroll(
-      this.viewState.scrollTop,
-      computed(() => this.rows().length > 0),
-    );
+  private readonly scroll = rememberHealthListScroll(
+    this.viewState.scrollTop,
+    computed(() => this.rows().length > 0),
+  );
 
+  constructor() {
     // "3 results" while searching or filtering.
     announceHealthListCount(
       computed(() =>
@@ -220,7 +220,7 @@ export class HealthPasskeyDetailComponent {
       )
       .subscribe();
 
-    toObservable(computed(() => this.rows().length > 0 && scrollRestored()))
+    toObservable(computed(() => this.rows().length > 0 && this.scroll.restored()))
       .pipe(filter(Boolean), take(1), takeUntilDestroyed())
       .subscribe(() => {
         const opened = this.openedRowId();
@@ -258,6 +258,7 @@ export class HealthPasskeyDetailComponent {
       return;
     }
     this.openedRowId.set(row.id);
+    this.scroll.saveAndStop();
     await this.router.navigate(["/view-cipher"], {
       queryParams: { cipherId: row.cipher.id, type: row.cipher.type },
     });

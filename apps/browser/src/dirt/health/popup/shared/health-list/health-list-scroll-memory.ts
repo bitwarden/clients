@@ -47,15 +47,19 @@ function restoreScroll(element: HTMLElement, top: number, done: () => void): () 
  *
  * @param scrollTop Where to restore to, and where the offset is recorded.
  * @param ready True once the list has its rows; restoring earlier would clamp to 0.
- * @returns True once the saved offset has been restored, or at once when there is none to restore.
+ * @returns `restored` is true once the saved offset has been restored, or at once when there is
+ * none to restore. `saveAndStop` keeps the offset as it is now and stops recording: call it
+ * before navigating away, because the scroll region resets to 0 as its page is torn down and
+ * that reset must not replace the offset.
  */
 export function rememberHealthListScroll(
   scrollTop: WritableSignal<number>,
   ready: Signal<boolean>,
-): Signal<boolean> {
+): { restored: Signal<boolean>; saveAndStop: () => void } {
   const scrollLayout = inject(ScrollLayoutService);
   const settled = signal(false);
   const target = scrollTop();
+  let recording = true;
 
   const subscription = combineLatest([scrollLayout.scrollableRef$, toObservable(ready)])
     .pipe(
@@ -73,6 +77,7 @@ export function rememberHealthListScroll(
         }
         return fromEvent(element, "scroll").pipe(
           auditTime(RECORD_INTERVAL_MS),
+          filter(() => recording),
           map(() => element.scrollTop),
           finalize(() => stopRestoring?.()),
         );
@@ -81,5 +86,14 @@ export function rememberHealthListScroll(
     .subscribe((top) => scrollTop.set(top));
 
   inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
-  return settled.asReadonly();
+  return {
+    restored: settled.asReadonly(),
+    saveAndStop: () => {
+      const element = scrollLayout.scrollableRef()?.nativeElement;
+      if (element != null) {
+        scrollTop.set(element.scrollTop);
+      }
+      recording = false;
+    },
+  };
 }

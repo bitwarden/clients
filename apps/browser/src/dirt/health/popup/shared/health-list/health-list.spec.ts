@@ -162,7 +162,7 @@ describe("Health list helpers", () => {
       const element = scrollElement();
       let height = 100;
       Object.defineProperty(element, "scrollHeight", { get: () => height });
-      const restored = inContext(() => rememberHealthListScroll(scrollTop, signal(true)));
+      const { restored } = inContext(() => rememberHealthListScroll(scrollTop, signal(true)));
 
       scrollLayout.scrollableRef.set(new ElementRef(element));
       TestBed.tick();
@@ -197,12 +197,29 @@ describe("Health list helpers", () => {
 
     it("is restored at once when there is no offset to restore", () => {
       const element = scrollElement();
-      const restored = inContext(() => rememberHealthListScroll(signal(0), signal(true)));
+      const { restored } = inContext(() => rememberHealthListScroll(signal(0), signal(true)));
 
       scrollLayout.scrollableRef.set(new ElementRef(element));
       TestBed.tick();
 
       expect(restored()).toBe(true);
+    });
+
+    it("keeps the offset it was told to save, whatever the region does while it is torn down", () => {
+      jest.useFakeTimers();
+      const scrollTop = signal(0);
+      const element = scrollElement();
+      const { saveAndStop } = inContext(() => rememberHealthListScroll(scrollTop, signal(true)));
+      scrollLayout.scrollableRef.set(new ElementRef(element));
+      TestBed.tick();
+
+      element.scrollTop = 180;
+      saveAndStop();
+      element.scrollTop = 0;
+      element.dispatchEvent(new Event("scroll"));
+      jest.advanceTimersByTime(200);
+
+      expect(scrollTop()).toBe(180);
     });
 
     it("records the offset as the user scrolls", () => {
