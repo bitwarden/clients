@@ -12,7 +12,6 @@ import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-i
 import { Router } from "@angular/router";
 import { filter, map, of, pairwise, switchMap, take } from "rxjs";
 
-import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { SecurityKeyIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -53,7 +52,9 @@ import {
 import {
   announceHealthListCount,
   focusHealthListRow,
+  focusHealthListRowWhenRendered,
   HEALTH_LIST_ROW_ATTRIBUTE,
+  healthListSignal,
   injectHealthListViewState,
   rememberHealthListScroll,
 } from "./shared/health-list";
@@ -109,7 +110,7 @@ export class HealthPasskeyDetailComponent {
   );
 
   /** The row opened last, so focus can return to it when the user comes back. */
-  private readonly openedRowId = inject(ViewCacheService).signal<string | null>({
+  private readonly openedRowId = healthListSignal<string | null>({
     key: "health-passkeys-opened",
     initialValue: null,
     persistNavigation: true,
@@ -185,7 +186,7 @@ export class HealthPasskeyDetailComponent {
   private readonly focusedRowId = signal<string | null>(null);
 
   constructor() {
-    rememberHealthListScroll(
+    const scrollRestored = rememberHealthListScroll(
       this.viewState.scrollTop,
       computed(() => this.rows().length > 0),
     );
@@ -219,13 +220,13 @@ export class HealthPasskeyDetailComponent {
       )
       .subscribe();
 
-    toObservable(computed(() => this.rows().length > 0))
+    toObservable(computed(() => this.rows().length > 0 && scrollRestored()))
       .pipe(filter(Boolean), take(1), takeUntilDestroyed())
       .subscribe(() => {
         const opened = this.openedRowId();
         if (opened != null) {
           this.openedRowId.set(null);
-          this.focusAfterRender([opened]);
+          this.focusAfterRender([opened], true);
         }
       });
 
@@ -301,11 +302,12 @@ export class HealthPasskeyDetailComponent {
     this.focusAfterRender([after?.id, before?.id]);
   }
 
-  private focusAfterRender(rowIds: (string | undefined)[]): void {
+  private focusAfterRender(rowIds: (string | undefined)[], scrolled = false): void {
+    const focus = scrolled ? focusHealthListRowWhenRendered : focusHealthListRow;
     afterNextRender(
       () =>
         setTimeout(() =>
-          focusHealthListRow(this.host.nativeElement, rowIds, () =>
+          focus(this.host.nativeElement, rowIds, () =>
             this.host.nativeElement.querySelector<HTMLElement>(`#${EMPTY_TITLE_ID}`),
           ),
         ),

@@ -11,15 +11,19 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { SignalCacheOptions, ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CompactModeService, ScrollLayoutService } from "@bitwarden/components";
 
 import {
   announceHealthListCount,
   focusHealthListRow,
+  focusHealthListRowWhenRendered,
   HEALTH_LIST_ANNOUNCE_DEBOUNCE_MS,
   HEALTH_LIST_ROW_ATTRIBUTE,
   HEALTH_LIST_ROW_HEIGHT,
   injectHealthListRowHeight,
+  healthListSignal,
   injectHealthListViewState,
   rememberHealthListScroll,
 } from "./index";
@@ -29,6 +33,7 @@ describe("Health list helpers", () => {
   let scrollLayout: ScrollLayoutService;
   let liveAnnouncer: { announce: jest.Mock; clear: jest.Mock };
   let viewCache: { signal: jest.Mock };
+  let activeAccount$: BehaviorSubject<Account | null>;
 
   beforeEach(() => {
     compact$ = new BehaviorSubject(false);
@@ -38,8 +43,11 @@ describe("Health list helpers", () => {
       signal: jest.fn((options: SignalCacheOptions<unknown>) => signal(options.initialValue)),
     };
 
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: "user-1" as UserId } as Account);
+
     TestBed.configureTestingModule({
       providers: [
+        { provide: AccountService, useValue: { activeAccount$ } },
         { provide: CompactModeService, useValue: { enabled$: compact$ } },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: ViewCacheService, useValue: viewCache },
@@ -92,6 +100,37 @@ describe("Health list helpers", () => {
     });
   });
 
+  describe("healthListSignal", () => {
+    const options: SignalCacheOptions<string> = { key: "health-test", initialValue: "" };
+
+    it("hands a rebuilt page what the last one held, while the popup stays open", () => {
+      const first = inContext(() => healthListSignal(options));
+      first.set("pay");
+      TestBed.tick();
+
+      const second = inContext(() => healthListSignal(options));
+
+      expect(second()).toBe("pay");
+    });
+
+    it("starts from the cache when nothing was held in this popup", () => {
+      expect(inContext(() => healthListSignal({ ...options, initialValue: "cached" }))()).toBe(
+        "cached",
+      );
+    });
+
+    it("forgets what was held when the active account changes", () => {
+      const first = inContext(() => healthListSignal(options));
+      first.set("pay");
+      TestBed.tick();
+
+      activeAccount$.next({ id: "user-2" as UserId } as Account);
+      const second = inContext(() => healthListSignal(options));
+
+      expect(second()).toBe("");
+    });
+  });
+
   describe("rememberHealthListScroll", () => {
     function scrollElement(): HTMLElement {
       const element = document.createElement("div");
@@ -115,6 +154,55 @@ describe("Health list helpers", () => {
       TestBed.tick();
       jest.runAllTimers();
       expect(element.scrollTo).toHaveBeenCalledWith({ top: 240, behavior: "instant" });
+    });
+
+    it("waits for the list to be tall enough rather than clamping to the top", () => {
+      jest.useFakeTimers();
+      const scrollTop = signal(240);
+      const element = scrollElement();
+      let height = 100;
+      Object.defineProperty(element, "scrollHeight", { get: () => height });
+      const restored = inContext(() => rememberHealthListScroll(scrollTop, signal(true)));
+
+      scrollLayout.scrollableRef.set(new ElementRef(element));
+      TestBed.tick();
+      jest.advanceTimersByTime(50);
+      expect(element.scrollTo).not.toHaveBeenCalled();
+      expect(restored()).toBe(false);
+
+      height = 400;
+      jest.advanceTimersByTime(50);
+      expect(element.scrollTo).toHaveBeenCalledWith({ top: 240, behavior: "instant" });
+      expect(restored()).toBe(true);
+    });
+
+    it("restores in the scroll region that replaces one that never got tall enough", () => {
+      jest.useFakeTimers();
+      const scrollTop = signal(240);
+      const first = scrollElement();
+      const second = scrollElement();
+      Object.defineProperty(second, "scrollHeight", { get: () => 800 });
+      inContext(() => rememberHealthListScroll(scrollTop, signal(true)));
+
+      scrollLayout.scrollableRef.set(new ElementRef(first));
+      TestBed.tick();
+      jest.advanceTimersByTime(40);
+      scrollLayout.scrollableRef.set(new ElementRef(second));
+      TestBed.tick();
+      jest.runAllTimers();
+
+      expect(first.scrollTo).not.toHaveBeenCalled();
+      expect(second.scrollTo).toHaveBeenCalledWith({ top: 240, behavior: "instant" });
+    });
+
+    it("is restored at once when there is no offset to restore", () => {
+      const element = scrollElement();
+      const restored = inContext(() => rememberHealthListScroll(signal(0), signal(true)));
+
+      scrollLayout.scrollableRef.set(new ElementRef(element));
+      TestBed.tick();
+
+      expect(restored()).toBe(true);
     });
 
     it("records the offset as the user scrolls", () => {
@@ -196,6 +284,32 @@ describe("Health list helpers", () => {
 
       expect(focusHealthListRow(host, ["b", "c", "a"])).toBe(true);
       expect(document.activeElement?.getAttribute(HEALTH_LIST_ROW_ATTRIBUTE)).toBe("c");
+    });
+
+    it("waits for a row that a virtual list renders a frame later", () => {
+      jest.useFakeTimers();
+      const host = list();
+
+      focusHealthListRowWhenRendered(host, ["a"]);
+      const button = document.createElement("button");
+      button.setAttribute(HEALTH_LIST_ROW_ATTRIBUTE, "a");
+      host.appendChild(button);
+      jest.advanceTimersByTime(20);
+
+      expect(document.activeElement).toBe(button);
+    });
+
+    it("falls back once the row has had its chance to render", () => {
+      jest.useFakeTimers();
+      const host = list();
+      const heading = document.createElement("h2");
+      heading.tabIndex = -1;
+      document.body.appendChild(heading);
+
+      focusHealthListRowWhenRendered(host, ["a"], () => heading);
+      jest.runAllTimers();
+
+      expect(document.activeElement).toBe(heading);
     });
 
     it("falls back when no preferred row is rendered", () => {
