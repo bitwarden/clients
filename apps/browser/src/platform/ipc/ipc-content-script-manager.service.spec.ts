@@ -14,13 +14,6 @@ jest.mock("../browser/browser-api", () => ({
 
 const browserApi = BrowserApi as jest.Mocked<typeof BrowserApi>;
 
-/** Lets pending promise callbacks run. */
-const flushPromises = async () => {
-  for (let i = 0; i < 20; i++) {
-    await Promise.resolve();
-  }
-};
-
 const tabs = (...ids: number[]) => ids.map((id) => ({ id }) as chrome.tabs.Tab);
 
 describe("IpcContentScriptManagerService", () => {
@@ -42,7 +35,6 @@ describe("IpcContentScriptManagerService", () => {
     browserApi.tabsQuery.mockResolvedValue(tabs(1, 2));
 
     await service.init();
-    await flushPromises();
 
     expect(browserApi.registerContentScriptsMv3).toHaveBeenCalledTimes(1);
     expect(browserApi.executeScriptInTab).toHaveBeenCalledTimes(2);
@@ -58,21 +50,14 @@ describe("IpcContentScriptManagerService", () => {
 
   it("resolves init without waiting for a tab that never answers", async () => {
     browserApi.tabsQuery.mockResolvedValue(tabs(1, 2));
-    // Tab 1 never settles, like a frozen tab or one blocked by a dialog.
+    // Tab 1 never settles, like a busy tab or one blocked by a dialog.
     browserApi.executeScriptInTab.mockImplementation((tabId) =>
       tabId === 1 ? new Promise(() => {}) : Promise.resolve(undefined),
     );
 
-    let initResolved = false;
-    const initPromise = service.init().then(() => {
-      initResolved = true;
-    });
-    await flushPromises();
+    // On the old code this await never returns, so the test fails on Jest's timeout.
+    await service.init();
 
-    expect(initResolved).toBe(true);
-    await initPromise;
-
-    // The unresponsive tab does not stop the next tab from being injected.
     expect(browserApi.executeScriptInTab).toHaveBeenCalledWith(2, expect.anything());
   });
 });
