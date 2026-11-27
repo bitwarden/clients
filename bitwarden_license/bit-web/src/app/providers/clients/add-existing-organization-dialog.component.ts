@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -30,78 +29,72 @@ export type AddExistingOrganizationDialogParams = {
   provider: Provider;
 };
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AddExistingOrganizationDialogResultType {
-  Closed = "closed",
-  Submitted = "submitted",
-}
+export const AddExistingOrganizationDialogResultType = Object.freeze({
+  Closed: "closed",
+  Submitted: "submitted",
+} as const);
+export type AddExistingOrganizationDialogResultType =
+  (typeof AddExistingOrganizationDialogResultType)[keyof typeof AddExistingOrganizationDialogResultType];
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./add-existing-organization-dialog.component.html",
-  imports: [
-    CommonModule,
-    I18nPipe,
-    DialogModule,
-    TableModule,
-    AvatarModule,
-    ButtonModule,
-    AsyncActionsModule,
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [I18nPipe, DialogModule, TableModule, AvatarModule, ButtonModule, AsyncActionsModule],
 })
 export class AddExistingOrganizationDialogComponent implements OnInit {
-  protected loading: boolean = true;
+  private readonly dialogRef =
+    inject<DialogRef<AddExistingOrganizationDialogResultType>>(DialogRef);
+  private readonly i18nService = inject(I18nService);
+  private readonly providerApiService = inject(ProviderApiServiceAbstraction);
+  private readonly toastService = inject(ToastService);
+  private readonly webProviderService = inject(WebProviderService);
+  private readonly accountService = inject(AccountService);
+  protected readonly dialogParams = inject<AddExistingOrganizationDialogParams>(DIALOG_DATA);
 
-  addableOrganizations: AddableOrganizationResponse[] = [];
-  selectedOrganization?: AddableOrganizationResponse;
+  protected readonly loading = signal(true);
+  protected readonly addableOrganizations = signal<AddableOrganizationResponse[]>([]);
+  protected readonly selectedOrganization = signal<AddableOrganizationResponse | undefined>(
+    undefined,
+  );
 
   protected readonly ResultType = AddExistingOrganizationDialogResultType;
 
-  constructor(
-    @Inject(DIALOG_DATA) protected dialogParams: AddExistingOrganizationDialogParams,
-    private dialogRef: DialogRef<AddExistingOrganizationDialogResultType>,
-    private i18nService: I18nService,
-    private providerApiService: ProviderApiServiceAbstraction,
-    private toastService: ToastService,
-    private webProviderService: WebProviderService,
-    private accountService: AccountService,
-  ) {}
-
   async ngOnInit() {
-    this.addableOrganizations = await this.providerApiService.getProviderAddableOrganizations(
-      this.dialogParams.provider.id,
+    this.addableOrganizations.set(
+      await this.providerApiService.getProviderAddableOrganizations(this.dialogParams.provider.id),
     );
-    this.loading = false;
+    this.loading.set(false);
   }
 
-  addExistingOrganization = async (): Promise<void> => {
-    if (this.selectedOrganization) {
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      await this.webProviderService.addOrganizationToProvider(
-        this.dialogParams.provider.id,
-        this.selectedOrganization.id,
-        userId,
-      );
-
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("addedExistingOrganization"),
-      });
-
-      await this.dialogRef.close(this.ResultType.Submitted);
+  protected readonly addExistingOrganization = async (): Promise<void> => {
+    const selectedOrganization = this.selectedOrganization();
+    if (selectedOrganization == null) {
+      return;
     }
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.webProviderService.addOrganizationToProvider(
+      this.dialogParams.provider.id,
+      selectedOrganization.id,
+      userId,
+    );
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("addedExistingOrganization"),
+    });
+
+    await this.dialogRef.close(this.ResultType.Submitted);
   };
 
-  selectOrganization(organizationId: string) {
-    this.selectedOrganization = this.addableOrganizations.find(
-      (organization) => organization.id === organizationId,
+  protected selectOrganization(organizationId: string) {
+    this.selectedOrganization.set(
+      this.addableOrganizations().find((organization) => organization.id === organizationId),
     );
   }
 
-  static open = (
+  static readonly open = (
     dialogService: DialogService,
     dialogConfig: DialogConfig<
       AddExistingOrganizationDialogParams,
