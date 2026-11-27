@@ -20,6 +20,24 @@ loading = signal(false);
 isEnabled = signal(true); // because `enabled` is already an input
 ```
 
+## Nullable Values
+
+If a value can be absent, say so in its type (`T | undefined` or `T | null`) and handle the absent case where the value is used. Don't replace it with a placeholder like `""`, `0`, `[]` or `{}` to get rid of the `undefined`. That includes `?? ""` when assigning, default parameters, and initial values (`signal("")`, `toSignal(..., { initialValue: [] })`, `new FormControl("")`).
+
+A placeholder is usually not a valid value: an empty string isn't a name or a GUID. It also hides the "not set yet" state from the type checker, so code that should handle that state compiles anyway.
+
+```typescript
+// ❌ Wrong
+providerName = signal("");
+this.providerName.set(qParams.providerName ?? "");
+
+// ✅ Right
+providerName = signal<string | undefined>(undefined);
+this.providerName.set(qParams.providerName);
+```
+
+Use a default only when it has real meaning, e.g. `[]` for "no items" rather than "not loaded".
+
 ## No TypeScript Enums (ADR-0025)
 
 Use const objects with derived type aliases. Don't add new enums; legacy ones remain.
