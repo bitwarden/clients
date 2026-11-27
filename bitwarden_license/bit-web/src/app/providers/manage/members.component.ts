@@ -1,6 +1,13 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, inject, signal, WritableSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -78,10 +85,9 @@ interface BulkProviderFlags {
   showBulkReinviteUsers: boolean;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -107,65 +113,70 @@ interface BulkProviderFlags {
   ],
 })
 export class MembersComponent {
-  protected apiService = inject(ApiService);
-  protected dialogService = inject(DialogService);
-  protected i18nService = inject(I18nService);
-  protected userNamePipe = inject(UserNamePipe);
-  protected validationService = inject(ValidationService);
-  protected toastService = inject(ToastService);
-  private activatedRoute = inject(ActivatedRoute);
-  private providerService = inject(ProviderService);
-  private accountService = inject(AccountService);
-  private environmentService = inject(EnvironmentService);
-  private providerActionsService = inject(ProviderActionsService);
-  private memberActionsService = inject(MemberActionsService);
-  private logService = inject(LogService);
+  protected readonly apiService = inject(ApiService);
+  protected readonly dialogService = inject(DialogService);
+  protected readonly i18nService = inject(I18nService);
+  protected readonly userNamePipe = inject(UserNamePipe);
+  protected readonly validationService = inject(ValidationService);
+  protected readonly toastService = inject(ToastService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly providerService = inject(ProviderService);
+  private readonly accountService = inject(AccountService);
+  private readonly environmentService = inject(EnvironmentService);
+  private readonly providerActionsService = inject(ProviderActionsService);
+  private readonly memberActionsService = inject(MemberActionsService);
+  private readonly logService = inject(LogService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  protected accessEvents = false;
+  protected readonly accessEvents = false;
 
-  protected providerId$: Observable<ProviderId>;
-  protected provider$: Observable<Provider | undefined>;
+  protected readonly providerId$: Observable<ProviderId>;
+  protected readonly provider$: Observable<Provider | undefined>;
 
-  protected rowHeight = 70;
-  protected rowHeightClass = `tw-h-[70px]`;
-  protected status: ProviderUserStatusType | undefined;
+  protected readonly rowHeight = 70;
+  protected readonly rowHeightClass = `tw-h-[70px]`;
+  protected readonly status: ProviderUserStatusType | undefined;
 
-  protected userStatusType = ProviderUserStatusType;
-  protected userType = ProviderUserType;
+  protected readonly userStatusType = ProviderUserStatusType;
+  protected readonly userType = ProviderUserType;
 
-  protected searchControl = new FormControl("", { nonNullable: true });
-  protected statusToggle = new BehaviorSubject<ProviderUserStatusType | undefined>(undefined);
+  protected readonly searchControl = new FormControl("", { nonNullable: true });
+  protected readonly statusToggle = new BehaviorSubject<ProviderUserStatusType | undefined>(
+    undefined,
+  );
 
   protected readonly dataSource: WritableSignal<ProvidersTableDataSource> = signal(
     new ProvidersTableDataSource(this.environmentService),
   );
   protected readonly firstLoaded: WritableSignal<boolean> = signal(false);
 
-  protected bulkMenuOptions$ = this.dataSource()
+  protected readonly bulkMenuOptions$ = this.dataSource()
     .usersUpdated()
     .pipe(map((members) => this.bulkMenuOptions(members)));
 
-  protected showConfirmBanner$ = this.dataSource()
+  protected readonly showConfirmBanner$ = this.dataSource()
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
 
-  protected selectedInvitedCount$ = this.dataSource()
+  protected readonly selectedInvitedCount$ = this.dataSource()
     .usersUpdated()
     .pipe(
       map((members) => members.filter((m) => m.status === ProviderUserStatusType.Invited).length),
     );
 
-  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
+  protected readonly isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
 
-  protected isProcessing = this.providerActionsService.isProcessing;
+  protected readonly isProcessing = this.providerActionsService.isProcessing;
 
   constructor() {
     // Connect the search input and status toggles to the table dataSource filter
     combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
       .pipe(takeUntilDestroyed())
-      .subscribe(
-        ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
-      );
+      .subscribe(([searchText, status]) => {
+        this.dataSource().filter = peopleFilter(searchText, status);
+        // OnPush: a filter change does not notify the view, and the template reads filteredData
+        this.cdr.markForCheck();
+      });
 
     this.providerId$ = this.activatedRoute.params.pipe(map((params) => params.providerId));
 
