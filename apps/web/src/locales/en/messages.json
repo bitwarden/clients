@@ -5052,6 +5052,9 @@
   "premiumUpdated": {
     "message": "You've upgraded to Premium."
   },
+  "upgradedToPremium": {
+    "message": "Upgraded to Premium"
+  },
   "premiumUpgradeUnlockFeatures": {
     "message": "Upgrade your account to a Premium membership and unlock some great additional features."
   },
