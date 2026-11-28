@@ -2,7 +2,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { OrganizationId, UserId } from "../../types/guid";
-import { CipherType } from "../enums";
+import { CipherType, FieldType } from "../enums";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
@@ -144,6 +144,41 @@ describe("LunrSearchService", () => {
     expect(
       mockLogService.info.mock.calls.filter((call) => call[0] === "Starting Lunr index build"),
     ).toHaveLength(2);
+  });
+
+  describe("custom field indexing", () => {
+    it("indexes each word of a custom field value so fields: queries match", async () => {
+      const cipher = createCipherView("11111111-1111-1111-1111-111111111111", "Work");
+      cipher.fields = [
+        { name: "token", value: "await jaunt tribune sniff", type: FieldType.Text },
+      ] as CipherView["fields"];
+
+      const result = await service.searchCiphers(userId, null, ">fields:sniff", [cipher]);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("indexes each word of a custom field name", async () => {
+      const cipher = createCipherView("11111111-1111-1111-1111-111111111111", "Work");
+      cipher.fields = [
+        { name: "jira token", value: "x", type: FieldType.Text },
+      ] as CipherView["fields"];
+
+      const result = await service.searchCiphers(userId, null, ">fields:jira", [cipher]);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("does not index hidden field values", async () => {
+      const cipher = createCipherView("11111111-1111-1111-1111-111111111111", "Work");
+      cipher.fields = [
+        { name: "pin", value: "hunter2", type: FieldType.Hidden },
+      ] as CipherView["fields"];
+
+      const result = await service.searchCiphers(userId, null, ">fields:hunter2", [cipher]);
+
+      expect(result).toHaveLength(0);
+    });
   });
 
   describe("login URI indexing", () => {
