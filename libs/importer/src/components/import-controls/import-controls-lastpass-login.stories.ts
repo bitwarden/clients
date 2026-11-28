@@ -36,7 +36,7 @@ export default {
               verificationCode: "Verification code",
               verificationCodeRequired: "Verification code is required.",
               lastPassLoginPasswordRequired: "Password is required.",
-              lastPassLoginPasswordInvalid: "Enter a valid password",
+              lastPassLoginPasswordInvalidV2: "Enter a valid password.",
               lastPassLoginCodeInvalid: "Enter a valid verification code.",
               lastPassLoginWaitingForSso: "Waiting for SSO authentication",
               lastPassLoginWaitingForSsoDesc:

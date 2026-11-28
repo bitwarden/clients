@@ -6,13 +6,13 @@ describe("keeperValidationErrorI18nKey", () => {
   it("maps a cancelled MFA prompt", () => {
     expect(
       keeperValidationErrorI18nKey(new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled")),
-    ).toBe("multifactorAuthenticationCancelled");
+    ).toBe("multifactorAuthenticationCancelledV2");
   });
 
   it("maps a failed MFA attempt", () => {
     expect(
       keeperValidationErrorI18nKey(new KeeperAuthError(KeeperAuthErrorCode.MfaFailed, "failed")),
-    ).toBe("multifactorAuthenticationFailed");
+    ).toBe("multifactorAuthenticationFailedV2");
   });
 
   it("maps an unsupported two-factor method", () => {

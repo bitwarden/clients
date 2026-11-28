@@ -11,6 +11,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -60,8 +61,10 @@ import {
   SdkImportCredentials,
   UpgradeImportType,
 } from "../../models";
+import { isEmptySdkSummary } from "../../sdk";
 import {
   countCipherTypes,
+  FileStepReturn,
   ImportDestinationServiceAbstraction,
   ImporterProfile,
   ImportStagingServiceAbstraction,
@@ -97,6 +100,7 @@ import { ImportControlsChromiumComponent } from "./import-controls-chromium.comp
 import { DirectStep, ImportControlsDirectComponent } from "./import-controls-direct.component";
 import { ImportControlsManualComponent } from "./import-controls-manual.component";
 import { ImportOutcome } from "./import-outcome";
+import { KdbxFailure, kdbxFailureFor, kdbxSignatureFailure, kdbxSizeFailure } from "./kdbx-failure";
 import {
   detectPasteContentShape,
   expectedPasteShapeFor,
@@ -120,9 +124,17 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   }
 }
 
-// Unlike Validators.required, also rejects whitespace-only content.
-const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>) =>
-  control.value == null || control.value.trim() === "" ? { required: true } : null;
+// Bitwarden's encrypted JSON export, which only the Bitwarden source can read.
+function isBitwardenEncryptedJson(contents: string): boolean {
+  if (!contents.includes("encKeyValidation_DO_NOT_EDIT")) {
+    return false;
+  }
+  try {
+    return JSON.parse(contents)?.encrypted === true;
+  } catch {
+    return false;
+  }
+}
 
 @Component({
   selector: "importer-controls",
@@ -423,7 +435,8 @@ export class ImportControlsComponent {
       this.destinationsPending() ||
       this.filePasswordCheckPending() ||
       this.keeperUi.waiting() ||
-      this.lastPassUi.waiting(),
+      this.lastPassUi.waiting() ||
+      this.fileTypeUnsupported(),
   );
 
   protected readonly isKeeper = computed(() => this.importType() === "keeper");
@@ -442,7 +455,8 @@ export class ImportControlsComponent {
       : { filePasswordRequired: { message: this.i18nService.t("filePasswordRequired") } };
 
   /** Pasted content must look like the selected format (dropdown vendors only; the dropdown is
-   *  never changed by what is pasted). Formats with no distinguishable shape never mismatch. */
+   *  never changed by what is pasted). Formats with no distinguishable shape never mismatch. Its
+   *  message is the one shown when the content fails to parse. */
   private readonly pasteShapeValidator: ValidatorFn = (control: AbstractControl<string>) => {
     const selected = this.selectedFormat();
     const content = control.value ?? "";
@@ -452,9 +466,33 @@ export class ImportControlsComponent {
     }
     return {
       pasteContentFormatMismatch: {
-        message: this.i18nService.t("pasteContentFormatMismatch"),
+        message: this.i18nService.t("importDataFormatInvalid"),
       },
     };
+  };
+
+  /** The accepted extensions as text, e.g. ".csv, .json, or .1pux". */
+  private displayedFileTypesText(): string {
+    return new Intl.ListFormat(this.document.documentElement.lang || undefined, {
+      style: "long",
+      type: "disjunction",
+    }).format(this.displayedFileTypes().map((type) => `.${type}`));
+  }
+
+  // Unlike Validators.required, also rejects whitespace-only content.
+  private readonly pasteContentRequiredValidator: ValidatorFn = (
+    control: AbstractControl<string>,
+  ) =>
+    control.value == null || control.value.trim() === ""
+      ? { pasteContentRequired: { message: this.i18nService.t("importPasteContentRequired") } }
+      : null;
+
+  private readonly fileRequiredValidator: ValidatorFn = (control: AbstractControl<File | null>) => {
+    // Read before the check so the effect that revalidates tracks the selection.
+    const types = this.displayedFileTypesText();
+    return control.value == null
+      ? { fileRequired: { message: this.i18nService.t("importFileRequired", types) } }
+      : null;
   };
 
   /** The chosen file's extension must be one the selected format (else the vendor) accepts. The
@@ -472,13 +510,39 @@ export class ImportControlsComponent {
     if (accepted.includes(extension)) {
       return null;
     }
-    const types = new Intl.ListFormat(this.document.documentElement.lang || undefined, {
-      style: "long",
-      type: "disjunction",
-    }).format(this.displayedFileTypes().map((type) => `.${type}`));
     return {
-      fileTypeNotSupported: { message: this.i18nService.t("fileTypeNotSupported", types) },
+      fileTypeNotSupported: {
+        message: this.i18nService.t("fileTypeNotSupportedV2", this.displayedFileTypesText()),
+      },
     };
+  };
+
+  // What the SDK or a pre-check found wrong with the KeePass file or password. Validators, so that
+  // revalidating on a selection change doesn't clear them; each clears when its value changes.
+  private readonly kdbxFileError = signal<{ message: string; file: File | null } | undefined>(
+    undefined,
+  );
+  // The SDK can't say whether the password or the key file was wrong, so the error holds both.
+  private readonly kdbxPasswordError = signal<
+    { message: string; password: string; keyFile: File | null } | undefined
+  >(undefined);
+
+  private readonly kdbxFileErrorValidator: ValidatorFn = (
+    control: AbstractControl<File | null>,
+  ) => {
+    const error = this.kdbxFileError();
+    return error != null && control.value === error.file
+      ? { importContent: { message: error.message } }
+      : null;
+  };
+
+  private readonly kdbxPasswordErrorValidator: ValidatorFn = (control: AbstractControl<string>) => {
+    const error = this.kdbxPasswordError();
+    return error != null &&
+      control.value === error.password &&
+      this.formGroup.controls.keyFile.value === error.keyFile
+      ? { kdbxPasswordInvalid: { message: error.message } }
+      : null;
   };
 
   protected readonly formGroup = this.formBuilder.group({
@@ -505,7 +569,7 @@ export class ImportControlsComponent {
     // Custom validator first so its message wins.
     kdbxPassword: [
       { value: "", disabled: true },
-      [this.masterPasswordRequiredValidator, Validators.required],
+      [this.masterPasswordRequiredValidator, Validators.required, this.kdbxPasswordErrorValidator],
     ],
     keyFile: [{ value: null as File | null, disabled: true }],
 
@@ -533,6 +597,16 @@ export class ImportControlsComponent {
     initialValue: this.formGroup.controls.file.value,
   });
   protected readonly chosenFileName = computed(() => this.chosenFile()?.name);
+
+  // The errors, not the status: a missing file and an unsupported one are both INVALID.
+  private readonly fileErrors = toSignal(
+    this.formGroup.controls.file.statusChanges.pipe(map(() => this.formGroup.controls.file.errors)),
+    { initialValue: this.formGroup.controls.file.errors },
+  );
+  // A file of the wrong type can't be imported, so Continue waits for another.
+  private readonly fileTypeUnsupported = computed(
+    () => this.fileErrors()?.["fileTypeNotSupported"] != null,
+  );
 
   // The file picked for this import. A direct or Chromium import ignores any file chosen earlier.
   private importedFile(): ImportedFile | undefined {
@@ -836,7 +910,14 @@ export class ImportControlsComponent {
     effect(() => {
       const fileRequired = this.method() === "file";
       this.formGroup.controls.file.setValidators(
-        fileRequired ? [Validators.required, this.fileTypeSupportedValidator] : [],
+        fileRequired
+          ? [
+              this.fileRequiredValidator,
+              Validators.required,
+              this.fileTypeSupportedValidator,
+              this.kdbxFileErrorValidator,
+            ]
+          : [],
       );
       this.formGroup.controls.file.updateValueAndValidity();
     });
@@ -846,7 +927,7 @@ export class ImportControlsComponent {
       const pasteRequired = this.method() === "paste";
       this.formGroup.controls.fileContents.setValidators(
         pasteRequired
-          ? [Validators.required, requiredTrimmedValidator, this.pasteShapeValidator]
+          ? [this.pasteContentRequiredValidator, Validators.required, this.pasteShapeValidator]
           : [],
       );
       this.formGroup.controls.fileContents.updateValueAndValidity();
@@ -910,7 +991,63 @@ export class ImportControlsComponent {
         this.formGroup.controls.formatChoice.setValue((options[0]?.id as ImportType) ?? null);
       }
     });
+
+    // A KeePass import the location step handed back after the SDK rejected it. Taken once, and
+    // restored after the effect above has shown and seeded the format choice.
+    // The password error depends on the key file too, so choosing or removing one revalidates it.
+    this.formGroup.controls.keyFile.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formGroup.controls.kdbxPassword.updateValueAndValidity());
+
+    let returned = this.stagingService.takeFileStepReturn();
+    this.destroyRef.onDestroy(() => this.zeroFileStepReturn(returned));
+    effect(() => {
+      if (returned == null) {
+        return;
+      }
+      const offered = this.formatOptions().some((option) => option.id === returned!.format);
+      if (offered && !this.formatChoiceActive()) {
+        return;
+      }
+      const state = returned;
+      returned = undefined;
+      untracked(() => (offered ? this.restoreFileStep(state) : this.zeroFileStepReturn(state)));
+    });
   }
+
+  // The copy only gives File the type it takes; File copies it again, so it is zeroed straight away.
+  private fileFromBytes(bytes: Uint8Array, name: string): File {
+    const copy = new Uint8Array(bytes);
+    const file = new File([copy], name);
+    copy.fill(0);
+    return file;
+  }
+
+  private zeroFileStepReturn(returned: FileStepReturn | undefined): void {
+    returned?.file.bytes.fill(0);
+    returned?.keyFile?.bytes.fill(0);
+  }
+
+  private restoreFileStep(returned: FileStepReturn): void {
+    const controls = this.formGroup.controls;
+    // File copies the bytes, so the held ones are zeroed as soon as it is built.
+    const file = this.fileFromBytes(returned.file.bytes, returned.file.name);
+    const keyFile = returned.keyFile
+      ? this.fileFromBytes(returned.keyFile.bytes, returned.keyFile.name)
+      : null;
+    this.zeroFileStepReturn(returned);
+
+    controls.method.setValue("file");
+    controls.file.setValue(file);
+    controls.formatChoice.setValue(returned.format);
+    controls.kdbxPassword.setValue(returned.password);
+    if (keyFile != null) {
+      this.showKeyFile.set(true);
+      controls.keyFile.setValue(keyFile);
+    }
+    this.showKdbxFailure(returned.error);
+  }
+
   protected onBack(): void {
     if (this.directImporting()) {
       return;
@@ -1011,7 +1148,10 @@ export class ImportControlsComponent {
     try {
       outcome = await this.runImport();
     } catch (error) {
-      this.logService.error(error);
+      this.logService.error("Import failed:", errorName(error));
+      if (this.showImportError(error)) {
+        return;
+      }
       // The dialog reads .message; an unmapped SDK rejection may not be an Error.
       this.dialogService.open(ImportErrorDialogComponent, {
         data: error instanceof Error ? error : new Error(String(error)),
@@ -1037,6 +1177,53 @@ export class ImportControlsComponent {
     }
 
     this.continue.emit();
+  }
+
+  // Errors with a place of their own: a toast, or inline on the field holding the content. The
+  // rest open the error dialog.
+  private showImportError(error: unknown): boolean {
+    if (!(error instanceof ImportResultError)) {
+      return false;
+    }
+    switch (error.errorKey) {
+      case ImportResultErrorKey.AccountMismatch:
+        return this.showErrorToast("importEncryptionKeyMismatch");
+      case ImportResultErrorKey.EncryptedUnsupported:
+        return this.showErrorToast("unsupportedEncryptedImport");
+      case ImportResultErrorKey.TooMuchData:
+        return this.showErrorToast("importTooMuchData");
+      case ImportResultErrorKey.NothingImported:
+        return this.primaryMode() === "manual" && this.showErrorToast("importFileEmpty");
+      case ImportResultErrorKey.InvalidFormat:
+        return this.showContentError("importDataFormatInvalid");
+      case ImportResultErrorKey.InvalidStructure:
+        return this.showContentError("importFileStructureInvalid");
+      default:
+        return false;
+    }
+  }
+
+  private showErrorToast(key: string): true {
+    this.toastService.showToast({
+      variant: "error",
+      title: undefined,
+      message: this.i18nService.t(key),
+    });
+    return true;
+  }
+
+  // The pasted text or chosen file stays as it is; a direct import has no such field.
+  private showContentError(key: string): boolean {
+    if (this.primaryMode() !== "manual") {
+      return false;
+    }
+    const control =
+      this.method() === "paste"
+        ? this.formGroup.controls.fileContents
+        : this.formGroup.controls.file;
+    control.setErrors({ importContent: { message: this.i18nService.t(key) } });
+    control.markAsTouched();
+    return true;
   }
 
   // Pending and "error" both block, without blaming the org policy. A failed destination lookup
@@ -1165,27 +1352,18 @@ export class ImportControlsComponent {
     const contents =
       this.method() === "paste" ? this.pastedContent() : await this.readChosenFileContents(format);
 
+    if (!format.startsWith("bitwarden") && isBitwardenEncryptedJson(contents)) {
+      throw new ImportResultError(
+        this.i18nService.t("unsupportedEncryptedImport"),
+        ImportResultErrorKey.EncryptedUnsupported,
+      );
+    }
+
     if (needsPassword) {
       return this.runFilePasswordProtectedImport(format, contents, password);
     }
 
-    try {
-      return await this.runGenericImport(format, contents);
-    } catch (error) {
-      // Set only by UpgradeBitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
-      if (
-        error instanceof ImportResultError &&
-        error.errorKey === ImportResultErrorKey.AccountMismatch
-      ) {
-        this.toastService.showToast({
-          variant: "error",
-          title: undefined,
-          message: this.i18nService.t("importAccountMismatchError"),
-        });
-        return { kind: "cancelled" };
-      }
-      throw error;
-    }
+    return this.runGenericImport(format, contents);
   }
 
   /** Uses the inline password; a wrong one is shown inline, not in the error dialog. */
@@ -1202,7 +1380,7 @@ export class ImportControlsComponent {
         error.errorKey === ImportResultErrorKey.InvalidFilePassword
       ) {
         this.formGroup.controls.filePassword.setErrors({
-          invalidFilePassword: { message: this.i18nService.t("filePasswordInvalid") },
+          invalidFilePassword: { message: this.i18nService.t("filePasswordInvalidV2") },
         });
         this.formGroup.controls.filePassword.markAsTouched();
         return { kind: "cancelled" };
@@ -1211,18 +1389,21 @@ export class ImportControlsComponent {
     }
   }
 
-  // Caller guarantees a chosen file exists here; empty/unreadable content throws errorReadingFile.
+  // Caller guarantees a chosen file exists here; unreadable content throws errorReadingFile.
   private async readChosenFileContents(format: ImportType): Promise<string> {
     const file = this.chosenFile()!;
     let contents: string;
     try {
       contents = await readImportFileContents(format, file);
     } catch (error) {
-      this.logService.error(error);
+      this.logService.error("Error reading the import file:", errorName(error));
       throw new Error(this.i18nService.t("errorReadingFile"));
     }
     if (contents.trim() === "") {
-      throw new Error(this.i18nService.t("errorReadingFile"));
+      throw new ImportResultError(
+        this.i18nService.t("importFileEmpty"),
+        ImportResultErrorKey.NothingImported,
+      );
     }
     return contents;
   }
@@ -1239,10 +1420,27 @@ export class ImportControlsComponent {
       return { kind: "cancelled" };
     }
 
+    // The SDK's only importer today is KeePass, and it neither says nor can be asked what is wrong
+    // with a file before the destination is known, so what can be told here is told here.
+    const isKdbx = format === "keepasskdbx";
+    const tooLarge = isKdbx ? kdbxSizeFailure(file.size) : undefined;
+    if (tooLarge != null) {
+      this.showKdbxFailure(tooLarge);
+      return { kind: "cancelled" };
+    }
+
     const fileBytes = new Uint8Array(await file.arrayBuffer());
     if (fileBytes.length === 0) {
-      // A file was chosen, so this is a bad-file error.
-      throw new Error(this.i18nService.t("errorReadingFile"));
+      throw new ImportResultError(
+        this.i18nService.t("importFileEmpty"),
+        ImportResultErrorKey.NothingImported,
+      );
+    }
+
+    const notKdbx = isKdbx ? kdbxSignatureFailure(fileBytes) : undefined;
+    if (notKdbx != null) {
+      this.showKdbxFailure(notKdbx);
+      return { kind: "cancelled" };
     }
 
     const credentials = await this.collectSdkCredentials(
@@ -1274,20 +1472,41 @@ export class ImportControlsComponent {
         undefined,
         false,
       );
+      if (isEmptySdkSummary(sdkSummary)) {
+        this.showErrorToast("importFileEmpty");
+        return { kind: "cancelled" };
+      }
       return { kind: "importedWithSdk", sdkSummary };
     } catch (error) {
       // Mirrors legacy's SDK error mapping.
-      this.logService.error("SDK importer error:", error);
+      this.logService.error("SDK importer error:", errorName(error));
       const messageKey = this.importService.sdkErrorMessageKey(format, error);
-      if (messageKey === "invalidFilePassword") {
-        // Only the kdbx importer maps to this key; shown inline.
-        this.formGroup.controls.kdbxPassword.setErrors({
-          kdbxPasswordInvalid: { message: this.i18nService.t("kdbxPasswordInvalid") },
-        });
-        this.formGroup.controls.kdbxPassword.markAsTouched();
+      // Only the kdbx importer maps to these keys; shown inline.
+      const failure = kdbxFailureFor(messageKey);
+      if (failure != null) {
+        this.showKdbxFailure(failure);
         return { kind: "cancelled" };
       }
       throw messageKey != null ? new Error(this.i18nService.t(messageKey)) : error;
+    }
+  }
+
+  private showKdbxFailure(failure: KdbxFailure): void {
+    const message = this.i18nService.t(failure.messageKey, failure.args?.[0]);
+    if (failure.field === "kdbxPassword") {
+      const control = this.formGroup.controls.kdbxPassword;
+      this.kdbxPasswordError.set({
+        message,
+        password: control.value ?? "",
+        keyFile: this.formGroup.controls.keyFile.value,
+      });
+      control.updateValueAndValidity();
+      control.markAsTouched();
+    } else {
+      const control = this.formGroup.controls.file;
+      this.kdbxFileError.set({ message, file: control.value });
+      control.updateValueAndValidity();
+      control.markAsTouched();
     }
   }
 
@@ -1308,6 +1527,7 @@ export class ImportControlsComponent {
           kind: "passwordWithKeyFile",
           password: this.formGroup.controls.kdbxPassword.value ?? "",
           keyFile: keyFile ? new Uint8Array(await keyFile.arrayBuffer()) : null,
+          keyFileName: keyFile?.name,
         };
       }
       default:
@@ -1419,7 +1639,7 @@ export class ImportControlsComponent {
     try {
       await this.onContinue();
     } catch (error) {
-      this.logService.error(error);
+      this.logService.error("Keeper import failed:", errorName(error));
     } finally {
       this.keeperUi.end(session);
     }
@@ -1431,7 +1651,7 @@ export class ImportControlsComponent {
     try {
       await this.onContinue();
     } catch (error) {
-      this.logService.error(error);
+      this.logService.error("LastPass import failed:", errorName(error));
     } finally {
       this.lastPassUi.end(session);
     }

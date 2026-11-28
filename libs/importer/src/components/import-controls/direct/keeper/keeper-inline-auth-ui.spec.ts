@@ -351,7 +351,7 @@ describe("KeeperInlineAuthUi", () => {
       expect(session.errorReported()).toBe(true);
     });
 
-    it("words an unsupported second factor for the design and keeps the user where they are", async () => {
+    it("shows the unsupported second factor message and keeps the user where they are", async () => {
       const ui = create();
       const startOver = jest.fn();
       ui.registerStartOver(startOver);
@@ -360,7 +360,7 @@ describe("KeeperInlineAuthUi", () => {
       await session.showError("keeperUnsupported2faMethod");
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "keeperLoginUnsupportedTwoFactor" }),
+        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
       );
       expect(startOver).not.toHaveBeenCalled();
       expect(session.errorReported()).toBe(true);

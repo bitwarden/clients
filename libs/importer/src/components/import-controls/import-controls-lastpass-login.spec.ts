@@ -278,7 +278,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
 
       expect(isShown("importer-controls_input_lastpass-password")).toBe(true);
       expect(loginControls().lastPassPassword.errors.lastPassPasswordRejected.message).toBe(
-        "lastPassLoginPasswordInvalid",
+        "lastPassLoginPasswordInvalidV2",
       );
       expect(loginControls().lastPassPassword.value).toBe("");
       expect(toastService.showToast).not.toHaveBeenCalled();
@@ -458,7 +458,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       await settle();
 
       expect(controls().lastPassEmail.errors).toEqual({
-        errors: { message: "incorrectUsernameOrPassword" },
+        errors: { message: "incorrectUsernameOrPasswordV2" },
       });
       expect(isShown("importer-controls_input_lastpass-email")).toBe(true);
       expect(controls().lastPassEmail.value).toBe("user@example.com");
@@ -475,7 +475,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         title: undefined,
-        message: "noLastPassDataFound",
+        message: "noLastPassDataFoundV2",
       });
       expect(controls().lastPassEmail.value).toBe("");
       expect(component().directStep()).toBe("intro");

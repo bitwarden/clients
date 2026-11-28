@@ -7,6 +7,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType, BankAccountType } from "@bitwarden/common/vault/enums";
 
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { testData as dedicatedItemsTestData } from "../spec-data/protonpass-json/protonpass-dedicated-types.json";
 import { testData } from "../spec-data/protonpass-json/protonpass.json";
@@ -35,6 +36,18 @@ describe("Protonpass Json Importer", () => {
     // By default disable all feature flags
     configService.getFeatureFlag.mockResolvedValue(false);
     importer = new ProtonPassJsonImporter(i18nService, configService, mock<LogService>());
+  });
+
+  it("should not import an encrypted export, and say why", async () => {
+    i18nService.t.mockImplementation((key: string) => key);
+
+    const result = await importer.parse(JSON.stringify({ encrypted: true, vaults: {} }));
+
+    expect(result.success).toBe(false);
+    expect(result.errorMessage).toBe("unsupportedEncryptedImport");
+    expect((result as ImportUpgradeResult).errorKey).toBe(
+      ImportResultErrorKey.EncryptedUnsupported,
+    );
   });
 
   it("should parse login data", async () => {

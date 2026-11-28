@@ -5,9 +5,9 @@ export function keeperValidationErrorI18nKey(error: unknown): string {
   if (error instanceof KeeperAuthError) {
     switch (error.code) {
       case KeeperAuthErrorCode.Cancelled:
-        return "multifactorAuthenticationCancelled";
+        return "multifactorAuthenticationCancelledV2";
       case KeeperAuthErrorCode.MfaFailed:
-        return "multifactorAuthenticationFailed";
+        return "multifactorAuthenticationFailedV2";
       case KeeperAuthErrorCode.UnsupportedTwoFactorMethod:
         return "keeperUnsupported2faMethod";
       case KeeperAuthErrorCode.SocketError:

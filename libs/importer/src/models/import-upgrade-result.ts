@@ -7,6 +7,11 @@ import { ImportResult } from "./import-result";
 export const ImportResultErrorKey = Object.freeze({
   InvalidFilePassword: "invalidFilePassword",
   AccountMismatch: "importEncKeyError",
+  NothingImported: "importNothingError",
+  InvalidFormat: "importFormatError",
+  InvalidStructure: "importFileStructureInvalid",
+  EncryptedUnsupported: "unsupportedEncryptedImport",
+  TooMuchData: "importTooMuchData",
 } as const);
 export type ImportResultErrorKey = (typeof ImportResultErrorKey)[keyof typeof ImportResultErrorKey];
 

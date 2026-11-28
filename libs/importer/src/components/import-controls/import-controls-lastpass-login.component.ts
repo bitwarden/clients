@@ -88,7 +88,7 @@ export class ImportControlsLastPassLoginComponent {
     if (untracked(this.passwordRejected) && control.pristine) {
       return {
         lastPassPasswordRejected: {
-          message: this.i18nService.t("lastPassLoginPasswordInvalid"),
+          message: this.i18nService.t("lastPassLoginPasswordInvalidV2"),
         },
       };
     }

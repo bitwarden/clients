@@ -15,7 +15,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
-import { BitSvg } from "@bitwarden/assets/svg";
+import { BitSvg, SearchFolder } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import {
@@ -28,6 +28,7 @@ import {
   RadioButtonModule,
   SearchModule,
   SegmentedCardComponent,
+  StatusLockupComponent,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -62,6 +63,7 @@ import {
     RadioButtonModule,
     SearchModule,
     SegmentedCardComponent,
+    StatusLockupComponent,
     SvgModule,
     TypographyModule,
   ],
@@ -100,6 +102,15 @@ export class ImportSourceSelectComponent implements OnInit {
   );
 
   protected readonly searching = computed(() => this.normalizedSearch().length > 0);
+
+  protected readonly searchFolder = SearchFolder;
+
+  /** What was typed, as typed, for the no-results message. */
+  protected readonly searchValue = computed(() => (this.searchText() ?? "").trim());
+
+  protected clearSearch(): void {
+    this.searchControl.setValue("");
+  }
 
   private matchesSearch(option: ImportOption): boolean {
     const search = this.normalizedSearch();

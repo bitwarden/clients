@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { testData as EncryptedData } from "../spec-data/passky-json/passky-encrypted.json";
 import { testData as UnencryptedData } from "../spec-data/passky-json/passky-unencrypted.json";
 
@@ -19,6 +20,9 @@ describe("Passky Json Importer", () => {
     expect(result != null).toBe(true);
     expect(result.success).toBe(false);
     expect(result.errorMessage).toBe("Unable to import an encrypted passky backup.");
+    expect((result as ImportUpgradeResult).errorKey).toBe(
+      ImportResultErrorKey.EncryptedUnsupported,
+    );
   });
 
   it("should parse login data", async () => {

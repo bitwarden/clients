@@ -69,6 +69,9 @@ function importTypeFromTemplate(template: string): string {
   return match[1];
 }
 
+// The start of a KeePass database: the signature the step checks before the SDK is asked.
+const kdbxHeader = () => new Uint8Array([0x03, 0xd9, 0xa2, 0x9a, 0x67, 0xfb, 0x4b, 0xb5]).buffer;
+
 describe("import-controls.stories i18n and DI coverage", () => {
   let missedKeys: string[];
   let openedDialogs: unknown[];
@@ -283,7 +286,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
 
     component.formGroup.controls.file.setValue({
       name: "export.kdbx",
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      arrayBuffer: () => Promise.resolve(kdbxHeader()),
     } as unknown as File);
     fixture.detectChanges();
     component.addKeyFile();
@@ -305,7 +308,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
 
     component.formGroup.controls.file.setValue({
       name: "export.kdbx",
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+      arrayBuffer: () => Promise.resolve(kdbxHeader()),
     } as unknown as File);
     fixture.detectChanges();
     await component.submit();

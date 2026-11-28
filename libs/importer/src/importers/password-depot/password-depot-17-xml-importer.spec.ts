@@ -8,6 +8,7 @@ import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherType } from "@bitwarden/sdk-internal";
 
+import { ImportResultErrorKey, ImportUpgradeResult } from "../../models/import-upgrade-result";
 import { assertCustomFieldsExist } from "../spec-data/importer-test-utils";
 import {
   EncryptedFileData,
@@ -56,6 +57,9 @@ describe("Password Depot 17 Xml Importer", () => {
     const importer = new PasswordDepot17XmlImporter(configService, mock<LogService>());
     const result = await importer.parse(EncryptedFileData);
     expect(result.errorMessage).toBe("Encrypted Password Depot files are not supported.");
+    expect((result as ImportUpgradeResult).errorKey).toBe(
+      ImportResultErrorKey.EncryptedUnsupported,
+    );
   });
 
   it("should return error with missing passwords node tag", async () => {

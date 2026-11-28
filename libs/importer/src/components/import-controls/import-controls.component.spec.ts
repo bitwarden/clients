@@ -31,6 +31,7 @@ import {
 } from "../../models";
 import {
   DefaultImportStagingService,
+  FileStepReturn,
   ImportDestinationServiceAbstraction,
   ImporterUpgradeCapabilities,
   ImportStagingServiceAbstraction,
@@ -48,6 +49,9 @@ import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.
 import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
 import { LastPassAuthSession } from "./direct/lastpass/lastpass-auth-session";
 import { ImportControlsComponent } from "./import-controls.component";
+
+// The start of a KeePass database: the signature the step checks before the SDK is asked.
+const kdbxHeader = () => new Uint8Array([0x03, 0xd9, 0xa2, 0x9a, 0x67, 0xfb, 0x4b, 0xb5]).buffer;
 
 describe("ImportControlsComponent", () => {
   let fixture: ComponentFixture<ImportControlsComponent>;
@@ -1298,6 +1302,8 @@ describe("ImportControlsComponent", () => {
     it("blocks submit() with the inline unsupported-type error on the file field for an always-prompt vendor, not a spurious format error", async () => {
       await setup("1password", ClientType.Web);
       component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
+      // Choosing a file touches the field, which is what shows the error.
+      component().formGroup.controls.file.markAsTouched();
       fixture.detectChanges();
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
@@ -1305,6 +1311,7 @@ describe("ImportControlsComponent", () => {
       await component().submit();
       fixture.detectChanges();
 
+      expect(component().continueBlocked()).toBe(true);
       expect(component().formGroup.controls.file.touched).toBe(true);
       expect(component().formGroup.controls.formatChoice.valid).toBe(true);
       expect(continueSpy).not.toHaveBeenCalled();
@@ -1325,7 +1332,7 @@ describe("ImportControlsComponent", () => {
 
         expect(fileErrors()).toHaveProperty("fileTypeNotSupported");
         // The hint advertises only .1pux for this format, so the message does too.
-        expect(t).toHaveBeenCalledWith("fileTypeNotSupported", ".1pux");
+        expect(t).toHaveBeenCalledWith("fileTypeNotSupportedV2", ".1pux");
       });
 
       it("lists every type of the vendor when no format is selected (Dashlane has no dropdown)", async () => {
@@ -1335,7 +1342,7 @@ describe("ImportControlsComponent", () => {
         component().formGroup.controls.file.setValue({ name: "export.pdf" } as File);
         fixture.detectChanges();
 
-        expect(t).toHaveBeenCalledWith("fileTypeNotSupported", ".csv or .json");
+        expect(t).toHaveBeenCalledWith("fileTypeNotSupportedV2", ".csv or .json");
       });
 
       it("lists the selected format's own types, joined with 'or' (KeePass xml)", async () => {
@@ -1347,7 +1354,7 @@ describe("ImportControlsComponent", () => {
         component().formGroup.controls.file.setValue({ name: "vault.kdbx" } as File);
         fixture.detectChanges();
 
-        expect(t).toHaveBeenCalledWith("fileTypeNotSupported", ".xml");
+        expect(t).toHaveBeenCalledWith("fileTypeNotSupportedV2", ".xml");
       });
 
       it("flags a file that belongs to a sibling format but not the selected one (1Password .1pif selected, csv chosen)", async () => {
@@ -1605,7 +1612,7 @@ describe("ImportControlsComponent", () => {
 
         expect(component().resolvedFormat()).toBe("keepass2xml");
         expect(component().formGroup.controls.fileContents.errors).toEqual({
-          pasteContentFormatMismatch: { message: "pasteContentFormatMismatch" },
+          pasteContentFormatMismatch: { message: "importDataFormatInvalid" },
         });
       });
 
@@ -1781,7 +1788,7 @@ describe("ImportControlsComponent", () => {
       expect(toastService.showToast).not.toHaveBeenCalled();
 
       const bitError = byId("importer-controls_input_file").query(By.css("bit-error"));
-      expect(bitError.nativeElement.textContent).toContain("inputRequired");
+      expect(bitError.nativeElement.textContent).toContain("importFileRequired");
     });
 
     it("lets submit() proceed once a file is chosen in file mode", async () => {
@@ -1807,7 +1814,10 @@ describe("ImportControlsComponent", () => {
       fixture.detectChanges();
 
       expect(component().formGroup.controls.fileContents.invalid).toBe(true);
-      expect(component().formGroup.controls.fileContents.errors).toEqual({ required: true });
+      expect(component().formGroup.controls.fileContents.errors).toEqual({
+        pasteContentRequired: { message: "importPasteContentRequired" },
+        required: true,
+      });
     });
 
     it("keeps Validators.required in the mix (not replaced by the trim-aware validator alone), so the field still renders as required before any submit attempt", async () => {
@@ -1843,7 +1853,9 @@ describe("ImportControlsComponent", () => {
       fixture.detectChanges();
 
       expect(component().formGroup.controls.fileContents.invalid).toBe(true);
-      expect(component().formGroup.controls.fileContents.errors).toEqual({ required: true });
+      expect(component().formGroup.controls.fileContents.errors).toEqual({
+        pasteContentRequired: { message: "importPasteContentRequired" },
+      });
     });
 
     it("clears the fileContents control's validator in file mode", async () => {
@@ -1869,7 +1881,7 @@ describe("ImportControlsComponent", () => {
 
       const bitErrors = fixture.debugElement.queryAll(By.css("bit-error"));
       expect(bitErrors.length).toBe(1);
-      expect(bitErrors[0].nativeElement.textContent).toContain("inputRequired");
+      expect(bitErrors[0].nativeElement.textContent).toContain("importPasteContentRequired");
     });
 
     it("checks the required validator before the personal ownership policy, so a policy-restricted user still sees the real problem first", async () => {
@@ -2254,7 +2266,7 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "importAccountMismatchError" }),
+        expect.objectContaining({ message: "importEncryptionKeyMismatch" }),
       );
       expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
@@ -2286,7 +2298,7 @@ describe("ImportControlsComponent", () => {
         expect.anything(),
       );
       expect(toastService.showToast).not.toHaveBeenCalledWith(
-        expect.objectContaining({ message: "importAccountMismatchError" }),
+        expect.objectContaining({ message: "importEncryptionKeyMismatch" }),
       );
       expect(continueSpy).not.toHaveBeenCalled();
     });
@@ -2450,7 +2462,7 @@ describe("ImportControlsComponent", () => {
       fixture.detectChanges();
       await flushFileRead();
       fixture.detectChanges();
-      expect(subtitle()).toContain("importDataManualSubtitle");
+      expect(subtitle()).toContain("importDataManualSubtitleV2");
 
       await component().submit();
       fixture.detectChanges();
@@ -2567,12 +2579,12 @@ describe("ImportControlsComponent", () => {
       expect(component().formGroup.controls.filePassword.hasError("invalidFilePassword")).toBe(
         true,
       );
-      // The displayed text is filePasswordInvalid's short wording, not the longer pre-existing
+      // The displayed text is filePasswordInvalidV2's short wording, not the longer pre-existing
       // invalidFilePassword message (which is still used as errorMessage on the thrown error for
       // other consumers, but must not be what's shown inline here).
       expect(
         component().formGroup.controls.filePassword.getError("invalidFilePassword").message,
-      ).toBe("filePasswordInvalid");
+      ).toBe("filePasswordInvalidV2");
       expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
         expect.anything(),
@@ -2862,7 +2874,7 @@ describe("ImportControlsComponent", () => {
       );
     });
 
-    it("shows the error dialog with errorReadingFile — not a 'select a file' toast — when a chosen file reads successfully but yields no usable content", async () => {
+    it("shows the empty-file toast — not a 'select a file' toast or the dialog — when a chosen file reads successfully but yields no usable content", async () => {
       // A successful-but-empty read must not be conflated with "no file chosen at all".
       await setup("lastpasscsv", ClientType.Web);
       component().formGroup.controls.file.setValue(
@@ -2878,9 +2890,12 @@ describe("ImportControlsComponent", () => {
       expect(toastService.showToast).not.toHaveBeenCalledWith(
         expect.objectContaining({ message: "selectFile" }),
       );
-      expect(dialogService.open).toHaveBeenCalledWith(
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "importFileEmpty" }),
+      );
+      expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
-        expect.objectContaining({ data: expect.objectContaining({ message: "errorReadingFile" }) }),
+        expect.anything(),
       );
     });
 
@@ -2915,6 +2930,324 @@ describe("ImportControlsComponent", () => {
       await fixture.whenStable();
 
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("the copy on the manual step, as in the Figma frames", () => {
+    it("names the subtitle, the paste option and the pasted text's label, not the old ones", async () => {
+      await setup("1password", ClientType.Web);
+      const text = () => fixture.nativeElement.textContent as string;
+
+      expect(text()).toContain("importDataManualSubtitleV2");
+      expect(text()).toContain("importPasteContent");
+      expect(text()).not.toContain("importDataManualSubtitle ");
+      expect(text()).not.toContain("pasteAsPlainText");
+
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      expect(text()).toContain("importFileLabel");
+      expect(text()).not.toContain("plainText");
+    });
+  });
+
+  describe("import errors with a place of their own", () => {
+    const chooseCsv = async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+    };
+    const rejectWith = (errorKey: ImportResultErrorKey) =>
+      importService.import.mockRejectedValue(new ImportResultError("raw importer text", errorKey));
+    const noDialog = () =>
+      expect(dialogService.open).not.toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.anything(),
+      );
+
+    it.each([
+      [ImportResultErrorKey.NothingImported, "importFileEmpty"],
+      [ImportResultErrorKey.EncryptedUnsupported, "unsupportedEncryptedImport"],
+      [ImportResultErrorKey.TooMuchData, "importTooMuchData"],
+    ])("shows a danger toast for %s and stays on the step", async (errorKey, message) => {
+      await chooseCsv();
+      rejectWith(errorKey);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: undefined,
+        message,
+      });
+      noDialog();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [ImportResultErrorKey.InvalidFormat, "importDataFormatInvalid"],
+      [ImportResultErrorKey.InvalidStructure, "importFileStructureInvalid"],
+    ])("shows %s inline on the chosen file, which stays chosen", async (errorKey, message) => {
+      await chooseCsv();
+      rejectWith(errorKey);
+      const chosen = component().formGroup.controls.file.value;
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await component().onContinue();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.file.getError("importContent").message).toBe(message);
+      expect(component().formGroup.controls.file.touched).toBe(true);
+      expect(component().formGroup.controls.file.value).toBe(chosen);
+      expect(
+        byId("importer-controls_input_file").query(By.css("bit-error")).nativeElement.textContent,
+      ).toContain(message);
+      noDialog();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows the format error inline on the pasted text, which stays", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("a,b");
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+      rejectWith(ImportResultErrorKey.InvalidFormat);
+
+      await component().onContinue();
+      fixture.detectChanges();
+
+      expect(component().formGroup.controls.fileContents.getError("importContent").message).toBe(
+        "importDataFormatInvalid",
+      );
+      expect(component().formGroup.controls.fileContents.value).toBe("a,b");
+      noDialog();
+    });
+
+    it("clears the inline error as soon as the pasted text changes", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      component().formGroup.controls.fileContents.setValue("a,b");
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+      rejectWith(ImportResultErrorKey.InvalidFormat);
+      await component().onContinue();
+      expect(component().formGroup.controls.fileContents.invalid).toBe(true);
+
+      component().formGroup.controls.fileContents.setValue("a,b\n1,2");
+
+      expect(component().formGroup.controls.fileContents.errors).toBeNull();
+    });
+
+    it.each(["file", "paste"] as const)(
+      "shows the encrypted-files toast, without parsing, when a Bitwarden encrypted export is imported from another source (%s)",
+      async (method) => {
+        const encrypted = JSON.stringify({
+          encrypted: true,
+          encKeyValidation_DO_NOT_EDIT: "enc-key-validation",
+          items: [],
+        });
+        await setup("dashlane", ClientType.Web);
+        if (method === "paste") {
+          component().formGroup.controls.method.setValue("paste");
+          component().formGroup.controls.fileContents.setValue(encrypted);
+        } else {
+          component().formGroup.controls.file.setValue(new File([encrypted], "export.json"));
+        }
+        fixture.detectChanges();
+        importService.getImporter.mockReturnValue({} as any);
+        const continueSpy = jest.fn();
+        component().continue.subscribe(continueSpy);
+
+        await component().onContinue();
+
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: undefined,
+          message: "unsupportedEncryptedImport",
+        });
+        expect(importService.import).not.toHaveBeenCalled();
+        noDialog();
+        expect(continueSpy).not.toHaveBeenCalled();
+      },
+    );
+
+    it("does not treat a JSON export that merely says encrypted as a Bitwarden encrypted export", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.file.setValue(
+        new File([JSON.stringify({ encrypted: false, items: [] })], "export.json"),
+      );
+      fixture.detectChanges();
+      importService.getImporter.mockReturnValue({} as any);
+      importService.import.mockResolvedValue(new ImportResult());
+
+      await component().onContinue();
+
+      expect(importService.import).toHaveBeenCalled();
+    });
+
+    it("clears the inline error as soon as another file is chosen", async () => {
+      await chooseCsv();
+      rejectWith(ImportResultErrorKey.InvalidStructure);
+      await component().onContinue();
+      expect(component().formGroup.controls.file.invalid).toBe(true);
+
+      component().formGroup.controls.file.setValue(new File(["a,b"], "other.csv"));
+
+      expect(component().formGroup.controls.file.errors).toBeNull();
+    });
+
+    it("still opens the error dialog for an error with no key", async () => {
+      await chooseCsv();
+      importService.import.mockRejectedValue(new ImportResultError("raw importer text"));
+
+      await component().onContinue();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        ImportErrorDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ message: "raw importer text" }),
+        }),
+      );
+    });
+
+    it("keeps Continue disabled while the chosen file's type is not supported, and enables it for a valid file", async () => {
+      await setup("1password", ClientType.Web);
+      const continueDisabled = () => {
+        const button = byId("importer-controls_button_continue").nativeElement as HTMLButtonElement;
+        return button.disabled || button.getAttribute("aria-disabled") === "true";
+      };
+
+      component().formGroup.controls.file.setValue({ name: "export.png" } as File);
+      fixture.detectChanges();
+      expect(component().continueBlocked()).toBe(true);
+      expect(continueDisabled()).toBe(true);
+
+      component().formGroup.controls.file.setValue({ name: "export.1pux" } as File);
+      fixture.detectChanges();
+      expect(component().continueBlocked()).toBe(false);
+      expect(continueDisabled()).toBe(false);
+    });
+  });
+
+  describe("after the location step hands a KeePass import back", () => {
+    const handBack = (error: FileStepReturn["error"], keyFile = true) => {
+      const returned: FileStepReturn = {
+        format: "keepasskdbx",
+        file: { name: "db.kdbx", bytes: new Uint8Array([1, 2, 3]) },
+        password: "wrong",
+        keyFile: keyFile ? { name: "my.key", bytes: new Uint8Array([9, 8]) } : null,
+        error,
+      };
+      stagingService.returnToFileStep(returned);
+      return returned;
+    };
+    const settleRestore = async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it.each([
+      [
+        "file",
+        { field: "file" as const, messageKey: "importFileStructureInvalid" },
+        "importContent",
+      ],
+      [
+        "kdbxPassword",
+        { field: "kdbxPassword" as const, messageKey: "kdbxPasswordInvalidV2" },
+        "kdbxPasswordInvalid",
+      ],
+    ])(
+      "restores the file, format, password and key file, and shows the error on the %s field",
+      async (field, error, errorKey) => {
+        const returned = handBack(error);
+
+        await setup("keepass", ClientType.Web);
+        await settleRestore();
+
+        const controls = component().formGroup.controls;
+        expect(controls.file.value?.name).toBe("db.kdbx");
+        expect(controls.file.value?.size).toBe(3);
+        expect(controls.formatChoice.value).toBe("keepasskdbx");
+        expect(controls.kdbxPassword.value).toBe("wrong");
+        expect(controls.keyFile.value?.name).toBe("my.key");
+        expect(controls.keyFile.value?.size).toBe(2);
+        const shown = controls[field as "file" | "kdbxPassword"];
+        expect(shown.getError(errorKey).message).toBe(error.messageKey);
+        expect(shown.touched).toBe(true);
+        // Taken once, and the held bytes are zeroed.
+        expect(stagingService.takeFileStepReturn()).toBeUndefined();
+        expect([...returned.file.bytes]).toEqual([0, 0, 0]);
+        expect([...returned.keyFile!.bytes]).toEqual([0, 0]);
+      },
+    );
+
+    it("clears the error when the password is changed", async () => {
+      handBack({ field: "kdbxPassword", messageKey: "kdbxPasswordInvalidV2" });
+      await setup("keepass", ClientType.Web);
+      await settleRestore();
+
+      component().formGroup.controls.kdbxPassword.setValue("right");
+
+      expect(
+        component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid"),
+      ).toBeNull();
+    });
+
+    it("clears the password error when the key file is changed, though the password is not", async () => {
+      handBack({ field: "kdbxPassword", messageKey: "kdbxPasswordInvalidV2" });
+      await setup("keepass", ClientType.Web);
+      await settleRestore();
+      expect(
+        component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid"),
+      ).not.toBeNull();
+
+      component().formGroup.controls.keyFile.setValue(new File(["other"], "other.key"));
+
+      expect(
+        component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid"),
+      ).toBeNull();
+      expect(component().formGroup.controls.kdbxPassword.value).toBe("wrong");
+    });
+
+    it("keeps the error through a change of format, and clears it when another file is chosen", async () => {
+      handBack({ field: "file", messageKey: "importFileStructureInvalid" }, false);
+      await setup("keepass", ClientType.Web);
+      await settleRestore();
+      const controls = component().formGroup.controls;
+
+      controls.formatChoice.setValue("keepass2xml");
+      controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+      expect(controls.file.getError("importContent")).not.toBeNull();
+
+      controls.file.setValue(new File(["x"], "other.kdbx"));
+      expect(controls.file.getError("importContent")).toBeNull();
+    });
+
+    it("restores nothing, and zeroes what was held, for a source that does not offer the format", async () => {
+      const returned = handBack({ field: "file", messageKey: "importFileStructureInvalid" });
+
+      await setup("dashlane", ClientType.Web);
+      await settleRestore();
+
+      expect(component().formGroup.controls.file.value).toBeNull();
+      expect(component().formGroup.controls.kdbxPassword.value).toBe("");
+      expect([...returned.file.bytes]).toEqual([0, 0, 0]);
+    });
+
+    it("does nothing when nothing was handed back", async () => {
+      await setup("keepass", ClientType.Web);
+      await settleRestore();
+
+      expect(component().formGroup.controls.file.value).toBeNull();
     });
   });
 
@@ -3109,7 +3442,7 @@ describe("ImportControlsComponent", () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       fixture.detectChanges();
 
@@ -3147,7 +3480,7 @@ describe("ImportControlsComponent", () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
       fixture.detectChanges();
@@ -3167,7 +3500,7 @@ describe("ImportControlsComponent", () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
       importService.importWithSdk.mockResolvedValue({
@@ -3207,7 +3540,7 @@ describe("ImportControlsComponent", () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
       importService.importWithSdk.mockImplementation(() => {
@@ -3228,18 +3561,16 @@ describe("ImportControlsComponent", () => {
       );
     });
 
-    it("maps a kdbx SDK error through sdkErrorMessageKey instead of showing the raw SDK message", async () => {
-      // kdbxWrongFileType, not invalidFilePassword — the wrong-password case is dedicated inline
-      // behavior now, covered by its own test below; every other mapped SDK error still goes
-      // through the generic dialog.
+    it("maps an SDK error with another key through sdkErrorMessageKey instead of showing the raw SDK message", async () => {
+      // A key that is not one of the kdbx failures goes through the generic dialog.
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("some-password");
       importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
-      importService.sdkErrorMessageKey.mockReturnValue("kdbxWrongFileType");
+      importService.sdkErrorMessageKey.mockReturnValue("someOtherKey");
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -3252,17 +3583,167 @@ describe("ImportControlsComponent", () => {
       expect(dialogService.open).toHaveBeenCalledWith(
         ImportErrorDialogComponent,
         expect.objectContaining({
-          data: expect.objectContaining({ message: "kdbxWrongFileType" }),
+          data: expect.objectContaining({ message: "someOtherKey" }),
         }),
       );
       expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    describe("KeePass failures shown inline", () => {
+      const chooseKdbx = async (bytes: ArrayBufferLike = kdbxHeader(), size?: number) => {
+        await setup("keepass", ClientType.Web);
+        const file = {
+          name: "export.kdbx",
+          size,
+          arrayBuffer: () => Promise.resolve(bytes),
+        } as unknown as File;
+        component().formGroup.controls.file.setValue(file);
+        component().formGroup.controls.kdbxPassword.setValue("some-password");
+        fixture.detectChanges();
+        return file;
+      };
+      const fileMessage = () => component().formGroup.controls.file.getError("importContent");
+      const noDialog = () =>
+        expect(dialogService.open).not.toHaveBeenCalledWith(
+          ImportErrorDialogComponent,
+          expect.anything(),
+        );
+
+      it.each([
+        ["kdbxWrongFileType", "fileTypeNotSupportedV2"],
+        ["kdbxCorruptOrOutdated", "importFileStructureInvalid"],
+        ["kdbxFileTooLarge", "kdbxFileTooLarge"],
+      ])("shows %s on the file field with the message %s", async (sdkKey, message) => {
+        await chooseKdbx();
+        importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+        importService.sdkErrorMessageKey.mockReturnValue(sdkKey);
+        const continueSpy = jest.fn();
+        component().continue.subscribe(continueSpy);
+
+        await component().onContinue();
+        fixture.detectChanges();
+
+        expect(fileMessage().message).toBe(message);
+        expect(component().formGroup.controls.file.touched).toBe(true);
+        noDialog();
+        expect(continueSpy).not.toHaveBeenCalled();
+      });
+
+      it("clears a wrong-credentials error when a key file is added, though the password is unchanged", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+        importService.sdkErrorMessageKey.mockReturnValue("invalidFilePassword");
+        await component().onContinue();
+        const password = component().formGroup.controls.kdbxPassword;
+        expect(password.getError("kdbxPasswordInvalid")).not.toBeNull();
+        expect(component().formGroup.invalid).toBe(true);
+
+        component().formGroup.controls.keyFile.setValue(new File(["k"], "my.key"));
+
+        expect(password.getError("kdbxPasswordInvalid")).toBeNull();
+        expect(password.value).toBe("some-password");
+      });
+
+      it("keeps a wrong-credentials error while neither the password nor the key file changes", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+        importService.sdkErrorMessageKey.mockReturnValue("invalidFilePassword");
+        await component().onContinue();
+
+        component().formGroup.controls.kdbxPassword.updateValueAndValidity();
+
+        expect(
+          component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid"),
+        ).not.toBeNull();
+      });
+
+      it("keeps the SDK's error through a change of format, and clears it when another file is chosen", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
+        importService.sdkErrorMessageKey.mockReturnValue("kdbxCorruptOrOutdated");
+        await component().onContinue();
+
+        component().formGroup.controls.formatChoice.setValue("keepass2xml");
+        component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+        fixture.detectChanges();
+        expect(fileMessage()).not.toBeNull();
+
+        component().formGroup.controls.file.setValue({
+          name: "other.kdbx",
+          arrayBuffer: () => Promise.resolve(kdbxHeader()),
+        } as unknown as File);
+        expect(component().formGroup.controls.file.getError("importContent")).toBeNull();
+      });
+
+      it("rejects a file that is not a KeePass database before asking the SDK", async () => {
+        await chooseKdbx(new TextEncoder().encode("just some text").buffer);
+        const t = jest.spyOn(TestBed.inject(I18nService), "t");
+
+        await component().onContinue();
+
+        expect(importService.importWithSdk).not.toHaveBeenCalled();
+        expect(fileMessage().message).toBe("fileTypeNotSupportedV2");
+        expect(t).toHaveBeenCalledWith("fileTypeNotSupportedV2", ".kdbx");
+        noDialog();
+      });
+
+      it("rejects a file over 10 MiB without reading it or asking the SDK", async () => {
+        await chooseKdbx(kdbxHeader(), 10 * 1024 * 1024 + 1);
+
+        await component().onContinue();
+
+        expect(importService.importWithSdk).not.toHaveBeenCalled();
+        expect(fileMessage().message).toBe("kdbxFileTooLarge");
+        noDialog();
+      });
+
+      it("accepts a file of exactly 10 MiB", async () => {
+        await chooseKdbx(kdbxHeader(), 10 * 1024 * 1024);
+        importService.importWithSdk.mockResolvedValue({
+          ciphers: [{ type: 1, count: 1 }],
+          folders: 0,
+          collections: 0,
+        });
+
+        await component().onContinue();
+
+        expect(importService.importWithSdk).toHaveBeenCalled();
+      });
+
+      it("does not show the empty-file toast when the SDK imports only collections", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 2 });
+
+        await component().onContinue();
+
+        expect(toastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ message: "importFileEmpty" }),
+        );
+      });
+
+      it("shows the empty-file toast when the SDK imports nothing", async () => {
+        await chooseKdbx();
+        importService.importWithSdk.mockResolvedValue({ ciphers: [], folders: 0, collections: 0 });
+        const continueSpy = jest.fn();
+        component().continue.subscribe(continueSpy);
+
+        await component().onContinue();
+
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: undefined,
+          message: "importFileEmpty",
+        });
+        noDialog();
+        expect(continueSpy).not.toHaveBeenCalled();
+      });
     });
 
     it("shows an inline error on the kdbx password field, not the generic dialog, when the kdbx password is wrong", async () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(10)),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("wrong-password");
       importService.importWithSdk.mockRejectedValue(new Error("raw sdk error"));
@@ -3274,7 +3755,7 @@ describe("ImportControlsComponent", () => {
 
       expect(
         component().formGroup.controls.kdbxPassword.getError("kdbxPasswordInvalid").message,
-      ).toBe("kdbxPasswordInvalid");
+      ).toBe("kdbxPasswordInvalidV2");
       expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
         expect.anything(),
@@ -3282,7 +3763,7 @@ describe("ImportControlsComponent", () => {
       expect(continueSpy).not.toHaveBeenCalled();
     });
 
-    it("opens the error dialog with errorReadingFile — not a 'select a file' toast — instead of submitting a zero-byte kdbx file to the SDK", async () => {
+    it("shows the empty-file toast — not a 'select a file' toast or the dialog — instead of submitting a zero-byte kdbx file to the SDK", async () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
@@ -3298,9 +3779,12 @@ describe("ImportControlsComponent", () => {
       expect(toastService.showToast).not.toHaveBeenCalledWith(
         expect.objectContaining({ message: "selectFile" }),
       );
-      expect(dialogService.open).toHaveBeenCalledWith(
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "importFileEmpty" }),
+      );
+      expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
-        expect.objectContaining({ data: expect.objectContaining({ message: "errorReadingFile" }) }),
+        expect.anything(),
       );
       expect(continueSpy).not.toHaveBeenCalled();
     });
@@ -3415,7 +3899,7 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(component().formGroup.controls.keeperEmail.errors).toEqual({
-        errors: { message: "multifactorAuthenticationFailed" },
+        errors: { message: "multifactorAuthenticationFailedV2" },
       });
       expect(dialogService.open).not.toHaveBeenCalledWith(
         ImportErrorDialogComponent,
@@ -3561,7 +4045,7 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(component().formGroup.controls.lastPassEmail.errors).toEqual({
-        errors: { message: "incorrectUsernameOrPassword" },
+        errors: { message: "incorrectUsernameOrPasswordV2" },
       });
       expect(continueSpy).not.toHaveBeenCalled();
     });
@@ -3812,11 +4296,36 @@ describe("ImportControlsComponent", () => {
       expect(stagingService.current()).toEqual(expect.objectContaining({ kind: "file" }));
     });
 
+    it.each([
+      [ImportResultErrorKey.InvalidFormat, "importDataFormatInvalid"],
+      [ImportResultErrorKey.InvalidStructure, "importFileStructureInvalid"],
+    ])(
+      "shows %s inline when the parse before the destination step fails",
+      async (kind, message) => {
+        destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+          destinations$: new BehaviorSubject<ImportDestinations>(withStep),
+        });
+        await setup("dashlane", ClientType.Web);
+        component().formGroup.controls.file.setValue(new File(["a,b"], "export.csv"));
+        importService.getImporter.mockReturnValue({} as any);
+        importService.parse.mockRejectedValue(new ImportResultError("raw importer text", kind));
+
+        await component().onContinue();
+
+        expect(component().formGroup.controls.file.getError("importContent").message).toBe(message);
+        expect(stagingService.current()).toBeUndefined();
+        expect(dialogService.open).not.toHaveBeenCalledWith(
+          ImportErrorDialogComponent,
+          expect.anything(),
+        );
+      },
+    );
+
     it("stages the kdbx file and credentials instead of calling the SDK", async () => {
       await setup("keepass", ClientType.Web);
       component().formGroup.controls.file.setValue({
         name: "export.kdbx",
-        arrayBuffer: () => Promise.resolve(new Uint8Array([1, 2, 3]).buffer),
+        arrayBuffer: () => Promise.resolve(kdbxHeader()),
       } as unknown as File);
       component().formGroup.controls.kdbxPassword.setValue("hunter2");
       fixture.detectChanges();
@@ -3829,7 +4338,7 @@ describe("ImportControlsComponent", () => {
       expect(stagingService.current()).toEqual({
         kind: "sdk",
         format: "keepasskdbx",
-        file: new Uint8Array([1, 2, 3]),
+        file: new Uint8Array(kdbxHeader()),
         credentials: { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
         importedFile: { name: "export.kdbx" },
       });

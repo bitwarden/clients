@@ -39,7 +39,7 @@ export class LastPassDirectImportRunner {
       this.logService.error(`LP importer error: ${error}`);
       const messageKey = lastPassValidationErrorI18nKey(error);
       // A rejected password never gets here (it is asked for again), so this is the account.
-      if (messageKey === "incorrectUsernameOrPassword") {
+      if (messageKey === "incorrectUsernameOrPasswordV2") {
         email.setErrors({ errors: { message: this.i18nService.t(messageKey) } });
         email.markAsTouched();
       } else {

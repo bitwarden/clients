@@ -5,33 +5,33 @@ describe("lastPassValidationErrorI18nKey", () => {
     "SSO auth cancelled",
     "Second factor step is canceled by the user",
     "Out of band step is canceled by the user",
-  ])("maps %s to multifactorAuthenticationCancelled", (message) => {
+  ])("maps %s to multifactorAuthenticationCancelledV2", (message) => {
     expect(lastPassValidationErrorI18nKey(new Error(message))).toBe(
-      "multifactorAuthenticationCancelled",
+      "multifactorAuthenticationCancelledV2",
     );
   });
 
   it.each(["No accounts to transform", "Vault has not opened any accounts."])(
-    "maps %s to noLastPassDataFound",
+    "maps %s to noLastPassDataFoundV2",
     (message) => {
-      expect(lastPassValidationErrorI18nKey(new Error(message))).toBe("noLastPassDataFound");
+      expect(lastPassValidationErrorI18nKey(new Error(message))).toBe("noLastPassDataFoundV2");
     },
   );
 
   it.each(["Invalid username", "Invalid password"])(
-    "maps %s to incorrectUsernameOrPassword",
+    "maps %s to incorrectUsernameOrPasswordV2",
     (message) => {
       expect(lastPassValidationErrorI18nKey(new Error(message))).toBe(
-        "incorrectUsernameOrPassword",
+        "incorrectUsernameOrPasswordV2",
       );
     },
   );
 
   it.each(["Second factor code is incorrect", "Out of band authentication failed"])(
-    "maps %s to multifactorAuthenticationFailed",
+    "maps %s to multifactorAuthenticationFailedV2",
     (message) => {
       expect(lastPassValidationErrorI18nKey(new Error(message))).toBe(
-        "multifactorAuthenticationFailed",
+        "multifactorAuthenticationFailedV2",
       );
     },
   );
@@ -47,6 +47,8 @@ describe("lastPassValidationErrorI18nKey", () => {
   });
 
   it("accepts a plain string error, not just an Error object", () => {
-    expect(lastPassValidationErrorI18nKey("Invalid password")).toBe("incorrectUsernameOrPassword");
+    expect(lastPassValidationErrorI18nKey("Invalid password")).toBe(
+      "incorrectUsernameOrPasswordV2",
+    );
   });
 });

@@ -61,7 +61,9 @@ import {
   ImportResult,
   ImportResultError,
   ImportResultErrorKey,
+  SdkImportCredentials,
 } from "../../models";
+import { isEmptySdkSummary } from "../../sdk";
 import {
   cloneImportResult,
   countAfterRemoval,
@@ -76,9 +78,13 @@ import { ImportErrorDialogComponent } from "../dialog";
 import { errorName } from "../error-name";
 import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
+import { KdbxFailure, kdbxFailureFor } from "../import-controls/kdbx-failure";
 import { presentImportOutcome } from "../import-controls/present-import-outcome";
 import { ImportProgressComponent } from "../import-progress";
 import { resolveImportReturnDestination } from "../import-return-destination";
+
+/** Thrown once the import has been handed back to the step that chose the file: nothing to show. */
+class ReturnedToFileStep extends Error {}
 
 /** What an import runs on: parsed items to write, or an SDK import that parses as it writes. */
 type PreparedImport =
@@ -594,17 +600,32 @@ export class ImportDestinationComponent {
   }
 
   private reportFailure(error: unknown): void {
-    // Set only by the encrypted Bitwarden JSON importer; shown as a toast, as in credential parsing.
-    if (
-      error instanceof ImportResultError &&
-      error.errorKey === ImportResultErrorKey.AccountMismatch
-    ) {
-      this.toastService.showToast({
-        variant: "error",
-        title: undefined,
-        message: this.i18nService.t("importAccountMismatchError"),
-      });
+    if (error instanceof ReturnedToFileStep) {
       return;
+    }
+    // Shown as toasts, as in credential parsing. A mismatch comes only from the encrypted Bitwarden
+    // JSON importer.
+    if (error instanceof ImportResultError) {
+      let toastKey: string | undefined;
+      switch (error.errorKey) {
+        case ImportResultErrorKey.AccountMismatch:
+          toastKey = "importEncryptionKeyMismatch";
+          break;
+        case ImportResultErrorKey.TooMuchData:
+          toastKey = "importTooMuchData";
+          break;
+        case ImportResultErrorKey.NothingImported:
+          toastKey = "importFileEmpty";
+          break;
+      }
+      if (toastKey != null) {
+        this.toastService.showToast({
+          variant: "error",
+          title: undefined,
+          message: this.i18nService.t(toastKey),
+        });
+        return;
+      }
     }
     this.logService.error("Import failed:", errorName(error));
     // The dialog reads .message; an unmapped SDK rejection may not be an Error.
@@ -670,16 +691,46 @@ export class ImportDestinationComponent {
         target,
         canAccessImportExport,
       );
+      if (isEmptySdkSummary(sdkSummary)) {
+        throw new ImportResultError(
+          this.i18nService.t("importFileEmpty"),
+          ImportResultErrorKey.NothingImported,
+        );
+      }
       return { kind: "importedWithSdk", sdkSummary };
     } catch (error) {
+      if (error instanceof ImportResultError) {
+        throw error;
+      }
       this.logService.error("SDK importer error:", errorName(error));
       const messageKey = this.importService.sdkErrorMessageKey(staged.format, error);
-      if (messageKey === "invalidFilePassword") {
-        // Only the kdbx importer maps to this key; its password is checked here, not while parsing.
-        throw new Error(this.i18nService.t("kdbxPasswordInvalid"));
+      // Only the kdbx importer maps to these keys; its file and password are only checked here.
+      const failure = kdbxFailureFor(messageKey);
+      if (failure != null && staged.credentials.kind === "passwordWithKeyFile") {
+        this.returnToFileStep(staged, staged.credentials, failure);
+        throw new ReturnedToFileStep();
       }
       throw messageKey != null ? new Error(this.i18nService.t(messageKey)) : error;
     }
+  }
+
+  // The user fixes it where the file was chosen. The bytes are copied first: leaving this step
+  // zeroes the staged ones.
+  private returnToFileStep(
+    staged: Extract<StagedImport, { kind: "sdk" }>,
+    credentials: Extract<SdkImportCredentials, { kind: "passwordWithKeyFile" }>,
+    failure: KdbxFailure,
+  ): void {
+    this.stagingService.returnToFileStep({
+      format: staged.format,
+      file: { name: staged.importedFile?.name ?? "export.kdbx", bytes: staged.file.slice() },
+      password: credentials.password,
+      keyFile: credentials.keyFile
+        ? { name: credentials.keyFileName ?? "key file", bytes: credentials.keyFile.slice() }
+        : null,
+      error: failure,
+    });
+    this.onBack();
   }
 
   // A default collection gets the user icon, as in the legacy import. In an admin console import

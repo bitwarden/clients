@@ -28,7 +28,11 @@ import { KeeperDirectImporter } from "../importers/keeper/keeper-direct-importer
 import { ImportOption, ImportType, importOptionsById } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { importUpgradeOptionsById, UpgradeImportType } from "../models/import-upgrade-options";
-import { ImportResultError, ImportUpgradeResult } from "../models/import-upgrade-result";
+import {
+  ImportResultError,
+  ImportResultErrorKey,
+  ImportUpgradeResult,
+} from "../models/import-upgrade-result";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportUpgradeServiceAbstraction } from "./import-upgrade.service.abstraction";
@@ -37,6 +41,9 @@ import { restrictedTypesForDestination } from "./restricted-types-for-destinatio
 
 const isImportType = (id: string): id is ImportType =>
   Object.prototype.hasOwnProperty.call(importOptionsById, id);
+
+// The cloud server's text for an import over its size limits. It carries no code, so it is matched.
+const SERVER_IMPORT_LIMIT_MESSAGE = "You cannot import this much data at once.";
 
 /** `ImportService` for the upgraded import flow: reads the upgrade options table, uses importers
  *  that report a failure key, and throws errors that carry it. The legacy flow keeps using
@@ -133,17 +140,38 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
   /** Parses and checks `fileContents` exactly as `import` does, without importing. Credential
    *  parsing stages the result for location selection, which imports it. */
   async parse(importer: Importer, fileContents: string): Promise<ImportResult> {
-    let importResult: ImportResult;
+    const importResult = await this.parseContents(importer, fileContents);
+    this.validateParsed(importResult);
+    return importResult;
+  }
+
+  override async import(
+    importer: Importer,
+    fileContents: string,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean,
+  ): Promise<ImportResult> {
+    return this.importImportResult(
+      await this.parseContents(importer, fileContents),
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+    );
+  }
+
+  private async parseContents(importer: Importer, fileContents: string): Promise<ImportResult> {
     try {
-      importResult = await importer.parse(fileContents);
+      return await importer.parse(fileContents);
     } catch (error) {
       if (error instanceof SyntaxError) {
-        throw new Error(this.bitwardenImporterDeps.i18nService.t("importFormatError"));
+        throw new ImportResultError(
+          this.bitwardenImporterDeps.i18nService.t("importFormatError"),
+          ImportResultErrorKey.InvalidFormat,
+        );
       }
       throw error;
     }
-    this.validateParsed(importResult);
-    return importResult;
   }
 
   protected override async restrictedTypesFor(
@@ -169,7 +197,40 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     if (!importResult.success && !Utils.isNullOrWhitespace(importResult.errorMessage)) {
       throw new ImportResultError(
         importResult.errorMessage,
-        importResult instanceof ImportUpgradeResult ? importResult.errorKey : undefined,
+        (importResult instanceof ImportUpgradeResult ? importResult.errorKey : undefined) ??
+          ImportResultErrorKey.InvalidStructure,
+      );
+    }
+  }
+
+  private hasNoItemsOrFolders(importResult: ImportResult): boolean {
+    return (
+      importResult.success && importResult.folders.length === 0 && importResult.ciphers.length === 0
+    );
+  }
+
+  private nothingImportedError(): ImportResultError {
+    return new ImportResultError(
+      this.bitwardenImporterDeps.i18nService.t("importNothingError"),
+      ImportResultErrorKey.NothingImported,
+    );
+  }
+
+  protected override validateImportResult(importResult: ImportResult): void {
+    if (this.hasNoItemsOrFolders(importResult)) {
+      if (importResult.collections.length === 0) {
+        throw this.nothingImportedError();
+      }
+      // Collections only: the destination decides whether they can be imported.
+      return;
+    }
+    try {
+      super.validateImportResult(importResult);
+    } catch (error) {
+      // What remains is a result with no message or data that looks like garbage.
+      throw new ImportResultError(
+        error instanceof Error ? error.message : String(error),
+        ImportResultErrorKey.InvalidFormat,
       );
     }
   }
@@ -181,11 +242,25 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     canAccessImportExport: boolean = false,
   ): Promise<ImportResult> {
     this.throwIfFailed(importResult);
-    return super.importImportResult(
-      importResult,
-      organizationId,
-      selectedImportTarget,
-      canAccessImportExport,
-    );
+    // A personal vault import posts only items and folders, never collections.
+    if (organizationId == null && this.hasNoItemsOrFolders(importResult)) {
+      throw this.nothingImportedError();
+    }
+    try {
+      return await super.importImportResult(
+        importResult,
+        organizationId,
+        selectedImportTarget,
+        canAccessImportExport,
+      );
+    } catch (error) {
+      if (error instanceof Error && error.message === SERVER_IMPORT_LIMIT_MESSAGE) {
+        throw new ImportResultError(
+          this.bitwardenImporterDeps.i18nService.t("importTooMuchData"),
+          ImportResultErrorKey.TooMuchData,
+        );
+      }
+      throw error;
+    }
   }
 }
