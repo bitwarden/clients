@@ -86,7 +86,7 @@ describe("SsoLoginStrategy", () => {
   const ssoCode = "SSO_CODE";
   const ssoCodeVerifier = "SSO_CODE_VERIFIER";
   const ssoRedirectUrl = "SSO_REDIRECT_URL";
-  const ssoOrgId = "SSO_ORG_ID";
+  const ssoOrgIdentifier = "SSO_ORG_IDENTIFIER";
   const privateKey = "userKeyEncryptedPrivateKey";
 
   beforeEach(async () => {
@@ -168,7 +168,12 @@ describe("SsoLoginStrategy", () => {
       configService,
       accountCryptographicStateService,
     );
-    credentials = new SsoLoginCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
+    credentials = new SsoLoginCredentials(
+      ssoCode,
+      ssoCodeVerifier,
+      ssoRedirectUrl,
+      ssoOrgIdentifier,
+    );
   });
 
   it("sends SSO information to server", async () => {
@@ -519,7 +524,7 @@ describe("SsoLoginStrategy", () => {
         {
           kdfConfig: new Argon2KdfConfig(10, 64, 4),
           keyConnectorUrl: keyConnectorUrl,
-          organizationId: ssoOrgId,
+          organizationSsoIdentifier: ssoOrgIdentifier,
         },
         userId,
       );

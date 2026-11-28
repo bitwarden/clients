@@ -88,7 +88,7 @@ describe("KeyConnectorService", () => {
   const conversion: NewSsoUserKeyConnectorConversion = {
     kdfConfig: new PBKDF2KdfConfig(600_000),
     keyConnectorUrl,
-    organizationId: mockSsoOrgIdentifier,
+    organizationSsoIdentifier: mockSsoOrgIdentifier,
   };
 
   beforeEach(() => {
@@ -629,7 +629,7 @@ describe("KeyConnectorService", () => {
           const conversion: NewSsoUserKeyConnectorConversion = {
             kdfConfig: expectedKdfConfig,
             keyConnectorUrl: keyConnectorUrl,
-            organizationId: mockSsoOrgIdentifier,
+            organizationSsoIdentifier: mockSsoOrgIdentifier,
           };
           const conversionState = stateProvider.singleUser.getFake(
             mockUserId,
@@ -841,7 +841,7 @@ describe("KeyConnectorService", () => {
       const existingConversion: NewSsoUserKeyConnectorConversion = {
         kdfConfig: new Argon2KdfConfig(3, 64, 4),
         keyConnectorUrl: "https://old.example.com",
-        organizationId: "old-org-id" as OrganizationId,
+        organizationSsoIdentifier: "old-sso-org-id",
       };
       state.nextState(existingConversion);
 
@@ -864,7 +864,7 @@ describe("KeyConnectorService", () => {
 
       expect(data).toEqual({
         keyConnectorUrl: conversion.keyConnectorUrl,
-        organizationSsoIdentifier: conversion.organizationId,
+        organizationSsoIdentifier: conversion.organizationSsoIdentifier,
       });
     });
 
@@ -967,4 +967,35 @@ describe("KeyConnectorService", () => {
     const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
     return masterKey;
   }
+});
+
+describe("NEW_SSO_USER_KEY_CONNECTOR_CONVERSION", () => {
+  it.each([
+    ["PBKDF2", new PBKDF2KdfConfig(600_000), PBKDF2KdfConfig],
+    ["Argon2", new Argon2KdfConfig(3, 64, 4), Argon2KdfConfig],
+  ])(
+    "deserializes stored conversion data with the %s KDF",
+    (_, kdfConfig, expectedKdfConfigClass) => {
+      const stored = JSON.parse(
+        JSON.stringify({
+          kdfConfig,
+          keyConnectorUrl: "https://key-connector-url.com",
+          organizationSsoIdentifier: "test-sso-org-id",
+        }),
+      );
+
+      const result = NEW_SSO_USER_KEY_CONNECTOR_CONVERSION.deserializer(stored);
+
+      expect(result).toEqual({
+        kdfConfig,
+        keyConnectorUrl: "https://key-connector-url.com",
+        organizationSsoIdentifier: "test-sso-org-id",
+      });
+      expect(result!.kdfConfig).toBeInstanceOf(expectedKdfConfigClass);
+    },
+  );
+
+  it("deserializes null to null", () => {
+    expect(NEW_SSO_USER_KEY_CONNECTOR_CONVERSION.deserializer(null)).toBeNull();
+  });
 });
