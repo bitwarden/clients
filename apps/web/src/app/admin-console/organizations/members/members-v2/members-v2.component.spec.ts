@@ -816,6 +816,26 @@ describe("MembersV2Component", () => {
     });
   });
 
+  describe("export Privileged Controls column", () => {
+    const members = [member()];
+
+    it.each([
+      [true, true, true],
+      [true, false, false],
+      [false, true, false],
+    ])(
+      "passes the column choice when usePam is %s and the flag is %s: %s",
+      async (usePam, pamFlag, expected) => {
+        await setup({ canManageUsers: true, usePam }, members, {}, { pamFlag });
+        memberExportService.getMemberExport.mockReturnValue({ success: true });
+
+        component.exportMembers();
+
+        expect(memberExportService.getMemberExport).toHaveBeenCalledWith(members, expected);
+      },
+    );
+  });
+
   describe("toolbar actions", () => {
     const members = [member()];
     let organization: Organization;
@@ -831,7 +851,7 @@ describe("MembersV2Component", () => {
 
       component.exportMembers();
 
-      expect(memberExportService.getMemberExport).toHaveBeenCalledWith(members);
+      expect(memberExportService.getMemberExport).toHaveBeenCalledWith(members, false);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "dataExportSuccess",

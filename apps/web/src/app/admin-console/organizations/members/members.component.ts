@@ -689,7 +689,10 @@ export class MembersComponent {
   }
 
   exportMembers = () => {
-    const result = this.memberExportService.getMemberExport(this.dataSource().data);
+    const result = this.memberExportService.getMemberExport(
+      this.dataSource().data,
+      this.canUsePrivilegedControls(),
+    );
     if (result.success) {
       this.toastService.showToast({
         variant: "success",
