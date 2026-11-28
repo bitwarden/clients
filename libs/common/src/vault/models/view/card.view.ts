@@ -112,6 +112,21 @@ export class CardView extends ItemView implements SdkCardView {
       return "Amex";
     }
 
+    // RuPay (checked before Discover because 652150-653149 overlaps Discover's ^65 prefix)
+    const digitsOnly = cardNum.replace(/[\s-]/g, "");
+    if (/^\d{6}/.test(digitsOnly)) {
+      const bin = Number(digitsOnly.slice(0, 6));
+      if (
+        (bin >= 508500 && bin <= 508999) ||
+        (bin >= 606985 && bin <= 607984) ||
+        (bin >= 608001 && bin <= 608500) ||
+        (bin >= 652150 && bin <= 653149) ||
+        (bin >= 817200 && bin <= 820199)
+      ) {
+        return "RuPay";
+      }
+    }
+
     // Discover
     re = new RegExp(
       "^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)",
