@@ -15,8 +15,10 @@ export const CipherUse = Object.freeze({
   SavePrompt: "savePrompt",
   /** At-risk password tasks for the URL. */
   SecurityTask: "securityTask",
-  /** Passkey registration and selection. */
-  Passkey: "passkey",
+  /** The "Save passkey" list of a passkey registration. */
+  PasskeyRegistration: "passkeyRegistration",
+  /** The passkey picker of a sign-in. */
+  PasskeySignIn: "passkeySignIn",
   /** The toolbar badge count. */
   Badge: "badge",
 } as const);

@@ -1554,6 +1554,7 @@ export default class MainBackground {
       this.fido2UserInterfaceService,
       this.syncService,
       this.accountService,
+      this.revealedCipherService,
       this.logService,
     );
     this.fido2ActiveRequestManager = new Fido2ActiveRequestManager();

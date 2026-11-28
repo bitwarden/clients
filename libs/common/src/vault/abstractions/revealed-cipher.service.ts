@@ -17,7 +17,7 @@ import { CipherView } from "../models/view/cipher.view";
  * - Never return a view after its reveal ends.
  */
 export abstract class RevealedCipherService {
-  /** The live revealed views of the user, by cipher ID. */
+  /** The live revealed views of the user, by cipher ID. Emits only after the views load. */
   abstract revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>>;
   /** True while a live revealed view exists. */
   abstract isRevealed(userId: UserId, cipherId: CipherId): boolean;

@@ -8,13 +8,14 @@ import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { RevealedCipherService } from "../../../vault/abstractions/revealed-cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
 import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
-import { CipherViewLikeUtils } from "../../../vault/utils/cipher-view-like-utils";
+import { CipherViewLike, CipherViewLikeUtils } from "../../../vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "../../../vault/utils/observable-utilities";
 import {
   Fido2AlgorithmIdentifier,
@@ -54,11 +55,15 @@ const KeyUsages: KeyUsage[] = ["sign"];
 export class Fido2AuthenticatorService<
   ParentWindowReference,
 > implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference> {
+  /** The leased views that {@link passkeyCiphers} returned, so a sign-in knows its cipher is leased. */
+  private readonly leasedViews = new WeakSet<CipherView>();
+
   constructor(
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
     private syncService: SyncService,
     private accountService: AccountService,
+    private revealedCipherService: RevealedCipherService,
     private logService?: LogService,
   ) {}
 
@@ -295,7 +300,7 @@ export class Fido2AuthenticatorService<
 
       const selectedCipherId = response.cipherId;
       const userVerified = response.userVerified;
-      const selectedCipher = cipherOptions.find((c) => c.id === selectedCipherId);
+      let selectedCipher = cipherOptions.find((c) => c.id === selectedCipherId);
 
       if (selectedCipher === undefined) {
         this.logService?.error(
@@ -312,6 +317,19 @@ export class Fido2AuthenticatorService<
           `[Fido2Authenticator] Aborting because user verification was unsuccessful.`,
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
+      }
+
+      // A leased view can change or end while the user picks, so read it again. The sign-in
+      // changes a copy; the leased view stays the original of a save.
+      let leasedOriginal: CipherView | undefined;
+      if (this.leasedViews.has(selectedCipher)) {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        leasedOriginal = this.revealedCipherService.get(userId, selectedCipherId as CipherId);
+        if (leasedOriginal == null) {
+          this.logService?.warning(`[Fido2Authenticator] Aborting because the lease ended.`);
+          throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
+        }
+        selectedCipher = CipherView.fromJSON(JSON.parse(JSON.stringify(leasedOriginal)));
       }
 
       try {
@@ -331,7 +349,10 @@ export class Fido2AuthenticatorService<
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
-          await this.cipherService.updateWithServer(selectedCipher, activeUserId);
+          await this.cipherService.updateWithServer(selectedCipher, activeUserId, leasedOriginal);
+          if (leasedOriginal != null) {
+            void this.revealedCipherService.refresh(activeUserId, selectedCipherId as CipherId);
+          }
         }
 
         const authenticatorData = await generateAuthData({
@@ -452,24 +473,29 @@ export class Fido2AuthenticatorService<
   }
 
   /**
-   * Non-deleted login ciphers holding a passkey, fully decrypted. Picked on list views first,
-   * so a passkey lookup never decrypts the whole vault.
+   * Login ciphers holding a passkey, fully decrypted: the stored ciphers, then the leased views of
+   * restricted ones. A stored copy of the same ID wins. Picked on list views first, so a passkey
+   * lookup never decrypts the whole vault.
    */
   private async passkeyCiphers(userId: UserId): Promise<CipherView[]> {
     const listViews = await firstValueFrom(
       this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
     );
     const ids = listViews
-      .filter(
-        (cipher) =>
-          CipherViewLikeUtils.getType(cipher) === CipherType.Login &&
-          CipherViewLikeUtils.hasFido2Credentials(cipher) &&
-          !CipherViewLikeUtils.isDeleted(cipher),
-      )
+      .filter(isPasskeyLogin)
       .map((cipher) => CipherViewLikeUtils.getId(cipher))
       .filter((id) => id != null);
 
-    return this.cipherService.getAllDecryptedForIds(userId, ids);
+    const [stored, revealed] = await Promise.all([
+      this.cipherService.getAllDecryptedForIds(userId, ids),
+      firstValueFrom(this.revealedCipherService.revealed$(userId)),
+    ]);
+    const storedIds = new Set(stored.map((cipher) => cipher.id));
+    const leased = [...revealed.values()].filter(
+      (cipher) => isPasskeyLogin(cipher) && !storedIds.has(cipher.id),
+    );
+    leased.forEach((cipher) => this.leasedViews.add(cipher));
+    return stored.concat(leased);
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
@@ -481,6 +507,15 @@ export class Fido2AuthenticatorService<
         cipher.login.fido2Credentials[0].discoverable,
     );
   }
+}
+
+/** A login that holds a passkey and is not deleted. */
+function isPasskeyLogin(cipher: CipherViewLike): boolean {
+  return (
+    CipherViewLikeUtils.getType(cipher) === CipherType.Login &&
+    CipherViewLikeUtils.hasFido2Credentials(cipher) &&
+    !CipherViewLikeUtils.isDeleted(cipher)
+  );
 }
 
 async function createKeyPair() {

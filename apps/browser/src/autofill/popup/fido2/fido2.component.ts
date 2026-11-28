@@ -197,7 +197,7 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.accountService.activeAccount$.pipe(getUserId),
             );
             this.ciphers = (
-              await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.Passkey)
+              await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.PasskeyRegistration)
             ).filter((cipher) => cipher.type === CipherType.Login && !cipher.isDeleted);
 
             this.displayedCiphers = this.ciphers.filter(
@@ -219,11 +219,10 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.accountService.activeAccount$.pipe(getUserId),
             );
 
-            this.ciphers = await Promise.all(
-              message.cipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId, activeUserId);
-                return this.cipherService.decrypt(cipher, activeUserId);
-              }),
+            this.ciphers = await this.fillCipherPolicy.ciphersForIds(
+              activeUserId,
+              message.cipherIds,
+              CipherUse.PasskeySignIn,
             );
 
             this.displayedCiphers = [...this.ciphers];

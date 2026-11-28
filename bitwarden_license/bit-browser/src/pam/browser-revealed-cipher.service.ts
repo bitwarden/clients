@@ -44,9 +44,11 @@ type Entry = { view: CipherView; endsAt: number };
  * state. Each process decrypts them into its own memory. The worker and the popup each run one.
  */
 export class BrowserRevealedCipherService implements RevealedCipherService {
-  private readonly entries$ = new BehaviorSubject<
-    ReadonlyMap<UserId, ReadonlyMap<CipherId, Entry>>
-  >(new Map());
+  /** Null until the first decryption ends, so a new process does not read an empty map. */
+  private readonly entries$ = new BehaviorSubject<ReadonlyMap<
+    UserId,
+    ReadonlyMap<CipherId, Entry>
+  > | null>(null);
 
   constructor(
     private readonly stateProvider: StateProvider,
@@ -76,6 +78,7 @@ export class BrowserRevealedCipherService implements RevealedCipherService {
 
   revealed$(userId: UserId): Observable<ReadonlyMap<CipherId, CipherView>> {
     return this.entries$.pipe(
+      filter((all) => all != null),
       map((all) => {
         const nowMs = Date.now();
         const views = new Map<CipherId, CipherView>();
@@ -97,7 +100,7 @@ export class BrowserRevealedCipherService implements RevealedCipherService {
   }
 
   get(userId: UserId, cipherId: CipherId): CipherView | undefined {
-    const entry = this.entries$.value.get(userId)?.get(cipherId);
+    const entry = this.entries$.value?.get(userId)?.get(cipherId);
     return entry != null && entry.endsAt > Date.now() ? entry.view : undefined;
   }
 

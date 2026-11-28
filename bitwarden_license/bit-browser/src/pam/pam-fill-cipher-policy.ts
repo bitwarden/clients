@@ -13,9 +13,16 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { SortedCiphersCache } from "@bitwarden/common/vault/models/domain/sorted-ciphers-cache";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+/** The uses that get the revealed views. The user picks the cipher in each. */
+const REVEALED_USES: ReadonlySet<CipherUse> = new Set([
+  CipherUse.UserFill,
+  CipherUse.PasskeySignIn,
+]);
+
 /**
- * Adds the revealed views (see {@link RevealedCipherService}) to user fills only. Every other use
- * gets the stored ciphers. Blocks a save prompt for a form that holds a revealed login.
+ * Adds the revealed views (see {@link RevealedCipherService}) to user fills and passkey sign-ins
+ * only. Every other use gets the stored ciphers. Blocks a save prompt for a form that holds a
+ * revealed login.
  */
 export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
   /** The keyboard shortcut rotations, used only while the user has revealed views. */
@@ -41,7 +48,7 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
   }
 
   override async ciphers(userId: UserId, use: CipherUse): Promise<CipherView[]> {
-    if (use !== CipherUse.UserFill) {
+    if (!REVEALED_USES.has(use)) {
       return super.ciphers(userId, use);
     }
     const [ciphers, revealed] = await Promise.all([
@@ -56,7 +63,7 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
     ids: string[],
     use: CipherUse,
   ): Promise<CipherView[]> {
-    if (use !== CipherUse.UserFill) {
+    if (!REVEALED_USES.has(use)) {
       return super.ciphersForIds(userId, ids, use);
     }
     const [ciphers, revealed] = await Promise.all([
@@ -75,7 +82,7 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
     use: CipherUse,
     options?: { includeOtherTypes?: CipherType[]; defaultMatch?: UriMatchStrategySetting },
   ): Promise<CipherView[]> {
-    if (use !== CipherUse.UserFill) {
+    if (!REVEALED_USES.has(use)) {
       return super.ciphersForUrl(url, userId, use, options);
     }
     const [ciphers, revealed] = await Promise.all([
