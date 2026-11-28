@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, InjectionToken, inject, signal } from "@angular/core";
 
 import { BadgeGroupComponent, BadgeGroupItem } from "../../../badge-group";
-import { FilterMenuModule } from "../../../filter-menu";
+import { FilterMenuModule, FilterOptionNode } from "../../../filter-menu";
 import { IconTileComponent } from "../../../icon-tile";
 import {
   BitCellComponent,
@@ -11,6 +11,7 @@ import {
   BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  SelectionConfig,
   defineTable,
 } from "../../../table/v2";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -20,13 +21,86 @@ type ProductRow = {
   description: string;
   user: string;
   badges: BadgeGroupItem[];
+  /** Shared folder ids the row belongs to, like a cipher's `collectionIds`. */
+  folderIds: string[];
 };
 
 type ProductFilters = {
   search?: string;
   user?: string;
   feature?: string[];
+  sharedFolder?: string[];
 };
+
+/**
+ * Overrides the demo data with a generated dataset, for the kitchen sink's perf stress story.
+ * `rows` products are spread across `users` distinct users and `features` distinct badges, and
+ * each holds one to three of `sharedFolders` folders. The Shared folders chip mirrors the vault's:
+ * a data-driven, multi-select tree counted in one pass through the table's `optionValues`.
+ * `virtualized` swaps the paginator for a virtualized body, as the vault renders.
+ */
+export type KitchenSinkTableV2Stress = {
+  rows: number;
+  sharedFolders: number;
+  users: number;
+  features: number;
+  pageSize: number;
+  virtualized: boolean;
+};
+
+export const KITCHEN_SINK_TABLE_V2_STRESS = new InjectionToken<KitchenSinkTableV2Stress>(
+  "KitchenSinkTableV2Stress",
+);
+
+const BADGE_VARIANTS = ["success", "danger", "subtle", "accent-primary", "primary"] as const;
+
+/** Deterministic, so runs are comparable: a tiny LCG rather than `Math.random`. */
+function lcg(seed: number) {
+  return (max: number) => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    // High bits: an LCG's low bits cycle quickly and would skip half the values.
+    return (seed >>> 16) % max;
+  };
+}
+
+/** A mostly flat tree, like a real collection list: one folder in fifty is a parent of ten. */
+function generateSharedFolders(count: number): FilterOptionNode<string>[] {
+  const nodes: FilterOptionNode<string>[] = [];
+  let id = 0;
+  const node = (): FilterOptionNode<string> => {
+    const value = `folder-${id++}`;
+    return { value, label: `Shared folder ${value.slice(7).padStart(4, "0")}` };
+  };
+  while (id < count) {
+    const parent = node();
+    if (nodes.length % 50 === 0) {
+      parent.options = Array.from({ length: Math.min(10, count - id) }, node);
+    }
+    nodes.push(parent);
+  }
+  return nodes;
+}
+
+function generateRows(
+  { rows, users, features, sharedFolders }: KitchenSinkTableV2Stress,
+  seed: number,
+) {
+  const next = lcg(seed);
+  return Array.from({ length: rows }, (_, i): ProductRow => {
+    const badgeCount = 1 + next(3);
+    const folderCount = 1 + next(3);
+    return {
+      product: `Product ${i.toString().padStart(5, "0")}`,
+      description: `Generated description for product ${i}`,
+      user: `User ${next(users).toString().padStart(4, "0")}`,
+      badges: Array.from({ length: badgeCount }, () => ({
+        label: `Feature ${next(features)}`,
+        variant: BADGE_VARIANTS[next(BADGE_VARIANTS.length)],
+      })),
+      folderIds: Array.from({ length: folderCount }, () => `folder-${next(sharedFolders)}`),
+    };
+  });
+}
 
 const PRODUCT_ROWS: ProductRow[] = [
   {
@@ -38,6 +112,7 @@ const PRODUCT_ROWS: ProductRow[] = [
       { label: "Secrets", variant: "danger" },
       { label: "Generator", variant: "subtle" },
     ],
+    folderIds: ["folder-0"],
   },
   {
     product: "Secrets Manager",
@@ -48,7 +123,13 @@ const PRODUCT_ROWS: ProductRow[] = [
       { label: "Secrets", variant: "danger" },
       { label: "Infrastructure", variant: "primary" },
     ],
+    folderIds: ["folder-1"],
   },
+];
+
+const DEMO_SHARED_FOLDERS: FilterOptionNode<string>[] = [
+  { value: "folder-0", label: "Engineering" },
+  { value: "folder-1", label: "Infrastructure" },
 ];
 
 @Component({
@@ -68,7 +149,28 @@ const PRODUCT_ROWS: ProductRow[] = [
     BadgeGroupComponent,
   ],
   template: `
-    <bit-table-v2 [tableDef]="table" [filter]="filter">
+    <!-- Outside the toolbar so it doesn't change the chip row's width (and overflow behavior). -->
+    @if (stress) {
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        class="tw-mb-2"
+        startIcon="bwi-refresh"
+        (click)="refreshData()"
+      >
+        Refresh data
+      </button>
+    }
+    <bit-table-v2
+      [tableDef]="table"
+      [filter]="filter"
+      [optionValues]="optionValues"
+      [selection]="selection"
+      [queryParam]="queryParam"
+      [virtualRowHeight]="stress?.virtualized ? 56 : undefined"
+      [height]="stress?.virtualized ? 12 : undefined"
+    >
       <bit-table-toolbar>
         <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
         <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-download">
@@ -80,6 +182,15 @@ const PRODUCT_ROWS: ProductRow[] = [
         <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
           Add new item
         </button>
+
+        <!-- "virtualized" is a no-op where the filter menu doesn't support it. -->
+        <bit-filter-menu
+          key="sharedFolder"
+          placeholderText="Shared folders"
+          multiple
+          virtualized
+          [options]="sharedFolders"
+        ></bit-filter-menu>
 
         <bit-filter-menu key="user" placeholderText="User" unsetLabel="All">
           @for (user of users; track user) {
@@ -130,23 +241,72 @@ const PRODUCT_ROWS: ProductRow[] = [
         </bit-cell>
       </bit-column>
 
-      <bit-table-paginator [pageSize]="5" [pageSizeOptions]="pageSizeOptions"></bit-table-paginator>
+      @if (!stress?.virtualized) {
+        <bit-table-paginator
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+        ></bit-table-paginator>
+      }
     </bit-table-v2>
   `,
 })
 export class KitchenSinkTableV2Component {
-  protected readonly table = defineTable<ProductRow, "actions">(signal(PRODUCT_ROWS));
+  protected readonly stress = inject(KITCHEN_SINK_TABLE_V2_STRESS, { optional: true });
 
-  protected readonly pageSizeOptions = [5, 10, 25];
+  private readonly data = signal(this.stress ? generateRows(this.stress, 42) : PRODUCT_ROWS);
 
-  protected readonly users = [...new Set(PRODUCT_ROWS.map((row) => row.user))];
+  protected readonly table = defineTable<ProductRow, "actions">(this.data);
+
+  protected readonly pageSize = this.stress?.pageSize ?? 5;
+
+  protected readonly pageSizeOptions = [5, 10, 25, 50, 100];
+
+  protected readonly selection: SelectionConfig<ProductRow> = { multiple: true };
+
+  /** URL sync, as the vault table has it, so each filter change also writes the query string. */
+  protected readonly queryParam = this.stress ? "stress" : undefined;
+
+  protected readonly sharedFolders = this.stress
+    ? generateSharedFolders(this.stress.sharedFolders)
+    : DEMO_SHARED_FOLDERS;
+
+  protected readonly users = [...new Set(this.data().map((row) => row.user))].sort();
 
   protected readonly features = [
-    ...new Set(PRODUCT_ROWS.flatMap((row) => row.badges.map((badge) => badge.label))),
-  ];
+    ...new Set(this.data().flatMap((row) => row.badges.map((badge) => badge.label))),
+  ].sort();
+
+  /** One-pass option counts for the Shared folders chip, as the vault table binds them. */
+  protected readonly optionValues = {
+    sharedFolder: (row: ProductRow) => row.folderIds,
+  };
+
+  private readonly refreshes = signal(0);
+
+  /** Replaces every row, as a sync does; a new seed so the rows really change. */
+  protected refreshData(): void {
+    if (this.stress) {
+      this.refreshes.update((n) => n + 1);
+      this.data.set(generateRows(this.stress, 42 + this.refreshes()));
+    }
+  }
+
+  /** Mirrors the vault's `matchesSharedFolder`: a row matches any selected folder it holds. */
+  private static matchesSharedFolder(row: ProductRow, selected: string[] | undefined) {
+    if (!selected || selected.length === 0) {
+      return true;
+    }
+    for (const id of row.folderIds) {
+      if (selected.includes(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   protected readonly filter = (row: ProductRow, f: ProductFilters) =>
     (!f.search || row.product.toLowerCase().includes(f.search.toLowerCase())) &&
     (f.user == null || row.user === f.user) &&
-    (!f.feature?.length || row.badges.some((badge) => f.feature?.includes(badge.label)));
+    (!f.feature?.length || row.badges.some((badge) => f.feature?.includes(badge.label))) &&
+    KitchenSinkTableV2Component.matchesSharedFolder(row, f.sharedFolder);
 }
