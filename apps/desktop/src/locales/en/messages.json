@@ -6752,6 +6752,12 @@
     "message": "Archive",
     "description": "Verb"
   },
+  "archiveUpgradeTitle": {
+    "message": "Declutter your vault with Archive"
+  },
+  "archiveUpgradeDescription": {
+    "message": "Tuck away items you don't want to see in search results or autofill suggestions without losing them forever."
+  },
   "unArchive": {
     "message": "Unarchive"
   },
