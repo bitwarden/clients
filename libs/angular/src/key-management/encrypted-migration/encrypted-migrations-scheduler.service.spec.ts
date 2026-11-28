@@ -1,14 +1,18 @@
-import { Router } from "@angular/router";
+import { NavigationEnd, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
+import {
+  mockAccountInfoWith,
+  mockAccountServiceWith,
+  FakeAccountService,
+  FakeStateProvider,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -37,7 +41,6 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
   const mockAccountService = new FakeAccountService(accounts);
   const mockAuthService = mock<AuthService>();
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
-  const mockStateProvider = mock<StateProvider>();
   const mockSyncService = mock<SyncService>();
   const mockDialogService = mock<DialogService>();
   const mockToastService = mock<ToastService>();
@@ -48,13 +51,13 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
   const mockUserId = "test-user-id" as UserId;
   const mockMasterPassword = "test-master-password";
 
-  const createMockUserState = <T>(value: T): jest.Mocked<SingleUserState<T>> =>
-    ({
-      state$: of(value),
-      userId: mockUserId,
-      update: jest.fn(),
-      combinedState$: of([mockUserId, value]),
-    }) as any;
+  let routerEvents$: Subject<NavigationEnd>;
+  let lastSync$: BehaviorSubject<Date>;
+
+  let stateProvider: FakeStateProvider;
+
+  const dismissedDate = (userId: UserId) =>
+    firstValueFrom(stateProvider.getUser(userId, ENCRYPTED_MIGRATION_DISMISSED).state$);
 
   beforeEach(() => {
     const mockDialogRef = {
@@ -62,13 +65,22 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
     };
 
     jest.spyOn(PromptMigrationPasswordComponent, "open").mockReturnValue(mockDialogRef as any);
+    stateProvider = new FakeStateProvider(mockAccountServiceWith(mockUserId));
     mockI18nService.t.mockReturnValue("translated_migrationsFailed");
-    (mockRouter as any)["events"] = of({ url: "/vault" }) as any;
+
+    // The constructor subscribes to these, so they must be in place before it runs.
+    routerEvents$ = new Subject<NavigationEnd>();
+    lastSync$ = new BehaviorSubject(new Date());
+    Object.assign(mockRouter, { events: routerEvents$ });
+    mockAuthService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+    mockSyncService.lastSync$.mockImplementation((userId) =>
+      userId === SomeUser ? lastSync$ : of(null),
+    );
 
     service = new DefaultEncryptedMigrationsSchedulerService(
       mockSyncService,
       mockAccountService,
-      mockStateProvider,
+      stateProvider,
       mockEncryptedMigrator,
       mockAuthService,
       mockLogService,
@@ -122,8 +134,6 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
     it("should run migrations with interaction when migration is needed", async () => {
       mockAuthService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
       mockEncryptedMigrator.needsMigrations.mockResolvedValue("needsMigrationWithMasterPassword");
-      const mockUserState = createMockUserState(null);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
 
       await service.runMigrationsIfNeeded(mockUserId);
 
@@ -174,15 +184,14 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
 
     it("should skip if migration was dismissed recently", async () => {
       const recentDismissDate = new Date(Date.now() - 12 * 60 * 60 * 1000); // 12 hours ago
-      const mockUserState = createMockUserState(recentDismissDate);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
+      await stateProvider.setUserState(
+        ENCRYPTED_MIGRATION_DISMISSED,
+        recentDismissDate,
+        mockUserId,
+      );
 
       await service.runMigrationsIfNeeded(mockUserId);
 
-      expect(mockStateProvider.getUser).toHaveBeenCalledWith(
-        mockUserId,
-        ENCRYPTED_MIGRATION_DISMISSED,
-      );
       expect(mockLogService.info).toHaveBeenCalledWith(
         "[EncryptedMigrationsScheduler] Migration prompt dismissed recently, skipping for now.",
       );
@@ -191,15 +200,10 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
 
     it("should prompt for migration if dismissed date is older than 24 hours", async () => {
       const oldDismissDate = new Date(Date.now() - 25 * 60 * 60 * 1000); // 25 hours ago
-      const mockUserState = createMockUserState(oldDismissDate);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
+      await stateProvider.setUserState(ENCRYPTED_MIGRATION_DISMISSED, oldDismissDate, mockUserId);
 
       await service.runMigrationsIfNeeded(mockUserId);
 
-      expect(mockStateProvider.getUser).toHaveBeenCalledWith(
-        mockUserId,
-        ENCRYPTED_MIGRATION_DISMISSED,
-      );
       expect(PromptMigrationPasswordComponent.open).toHaveBeenCalledWith(mockDialogService);
       expect(mockEncryptedMigrator.runMigrations).toHaveBeenCalledWith(
         mockUserId,
@@ -208,9 +212,6 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
     });
 
     it("should prompt for migration if no dismiss date exists", async () => {
-      const mockUserState = createMockUserState(null);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
-
       await service.runMigrationsIfNeeded(mockUserId);
 
       expect(PromptMigrationPasswordComponent.open).toHaveBeenCalledWith(mockDialogService);
@@ -221,9 +222,6 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
     });
 
     it("should set dismiss date when empty password is provided", async () => {
-      const mockUserState = createMockUserState(null);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
-
       const mockDialogRef = {
         closed: of(""), // Empty password
       };
@@ -233,17 +231,10 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
 
       expect(PromptMigrationPasswordComponent.open).toHaveBeenCalledWith(mockDialogService);
       expect(mockEncryptedMigrator.runMigrations).not.toHaveBeenCalled();
-      expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
-        ENCRYPTED_MIGRATION_DISMISSED,
-        expect.any(Date),
-        mockUserId,
-      );
+      expect(await dismissedDate(mockUserId)).toEqual(expect.any(Date));
     });
 
     it("should handle errors during migration prompt and show toast", async () => {
-      const mockUserState = createMockUserState(null);
-      mockStateProvider.getUser.mockReturnValue(mockUserState);
-
       const mockError = new Error("Migration failed");
       mockEncryptedMigrator.runMigrations.mockRejectedValue(mockError);
 
@@ -262,6 +253,35 @@ describe("DefaultEncryptedMigrationsSchedulerService", () => {
         variant: "error",
         message: "translated_migrationsFailed",
       });
+    });
+  });
+
+  describe("when the prompt was dismissed less than 24 hours ago", () => {
+    // Bounds the loop the test exposes, so a failing run ends.
+    const MAX_SYNCS = 5;
+
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      await stateProvider.setUserState(ENCRYPTED_MIGRATION_DISMISSED, new Date(), SomeUser);
+      // Like MinimumKdfMigration, checking syncs first, and a completed sync updates the last sync date.
+      mockEncryptedMigrator.needsMigrations.mockImplementation(async () => {
+        if (mockEncryptedMigrator.needsMigrations.mock.calls.length <= MAX_SYNCS) {
+          lastSync$.next(new Date());
+        }
+        return "needsMigrationWithMasterPassword";
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("does not check again for the sync that its own check started", async () => {
+      routerEvents$.next(new NavigationEnd(1, "/vault", "/vault"));
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(mockEncryptedMigrator.needsMigrations.mock.calls.length).toBeLessThanOrEqual(1);
+      expect(PromptMigrationPasswordComponent.open).not.toHaveBeenCalled();
     });
   });
 });

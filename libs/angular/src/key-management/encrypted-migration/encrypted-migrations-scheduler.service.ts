@@ -35,6 +35,8 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   {
     deserializer: (obj: string) => (obj != null ? new Date(obj) : null),
     clearOn: [],
+    // Read right after "Later" is selected. A cached state$ can still replay the previous value.
+    cleanupDelayMs: 0,
   },
 );
 const DISMISS_TIME_HOURS = 24;
@@ -109,6 +111,15 @@ export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigr
       return;
     }
 
+    // Checked before needsMigrations: a migration check can sync, and every sync triggers this
+    // check again. While the prompt is dismissed, nothing would stop that loop.
+    if (await this.isDismissedRecently(userId)) {
+      this.logService.info(
+        "[EncryptedMigrationsScheduler] Migration prompt dismissed recently, skipping for now.",
+      );
+      return;
+    }
+
     this.isMigrating = true;
     switch (await this.encryptedMigrator.needsMigrations(userId)) {
       case "noMigrationNeeded":
@@ -145,7 +156,7 @@ export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigr
     }
   }
 
-  private async runMigrationsWithInteraction(userId: UserId): Promise<void> {
+  private async isDismissedRecently(userId: UserId): Promise<boolean> {
     // A dialog can be dismissed for a certain amount of time
     const dismissedDate = await firstValueFrom(
       this.stateProvider.getUser(userId, ENCRYPTED_MIGRATION_DISMISSED).state$,
@@ -156,13 +167,14 @@ export class DefaultEncryptedMigrationsSchedulerService implements EncryptedMigr
       const hoursDiff = timeDiff / (1000 * 60 * 60);
 
       if (hoursDiff < DISMISS_TIME_HOURS) {
-        this.logService.info(
-          "[EncryptedMigrationsScheduler] Migration prompt dismissed recently, skipping for now.",
-        );
-        return;
+        return true;
       }
     }
 
+    return false;
+  }
+
+  private async runMigrationsWithInteraction(userId: UserId): Promise<void> {
     try {
       const dialog = PromptMigrationPasswordComponent.open(this.dialogService);
       const masterPassword = await firstValueFrom(dialog.closed);
