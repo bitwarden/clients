@@ -9,11 +9,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import {
-  BitIconButtonComponent,
-  ChipActionComponent,
-  IconTileComponent,
-} from "@bitwarden/components";
+import { BadgeComponent, BitIconButtonComponent, ChipActionComponent } from "@bitwarden/components";
 
 import { PremiumBadgeComponent } from "./premium-badge.component";
 
@@ -54,10 +50,8 @@ describe("PremiumBadgeComponent", () => {
     }).compileComponents();
   });
 
-  /** Create the component after flag/input setup, optionally binding the click output first. */
-  async function render(
-    opts: { iconOnly?: boolean; organizationId?: string; bindClick?: boolean } = {},
-  ) {
+  /** Create the component after flag/input setup. */
+  async function render(opts: { iconOnly?: boolean; organizationId?: string } = {}) {
     fixture = TestBed.createComponent(PremiumBadgeComponent);
     if (opts.iconOnly != null) {
       fixture.componentRef.setInput("iconOnly", opts.iconOnly);
@@ -65,22 +59,15 @@ describe("PremiumBadgeComponent", () => {
     if (opts.organizationId != null) {
       fixture.componentRef.setInput("organizationId", opts.organizationId);
     }
-    const clickSpy = jest.fn();
-    if (opts.bindClick) {
-      // Binding the output subscribes to the backing subject, as a host template's (clicked) does.
-      fixture.componentInstance.clicked.subscribe(clickSpy);
-    }
     fixture.detectChanges();
     // *appNotPremium resolves the active account asynchronously before it renders.
     await fixture.whenStable();
     fixture.detectChanges();
-    return clickSpy;
   }
 
   const chip = () => fixture.debugElement.query(By.directive(ChipActionComponent));
   const iconButton = () => fixture.debugElement.query(By.directive(BitIconButtonComponent));
-  // The non-clickable Premium label renders a bit-icon-tile (teal diamond), not a chip.
-  const premiumLabelTile = () => fixture.debugElement.query(By.directive(IconTileComponent));
+  const badge = () => fixture.debugElement.query(By.directive(BadgeComponent));
   const clickEvent = () => ({ stopPropagation: jest.fn(), preventDefault: jest.fn() }) as any;
 
   describe("flag off", () => {
@@ -89,7 +76,6 @@ describe("PremiumBadgeComponent", () => {
 
       expect(chip()).not.toBeNull();
       expect(chip().componentInstance.label()).toBe("upgrade");
-      expect(premiumLabelTile()).toBeNull();
 
       const event = clickEvent();
       chip().triggerEventHandler("click", event);
@@ -108,52 +94,22 @@ describe("PremiumBadgeComponent", () => {
     });
   });
 
-  describe("flag on, click output bound", () => {
+  describe("flag on", () => {
     beforeEach(() => flag$.next(true));
 
-    it("renders a clickable Premium chip that emits the output and calls no service", async () => {
-      const clickSpy = await render({ organizationId: "org-1", bindClick: true });
+    it("renders a non-clickable Premium badge and calls no service", async () => {
+      await render({ organizationId: "org-1" });
 
-      expect(chip()).not.toBeNull();
-      expect(chip().componentInstance.label()).toBe("premium");
-
-      const event = clickEvent();
-      chip().triggerEventHandler("click", event);
-
-      expect(event.stopPropagation).toHaveBeenCalled();
-      expect(event.preventDefault).toHaveBeenCalled();
-      expect(clickSpy).toHaveBeenCalledTimes(1);
+      expect(badge()).not.toBeNull();
+      expect(badge().nativeElement.textContent.trim()).toBe("premium");
+      expect(chip()).toBeNull();
       expect(promptService.promptForPremium).not.toHaveBeenCalled();
     });
 
-    it("renders the chip regardless of iconOnly", async () => {
-      await render({ iconOnly: true, bindClick: true });
-
-      expect(chip()).not.toBeNull();
-      expect(iconButton()).toBeNull();
-    });
-  });
-
-  describe("flag on, click output unbound", () => {
-    beforeEach(() => flag$.next(true));
-
-    it("renders a plain, non-clickable Premium label with the diamond tile", async () => {
-      await render({});
-
-      expect(premiumLabelTile()).not.toBeNull();
-      expect(premiumLabelTile().query(By.css("bit-icon.bwi-premium"))).not.toBeNull();
-      expect(fixture.nativeElement.textContent).toContain("premium");
-      expect(chip()).toBeNull();
-      expect(iconButton()).toBeNull();
-    });
-
-    it("renders the diamond tile alone, no text, when iconOnly", async () => {
+    it("renders the Premium badge regardless of iconOnly", async () => {
       await render({ iconOnly: true });
 
-      expect(premiumLabelTile()).not.toBeNull();
-      expect(premiumLabelTile().query(By.css("bit-icon.bwi-premium"))).not.toBeNull();
-      expect(premiumLabelTile().componentInstance.ariaLabel()).toBe("premium");
-      expect(fixture.nativeElement.textContent.trim()).toBe("");
+      expect(badge()).not.toBeNull();
       expect(chip()).toBeNull();
       expect(iconButton()).toBeNull();
     });
@@ -172,7 +128,7 @@ describe("PremiumBadgeComponent", () => {
 
       expect(chip()).toBeNull();
       expect(iconButton()).toBeNull();
-      expect(premiumLabelTile()).toBeNull();
+      expect(badge()).toBeNull();
     });
   });
 });

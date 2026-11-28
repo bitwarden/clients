@@ -12,7 +12,6 @@ import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
-  BadgeModule,
   ButtonModule,
   DIALOG_DATA,
   DialogConfig,
@@ -25,6 +24,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DarkImageSourceDirective } from "../../../directives/dark-image-source.directive";
+import { PremiumPillComponent } from "../premium-pill";
 
 type NudgeImage = { light: string; dark: string; width: number; height: number };
 
@@ -50,13 +50,13 @@ export type PremiumUpgradeNudgeDialogData = {
     CurrencyPipe,
     NgTemplateOutlet,
     AsyncActionsModule,
-    BadgeModule,
     ButtonModule,
     DialogModule,
     IconModule,
     TypographyModule,
     I18nPipe,
     DarkImageSourceDirective,
+    PremiumPillComponent,
   ],
 })
 export class PremiumUpgradeNudgeComponent {

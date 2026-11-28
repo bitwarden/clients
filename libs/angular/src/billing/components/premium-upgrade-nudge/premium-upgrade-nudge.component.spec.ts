@@ -144,7 +144,14 @@ describe("PremiumUpgradeNudgeComponent", () => {
 
     expect(query("[data-testid='bit-dialog-title']")?.textContent).toContain("nudgeTitle");
     expect(text()).toContain("nudgeDescription");
-    expect(query("[bitBadge]")?.textContent?.trim()).toBe("premium");
+    expect(query("app-premium-pill [bitBadge]")?.textContent?.trim()).toBe("premium");
+  });
+
+  it("renders the Premium pill directly, not through the premium badge", async () => {
+    await setup();
+
+    expect(query("app-premium-pill")).not.toBeNull();
+    expect(query("app-premium-badge")).toBeNull();
   });
 
   describe("unlocked feature list", () => {

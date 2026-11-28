@@ -6,7 +6,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, I18nMockService } from "@bitwarden/components";
+import { I18nMockService } from "@bitwarden/components";
 
 import { JslibModule } from "../../../jslib.module";
 
@@ -26,7 +26,7 @@ export default {
     docs: {
       description: {
         component:
-          "An upgrade-to-Premium nudge shown to users without premium, rendered as a chip, a plain label, or a compact icon depending on the surface.",
+          "An upgrade-to-Premium nudge shown to users without premium, rendered as a clickable chip, a compact icon, or a passive Premium badge depending on the surface.",
       },
     },
   },
@@ -35,13 +35,13 @@ export default {
       description: "Organization whose premium upgrade the prompt targets.",
     },
     iconOnly: {
-      description: "Render the compact icon-only form (a side-nav button, or a diamond tile).",
+      description: "Render the compact icon-only form (a side-nav button).",
     },
   },
   decorators: [
     config(false),
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, PremiumBadgeComponent],
+      imports: [JslibModule, PremiumBadgeComponent],
       providers: [
         { provide: AccountService, useValue: { activeAccount$: of({ id: "123" }) } },
         {
@@ -79,23 +79,7 @@ export const IconOnly: Story = {
   }),
 };
 
-/** Flag on, a plain, non-clickable "Premium" label, shown when no host binds the click. */
-export const PremiumLabel: Story = {
+/** Flag on, the passive, non-clickable "Premium" badge. */
+export const PremiumBadge: Story = {
   decorators: [config(true)],
-};
-
-/** Flag on with `iconOnly`: just the diamond tile, a passive premium indicator beside another label. */
-export const PremiumIconOnly: Story = {
-  decorators: [config(true)],
-  args: { iconOnly: true },
-};
-
-/** Flag on, a clickable "Premium" chip that emits `clicked`, shown when a host binds a click handler. */
-export const PremiumChip: Story = {
-  decorators: [config(true)],
-  argTypes: { clicked: { action: "clicked" } },
-  render: (args) => ({
-    props: args,
-    template: `<app-premium-badge (clicked)="clicked($event)"></app-premium-badge>`,
-  }),
 };
