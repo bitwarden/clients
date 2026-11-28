@@ -9,6 +9,8 @@ import {
   MonthPatternExpression,
 } from "../constants";
 
+import { isHostnameInCidr } from "./cidr";
+
 type NonZeroIntegers = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type Year = `${NonZeroIntegers}${NonZeroIntegers}${0 | NonZeroIntegers}${0 | NonZeroIntegers}`;
 
@@ -332,7 +334,8 @@ export function parseYearMonthExpiry(combinedExpiryValue: string): [Year | null,
 }
 
 /**
- * Takes a URL string and a NeverDomains object and determines if the passed URL's hostname is in `urlList`
+ * Takes a URL string and a NeverDomains object and determines if the passed URL's hostname is in `urlList`,
+ * either as a hostname or, for an IPv4 address, within an IPv4 CIDR range entry such as `192.0.2.0/24`
  *
  * @param {string} url - representation of URL to check
  * @param {NeverDomains} urlList - object with hostname key names
@@ -350,7 +353,10 @@ export function isUrlInList(url: string = "", urlList: NeverDomains = {}): boole
     }
 
     if (tabHostname) {
-      return urlListKeys.some((blockedHostname) => tabHostname.endsWith(blockedHostname));
+      return urlListKeys.some(
+        (blockedHostname) =>
+          tabHostname.endsWith(blockedHostname) || isHostnameInCidr(tabHostname, blockedHostname),
+      );
     }
   }
 

@@ -3,6 +3,7 @@ import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
+import { isHostnameExcluded } from "@bitwarden/common/autofill/utils/cidr";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -232,7 +233,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         return false;
       }
 
-      return origins.some((origin) => excludedDomains[new URL(origin).hostname] !== undefined);
+      return origins.some((origin) =>
+        isHostnameExcluded(new URL(origin).hostname, excludedDomains),
+      );
     } catch {
       return true;
     }

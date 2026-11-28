@@ -6,6 +6,7 @@ import { parse } from "tldts";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { isHostnameExcluded } from "../../../autofill/utils/cidr";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
@@ -88,14 +89,14 @@ export class Fido2ClientService<
     const blockedInteractionsUris = await firstValueFrom(
       this.domainSettingsService.blockedInteractionsUris$,
     );
-    const isBlockedDomain = blockedInteractionsUris != null && hostname in blockedInteractionsUris;
+    const isBlockedDomain = isHostnameExcluded(hostname, blockedInteractionsUris);
     if (isBlockedDomain) {
       return false;
     }
 
     const neverDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
-    const isExcludedDomain = neverDomains != null && hostname in neverDomains;
+    const isExcludedDomain = isHostnameExcluded(hostname, neverDomains);
     if (isExcludedDomain) {
       return false;
     }
