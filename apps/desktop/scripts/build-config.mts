@@ -46,6 +46,12 @@ export type Channel = (typeof CHANNELS)[number];
 export const PROFILES = ["debug", "release"] as const;
 export type Profile = (typeof PROFILES)[number];
 
+/// Oldest glibc a cross-built Linux artifact may require. Matches the ubuntu-22.04 runner CI
+/// builds Linux on, and the core22 snap base, both glibc 2.35 -- so a cross build runs
+/// everywhere a released build does. Only cross builds can honor it; a native Linux build
+/// links against whatever the host has.
+export const DEFAULT_GLIBC = "2.35";
+
 /// Distribution channels, mapped to the platform they can be produced on. `directory` is the
 /// unpacked output and belongs to no single platform.
 export const DISTRIBUTION_CHANNELS = {
@@ -178,6 +184,7 @@ export interface RawOptions {
   buildDir?: string;
   channel?: string;
   profile?: string;
+  glibc?: string;
   skipToolchainCheck: boolean;
   architectures: string[];
   distributionChannels: string[];
@@ -216,6 +223,11 @@ export interface BuildConfig {
   macos?: {
     signingCertificate?: string;
     provisioningProfile?: ProvisioningProfileConfig;
+  };
+  linux?: {
+    /// Applied when cross-compiling, where cargo-zigbuild can cap the glibc symbol versions a
+    /// binary requires. A native build links against the host's glibc and ignores this.
+    glibc: string;
   };
   targets: Record<string, boolean>;
   dependencies: Record<string, { path: string }>;
@@ -263,6 +275,10 @@ export function usage(): string {
       `--profile <${PROFILES.join("|")}>`,
       "Cargo profile for native targets (default: debug)",
     ),
+    option(
+      "--glibc <version>",
+      `Oldest glibc a Linux cross build may need (default: ${DEFAULT_GLIBC})`,
+    ),
     option("--architecture <arch>", `Repeatable. One of: ${ARCHITECTURES.join(", ")}`),
     option("--distribution-channel <channel>", "Repeatable. One of:"),
     `      ${Object.keys(DISTRIBUTION_CHANNELS).join(", ")}`,
@@ -287,6 +303,7 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     "build-dir": { type: "string" },
     channel: { type: "string" },
     profile: { type: "string" },
+    glibc: { type: "string" },
     "skip-toolchain-check": { type: "boolean" },
     architecture: { type: "string", multiple: true },
     "distribution-channel": { type: "string", multiple: true },
@@ -332,6 +349,7 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     buildDir: asString(values["build-dir"]),
     channel: asString(values.channel),
     profile: asString(values.profile),
+    glibc: asString(values.glibc),
     skipToolchainCheck: values["skip-toolchain-check"] === true,
     architectures: asStringArray(values.architecture),
     distributionChannels: asStringArray(values["distribution-channel"]),
@@ -359,6 +377,10 @@ export function validate(raw: RawOptions): string[] {
 
   if (raw.channel != null && !isChannel(raw.channel)) {
     errors.push(`Unknown --channel '${raw.channel}'. Expected one of: ${CHANNELS.join(", ")}.`);
+  }
+
+  if (raw.glibc != null && !/^\d+\.\d+$/.test(raw.glibc)) {
+    errors.push(`--glibc must look like 2.35, got '${raw.glibc}'.`);
   }
 
   if (raw.profile != null && !isProfile(raw.profile)) {
@@ -453,6 +475,10 @@ export function validate(raw: RawOptions): string[] {
     }
   }
 
+  if (platform != null && platform !== "linux" && raw.glibc != null) {
+    errors.push(`--glibc is only available on linux, not ${platform}.`);
+  }
+
   if (
     distributionChannels.includes("mac-app-store") &&
     (raw.macosSigningCertificate == null || raw.macosSigningCertificate === "none")
@@ -490,6 +516,7 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
     distributionChannels,
     ...(raw.buildNumber != null ? { buildNumber: raw.buildNumber } : {}),
     ...(macos != null ? { macos } : {}),
+    ...(platform === "linux" ? { linux: { glibc: raw.glibc ?? DEFAULT_GLIBC } } : {}),
     targets: Object.fromEntries(targets.map((target) => [target.key, true])),
     dependencies:
       resolved.safariExtensionPath != null
