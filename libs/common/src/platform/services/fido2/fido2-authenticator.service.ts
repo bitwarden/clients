@@ -439,16 +439,22 @@ export class Fido2AuthenticatorService<
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.passkeyCiphers(activeUserId);
-    return ciphers.filter(
-      (cipher) =>
-        cipher.login.fido2Credentials[0].rpId === rpId &&
-        credentials.some((credential) =>
-          compareCredentialIds(
-            credential.id,
-            parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
-          ),
-        ),
-    );
+    return ciphers.filter((cipher) => {
+      if (cipher.login.fido2Credentials[0].rpId !== rpId) {
+        return false;
+      }
+
+      // Imported passkeys can carry ids in neither of our formats; one of those must not fail the lookup.
+      const storedId = parseCredentialId(cipher.login.fido2Credentials[0].credentialId);
+      if (storedId == undefined) {
+        this.logService?.warning(
+          `[Fido2Authenticator] Skipping cipher ${cipher.id} with unparseable credential id`,
+        );
+        return false;
+      }
+
+      return credentials.some((credential) => compareCredentialIds(credential.id, storedId));
+    });
   }
 
   /**
