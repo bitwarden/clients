@@ -87,7 +87,7 @@
     "@tailwindcss/container-queries": "0.1.1",
     "@types/chrome": "0.1.28",
     "@types/firefox-webext-browser": "143.0.0",
-    "@types/inquirer": "8.2.10",
+    "@types/inquirer": "10.0.0",
     "@types/jest": "30.0.0",
     "@types/jsdom": "28.0.1",
     "@types/koa": "3.0.1",
