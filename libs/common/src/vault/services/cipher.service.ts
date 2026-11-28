@@ -1097,6 +1097,11 @@ export class CipherService implements CipherServiceAbstraction {
       await this.delete(cipher.id, userId);
       return undefined;
     }
+    // The change left the cipher reachable only through privileged collections, so the result is
+    // restricted and cannot be encrypted. The SDK already stored it, so return the stored copy.
+    if (CipherViewLikeUtils.isRestricted(cipherView)) {
+      return (await this.get(cipher.id, userId)) ?? undefined;
+    }
     const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
     return encryptResult.cipher;
   }
@@ -1109,6 +1114,12 @@ export class CipherService implements CipherServiceAbstraction {
       cipher.collectionIds,
       userId,
     );
+    // The change left the cipher reachable only through privileged collections, so the result is
+    // restricted and cannot be encrypted. Admin ops bypass local state, so there is no stored copy
+    // to return; callers treat undefined as "cipher no longer available".
+    if (cipherView == null || CipherViewLikeUtils.isRestricted(cipherView)) {
+      return undefined;
+    }
     const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
     return encryptResult.cipher;
   }
