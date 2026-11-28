@@ -231,7 +231,7 @@ export class NativeMessagingMain {
 
             try {
               let manifest: any = await this.generateChromeJson(binaryPath);
-              if (key === "Firefox" || key === "Zen") {
+              if (key === "Firefox" || key === "Zen" || key === "Sval") {
                 await fs.mkdir(nmhsPath, { recursive: true });
                 manifest = await this.generateFirefoxJson(binaryPath);
               }
@@ -522,6 +522,7 @@ export class NativeMessagingMain {
       Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
+      Sval: `${this.homedir()}/Library/Application\ Support/Sval/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
       Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
       "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
