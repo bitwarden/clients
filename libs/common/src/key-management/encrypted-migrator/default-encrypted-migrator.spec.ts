@@ -25,6 +25,7 @@ import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { OrganizationKeyIdBackfillMigration } from "./migrations/organization-key-id-backfill-migration";
 import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
 import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
@@ -32,6 +33,7 @@ jest.mock("./migrations/minimum-kdf-migration");
 jest.mock("./migrations/biometric-persistent-encryption-migration");
 jest.mock("./migrations/v2-key-rotation-migration");
 jest.mock("./migrations/user-key-id-backfill-migration");
+jest.mock("./migrations/organization-key-id-backfill-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
@@ -53,6 +55,7 @@ describe("EncryptedMigrator", () => {
   const mockBiometricMigration = mock<BiometricPersistentMigration>();
   const mockV2KeyRotationMigration = mock<V2KeyRotationMigration>();
   const mockUserKeyIdBackfillMigration = mock<UserKeyIdBackfillMigration>();
+  const mockOrganizationKeyIdBackfillMigration = mock<OrganizationKeyIdBackfillMigration>();
   const mockSdkService = mock<SdkService>();
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
@@ -74,6 +77,11 @@ describe("EncryptedMigrator", () => {
     (
       UserKeyIdBackfillMigration as jest.MockedClass<typeof UserKeyIdBackfillMigration>
     ).mockImplementation(() => mockUserKeyIdBackfillMigration);
+    (
+      OrganizationKeyIdBackfillMigration as jest.MockedClass<
+        typeof OrganizationKeyIdBackfillMigration
+      >
+    ).mockImplementation(() => mockOrganizationKeyIdBackfillMigration);
 
     // Default biometric migration to no-op so it doesn't interfere with KDF migration tests
     mockBiometricMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
@@ -81,6 +89,8 @@ describe("EncryptedMigrator", () => {
     mockV2KeyRotationMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
     // Default user key id backfill to no-op so it doesn't interfere with other tests
     mockUserKeyIdBackfillMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+    // Default organization key id backfill to no-op so it doesn't interfere with other tests
+    mockOrganizationKeyIdBackfillMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
 
     // Biometric migration is only registered on desktop
     mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
@@ -209,11 +219,15 @@ describe("EncryptedMigrator", () => {
       mockV2KeyRotationMigration.runMigrations.mockImplementation(async () => {
         order.push("v2Rotation");
       });
+      mockOrganizationKeyIdBackfillMigration.needsMigration.mockResolvedValue("needsMigration");
+      mockOrganizationKeyIdBackfillMigration.runMigrations.mockImplementation(async () => {
+        order.push("organizationBackfill");
+      });
 
       await sut.runMigrations(mockUserId, mockMasterPassword);
 
       expect(order[0]).toBe("backfill");
-      expect(order).toEqual(["backfill", "kdf", "v2Rotation"]);
+      expect(order).toEqual(["backfill", "kdf", "v2Rotation", "organizationBackfill"]);
     });
   });
 

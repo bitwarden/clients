@@ -24,6 +24,7 @@ import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { OrganizationKeyIdBackfillMigration } from "./migrations/organization-key-id-backfill-migration";
 import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
 import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
@@ -98,6 +99,18 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
         ),
       });
     }
+
+    // Registered last: a failing migration stops the ones after it, and a server rejecting the
+    // backfill must not block the migrations above.
+    this.migrations.push({
+      name: "Organization Key Id Backfill Migration",
+      migration: new OrganizationKeyIdBackfillMigration(
+        sdkService,
+        syncService,
+        stateProvider,
+        logService,
+      ),
+    });
   }
 
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
