@@ -664,7 +664,7 @@
     }
   },
   "invalidAppPairing": {
-    "message": "Invalid app pairing",
+    "message": "Neplatné spárovanie aplikácie",
     "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
@@ -947,6 +947,29 @@
   },
   "folderHintText": {
     "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "deleteFolderPermanently": {
     "message": "Naozaj chcete natrvalo odstrániť tento priečinok?"
@@ -3492,10 +3515,10 @@
     }
   },
   "importSuccessful": {
-    "message": "Import successful"
+    "message": "Import prebehol úspešne"
   },
   "importConfirmationBody": {
-    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "message": "Do Bitwardenu ste úspešne importovali položky: $AMOUNT$.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -3504,13 +3527,13 @@
     }
   },
   "importConfirmationBodySingular": {
-    "message": "You’ve successfully imported 1 item into Bitwarden."
+    "message": "Do Bitwardenu ste úspešne importovali 1 položku."
   },
   "importConfirmationTipLabel": {
     "message": "Tip:"
   },
   "importDeleteFileTip": {
-    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "message": "Nezabudnite odstrániť súbor $FILENAME$. Obsahuje citlivé údaje a môže byť nezašifrovaný.",
     "placeholders": {
       "filename": {
         "content": "$1",
@@ -3519,13 +3542,13 @@
     }
   },
   "importDeleteFileTipGeneric": {
-    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+    "message": "Nezabudnite odstrániť importný súbor. Obsahuje citlivé údaje a môže byť nezašifrovaný."
   },
   "importingTitle": {
-    "message": "Importing"
+    "message": "Importuje sa"
   },
   "importingDescription": {
-    "message": "This process may take a few minutes."
+    "message": "Tento proces môže trvať niekoľko minút."
   },
   "dataExportSuccess": {
     "message": "Dáta boli úspešne exportované"
@@ -5812,10 +5835,10 @@
     "message": "Vaša nová organizácia je pripravená!"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Skúšobné obdobie začalo"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Vaše skúšobné obdobie je teraz aktívne."
   },
   "organizationUpgraded": {
     "message": "Vaša organizácia bola povýšená."
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Pridať skupinu"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
   },
   "editGroup": {
     "message": "Upraviť skupinu"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Upraviť člena"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "A field on the '$TAB$' tab requires your attention.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Dobré",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Slabé",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Potrebné potvrdenie"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Rola člena"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Ak obnovíte heslo alebo dvojstupňové prihlásenie tohto člena, bude o zmene informovaný a odhlásený."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Obnovte kontá pri zabudnutí alebo strate hlavného hesla, dvojstupňového prihlásenia alebo dôveryhodného zariadenia."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Nedôveryhodné šifrovacie kľúče"
   },
-  "atRiskPassword": {
-    "message": "Ohrozené heslá"
-  },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
-  },
-  "changeNow": {
-    "message": "Zmeniť teraz"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odstrániť odomknutie PIN kódom"
@@ -18005,7 +18077,7 @@
     "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
   },
   "onePasswordUnsupportedSignIn": {
-    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
+    "message": "Tento účet 1Password používa spôsob prihlásenia, ktorý nie je podporovaný. Skúste to znovu alebo použite iný spôsob importu."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
@@ -18026,7 +18098,7 @@
     "message": "Zadajte platnú prihlasovaciu adresu."
   },
   "onePasswordSignInAddressHint": {
-    "message": "Find this in your 1Password Emergency Kit."
+    "message": "Nájdete to vo 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Vyžaduje sa tajný kľúč."
@@ -18050,7 +18122,7 @@
     "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
   },
   "onePasswordEmailHintPasswordLoginOnly": {
-    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+    "message": "Zadajte e-mail, ktorý používate na prihlásenie do 1Password. Podporované je iba prihlásenie pomocou hesla."
   },
   "secretKey": {
     "message": "Tajný kľúč"
@@ -18062,28 +18134,28 @@
     "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "onePasswordSsoLogInTitle": {
-    "message": "Log in with SSO"
+    "message": "Prihlásiť sa cez SSO"
   },
   "onePasswordSsoSwitchToSignInPage": {
-    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+    "message": "Prepnite sa na prihlasovaciu stránku SSO a dokončite import do Bitwardenu."
   },
   "onePasswordSsoEncryptionKeyTransfer": {
-    "message": "Encryption key transfer"
+    "message": "Prenos šifrovacieho kľúča"
   },
   "onePasswordSsoVerifyInPendingSignIns": {
-    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+    "message": "Prihláste sa do 1Password a prejdite na čakajúce prihlásenia na overenie tejto žiadosti."
   },
   "onePasswordSsoCodeDidNotWork": {
-    "message": "That code didn't work. Check your other device for a new one."
+    "message": "Tento kód nefungoval. Skúste nájsť nový kód na inom zariadení."
   },
   "onePasswordSsoSignInClosed": {
-    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+    "message": "Prihlasovacia stránka SSO bola zatvorená pred dokončením prihlásenia. Skúste to znova a pokračujte v importe."
   },
   "onePasswordSsoDeviceDenied": {
-    "message": "This device was not approved on your other device. Try again or use a different import method."
+    "message": "Toto zariadenie nebolo schválené na vašom inom zariadení. Skúste to znova alebo použite iný spôsob importu."
   },
   "onePasswordSsoTooManyWrongCodes": {
-    "message": "Too many incorrect verification codes. Try again or use a different import method."
+    "message": "Príliš veľa nesprávnych overovacích kódov. Skúste to znova alebo použite iný spôsob importu."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Prístup k prístupovým údajom zamietnutý"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Pravidlo prístupu vytvorené"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Prístup až po dobu $DURATION$, okamžité schválenie ak spĺňate podmienky",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Prístup na dobu až $DURATION$. Ak splníte podmienky, získate okamžité schválenie.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Nepodarilo sa načítať schránku"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Dôvod žiadosti"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Obnoviť na predvolené"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Otvoriť článok pomocníka o automatickom vyplňovaní prihlasovacích údajov v prehliadači"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Ak chcete použiť toto nastavenie, vyberte pre každú webovú stránku tejto položky prihlásenia inú možnosť zisťovania zhody ako \"Predvolené\"."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Zapnúť automatické vypĺňanie pri výzvach na prihlásenie v prehliadači?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Pre túto položku bude vypnutá opätovná výzva na zadanie hlavného hesla. Obe nastavenia nemôžu byť zapnuté súčasne."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Zapnúť opätovné vyžiadanie hlavného hesla?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači bude pre túto položku vypnuté. Obe nastavenia nemôžu byť zapnuté súčasne."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Použiť predvolenú detekciu zhôd?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Webové stránky, ktoré využívajú predvolenú detekciu zhôd, nie je možné používať s prihlasovacími výzvami prehliadača. Funkcia automatického vypĺňania pre prihlasovacie výzvy prehliadača bude pre túto položku vypnutá."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatické vypĺňanie pri výzvach na prihlásenie v prehliadači je vypnuté"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Táto položka má zapnutú výzvu na opätovné zadanie hlavného hesla, takže automatické vypĺňanie prihlasovacích výziev prehliadača bolo vypnuté. Ak chcete túto zmenu zachovať, uložte položku."
   },
   "pamRotation": {
     "message": "Rotácia"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Zrušte kedykoľvek",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

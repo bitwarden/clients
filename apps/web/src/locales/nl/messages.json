@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Nest gedeelde map onder"
+  },
+  "nestFolderUnderNone": {
+    "message": "Geen",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is niet toegestaan in mapnamen. Verwijder de /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Om een map te netsten, kies je de bovenliggende map bij het veld Nesten onder. Je hoeft niet langer een schuine streep toe te voegen aan de naam."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (verwijderd)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Weet je zeker dat je deze map definitief wilt verwijderen?"
   },
@@ -5874,6 +5897,12 @@
   "addGroup": {
     "message": "Groep toevoegen"
   },
+  "addCollectionsToUseThisFilter": {
+    "message": "Collecties toevoegen om dit filter te gebruiken."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Gedeelde mappen toevoegen om dit filter te gebruiken."
+  },
   "editGroup": {
     "message": "Groep bewerken"
   },
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Lid wijzigen"
+  },
+  "viewMember": {
+    "message": "Lid weergeven"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Een veld op het tabblad '$TAB$' vereist je aandacht.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Goed",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Hergebruikt",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Gelekt",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Wachtwoord wijzigen"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Gelekte wachtwoord in gegevenslek.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Wachtwoord is te kort of eenvoudig.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Wachtwoord hergebruikt voor verschillende logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Risicovol",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Je organisatie heeft je gevraagd dit wachtwoord te wijzigen.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Zwak",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Bevestiging nodig"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ leden hebben bevestiging nodig",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 lid heeft bevestiging nodig"
+  },
   "memberRole": {
     "message": "Rol van lid"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Als je het wachtwoord of tweestapsaanmelding voor dit lid opnieuw instelt, worden ze op de hoogte gebracht van de wijziging en uitgelogd."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Het herstel van dit account verwijdert de gebruiker van hun andere organisaties, behalve die welke alleen zij bezitten."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Accounts herstellen wanneer hoofdwachtwoord, tweestapsaanmelding of vertrouwde apparaten worden vergeten of verloren."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Niet-vertrouwde encryptiesleutels"
   },
-  "atRiskPassword": {
-    "message": "Risicovolle wachtwoorden"
-  },
   "vulnerablePassword": {
     "message": "Kwetsbaar wachtwoord."
-  },
-  "changeNow": {
-    "message": "Nu wijzigen"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Toegang tot inloggegeven geweigerd"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Gecontroleerde toegang overgeslagen"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Kluis geëxporteerd"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Toegangsregel aangemaakt"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Toegang tot $DURATION$, directe goedkeuring als je aan de voorwaarden voldoet",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Toegang tot $DURATION$. Als je aan de voorwaarden voldoet, krijg je onmiddellijk goedkeuring.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Kon inbox niet laden"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Kan geschiedenis niet laden"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ verzoeken",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 verzoek"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$-$END$ van $TOTAL$ verzoeken",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Verzoekreden"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Standaardinstellingen herstellen"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Inlogverzoeken webbrowser automatisch invullen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Reageren op basis van HTTP-authenticatieprompts van websites die overeenkomen met dit inlogitem."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open helpartikel over automatisch invullen van inlogverzoeken van de webbrowser"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Om deze instelling te gebruiken, kies een andere overeenkomstdetectie dan \"Standaard\" voor elke website van dit inlogitem."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser inschakelen?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Opnieuw vragen van het hoofdwachtwoord zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Hoofdwachtwoord opnieuw vragen"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standaard overeenkomstdetectie gebruiken?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites die de standaard oveenkomstdetectie gebruiken kunnen niet worden gebruikt met inlogverzoeken van de webbrowser. Automatisch invullen van inlogverzoeken zal voor dit item worden uitgeschakeld."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatisch invullen voor inlogverzoeken webbrowser uitgeschakeld"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
   },
   "pamRotation": {
     "message": "Rotatie"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Op elk moment opzeggen",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

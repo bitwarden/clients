@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Bu qovluğu həmişəlik silmək istədiyinizə əminsiniz?"
   },
@@ -5874,6 +5897,12 @@
   "addGroup": {
     "message": "Qrup əlavə et"
   },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
+  },
   "editGroup": {
     "message": "Qrupa düzəliş et"
   },
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Üzvə düzəliş et"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "\"$TAB$\" vərəqindəki bir xana diqqətinizi tələb edir.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Yaxşı",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Zəif",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Təsdiqləmə lazımdır"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Üzv rolu"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Bu üzvün parolunu və ya iki addımlı girişini sıfırladığınız zaman, ona dəyişiklik barədə məlumat veriləcək və hesabdan çıxarılacaq."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Ana parol, iki addımlı giriş və ya güvənilən cihazlar unudulduğu və ya itdiyi zaman hesabları geri qaytar."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Güvənilməyən şifrləmə açarları"
   },
-  "atRiskPassword": {
-    "message": "Riskli parollar"
-  },
   "vulnerablePassword": {
     "message": "Zəifliyi olan parol."
-  },
-  "changeNow": {
-    "message": "İndi dəyişdir"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Kimlik məlumatına erişim rədd edildi"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Erişim qaydası yaradıldı"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Request reason"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "İlkin halına sıfırla"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Autofill browser login prompts",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Bu giriş elementi ilə uyuşan veb-saytlardan gələn təməl HTTP kimlik doğrulama istəklərinə cavab ver."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Veb-saytlar sizin məlumatınız olmadan bu istəkləri tətikləyə bilər, bu da kimlik məlumatlarınızı üzə çıxara bilər.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Turn on master password re-prompt?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "İlkin uyuşma aşkarlamasını istifadə edən veb-saytlar, brauzer giriş istəkləri ilə istifadə edilə bilməz. Bu element üçün brauzer giriş istəklərini avto-doldurma söndürüləcək."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   },
   "pamRotation": {
     "message": "Yeniləmə"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

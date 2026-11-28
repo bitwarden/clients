@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Можете да вложите една папка в друга като въведете името на горната папка, а след това „/“. Пример: Социални/Форуми"
   },
+  "nestFolderUnder": {
+    "message": "Влагане на папката под"
+  },
+  "nestFolderUnderNone": {
+    "message": "Нищо",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не е позволен знак в име на папка. Премахнете /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "За да вложите папка, изберете в коя да се помести тя в полето за Влагане на папката. Вече няма нужда да добавяте наклонена черта към името."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (изтрита)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Наистина ли искате да изтриете тази папка окончателно?"
   },
@@ -5812,10 +5835,10 @@
     "message": "Новата организация е готова!"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Пробният период започна"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Вашият безплатен пробен период вече е активен."
   },
   "organizationUpgraded": {
     "message": "Организацията е обновена."
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Добавяне на група"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Добавете колекции, за да ползвате този филтър."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Добавете споделени папки, за да ползвате този филтър."
   },
   "editGroup": {
     "message": "Редактиране на група"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Редактиране на члена"
+  },
+  "viewMember": {
+    "message": "Преглед на потребителя"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Поле в раздела „$TAB$“ има нужда от внимание.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Добра",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Преизползвана",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Разобличена",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Промяна на паролата"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Паролата е открита в изтичане на данни.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Паролата е твърде кратка или проста.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Паролата се използва за няколко записа за вписване.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "В риск",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Вашата организация Ви е помолила да смените тази парола.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Слаба",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Изисква потвърждение"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ членове имат нужда от потвърждение",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 член има нужда от потвърждение"
+  },
   "memberRole": {
     "message": "Роля на члена"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "Когато нулирате паролата или двустепенното удостоверяване за този член, той ще бъде известен за промяната и ще бъде отписан."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Възстановяването на акаунта премахва потребителя от другите му организации, освен от онези, на които е единствен собственик."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Възстановявайте акаунти, когато главната парола, двустепенното удостоверяване или доверените устройства са забравени или изгубени."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверени шифроващи ключове"
   },
-  "atRiskPassword": {
-    "message": "Парола в риск"
-  },
   "vulnerablePassword": {
     "message": "Уязвима парола."
-  },
-  "changeNow": {
-    "message": "Промяна сега"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Премахване на отключването чрез ПИН"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Достъпът до удостоверителните данни е отказан"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Контролираният достъп е заобиколен"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Трезорът е изнесен"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Правилото за достъп е създадено"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Време на достъп до $DURATION$, моментално одобрение ако отговаряте на условията",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Достъп за до $DURATION$. Ако изпълнявате условията, ще получите одобрение веднага.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Входящата кутия не може да бъде заредена"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Историята не можа да се зареди"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ заявки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 заявка"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ от $TOTAL$ заявки",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Причина в заявката"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Връщане на настройките по подразбиране"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автоматично попълване на заявки за вписване към браузъра",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Отговаряне на базови искания за удостоверяване по HTTP от уеб сайтове, които съвпадат с този елемент за вписване."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Отворете помощната статия за автоматичното попълване на заявки за вписване към браузъра"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "За да използвате тази настройка, изберете начин за откриване на съвпадения, който е различен от стандартния, за всеки уеб сайт в този елемент за вписване."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Включване на автоматичното попълване за заявки към браузъра?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Повторното искане за главна парола ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Включване на повторното запитване за главната парола?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Използване на стандартното откриване на съвпадения?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Уеб сайтовете, които използват стандартното откриване на съвпадения, не могат да бъдат ползвани при заявки за вписване към браузъра. Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автоматичното попълване на заявки за вписване към браузъра е изключено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
   },
   "pamRotation": {
     "message": "Подновяване"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Можете да се откажете по всяко време",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

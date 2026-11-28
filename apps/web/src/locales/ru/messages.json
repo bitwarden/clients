@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
   },
+  "nestFolderUnder": {
+    "message": "Создать папку в подкаталоге"
+  },
+  "nestFolderUnderNone": {
+    "message": "Нет",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не допускается в именах папок. Удалите /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Чтобы вложить папку, выберите ее родительскую папку в поле Вложить папку. Теперь не нужно добавлять слеш к названию."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (удалена)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Вы действительно хотите безвозвратно удалить эту папку?"
   },
@@ -5812,10 +5835,10 @@
     "message": "Ваша новая организация готова к работе!"
   },
   "trialStarted": {
-    "message": "Trial started"
+    "message": "Начат пробный период"
   },
   "trialActive": {
-    "message": "Your free trial is now active."
+    "message": "Ваш пробный период начался."
   },
   "organizationUpgraded": {
     "message": "Организация обновлена"
@@ -5873,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Добавить группу"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Добавьте коллекции, чтобы использовать этот фильтр."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Добавьте общие папки, чтобы использовать этот фильтр."
   },
   "editGroup": {
     "message": "Редактировать группу"
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Изменить участника"
+  },
+  "viewMember": {
+    "message": "Просмотр пользователей"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Поле на вкладке '$TAB$' требует вашего внимания.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Хороший",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Повторный",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Скомпрометирован",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Изменить пароль"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Пароль был скомпрометирован в результате утечки данных.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Пароль слишком короткий или простой.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Пароль повторно используется для нескольких логинов.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Подвержен риску",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Ваша организация попросила вас сменить этот пароль.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Слабый",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Требуется подтверждение"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ пользователей нуждаются в подтверждении",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 пользователь нуждается в подтверждении"
+  },
   "memberRole": {
     "message": "Роль участника"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "При сбросе пароля или отключении двухэтапной аутентификации для этого пользователя он получит уведомление об изменении и будет разлогинен."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Восстановление этого аккаунта приведет к удалению пользователя из всех других организаций, за исключением тех, где он является единственным владельцем."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Восстановление аккаунтов в случае утери мастер-пароля, данных для двухэтапной аутентификации или списка доверенных устройств."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Недоверенные ключи шифрования"
   },
-  "atRiskPassword": {
-    "message": "Пароль, подверженный риску"
-  },
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
-  },
-  "changeNow": {
-    "message": "Изменить сейчас"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Доступ к учетным данным отказан"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Контролируемый доступ обходится"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Хранилище экспортировано"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Правило доступа создано"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Доступ до $DURATION$, мгновенное утверждение, если вы соответствуете условиям",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Доступ на срок до $DURATION$. Если вы соответствуете условиям, вы получите мгновенное одобрение.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Не удалось загрузить входящие"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Не удалось загрузить историю"
+  },
+  "pamHistoryRequestCount": {
+    "message": "Результатов: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 запрос"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ из $TOTAL$ запросов",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Причина запроса"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Сбросить по умолчанию"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаполнение логинов в браузере",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Включить запрос мастер-пароля?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Использовать метод обнаружения совпадений по умолчанию?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
   },
   "pamRotation": {
     "message": "Ротация"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Отменить в любое время",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

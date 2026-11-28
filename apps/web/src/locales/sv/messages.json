@@ -948,6 +948,29 @@
   "folderHintText": {
     "message": "Skapa en undermapp genom att lägga till den överordnade mappens namn följt av \"/\". Exempel: Social/Forum"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "deleteFolderPermanently": {
     "message": "Är du säker på att du vill radera den här mappen permanent?"
   },
@@ -5874,6 +5897,12 @@
   "addGroup": {
     "message": "Lägg till grupp"
   },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
+  },
   "editGroup": {
     "message": "Redigera grupp"
   },
@@ -5999,6 +6028,9 @@
   },
   "editMember": {
     "message": "Redigera medlem"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "Ett fält på fliken '$TAB$' kräver din uppmärksamhet.",
@@ -8402,6 +8434,37 @@
   "good": {
     "message": "Bra",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
   "weak": {
     "message": "Svagt",
@@ -12850,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Kräver bekräftelse"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Medlemsroll"
   },
@@ -13745,6 +13820,9 @@
   },
   "recoverAccountWarning": {
     "message": "När du återställer lösenordet eller tvåstegsinloggningen för denna medlem meddelas personen om ändringen och loggas ut."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Återställ konton när huvudlösenord, tvåstegsinloggning eller betrodda enheter har glömts eller förlorats."
@@ -16522,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Otillförlitliga krypteringsnycklar"
   },
-  "atRiskPassword": {
-    "message": "Lösenord med risk"
-  },
   "vulnerablePassword": {
     "message": "Sårbart lösenord."
-  },
-  "changeNow": {
-    "message": "Ändra nu"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ta bort upplåsning med PIN-kod"
@@ -19039,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Åtkomst till inloggningsuppgift nekades"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Åtkomstregel skapades"
   },
@@ -19282,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Åtkomst i högst $DURATION$ med omedelbart godkännande om du uppfyller villkoren",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19548,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Det gick inte att läsa in inkorgen"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Anledning till begäran"
@@ -20251,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Återställ till standard"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Fyll i inloggningsuppgifter automatiskt i webbläsarens inloggningsdialoger",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Svara på dialoger för grundläggande HTTP-autentisering från webbplatser som matchar den här inloggningsposten."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Öppna hjälpartikeln om automatisk ifyllning i webbläsarens inloggningsdialoger"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Webbplatser kan visa dessa dialoger utan din vetskap, vilket kan exponera dina inloggningsuppgifter.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Om du vill använda den här inställningen väljer du ett annat matchningsalternativ än ”Standard” för varje webbplats i det här inloggningsobjektet."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Vill du aktivera automatisk ifyllning för webbläsarens inloggningsfrågor?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Återfrågan om huvudlösenord stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Vill du aktivera återfrågan om huvudlösenord?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Vill du använda standardmatchning?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Webbplatser som använder standardmatchning kan inte användas med webbläsarens inloggningsfrågor. Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Återfrågan om huvudlösenord är aktiverad för det här objektet, så automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av. Spara objektet om du vill behålla ändringen."
   },
   "pamRotation": {
     "message": "Rotering"
@@ -21991,5 +22060,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }
