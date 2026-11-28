@@ -61,6 +61,16 @@ const lightTheme = {
   brandLogo: `rgba(23, 93, 220)`,
   passwordSpecial: `rgba(184, 0, 23)`,
   passwordNumber: `rgba(20, 82, 193)`,
+  /** Current design-system tokens (mirrors `libs/components/src/tw-theme.css`). */
+  designSystem: {
+    border: "#d5dde8",
+    hover: "#eef6ff",
+    focus: "#000000",
+    iconStrong: "#0F172B",
+    iconMuted: "#62748E",
+    tileForeground: "#45556C",
+    tileBackground: "#e6ecf2",
+  },
 };
 
 const darkTheme = {
@@ -122,6 +132,16 @@ const darkTheme = {
   brandLogo: `rgba(255, 255, 255)`,
   passwordSpecial: `rgba(255, 141, 133)`,
   passwordNumber: `rgba(111, 157, 241)`,
+  /** Current design-system tokens (mirrors `libs/components/src/tw-theme.css`). */
+  designSystem: {
+    border: "#314158",
+    hover: "#162455",
+    focus: "#ffffff",
+    iconStrong: `rgba(243, 246, 249)`,
+    iconMuted: "#62748E",
+    tileForeground: "#d5dde8",
+    tileBackground: "#1d293d",
+  },
 };
 
 export const themes = {

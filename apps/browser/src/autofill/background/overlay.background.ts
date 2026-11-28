@@ -259,6 +259,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
+    copyGeneratedPassword: () => this.copyGeneratedPassword(),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
   };
 
@@ -292,6 +293,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
     FeatureFlag.LitInlineMenuComponents,
+  );
+
+  useLitInlineMenuDesignSystem$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuDesignSystem,
   );
 
   /**
@@ -894,6 +899,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       favorite: cipher.favorite,
       icon: buildCipherIcon(iconsServerUrl, cipher, showFavicons ?? false),
       accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
+      organizationId: cipher.organizationId || undefined,
     };
 
     if (cipher.type === CipherType.Login) {
@@ -2276,6 +2282,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
+  /** Copies the current generated password. No-ops when none has been generated. */
+  private copyGeneratedPassword() {
+    const password = this.credential$.value;
+    if (!password) {
+      return;
+    }
+
+    this.platformUtilsService.copyToClipboard(password);
+  }
+
   /**
    * Triggers a fill of the generated password into the current tab. Will trigger
    * a focus of the last focused field after filling the password.
@@ -2688,10 +2704,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const translationKeys = [
         "addNewCardItemAria",
         "addNewIdentityItemAria",
+        "addNewLogin",
         "addNewLoginItemAria",
+        "addToBitwarden",
         "addNewVaultItem",
         "authenticating",
         "cardNumberEndsWith",
+        "copyPassword",
         "fillCredentialsFor",
         "fillGeneratedPassword",
         "fillVerificationCode",
@@ -2713,8 +2732,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "toggleBitwardenVaultOverlay",
         "totpCodeAria",
         "totpSecondsSpanAria",
+        "typePasskey",
         "unlockAccount",
         "unlockAccountAria",
+        "unlockBitwarden",
+        "unlockBitwardenAria",
         "unlockYourAccountToViewAutofillSuggestions",
         "uppercaseAriaLabel",
         "username",
@@ -3588,6 +3610,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       extensionOrigin,
       useLitComponents: isInlineMenuListPort
         ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
+      useLitDesignSystem: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuDesignSystem$)
         : undefined,
     });
     if (port.sender) {

@@ -32,6 +32,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   showSaveLoginMenu?: boolean;
   showAnimations?: boolean;
   useLitComponents?: boolean;
+  useLitDesignSystem?: boolean;
 };
 
 export type AutofillInlineMenuListWindowMessageHandlers = {

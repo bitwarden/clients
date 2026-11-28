@@ -2,6 +2,7 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import { EventSecurity } from "../../../../utils/event-security";
+import { CipherIcon } from "../../cipher/cipher-icon";
 import { keyupEvent, litHandler, litValues } from "../../lit-stories/lit-values";
 import {
   mockCardCiphers,
@@ -70,8 +71,25 @@ describe("InlineMenuCipherItem", () => {
 
       expect(values[ICON_SLOT]).toBe("cipher-icon");
       expect(values[DETAILS_SLOT]).toBe("cipher-details");
-      expect(CipherDetails).toHaveBeenCalledWith({ theme: ThemeTypes.Light, cipher });
+      expect(CipherDetails).toHaveBeenCalledWith({
+        theme: ThemeTypes.Light,
+        cipher,
+        designSystem: false,
+        passkeyText: mockI18n.passkey,
+      });
       expect(TotpCountdown).not.toHaveBeenCalled();
+    });
+
+    it("uses a dark type icon in the design tile", () => {
+      InlineMenuCipherItem({ ...baseProps, cipher, useCipherTypeIcon: true });
+
+      expect(CipherIcon).toHaveBeenCalledWith(
+        expect.objectContaining({
+          color: "#45556C",
+          icon: cipher.icon.icon,
+          size: "16px",
+        }),
+      );
     });
 
     it("sets fill aria label and username description", () => {
@@ -87,12 +105,11 @@ describe("InlineMenuCipherItem", () => {
   describe("totp cipher", () => {
     const cipher = mockTotpCiphers[0];
 
-    it("renders totp countdown and info", () => {
+    it("renders totp countdown and the verification code heading", () => {
       const values = litValues(
         InlineMenuCipherItem({
           ...baseProps,
           cipher,
-          showTotpUsername: true,
           totpSecondsRemaining: 12,
         }),
       );
@@ -104,9 +121,41 @@ describe("InlineMenuCipherItem", () => {
       );
       expect(TotpCipherInfo).toHaveBeenCalledWith(
         expect.objectContaining({
+          heading: mockI18n.fillVerificationCode,
           totp: cipher.login!.totp,
-          username: cipher.login!.username,
           masked: false,
+        }),
+      );
+    });
+
+    it("uses the username as the row title when several totp codes are shown on the design-system path", () => {
+      InlineMenuCipherItem({
+        ...baseProps,
+        cipher,
+        showTotpUsername: true,
+        useCipherTypeIcon: true,
+      });
+
+      expect(TotpCipherInfo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          heading: cipher.login!.username,
+          username: undefined,
+          totp: cipher.login!.totp,
+        }),
+      );
+    });
+
+    it("keeps the verification code name and adds the username when the design-system flag is off", () => {
+      InlineMenuCipherItem({
+        ...baseProps,
+        cipher,
+        showTotpUsername: true,
+      });
+
+      expect(TotpCipherInfo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          heading: mockI18n.fillVerificationCode,
+          username: cipher.login!.username,
         }),
       );
     });
@@ -118,6 +167,14 @@ describe("InlineMenuCipherItem", () => {
       });
 
       expect(TotpCipherInfo).toHaveBeenCalledWith(expect.objectContaining({ masked: true }));
+    });
+
+    it("uses the slate countdown color in the design tile", () => {
+      InlineMenuCipherItem({ ...baseProps, cipher, useCipherTypeIcon: true });
+
+      expect(TotpCountdown).toHaveBeenCalledWith(
+        expect.objectContaining({ color: "#62748E", outerProgressRing: true }),
+      );
     });
   });
 

@@ -1,21 +1,26 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
 import { spacing, themes, typography } from "../constants/styles";
-import { Key, Refresh } from "../icons";
+import { CheckCircle, Clone, Key, Refresh } from "../icons";
 
 import { ColorizedPassword, ColorizedPasswordI18n } from "./colorized-password";
 import { InlineMenuContainer } from "./container";
 
 const ACTIONS_SELECTOR = "[data-password-generator-actions]";
-const FILL_SELECTOR = "[data-fill-generated-password]";
 const REFRESH_SELECTOR = "[data-refresh-generated-password]";
+const COPY_SELECTOR = "[data-copy-generated-password]";
+const ICON_SELECTOR = "[data-password-generator-icon]";
+const CONFIRMED_SELECTOR = "[data-password-generator-confirmed]";
+const CONFIRMED_ICON_MS = 2000;
+const revertTimers = new WeakMap<Element, number>();
 
 export type InlineMenuPasswordGeneratorI18n = ColorizedPasswordI18n & {
   regeneratePassword: string;
+  copyPassword: string;
 };
 
 export type InlineMenuPasswordGeneratorProps = {
@@ -25,6 +30,9 @@ export type InlineMenuPasswordGeneratorProps = {
   i18n: InlineMenuPasswordGeneratorI18n;
   handleFillPassword: (e: Event) => void;
   handleRefreshPassword: (e: Event) => void;
+  handleCopyPassword: (e: Event) => void;
+  /** Design-system layout: clone beside generate. A click confirms that icon only. */
+  designSystem?: boolean;
 };
 
 export function InlineMenuPasswordGenerator({
@@ -34,6 +42,8 @@ export function InlineMenuPasswordGenerator({
   i18n,
   handleFillPassword,
   handleRefreshPassword,
+  handleCopyPassword,
+  designSystem = false,
 }: InlineMenuPasswordGeneratorProps) {
   const onFill = (event: Event) => {
     if (EventSecurity.isEventTrusted(event)) {
@@ -45,9 +55,23 @@ export function InlineMenuPasswordGenerator({
     if (EventSecurity.isEventTrusted(event) && event.target instanceof Element) {
       const actions = event.target.closest(ACTIONS_SELECTOR);
       actions?.classList.add("remove-outline");
+      if (designSystem) {
+        showIconConfirmed(event.target.closest(REFRESH_SELECTOR));
+      }
       handleRefreshPassword(event);
     }
   };
+
+  const onCopy = (event: Event) => {
+    if (EventSecurity.isEventTrusted(event) && event.target instanceof Element) {
+      handleCopyPassword(event);
+      showIconConfirmed(event.target.closest(COPY_SELECTOR));
+    }
+  };
+
+  const iconColor = designSystem
+    ? themes[theme].designSystem.iconStrong
+    : themes[theme].primary["600"];
 
   return InlineMenuContainer({
     theme,
@@ -59,34 +83,106 @@ export function InlineMenuPasswordGenerator({
             type="button"
             data-fill-generated-password
             tabindex="-1"
-            class=${fillButtonStyles}
+            class=${designSystem ? designFillButtonStyles : fillButtonStyles}
             aria-label=${headingText}
             @click=${onFill}
             @keyup=${(event: KeyboardEvent) => handleActionKeyUp(event, "ArrowRight")}
           >
-            <span class=${keyIconStyles}>
-              ${Key({ theme, color: themes[theme].primary["600"] })}
-            </span>
+            ${
+              designSystem
+                ? nothing
+                : html`<span class=${keyIconStyles}>
+                    ${Key({ theme, color: themes[theme].primary["600"] })}
+                  </span>`
+            }
             <div class=${contentStyles}>
               <div class=${headingStyles(theme)}>${headingText}</div>
               ${ColorizedPassword({ password, theme, i18n })}
             </div>
           </button>
+          ${
+            designSystem
+              ? html`
+                  <button
+                    type="button"
+                    data-copy-generated-password
+                    tabindex="-1"
+                    class=${cloneButtonStyles}
+                    aria-label=${i18n.copyPassword}
+                    @click=${onCopy}
+                    @keyup=${handleActionKeyUp}
+                  >
+                    ${confirmableIcon(Clone({ theme, color: iconColor }), cloneIconStyles, theme, iconColor)}
+                  </button>
+                `
+              : nothing
+          }
           <button
             type="button"
             data-refresh-generated-password
             tabindex="-1"
-            class=${refreshButtonStyles(theme)}
+            class=${designSystem ? designRefreshButtonStyles : refreshButtonStyles(theme)}
             aria-label=${i18n.regeneratePassword}
             @click=${onRefresh}
-            @keyup=${(event: KeyboardEvent) => handleActionKeyUp(event, "ArrowLeft")}
+            @keyup=${handleActionKeyUp}
           >
-            ${Refresh({ theme, color: themes[theme].primary["600"] })}
+            ${
+              designSystem
+                ? confirmableIcon(
+                    Refresh({ theme, color: iconColor }),
+                    generateIconStyles,
+                    theme,
+                    iconColor,
+                  )
+                : Refresh({ theme, color: iconColor })
+            }
           </button>
         </div>
       </div>
     `,
   });
+}
+
+function showIconConfirmed(button: Element | null) {
+  if (!button) {
+    return;
+  }
+
+  const icon = button.querySelector<HTMLElement>(ICON_SELECTOR);
+  const confirmed = button.querySelector<HTMLElement>(CONFIRMED_SELECTOR);
+  if (icon) {
+    icon.hidden = true;
+  }
+  if (confirmed) {
+    confirmed.hidden = false;
+  }
+
+  const pending = revertTimers.get(button);
+  if (pending !== undefined) {
+    window.clearTimeout(pending);
+  }
+  revertTimers.set(
+    button,
+    window.setTimeout(() => {
+      revertTimers.delete(button);
+      if (icon) {
+        icon.hidden = false;
+      }
+      if (confirmed) {
+        confirmed.hidden = true;
+      }
+    }, CONFIRMED_ICON_MS),
+  );
+}
+
+/** An action icon paired with a hidden check mark that `showIconConfirmed` swaps in. */
+function confirmableIcon(icon: TemplateResult, iconClass: string, theme: Theme, color: string) {
+  return html`
+    <span data-password-generator-icon class=${iconClass}>${icon}</span>
+    <span data-password-generator-confirmed hidden class=${confirmedIconStyles}
+      >${CheckCircle({ theme, color })}</span
+    >
+  `;
 }
 
 function isTrustedActionKey(
@@ -104,18 +200,28 @@ function isTrustedActionKey(
   );
 }
 
-function handleActionKeyUp(event: KeyboardEvent, arrowCode: "ArrowLeft" | "ArrowRight") {
-  if (!isTrustedActionKey(event, arrowCode)) {
+function handleActionKeyUp(event: KeyboardEvent, arrowCode?: "ArrowLeft" | "ArrowRight") {
+  const direction =
+    arrowCode ??
+    (event.code === "ArrowLeft" || event.code === "ArrowRight" ? event.code : undefined);
+  if (!direction || !isTrustedActionKey(event, direction)) {
     return;
   }
 
   const actions = event.target.closest(ACTIONS_SELECTOR);
-  const target =
-    actions?.querySelector<HTMLElement>(
-      arrowCode === "ArrowRight" ? REFRESH_SELECTOR : FILL_SELECTOR,
-    ) ?? null;
-  target?.focus();
-  actions?.classList.toggle("remove-outline", arrowCode === "ArrowRight");
+  const button = event.target.closest("button");
+  if (!actions || !button) {
+    return;
+  }
+
+  const buttons = [...actions.querySelectorAll<HTMLElement>("button")];
+  const next = buttons[buttons.indexOf(button) + (direction === "ArrowRight" ? 1 : -1)];
+  if (!next) {
+    return;
+  }
+
+  next.focus();
+  actions.classList.toggle("remove-outline", !next.matches("[data-fill-generated-password]"));
 }
 
 const containerStyles = css`
@@ -148,6 +254,24 @@ const fillButtonStyles = css`
   align-items: center;
   gap: ${spacing["2"]};
   width: calc(100% - (${spacing["4"]} * 2 + ${spacing["2"]}));
+  margin: 0;
+  padding: 0 ${spacing["1"]} 0 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  overflow: hidden;
+`;
+
+const designFillButtonStyles = css`
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: ${spacing["2"]};
+  width: auto;
+  min-width: 0;
   margin: 0;
   padding: 0 ${spacing["1"]} 0 0;
   border: none;
@@ -212,5 +336,82 @@ const refreshButtonStyles = (theme: Theme) => css`
     width: ${REFRESH_ICON_SIZE};
     height: ${REFRESH_ICON_SIZE};
     margin-top: calc(${spacing["1"]} / 2);
+  }
+`;
+
+const designRefreshButtonStyles = css`
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0 0 0 ${spacing["2"]};
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+`;
+
+const generateIconStyles = css`
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+
+  &[hidden] {
+    display: none !important;
+  }
+
+  > svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const cloneButtonStyles = css`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+`;
+
+const cloneIconStyles = css`
+  display: inline-flex;
+  width: 14.167px;
+  height: 16.667px;
+  aspect-ratio: 17 / 20;
+
+  &[hidden] {
+    display: none !important;
+  }
+
+  > svg {
+    width: 14.167px;
+    height: 16.667px;
+  }
+`;
+
+const confirmedIconStyles = css`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+
+  &[hidden] {
+    display: none;
+  }
+
+  > svg {
+    width: 20px;
+    height: 20px;
   }
 `;

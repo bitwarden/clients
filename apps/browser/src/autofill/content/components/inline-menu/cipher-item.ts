@@ -7,7 +7,7 @@ import { InlineMenuCipherData } from "../../../background/abstractions/overlay.b
 import { EventSecurity } from "../../../utils/event-security";
 import { CipherIcon } from "../cipher/cipher-icon";
 import { spacing, themes } from "../constants/styles";
-import { ExternalLink } from "../icons";
+import { BwiIcon, ExternalLink } from "../icons";
 
 import { CipherDetails } from "./cipher-details";
 import { TotpCipherInfo } from "./totp-cipher-info";
@@ -30,11 +30,14 @@ export type InlineMenuCipherItemProps = {
   usernameText?: string;
   cardNumberEndsWithText?: string;
   fillVerificationCodeText?: string;
+  passkeyText?: string;
   totpCodeAria?: string;
   showTotpUsername?: boolean;
   totpSecondsRemaining?: number;
   onTotpPeriodElapsed?: () => void;
   onListEdgeReached?: (direction: 1 | -1) => void;
+  /** When set, a missing favicon uses the cipher's bwi icon instead of the globe. */
+  useCipherTypeIcon?: boolean;
 };
 
 export function InlineMenuCipherItem({
@@ -50,13 +53,17 @@ export function InlineMenuCipherItem({
   usernameText,
   cardNumberEndsWithText,
   fillVerificationCodeText,
+  passkeyText,
   totpCodeAria,
   showTotpUsername = false,
   totpSecondsRemaining,
   onTotpPeriodElapsed,
   onListEdgeReached,
+  useCipherTypeIcon = false,
 }: InlineMenuCipherItemProps) {
   const isTotp = !!(cipher.login?.totpField && cipher.login?.totp);
+  const listedUsername = showTotpUsername ? cipher.login?.username : undefined;
+  const usernameIsHeading = useCipherTypeIcon && listedUsername;
   const period = cipher.login?.totpCodeTimeInterval ?? 30;
   const fillPrefix = cipher.login?.passkey ? logInWithPasskeyAriaLabel : fillCredentialsForText;
   const fillLabel = `${fillPrefix} ${cipher.name}`;
@@ -79,15 +86,40 @@ export function InlineMenuCipherItem({
 
   const onFillKeyUp = (event: KeyboardEvent) => handleFillCipherKeyUp(event, onListEdgeReached);
   const onViewKeyUp = (event: KeyboardEvent) => handleViewCipherKeyUp(event, onListEdgeReached);
+  const needsTypeIcon = isTotp || !uri;
+  const showIconTile = useCipherTypeIcon && needsTypeIcon;
+  const tokens = themes[theme].designSystem;
+  const iconColor = showIconTile ? tokens.tileForeground : themes[theme].primary["600"];
+  const glyph = isTotp
+    ? TotpCountdown({
+        theme,
+        period,
+        secondsRemaining: totpSecondsRemaining,
+        onPeriodElapsed: onTotpPeriodElapsed,
+        color: showIconTile ? tokens.iconMuted : undefined,
+        outerProgressRing: useCipherTypeIcon,
+      })
+    : CipherIcon({
+        color: iconColor,
+        size: showIconTile ? spacing["4"] : `calc(${spacing["4"]} + ${spacing["2"]})`,
+        theme,
+        uri,
+        icon: useCipherTypeIcon ? cipher.icon.icon : undefined,
+        designSystem: useCipherTypeIcon,
+      });
 
   return html`
-    <div data-cipher-item role="listitem" class=${cipherItemStyles({ bordered, theme })}>
-      <div data-cipher-content class=${cipherItemContentStyles(theme)}>
+    <div
+      data-cipher-item
+      role="listitem"
+      class=${cipherItemStyles({ bordered, theme, designSystem: useCipherTypeIcon })}
+    >
+      <div data-cipher-content class=${cipherItemContentStyles(theme, useCipherTypeIcon)}>
         <button
           type="button"
           data-fill-cipher
           tabindex="-1"
-          class=${fillCipherButtonStyles}
+          class=${useCipherTypeIcon ? designFillCipherButtonStyles : fillCipherButtonStyles}
           title=${fillLabel}
           aria-label=${fillLabel}
           aria-description=${fillDescription ?? nothing}
@@ -95,31 +127,28 @@ export function InlineMenuCipherItem({
           @keyup=${onFillKeyUp}
         >
           ${
-            isTotp
-              ? TotpCountdown({
-                  theme,
-                  period,
-                  secondsRemaining: totpSecondsRemaining,
-                  onPeriodElapsed: onTotpPeriodElapsed,
-                })
-              : CipherIcon({
-                  color: themes[theme].primary["600"],
-                  size: `calc(${spacing["4"]} + ${spacing["2"]})`,
-                  theme,
-                  uri,
-                })
+            useCipherTypeIcon
+              ? html`<span class=${designStartSlotStyles}
+                  >${showIconTile ? html`<span class=${iconTileStyles(theme)}>${glyph}</span>` : glyph}</span
+                >`
+              : glyph
           }
           ${
             isTotp
               ? TotpCipherInfo({
                   theme,
-                  heading: fillVerificationCodeText ?? "",
+                  heading: usernameIsHeading || (fillVerificationCodeText ?? ""),
                   totp: cipher.login!.totp!,
                   totpCodeAria,
-                  username: showTotpUsername ? cipher.login?.username : undefined,
+                  username: usernameIsHeading ? undefined : listedUsername,
                   masked: !!cipher.reprompt,
                 })
-              : CipherDetails({ theme, cipher })
+              : CipherDetails({
+                  theme,
+                  cipher,
+                  designSystem: useCipherTypeIcon,
+                  passkeyText,
+                })
           }
         </button>
         <button
@@ -128,11 +157,22 @@ export function InlineMenuCipherItem({
           tabindex="-1"
           title=${viewButtonText}
           aria-label=${viewButtonAria}
-          class=${viewCipherButtonStyles(theme)}
+          class=${viewCipherButtonStyles(theme, useCipherTypeIcon)}
           @click=${onViewCipher}
           @keyup=${onViewKeyUp}
         >
-          ${ExternalLink({ theme, color: themes[theme].primary["600"] })}
+          ${
+            useCipherTypeIcon
+              ? BwiIcon({
+                  name: "bwi-external-link",
+                  color: tokens.iconStrong,
+                  size: "20px",
+                })
+              : ExternalLink({
+                  theme,
+                  color: themes[theme].primary["600"],
+                })
+          }
         </button>
       </div>
     </div>
@@ -256,30 +296,132 @@ function getFillAriaDescription(
   return `${cardParts[0]}, ${cardNumberEndsWithText} ${cardParts[1]}`;
 }
 
-const cipherItemStyles = ({ bordered, theme }: { bordered: boolean; theme: Theme }) => css`
+const cipherItemStyles = ({
+  bordered,
+  theme,
+  designSystem,
+}: {
+  bordered: boolean;
+  theme: Theme;
+  designSystem: boolean;
+}) => css`
   box-sizing: border-box;
   width: 100%;
-  padding: calc(${spacing["1"]} / 2);
   list-style: none;
-  transition: background-color 0.2s ease-in-out;
-  ${bordered ? `border-bottom: 1px solid ${themes[theme].secondary["300"]};` : ""}
+  ${
+    designSystem
+      ? `
+    min-height: 36px;
+    padding: 6px 8px;
+    background-color: transparent;
+    ${bordered ? `border-bottom: 1px solid var(--color-border-base, ${themes[theme].designSystem.border});` : ""}
 
-  :hover {
-    background-color: ${themes[theme].background.alt};
+    &:has([data-fill-cipher]:hover) {
+      background-color: var(--color-bg-brand-softer, ${themes[theme].designSystem.hover});
+    }
+
+    &:has([data-fill-cipher]:focus-visible) {
+      box-shadow: inset 0 0 0 2px var(--color-border-focus, ${themes[theme].designSystem.focus});
+    }
+  `
+      : `
+    padding: calc(${spacing["1"]} / 2);
+    transition: background-color 0.2s ease-in-out;
+    ${bordered ? `border-bottom: 1px solid ${themes[theme].secondary["300"]};` : ""}
+
+    :hover {
+      background-color: ${themes[theme].background.alt};
+    }
+  `
   }
 `;
 
-const cipherItemContentStyles = (theme: Theme) => css`
+const cipherItemContentStyles = (theme: Theme, designSystem: boolean) => css`
   box-sizing: border-box;
   display: flex;
   align-items: center;
   width: 100%;
-  padding: ${spacing["2"]} ${spacing["1"]} ${spacing["2"]} ${spacing["2"]};
-  border-radius: ${spacing["1"]};
+  ${
+    designSystem
+      ? `
+    gap: 12px;
+    padding: 0;
+  `
+      : `
+    padding: ${spacing["2"]} ${spacing["1"]} ${spacing["2"]} ${spacing["2"]};
+    border-radius: ${spacing["1"]};
 
-  :has(:focus-visible):not(.remove-outline) {
-    outline: 2px solid ${themes[theme].primary["600"]};
-    outline-offset: 1px;
+    :has(:focus-visible):not(.remove-outline) {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 1px;
+    }
+  `
+  }
+`;
+
+const designStartSlotStyles = css`
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-start;
+  width: 28px;
+`;
+
+const iconTileStyles = (theme: Theme) => css`
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border-decorative-gray, ${themes[theme].designSystem.border});
+  border-radius: 4px;
+  background: var(--color-bg-decorative-gray, ${themes[theme].designSystem.tileBackground});
+
+  &:has([data-totp-seconds]) {
+    background: transparent;
+    border: none;
+  }
+
+  > span {
+    width: 16px;
+    height: 16px;
+    max-height: 16px;
+  }
+
+  > span:has([data-totp-seconds]) {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+  }
+
+  > span > svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const designFillCipherButtonStyles = css`
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  line-height: 0;
+  overflow: hidden;
+
+  > div {
+    min-width: 0;
+    line-height: normal;
   }
 `;
 
@@ -305,28 +447,40 @@ const fillCipherButtonStyles = css`
   }
 `;
 
-const viewCipherButtonStyles = (theme: Theme) => css`
+const viewCipherButtonStyles = (theme: Theme, designSystem: boolean) => css`
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: calc(${spacing["4"]} * 2 + ${spacing["2"]});
-  height: calc(${spacing["4"]} * 2 + ${spacing["2"]});
+  width: ${designSystem ? "32px" : `calc(${spacing["4"]} * 2 + ${spacing["2"]})`};
+  height: ${designSystem ? "32px" : `calc(${spacing["4"]} * 2 + ${spacing["2"]})`};
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: ${spacing["1"]};
+  border-radius: ${designSystem ? "12px" : spacing["1"]};
   background: transparent;
   cursor: pointer;
   line-height: 0;
 
-  :focus {
-    outline: 2px solid ${themes[theme].primary["600"]};
-    outline-offset: 1px;
+  ${
+    designSystem
+      ? `
+    :focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 2px var(--color-border-focus, ${themes[theme].designSystem.focus});
+    }
+  `
+      : `
+    :focus {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 1px;
+    }
+  `
   }
 
   > svg {
-    width: ${spacing["4"]};
-    height: ${spacing["4"]};
+    width: ${designSystem ? "20px" : spacing["4"]};
+    height: ${designSystem ? "20px" : spacing["4"]};
+    ${designSystem ? "flex-shrink: 0; aspect-ratio: 1 / 1;" : ""}
   }
 `;

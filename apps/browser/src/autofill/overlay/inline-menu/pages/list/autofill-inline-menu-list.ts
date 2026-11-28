@@ -75,6 +75,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.Locked;
   private isInitialized = false;
   private useLitComponents = false;
+  private useLitDesignSystem = false;
   private theme: Theme = ThemeTypes.Light;
   private litHost?: HTMLDivElement;
   private litCipherListScrollElement?: HTMLElement;
@@ -119,6 +120,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       showSaveLoginMenu,
       showAnimations = true,
       useLitComponents = false,
+      useLitDesignSystem = false,
     } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -131,6 +133,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
     this.useLitComponents = useLitComponents;
+    this.useLitDesignSystem = useLitDesignSystem;
     if (useLitComponents) {
       this.theme = resolveTheme(theme);
     }
@@ -178,10 +181,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.renderLit(
         InlineMenuPrompt({
           message: this.getTranslation("unlockYourAccountToViewAutofillSuggestions"),
-          actionText: this.getTranslation("unlockAccount"),
-          i18n: { actionAria: this.getTranslation("unlockAccountAria") },
+          actionText: this.getTranslation(
+            this.useLitDesignSystem ? "unlockBitwarden" : "unlockAccount",
+          ),
+          i18n: {
+            actionAria: this.getTranslation(
+              this.useLitDesignSystem ? "unlockBitwardenAria" : "unlockAccountAria",
+            ),
+          },
           theme: this.theme,
-          icon: Lock,
+          icon: this.useLitDesignSystem ? Plus : Lock,
           handleAction: (event) => this.handleUnlockButtonClick(event as MouseEvent),
           dataTestId: "inline-menu-locked-state",
           actionDataTestId: "inline-menu-unlock-button",
@@ -222,13 +231,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.showInlineMenuAccountCreation = true;
 
     if (this.useLitComponents) {
+      const actionText = this.getTranslation(
+        this.useLitDesignSystem ? "addToBitwarden" : "saveToBitwarden",
+      );
       this.renderLit(
         InlineMenuPrompt({
-          actionText: this.getTranslation("saveToBitwarden"),
+          actionText,
           i18n: {
-            actionAria: `${this.getTranslation("saveToBitwarden")}, ${this.getTranslation("opensInANewWindow")}`,
+            actionAria: `${actionText}, ${this.getTranslation("opensInANewWindow")}`,
           },
           theme: this.theme,
+          icon: this.useLitDesignSystem ? Plus : undefined,
           handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
           handleKeyUp: this.handleSaveLoginInlineMenuKeyUp,
           dataTestId: "inline-menu-save-login",
@@ -427,11 +440,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
           lowercaseAriaLabel: this.getTranslation("lowercaseAriaLabel"),
           uppercaseAriaLabel: this.getTranslation("uppercaseAriaLabel"),
           regeneratePassword: this.getTranslation("regeneratePassword"),
+          copyPassword: this.getTranslation("copyPassword"),
           characterDescriptors,
         },
+        designSystem: this.useLitDesignSystem,
         handleFillPassword: () => this.postMessageToParent({ command: "fillGeneratedPassword" }),
         handleRefreshPassword: () =>
           this.postMessageToParent({ command: "refreshGeneratedPassword" }),
+        handleCopyPassword: () => this.postMessageToParent({ command: "copyGeneratedPassword" }),
       }),
     );
   }
@@ -712,6 +728,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         fillVerificationCodeText: this.getTranslation("fillVerificationCode"),
         totpCodeAria: this.getTranslation("totpCodeAria"),
         passkeysText: this.getTranslation("passkeys"),
+        passkeyText: this.getTranslation("typePasskey"),
         passwordsText: this.getTranslation("passwords"),
         handleFillCipher: (cipher) =>
           this.triggerFillCipherClickEvent(cipher, !!cipher.login?.passkey),
@@ -724,6 +741,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         onListEdgeReached: this.showInlineMenuAccountCreation
           ? () => this.newItemButtonElement?.focus()
           : undefined,
+        useCipherTypeIcon: this.useLitDesignSystem,
         newItem: this.showInlineMenuAccountCreation
           ? this.buildNewItemActionProps(true)
           : undefined,
@@ -875,10 +893,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Whether the new item action should create a login, based on the focused field and menu state.
+   */
+  private isNewLoginItem(showLogin: boolean) {
+    return this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin;
+  }
+
+  /**
    * Gets the new item text for the button based on the cipher type the focused field is filled by.
    */
   private getNewItemButtonText(showLogin: boolean) {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
+    if (this.isNewLoginItem(showLogin)) {
       return this.getTranslation("newLogin");
     }
 
@@ -897,7 +922,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
    */
   private getNewItemAriaLabel(showLogin: boolean) {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
+    if (this.isNewLoginItem(showLogin)) {
       return this.getTranslation("addNewLoginItemAria");
     }
 
@@ -918,7 +943,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private buildNewItemActionProps(showLogin: boolean): InlineMenuCipherListNewItem {
     return {
-      actionText: this.getNewItemButtonText(showLogin),
+      actionText:
+        this.useLitDesignSystem && this.isNewLoginItem(showLogin)
+          ? this.getTranslation("addNewLogin")
+          : this.getNewItemButtonText(showLogin),
       i18n: { actionAria: this.getNewItemAriaLabel(showLogin) },
       icon: Plus,
       handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
