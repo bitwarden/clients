@@ -6,8 +6,10 @@ import {
   TARGETS,
   diffKeys,
   parseConfigureArgs,
+  resolveBuildDir,
   serializeBuildConfig,
   targetByKey,
+  targetName,
   toBuildConfig,
   validate,
 } from "./build-config.mts";
@@ -131,12 +133,6 @@ describe("validate", () => {
     expect(validateArgs([...MAC_ARGS, "--profile", "fast"])).toEqual([
       expect.stringContaining("Unknown --profile 'fast'. Expected one of: debug, release."),
     ]);
-  });
-
-  it("rejects an absolute build directory", () => {
-    const errors = validateArgs(["--build-dir", "/tmp/build", ...MAC_ARGS.slice(2)]);
-
-    expect(errors).toEqual([expect.stringContaining("must be relative to apps/desktop")]);
   });
 
   it("names the accepted values for an unknown distribution channel", () => {
@@ -473,6 +469,75 @@ describe("targetByKey", () => {
       intermediate: "desktop_native/proxy",
     });
     expect(targetByKey("desktop_proxy")).toBeUndefined();
+  });
+});
+
+describe("targetName", () => {
+  it("agrees with the flag every flagged target already answers to", () => {
+    for (const target of TARGETS.filter((candidate) => candidate.flag != null)) {
+      expect(targetName(target)).toBe(target.flag);
+    }
+  });
+
+  it("names the targets that have no flag", () => {
+    expect(TARGETS.filter((target) => target.flag == null).map(targetName)).toEqual([
+      "chromium-import-helper",
+      "process-isolation",
+      "napi",
+    ]);
+  });
+});
+
+describe("resolveBuildDir", () => {
+  const repoRoot = "/repo";
+  const projectDir = "/repo/apps/desktop";
+
+  function resolve(argument: string, cwd: string) {
+    return resolveBuildDir(argument, cwd, projectDir, repoRoot);
+  }
+
+  it("resolves a relative directory against the caller's working directory", () => {
+    expect(resolve("out", "/repo/apps/desktop")).toEqual({
+      ok: true,
+      location: { absolute: "/repo/apps/desktop/out", recorded: "out" },
+    });
+  });
+
+  it("means the caller's directory, not apps/desktop, when they are not the same", () => {
+    expect(resolve("out", "/repo")).toEqual({
+      ok: true,
+      location: { absolute: "/repo/out", recorded: "../../out" },
+    });
+  });
+
+  it("accepts an absolute directory inside the repository", () => {
+    expect(resolve("/repo/apps/desktop/build-mac", "/anywhere")).toEqual({
+      ok: true,
+      location: { absolute: "/repo/apps/desktop/build-mac", recorded: "build-mac" },
+    });
+  });
+
+  it("refuses a directory outside the repository", () => {
+    const resolution = resolve("ctx", "/tmp");
+
+    expect(resolution.ok).toBe(false);
+    expect(resolution).toMatchObject({
+      error: expect.stringContaining("/tmp/ctx, which is not inside the repository at /repo"),
+    });
+  });
+
+  it("refuses the repository root itself", () => {
+    expect(resolve(".", "/repo")).toMatchObject({
+      ok: false,
+      error: expect.stringContaining("not inside the repository"),
+    });
+  });
+
+  it("refuses apps/desktop itself", () => {
+    expect(resolve(".", "/repo/apps/desktop")).toMatchObject({
+      ok: false,
+      error: expect.stringContaining("is apps/desktop itself"),
+    });
   });
 });
 
