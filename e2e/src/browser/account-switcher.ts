@@ -62,10 +62,11 @@ export async function lockAll(context: BrowserContext, popup: Page): Promise<Pag
     popup.waitForEvent("close", { timeout: CLOSE_TIMEOUT_MS }),
     shutdown(),
   ]).then(() => Outcome.Restarted);
-  const locked = new LockScreen(popup).waitUntilShown().then(() => Outcome.Locked);
 
   await openAccountSwitcher(popup);
   await popup.getByRole("button", { name: "Lock all" }).click();
+
+  const locked = new LockScreen(popup).waitUntilShown().then(() => Outcome.Locked);
 
   // The first outcome that happens wins. A rejection only means that outcome did not
   // happen, e.g. the lock screen wait dies with the closed popup; both failing is an error.
