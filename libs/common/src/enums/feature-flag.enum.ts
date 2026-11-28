@@ -62,6 +62,9 @@ export enum FeatureFlag {
   ImportUpgrade = "pm-35053-import-upgrade",
   PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
+  /* Secrets Manager */
+  SmGenerateSecret = "sm-1955-add-value-generator-to-secret-dialog",
+
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
@@ -137,6 +140,9 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.ImportUpgrade]: FALSE,
   [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
+
+  /* Secrets Manager */
+  [FeatureFlag.SmGenerateSecret]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,

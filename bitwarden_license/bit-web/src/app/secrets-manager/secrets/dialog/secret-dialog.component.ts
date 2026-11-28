@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -21,6 +22,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -104,6 +107,11 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   protected peopleAccessPolicyItems: ApItemViewType[];
   protected serviceAccountAccessPolicyItems: ApItemViewType[];
 
+  protected readonly showGenerator = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.SmGenerateSecret),
+    { initialValue: false },
+  );
+
   private destroy$ = new Subject<void>();
   private currentPeopleAccessPolicies: ApItemViewType[];
   private originalSecretValue: string;
@@ -122,6 +130,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     private accessPolicyService: AccessPolicyService,
     private accessPolicySelectorService: AccessPolicySelectorService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   get title() {
@@ -237,6 +246,12 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
       (closeData) => closeData !== undefined && this.dialogRef.close(),
     );
   };
+
+  onValueGenerated(value: string) {
+    const valueControl = this.formGroup.get("value");
+    valueControl.setValue(value);
+    valueControl.markAsDirty();
+  }
 
   private async loadEditDialog() {
     const secret = await this.secretService.getBySecretId(this.data.secretId);
