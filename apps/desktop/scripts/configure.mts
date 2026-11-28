@@ -37,9 +37,11 @@ import path from "path";
 
 import { staleArtifacts } from "./artifacts.mts";
 import {
+  APPX_EXTENSIONS_TEMPLATE,
   BUILD_CONFIG_FILENAME,
   BuildError,
   CONFIG_VERSION,
+  PLUGIN_AUTHENTICATOR_CONFIGS,
   DIST_DIR,
   INTERMEDIATES_DIR,
   type BuildConfig,
@@ -75,7 +77,12 @@ import {
   crossCompilationPlan,
   rustTargetsFor,
 } from "./rust-targets.mts";
-import { type ToolchainReport, verifyToolchain, verifyXcode } from "./toolchain.mts";
+import {
+  type ToolchainReport,
+  verifyAppxCrossTools,
+  verifyToolchain,
+  verifyXcode,
+} from "./toolchain.mts";
 
 const projectDir = path.resolve(import.meta.dirname, "..");
 const repoRoot = path.resolve(projectDir, "../..");
@@ -140,6 +147,7 @@ function main(): void {
   }
 
   writeEntitlements(config);
+  writeAppxExtensions(config);
 
   writeFileSync(configPath, serializeBuildConfig(config));
   summarize(config, configPath);
@@ -198,6 +206,29 @@ function writeEntitlements(config: BuildConfig): void {
   }
 }
 
+/// Fills in the Appx extensions template for this channel.
+///
+/// The class ID is deliberately left as a `${clsid:<file>}` macro rather than resolved here:
+/// whoever packs the manifest resolves it from the file it names, which is the same file the
+/// app reads at runtime, so the two cannot come apart.
+function writeAppxExtensions(config: BuildConfig): void {
+  const extensions = config.derived.windows?.appxExtensions;
+  if (extensions == null) {
+    return;
+  }
+
+  const template = readFileSync(path.join(projectDir, APPX_EXTENSIONS_TEMPLATE), "utf8");
+  const filled = template
+    .split("${displayName}")
+    .join(config.derived.productName)
+    .split("${pluginConfig}")
+    .join(PLUGIN_AUTHENTICATOR_CONFIGS[config.channel]);
+
+  const destination = path.resolve(projectDir, extensions);
+  mkdirSync(path.dirname(destination), { recursive: true });
+  writeFileSync(destination, filled);
+}
+
 function merge(into: ToolchainReport, from: ToolchainReport): void {
   into.errors.push(...from.errors);
   into.warnings.push(...from.warnings);
@@ -235,6 +266,11 @@ function toolchainIsReady(config: BuildConfig): boolean {
   }
   if (enabled.some((target) => target.toolchain === "xcode")) {
     merge(report, verifyXcode());
+  }
+  // An Appx is packed with Microsoft's tools on Windows and with third-party ones anywhere
+  // else, so what has to be installed depends on where the build is running.
+  if (config.distributionChannels.includes("windows-appx") && host !== "win32") {
+    merge(report, verifyAppxCrossTools());
   }
 
   for (const warning of report.warnings) {
