@@ -518,6 +518,7 @@ const buildProviders = (args: StoryArgs) => {
         autofillAllowed$: of(false),
         currentAutofillTab$: of(null),
         doAutofill: async () => {},
+        refreshCurrentTab: () => {},
       },
     },
     {

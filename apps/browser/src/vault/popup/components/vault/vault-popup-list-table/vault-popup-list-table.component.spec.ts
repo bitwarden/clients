@@ -59,6 +59,7 @@ import {
   VaultsNavViewModel,
 } from "@bitwarden/vault";
 
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
@@ -136,6 +137,7 @@ describe("VaultPopupListTableComponent", () => {
     currentTabIsOnBlocklist$: currentTabIsOnBlocklist$.asObservable(),
     autofillAllowed$: autofillAllowed$.asObservable(),
     doAutofill: jest.fn(),
+    refreshCurrentTab: jest.fn(),
   };
 
   /** Unsearched active ciphers; the folder chip's options come from here, not the rendered rows. */
@@ -387,6 +389,38 @@ describe("VaultPopupListTableComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
     };
+
+    it.each([false, true])(
+      "refreshes suggestions without changing the autofill section's collapsed state (%s)",
+      async (collapsed) => {
+        fixture.destroy();
+        const sidebar = jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(true);
+        fixture = TestBed.createComponent(VaultPopupListTableComponent);
+        component = fixture.componentInstance;
+        sidebar.mockRestore();
+        autoFillCiphers$.next([makeCipher({ id: "autofill-1" })]);
+        await render();
+
+        const toggle = headerToggle("autofill");
+        expect(toggle).toBeDefined();
+        if (collapsed) {
+          toggle!.click();
+          fixture.detectChanges();
+        }
+        const expanded = String(!collapsed);
+        expect(headerToggle("autofill")!.getAttribute("aria-expanded")).toBe(expanded);
+
+        const refreshButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+          'button[aria-label="refresh"]',
+        );
+        expect(refreshButton).not.toBeNull();
+        refreshButton.click();
+        fixture.detectChanges();
+
+        expect(vaultPopupAutofillService.refreshCurrentTab).toHaveBeenCalledTimes(1);
+        expect(headerToggle("autofill")!.getAttribute("aria-expanded")).toBe(expanded);
+      },
+    );
 
     it("persists the collapsed state when the user collapses a section", async () => {
       await render();
