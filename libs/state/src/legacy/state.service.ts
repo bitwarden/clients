@@ -20,6 +20,16 @@ export abstract class StateService {
    * @deprecated For backwards compatible purposes only, use DesktopAutofillSettingsService
    */
   abstract setEnableDuckDuckGoBrowserIntegration(value: boolean): Promise<void>;
+  /**
+   * @deprecated DuckDuckGo dropped support for the integration here
+   * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a
+   * transition period.
+   */
   abstract getDuckDuckGoSharedKey(): Promise<string | null>;
+  /**
+   * @deprecated DuckDuckGo dropped support for the integration here
+   * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a
+   * transition period.
+   */
   abstract setDuckDuckGoSharedKey(value: string): Promise<void>;
 }

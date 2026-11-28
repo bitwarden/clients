@@ -363,6 +363,11 @@ export class NativeMessagingMain {
     );
   }
 
+  /**
+   * @deprecated DuckDuckGo dropped support for the integration here
+   * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a
+   * transition period.
+   */
   async generateDdgManifests() {
     const manifest = {
       name: "com.8bit.bitwarden",

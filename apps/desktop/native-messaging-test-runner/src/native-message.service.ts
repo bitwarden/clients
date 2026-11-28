@@ -42,6 +42,11 @@ type HandshakeResponse = {
 
 const CONFIRMATION_MESSAGE_TIMEOUT = 100 * 1000; // 100 seconds
 
+/**
+ * @deprecated DuckDuckGo dropped support for the integration here
+ * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a transition
+ * period.
+ */
 export default class NativeMessageService {
   private ipcService: IPCService;
   private nodeCryptoFunctionService: NodeCryptoFunctionService;

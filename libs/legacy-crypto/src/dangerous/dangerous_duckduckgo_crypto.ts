@@ -6,6 +6,10 @@ import { Aes256CbcHmacKey } from "../models/symmetric-crypto-key";
 
 /**
  * Aes256CbcHmac, but without correct PKCS#7 padding. Forces us to guess padding
+ *
+ * @deprecated DuckDuckGo dropped support for the integration here
+ * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a transition
+ * period.
  */
 export type DuckDuckGoEncstring = string;
 
@@ -13,6 +17,10 @@ export type DuckDuckGoEncstring = string;
  * Decrypts a DuckDuckGo encstring, which is in the format of 2.B64IV|B64DATA|B64MAC, using AES-256-CBC for encryption and HMAC-SHA256 for authentication.
  * Note that this implementation does not use PKCS#7 padding, and the last CBC block is filled up with zeroes when decrypting, leading us to guess where
  * the contents end.
+ *
+ * @deprecated DuckDuckGo dropped support for the integration here
+ * https://github.com/duckduckgo/apple-browsers/pull/7877. We will drop support after a transition
+ * period.
  */
 export function DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
   encstring: DuckDuckGoEncstring,
