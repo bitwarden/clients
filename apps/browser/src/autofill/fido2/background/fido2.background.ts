@@ -507,16 +507,15 @@ export class Fido2Background implements Fido2BackgroundInterface {
     }
     try {
       return await this.abortManager.runWithAbortController(requestId!, async (abortController) => {
-        try {
-          return await callback(data!, tab, abortController);
-        } finally {
-          if (tab.id != null) {
-            await BrowserApi.focusTab(tab.id);
-          }
-          if (tab.windowId != null) {
-            await BrowserApi.focusWindow(tab.windowId);
-          }
+        const result = await callback(data!, tab, abortController);
+        // Failed, aborted, and browser-fallback requests must not steal focus.
+        if (tab.id != null) {
+          await BrowserApi.focusTab(tab.id);
         }
+        if (tab.windowId != null) {
+          await BrowserApi.focusWindow(tab.windowId);
+        }
+        return result;
       });
     } finally {
       if (tabId != null) {

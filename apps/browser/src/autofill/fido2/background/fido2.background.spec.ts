@@ -12,6 +12,7 @@ import {
 import {
   AssertCredentialParams,
   CreateCredentialParams,
+  FallbackRequestedError,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -452,6 +453,39 @@ describe("Fido2Background", () => {
   describe("extension message handlers", () => {
     beforeEach(() => {
       fido2Background.init();
+    });
+
+    describe.each([
+      ["fido2RegisterCredentialRequest", "createCredential"],
+      ["fido2GetCredentialRequest", "assertCredential"],
+    ] as const)("%s focus restoration", (command, method) => {
+      it.each([
+        ["browser fallback", new FallbackRequestedError()],
+        ["an aborted request", new DOMException("Request aborted", "AbortError")],
+        ["a cancelled request", new DOMException("Request cancelled", "NotAllowedError")],
+        ["a credential error", new Error("Credential request failed")],
+      ])("does not refocus the tab or window after %s", async (_scenario, error) => {
+        fido2ClientService[method].mockRejectedValue(error);
+        const message = mock<Fido2ExtensionMessage>({
+          command,
+          requestId: "123",
+          data:
+            command === "fido2RegisterCredentialRequest"
+              ? mock<CreateCredentialParams>()
+              : mock<AssertCredentialParams>({ mediation: "conditional" }),
+        });
+        const sendResponse = jest.fn();
+
+        sendMockExtensionMessage(message, senderMock, sendResponse);
+        await flushPromises();
+
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+        expect(sendResponse).toHaveBeenCalledWith({
+          error: expect.objectContaining({ message: error.message }),
+        });
+        expect(fido2Background["activeCredentialRequests"].size).toBe(0);
+      });
     });
 
     it("ignores messages that do not have a handler associated with a command within the message", () => {
