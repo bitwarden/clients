@@ -1,0 +1,22 @@
+@if (visible()) {
+  <bit-callout
+    class="[&>aside]:tw-mb-0"
+    icon="bwi-lock"
+    [title]="null"
+    [accessibleName]="'upgradeToUnlockBuiltInTotpCodes' | i18n"
+    (dismiss)="dismiss()"
+    data-testid="totp-upgrade-callout"
+  >
+    {{ "upgradeToUnlockBuiltInTotpCodes" | i18n }}
+    <button
+      type="button"
+      bitLink
+      linkType="primary"
+      class="tw-font-semibold"
+      (click)="upgrade()"
+      data-testid="totp-upgrade-button"
+    >
+      {{ "upgrade" | i18n }}
+    </button>
+  </bit-callout>
+}

@@ -149,6 +149,25 @@ describe("CipherFormComponent", () => {
     });
   });
 
+  describe("organizationId$", () => {
+    it("emits each change of the owning organization", () => {
+      const emitted: (string | null)[] = [];
+      component["updatedCipherView"] = new CipherView();
+      component.organizationId$.subscribe((organizationId) => emitted.push(organizationId));
+
+      const setOwner = (organizationId: string | null) =>
+        component.patchCipher((cipher) => {
+          cipher.organizationId = organizationId;
+          return cipher;
+        });
+      setOwner("org-id");
+      setOwner("org-id");
+      setOwner(null);
+
+      expect(emitted).toEqual([null, "org-id", null]);
+    });
+  });
+
   describe("website", () => {
     it("should return null if updatedCipherView is null", () => {
       component["updatedCipherView"] = null as any;

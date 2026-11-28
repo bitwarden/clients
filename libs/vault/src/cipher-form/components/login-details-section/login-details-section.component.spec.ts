@@ -3,12 +3,21 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, delay, of } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -52,25 +61,49 @@ describe("LoginDetailsSectionComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
+  let nudgesService: MockProxy<NudgesService>;
+  let premiumUpgradeNudgeService: MockProxy<PremiumUpgradeNudgeService>;
+  let upgradePathsFlag$: BehaviorSubject<boolean>;
+  let hasPremium$: BehaviorSubject<boolean>;
+  let showTotpNudge$: BehaviorSubject<boolean>;
+  let organizationId$: BehaviorSubject<string | null>;
+  let totpService: MockProxy<TotpService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
+  const userId = "user-id" as UserId;
   const collect = jest.fn().mockResolvedValue(null);
   const getInitialCipherView = jest.fn((): any => null);
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
+    organizationId$ = new BehaviorSubject<string | null>(null);
     cipherFormContainer = mock<CipherFormContainer>({
       getInitialCipherView,
       formStatusChange$: new BehaviorSubject<"enabled" | "disabled">("enabled"),
       website: "example.com",
     });
+    cipherFormContainer.organizationId$ = organizationId$;
 
     generationService = mock<CipherFormGenerationService>();
     auditService = mock<AuditService>();
     toastService = mock<ToastService>();
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
+    upgradePathsFlag$ = new BehaviorSubject<boolean>(false);
+    hasPremium$ = new BehaviorSubject<boolean>(false);
+    showTotpNudge$ = new BehaviorSubject<boolean>(true);
     configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+      flag === FeatureFlag.PM42214_FeatureBasedUpgradePaths ? upgradePathsFlag$ : of(false),
+    );
     dialogService = mock<DialogService>();
+    nudgesService = mock<NudgesService>();
+    nudgesService.showNudgeSpotlight$.mockReturnValue(showTotpNudge$);
+    premiumUpgradeNudgeService = mock<PremiumUpgradeNudgeService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(hasPremium$);
+    totpService = mock<TotpService>();
+    totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }).pipe(delay(0)));
     collect.mockClear();
 
     await TestBed.configureTestingModule({
@@ -84,6 +117,15 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
         { provide: EventCollectionService, useValue: { collect } },
+        { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingAccountProfileStateService,
+        },
+        { provide: NudgesService, useValue: nudgesService },
+        { provide: PremiumUpgradeNudgeService, useValue: premiumUpgradeNudgeService },
+        { provide: TotpService, useValue: totpService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
       ],
     })
       .overrideProvider(DialogService, { useValue: dialogService })
@@ -636,5 +678,266 @@ describe("LoginDetailsSectionComponent", () => {
       expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
       expect(component.hasPasskey).toBe(true);
     }));
+  });
+
+  describe("verification code", () => {
+    const query = (testId: string) =>
+      fixture.nativeElement.querySelector(`[data-testid='${testId}']`);
+
+    const editCipher = (overrides: Partial<CipherView> = {}) => {
+      const login = Object.assign(new LoginView(), { totp: "JBSWY3DPEHPK3PXP" });
+      const cipher = Object.assign(new CipherView(), { login, viewPassword: true }, overrides);
+      getInitialCipherView.mockReturnValue(cipher);
+      Object.assign(cipherFormContainer, { originalCipherView: cipher });
+      organizationId$.next(cipher.organizationId ?? null);
+    };
+
+    const render = () => {
+      fixture = TestBed.createComponent(LoginDetailsSectionComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      getInitialCipherView.mockReturnValue(null);
+      Object.assign(cipherFormContainer, { originalCipherView: null });
+      cipherFormContainer.config.mode = "add";
+      cipherFormContainer.config.initialValues = undefined;
+      upgradePathsFlag$.next(true);
+    });
+
+    describe("section", () => {
+      it("moves the authenticator key into the verification code section when the flag is on", () => {
+        render();
+
+        const section = query("verification-code-section");
+        expect(section).not.toBeNull();
+        expect(section.querySelector("input[formControlName='totp']")).not.toBeNull();
+        expect(fixture.nativeElement.querySelectorAll("input[formControlName='totp']").length).toBe(
+          1,
+        );
+      });
+
+      it("keeps the authenticator key in the login credentials card when the flag is off", () => {
+        upgradePathsFlag$.next(false);
+        render();
+
+        expect(query("verification-code-section")).toBeNull();
+        expect(fixture.nativeElement.querySelector("input[formControlName='totp']")).not.toBeNull();
+      });
+    });
+
+    describe("upgrade callout", () => {
+      it("shows to a free user on a personal item who has not dismissed it", () => {
+        render();
+
+        expect(nudgesService.showNudgeSpotlight$).toHaveBeenCalledWith(
+          NudgeType.PremiumUpgradeTotp,
+          userId,
+        );
+        expect(query("totp-upgrade-callout")).not.toBeNull();
+      });
+
+      it("is hidden when the flag is off", () => {
+        upgradePathsFlag$.next(false);
+        nudgesService.showNudgeSpotlight$.mockClear();
+        billingAccountProfileStateService.hasPremiumFromAnySource$.mockClear();
+        render();
+
+        expect(query("totp-upgrade-callout")).toBeNull();
+        expect(nudgesService.showNudgeSpotlight$).not.toHaveBeenCalled();
+        expect(billingAccountProfileStateService.hasPremiumFromAnySource$).not.toHaveBeenCalled();
+      });
+
+      it("is hidden when editing an org-owned item", () => {
+        editCipher({ organizationId: "org-id" });
+        cipherFormContainer.config.mode = "edit";
+        render();
+
+        expect(query("totp-upgrade-callout")).toBeNull();
+      });
+
+      it("hides when the user chooses an organization as the owner", () => {
+        render();
+        expect(query("totp-upgrade-callout")).not.toBeNull();
+
+        organizationId$.next("org-id");
+        fixture.detectChanges();
+
+        expect(query("totp-upgrade-callout")).toBeNull();
+      });
+
+      it("shows again when the owner changes back to the individual vault", () => {
+        organizationId$.next("org-id");
+        render();
+        expect(query("totp-upgrade-callout")).toBeNull();
+
+        organizationId$.next(null);
+        fixture.detectChanges();
+
+        expect(query("totp-upgrade-callout")).not.toBeNull();
+      });
+    });
+
+    describe("TOTP code", () => {
+      it("shows a Premium user an inactive code until a key is entered", fakeAsync(() => {
+        hasPremium$.next(true);
+        render();
+        expect(query("login-totp-code").value).toBe("");
+        expect(query("copy-totp-code").getAttribute("aria-disabled")).toBe("true");
+        expect(query("totp-code-help")).not.toBeNull();
+
+        component.loginDetailsForm.controls.totp.setValue("JBSWY3DPEHPK3PXP");
+        fixture.detectChanges();
+        tick();
+        fixture.detectChanges();
+
+        expect(query("login-totp-code").value).toBe("123 456");
+      }));
+
+      it("clears the previous code as soon as the key changes", fakeAsync(() => {
+        hasPremium$.next(true);
+        editCipher();
+        cipherFormContainer.config.mode = "edit";
+        render();
+        tick();
+        fixture.detectChanges();
+        expect(query("login-totp-code").value).toBe("123 456");
+
+        component.loginDetailsForm.controls.totp.setValue("NEWKEY234567ABCD");
+        fixture.detectChanges();
+
+        expect(query("login-totp-code").value).toBe("");
+        tick();
+      }));
+
+      it("generates the code from the trimmed key", fakeAsync(() => {
+        hasPremium$.next(true);
+        render();
+
+        component.loginDetailsForm.controls.totp.setValue("  JBSWY3DPEHPK3PXP  ");
+        fixture.detectChanges();
+        tick();
+
+        expect(totpService.getCode$).toHaveBeenLastCalledWith("JBSWY3DPEHPK3PXP");
+      }));
+
+      it("stays inactive after a Premium user deletes a key typed on a new item", fakeAsync(() => {
+        hasPremium$.next(true);
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+        render();
+        component.loginDetailsForm.controls.totp.setValue("JBSWY3DPEHPK3PXP");
+        fixture.detectChanges();
+        tick();
+        fixture.detectChanges();
+
+        query("delete-totp-button").click();
+        tick();
+        fixture.detectChanges();
+
+        expect(query("login-totp-code").value).toBe("");
+        expect(query("totp-code-help")).not.toBeNull();
+      }));
+
+      it("is not shown to a free user with a key", () => {
+        editCipher();
+        cipherFormContainer.config.mode = "edit";
+        render();
+
+        expect(query("login-totp-code")).toBeNull();
+      });
+
+      it("is not shown when the flag is off", () => {
+        upgradePathsFlag$.next(false);
+        hasPremium$.next(true);
+        editCipher();
+        cipherFormContainer.config.mode = "edit";
+        render();
+
+        expect(query("login-totp-code")).toBeNull();
+      });
+    });
+
+    describe("delete authenticator key", () => {
+      beforeEach(() => {
+        editCipher();
+        cipherFormContainer.config.mode = "edit";
+        totpCaptureService.canCaptureTotp.mockReturnValue(true);
+      });
+
+      it("offers delete when a key is present", () => {
+        render();
+
+        expect(query("delete-totp-button")).not.toBeNull();
+        expect(query("capture-totp-button")).toBeNull();
+      });
+
+      it("does not offer delete when the flag is off", () => {
+        upgradePathsFlag$.next(false);
+        render();
+
+        expect(query("delete-totp-button")).toBeNull();
+        expect(query("capture-totp-button")).not.toBeNull();
+      });
+
+      it("does not offer delete when hidden fields cannot be viewed", () => {
+        editCipher({ viewPassword: false });
+        render();
+
+        expect(query("delete-totp-button")).toBeNull();
+      });
+
+      it("clears the key after the user confirms", fakeAsync(() => {
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+        render();
+
+        query("delete-totp-button").click();
+        tick();
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: { key: "deleteAuthenticatorKey" },
+            type: "danger",
+            icon: "bwi-exclamation-triangle",
+          }),
+        );
+        expect(component.loginDetailsForm.controls.totp.value).toBe("");
+        expect(document.activeElement).toBe(
+          fixture.nativeElement.querySelector("input[formControlName='totp']"),
+        );
+      }));
+
+      it("keeps the key when the user cancels", fakeAsync(() => {
+        dialogService.openSimpleDialog.mockResolvedValue(false);
+        render();
+
+        query("delete-totp-button").click();
+        tick();
+
+        expect(component.loginDetailsForm.controls.totp.value).toBe("JBSWY3DPEHPK3PXP");
+      }));
+
+      it("leaves a Premium user with an empty key and an inactive TOTP code", fakeAsync(() => {
+        hasPremium$.next(true);
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+        render();
+        tick();
+        fixture.detectChanges();
+        expect(query("login-totp-code").value).toBe("123 456");
+        expect(query("copy-totp-code").getAttribute("aria-disabled")).not.toBe("true");
+        expect(query("totp-code-help")).toBeNull();
+
+        query("delete-totp-button").click();
+        tick();
+        fixture.detectChanges();
+
+        const code = query("login-totp-code");
+        expect(code.value).toBe("");
+        expect(query("copy-totp-code").getAttribute("aria-disabled")).toBe("true");
+        expect(query("totp-code-help")).not.toBeNull();
+        expect(query("capture-totp-button")).not.toBeNull();
+        expect(query("delete-totp-button")).toBeNull();
+      }));
+    });
   });
 });

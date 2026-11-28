@@ -45,6 +45,7 @@ export const NudgeType = {
   Vfo1NewExperience: "vfo1-new-experience",
   Vfo1Walkthrough: "vfo1-walkthrough",
   Vfo1FolderNestingCallout: "vfo1-folder-nesting-callout",
+  PremiumUpgradeTotp: "premium-upgrade-totp",
 } as const;
 
 export type NudgeType = UnionOfValues<typeof NudgeType>;

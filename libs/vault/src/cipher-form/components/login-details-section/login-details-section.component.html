@@ -103,6 +103,12 @@
       </bit-form-field>
     }
 
+    @if (!upgradePathsFlagOn()) {
+      <ng-container *ngTemplateOutlet="authenticatorKeyField"></ng-container>
+    }
+  </bit-card>
+
+  <ng-template #authenticatorKeyField>
     <bit-form-field disableMargin>
       <bit-label>
         {{ "authenticatorKey" | i18n }}
@@ -120,7 +126,7 @@
           </p>
         </bit-popover>
       </bit-label>
-      <input bitInput formControlName="totp" type="password" class="tw-font-mono" />
+      <input bitInput #totpInput formControlName="totp" type="password" class="tw-font-mono" />
       @if (viewHiddenFields) {
         <button
           type="button"
@@ -131,7 +137,7 @@
           (toggledChange)="logVisibleEvent($event, EventType.Cipher_ClientToggledTOTPSeedVisible)"
         ></button>
       }
-      @if (canCaptureTotp) {
+      @if (showCaptureTotpButton) {
         <button
           type="button"
           bitIconButton="bwi-camera"
@@ -141,8 +147,89 @@
           [label]="'totpCapture' | i18n"
         ></button>
       }
+      @if (showDeleteTotpButton) {
+        <button
+          type="button"
+          bitIconButton="bwi-minus-circle"
+          buttonType="dangerGhost"
+          bitSuffix
+          [bitAction]="deleteTotp"
+          [label]="'deleteAuthenticatorKey' | i18n"
+          data-testid="delete-totp-button"
+        ></button>
+      }
     </bit-form-field>
-  </bit-card>
+  </ng-template>
 </section>
+
+@if (upgradePathsFlagOn()) {
+  <section class="tw-mb-5 bit-compact:tw-mb-4" data-testid="verification-code-section">
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "verificationCode" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card class="tw-flex tw-flex-col tw-gap-3">
+      <p bitTypography="helper" class="tw-text-muted tw-mb-0">
+        {{ "authenticatorKeyDescription" | i18n }}
+      </p>
+      <ng-container *ngTemplateOutlet="authenticatorKeyField"></ng-container>
+      @if (account(); as account) {
+        <vault-totp-upgrade-callout
+          [userId]="account.userId"
+          [organizationId]="ownerOrganizationId()"
+        ></vault-totp-upgrade-callout>
+      }
+      @if (showTotpCode) {
+        <bit-form-field disableMargin>
+          <bit-label>
+            {{ "totpCode" | i18n }}
+            @if (!hasTotpKey) {
+              <button
+                bitLink
+                type="button"
+                [bitPopoverTriggerFor]="totpCodePopover"
+                [appA11yTitle]="'totpCodeInactive' | i18n"
+                slot="end"
+                data-testid="totp-code-help"
+                startIcon="bwi-question-circle"
+              ></button>
+            }
+            <bit-popover #totpCodePopover>
+              <p class="tw-mb-0">{{ "totpCodeInactive" | i18n }}</p>
+            </bit-popover>
+          </bit-label>
+          <input
+            bitInput
+            readonly
+            type="text"
+            class="tw-font-mono"
+            placeholder="- - - - - -"
+            [value]="hasTotpKey ? (totpCode?.totpCodeFormatted ?? '') : ''"
+            aria-readonly="true"
+            data-testid="login-totp-code"
+          />
+          @if (hasTotpKey) {
+            <div
+              bitTotpCountdown
+              [cipher]="totpCipher()"
+              bitSuffix
+              (sendCopyCode)="setTotpCode($event)"
+            ></div>
+          }
+          <button
+            bitIconButton="bwi-clone"
+            bitSuffix
+            type="button"
+            [appCopyClick]="totpCode?.totpCode"
+            [valueLabel]="'totpCode' | i18n"
+            showToast
+            [label]="'copyVerificationCode' | i18n"
+            [disabled]="!hasTotpKey || !totpCode"
+            data-testid="copy-totp-code"
+          ></button>
+        </bit-form-field>
+      }
+    </bit-card>
+  </section>
+}
 
 <vault-autofill-options></vault-autofill-options>

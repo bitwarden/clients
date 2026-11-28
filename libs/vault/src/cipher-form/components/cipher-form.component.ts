@@ -16,7 +16,14 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom, Subject, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Subject,
+  switchMap,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -155,12 +162,24 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   protected cipherForm = this.formBuilder.group<CipherForm>({});
 
+  private readonly updatedCipherSubject = new BehaviorSubject<CipherView | null>(null);
+  readonly organizationId$ = this.updatedCipherSubject.pipe(
+    map((cipher) => cipher?.organizationId ?? null),
+    distinctUntilChanged(),
+  );
+
   /**
    * The value of the updated cipher. Starts as a new cipher (or clone of originalCipher) and is updated
    * by child components via the `patchCipher` method.
    * @protected
    */
-  protected updatedCipherView: CipherView | null;
+  protected get updatedCipherView(): CipherView | null {
+    return this.updatedCipherSubject.value;
+  }
+
+  protected set updatedCipherView(cipher: CipherView | null) {
+    this.updatedCipherSubject.next(cipher);
+  }
 
   get website(): string | null {
     return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;

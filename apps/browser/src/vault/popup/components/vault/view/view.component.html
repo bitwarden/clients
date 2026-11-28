@@ -9,7 +9,7 @@
   </popup-header>
 
   @if (cipher) {
-    <app-cipher-view [cipher]="cipher">
+    <app-cipher-view [cipher]="cipher" [allowPremiumUpgradeCallout]="true">
       @if (showAutofillButton()) {
         <button
           type="button"

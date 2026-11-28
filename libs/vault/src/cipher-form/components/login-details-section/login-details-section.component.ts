@@ -1,17 +1,32 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DatePipe } from "@angular/common";
-import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { DatePipe, NgTemplateOutlet } from "@angular/common";
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  Optional,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, map, of, startWith, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import {
   AsyncActionsModule,
   CardComponent,
@@ -25,6 +40,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { BitTotpCountdownComponent } from "../../../components/totp-countdown/totp-countdown.component";
+import { TotpUpgradeCalloutComponent } from "../../../components/totp-upgrade-callout/totp-upgrade-callout.component";
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -41,6 +58,7 @@ import {
   selector: "vault-login-details-section",
   templateUrl: "./login-details-section.component.html",
   imports: [
+    NgTemplateOutlet,
     ReactiveFormsModule,
     SectionHeaderComponent,
     TypographyModule,
@@ -52,6 +70,8 @@ import {
     PopoverModule,
     AutofillOptionsComponent,
     LinkModule,
+    BitTotpCountdownComponent,
+    TotpUpgradeCalloutComponent,
   ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
@@ -88,6 +108,77 @@ export class LoginDetailsSectionComponent implements OnInit {
   private existingFido2Credentials?: Fido2CredentialView[];
 
   private destroyRef = inject(DestroyRef);
+
+  private readonly accountService = inject(AccountService);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly configService = inject(ConfigService);
+
+  private readonly upgradePathsFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM42214_FeatureBasedUpgradePaths,
+  );
+
+  protected readonly upgradePathsFlagOn = toSignal(this.upgradePathsFlag$, {
+    initialValue: false,
+  });
+
+  protected readonly account = toSignal(
+    this.upgradePathsFlag$.pipe(
+      switchMap((flagOn) => {
+        if (!flagOn) {
+          return of(null);
+        }
+        return this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.billingAccountProfileStateService
+              .hasPremiumFromAnySource$(userId)
+              .pipe(map((hasPremium) => ({ userId, hasPremium }))),
+          ),
+        );
+      }),
+    ),
+    { initialValue: null },
+  );
+
+  private readonly totpInput = viewChild<ElementRef<HTMLInputElement>>("totpInput");
+
+  protected readonly totpCipher = toSignal(
+    this.loginDetailsForm.controls.totp.valueChanges.pipe(
+      startWith(this.loginDetailsForm.controls.totp.value),
+      map((totp) => totp?.trim() ?? ""),
+      distinctUntilChanged(),
+      tap(() => (this.totpCode = null)),
+      map((totp) => {
+        const cipher = new CipherView();
+        cipher.login = Object.assign(new LoginView(), { totp });
+        return cipher;
+      }),
+    ),
+  );
+
+  protected totpCode: Pick<TotpInfo, "totpCode" | "totpCodeFormatted"> | null = null;
+
+  protected readonly ownerOrganizationId = toSignal(this.cipherFormContainer.organizationId$, {
+    initialValue: null,
+  });
+
+  protected get hasTotpKey(): boolean {
+    return !!this.loginDetailsForm.controls.totp.value;
+  }
+
+  protected get showCaptureTotpButton(): boolean {
+    return this.canCaptureTotp && !(this.upgradePathsFlagOn() && this.hasTotpKey);
+  }
+
+  protected get showDeleteTotpButton(): boolean {
+    return (
+      this.upgradePathsFlagOn() && this.hasTotpKey && this.loginDetailsForm.controls.totp.enabled
+    );
+  }
+
+  protected get showTotpCode(): boolean {
+    return !!this.account()?.hasPremium;
+  }
 
   get hasPasskey(): boolean {
     return this.existingFido2Credentials != null && this.existingFido2Credentials.length > 0;
@@ -234,6 +325,26 @@ export class LoginDetailsSectionComponent implements OnInit {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("totpCaptureError"),
       });
+    }
+  };
+
+  protected setTotpCode(totpCode: Pick<TotpInfo, "totpCode" | "totpCodeFormatted">) {
+    this.totpCode = totpCode;
+  }
+
+  protected deleteTotp = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteAuthenticatorKey" },
+      content: { key: "deleteAuthenticatorKeyConfirmation" },
+      type: "danger",
+      icon: "bwi-exclamation-triangle",
+      acceptButtonText: { key: "delete" },
+    });
+
+    if (confirmed) {
+      this.loginDetailsForm.controls.totp.setValue("");
+      this.totpCode = null;
+      this.totpInput()?.nativeElement.focus();
     }
   };
 
