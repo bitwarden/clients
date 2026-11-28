@@ -206,7 +206,6 @@ _Always included (shared):_
 _Include if `$0` is `web` or `all`:_
 
 - `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts` - Policy configuration UI
-- `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.html`
 
 _Include if `$0` is `browser` or `all`:_
 
