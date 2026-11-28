@@ -90,6 +90,7 @@ export const BITWARDEN_ICONS = [
   "bwi-groups",
   "bwi-handshake",
   "bwi-hashtag",
+  "bwi-health",
   "bwi-help",
   "bwi-id-card",
   "bwi-identity",
