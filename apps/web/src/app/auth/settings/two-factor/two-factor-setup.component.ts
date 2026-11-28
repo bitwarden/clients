@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
   first,
@@ -36,6 +36,10 @@ import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/respon
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import {
+  PremiumUpgradeNudgeOptions,
+  PremiumUpgradeNudgeService,
+} from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -59,6 +63,11 @@ import { TwoFactorSetupEmailComponent } from "./two-factor-setup-email.component
 import { TwoFactorSetupWebAuthnComponent } from "./two-factor-setup-webauthn.component";
 import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
+
+const TWO_FACTOR_NUDGE_OPTIONS: PremiumUpgradeNudgeOptions = {
+  titleKey: "twoFactorUpgradeTitle",
+  descriptionKey: "twoFactorUpgradeDescription",
+};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -89,6 +98,13 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
+
+  protected readonly featureBasedUpgradePaths = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+    { initialValue: false },
+  );
+
+  private readonly premiumUpgradeNudgeService = inject(PremiumUpgradeNudgeService);
 
   protected destroy$ = new Subject<void>();
   private twoFactorAuthPolicyAppliesToActiveUser: boolean;
@@ -345,6 +361,17 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  async managePremiumProvider(type: TwoFactorProviderType) {
+    if (
+      !(await this.premiumUpgradeNudgeService.hasPremiumOrShowUpgradeNudge(
+        TWO_FACTOR_NUDGE_OPTIONS,
+      ))
+    ) {
+      return;
+    }
+    await this.manage(type);
   }
 
   async recoveryCode() {

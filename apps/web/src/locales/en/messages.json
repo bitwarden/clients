@@ -4415,6 +4415,12 @@
   "twoStepLoginDesc": {
     "message": "Secure your account by requiring an additional step when logging in."
   },
+  "twoFactorUpgradeTitle": {
+    "message": "Log in with your favorite 2FA provider"
+  },
+  "twoFactorUpgradeDescription": {
+    "message": "Connect a YubiKey or Duo code to protect your vault. No one gets in without the key."
+  },
   "twoStepLoginTeamsDesc": {
     "message": "Enable two-step login for your organization."
   },

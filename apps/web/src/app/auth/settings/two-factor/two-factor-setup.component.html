@@ -91,6 +91,15 @@
           >
             {{ "disable" | i18n }}
           </button>
+        } @else if (featureBasedUpgradePaths() && p.premium) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            (click)="managePremiumProvider(p.type)"
+          >
+            {{ "manage" | i18n }}
+          </button>
         } @else {
           <button
             type="button"
