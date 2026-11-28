@@ -5,10 +5,14 @@ import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
   debounceTime,
+  defer,
   distinctUntilChanged,
+  EMPTY,
+  filter,
   firstValueFrom,
   from,
   map,
+  merge,
   Observable,
   of,
   shareReplay,
@@ -40,6 +44,7 @@ import { InlineMenuFieldQualificationService } from "../../../autofill/services/
 import { didFillOccur, FillResult, shouldAutoCopyTotp } from "../../../autofill/types/fill-result";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 import { devFlagEnabled } from "../../../platform/flags";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
@@ -48,6 +53,20 @@ import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout
 })
 export class VaultPopupAutofillService {
   private _refreshCurrentTab$ = new Subject<void>();
+  /**
+   * Unlike a popup, the sidebar stays open while the user switches tabs or navigates, so the
+   * current tab must be re-evaluated on those events.
+   */
+  private sidebarTabChanged$: Observable<unknown> = defer(() =>
+    BrowserPopupUtils.inSidebar(window)
+      ? merge(
+          fromChromeEvent(chrome.tabs.onActivated),
+          fromChromeEvent(chrome.tabs.onUpdated).pipe(
+            filter(([, changeInfo, tab]) => tab.active && changeInfo.status === "complete"),
+          ),
+        )
+      : EMPTY,
+  );
   private senderTabId$: Observable<number | undefined> = this.route.queryParams.pipe(
     map((params) => (params?.senderTabId ? parseInt(params.senderTabId, 10) : undefined)),
   );
@@ -58,7 +77,7 @@ export class VaultPopupAutofillService {
    */
   currentAutofillTab$: Observable<chrome.tabs.Tab | null> = combineLatest([
     this.senderTabId$,
-    this._refreshCurrentTab$.pipe(startWith(null)),
+    merge(this._refreshCurrentTab$, this.sidebarTabChanged$).pipe(startWith(null)),
   ]).pipe(
     switchMap(async ([senderTabId]) => {
       if (senderTabId) {
