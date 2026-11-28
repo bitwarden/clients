@@ -18,9 +18,13 @@ export function fromSdkLocalData(
   if (localData == null) {
     return undefined;
   }
+  const lastUsedDate = localData.lastUsedDate ? new Date(localData.lastUsedDate) : undefined;
+  const lastLaunched = localData.lastLaunched ? new Date(localData.lastLaunched) : undefined;
   return {
-    lastUsedDate: localData.lastUsedDate ? new Date(localData.lastUsedDate).getTime() : undefined,
-    lastLaunched: localData.lastLaunched ? new Date(localData.lastLaunched).getTime() : undefined,
+    lastUsedDate:
+      lastUsedDate && !isNaN(lastUsedDate.getTime()) ? lastUsedDate.getTime() : undefined,
+    lastLaunched:
+      lastLaunched && !isNaN(lastLaunched.getTime()) ? lastLaunched.getTime() : undefined,
   };
 }
 
@@ -34,12 +38,12 @@ export function toSdkLocalData(
   if (localData == null) {
     return undefined;
   }
+  const lastUsedDate = localData.lastUsedDate ? new Date(localData.lastUsedDate) : undefined;
+  const lastLaunched = localData.lastLaunched ? new Date(localData.lastLaunched) : undefined;
   return {
-    lastUsedDate: localData.lastUsedDate
-      ? new Date(localData.lastUsedDate).toISOString()
-      : undefined,
-    lastLaunched: localData.lastLaunched
-      ? new Date(localData.lastLaunched).toISOString()
-      : undefined,
+    lastUsedDate:
+      lastUsedDate && !isNaN(lastUsedDate.getTime()) ? lastUsedDate.toISOString() : undefined,
+    lastLaunched:
+      lastLaunched && !isNaN(lastLaunched.getTime()) ? lastLaunched.toISOString() : undefined,
   };
 }
