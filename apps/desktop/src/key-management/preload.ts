@@ -1,4 +1,4 @@
-import { ipcRenderer } from "electron";
+import { ipcRenderer, IpcRendererEvent } from "electron";
 import { Jsonify } from "type-fest";
 
 import { UserKey } from "@bitwarden/common/types/key";
@@ -13,6 +13,12 @@ import {
   AutomationBiometricMessage,
   AutomationBiometricRequest,
 } from "./biometrics/automation-biometric-message";
+import {
+  UNLOCK_SESSIONS_CHANGED_CHANNEL,
+  UnlockSessionsResponse,
+  UnlockRequest,
+  UnlockResponse,
+} from "./unlock/unlock-ipc.types";
 
 const biometric = {
   authenticateWithBiometrics: (): Promise<boolean> =>
@@ -99,7 +105,22 @@ const automation = {
   },
 };
 
+// Unlock / session-state surface, owned by the main process.
+const unlock = {
+  getUnlockSessions: (): Promise<UnlockSessionsResponse> =>
+    ipcRenderer.invoke("keyManagement.getUnlockSessions"),
+  unlock: (request: UnlockRequest): Promise<UnlockResponse> =>
+    ipcRenderer.invoke("keyManagement.unlock", request),
+  onUnlockSessionsChanged: (callback: (sessions: UnlockSessionsResponse) => void): (() => void) => {
+    const wrapper = (_event: IpcRendererEvent, sessions: UnlockSessionsResponse) =>
+      callback(sessions);
+    ipcRenderer.on(UNLOCK_SESSIONS_CHANGED_CHANNEL, wrapper);
+    return () => ipcRenderer.removeListener(UNLOCK_SESSIONS_CHANGED_CHANNEL, wrapper);
+  },
+};
+
 export default {
   biometric,
   automation,
+  unlock,
 };

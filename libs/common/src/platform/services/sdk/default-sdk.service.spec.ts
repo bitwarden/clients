@@ -159,6 +159,40 @@ describe("DefaultSdkService", () => {
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
         });
 
+        it("calls onClientCreated once with the user's client, an extension point subclasses use", async () => {
+          class TestSdkService extends DefaultSdkService {
+            onClientCreatedCalls: Array<[UserId, PasswordManagerClient]> = [];
+
+            protected override async onClientCreated(
+              createdUserId: UserId,
+              client: PasswordManagerClient,
+            ): Promise<void> {
+              this.onClientCreatedCalls.push([createdUserId, client]);
+            }
+          }
+
+          const testService = new TestSdkService(
+            sdkClientFactory,
+            environmentService,
+            platformUtilsService,
+            accountService,
+            () => kdfConfigService,
+            () => keyService,
+            () => accountCryptographicStateService,
+            () => apiService,
+            fakeStateProvider,
+            () => configService,
+            upgradeTokenStateService,
+            mockManagedSettingsService(),
+            appIdService,
+            mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+          );
+
+          await firstValueFrom(testService.userClient$(userId));
+
+          expect(testService.onClientCreatedCalls).toEqual([[userId, mockClient]]);
+        });
+
         it("creates the SDK client with the app ID as the device identifier", async () => {
           await firstValueFrom(service.userClient$(userId));
 

@@ -295,6 +295,12 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
+  /**
+   * Extension point for a platform running more than one client for the same user at once, e.g.
+   * desktop's main and renderer. Does nothing by default.
+   */
+  protected async onClientCreated(userId: UserId, client: PasswordManagerClient): Promise<void> {}
+
   private async initializeClient(userId: UserId, client: PasswordManagerClient) {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
@@ -302,6 +308,7 @@ export class DefaultSdkService implements SdkService {
       .km_state_bridge()
       .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
     await this.loadFeatureFlags(client);
+    await this.onClientCreated(userId, client);
   }
 
   private async initializeClientCrypto(
