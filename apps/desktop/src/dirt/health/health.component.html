@@ -1,0 +1,16 @@
+<div class="tw-m-4 tw-p-4">
+  <app-header />
+  <div #viewRegion tabindex="-1" class="focus:tw-outline-none">
+    @if (!hasRunHealthScan()) {
+      <dirt-health-intro (onTriggerHealthScan)="handleHealthScan()" />
+    } @else if (loading()) {
+      <dirt-health-scanning />
+    } @else if (scanFailed()) {
+      <dirt-health-scan-error (retry)="handleRetry()" />
+    } @else if (report(); as report) {
+      <dirt-health-overview [report]="report" [locked]="locked()" (upgrade)="handleUpgrade()" />
+    } @else {
+      <dirt-health-scanning />
+    }
+  </div>
+</div>

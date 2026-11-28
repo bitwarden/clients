@@ -14,6 +14,9 @@
           [text]="'generator' | i18n"
           (mainContentClicked)="openGenerator()"
         />
+        @if (healthEnabled()) {
+          <bit-nav-item icon="bwi-health" [text]="'health' | i18n" route="health" />
+        }
         <bit-nav-item
           icon="bwi-download"
           [text]="'exportNoun' | i18n"
@@ -31,6 +34,9 @@
       }
 
       <bit-nav-item icon="bwi-generate" [text]="'generator' | i18n" (click)="openGenerator()" />
+      @if (healthEnabled()) {
+        <bit-nav-item icon="bwi-health" [text]="'health' | i18n" route="health" />
+      }
       @if (importUpgradeEnabled()) {
         <bit-nav-item icon="bwi-import" [text]="'importNoun' | i18n" route="import" />
       } @else {

@@ -1,0 +1,99 @@
+<div class="tw-px-8 tw-pb-6">
+  <app-header [title]="pageTitle()">
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb route="/health">{{ "health" | i18n }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]">{{ pageTitle() }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  </app-header>
+  <div>
+    @if (invalidCategory()) {
+      <!-- shown while the page routes back to the health overview -->
+    } @else if (loading()) {
+      <dirt-health-scanning />
+    } @else if (scanFailed()) {
+      <dirt-health-scan-error (retry)="handleRetry()" />
+    } @else if (report() == null) {
+      <!-- a scan is about to start; showing the empty state here would read as "all clear" -->
+      <dirt-health-scanning />
+    } @else if (rows().length > 0) {
+      <p bitTypography="body1" class="!tw-mb-6">
+        {{ contentKeys()?.descriptionKey | i18n }}
+      </p>
+      <bit-section>
+        <bit-section-header class="tw-mb-2">
+          <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
+          <span slot="end">{{ rows().length }}</span>
+        </bit-section-header>
+
+        <bit-item-group>
+          @for (row of rows(); track row.health.cipherId) {
+            @let health = row.health;
+            @let cipher = row.cipher;
+            <bit-item class="tw-flex tw-gap-2 tw-items-center" data-testid="health-detail-row">
+              <button bit-item-content type="button" (click)="onItemClick(cipher)">
+                <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+                  <app-vault-icon [cipher]="cipher"></app-vault-icon>
+                </div>
+                <span bitTypography="body1">
+                  {{ cipher.name }}
+                </span>
+                <div slot="secondary" class="tw-flex tw-flex-col">
+                  <span bitTypography="body2" class="tw-text-muted">
+                    {{ cipher.login.username }}
+                  </span>
+                </div>
+              </button>
+              <ng-container slot="end">
+                @if (cipher.login.uri != null) {
+                  <bit-item-action>
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      endIcon="bwi-external-link"
+                      data-testid="health-detail-change-password"
+                      [attr.aria-label]="'changePasswordFor' | i18n: cipher.name"
+                      (click)="onChangePassword(cipher)"
+                    >
+                      {{ "changePassword" | i18n }}
+                    </button>
+                  </bit-item-action>
+                }
+                <bit-item-action>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-more-horizontal"
+                    size="small"
+                    label="{{ 'optionsForItem' | i18n: cipher.name }}"
+                    [bitMenuTriggerFor]="itemMenu"
+                  ></button>
+                  <bit-menu #itemMenu>
+                    <button
+                      bitMenuItem
+                      type="button"
+                      variant="danger"
+                      data-testid="health-detail-delete"
+                      (click)="onDeleteItem(health, cipher)"
+                    >
+                      <bit-icon name="bwi-delete" slot="start" />
+                      {{ "deleteItem" | i18n }}
+                    </button>
+                  </bit-menu>
+                </bit-item-action>
+              </ng-container>
+            </bit-item>
+          }
+        </bit-item-group>
+      </bit-section>
+    } @else {
+      <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-py-12">
+        <bit-status-lockup class="tw-text-main">
+          <bit-svg slot="graphic" [content]="contentKeys()?.emptyIcon"></bit-svg>
+          <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+          <ng-container slot="description">{{ contentKeys()?.emptyKey | i18n }}</ng-container>
+        </bit-status-lockup>
+      </div>
+    }
+  </div>
+</div>

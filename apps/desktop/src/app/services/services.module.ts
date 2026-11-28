@@ -66,6 +66,12 @@ import { SsoUrlService } from "@bitwarden/common/auth/sso-login";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import {
+  DefaultHealthScanService,
+  DefaultVaultHealthReportService,
+  HealthScanService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
@@ -124,6 +130,7 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -242,6 +249,16 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: VaultHealthReportService,
+    useClass: DefaultVaultHealthReportService,
+    deps: [CipherRiskService, LogService],
+  }),
+  safeProvider({
+    provide: HealthScanService,
+    useClass: DefaultHealthScanService,
+    deps: [CipherServiceAbstraction, VaultHealthReportService, LogService],
+  }),
   safeProvider({
     provide: VFO1_WALKTHROUGH_STEPS,
     useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP, VFO1_FILTERS_STEP],

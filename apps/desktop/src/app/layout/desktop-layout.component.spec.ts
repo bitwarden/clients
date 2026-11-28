@@ -35,6 +35,7 @@ import {
 } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
+import { DesktopHealthAccessService } from "../../dirt/health";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
@@ -88,6 +89,7 @@ describe("DesktopLayoutComponent", () => {
 
   const flag$ = new BehaviorSubject<boolean>(false);
   const importUpgradeFlag$ = new BehaviorSubject<boolean>(false);
+  const healthEnabled$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>({
     vaults: [
       {
@@ -145,6 +147,7 @@ describe("DesktopLayoutComponent", () => {
     jest.clearAllMocks();
     flag$.next(false);
     importUpgradeFlag$.next(false);
+    healthEnabled$.next(false);
     canArchive$.next(true);
     archivedCiphers$.next([]);
 
@@ -185,6 +188,10 @@ describe("DesktopLayoutComponent", () => {
           }),
         },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
+        {
+          provide: DesktopHealthAccessService,
+          useValue: { healthEnabled$: () => healthEnabled$ },
+        },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
@@ -296,6 +303,56 @@ describe("DesktopLayoutComponent", () => {
         expect(rounded(nonMacFixture)).toBe(false);
       },
     );
+  });
+
+  describe("health nav item", () => {
+    describe.each([
+      {
+        branch: "legacy navigation",
+        vfo1: false,
+        expected: ["generator", "importNoun", "exportNoun"],
+      },
+      {
+        branch: "VFO1 navigation",
+        vfo1: true,
+        expected: [
+          "allItems",
+          "vaults",
+          "myVault",
+          "Acme",
+          "tools",
+          "generator",
+          "exportNoun",
+          "manage",
+          "myFolders",
+          "archiveNoun",
+          "trash",
+        ],
+      },
+    ])("$branch", ({ vfo1, expected }) => {
+      beforeEach(() => {
+        flag$.next(vfo1);
+      });
+
+      it("omits the Health item when Health is disabled", () => {
+        healthEnabled$.next(false);
+        fixture.detectChanges();
+
+        expect(navText()).toEqual(expected);
+      });
+
+      it("renders the Health item when Health is enabled", () => {
+        healthEnabled$.next(true);
+        fixture.detectChanges();
+
+        const generatorIndex = expected.indexOf("generator");
+        expect(navText()).toEqual([
+          ...expected.slice(0, generatorIndex + 1),
+          "health",
+          ...expected.slice(generatorIndex + 1),
+        ]);
+      });
+    });
   });
 
   describe("openImport", () => {

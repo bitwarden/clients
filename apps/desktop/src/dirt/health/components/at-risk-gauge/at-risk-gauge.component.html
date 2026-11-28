@@ -1,0 +1,46 @@
+<div
+  class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-size-36"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-valuenow]="percentage()"
+  [attr.aria-valuetext]="accessibleValueText()"
+  [attr.aria-label]="accessibleNameComputed()"
+>
+  <!-- Circumference is ~100 (r=15.9155), so the 270° arc is 75 units. Rotating by 135° centers the gap at the bottom. -->
+  <svg class="tw-size-full" viewBox="0 0 36 36" aria-hidden="true">
+    <g transform="rotate(135 18 18)">
+      <circle
+        class="tw-fill-none"
+        [class]="trackStrokeClass()"
+        cx="18"
+        cy="18"
+        r="15.9155"
+        stroke-width="3.35"
+        stroke-linecap="round"
+        stroke-dasharray="75 25"
+      ></circle>
+      <!-- Omitted when clean so the round line-cap can't leave a stray dot. -->
+      @if (fillFraction() > 0) {
+        <circle
+          class="tw-fill-none tw-stroke-danger-600"
+          cx="18"
+          cy="18"
+          r="15.9155"
+          stroke-width="3.35"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="fillDashArray()"
+        ></circle>
+      }
+    </g>
+  </svg>
+
+  <div class="tw-absolute tw-flex tw-flex-col tw-items-center tw-justify-center tw-leading-none">
+    <span class="tw-text-2xl tw-font-medium" [class]="percentageTextClass()"
+      >{{ percentage() }}%</span
+    >
+    <span bitTypography="body2" class="tw-font-semibold tw-text-fg-heading">{{
+      "atRisk" | i18n
+    }}</span>
+  </div>
+</div>

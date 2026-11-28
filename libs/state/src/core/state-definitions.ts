@@ -142,6 +142,7 @@ export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
 export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
   web: "disk-local",
 });
+export const DESKTOP_HEALTH_DISK = new StateDefinition("desktopHealth", "disk");
 
 // Platform
 
