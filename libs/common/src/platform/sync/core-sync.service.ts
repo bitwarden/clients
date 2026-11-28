@@ -15,12 +15,13 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { withPasswordManagerSdk } from "../../key-management/utils";
 import {
   SyncCipherNotification,
+  SyncCipherUserFieldsNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
-import { UserId } from "../../types/guid";
+import { CipherId, UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -219,6 +220,35 @@ export abstract class CoreSyncService implements SyncService {
       await this.cipherService.delete(notification.id, userId);
       this.messageSender.send("syncedDeletedCipher", { cipherId: notification.id });
       return this.syncCompleted(true, userId);
+    }
+    return this.syncCompleted(false, userId);
+  }
+
+  async syncCipherUserFields(
+    notification: SyncCipherUserFieldsNotification,
+    userId: UserId,
+  ): Promise<boolean> {
+    this.syncStarted();
+
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+    if (authStatus >= AuthenticationStatus.Locked) {
+      try {
+        const updated = await this.cipherService.updateUserFields(
+          notification.id as CipherId,
+          {
+            folderId: notification.folderId,
+            favorite: notification.favorite,
+            archivedDate: notification.archivedDate,
+          },
+          userId,
+        );
+        if (updated) {
+          this.messageSender.send("syncedUpsertedCipher", { cipherId: notification.id });
+          return this.syncCompleted(true, userId);
+        }
+      } catch (e) {
+        this.logService.error(e);
+      }
     }
     return this.syncCompleted(false, userId);
   }

@@ -28,6 +28,7 @@ import {
   NotificationResponse,
   PremiumStatusChangedNotification,
   SyncCipherNotification,
+  SyncCipherUserFieldsNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../../models/response/notification.response";
@@ -212,6 +213,12 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncLoginDelete:
         await this.syncService.syncDeleteCipher(
           notification.payload as SyncCipherNotification,
+          userId,
+        );
+        break;
+      case NotificationType.SyncCipherUserFields:
+        await this.syncService.syncCipherUserFields(
+          notification.payload as SyncCipherUserFieldsNotification,
           userId,
         );
         break;

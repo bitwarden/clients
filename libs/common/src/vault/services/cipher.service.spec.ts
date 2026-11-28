@@ -867,6 +867,58 @@ describe("Cipher Service", () => {
       expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ["favorite", { favorite: true }],
+      ["folder", { folderId: "3b1c9d2e-7f4a-4e6b-8c5d-2a9f0e1b7c64" }],
+      ["favorite and folder", { favorite: true, folderId: "3b1c9d2e-7f4a-4e6b-8c5d-2a9f0e1b7c64" }],
+    ])("saves user fields when an editor changes only %s (row 2)", async (_, change) => {
+      store(cipherData);
+      jest.spyOn(cipherService, "decrypt").mockImplementation(async () => view());
+      const request = view(change);
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateUserFieldsWithServer).toHaveBeenCalledWith(request, userId);
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+    });
+
+    it("edits the item when an editor changes item data with user fields (row 3)", async () => {
+      store(cipherData);
+      jest.spyOn(cipherService, "decrypt").mockImplementation(async () => view());
+      const request = view({ favorite: true, name: "changed" });
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalledWith(
+        request,
+        userId,
+        undefined,
+        undefined,
+      );
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
+    it("edits the item when an editor's cipher has no stored copy (row 3)", async () => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+      const request = view({ favorite: true });
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalled();
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
+    it("does not compare against a restricted stored copy for an editor (row 3)", async () => {
+      store(restrictedData);
+      const request = view({ favorite: true });
+
+      await cipherService.updateWithServer(request, userId, view());
+
+      expect(cipherService.decrypt).not.toHaveBeenCalled();
+      expect(cipherSdkService.updateWithRevealedOriginal).toHaveBeenCalled();
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+    });
+
     it("edits against the stored original when it is full (row 3)", async () => {
       store(cipherData);
       const request = view({ name: "changed" });
@@ -1826,6 +1878,42 @@ describe("Cipher Service", () => {
       const result = await state();
       expect(result[restrictedId]).toEqual(kept);
       expect(result[otherId]).toEqual(written);
+    });
+  });
+
+  describe("updateUserFields", () => {
+    const id = cipherData.id as CipherId;
+    // Clears the folder, to show a cleared field overwrites the stored one.
+    const fields: Pick<CipherData, "folderId" | "favorite" | "archivedDate"> = {
+      folderId: undefined,
+      favorite: true,
+      archivedDate: "2025-01-02T00:00:00.000Z",
+    };
+    const state = () =>
+      firstValueFrom(stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).state$);
+
+    it.each([
+      ["full", undefined],
+      ["restricted", "{}"],
+    ])("sets only the user fields on a stored %s copy", async (_, partialData) => {
+      const stored = { ...cipherData, partialData } as CipherData;
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({ [id]: stored });
+
+      const result = await cipherService.updateUserFields(id, fields, userId);
+
+      expect(result).toBe(true);
+      expect((await state())[id]).toEqual({ ...stored, ...fields });
+    });
+
+    it("does not write or clear the cache when the cipher is not stored", async () => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+
+      const result = await cipherService.updateUserFields(id, fields, userId);
+
+      expect(result).toBe(false);
+      expect(clearCache).not.toHaveBeenCalled();
+      expect(await state()).toEqual({});
     });
   });
 

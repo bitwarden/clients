@@ -293,6 +293,17 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     cipher: CipherData | CipherData[],
     userId?: UserId,
   ): Promise<Record<CipherId, CipherData>>;
+  /**
+   * Sets the user's per-user fields (folder, favorite, archived date) on a stored cipher, with no
+   * network call. Leaves the revision date and every other field alone.
+   *
+   * @returns false when the cipher is not stored, so nothing was written.
+   */
+  abstract updateUserFields(
+    id: CipherId,
+    fields: Pick<CipherData, "folderId" | "favorite" | "archivedDate">,
+    userId: UserId,
+  ): Promise<boolean>;
   abstract replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any>;
   abstract clear(userId?: string): Promise<void>;
   abstract moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any>;
