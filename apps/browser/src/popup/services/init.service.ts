@@ -10,6 +10,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { limitPerformanceMeasurements } from "@bitwarden/logging";
+import { FlightRecorderForwardingService } from "@bitwarden/logging-angular";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
@@ -22,6 +23,7 @@ export class InitService {
   private sizeService = inject(PopupSizeService);
   private themeService = inject(PopupThemeService);
   private automationDriver = inject(AutomationDriver);
+  private flightRecorderForwarding = inject(FlightRecorderForwardingService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -43,6 +45,9 @@ export class InitService {
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
       await this.ipcService.init();
+      void this.flightRecorderForwarding.enable({
+        BrowserBackground: { id: "Own" },
+      });
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();

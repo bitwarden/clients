@@ -13,15 +13,23 @@ export class FlightRecorder {
   /**
    * @param sdkReady - A promise that resolves when the SDK WASM has been loaded
    *   and initialized. Pass `SdkLoadService.Ready` in DI-enabled contexts.
+   * @param process - Process label for events not attributed to a process, which are the
+   *   events produced in this context (e.g. `"browser-popup"`).
    */
-  constructor(private readonly sdkReady: Promise<void>) {}
+  constructor(
+    private readonly sdkReady: Promise<void>,
+    private readonly process?: string,
+  ) {}
 
   /**
    * Read all events currently in the flight recorder buffer.
    */
   async read(): Promise<FlightRecorderEvent[]> {
     const client = await this.getClient();
-    return client.read();
+    const events = await client.read();
+    return events
+      .map((event) => ({ ...event, process: event.process ?? this.process }))
+      .sort((a, b) => a.timestamp - b.timestamp);
   }
 
   /**
