@@ -2,7 +2,10 @@ import { randomUUID } from "node:crypto";
 
 import { Account } from "../../credentials";
 import { Play } from "../../seeder/play";
-import { OrganizationAccessRuleScene } from "../../seeder/scenes/organization-access-rule.scene";
+import {
+  OrganizationAccessRuleArgs,
+  OrganizationAccessRuleScene,
+} from "../../seeder/scenes/organization-access-rule.scene";
 import { OrganizationCollectionScene } from "../../seeder/scenes/organization-collection.scene";
 import { OrganizationLoginCipherScene } from "../../seeder/scenes/organization-login-cipher.scene";
 import {
@@ -24,6 +27,17 @@ export type PamOrganization = {
 export type PamMember = {
   account: Account;
   organizationUserId: string;
+};
+
+/** What a seeded rule asks of a request, beyond the shared folder it governs. */
+export type AccessRuleConditions = Omit<
+  OrganizationAccessRuleArgs,
+  "organizationId" | "name" | "description" | "enabled" | "collectionIds"
+>;
+
+export type GatedItemOptions = AccessRuleConditions & {
+  /** Members besides `member` who can read the shared folder. */
+  otherMembers?: PamMember[];
 };
 
 export type SeededItem = {
@@ -65,15 +79,16 @@ export async function seedPamOrganization(play: Play): Promise<PamOrganization> 
   };
 }
 
-/** A confirmed member of the organization, with a PAM license unless `accessPam` is false. */
+/**
+ * A confirmed member of the organization, with a PAM license unless `accessPam` is false. A second
+ * member of the same organization needs an `email` of its own.
+ */
 export async function seedPamMember(
   play: Play,
   organization: PamOrganization,
-  { accessPam }: { accessPam?: boolean } = {},
+  { accessPam, email = "pam-member@example.com" }: { accessPam?: boolean; email?: string } = {},
 ): Promise<PamMember> {
-  const user = await play.scene(
-    new SingleUserScene({ email: "pam-member@example.com", password: randomUUID() }),
-  );
+  const user = await play.scene(new SingleUserScene({ email, password: randomUUID() }));
   const membership = await play.scene(
     new OrganizationUserScene({
       userId: user.result.userId,
@@ -93,14 +108,14 @@ export async function seedPamMember(
 
 /**
  * A login in a shared folder an access rule governs. The member can read the folder and the owner
- * manages it, which makes the owner the rule's approver. Without `requireHumanApproval` the rule
- * approves every request on its own.
+ * manages it, which makes the owner the rule's approver. With no conditions the rule approves every
+ * request on its own.
  */
 export async function seedGatedItem(
   play: Play,
   organization: PamOrganization,
   member: PamMember,
-  { requireHumanApproval }: { requireHumanApproval?: boolean } = {},
+  { otherMembers = [], ...conditions }: GatedItemOptions = {},
 ): Promise<SeededItem> {
   const { organizationId, organizationKeyB64 } = organization;
   const sharedFolder = await play.scene(
@@ -109,7 +124,12 @@ export async function seedGatedItem(
       organizationKeyB64,
       name: GATED_SHARED_FOLDER,
       users: [
-        { id: member.organizationUserId, readOnly: true, hidePasswords: false, manage: false },
+        ...[member, ...otherMembers].map(({ organizationUserId }) => ({
+          id: organizationUserId,
+          readOnly: true,
+          hidePasswords: false,
+          manage: false,
+        })),
         {
           id: organization.ownerOrganizationUserId,
           readOnly: false,
@@ -136,7 +156,7 @@ export async function seedGatedItem(
       organizationId,
       name: GATED_ITEM_RULE,
       collectionIds: [collectionId],
-      requireHumanApproval,
+      ...conditions,
     }),
   );
 
