@@ -127,6 +127,21 @@
             </a>
           </bit-hint>
         </bit-form-control>
+        <bit-form-control
+          *ngIf="enableInlineMenu && (filterInlineMenuByFieldValueAvailable$ | async)"
+          class="tw-ml-5"
+        >
+          <input
+            bitCheckbox
+            id="inline-menu-filter-by-field-value"
+            type="checkbox"
+            (change)="updateFilterInlineMenuByFieldValue()"
+            [(ngModel)]="filterInlineMenuByFieldValue"
+          />
+          <bit-label for="inline-menu-filter-by-field-value">
+            {{ "filterInlineMenuByFieldValueLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
         <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
           <input
             bitCheckbox

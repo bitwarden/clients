@@ -30,6 +30,7 @@ export enum FeatureFlag {
   FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  EnableInlineMenuFiltering = "enable-inline-menu-filtering",
   // Note: This flag gates security risks and should not be turned on without
   // changes to the underlying experience
   EnableBasicAuthResponse = "enable-basic-auth-response",
@@ -125,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
+  [FeatureFlag.EnableInlineMenuFiltering]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */

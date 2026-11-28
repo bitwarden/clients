@@ -8,6 +8,7 @@ type AutofillInlineMenuListMessage = { command: string };
 export type UpdateAutofillInlineMenuListCiphersParams = {
   ciphers: InlineMenuCipherData[];
   showInlineMenuAccountCreation?: boolean;
+  inlineMenuFilterIsActive?: boolean;
 };
 
 export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage &
@@ -26,6 +27,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   inlineMenuFillType?: InlineMenuFillType;
   showInlineMenuAccountCreation?: boolean;
   showPasskeysLabels?: boolean;
+  inlineMenuFilterIsActive?: boolean;
   portKey: string;
   token: string;
   generatedPassword?: string;

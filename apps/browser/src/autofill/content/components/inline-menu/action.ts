@@ -22,6 +22,11 @@ export type InlineMenuActionProps = {
   borderedTop?: boolean;
 };
 
+export type InlineMenuActionConfig = Pick<
+  InlineMenuActionProps,
+  "actionText" | "i18n" | "handleAction" | "handleKeyUp" | "icon" | "actionDataTestId"
+>;
+
 export function InlineMenuAction({
   actionText,
   i18n,

@@ -162,6 +162,9 @@ export class AutofillComponent implements OnInit {
   showInlineMenuIdentities: boolean = true;
   showInlineMenuCards: boolean = true;
   showInlineMenuSshKeys: boolean = true;
+  filterInlineMenuByFieldValue: boolean = false;
+  protected readonly filterInlineMenuByFieldValueAvailable$: Observable<boolean> =
+    this.autofillSettingsService.filterInlineMenuByFieldValueAvailable$;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -261,6 +264,10 @@ export class AutofillComponent implements OnInit {
 
     this.showInlineMenuSshKeys = await firstValueFrom(
       this.autofillSettingsService.showInlineMenuSshKeys$,
+    );
+
+    this.filterInlineMenuByFieldValue = await firstValueFrom(
+      this.autofillSettingsService.filterInlineMenuByFieldValue$,
     );
 
     this.enableInlineMenuOnIconSelect =
@@ -691,6 +698,12 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuSshKeys() {
     await this.autofillSettingsService.setShowInlineMenuSshKeys(this.showInlineMenuSshKeys);
+  }
+
+  async updateFilterInlineMenuByFieldValue() {
+    await this.autofillSettingsService.setFilterInlineMenuByFieldValue(
+      this.filterInlineMenuByFieldValue,
+    );
   }
 
   getMatchHints() {

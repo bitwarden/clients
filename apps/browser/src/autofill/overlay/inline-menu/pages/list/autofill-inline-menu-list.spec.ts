@@ -183,6 +183,49 @@ describe("AutofillInlineMenuList", () => {
         ).toBeNull();
       });
 
+      it("renders the Lit show all items action with the new item action when the empty list is filtered", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            inlineMenuFilterIsActive: true,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            actionDataTestId: "inline-menu-new-item-button",
+            secondaryAction: expect.objectContaining({
+              actionDataTestId: "inline-menu-show-all-items-button",
+            }),
+          }),
+        );
+      });
+
+      it("renders the Lit show all items action below a filtered cipher list", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [createAutofillOverlayCipherDataMock(1)],
+            inlineMenuFilterIsActive: true,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            newItem: expect.objectContaining({
+              actionDataTestId: "inline-menu-show-all-items-button",
+            }),
+          }),
+        );
+      });
+
       it("allows the user to add a vault item from the Lit empty-state prompt", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
@@ -851,6 +894,66 @@ describe("AutofillInlineMenuList", () => {
             addNewCipherType: CipherType.Login,
             token: "test-token",
           },
+          expectedOrigin,
+        );
+      });
+    });
+
+    describe("the show all items button for a filtered list", () => {
+      const getShowAllItemsButton = () =>
+        autofillInlineMenuList["inlineMenuListContainer"].querySelector("#show-all-items-button");
+
+      beforeEach(() => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
+      });
+
+      it("does not render the button when the list is not filtered", async () => {
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [createAutofillOverlayCipherDataMock(1)],
+          token: "test-token",
+        });
+        await flushPromises();
+
+        expect(getShowAllItemsButton()).toBeNull();
+      });
+
+      it("renders the button when the list is filtered, including when nothing matches", async () => {
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [createAutofillOverlayCipherDataMock(1)],
+          inlineMenuFilterIsActive: true,
+          token: "test-token",
+        });
+        await flushPromises();
+        expect(getShowAllItemsButton()).not.toBeNull();
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [],
+          inlineMenuFilterIsActive: true,
+          token: "test-token",
+        });
+        await flushPromises();
+        expect(getShowAllItemsButton()).not.toBeNull();
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button"),
+        ).not.toBeNull();
+      });
+
+      it("asks the background to show all items when clicked", async () => {
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [createAutofillOverlayCipherDataMock(1)],
+          inlineMenuFilterIsActive: true,
+          token: "test-token",
+        });
+        await flushPromises();
+
+        getShowAllItemsButton().dispatchEvent(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({ command: "showAllInlineMenuItems", token: "test-token" }),
           expectedOrigin,
         );
       });

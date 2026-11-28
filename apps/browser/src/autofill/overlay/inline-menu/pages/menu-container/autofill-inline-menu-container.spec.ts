@@ -175,6 +175,15 @@ describe("AutofillInlineMenuContainer", () => {
       expect(port.postMessage).not.toHaveBeenCalled();
     });
 
+    it("posts a showAllInlineMenuItems message from the inline menu iframe to the background", () => {
+      const token = autofillInlineMenuContainer["token"];
+      const message = { command: "showAllInlineMenuItems", portKey, token };
+
+      postWindowMessage(message, "null", iframe.contentWindow as any);
+
+      expect(port.postMessage).toHaveBeenCalledWith(message);
+    });
+
     it("ignores messages from iframe with commands not in the allowlist", () => {
       const token = autofillInlineMenuContainer["token"];
       const message = { command: "maliciousCommand", portKey, token };

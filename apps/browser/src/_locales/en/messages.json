@@ -2307,6 +2307,9 @@
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
   },
+  "filterInlineMenuByFieldValueLabel": {
+    "message": "Filter suggestions by entered field values"
+  },
   "howDoesBitwardenProtectFromPhishing": {
     "message": "How does Bitwarden protect your data from phishing?"
   },
@@ -5234,6 +5237,10 @@
   "newItem": {
     "message": "New item",
     "description": "Button text to display in overlay when there are no matching items"
+  },
+  "inlineMenuShowAllItems": {
+    "message": "Show all items",
+    "description": "Button text to display in overlay when suggestions are filtered by the entered field value"
   },
   "addNewVaultItem": {
     "message": "Add new vault item",

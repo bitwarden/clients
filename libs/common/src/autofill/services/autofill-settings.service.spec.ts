@@ -18,6 +18,7 @@ describe("AutofillSettingsService", () => {
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
   let featureFlag$: BehaviorSubject<boolean>;
+  let inlineMenuFilteringFlag$: BehaviorSubject<boolean>;
   let autofillSettingsService: AutofillSettingsService;
 
   const collectEmissions = (observable$: Observable<boolean>) => {
@@ -35,6 +36,11 @@ describe("AutofillSettingsService", () => {
     configService.getFeatureFlag$
       .calledWith(FeatureFlag.EnableBasicAuthResponse)
       .mockReturnValue(featureFlag$);
+
+    inlineMenuFilteringFlag$ = new BehaviorSubject<boolean>(true);
+    configService.getFeatureFlag$
+      .calledWith(FeatureFlag.EnableInlineMenuFiltering)
+      .mockReturnValue(inlineMenuFilteringFlag$);
 
     autofillSettingsService = new AutofillSettingsService(
       stateProvider,
@@ -102,6 +108,58 @@ describe("AutofillSettingsService", () => {
 
       expect(emissions).toEqual([true]);
       subscription.unsubscribe();
+    });
+  });
+
+  describe("filterInlineMenuByFieldValue$", () => {
+    it("emits false by default", async () => {
+      await expect(
+        firstValueFrom(autofillSettingsService.filterInlineMenuByFieldValue$),
+      ).resolves.toBe(false);
+    });
+
+    it("emits the stored value when the feature flag is on", async () => {
+      await autofillSettingsService.setFilterInlineMenuByFieldValue(true);
+
+      await expect(
+        firstValueFrom(autofillSettingsService.filterInlineMenuByFieldValue$),
+      ).resolves.toBe(true);
+    });
+
+    it("emits false when the feature flag is off, even if the stored value is true", async () => {
+      inlineMenuFilteringFlag$.next(false);
+      await autofillSettingsService.setFilterInlineMenuByFieldValue(true);
+
+      await expect(
+        firstValueFrom(autofillSettingsService.filterInlineMenuByFieldValue$),
+      ).resolves.toBe(false);
+    });
+
+    it("follows changes to the feature flag", async () => {
+      await autofillSettingsService.setFilterInlineMenuByFieldValue(true);
+      const { emissions, subscription } = collectEmissions(
+        autofillSettingsService.filterInlineMenuByFieldValue$,
+      );
+
+      inlineMenuFilteringFlag$.next(false);
+      inlineMenuFilteringFlag$.next(true);
+
+      expect(emissions).toEqual([true, false, true]);
+      subscription.unsubscribe();
+    });
+  });
+
+  describe("filterInlineMenuByFieldValueAvailable$", () => {
+    it("reflects the feature flag", async () => {
+      await expect(
+        firstValueFrom(autofillSettingsService.filterInlineMenuByFieldValueAvailable$),
+      ).resolves.toBe(true);
+
+      inlineMenuFilteringFlag$.next(false);
+
+      await expect(
+        firstValueFrom(autofillSettingsService.filterInlineMenuByFieldValueAvailable$),
+      ).resolves.toBe(false);
     });
   });
 });

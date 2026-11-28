@@ -177,6 +177,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private currentInlineMenuCiphersCount: number = 0;
   private currentAddNewItemData: CurrentAddNewItemData | null = null;
   private focusedFieldData: FocusedFieldData | null = null;
+  private focusedFieldValue: string = "";
+  private showAllInlineMenuItems: boolean = false;
+  private inlineMenuFilterIsActive: boolean = false;
   private allFieldData: AutofillField[] = [];
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -199,6 +202,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
+    updateFocusedFieldValue: ({ message, sender }) => this.updateFocusedFieldValue(message, sender),
+    getFilterInlineMenuByFieldValue: () => this.getFilterInlineMenuByFieldValue(),
     updateIsFieldCurrentlyFocused: ({ message, sender }) =>
       this.updateIsFieldCurrentlyFocused(message, sender),
     checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
@@ -260,6 +265,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
+    showAllInlineMenuItems: ({ port }) => this.showAllItemsInInlineMenu(port),
   };
 
   constructor(
@@ -552,6 +558,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ciphers,
       showInlineMenuAccountCreation: this.shouldShowInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
+      inlineMenuFilterIsActive: this.inlineMenuFilterIsActive,
       focusedFieldHasValue: await this.checkFocusedFieldHasValue(tab),
     });
   }
@@ -642,7 +649,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       firstValueFrom(this.environmentService.environment$),
     ]);
     const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
-    const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    const unfilteredInlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    const inlineMenuCiphersArray = await this.filterInlineMenuCiphersByFieldValue(
+      unfilteredInlineMenuCiphersArray,
+    );
     let inlineMenuCipherData: InlineMenuCipherData[];
     this.showPasskeysLabelsWithinInlineMenu = false;
 
@@ -660,8 +670,105 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
+    // A filtered list that matches nothing still offers "Show all items", so the menu remains populated.
+    this.currentInlineMenuCiphersCount = this.inlineMenuFilterIsActive
+      ? unfilteredInlineMenuCiphersArray.length
+      : inlineMenuCipherData.length;
     return inlineMenuCipherData;
+  }
+
+  /**
+   * Narrows the page-matched ciphers to those whose username starts with the value entered
+   * in the focused username/email field, or, when no username matches, whose name starts with
+   * it. Never adds ciphers to the list. Sets
+   * `inlineMenuFilterIsActive` to indicate whether the returned list is filtered.
+   *
+   * @param inlineMenuCiphersArray - The page-matched inline menu ciphers
+   */
+  private async filterInlineMenuCiphersByFieldValue(
+    inlineMenuCiphersArray: [string, CipherView][],
+  ): Promise<[string, CipherView][]> {
+    this.inlineMenuFilterIsActive = false;
+    const fieldValue = this.focusedFieldValue.trim().toLowerCase();
+
+    if (
+      !fieldValue ||
+      !inlineMenuCiphersArray.length ||
+      this.showAllInlineMenuItems ||
+      this.focusedFieldData?.inlineMenuFillType !== CipherType.Login ||
+      this.shouldShowInlineMenuAccountCreation() ||
+      !(await this.getFilterInlineMenuByFieldValue())
+    ) {
+      return inlineMenuCiphersArray;
+    }
+
+    this.inlineMenuFilterIsActive = true;
+    const usernameMatches = inlineMenuCiphersArray.filter(([, cipher]) =>
+      cipher.login?.username?.trim().toLowerCase().startsWith(fieldValue),
+    );
+    if (usernameMatches.length) {
+      return usernameMatches;
+    }
+
+    return inlineMenuCiphersArray.filter(([, cipher]) =>
+      cipher.name?.trim().toLowerCase().startsWith(fieldValue),
+    );
+  }
+
+  /**
+   * Gets the setting that enables filtering the inline menu ciphers by the focused field's value.
+   */
+  private async getFilterInlineMenuByFieldValue(): Promise<boolean> {
+    return await firstValueFrom(this.autofillSettingsService.filterInlineMenuByFieldValue$);
+  }
+
+  /**
+   * Stores the value of the focused username/email field and, when the inline menu list
+   * is open, refreshes it so it reflects the filtered ciphers. The value is stored even when
+   * the list is closed so a list opened later is filtered by the current value.
+   *
+   * @param focusedFieldValue - The current value of the focused field
+   * @param sender - The sender of the extension message
+   */
+  private async updateFocusedFieldValue(
+    { focusedFieldValue }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (!sender.tab || !this.senderFrameHasFocusedField(sender)) {
+      return;
+    }
+
+    const previousFocusedFieldValue = this.focusedFieldValue;
+    this.focusedFieldValue = this.toFieldValueString(focusedFieldValue);
+    if (this.focusedFieldValue !== previousFocusedFieldValue) {
+      // "Show all items" only applies to the value that was filtered when it was chosen.
+      this.showAllInlineMenuItems = false;
+    }
+
+    if (this.inlineMenuListPort) {
+      await this.updateInlineMenuListCiphers(sender.tab);
+    }
+  }
+
+  /**
+   * Content script messages are not type-checked at runtime, so only strings are accepted.
+   */
+  private toFieldValueString(fieldValue: unknown): string {
+    return typeof fieldValue === "string" ? fieldValue : "";
+  }
+
+  /**
+   * Displays the unfiltered ciphers in the inline menu list until a different field is focused.
+   *
+   * @param port - The inline menu list port that sent the message
+   */
+  private async showAllItemsInInlineMenu(port: chrome.runtime.Port) {
+    if (!port.sender?.tab) {
+      return;
+    }
+
+    this.showAllInlineMenuItems = true;
+    await this.updateInlineMenuListCiphers(port.sender.tab);
   }
 
   /**
@@ -2108,6 +2215,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const previousFocusedFieldData = this.focusedFieldData;
     const frameId = sender.frameId !== null && sender.frameId !== undefined ? sender.frameId : 0;
+    if (
+      previousFocusedFieldData?.tabId !== sender.tab.id ||
+      previousFocusedFieldData?.frameId !== frameId ||
+      previousFocusedFieldData?.focusedFieldOpid !== focusedFieldData.focusedFieldOpid
+    ) {
+      // The typed value and "Show all items" belong to the field they were entered in. Focused
+      // field data is also re-sent for the same field (ArrowDown, repositioning), which keeps them.
+      this.showAllInlineMenuItems = false;
+      this.focusedFieldValue = "";
+    }
     this.focusedFieldData = {
       ...focusedFieldData,
       tabId: sender.tab.id,
@@ -2690,6 +2807,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "addNewIdentityItemAria",
         "addNewLoginItemAria",
         "addNewVaultItem",
+        "inlineMenuShowAllItems",
         "authenticating",
         "cardNumberEndsWith",
         "fillCredentialsFor",
@@ -3581,6 +3699,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         : AutofillOverlayPort.ButtonMessageConnector,
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
+      inlineMenuFilterIsActive: this.inlineMenuFilterIsActive,
       generatedPassword: showInlineMenuPasswordGenerator ? this.credential$.value : null,
       showSaveLoginMenu,
       showInlineMenuAccountCreation,

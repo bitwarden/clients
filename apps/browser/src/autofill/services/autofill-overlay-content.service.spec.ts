@@ -546,6 +546,132 @@ describe("AutofillOverlayContentService", () => {
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
         });
 
+        it("sends the username field value and keeps the inline menu list open when filtering is enabled", async () => {
+          autofillOverlayContentService["filterInlineMenuByFieldValue"] = true;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateFocusedFieldValue", {
+            focusedFieldValue: "test",
+          });
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "closeAutofillInlineMenu",
+            expect.anything(),
+          );
+        });
+
+        it("sends an empty value when the username field is cleared so the filter is removed", async () => {
+          autofillOverlayContentService["filterInlineMenuByFieldValue"] = true;
+          (autofillFieldElement as HTMLInputElement).value = "";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateFocusedFieldValue", {
+            focusedFieldValue: "",
+          });
+        });
+
+        it("does not send the field value for an untrusted input event when filtering is enabled", async () => {
+          autofillOverlayContentService["filterInlineMenuByFieldValue"] = true;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          jest.mocked(EventSecurity.isEventTrusted).mockReturnValue(false);
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateFocusedFieldValue",
+            expect.anything(),
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            overlayElement: AutofillOverlayElement.List,
+            forceCloseInlineMenu: true,
+          });
+        });
+
+        it("does not include the field value in the focused field data", async () => {
+          autofillOverlayContentService["filterInlineMenuByFieldValue"] = true;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(autofillOverlayContentService["focusedFieldData"]).not.toHaveProperty(
+            "focusedFieldValue",
+          );
+        });
+
+        it("does not send the field value when filtering is disabled", async () => {
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateFocusedFieldValue",
+            expect.anything(),
+          );
+        });
+
+        it("does not send the value of a password field when filtering is enabled", async () => {
+          autofillOverlayContentService["filterInlineMenuByFieldValue"] = true;
+          const passwordFieldElement = document.getElementById(
+            "password-field",
+          ) as ElementWithOpId<FillableFormFieldElement>;
+          passwordFieldElement.value = "secret";
+          const passwordFieldData = createAutofillFieldMock({
+            opid: "password-field",
+            form: "validFormId",
+            elementNumber: 2,
+            type: "password",
+          });
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            passwordFieldElement,
+            passwordFieldData,
+            pageDetailsMock,
+          );
+          passwordFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateFocusedFieldValue",
+            expect.anything(),
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "closeAutofillInlineMenu",
+            expect.anything(),
+          );
+        });
+
         it("opens the inline menu if the field does not have a value", async () => {
           await autofillOverlayContentService.setupOverlayListeners(
             autofillFieldElement,
