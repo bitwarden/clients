@@ -64,6 +64,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // TODO Add handling of multiple vaults
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
+      const folderName = vault.attrs.name;
       vault.items.forEach((item: Item) => {
         // Snapshot folder state so a mid-item failure can be rolled back cleanly — no dangling
         // relationship and no empty folder left behind.
@@ -72,6 +73,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
         try {
           const cipher = this.initLoginCipher();
+          this.processFolder(this.result, folderName);
 
           const category = item.categoryUuid as Category;
           switch (category) {
@@ -155,6 +157,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           if (!this.isNullOrWhitespace(item.details.notesPlain)) {
             cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n").trimEnd();
           }
+          this.processKvp(cipher, "1password uuid", item.uuid, FieldType.Text);
 
           this.convertToNoteIfNeeded(cipher);
           this.cleanupCipher(cipher);
@@ -163,8 +166,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           // schema only tells us an item is archived, not WHEN it was archived,
           // so we stamp the import time — this matches the behaviour of archiving
           // a cipher manually in Bitwarden after the import.
+          // archived items can't be edited, so the correct date is the revision date.
           if (item.state === "archived") {
-            cipher.archivedDate = new Date();
+            cipher.archivedDate = new Date(
+              ("" + item.updatedAt).length >= 13 ? item.updatedAt : item.updatedAt * 1000,
+            );
           }
 
           this.result.ciphers.push(cipher);
@@ -215,8 +221,9 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     if (overview.tags != null && overview.tags.length > 0) {
-      const folderName = this.capitalize(overview.tags[0]);
-      this.processFolder(this.result, folderName);
+      overview.tags.forEach((tag) => {
+        this.processKvp(cipher, "tag", tag, FieldType.Text);
+      });
     }
   }
 
