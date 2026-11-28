@@ -25,6 +25,8 @@ interface ImportDialogData {
   defaultOrganizationId?: string;
   /** Pre-selects a collection in the import form; only applied when defaultOrganizationId is also set */
   defaultCollectionId?: string;
+  /** Pre-selects a folder in the import form when the personal vault is the destination */
+  defaultFolderId?: string;
 }
 
 @Component({
@@ -62,9 +64,10 @@ export class ImportDialogComponent {
     dialogService: DialogService,
     defaultOrganizationId?: string,
     defaultCollectionId?: string,
+    defaultFolderId?: string,
   ): DialogRef {
     return dialogService.open(ImportDialogComponent, {
-      data: { defaultOrganizationId, defaultCollectionId },
+      data: { defaultOrganizationId, defaultCollectionId, defaultFolderId },
     });
   }
 }

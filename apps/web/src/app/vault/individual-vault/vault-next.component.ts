@@ -810,6 +810,7 @@ export class VaultNextComponent implements OnInit {
       this.dialogService,
       this.scopedOrganizationId(),
       this.scopedCollectionId(),
+      this.scopedFolderId(),
     );
   }
 }
