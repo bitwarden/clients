@@ -35,10 +35,8 @@ export enum FeatureFlag {
   EnableBasicAuthResponse = "enable-basic-auth-response",
 
   /* Desktop Native */
-  MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
-  WindowsNativeCredentialSync = "windows-native-credential-sync",
   SSHecdsa = "ssh-ecdsa",
 
   /* Billing */
@@ -128,10 +126,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
-  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
-  [FeatureFlag.WindowsNativeCredentialSync]: FALSE,
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */

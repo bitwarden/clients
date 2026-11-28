@@ -105,9 +105,9 @@ export type AutofillIpcResponse<K extends AutofillIpcChannelIncoming> =
  * correlation).
  */
 export const AutofillIpcChannelControl = Object.freeze({
+  Enable: "autofill.enable",
   GetAppWindowHandle: "autofill.getAppWindowHandle",
   GetPasskeyProviderState: "autofill.getPasskeyProviderState",
   ListenerReady: "autofill.listenerReady",
   RunCommand: "autofill.runCommand",
-  SetEnabled: "autofill.setEnabled",
 } as const);
