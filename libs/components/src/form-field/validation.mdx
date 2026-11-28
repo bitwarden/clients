@@ -1,0 +1,222 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./validation.stories";
+
+<Meta title="Component Library/Form/Validation" />
+
+# Form Validation
+
+This page covers how form validation works across our Angular clients: how an error becomes visible,
+how to express a rule, when it runs, and what happens when the server has the final say.
+
+## Principles
+
+**Validation happens on both the client and the server.** Some checks can only run on one side: the
+server can't inspect end-to-end-encrypted Vault Data, while a check like "is this value already
+taken?" can only be answered by the server. Expect both — and expect
+[server errors at submit](#server-reconciliation-at-submit) as a normal case, not a gap.
+
+**Most errors share one path.** Built-in validators, custom async checks, and field-attributable
+server errors all end up as a [`ValidationErrors`][validation-errors] object on a control and render
+inline the same way. Only errors that can't be tied to a field fall back to a toast.
+
+## Rendering errors
+
+Errors are shown two ways. **Inline, contextual errors are preferred** — they sit next to the field
+they describe. **Toasts** are the fallback for errors that can't be tied to a specific field.
+
+Inline errors come from a control's `ValidationErrors` — a map of error key to value. `bit-error`
+renders the first error on the control:
+
+- known keys (`required`, `email`, `minlength`, `forbiddenCharacters`, `trim`, …) get a translated,
+  interpolated message;
+- anything else falls back to the error value's `message` property:
+
+```ts
+return { emailTaken: { message: "This email address is already in use." } };
+```
+
+Two components render control errors:
+
+- **`bit-error`** — the message beneath the field; `bit-form-field` includes it automatically.
+- **[`bit-error-summary`][bit-error-summary]** — a count ("3 fields above need your attention") for
+  a `formGroup`, near the submit button. Counts dirty/touched errors only; renders no text.
+
+Toasts are shown via `ValidationService.showError`, usually for errors the server returns at submit.
+Use them only when the error can't be attributed to a field — see
+[server reconciliation](#server-reconciliation-at-submit).
+
+> **i18n is the validator's responsibility.** Because the fallback renders `message` verbatim,
+> resolve the string through `I18nService` in the component or factory that builds the validator,
+> and pass the translated text in. Don't hand `bit-error` an untranslated key it doesn't know.
+
+## Synchronous validators
+
+Use these when the answer is available immediately — from the field's own value, sibling fields, or
+data already loaded into memory.
+
+### Provided validators
+
+Angular's [`Validators`][validators] (`required`, `email`, `minLength`, `min`/`max`, …) and our
+shared validators in `libs/components/src/form-field/bit-validators` (`forbiddenCharacters`,
+`trimValidator`) come ready to use, with messages already wired up. Reach for these before writing
+your own.
+
+<Canvas of={stories.Validations} />
+
+### Your own validator
+
+A `ValidatorFn` is just a function from a control to errors-or-null. Write a factory when the rule
+needs configuration, and close over it. The example below validates against a list of claimed
+domains that was fetched once when the dialog opened — the data lives on the client, so the check
+stays synchronous:
+
+```ts
+// `message` is resolved via I18nService by the caller and passed in (see the i18n note above).
+function claimedDomainValidator(claimedDomains: string[], message: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const domain = (control.value ?? "").split("@")[1]?.toLowerCase();
+    if (!domain || claimedDomains.includes(domain)) {
+      return null;
+    }
+    return { unclaimedDomain: { message } };
+  };
+}
+```
+
+<Canvas of={stories.PreFetchedData} />
+
+### Cross-field validators
+
+These validate the relationship between controls, so they go on the `FormGroup`, not a single
+control, and set the error on the control that should display it:
+
+```ts
+// "Passwords must match" — added to the FormGroup, error shown on the confirm field.
+function passwordsMatchValidator(message: string): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const password = group.get("password");
+    const confirm = group.get("confirmPassword");
+    if (!password || !confirm || password.value === confirm.value) {
+      return null;
+    }
+    confirm.setErrors({ passwordMismatch: { message } });
+    return { passwordMismatch: { message } };
+  };
+}
+```
+
+For a configurable version, see the `compareInputs` validator in `libs/auth`.
+
+## Asynchronous validators
+
+Use an [`AsyncValidatorFn`][async-validators] when getting the answer requires awaiting something.
+Often that's a server lookup — "is this email already taken?" — but not always: much of our service
+layer (vault, state, crypto) is Promise/Observable-based, so client-side checks that read decrypted
+data or query a store are async too. (A server-side check usually needs a dedicated endpoint just
+for validation, separate from our reusable GETs.)
+
+```ts
+// Returns an Observable so Angular can cancel a superseded check (see below).
+function emailNotTakenValidator(api: AccountApi, message: string): AsyncValidatorFn {
+  return (control: AbstractControl): Observable<ValidationErrors | null> =>
+    api
+      .isEmailTaken(control.value)
+      .pipe(map((taken) => (taken ? { emailTaken: { message } } : null)));
+}
+```
+
+<Canvas of={stories.AsyncValidation} />
+
+Three things to get right:
+
+**Return an Observable to get cancellation for free.** When a control re-runs its async validators,
+Angular unsubscribes from the previous run before starting the new one. Returning an `Observable`
+(e.g. `this.api.checkEmail(value)`) gives you `switchMap`-style cancellation automatically — you do
+not debounce or `switchMap` yourself. A `Promise` still has its superseded result ignored, but the
+in-flight request can't be cancelled, so prefer an Observable when the check is expensive.
+
+**Surface the in-progress state.** While async validation runs, the control's `pending` flag is
+`true`. `bit-form-field` has no built-in spinner for this yet, so show it yourself — the example
+above swaps its hint for a "Checking availability…" message keyed off `control.pending`.
+
+**Pair it with the right timing** — almost always `blur` (see below).
+
+## Validation timing
+
+`updateOn` controls when a control runs its validators, and it matters most for async and expensive
+checks. Set it per control (or per group):
+
+```ts
+email: [
+  "",
+  {
+    updateOn: "blur", // run when the user leaves the field, not on every keystroke
+    validators: [Validators.required, Validators.email],
+    asyncValidators: [emailNotTakenValidator()],
+  },
+],
+```
+
+- `"change"` (default) — every keystroke. Fine for cheap sync checks; wrong for async or expensive
+  ones.
+- `"blur"` — when the field loses focus. The right default for async/expensive validation.
+- `"submit"` — only on submit. Used by `trimValidator`, which mutates the value.
+
+Validation must also run on submit, because the user can submit without ever blurring a field. Call
+`formGroup.markAllAsTouched()` in your submit handler so untouched-but-invalid fields reveal their
+errors — and so `bit-error-summary` counts them.
+
+## Server reconciliation at submit
+
+Some checks can only be settled by the server, so even with everything above in place a submit can
+still come back invalid: a value that was free at blur got taken before submit, or the request
+failed outright. These split into two cases that are handled differently.
+
+**Attributable failures** — the server rejects for a reason you can tie to a specific field. Map it
+onto the control with the same `message` contract as any other error, and `markAsTouched()` so it
+renders. No toast. This is the pattern already used in auth flows (new-device verification, login):
+
+<Canvas of={stories.ServerErrorInline} />
+
+```ts
+submit = async () => {
+  if (this.formGroup.invalid) {
+    return;
+  }
+  try {
+    await this.api.createMember(this.formGroup.value);
+  } catch (e) {
+    // Attributable to a field → render inline like any other error.
+    if (isEmailTakenError(e)) {
+      const email = this.formGroup.controls.email;
+      email.setErrors({ serverError: { message: this.i18n.t("emailAlreadyTaken") } });
+      email.markAsTouched();
+      return;
+    }
+    // Unattributable (infra, bug) → rethrow; bitSubmit shows the danger toast.
+    throw e;
+  }
+};
+```
+
+**Unattributable failures** — infrastructure errors, bugs, anything you can't pin to a field. There
+is nothing to render inline, so the danger toast is the honest fallback. By default
+[`bitSubmit`][async-forms] routes any uncaught error to `ValidationService.showError`, which shows
+that toast — so rethrowing (or simply not catching) already gives you the right behavior.
+
+This is the answer to "no toasts ever": attributable failures move inline, and the toast shrinks to
+the genuinely-unexpected tail it was always meant for.
+
+## Accessibility
+
+Inline errors, required-field labelling, and the announce-on-blur behavior are covered in the
+[Forms guide](?path=/docs/component-library-form--docs#accessibility). The same rules apply to every
+validator on this page regardless of where its verdict comes from.
+
+[validation-errors]: https://angular.io/api/forms/ValidationErrors
+[validators]: https://angular.io/api/forms/Validators
+[async-validators]: https://angular.io/api/forms/AsyncValidator
+[bit-error]: ?path=/docs/component-library-form--docs
+[bit-error-summary]: ?path=/docs/component-library-form--docs
+[async-forms]: ?path=/docs/component-library-async-actions-in-forms-documentation--docs
