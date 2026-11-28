@@ -41,15 +41,13 @@ export class IpcContentScriptManagerService {
         continue;
       }
 
-      try {
-        await BrowserApi.executeScriptInTab(tab.id, {
-          file: IPC_CONTENT_SCRIPT_FILE,
-          runAt: "document_start",
-        });
-      } catch {
-        // Per-tab failures (closed tab, restricted URL, etc.) shouldn't abort
-        // the rest of the re-injection pass.
-      }
+      // Don't await so that a bad tab (busy, dialog, etc) can't block.
+      BrowserApi.executeScriptInTab(tab.id, {
+        file: IPC_CONTENT_SCRIPT_FILE,
+        runAt: "document_start",
+      }).catch(() => {
+        // Ignore per-tab failures (closed tab, restricted URL, etc.)
+      });
     }
   }
 }
