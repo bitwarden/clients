@@ -4,6 +4,7 @@ import {
   DesktopAutotypeDefaultSettingPolicy,
   DesktopAutotypeGaPolicy,
   FillAssistPolicy,
+  ManageItemTypesPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
   OrganizationUserNotificationPolicy,
@@ -32,7 +33,10 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new RequireSsoPolicy(),
   new OrganizationDataOwnershipPolicy(),
   new SendControlsPolicy(),
+  // Legacy card-only policy: only displayed when the new item types flag is off
   new RestrictedItemTypesPolicy(),
+  // Manage item types: only displayed when the new item types flag is on
+  new ManageItemTypesPolicy(),
   // Autotype MVP only: only displayed when the Autotype MVP feature flag is on and GA is off
   new DesktopAutotypeDefaultSettingPolicy(),
   // Autotype GA only: only displayed when the Autotype GA feature flag is on and MVP is off
