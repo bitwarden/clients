@@ -2,7 +2,6 @@ import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -14,7 +13,6 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -64,7 +62,6 @@ import { EmergencyAccessService } from "./emergency-access.service";
 
 describe("EmergencyAccessService", () => {
   let emergencyAccessApiService: MockProxy<EmergencyAccessApiService>;
-  let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
   let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
@@ -75,13 +72,10 @@ describe("EmergencyAccessService", () => {
   let sdkService: MockSdkService;
   let configService: MockProxy<ConfigService>;
 
-  const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
   const mockUserId = newGuid() as UserId;
 
   beforeAll(() => {
     emergencyAccessApiService = mock<EmergencyAccessApiService>();
-    apiService = mock<ApiService>();
     keyService = mock<KeyService>();
     legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
@@ -93,7 +87,6 @@ describe("EmergencyAccessService", () => {
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
-      apiService,
       keyService,
       legacyCompatKeyService,
       encryptService,
@@ -515,81 +508,6 @@ describe("EmergencyAccessService", () => {
         salt,
         mockGrantorUserKey,
       );
-    });
-  });
-
-  describe("getRotatedData", () => {
-    const allowedStatuses = [
-      EmergencyAccessStatusType.Confirmed,
-      EmergencyAccessStatusType.RecoveryInitiated,
-      EmergencyAccessStatusType.RecoveryApproved,
-    ];
-
-    const mockEmergencyAccess = {
-      data: [
-        createMockEmergencyAccessGranteeDetails("0", "EA 0", EmergencyAccessStatusType.Invited),
-        createMockEmergencyAccessGranteeDetails("1", "EA 1", EmergencyAccessStatusType.Accepted),
-        createMockEmergencyAccessGranteeDetails("2", "EA 2", EmergencyAccessStatusType.Confirmed),
-        createMockEmergencyAccessGranteeDetails(
-          "3",
-          "EA 3",
-          EmergencyAccessStatusType.RecoveryInitiated,
-        ),
-        createMockEmergencyAccessGranteeDetails(
-          "4",
-          "EA 4",
-          EmergencyAccessStatusType.RecoveryApproved,
-        ),
-      ],
-    } as ListResponse<EmergencyAccessGranteeDetailsResponse>;
-
-    beforeEach(() => {
-      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue(mockEmergencyAccess);
-      apiService.getUserPublicKey.mockResolvedValue({
-        userId: "mockUserId",
-        publicKey: Utils.fromUtf8ToB64("trustedPublicKey"),
-      } as UserKeyResponse);
-
-      encryptService.encapsulateKeyUnsigned.mockImplementation((plainValue, publicKey) => {
-        return Promise.resolve(
-          new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
-        );
-      });
-    });
-
-    it("Only returns emergency accesses with allowed statuses", async () => {
-      const result = await emergencyAccessService.getRotatedData(
-        mockNewUserKey,
-        mockTrustedPublicKeys,
-        "mockUserId" as UserId,
-      );
-
-      expect(result).toHaveLength(allowedStatuses.length);
-    });
-
-    it("Throws if emergency access public key is not trusted", async () => {
-      apiService.getUserPublicKey.mockResolvedValue({
-        userId: "mockUserId",
-        publicKey: Utils.fromUtf8ToB64("untrustedPublicKey"),
-      } as UserKeyResponse);
-
-      await expect(
-        emergencyAccessService.getRotatedData(
-          mockNewUserKey,
-          mockTrustedPublicKeys,
-          "mockUserId" as UserId,
-        ),
-      ).rejects.toThrow("Public key for user is not trusted.");
-    });
-
-    it("throws if new user key is null", async () => {
-      await expect(
-        emergencyAccessService.getRotatedData(
-          null as unknown as UserKey,
-          mockTrustedPublicKeys,
-          "mockUserId" as UserId,
-        ),
-      ).rejects.toThrow("New user key is required for rotation.");
     });
   });
 

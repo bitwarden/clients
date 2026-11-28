@@ -9,8 +9,6 @@ export * from "./biometrics/biometric.state";
 
 export { CipherDecryptionKeys, KeyService, SdkUnlockData } from "./abstractions/key.service";
 export { DefaultKeyService } from "./key.service";
-export { UserKeyRotationDataProvider } from "./abstractions/user-key-rotation-data-provider.abstraction";
-export { UserKeyRotationKeyRecoveryProvider } from "./abstractions/user-key-rotation-key-recovery-provider.abstraction";
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
 export { KDF_CONFIG } from "@bitwarden/common/key-management/state-definitions";

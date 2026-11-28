@@ -160,6 +160,44 @@ describe("DefaultUserKeyRotationService", () => {
       expect(result).toBe(true);
       expect(verifyTrustSpy).toHaveBeenCalledWith(mockUserId, "Skip");
     });
+
+    it("returns false when trust is denied", async () => {
+      jest.spyOn(service, "verifyTrust").mockResolvedValue({
+        wasTrustDenied: true,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+
+      const result = await service.changePasswordAndRotateUserKey(
+        "currentPassword",
+        "newPassword",
+        undefined,
+        mockUserId,
+      );
+
+      expect(result).toBe(false);
+      expect(mockUserCryptoManagement.password_change_and_rotate_user_keys).not.toHaveBeenCalled();
+    });
+
+    it("propagates the error when the SDK call fails", async () => {
+      jest.spyOn(service, "verifyTrust").mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+      mockUserCryptoManagement.password_change_and_rotate_user_keys.mockRejectedValue(
+        new Error("rotation failed"),
+      );
+
+      await expect(
+        service.changePasswordAndRotateUserKey(
+          "currentPassword",
+          "newPassword",
+          undefined,
+          mockUserId,
+        ),
+      ).rejects.toThrow("rotation failed");
+    });
   });
 
   describe("rotateUserKey", () => {

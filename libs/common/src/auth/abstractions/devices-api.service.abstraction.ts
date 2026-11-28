@@ -27,10 +27,4 @@ export abstract class DevicesApiServiceAbstraction {
    * @param deviceId - The device ID
    */
   abstract deactivateDevice(deviceId: string): Promise<void>;
-
-  /**
-   * Removes trust from a list of devices
-   * @param deviceIds - The device IDs to be untrusted
-   */
-  abstract untrustDevices(deviceIds: string[]): Promise<void>;
 }

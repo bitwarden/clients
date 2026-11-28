@@ -22,6 +22,8 @@ export abstract class UserKeyRotationService {
    * @param newMasterPassword The new master password
    * @param hint Optional hint for the new master password
    * @param userId The user account ID
+   * @returns True if the key rotation was successful, false if the user denied trust.
+   * @throws If the SDK call fails or the SDK is not available.
    */
   abstract changePasswordAndRotateUserKey(
     currentMasterPassword: string,

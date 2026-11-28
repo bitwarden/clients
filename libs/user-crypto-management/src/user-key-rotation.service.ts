@@ -43,19 +43,14 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
 
     return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
       this.logService.info("[UserKey Rotation] Re-encrypting user data with new user key...");
-      try {
-        await sdk.user_crypto_management().password_change_and_rotate_user_keys({
-          old_password: currentMasterPassword,
-          password: newMasterPassword,
-          hint: hint,
-          trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
-          trusted_organization_public_keys: trustedOrganizationPublicKeys,
-        } as PasswordChangeAndRotateUserKeysRequest);
-        return true;
-      } catch (error) {
-        this.logService.error(`Failed to rotate user keys: ${error}`);
-        return false;
-      }
+      await sdk.user_crypto_management().password_change_and_rotate_user_keys({
+        old_password: currentMasterPassword,
+        password: newMasterPassword,
+        hint: hint,
+        trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
+        trusted_organization_public_keys: trustedOrganizationPublicKeys,
+      } as PasswordChangeAndRotateUserKeysRequest);
+      return true;
     });
   }
 
