@@ -2,6 +2,7 @@ import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
+  Browser,
   ElectronApplication,
   Page,
   _electron,
@@ -70,11 +71,23 @@ async function launch(
 }
 
 /**
+ * DevTools connections opened by {@link reloadedWindow}. Closed before the app, because the test
+ * runner fails its teardown on a connection the closing app cuts off.
+ */
+const reloadConnections = new Set<Browser>();
+
+async function closeReloadConnections() {
+  await Promise.all([...reloadConnections].map((browser) => browser.close()));
+  reloadConnections.clear();
+}
+
+/**
  * The app window's renderer after a process reload. The reload crashes the renderer before
  * reloading it, and Playwright never follows a crashed page, so reconnect over DevTools.
  */
 export async function reloadedWindow(): Promise<Page> {
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${REMOTE_DEBUGGING_PORT}`);
+  reloadConnections.add(browser);
   let window: Page | undefined;
 
   await expect
@@ -110,6 +123,7 @@ export const test = base.extend<{
 
     await use(app);
 
+    await closeReloadConnections();
     await stopTrace(app.context(), testInfo);
     await app.close();
     pruneVideo(testInfo);
