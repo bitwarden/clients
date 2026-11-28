@@ -9,7 +9,7 @@ import { SharedModule } from "../shared";
   selector: "dynamic-avatar",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span [title]="title()">
+  template: `<span [attr.title]="title()">
     <bit-avatar
       appStopClick
       [text]="text()"
