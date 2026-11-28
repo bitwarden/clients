@@ -1,0 +1,16 @@
+@if (visible()) {
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "healthRecommendations" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-item-group>
+    <bit-item>
+      <dirt-passkey-opportunity-nav-item
+        [status]="state().status"
+        [count]="count()"
+        [locked]="locked()"
+        (retry)="handleRetry()"
+      />
+    </bit-item>
+  </bit-item-group>
+}

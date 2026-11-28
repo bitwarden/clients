@@ -1,0 +1,62 @@
+@switch (state()) {
+  @case ("locked") {
+    <!-- Same as a locked RiskCategoryNavItem, which needs a count: a free user is
+         never checked, so the row names the category instead. -->
+    <div bit-item-content [truncate]="false">
+      <bit-icon-tile slot="start" icon="bwi-passkey" variant="primary" />
+
+      {{ "passkeyOpportunitiesLocked" | i18n }}
+      <span slot="secondary">{{ "passkeyOpportunitiesLockedDesc" | i18n }}</span>
+
+      <bit-icon
+        slot="end"
+        name="bwi-lock"
+        [ariaLabel]="'premiumSubscriptionRequired' | i18n"
+        class="tw-text-fg-heading"
+      />
+    </div>
+  }
+  @case ("result") {
+    <dirt-risk-category-nav-item
+      labelKeyNone="passkeyOpportunitiesNone"
+      labelKeySingular="passkeyOpportunity"
+      labelKeyPlural="passkeyOpportunitiesPlural"
+      descriptionKey="passkeyOpportunitiesDesc"
+      descriptionKeyNone="passkeyOpportunitiesNoneDesc"
+      [count]="count() ?? 0"
+      icon="bwi-passkey"
+      variant="primary"
+      [route]="route"
+    />
+  }
+  @case ("error") {
+    <div bit-item-content [truncate]="false">
+      <bit-icon-tile slot="start" icon="bwi-error" variant="danger" />
+
+      {{ "passkeyOpportunitiesFailed" | i18n }}
+      <span slot="secondary">{{ "passkeyOpportunitiesFailedDesc" | i18n }}</span>
+
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        class="tw-whitespace-nowrap"
+        id="passkey-opportunity-nav-item_button_retry"
+        (click)="retry.emit()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </div>
+  }
+  @default {
+    <div bit-item-content [truncate]="false" role="status">
+      <bit-icon-tile slot="start" icon="bwi-passkey" variant="primary" />
+
+      {{ "passkeyOpportunitiesChecking" | i18n }}
+
+      <bit-icon slot="end" name="bwi-spinner" class="bwi-spin tw-text-fg-body-subtle" />
+    </div>
+  }
+}

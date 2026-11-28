@@ -13,6 +13,7 @@
     <dirt-health-scan-error (retry)="handleRetry()" />
   } @else if (report(); as report) {
     <dirt-health-overview [report]="report" [locked]="locked()" (upgrade)="handleUpgrade()" />
+    <dirt-health-passkey-section [locked]="locked()" />
   } @else {
     <dirt-health-scanning />
   }

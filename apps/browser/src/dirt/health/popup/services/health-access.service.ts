@@ -14,6 +14,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BottomNavigationButton, ToastService } from "@bitwarden/components";
 import { BROWSER_HEALTH_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
+import { HealthPasskeyScanService } from "./health-passkey-scan.service";
+
 /**
  * Service responsible for determining access to the browser extension Health report feature.
  */
@@ -167,9 +169,10 @@ export const canAccessHealth: CanActivateFn = () => {
 };
 
 /**
- * Guards the Health risk-category detail routes, which are the Premium part of the
- * feature: the Health tab itself is open to everyone {@link canAccessHealth} lets
- * through, showing the gauge with the categories locked.
+ * Guards the Health detail routes (the risk categories and passkey
+ * opportunities), which are the Premium part of the feature: the Health tab itself is
+ * open to everyone {@link canAccessHealth} lets through, showing the gauge with the
+ * categories locked.
  *
  * The check cannot live in the Health Overview's locked state alone, because these
  * routes are reachable without passing through it: the popup restores the last route
@@ -188,5 +191,19 @@ export const canAccessHealthDetail: CanActivateFn = () => {
       user?.id ? billingAccountProfileStateService.hasPremiumFromAnySource$(user.id) : of(false),
     ),
     map((hasPremium) => hasPremium || router.createUrlTree([HEALTH_OVERVIEW_ROUTE])),
+  );
+};
+
+/**
+ * Guards the passkeys route while the category is not released: the passkey report flag, and
+ * VFO1, whose list it builds on. Redirects silently to the overview, like
+ * {@link canAccessHealthDetail}, because route restoration can land a user here after a flag
+ * was turned off.
+ */
+export const canAccessHealthPasskeys: CanActivateFn = () => {
+  const router = inject(Router);
+
+  return inject(HealthPasskeyScanService).enabled$.pipe(
+    map((enabled) => enabled || router.createUrlTree([HEALTH_OVERVIEW_ROUTE])),
   );
 };

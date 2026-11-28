@@ -28,6 +28,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import { HealthOverviewComponent } from "./components/health-overview/health-overview.component";
+import { HealthPasskeySectionComponent } from "./components/health-passkey-section/health-passkey-section.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthComponent } from "./health.component";
@@ -72,6 +73,15 @@ class MockHealthOverviewComponent {
   readonly report = input.required<VaultHealthReportView>();
   readonly locked = input(false);
   readonly upgrade = output<void>();
+}
+
+@Component({
+  selector: "dirt-health-passkey-section",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthPasskeySectionComponent {
+  readonly locked = input(true);
 }
 
 @Component({
@@ -265,6 +275,7 @@ describe("HealthComponent", () => {
             PopOutComponent,
             CurrentAccountComponent,
             HealthOverviewComponent,
+            HealthPasskeySectionComponent,
             HealthScanningComponent,
             HealthScanErrorComponent,
           ],
@@ -276,6 +287,7 @@ describe("HealthComponent", () => {
             MockPopOutComponent,
             MockCurrentAccountComponent,
             MockHealthOverviewComponent,
+            MockHealthPasskeySectionComponent,
             MockHealthScanningComponent,
             MockHealthScanErrorComponent,
           ],
@@ -774,6 +786,15 @@ describe("HealthComponent", () => {
       await initWithReport();
 
       expect(overview()?.locked()).toBe(true);
+    });
+
+    it("renders the passkey section under the overview, sharing its lock", async () => {
+      hasPremium$.next(false);
+
+      await initWithReport();
+
+      const section = fixture.debugElement.query((n) => n.name === "dirt-health-passkey-section");
+      expect((section.componentInstance as MockHealthPasskeySectionComponent).locked()).toBe(true);
     });
 
     it("leaves the Health Overview unlocked for a user with premium", async () => {

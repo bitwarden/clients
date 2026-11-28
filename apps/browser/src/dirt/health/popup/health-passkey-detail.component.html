@@ -1,0 +1,49 @@
+<popup-page [collapseAboveScrollArea]="true" (focusin)="onFocusIn($event)">
+  <popup-header
+    slot="header"
+    [pageTitle]="'passkeyOpportunitiesTitle' | i18n"
+    showBackButton="true"
+  >
+    <ng-container slot="end">
+      <app-pop-out />
+      <app-current-account />
+    </ng-container>
+  </popup-header>
+
+  @if (!failed() && !empty()) {
+    <p slot="above-scroll-area" bitTypography="body2" class="tw-mb-2 bit-compact:tw-mb-1">
+      {{ "passkeyOpportunitiesIntro" | i18n }}
+    </p>
+  }
+
+  @if (failed()) {
+    <dirt-health-scan-error
+      titleKey="passkeyOpportunitiesFailed"
+      descriptionKey="passkeyOpportunitiesFailedDesc"
+      (retry)="handleRetry()"
+    />
+  } @else if (empty()) {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
+        <span slot="title" [id]="emptyTitleId" tabindex="-1">{{ "youreAllSet" | i18n }}</span>
+        <ng-container slot="description">{{ "passkeyOpportunitiesEmpty" | i18n }}</ng-container>
+      </bit-status-lockup>
+    </div>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-h-full">
+      @if (loading()) {
+        <span role="status" class="tw-sr-only">{{ "passkeyOpportunitiesChecking" | i18n }}</span>
+      }
+      <dirt-health-passkeys-list
+        [rows]="rows()"
+        [loading]="loading()"
+        [filtersToRestore]="filtersToRestore"
+        [folderOptions]="folderOptions()"
+        (filtersChange)="onFiltersChange($event)"
+        (open)="openRow($event)"
+        (setUp)="setUp($event)"
+      />
+    </div>
+  }
+</popup-page>

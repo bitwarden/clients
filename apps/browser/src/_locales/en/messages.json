@@ -8784,6 +8784,126 @@
     "message": "Your vault scan didn't complete due to an unexpected error.",
     "description": "Explains that the vault health scan did not complete."
   },
+  "healthRecommendations": {
+    "message": "Recommendations",
+    "description": "Section heading on the Health Overview above suggestions that are not risks, such as logins that can use a passkey."
+  },
+  "passkeyOpportunitiesNone": {
+    "message": "No passkey upgrades",
+    "description": "Title of the passkeys row on the Health Overview when no saved login can use a passkey."
+  },
+  "passkeyOpportunity": {
+    "message": "1 login can use a passkey",
+    "description": "Title of the passkeys row on the Health Overview when exactly one login's site supports passkeys."
+  },
+  "passkeyOpportunitiesPlural": {
+    "message": "$COUNT$ logins can use passkeys",
+    "description": "Title of the passkeys row on the Health Overview, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "passkeyOpportunitiesDesc": {
+    "message": "Log in more safely on these sites",
+    "description": "The benefit of the logins in the passkeys row on the Health Overview."
+  },
+  "passkeyOpportunitiesNoneDesc": {
+    "message": "No saved logins are waiting for a passkey",
+    "description": "Description of the passkeys row on the Health Overview when no saved login can use a passkey: its site does not support them, or the login already has one."
+  },
+  "passkeyOpportunitiesChecking": {
+    "message": "Checking for passkey support...",
+    "description": "Shown in the passkeys row on the Health Overview while the list of sites that support passkeys loads."
+  },
+  "passkeyOpportunitiesFailed": {
+    "message": "Passkey support couldn't be checked",
+    "description": "Shown when the list of sites that support passkeys could not be loaded."
+  },
+  "passkeyOpportunitiesFailedDesc": {
+    "message": "An error occurred. Please try again.",
+    "description": "Explains the passkey support check failed and can be retried."
+  },
+  "passkeyOpportunitiesLocked": {
+    "message": "Logins that can use passkeys",
+    "description": "Title of the passkeys row on the Health Overview when it is locked behind Premium. Shows no count because free users are not checked."
+  },
+  "passkeyOpportunitiesLockedDesc": {
+    "message": "See which sites support passkeys with Premium",
+    "description": "Description of the passkeys row on the Health Overview when it is locked behind Premium."
+  },
+  "passkeyOpportunitiesTitle": {
+    "message": "Passkeys available",
+    "description": "Page title for the list of logins whose sites support passkeys."
+  },
+  "passkeyOpportunitiesEmpty": {
+    "message": "No saved logins are waiting for a passkey.",
+    "description": "Empty state on the page listing logins whose sites support passkeys, shown when none is left to set up."
+  },
+  "setUpPasskey": {
+    "message": "Set up",
+    "description": "Button that opens a site's instructions for adding a passkey."
+  },
+  "setUpPasskeyFor": {
+    "message": "Set up a passkey for $NAME$, opens in a new tab",
+    "description": "Accessible label for the button that opens a site's passkey setup instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "GitHub"
+      }
+    }
+  },
+  "passkeyOpportunitiesIntro": {
+    "message": "Passkeys can't be guessed or stolen by fake sites. Set one up on the site, and Bitwarden saves it to the login.",
+    "description": "Intro on the page listing logins whose sites support passkeys."
+  },
+  "passkeyLoginGroup": {
+    "message": "Log in with a passkey",
+    "description": "Heading of the group of logins whose sites let you log in with a passkey instead of a password."
+  },
+  "passkeyLoginGroupDesc": {
+    "message": "Use a passkey instead of your password.",
+    "description": "One-line reason under the 'Log in with a passkey' group heading."
+  },
+  "passkeyTwoStepGroup": {
+    "message": "Two-step login with a passkey",
+    "description": "Heading of the group of logins whose sites take a passkey only as the second step of logging in."
+  },
+  "passkeyTwoStepGroupDesc": {
+    "message": "Use a passkey as your second step. You'll still use your password.",
+    "description": "One-line reason under the 'Two-step login with a passkey' group heading."
+  },
+  "passkeyOpportunitiesRemaining": {
+    "message": "$COUNT$ logins left",
+    "description": "Screen reader announcement when the passkey list gets shorter, for example after a passkey is saved.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "11"
+      }
+    }
+  },
+  "passkeyOpportunitiesRemainingSingular": {
+    "message": "1 login left",
+    "description": "Screen reader announcement when one login is left on the passkey list."
+  },
+  "searchResultsCount": {
+    "message": "$COUNT$ results",
+    "description": "Screen reader announcement of how many items match a search or filter.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "searchResultsCountSingular": {
+    "message": "1 result",
+    "description": "Screen reader announcement when one item matches a search or filter."
+  },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
   },

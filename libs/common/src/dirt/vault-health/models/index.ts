@@ -1,3 +1,4 @@
+export * from "./passkey-opportunity";
 export * from "./risk-category";
 export * from "./vault-health-report-state";
 export * from "./vault-health-report-status";
