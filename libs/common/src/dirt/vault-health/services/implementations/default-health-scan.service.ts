@@ -1,4 +1,3 @@
-import { inject, Injectable } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
@@ -17,12 +16,13 @@ import {
   tap,
 } from "rxjs";
 
-import { VaultHealthReportStatus } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { UserId } from "../../../../types/guid";
+import { CipherService } from "../../../../vault/abstractions/cipher.service";
+import { filterOutNullish } from "../../../../vault/utils/observable-utilities";
+import { VaultHealthReportStatus } from "../../models";
+import { HealthScanService } from "../abstractions/health-scan.service";
+import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 /**
  * A sync rewrites many ciphers across several ticks, and each rebuild can cost a
@@ -30,21 +30,7 @@ import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utili
  */
 const VAULT_CHANGE_DEBOUNCE_MS = 300;
 
-/**
- * Decides *when* the browser Health views recompute their report;
- * {@link VaultHealthReportService} owns *what* the report is.
- *
- * The scan pipeline is cold and scoped to the subscriber: a Health view subscribes
- * on mount and the vault watch stops when the last one goes away, so no work
- * happens while the user is elsewhere in the popup. Nothing here throws — a scan
- * failure arrives as a published report status or on {@link pipelineFailed$}.
- */
-@Injectable({ providedIn: "root" })
-export class HealthScanService {
-  private readonly cipherService = inject(CipherService);
-  private readonly reportService = inject(VaultHealthReportService);
-  private readonly logService = inject(LogService);
-
+export class DefaultHealthScanService implements HealthScanService {
   /**
    * Per user, because this service outlives an account switch: a retry or a failure
    * must never reach the account the user just left.
@@ -52,12 +38,12 @@ export class HealthScanService {
   private readonly retries = new Map<UserId, Subject<void>>();
   private readonly pipelineFailures = new Map<UserId, BehaviorSubject<boolean>>();
 
-  /**
-   * Keeps the report current until the caller unsubscribes, running a full scan
-   * first only when there is no report yet. Both Health views share one scan this
-   * way: navigating between them, or landing on either directly, does not repeat
-   * the breach lookups.
-   */
+  constructor(
+    private readonly cipherService: CipherService,
+    private readonly reportService: VaultHealthReportService,
+    private readonly logService: LogService,
+  ) {}
+
   keepReportCurrent$(userId: UserId): Observable<void> {
     return this.needsScan$(userId).pipe(
       switchMap((scanFirst) =>
@@ -73,16 +59,10 @@ export class HealthScanService {
     );
   }
 
-  /** Requests another full scan. Only `userId`'s subscribed scan reacts. */
   retryScan(userId: UserId): void {
     this.retriesFor(userId).next();
   }
 
-  /**
-   * True when fetching the ciphers to scan failed. That failure happens before the
-   * report service is reached, so it cannot surface as a published `error` status.
-   * Cleared at the start of every scan.
-   */
   pipelineFailed$(userId: UserId): Observable<boolean> {
     return this.pipelineFailedFor(userId).asObservable();
   }

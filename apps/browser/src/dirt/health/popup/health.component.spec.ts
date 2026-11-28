@@ -12,7 +12,11 @@ import {
   VaultHealthReportStatus,
   VaultHealthReportView,
 } from "@bitwarden/common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
+import {
+  DefaultHealthScanService,
+  HealthScanService,
+  VaultHealthReportService,
+} from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -244,6 +248,10 @@ describe("HealthComponent", () => {
         { provide: HealthAccessService, useValue: healthAccessService },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultHealthReportService, useValue: reportService },
+        {
+          provide: HealthScanService,
+          useFactory: () => new DefaultHealthScanService(cipherService, reportService, logService),
+        },
         { provide: LogService, useValue: logService },
         {
           provide: BillingAccountProfileStateService,
