@@ -90,13 +90,19 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       return;
     }
 
-    const timeoutAction = await firstValueFrom(
-      this.vaultTimeoutSettingsService
-        .getVaultTimeoutActionByUserId$(activeUserId)
-        .pipe(timeout(STATE_READ_TIMEOUT_MS)),
+    // A logged out account has no user decryption options, so its timeout action is not read.
+    const authStatus = await firstValueFrom(
+      this.authService.authStatusFor$(activeUserId).pipe(timeout(STATE_READ_TIMEOUT_MS)),
     );
-    if (timeoutAction !== VaultTimeoutAction.LogOut) {
-      return;
+    if (authStatus !== AuthenticationStatus.LoggedOut) {
+      const timeoutAction = await firstValueFrom(
+        this.vaultTimeoutSettingsService
+          .getVaultTimeoutActionByUserId$(activeUserId)
+          .pipe(timeout(STATE_READ_TIMEOUT_MS)),
+      );
+      if (timeoutAction !== VaultTimeoutAction.LogOut) {
+        return;
+      }
     }
 
     // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from

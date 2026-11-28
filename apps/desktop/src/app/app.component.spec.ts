@@ -2,7 +2,7 @@ import { DestroyRef, NgZone } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, NEVER, of } from "rxjs";
 
 import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -12,7 +12,7 @@ import {
   AuthRequestServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -27,7 +27,10 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,6 +52,8 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LockService } from "@bitwarden/unlock";
+
+import { MenuUpdateRequest } from "../main/menu/menu.updater";
 
 import { AppComponent } from "./app.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -72,6 +77,10 @@ describe("AppComponent (desktop)", () => {
   let keyService: MockProxy<KeyService>;
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
+  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
+  let userVerificationService: MockProxy<UserVerificationService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
   let lastZoneRunResult: unknown;
@@ -98,6 +107,10 @@ describe("AppComponent (desktop)", () => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     accountSwitcherService = mock<AccountSwitcherService>();
     accountSwitcherService.resolveActiveAccount.mockResolvedValue({ action: "keep" });
+    vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+    userVerificationService = mock<UserVerificationService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
@@ -126,7 +139,7 @@ describe("AppComponent (desktop)", () => {
           mock<ToastService>(),
           mock<I18nService>(),
           ngZone,
-          mock<VaultTimeoutSettingsService>(),
+          vaultTimeoutSettingsService,
           keyService,
           mock<LegacyCompatKeyService>(),
           logService,
@@ -138,7 +151,7 @@ describe("AppComponent (desktop)", () => {
           mock<StateService>(),
           mock<EventUploadService>(),
           modalService,
-          mock<UserVerificationService>(),
+          userVerificationService,
           configService,
           dialogService,
           mock<BiometricStateService>(),
@@ -148,7 +161,7 @@ describe("AppComponent (desktop)", () => {
           userDecryptionOptionsService,
           mock<DestroyRef>(),
           documentLangSetter,
-          mock<RestrictedItemTypesService>(),
+          restrictedItemTypesService,
           mock<PinServiceAbstraction>(),
           mock<TokenService>(),
           mock<LockService>(),
@@ -159,7 +172,7 @@ describe("AppComponent (desktop)", () => {
           mock<SsoLoginServiceAbstraction>(),
           mock<AccountDeletionDialogService>(),
           premiumCheckoutPendingService,
-          mock<BillingAccountProfileStateService>(),
+          billingAccountProfileStateService,
           accountSwitcherService,
         ),
     );
@@ -434,6 +447,45 @@ describe("AppComponent (desktop)", () => {
 
       expect(accountService.switchAccount).toHaveBeenCalledWith(null);
       expect(router.navigate).toHaveBeenCalledWith(["login"]);
+    });
+  });
+
+  describe("redrawMenu message", () => {
+    const loggedOutUserId = "user-logged-out" as UserId;
+
+    beforeEach(() => {
+      accountService.accounts$ = of({
+        [userId]: { email: "user@example.com" },
+        [loggedOutUserId]: { email: "" },
+      } as unknown as Record<UserId, AccountInfo>);
+      authService.authStatusFor$.mockImplementation((id) =>
+        of(id === loggedOutUserId ? AuthenticationStatus.LoggedOut : AuthenticationStatus.Locked),
+      );
+      vaultTimeoutSettingsService.availableVaultTimeoutActions$.mockImplementation((id) =>
+        // Without user decryption options, a logged out account's available actions never emit.
+        id === loggedOutUserId ? NEVER : of([VaultTimeoutAction.LogOut, VaultTimeoutAction.Lock]),
+      );
+      userVerificationService.hasMasterPassword.mockResolvedValue(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      restrictedItemTypesService.restricted$ = of([]);
+    });
+
+    it("updates the menu without waiting on a logged out account's unlock options", async () => {
+      await dispatchMessage({ command: "redrawMenu" });
+
+      const [, { updateRequest }] = messagingService.send.mock.calls.find(
+        ([command]) => command === "updateAppMenu",
+      ) as [string, { updateRequest: MenuUpdateRequest }];
+      expect(updateRequest.accounts[userId]).toMatchObject({
+        isLockable: true,
+        hasMasterPassword: true,
+      });
+      expect(updateRequest.accounts[loggedOutUserId]).toMatchObject({
+        isAuthenticated: false,
+        isLockable: false,
+        hasMasterPassword: false,
+      });
+      expect(userVerificationService.hasMasterPassword).not.toHaveBeenCalledWith(loggedOutUserId);
     });
   });
 });

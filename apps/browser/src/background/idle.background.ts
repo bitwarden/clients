@@ -1,6 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   VaultTimeoutAction,
@@ -26,6 +28,7 @@ export default class IdleBackground {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private lockService: LockService,
     private logoutService: LogoutService,
+    private authService: AuthService,
   ) {
     this.idle = chrome.idle || (browser != null ? browser.idle : null);
   }
@@ -60,6 +63,14 @@ export default class IdleBackground {
               if (
                 await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)
               ) {
+                continue;
+              }
+              // Logged out accounts stay in accounts$. Their timeout action must not be evaluated, as
+              // without user decryption options it resolves to log out only and resets the stored action.
+              const authStatus = await firstValueFrom(
+                this.authService.authStatusFor$(userId as UserId),
+              );
+              if (authStatus === AuthenticationStatus.LoggedOut) {
                 continue;
               }
 

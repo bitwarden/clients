@@ -606,18 +606,23 @@ export class AppComponent implements OnInit, OnDestroy {
           userId != null &&
           !this.isAccountCleanUpInProgress(userId) // skip accounts that are being cleaned up
         ) {
-          const availableTimeoutActions = await firstValueFrom(
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
-          );
-
           const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
+          // Logged out accounts stay in accounts$ without user decryption options.
+          const loggedOut = authStatus === AuthenticationStatus.LoggedOut;
+          const availableTimeoutActions = loggedOut
+            ? []
+            : await firstValueFrom(
+                this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
+              );
+
           accounts[userId] = {
             isAuthenticated: authStatus >= AuthenticationStatus.Locked,
             isLocked: authStatus === AuthenticationStatus.Locked,
             isLockable: availableTimeoutActions.includes(VaultTimeoutAction.Lock),
             email: stateAccounts[userId].email,
             userId: userId,
-            hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            hasMasterPassword:
+              !loggedOut && (await this.userVerificationService.hasMasterPassword(userId)),
             hasPremium: await firstValueFrom(
               this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
             ),
@@ -854,6 +859,12 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       // Skip if vault timeout is suppressed by shared unlock
       if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
+        continue;
+      }
+      // Logged out accounts stay in accounts$. Their timeout action must not be evaluated, as
+      // without user decryption options it resolves to log out only and resets the stored action.
+      const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId as UserId));
+      if (authStatus === AuthenticationStatus.LoggedOut) {
         continue;
       }
 
