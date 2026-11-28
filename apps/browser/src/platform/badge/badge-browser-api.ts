@@ -127,8 +127,15 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     ).pipe(shareReplay({ bufferSize: 1, refCount: true })),
   );
 
+  // Removal maps to a "deactivated" event so the per-tab badge group tears down
+  // even for tabs that were never activated (and so never otherwise deactivated).
+  private onTabRemoved$ = fromChromeEvent(chrome.tabs.onRemoved).pipe(
+    map(([tabId]) => ({ type: "deactivated", tabId }) satisfies TabEvent),
+  );
+
   tabEvents$ = merge(
     this.createdOrUpdatedTabEvents$,
+    this.onTabRemoved$,
     this.createdOrUpdatedTabEvents$.pipe(
       concatMap(async () => {
         return this.getActiveTabs();
