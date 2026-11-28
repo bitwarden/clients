@@ -13,6 +13,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -91,6 +92,9 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
+    const revealedCipherService = mock<RevealedCipherService>();
+    revealedCipherService.revealed$.mockReturnValue(of(new Map()));
+
     const environmentService = mock<EnvironmentService>();
     environmentService.environment$ = of({
       getIconsUrl: () => "https://icons.example.com",
@@ -115,6 +119,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: accountService },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: ConfigService, useValue: configService },

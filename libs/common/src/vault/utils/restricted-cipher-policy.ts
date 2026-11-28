@@ -1,3 +1,4 @@
+import { CipherId } from "../../types/guid";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 import { CipherLike } from "../types/cipher-like";
@@ -83,5 +84,21 @@ export class RestrictedCipherPolicy {
    */
   static allowsOnReveal(cipher: CipherLike, action: RestrictedCipherAction): boolean {
     return !RestrictedCipherPolicy.isRestricted(cipher) || REVEALED_ALLOWED_ACTIONS.has(action);
+  }
+
+  /**
+   * The live revealed view of a restricted cipher, for a row that shows a stripped stored copy but
+   * must act on the full values (copy). Undefined when the cipher is not restricted or has no live
+   * reveal, so callers fall back to the stored copy.
+   *
+   * @param revealed The map `RevealedCipherService.revealed$` holds for the user.
+   */
+  static revealedViewFor(
+    cipher: CipherLike,
+    revealed: ReadonlyMap<CipherId, CipherView>,
+  ): CipherView | undefined {
+    return RestrictedCipherPolicy.isRestricted(cipher)
+      ? revealed.get(cipher.id as CipherId)
+      : undefined;
   }
 }

@@ -29,6 +29,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -278,6 +279,9 @@ describe("VaultItemsTableComponent", () => {
     };
     popoverService = mock<PopoverService>();
     popoverService.open.mockReturnValue(mock<PopoverRef>());
+    const revealedCipherService = mock<RevealedCipherService>();
+    revealedCipherService.revealed$.mockReturnValue(of(new Map()));
+
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -307,6 +311,7 @@ describe("VaultItemsTableComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: accountService },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: AvatarService, useValue: avatarService },
         // The real search service, not a double — the table's contract is that its search matches
         // what a client's own vault search matches, and a double could only assert fiction.

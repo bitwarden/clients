@@ -470,8 +470,7 @@ const withRevealedViews = (
   revealed.size === 0
     ? ciphers
     : ciphers.map((cipher) => {
-        const view =
-          RestrictedCipherPolicy.isRestricted(cipher) && revealed.get(cipher.id as CipherId);
+        const view = RestrictedCipherPolicy.revealedViewFor(cipher, revealed);
         return view
           ? Object.assign(view, {
               collections: cipher.collections,

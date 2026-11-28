@@ -1,5 +1,6 @@
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { CipherId } from "../../types/guid";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
@@ -119,6 +120,45 @@ describe("RestrictedCipherPolicy", () => {
 
     it.each(allActions)("allows %s on an unrestricted cipher", (action) => {
       expect(RestrictedCipherPolicy.allowsOnReveal(new CipherView(), action)).toBe(true);
+    });
+  });
+
+  describe("revealedViewFor", () => {
+    const revealedView = () => {
+      const view = new CipherView();
+      view.id = "cipher-1";
+      return view;
+    };
+
+    it.each<[string, () => CipherLike]>([
+      ["CipherView", () => Object.assign(restrictedCipherView(), { id: "cipher-1" })],
+      [
+        "CipherListView",
+        () => ({ ...restrictedListView(), id: "cipher-1" }) as unknown as CipherListView,
+      ],
+    ])("returns the revealed view of a restricted %s", (_, create) => {
+      const view = revealedView();
+
+      expect(
+        RestrictedCipherPolicy.revealedViewFor(create(), new Map([["cipher-1" as CipherId, view]])),
+      ).toBe(view);
+    });
+
+    it("returns undefined for a restricted cipher with no reveal", () => {
+      const cipher = Object.assign(restrictedCipherView(), { id: "cipher-1" });
+
+      expect(RestrictedCipherPolicy.revealedViewFor(cipher, new Map())).toBeUndefined();
+    });
+
+    it("returns undefined for an unrestricted cipher even if a reveal is held", () => {
+      const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
+
+      expect(
+        RestrictedCipherPolicy.revealedViewFor(
+          cipher,
+          new Map([["cipher-1" as CipherId, revealedView()]]),
+        ),
+      ).toBeUndefined();
     });
   });
 });
