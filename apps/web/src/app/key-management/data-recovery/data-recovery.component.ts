@@ -13,16 +13,14 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
-import { BreadcrumbsModule, ButtonModule, DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, ButtonModule, DialogService, LinkModule } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { buildFlightRecorderCsvExport, LogService } from "@bitwarden/logging";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
-import { DownloadEventLogsComponent } from "./download-event-logs.component";
 import { LogRecorder } from "./log-recorder";
 import {
   SyncStep,
@@ -59,8 +57,8 @@ interface StepState {
     ButtonModule,
     CommonModule,
     SharedModule,
-    DownloadEventLogsComponent,
     HeaderModule,
+    LinkModule,
     BreadcrumbsModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,9 +79,9 @@ export class DataRecoveryComponent {
   private cipherEncryptService = inject(CipherEncryptionService);
   private dialogService = inject(DialogService);
   private privateKeyRegenerationService = inject(UserAsymmetricKeysRegenerationService);
-  private encryptService = inject(EncryptService);
   private logService = inject(LogService);
   private fileDownloadService = inject(FileDownloadService);
+  private flightRecorder = inject(FlightRecorderService);
 
   private logger: LogRecorder = new LogRecorder(this.logService);
   private recoverySteps: RecoveryStep[] = [
@@ -95,11 +93,14 @@ export class DataRecoveryComponent {
       this.apiService,
       this.cipherEncryptService,
       this.dialogService,
-      this.encryptService,
+      this.keyService,
+      this.i18nService,
     ),
     new AttachmentStep(this.i18nService),
   ];
   private workingData: RecoveryWorkingData | null = null;
+  /** Numbers each diagnostics pass so passes are distinguishable in the saved log. */
+  private diagnosticsRunCount = 0;
 
   readonly status = signal<StepStatus>(StepStatus.NotStarted);
   readonly hasStarted = signal(false);
@@ -138,6 +139,9 @@ export class DataRecoveryComponent {
   };
 
   private async runDiagnosticsInternal() {
+    this.diagnosticsRunCount++;
+    this.logger.record(`--- Diagnostics run ${this.diagnosticsRunCount} ---`);
+
     if (!this.workingData) {
       this.logger.record("No working data available");
       return;
@@ -218,12 +222,37 @@ export class DataRecoveryComponent {
     }
   };
 
-  saveDiagnosticLogs = () => {
+  /**
+   * Reads the flight recorder event log as CSV. A failure here must not block downloading the
+   * diagnostic log, so it is reported inside the file instead.
+   */
+  private async readEventLog(): Promise<string> {
+    try {
+      const events = await this.flightRecorder.read();
+      return buildFlightRecorderCsvExport(events).blobData;
+    } catch (error) {
+      return `Event log unavailable: ${(error as Error).message}`;
+    }
+  }
+
+  /**
+   * Downloads a single file holding the diagnostic log followed by the flight recorder event log,
+   * so support receives everything from one button.
+   */
+  saveDiagnosticLogs = async () => {
     const logs = this.logger.getLogs();
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `data-recovery-logs-${timestamp}.txt`;
 
-    const logContent = logs.join("\n");
+    const eventLog = await this.readEventLog();
+
+    const logContent = [
+      "=== Diagnostic log ===",
+      ...logs,
+      "",
+      "=== Event log (CSV) ===",
+      eventLog,
+    ].join("\n");
     this.fileDownloadService.download({
       fileName: filename,
       blobData: logContent,
