@@ -5052,6 +5052,9 @@
   "premiumUpdated": {
     "message": "You've upgraded to Premium."
   },
+  "upgradedToPremium": {
+    "message": "Upgraded to Premium"
+  },
   "premiumUpgradeUnlockFeatures": {
     "message": "Upgrade your account to a Premium membership and unlock some great additional features."
   },
@@ -9227,6 +9230,12 @@
   },
   "addEmergencyContact": {
     "message": "Add emergency contact"
+  },
+  "emergencyContactUpgradeTitle": {
+    "message": "Add a trusted contact as a backup"
+  },
+  "emergencyContactUpgradeDescription": {
+    "message": "Designate a trusted person to access your vault in an emergency where you are locked out."
   },
   "designatedEmergencyContacts": {
     "message": "Designated as emergency contact"

@@ -36,6 +36,8 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -143,6 +145,11 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   );
 
   private readonly invoicePreviewService = inject(InvoicePreviewService);
+  private readonly configService = inject(ConfigService);
+  private readonly featureBasedUpgradePaths = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM42214_FeatureBasedUpgradePaths),
+    { initialValue: false },
+  );
 
   private readonly previewCart = signal<Cart | null>(null);
 
@@ -316,7 +323,9 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       } else if (result.status === UpgradePaymentStatus.UpgradedToPremium) {
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("premiumUpdated"),
+          message: this.i18nService.t(
+            this.featureBasedUpgradePaths() ? "upgradedToPremium" : "premiumUpdated",
+          ),
         });
       }
       this.complete.emit(result);

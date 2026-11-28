@@ -39,7 +39,7 @@
           bitButton
           buttonType="primary"
           [bitAction]="invite"
-          [disabled]="!(canAccessPremium$ | async)"
+          [disabled]="!featureBasedUpgradePaths() && !(canAccessPremium$ | async)"
         >
           <bit-icon name="bwi-plus" class="bwi-fw"></bit-icon>
           {{ "addEmergencyContact" | i18n }}

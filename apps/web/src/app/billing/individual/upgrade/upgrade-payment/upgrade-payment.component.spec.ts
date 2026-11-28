@@ -16,6 +16,7 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -270,6 +271,55 @@ describe("UpgradePaymentComponent", () => {
       expect(mockToastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
+    }));
+  });
+
+  describe("submit — Premium success toast", () => {
+    function createSubmittable(featureBasedUpgradePaths: boolean) {
+      mockConfigService.getFeatureFlag$.mockImplementation(((key: FeatureFlag) =>
+        of(
+          key === FeatureFlag.PM42214_FeatureBasedUpgradePaths ? featureBasedUpgradePaths : false,
+        )) as typeof mockConfigService.getFeatureFlag$);
+
+      fixture.destroy();
+      fixture = TestBed.createComponent(UpgradePaymentComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("selectedPlanId", PersonalSubscriptionPricingTierIds.Premium);
+      fixture.componentRef.setInput("account", mockAccount);
+
+      jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
+      (component as any).selectedPlan.set({
+        tier: PersonalSubscriptionPricingTierIds.Premium,
+        details: mockPremiumTier,
+      });
+      jest.spyOn(component as any, "processUpgrade").mockResolvedValue({
+        status: UpgradePaymentStatus.UpgradedToPremium,
+        organizationId: null,
+      });
+
+      fixture.detectChanges();
+    }
+
+    it("shows 'upgradedToPremium' when feature-based upgrade paths is on", fakeAsync(async () => {
+      createSubmittable(true);
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "upgradedToPremium",
+      });
+    }));
+
+    it("shows 'premiumUpdated' when feature-based upgrade paths is off", fakeAsync(async () => {
+      createSubmittable(false);
+
+      await component["submit"]();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "premiumUpdated",
+      });
     }));
   });
 
