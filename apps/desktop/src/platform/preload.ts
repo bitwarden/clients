@@ -23,6 +23,7 @@ import {
 } from "../models/native-messaging";
 import { isDev } from "../utils";
 
+import { RENDERER_READY_CHANNEL } from "./renderer-ready";
 import { ClipboardWriteMessage } from "./types/clipboard";
 
 type MessagingServiceMessage = PlatformMessage<Record<string, unknown>>;
@@ -147,6 +148,9 @@ export default {
     ipcRenderer.on("systemThemeUpdated", wrapper);
     return () => ipcRenderer.removeListener("systemThemeUpdated", wrapper);
   },
+
+  /** Tells main that the renderer's listeners are up; see {@link RENDERER_READY_CHANNEL}. */
+  rendererReady: () => ipcRenderer.send(RENDERER_READY_CHANNEL),
 
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
 

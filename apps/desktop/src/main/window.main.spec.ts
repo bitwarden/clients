@@ -13,6 +13,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { ModalModeState } from "../platform/models/domain/window-state";
+import { RENDERER_READY_CHANNEL } from "../platform/renderer-ready";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 // window.main.ts registers a privileged scheme at module load time, which
@@ -21,7 +22,7 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 jest.mock("electron", () => ({
   app: {},
   BrowserWindow: jest.fn(),
-  ipcMain: { on: jest.fn() },
+  ipcMain: { on: jest.fn(), off: jest.fn() },
   nativeTheme: {},
   screen: {},
   session: {},
@@ -42,7 +43,19 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 import { isSnapStore } from "./platform-utils.main";
 import { isConfinedSnap, WindowMain } from "./window.main";
 
+/** Answers the renderer-ready signal at once, as a healthy renderer does. */
+const autoReady = (channel: string, handler: () => void) => {
+  if (channel === RENDERER_READY_CHANNEL) {
+    handler();
+  }
+  return ipcMain;
+};
+
 describe("WindowMain", () => {
+  beforeEach(() => {
+    jest.mocked(ipcMain.on).mockImplementation(autoReady);
+  });
+
   describe("isLocalBundleUrl", () => {
     let sut: WindowMain;
     // Access the private method under test without widening its visibility
@@ -173,6 +186,33 @@ describe("WindowMain", () => {
       await sut.init(true);
 
       expect(createWindow).toHaveBeenCalledWith("full-app", true);
+    });
+
+    it("creates one window when two callers need the renderer at once", async () => {
+      await sut.init(true);
+      createWindow.mockClear();
+      sut.win = null;
+
+      // createWindow awaits stored window state before it constructs the BrowserWindow, so two
+      // callers can both pass the null check before either assigns sut.win.
+      const pending: Array<() => void> = [];
+      createWindow.mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            pending.push(() => {
+              sut.win = mock<BrowserWindow>();
+              resolve();
+            });
+          }),
+      );
+
+      const first = sut.ensureRenderer();
+      const second = sut.ensureRenderer();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      pending.forEach((finish) => finish());
+      await Promise.all([first, second]);
+
+      expect(createWindow).toHaveBeenCalledTimes(1);
     });
 
     describe("while the startup window is still being created", () => {
@@ -425,6 +465,116 @@ describe("WindowMain", () => {
       await sut.toggleAlwaysOnTop();
 
       expect(desktopSettingsService.setAlwaysOnTop).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("ensureRenderer", () => {
+    let sut: WindowMain;
+    let win: MockProxy<BrowserWindow>;
+    const originalPlatform = process.platform;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      // Force the macOS branch so the focus steal is exercised.
+      Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
+      Object.assign(app, { focus: jest.fn() });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        mock<DesktopSettingsService>(),
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+      win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(false);
+      win.isMinimized.mockReturnValue(false);
+      sut.win = win;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+    });
+
+    it("shows and focuses an existing window", async () => {
+      await sut.ensureRenderer();
+
+      expect(win.show).toHaveBeenCalled();
+      expect(win.focus).toHaveBeenCalled();
+    });
+
+    it("defers the macOS focus steal to the next tick", async () => {
+      await sut.ensureRenderer();
+      expect(app.focus).not.toHaveBeenCalled();
+
+      jest.runOnlyPendingTimers();
+      expect(app.focus).toHaveBeenCalledWith({ steal: true });
+    });
+
+    it("restores a minimized window before showing it", async () => {
+      win.isMinimized.mockReturnValue(true);
+
+      await sut.ensureRenderer();
+
+      expect(win.restore).toHaveBeenCalled();
+      expect(win.show).toHaveBeenCalled();
+    });
+
+    it("waits for the recreated renderer to report that it is listening", async () => {
+      // webContents.send drops a message the renderer has not subscribed to yet, so a caller
+      // that sends as soon as ensureRenderer resolves must not be let go too early.
+      win.isDestroyed.mockReturnValue(true);
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = mock<BrowserWindow>();
+      });
+
+      let ready: (() => void) | undefined;
+      jest.mocked(ipcMain.on).mockImplementation((channel: string, handler: () => void) => {
+        if (channel === RENDERER_READY_CHANNEL) {
+          ready = handler;
+        }
+        return ipcMain;
+      });
+
+      let resolved = false;
+      const ensuring = sut.ensureRenderer().then(() => (resolved = true));
+      await Promise.resolve();
+
+      expect(resolved).toBe(false);
+
+      ready!();
+      await ensuring;
+
+      expect(resolved).toBe(true);
+    });
+
+    it("recreates a destroyed window and shows it once ready", async () => {
+      win.isDestroyed.mockReturnValue(true);
+      const recreated = mock<BrowserWindow>();
+      recreated.isDestroyed.mockReturnValue(false);
+      jest.spyOn(sut, "createWindow").mockImplementation(async () => {
+        sut.win = recreated;
+      });
+
+      await sut.ensureRenderer();
+
+      expect(sut.createWindow).toHaveBeenCalledWith("full-app", false);
+      expect(recreated.show).not.toHaveBeenCalled();
+
+      const [event, onReady] = recreated.once.mock.calls[0];
+      expect(event).toBe("ready-to-show");
+      (onReady as () => void)();
+
+      expect(recreated.show).toHaveBeenCalled();
+      expect(recreated.focus).toHaveBeenCalled();
+      expect(app.focus).not.toHaveBeenCalled();
+
+      jest.runOnlyPendingTimers();
+      expect(app.focus).toHaveBeenCalledWith({ steal: true });
     });
   });
 });

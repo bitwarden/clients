@@ -19,6 +19,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
+import { RENDERER_READY_CHANNEL } from "../platform/renderer-ready";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, DEV_ICON_FILE, isDev } from "../utils";
 
@@ -31,6 +32,9 @@ import {
   SNAP_MOUNT_DIRS,
 } from "./platform-utils.main";
 import { resolveProtocolPath } from "./protocol";
+
+/** How long a recreated renderer gets to report itself ready before main sends anyway. */
+const RENDERER_READY_TIMEOUT_MS = 10_000;
 
 // customFileOrigin = `${customFileScheme}://${customFileHost}`
 const customFileScheme = "bw-desktop-file";
@@ -109,6 +113,8 @@ export class WindowMain {
   private isReloading = false;
   // Settles once the first window exists. A reopen during startup must not create a second one.
   private startup: Promise<void> = Promise.resolve();
+  /** The in-flight ensureRenderer, so concurrent callers share one window. */
+  private ensuringRenderer?: Promise<void>;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -348,6 +354,90 @@ export class WindowMain {
       applyMainWindowStyles(win, this.windowStates[mainWindowSizeKey]);
       win.show();
     });
+  }
+
+  /**
+   * Brings the main window to the foreground, recreating it if it was destroyed.
+   *
+   * A recreated window is shown on `ready-to-show`: showing it right after `createWindow`
+   * races the asynchronous `loadURL`, and macOS sometimes drops the activation.
+   */
+  async ensureRenderer(): Promise<void> {
+    // createWindow awaits stored state before it assigns `win`, so without this two overlapping
+    // callers would both see no window and each create one.
+    this.ensuringRenderer ??= this.ensureRendererOnce().finally(() => {
+      this.ensuringRenderer = undefined;
+    });
+
+    await this.ensuringRenderer;
+  }
+
+  private async ensureRendererOnce(): Promise<void> {
+    // A window created during startup must not be created twice.
+    await this.startup;
+
+    if (this.win == null || this.win.isDestroyed()) {
+      const listening = this.rendererListening();
+      await this.createWindow("full-app", false);
+      this.showWhenReady(this.win);
+      // Creating the window is not enough: a caller that sends as soon as this resolves would
+      // have its message dropped by a renderer that has not attached its listener yet.
+      await listening;
+      return;
+    }
+
+    if (this.win.isMinimized()) {
+      this.win.restore();
+    }
+    this.showAndFocus(this.win);
+  }
+
+  /**
+   * Resolves when the renderer reports that it is listening for messages from main.
+   *
+   * Resolves anyway after {@link RENDERER_READY_TIMEOUT_MS}: a renderer that never reports is
+   * already broken, and blocking every caller forever would make it worse.
+   */
+  private rendererListening(): Promise<void> {
+    return new Promise((resolve) => {
+      const done = () => {
+        clearTimeout(timer);
+        ipcMain.off(RENDERER_READY_CHANNEL, done);
+        resolve();
+      };
+
+      const timer = setTimeout(() => {
+        this.logService.warning("The renderer never reported itself ready; sending anyway.");
+        done();
+      }, RENDERER_READY_TIMEOUT_MS);
+
+      ipcMain.on(RENDERER_READY_CHANNEL, done);
+    });
+  }
+
+  private showWhenReady(win: BrowserWindow) {
+    win.once("ready-to-show", () => {
+      if (win.isDestroyed()) {
+        return;
+      }
+      this.showAndFocus(win);
+    });
+  }
+
+  private showAndFocus(win: BrowserWindow): void {
+    win.show();
+    win.focus();
+    if (!isMac()) {
+      return;
+    }
+
+    // Showing and focusing the window is not enough to raise it above other
+    // applications' windows when the app was hidden to the tray (its dock was
+    // hidden too). Steal focus to bring it to the foreground. Defer the steal to the
+    // next tick so macOS has processed the show()/restore() (and, on the
+    // restore-from-tray path, the dock show that precedes it) before we request
+    // activation; stealing in the same tick as show() is sometimes dropped.
+    setTimeout(() => app.focus({ steal: true }));
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
