@@ -80,7 +80,11 @@ export class StorybookActiveUserState<T> implements ActiveUserState<T> {
     configureState: (state: T | null, dependency: TCombine) => T | null,
     options?: Partial<StateUpdateOptions<T, TCombine>>,
   ): Promise<[UserId, T | null]> {
-    const newState = configureState(this._state$.value, null as TCombine);
+    const current = this._state$.value;
+    if (options?.shouldUpdate && !options.shouldUpdate(current as T, null as TCombine)) {
+      return [STORYBOOK_USER_ID, current];
+    }
+    const newState = configureState(current, null as TCombine);
     this._state$.next(newState);
     return [STORYBOOK_USER_ID, newState];
   }

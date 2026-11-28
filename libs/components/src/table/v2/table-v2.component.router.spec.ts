@@ -3,12 +3,15 @@ import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/state";
 
 import { DialogService } from "../../dialog";
 import { FilterMenuModule } from "../../filter-menu";
 import { SearchComponent } from "../../search/search.component";
+import { ParamState, StorybookStateProvider } from "../../utils";
 
 import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellComponent } from "./bit-cell.component";
@@ -16,6 +19,7 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { defineTable } from "./table-def";
+import { TABLE_STATE } from "./table-preferences.state";
 import { BitTableV2Component } from "./table-v2.component";
 
 type Row = { id: number; name: string };
@@ -94,6 +98,75 @@ class FilterSeedHostComponent {
   protected readonly table = defineTable<Row>(signal<Row[]>([]));
   readonly filtersInput = signal<{ type?: string } | undefined>(undefined);
 }
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    FilterMenuModule,
+  ],
+  template: `
+    <bit-table-v2 [tableDef]="table" queryParam="vault" stateKey="vaultItems">
+      <bit-filter-menu key="type" placeholderText="Type">
+        <bit-filter-option [value]="'login'">Login</bit-filter-option>
+        <bit-filter-option [value]="'card'">Card</bit-filter-option>
+      </bit-filter-menu>
+      <bit-column sortable>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+    </bit-table-v2>
+  `,
+})
+class StoredStateHostComponent {
+  protected readonly table = defineTable<Row>(signal<Row[]>([]));
+}
+
+describe("BitTableV2Component (stored state)", () => {
+  async function setup(url: string, stored: ParamState) {
+    const stateProvider = new StorybookStateProvider();
+    await stateProvider.getActive(TABLE_STATE).update(() => ({ "vault-items": stored }));
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: "**", component: StoredStateHostComponent }]),
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: StateProvider, useValue: stateProvider },
+      ],
+    });
+    const harness = await RouterTestingHarness.create(url);
+    await harness.fixture.whenStable();
+    const table = harness.fixture.debugElement.query(By.directive(BitTableV2Component))
+      .componentInstance as BitTableV2Component<Row>;
+    return { harness, table, stateProvider, router: TestBed.inject(Router) };
+  }
+
+  it("restores stored filters and sort when the URL has none, and mirrors them to the URL", async () => {
+    const { table, router } = await setup("/", { type: "card", sort: "name", direction: "desc" });
+
+    expect(table.filterValues().type).toBe("card");
+    expect(table.sort()).toEqual({ column: "name", direction: "desc" });
+    expect(router.url).toContain("vault.type=card");
+    expect(router.url).toContain("vault.direction=desc");
+  });
+
+  it("lets the URL win over stored state, then stores the result", async () => {
+    const { table, stateProvider } = await setup("/?vault.type=login", {
+      type: "card",
+      sort: "name",
+      direction: "desc",
+    });
+
+    expect(table.filterValues().type).toBe("login");
+    expect(table.sort()).toEqual({ column: "name", direction: "desc" });
+    const stored = await firstValueFrom(stateProvider.getActive(TABLE_STATE).state$);
+    expect(stored?.["vault-items"]).toEqual({ type: "login", sort: "name", direction: "desc" });
+  });
+});
 
 describe("BitTableV2Component (router integration)", () => {
   async function setup(url: string) {
