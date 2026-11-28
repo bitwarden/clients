@@ -58,9 +58,15 @@ import {
   validate,
 } from "./build-config.mts";
 import {
+  type Entitlements,
   autofillExtensionEntitlements,
+  desktopProxyEntitlements,
+  desktopProxyInheritEntitlements,
   macAppEntitlements,
+  macAppInheritEntitlements,
   masAppEntitlements,
+  masAppInheritEntitlements,
+  masLoginHelperEntitlements,
   serializePlist,
 } from "./entitlements.mts";
 import {
@@ -150,23 +156,45 @@ function writeEntitlements(config: BuildConfig): void {
   }
 
   const options = {
-    bundleId: macos.bundleId,
+    bundleId: config.derived.appId,
     autofill: config.targets.macosAutofillExtension === true,
   };
+  const appStore = isAppStoreBuild(config);
 
-  const write = (relativePath: string, entitlements: Record<string, unknown>) => {
+  const write = (relativePath: string, entitlements: Entitlements) => {
     const destination = path.resolve(projectDir, relativePath);
     mkdirSync(path.dirname(destination), { recursive: true });
-    writeFileSync(destination, serializePlist(entitlements as never));
+    writeFileSync(destination, serializePlist(entitlements));
   };
 
-  // A sandboxed App Store app has to name every capability it needs; a directly distributed
-  // one is not sandboxed and names far fewer.
-  const app = isAppStoreBuild(config) ? masAppEntitlements(options) : macAppEntitlements(options);
-  write(macos.entitlements.app, app);
+  const { entitlements } = macos;
 
-  if (macos.entitlements.autofillExtension != null) {
-    write(macos.entitlements.autofillExtension, autofillExtensionEntitlements(options));
+  // A sandboxed App Store app has to name every capability it needs; a directly distributed one
+  // is not sandboxed and names far fewer.
+  write(entitlements.app, appStore ? masAppEntitlements(options) : macAppEntitlements(options));
+  write(
+    entitlements.appInherit,
+    appStore ? masAppInheritEntitlements() : macAppInheritEntitlements(),
+  );
+
+  if (entitlements.loginHelper != null) {
+    write(entitlements.loginHelper, masLoginHelperEntitlements());
+  }
+
+  // Outside the sandbox the proxy needs nothing of its own, and gets what any other child
+  // process of the app gets. Inside it, it has to name the app group itself, because the
+  // browser launches it and so it has no sandbox to inherit.
+  write(
+    entitlements.desktopProxy,
+    appStore ? desktopProxyEntitlements(options) : macAppInheritEntitlements(),
+  );
+  write(
+    entitlements.desktopProxyInherit,
+    appStore ? desktopProxyInheritEntitlements() : macAppInheritEntitlements(),
+  );
+
+  if (entitlements.autofillExtension != null) {
+    write(entitlements.autofillExtension, autofillExtensionEntitlements(options));
   }
 }
 
