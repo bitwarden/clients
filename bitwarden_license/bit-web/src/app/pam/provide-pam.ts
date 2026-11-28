@@ -44,6 +44,7 @@ import {
   ITEM_DETAILS_BADGE,
   REVEALABLE_CIPHERS,
   SHARED_FOLDER_DECORATION,
+  SHARED_FOLDER_FIELD_DECORATION,
   VAULT_ITEM_COLUMN,
   VAULT_ITEM_FILTER,
 } from "@bitwarden/vault";
@@ -70,6 +71,7 @@ import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealableCiphersService } from "./services/pam-revealable-ciphers.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
+import { ControlledAccessSharedFolderField } from "./shared-folder-decoration/controlled-access-shared-folder-field";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
@@ -200,6 +202,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: SHARED_FOLDER_DECORATION,
       useValue: GovernedSharedFolderIconComponent,
+    }),
+    safeProvider({
+      provide: SHARED_FOLDER_FIELD_DECORATION,
+      useClass: ControlledAccessSharedFolderField,
+      deps: [],
     }),
     safeProvider({
       provide: AccessEventService,

@@ -63,6 +63,17 @@
               {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionsNames.join(", ") }}
             </bit-hint>
           }
+          @if (sharedFolderFieldDecoration && sharedFolderHintShown) {
+            <!-- Projected into the hint slot so it sits under the field and gives way to errors. -->
+            <div ngProjectAs="bit-hint" data-testid="shared-folder-field-hint">
+              <ng-container
+                *ngComponentOutlet="
+                  sharedFolderFieldDecoration.hint;
+                  inputs: { folders: selectedFolders }
+                "
+              />
+            </div>
+          }
         </bit-form-field>
       </ng-container>
     }
