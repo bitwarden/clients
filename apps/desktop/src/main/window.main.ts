@@ -229,33 +229,29 @@ export class WindowMain {
 
     return new Promise<void>((resolve, reject) => {
       try {
+        // Main takes the single-instance lock before anything else, so only the running
+        // instance gets here.
         if (!isMacAppStore()) {
-          const gotTheLock = app.requestSingleInstanceLock();
-          if (!gotTheLock) {
-            app.quit();
-            return;
-          } else {
-            app.on("second-instance", async (event, argv, workingDirectory) => {
-              // Someone tried to run a second instance (e.g. launching from the desktop
-              // icon or terminal while already running). Always bring us to the foreground.
-              await this.startup;
-              if (this.focusWindowCallback != null) {
-                void this.focusWindowCallback();
-              } else {
-                this.withWindow((win) => {
-                  if (win.isMinimized() || !win.isVisible()) {
-                    win.show();
-                  }
-                  win.focus();
-                });
-              }
-              if (isWindows() || isLinux()) {
-                if (this.argvCallback != null) {
-                  this.argvCallback(argv);
+          app.on("second-instance", async (event, argv, workingDirectory) => {
+            // Someone tried to run a second instance (e.g. launching from the desktop
+            // icon or terminal while already running). Always bring us to the foreground.
+            await this.startup;
+            if (this.focusWindowCallback != null) {
+              void this.focusWindowCallback();
+            } else {
+              this.withWindow((win) => {
+                if (win.isMinimized() || !win.isVisible()) {
+                  win.show();
                 }
+                win.focus();
+              });
+            }
+            if (isWindows() || isLinux()) {
+              if (this.argvCallback != null) {
+                this.argvCallback(argv);
               }
-            });
-          }
+            }
+          });
         }
 
         // This method will be called when Electron is shutting
