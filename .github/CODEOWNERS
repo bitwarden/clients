@@ -315,3 +315,7 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
 .github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-ai-sme @bitwarden/team-platform-dev
 .mcp.json                          @bitwarden/team-ai-sme
+
+## BitHub review rules: each team owns its own folder and its agent guidance
+.github/review/team-auth-dev/          @bitwarden/team-auth-dev
+.claude/rules/auth-review-guidance.md  @bitwarden/team-auth-dev
