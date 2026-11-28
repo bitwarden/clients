@@ -3,7 +3,9 @@ import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { ExternalCheckoutPremiumUpgradeNudgeService } from "@bitwarden/angular/billing/services/external-checkout-premium-upgrade-nudge.service";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
@@ -38,6 +40,10 @@ import { ServicesModule } from "./services/services.module";
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,
+    },
+    {
+      provide: PremiumUpgradeNudgeService,
+      useClass: ExternalCheckoutPremiumUpgradeNudgeService,
     },
     { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
   ],
