@@ -1,0 +1,52 @@
+import { Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./toast.stories";
+
+<Meta of={stories} />
+
+<Title />
+
+Toasts are ephemeral notifications, usually the result of a user action. Don't use them for long
+messages or critical alerts.
+
+<Primary />
+<Controls />
+
+### Variants
+
+<Canvas of={stories.Variants} />
+
+### Long content
+
+<Canvas of={stories.LongContent} />
+
+## Displaying a toast
+
+```ts
+import { showToast } from "@bitwarden/components-lit";
+
+showToast({ variant: "success", message: "Hi, I'm a toast" });
+```
+
+| Option    | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `variant` | `"success" \| "error" \| "info" \| "warning"`                 |
+| `title`   | Optional `string`                                             |
+| `message` | Required `string`, or `string[]` for paragraphs               |
+| `timeout` | ms; defaults to 5s plus 1s per 120 words. Hovering pauses it. |
+
+<Canvas of={stories.Service} />
+
+### Toast container
+
+Add one `bit-toast-container` at the app root to configure `position` (`top-right`,
+`top-full-width`, `bottom-full-width`), `max-opened` and `extended-timeout`. Without one, a default
+container is created on the first toast.
+
+```html
+<bit-toast-container position="top-full-width" max-opened="2"></bit-toast-container>
+```
+
+### Accessibility
+
+Toasts are announced through the shared live region: politely, or assertively for errors.

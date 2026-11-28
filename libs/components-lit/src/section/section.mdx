@@ -1,0 +1,44 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./section.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitSection, BitSectionHeader } from "@bitwarden/components-lit";
+```
+
+# Section
+
+Sections are simple containers that apply a responsive bottom margin and render a semantic `section`
+element. Set `disable-margin` to remove the margin, e.g. on the last section of a page.
+
+```html
+<bit-section disable-margin>
+  <div>Lots of amazing content!</div>
+</bit-section>
+```
+
+<Canvas of={stories.Default} />
+
+## Section Header
+
+Use `bit-section-header` inside `bit-section` for the heading.
+
+### Padding
+
+When the next sibling is (or contains) a `bit-card`, `bit-card-segmented` or `bit-item`, the header
+adds bottom and inline padding to align with the card's border radius.
+
+<Canvas of={stories.HeaderWithPadding} />
+<Canvas of={stories.HeaderWithoutPadding} />
+
+### Slots
+
+| Slot         | Description                                                       |
+| ------------ | ----------------------------------------------------------------- |
+| default      | Title (usually an `h2` styled as h6) plus optional suffixes       |
+| `slot="end"` | Placed at the end of the header, typically text or an icon button |
+
+<Canvas of={stories.HeaderVariants} />
+<Canvas of={stories.HeaderEndSlotVariants} />

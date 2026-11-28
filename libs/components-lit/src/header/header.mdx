@@ -1,0 +1,52 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./header.stories";
+
+<Meta of={stories} />
+
+<Title />
+
+<Description />
+
+<Primary />
+
+<Controls />
+
+## Page heading
+
+`bit-header` renders the page's `<h1>`: `title`, prefixed by `icon` and followed by
+`slot="title-suffix"`.
+
+<Canvas of={stories.TitleWithSubtitleVfo1} />
+
+### When breadcrumbs take over the heading
+
+A breadcrumbs component slotted into `slot="breadcrumbs"` can promote its active crumb to the page
+`<h1>` through `HeaderContext` (`headerContext`). The header then skips its own heading, so `title`,
+`icon` and `slot="title-prefix"` don't render; `slot="title-suffix"` renders after the breadcrumbs.
+Keep passing a real `title` for when no crumb is active.
+
+<Canvas of={stories.WithActiveBreadcrumbAndTitleSuffixVfo1} />
+
+Breadcrumbs request the context, call `setPromotedHeading(this, promoted)` whenever that changes,
+and `unregisterPromotedHeading(this)` on disconnect. Context requests follow the rendered tree, so
+this works through wrappers that forward the slot.
+
+## Content slots
+
+| Slot           | Description                                                     |
+| -------------- | --------------------------------------------------------------- |
+| default        | controls that act on the page, aligned to the end of the title  |
+| `breadcrumbs`  | breadcrumbs showing where the page sits in the hierarchy        |
+| `title-prefix` | leading content before the title, e.g. a `bit-icon-tile`        |
+| `title-suffix` | content appended inline after the heading                       |
+| `subtitle`     | additional page information                                     |
+| `tabs`         | a tab nav bar for navigation within the page                    |
+| `secondary`    | **Deprecated.** A second row of controls (`legacy` layout only) |
+
+## Legacy layout
+
+`legacy` renders the pre-VFO1 layout (feature flag off): no `title-prefix` or `subtitle`, plus the
+deprecated `secondary` slot. Move `slot="secondary"` content into the default slot when migrating.
+
+<Canvas of={stories.WithSecondaryContent} />

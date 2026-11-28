@@ -1,0 +1,43 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-group.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/chips";
+```
+
+<Title />
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+```ts
+html`<bit-chip-group
+  accessible-name="Shared folders"
+  .chips=${sharedFolders}
+  @chipSelect=${(e) => filterBy(e.detail.id)}
+></bit-chip-group>`;
+```
+
+Every `ChipGroupItem` needs an `id` and a `label`; `variant`, `startIcon` and `accessibleName` are
+optional. Activating a chip, in the row or the overflow popover, fires `chipSelect` with the item.
+Selecting from the popover closes it first.
+
+## Dismissible
+
+With `dismissible`, chips render as input chips and fire `chipDismiss`; removing them is left to the
+consumer. Dismissing from the popover keeps it open until nothing is left in it.
+
+<Canvas of={stories.Dismissible} />
+
+## Overflow
+
+Chips that don't fit are collected behind a `+N` chip (named "Show N more"). The first chip is
+pinned and truncates at very small widths. When the focused chip is packed away, focus moves to the
+`+N` chip; when that goes away, to the last chip in the row.
+
+<Canvas of={stories.Narrow} />
+<Canvas of={stories.Truncation} />

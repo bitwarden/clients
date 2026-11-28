@@ -1,0 +1,36 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as chipStories from "./chip/chip.stories";
+import * as actionChipStories from "./chip-action/chip-action.stories";
+import * as filterChipStories from "./chip-filter/chip-filter.stories";
+import * as chipGroupStories from "./chip-group/chip-group.stories";
+
+<Meta title="Component Library/Chips" />
+
+## Overview
+
+Chips are compact, interactive elements that represent options, values, or actions in a lightweight,
+scannable format.
+
+- `bit-chip` represents a user-provided value that can be dismissed.
+- `bit-chip-action` triggers a single contextual action; it renders a button, or a link with `href`.
+- `bit-chip-filter` (deprecated) filters a list by predefined, optionally nested options.
+- `bit-chip-group` shows a non-wrapping row of chips with a `+N` overflow popover.
+
+<Canvas of={chipStories.Default} />
+<Canvas of={actionChipStories.Default} />
+<Canvas of={filterChipStories.Default} />
+<Canvas of={chipGroupStories.Default} />
+
+## Content Guidelines
+
+Chip copy should be **1-2 words**. Long text truncates rather than wrapping; set
+`--bit-chip-max-width` (default `13rem`) to change where (Angular `maxWidthClass`).
+
+<Canvas of={chipStories.WithLongLabel} />
+
+### Accessibility
+
+- Use descriptive labels that clearly identify what the chip represents.
+- Set `accessible-name` on `bit-chip` when the visible label is too terse on its own; it names the
+  dismiss button, the chip's only focusable node.

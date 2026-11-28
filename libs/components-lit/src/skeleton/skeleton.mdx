@@ -1,0 +1,54 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as skeletonStories from "./skeleton.stories";
+import * as skeletonTextStories from "./skeleton-text.stories";
+import * as skeletonGroupStories from "./skeleton-group.stories";
+
+<Meta title="Component Library/Skeleton" />
+
+```ts
+import { BitSkeleton, BitSkeletonGroup, BitSkeletonText } from "@bitwarden/components-lit";
+```
+
+# Skeleton Loading
+
+An alternative loading indicator to the spinner that mimics the content being loaded. Don't use it
+for interactive elements like form controls or buttons.
+
+## Skeleton
+
+For non-text shapes. `edge-shape` is `box` (default) or `circle`. Size it with classes on the
+element (e.g. `tw-h-3 tw-w-12`).
+
+<Canvas of={skeletonStories.BoxEdgeShape} />
+<Canvas of={skeletonStories.CircleEdgeShape} />
+
+## Skeleton Text
+
+Represents lines of text; `lines` sets the count (default `1`).
+
+<Canvas of={skeletonTextStories.Text} />
+<Canvas of={skeletonTextStories.TextMultiline} />
+
+## Skeleton Group
+
+Mimics table rows and items.
+
+| Slot           | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `slot="start"` | Before the default content; doesn't grow         |
+| default        | Main content; grows to fill the horizontal space |
+| `slot="end"`   | After the default content; doesn't grow          |
+
+<Canvas of={skeletonGroupStories.Default} />
+
+## Display Considerations
+
+To avoid flashing on fast loads, wait 1 second after loading starts before showing the skeleton.
+Ideally it disappears within 10 seconds.
+
+## Accessibility
+
+Skeletons are hidden from screen readers. Announce loading at the page level instead, e.g. with
+`announce()` from this library's core (localized, `polite`) when the skeleton appears and again when
+content has loaded, or with your own `role="status"` region.

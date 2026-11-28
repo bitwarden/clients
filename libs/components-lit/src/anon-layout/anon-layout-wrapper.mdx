@@ -1,0 +1,23 @@
+import { Meta, Story } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./anon-layout-wrapper.stories";
+
+<Meta of={stories} />
+
+# Anon Layout Wrapper
+
+`bit-anon-layout-wrapper` feeds page data into `bit-anon-layout`. Instead of reading the Angular
+router, the app sets `routeData` on navigation (which also resets runtime overrides). See the Anon
+Layout docs for the data fields.
+
+## Default Example with all outlets used
+
+<Story of={stories.DefaultContentExample} />
+
+## Dynamic Content Example
+
+Content requests the `AnonLayoutWrapperDataService` through `anonLayoutWrapperDataContext` and calls
+`setAnonLayoutWrapperData()` to change what the layout shows; `resetToCachedRouteData()` restores
+the page's data.
+
+<Story of={stories.DynamicContentExample} />

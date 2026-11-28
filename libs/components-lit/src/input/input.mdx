@@ -1,0 +1,22 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./input.stories";
+
+<Meta of={stories} />
+
+# Input
+
+`bit-input` (single line) and `bit-textarea` are form-associated: they submit under `name`, take
+part in `reset`, disabled fieldsets and `checkValidity()`, and show errors once touched or after a
+submit attempt. `name`, `autocomplete`, `inputmode`, `enterkeyhint`, `autocapitalize` and
+`spellcheck` are forwarded to the inner element for autofill and mobile keyboards.
+
+```html
+<bit-input label="Email" type="email" name="email" autocomplete="username" required></bit-input>
+```
+
+Validation comes from `required`, constraint attributes (`minlength`, `maxlength`, `min`, `max`,
+`pattern`, `type="email"`) and the `validators` property (`Validators` from `core`). Set
+`show-errors-when-disabled` to keep errors visible on a disabled field.
+
+<Canvas of={stories.LoginForm} />

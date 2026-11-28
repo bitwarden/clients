@@ -1,0 +1,49 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./dialog.stories";
+
+<Meta of={stories} />
+
+# Dialog
+
+Use this dialog when content exceeds 384px or has many interactive elements, e.g. the vault item
+form. For alerts and confirmations, use the
+[Simple Dialog](?path=/docs/component-library-dialogs-simple-dialog--docs).
+
+<Primary />
+<Controls />
+
+## Slots
+
+| Slot           | Description                       |
+| -------------- | --------------------------------- |
+| default        | body; scrolls when it overflows   |
+| `title`        | extra heading content, e.g. badge |
+| `header-start` | before the heading                |
+| `header-end`   | before the close button           |
+| `footer`       | actions                           |
+
+## Size
+
+`dialog-size` is `large` (48rem, for many interactive elements or tabs), `default` (36rem) or
+`small` (24rem).
+
+<Canvas of={stories.Large} />
+
+## Long title
+
+Titles longer than two lines are truncated.
+
+<Canvas of={stories.LongTitle} />
+
+## Loading
+
+Set `loading` for content that takes more than a few seconds to load.
+
+<Canvas of={stories.Loading} />
+
+## Background color
+
+`background="alt"` suits dialogs with multiple card sections.
+
+<Canvas of={stories.WithCards} />

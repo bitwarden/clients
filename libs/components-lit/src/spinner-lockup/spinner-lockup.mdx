@@ -1,0 +1,34 @@
+import { Meta, Canvas, Description, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./spinner-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitSpinnerLockup } from "@bitwarden/components-lit";
+```
+
+<Title />
+<Description />
+
+<Canvas of={stories.PrimaryVariant} />
+
+## Layout
+
+- `horizontal` - Spinner and text side-by-side (default)
+- `vertical` - Spinner above text, centered
+
+## Variants and Sizes
+
+All spinner variants (`primary`, `subtle`, `success`, `warning`, `danger`, `contrast`) and sizes
+(`sm`, `md`, `base`, `lg`) are supported. Text scales with the spinner size.
+
+## Content Slots
+
+- `slot="title"` - Bold heading using the heading color
+- `slot="description"` - Body text using the body color
+
+<Canvas of={stories.AllVerticalVariants} />
+<Canvas of={stories.AllVerticalSizes} />
+<Canvas of={stories.AllHorizontalVariants} />
+<Canvas of={stories.AllHorizontalSizes} />

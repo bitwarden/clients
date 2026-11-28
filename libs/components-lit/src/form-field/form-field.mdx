@@ -1,0 +1,58 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./form-field.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/input";
+```
+
+# Field
+
+Text fields render their own label, hint and error inside their shadow root, so the ARIA
+relationships always resolve. Use the `label`/`hint` properties, or the `label`/`hint` slots for
+rich content. `start`/`end` slots replace Angular's `bitPrefix`/`bitSuffix`; `inline-end` places
+content (e.g. a button) beside the field; `label-end` holds info links or badges.
+
+<Primary />
+<Controls />
+
+### Required
+
+<Canvas of={stories.Required} />
+
+### Hint
+
+<Canvas of={stories.Hint} />
+
+### Disabled
+
+<Canvas of={stories.Inactive} />
+
+### Readonly
+
+<Canvas of={stories.Readonly} />
+
+### Input Group
+
+<Canvas of={stories.InputGroup} />
+
+### Button Input Group
+
+<Canvas of={stories.ButtonInputGroup} />
+
+### Select
+
+<Canvas of={stories.AdvancedSelect} />
+
+### Textarea
+
+<Canvas of={stories.Textarea} />
+
+## Building a field
+
+New text-field-shaped controls (selects, pickers) extend `BitFieldElement` from `form-field`:
+implement `value`, `validationTarget` and `renderControl()`, give the focusable element
+`id=${this.controlId}` and `aria-describedby=${this.describedBy}`, and call `setValue()` /
+`markTouchedOnBlur`. `fieldOptions` (`flush`, `selectArrow`, `custom`) adjusts the chrome.

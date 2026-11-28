@@ -1,0 +1,25 @@
+import { Meta, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/chips";
+```
+
+<Title />
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+```html
+<bit-chip label="Tag name" start-icon="bwi-tag"></bit-chip>
+```
+
+Listen for `dismissed` and remove the chip from your collection. It doesn't fire while `disabled`.
+Sizes are `large` (default) and `small`.
+
+<Canvas of={stories.Small} />
+<Canvas of={stories.Inactive} />

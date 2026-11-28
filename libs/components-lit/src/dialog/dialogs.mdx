@@ -1,0 +1,54 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./dialog-service.stories";
+
+<Meta title="Component Library/Dialogs" />
+
+# Dialog
+
+Dialogs help the user focus on a specific action. Use the
+[Dialog component](?path=/docs/component-library-dialogs-dialog--docs) for content wider than 384px
+or with many interactive elements, and the
+[Simple Dialog](?path=/docs/component-library-dialogs-simple-dialog--docs) for alerts and
+confirmations. Use dialogs sparingly; they interrupt.
+
+For non-blocking, supplementary content, open a drawer with `openDrawer`.
+
+```ts
+const ref = openDialog((ref) => html`<bit-dialog heading="Edit">…</bit-dialog>`, { data });
+const result = await ref.closed;
+```
+
+Content can be an element, a custom element tag name (it receives `dialogRef` and `data`), a Lit
+template, or a function of the `DialogRef`. Close with `ref.close(result)` or an element with
+`data-bit-dialog-close`.
+
+<Canvas of={stories.Default} />
+
+### Closing drawers on navigation
+
+Pass `closeOnNavigation: true` to `openDrawer` to close the stack when the path changes. For finer
+control, keep the `DrawerRef` and call `close()` when your view is torn down. `closeAllDialogs()`
+closes everything, e.g. when the vault locks.
+
+## Placement
+
+Dialogs are centered, or a bottom sheet on small screens (`position: "center"` always centers). The
+height grows with the content until a margin remains, then the body scrolls. A backdrop dims the
+page.
+
+## Accessibility
+
+- Dialogs are native modal `<dialog>`s; the rest of the page is inert while one is open.
+- Focus moves to an `autofocus` element, else the dialog's heading (simple dialogs: the first footer
+  button), and returns to the triggering element on close.
+- Escape and backdrop clicks close the dialog unless `disableClose` is set.
+- Give triggers `aria-haspopup="dialog"`.
+
+## Using forms with dialogs
+
+Wrap the dialog in a `<form>`; footer `bit-button type="submit"` submits it.
+
+```html
+<form><bit-dialog heading="Edit">…</bit-dialog></form>
+```

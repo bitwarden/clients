@@ -1,0 +1,48 @@
+import { Meta, Primary } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./table-v2.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/table";
+```
+
+# Table V2 (Beta)
+
+> **Beta.** Do not adopt it in production without approval from the UI Foundation team.
+
+<Primary />
+
+## Columns
+
+`columns` is an array of column definitions. `cell(row)` returns the cell content, or
+`cellParts({ start, content, secondary, end })` for a rich cell. `width` takes a content-independent
+grid track (`"120px"`, `"1fr"`, `"minmax(240px, 1fr)"`).
+
+```ts
+const columns: TableV2Column<Member, "actions">[] = [
+  { name: "name", header: "Name", sortable: true, defaultSort: "asc", cell: (m) => m.name },
+  { name: "email", header: "Email", removable: true, label: "Email", cell: (m) => m.email },
+  { name: "actions", header: html`<span class="tw-sr-only">Options</span>`, width: "72px", cell: … },
+];
+```
+
+```html
+<bit-table-v2 .data="${members}" .columns="${columns}"></bit-table-v2>
+```
+
+## Features
+
+- **Sorting**: `sortable` columns; `sort` property and `sortChange` event.
+- **Filtering**: put a `bit-table-toolbar` inside the table with a `bit-search` and filter chips.
+  Each registers under its `key`; `filter(row, values)` decides which rows show. `filters` seeds
+  initial values.
+- **Selection**: `selection: { multiple, canSelect, max, initial }`; read `selectionModel`, listen
+  to `selectedChange`. A `bit-bulk-actions-bar` inside the table is wired automatically.
+- **Pagination**: a `bit-table-paginator` inside the table. Set `length` for server-side paging.
+- **Virtualization**: `virtual-row-height` plus `height` (a row count or `"fill"`).
+- **List presentation**: `presentation="list"`, with optional `groups`.
+- **URL sync**: `query-param="ns"` mirrors filters, sort and page to `?ns.*`.
+- **Customize columns**: `state-key` plus `removable` columns with a `label`. Plug persistence in
+  with `setTableColumnPreferencesStorage()`.

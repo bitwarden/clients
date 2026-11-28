@@ -1,0 +1,20 @@
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./switch.stories";
+
+<Meta of={stories} />
+
+```ts
+import "@bitwarden/components-lit/switch";
+```
+
+# Switch
+
+Switch actions take effect immediately; don't use a switch in a form that needs a save step.
+`bit-switch` has the same API as `bit-checkbox` (`checked`, `name`, `value`, `card`, `icon`).
+Disabled switches stay focusable.
+
+<Primary />
+<Controls />
+
+<Canvas of={stories.FormControlCard} />

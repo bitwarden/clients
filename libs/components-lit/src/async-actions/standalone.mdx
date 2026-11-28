@@ -1,0 +1,17 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./standalone.stories";
+
+<Meta of={stories} />
+
+# Standalone Async Actions
+
+Set `action` on a `bit-button` or `bit-icon-button` to a function returning a promise. The button
+shows loading (after a short delay, so quick actions don't flash) and ignores clicks until it
+settles. Rejections go to the handler registered with `setAsyncActionErrorHandler`.
+
+```ts
+html`<bit-button .action=${() => api.delete(id)}>Delete</bit-button>`;
+```
+
+<Canvas of={stories.UsingPromise} />

@@ -1,0 +1,57 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./hover-reveal.stories";
+
+<Meta of={stories} />
+
+```ts
+import {
+  attachHoverReveal,
+  attachHoverRevealBoundary,
+  attachHoverRevealContainer,
+  hoverReveal,
+  hoverRevealBoundary,
+  hoverRevealContainer,
+  installHoverRevealStyles,
+} from "@bitwarden/components-lit";
+```
+
+# Hover Reveal
+
+An element with `bit-hover-reveal` is hidden until its nearest `bit-hover-reveal-container` is
+hovered or contains keyboard focus. It's pure CSS: the rules are adopted into the document on
+import. Inside a shadow root, call `installHoverRevealStyles(shadowRoot)` or use the Lit directives
+/ `attachX()` functions, which install them for you.
+
+```html
+<div bit-hover-reveal-container>
+  <span>Row content</span>
+  <bit-icon-button bit-hover-reveal icon="bwi-pencil-square" label="Edit"></bit-icon-button>
+</div>
+```
+
+<Canvas of={stories.Default} />
+
+## Behavior
+
+- Hidden with opacity, so it stays in the tab order and tabbing to it reveals it.
+- Stays visible while it, or a control inside it, has `aria-expanded="true"` (e.g. an open menu).
+  For components whose button is in a shadow root (like `bit-icon-button`), use
+  `attachHoverReveal()` or the `hoverReveal()` directive, which mirror the inner `aria-expanded`
+  onto the host.
+- Always visible on touch devices, which can't hover.
+- Containers can nest; each one only reveals its own content.
+
+<Canvas of={stories.WithMenu} />
+<Canvas of={stories.Nested} />
+
+## Boundaries
+
+A container matches `:hover` whenever the pointer is over any descendant. Add
+`bit-hover-reveal-boundary` to a region, such as a list of child rows, to exclude it.
+
+<Canvas of={stories.Boundary} />
+
+## Accessibility
+
+Revealed controls are focusable while hidden, so always give them an accessible `label`.

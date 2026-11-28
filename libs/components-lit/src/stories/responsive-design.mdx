@@ -1,0 +1,46 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Responsive Design" />
+
+# Responsive Design
+
+Bitwarden supports the following breakpoints:
+
+| Breakpoint prefix | Minimum width |
+| ----------------- | ------------- |
+| `sm`              | 640px         |
+| `md`              | 768px         |
+| `lg`              | 1024px        |
+| `xl`              | 1280px        |
+| `2xl`             | 1536px        |
+
+These can be used to conditionally apply other Tailwind classes at specific screen sizes.
+
+## Example
+
+```html
+<!-- Width of 16 by default, 32 on medium screens, and 48 on large screens -->
+<img class="tw-w-16 md:tw-w-32 lg:tw-w-48" src="..." />
+```
+
+<img className="tw-w-16 md:tw-w-32 lg:tw-w-48" alt="Bitwarden logo" src="images/logo.svg" />
+
+## Container queries
+
+Viewport breakpoints describe the window, not the space a component actually gets. A component can
+sit in a narrow side panel on a wide screen, so components in this library size themselves with
+container queries instead: mark a container with `tw-@container` and use the `@` variants (`@sm:`,
+`@md:`, `@3xl:`, ...) on its descendants.
+
+```html
+<div class="tw-@container">
+  <div class="tw-flex tw-flex-col @md:tw-flex-row">…</div>
+</div>
+```
+
+Container queries also work inside shadow roots: put `tw-@container` on a wrapper element in the
+template (see `bit-banner`).
+
+When behavior, not just styling, depends on width (e.g. collapsing overflow into a "More" menu),
+measure the element with a `ResizeObserver` (`attachResizeObserver()`, or `bit-overflow-list`)
+rather than reading `window.innerWidth`.
