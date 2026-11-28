@@ -57,4 +57,25 @@ describe("CardView", () => {
       expect(result.code).toBeUndefined();
     });
   });
+
+  describe("getCardBrandByPatterns", () => {
+    it.each([
+      "6011000000000004",
+      "6440000000000000",
+      "6450000000000000",
+      "6490000000000000",
+      "6500000000000000",
+      "6221260000000000",
+      "6229250000000000",
+    ])("recognizes the Discover number %s", (number) => {
+      expect(CardView.getCardBrandByPatterns(number)).toBe("Discover");
+    });
+
+    it.each(["6430000000000000", "6221250000000000", "6229260000000000"])(
+      "does not take %s for Discover",
+      (number) => {
+        expect(CardView.getCardBrandByPatterns(number)).toBeUndefined();
+      },
+    );
+  });
 });
