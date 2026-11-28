@@ -10,6 +10,7 @@ import { seedGatedItem, seedPamMember, seedPamOrganization } from "../../../src/
 
 const REASON = "Rotating the replica's certificates";
 const DENIAL = "Use the staging replica instead";
+const WITHDRAWAL = "The maintenance window moved to Friday";
 
 /** A member who has asked for a governed item under a rule an approver decides, logged in. */
 async function requestApproval(play: Play, page: Page) {
@@ -82,4 +83,44 @@ test("a member withdraws a pending request", async ({ page, play }) => {
   // Then it is no longer pending, and the member can ask again
   await expect(item.pendingCard).toBeHidden();
   await expect(item.requestCard).toBeVisible();
+});
+
+test("an approver withdraws an approval the member has not started", async ({
+  page,
+  play,
+  newPage,
+}) => {
+  // Given a member's request the owner approved
+  const { owner, item, seeded } = await requestApproval(play, page);
+  const approvals = await openApprovals(newPage, owner);
+  await approvals.approve(seeded.name);
+
+  // When the owner withdraws the approval, with a reason
+  await approvals.withdrawApproval(seeded.name, WITHDRAWAL);
+
+  // Then the member cannot start access, and can ask again
+  await item.reopen();
+  await expect(item.requestCard).toBeVisible();
+  await expect(item.approvedCard).toBeHidden();
+  await expect(item.passwordField).toBeHidden();
+});
+
+test("an approver revokes a member's running access", async ({ page, play, newPage }) => {
+  // Given a member holding a lease the owner approved
+  const { owner, item, seeded } = await requestApproval(play, page);
+  const approvals = await openApprovals(newPage, owner);
+  await approvals.approve(seeded.name);
+  await item.reopen();
+  await item.startAccess();
+  await expect(item.passwordField).toBeVisible();
+
+  // When the owner revokes it
+  await approvals.reload();
+  await approvals.revoke(seeded.name);
+
+  // Then the password is withheld again, and the member can ask again
+  await item.reopen();
+  await expect(item.requestCard).toBeVisible();
+  await expect(item.activeLeaseCard).toBeHidden();
+  await expect(item.passwordField).toBeHidden();
 });
