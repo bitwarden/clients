@@ -71,6 +71,8 @@ export class WebChangePasswordService
       passwordInputResult.newPasswordHint,
       user.id,
     );
+    // The rotation only reports failure when the user declined to trust an organization
+    // or emergency access grantee; every other failure throws.
     if (!success) {
       return;
     }
