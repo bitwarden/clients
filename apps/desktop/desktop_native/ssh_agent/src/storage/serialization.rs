@@ -91,6 +91,7 @@ impl TryFrom<PrivateKey> for String {
             PrivateKey::Ed25519(kp) => KeypairData::Ed25519(kp),
             PrivateKey::Ecdsa(kp) => KeypairData::Ecdsa(kp),
             PrivateKey::Rsa(kp) => KeypairData::Rsa(kp),
+            PrivateKey::MlDsa44Ed25519(kp) => KeypairData::MlDsa44Ed25519(kp),
         };
         let private_key = ssh_key::PrivateKey::new(keypair_data, "")?;
         Ok(private_key
@@ -103,7 +104,7 @@ impl TryFrom<PrivateKey> for String {
 mod tests {
     use bitwarden_random::rng;
     use ssh_key::{
-        private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
+        private::{EcdsaKeypair, Ed25519Keypair, MlDsa44Ed25519Keypair, RsaKeypair},
         EcdsaCurve, LineEnding,
     };
 
@@ -175,6 +176,22 @@ invalid_base64_data!!!
             },
             name: "test-ecdsa-p256-key".to_string(),
             cipher_id: "test-cipher-ecdsa".to_string(),
+        }
+    }
+
+    fn create_test_keydata_mldsa44_ed25519() -> SSHKeyData {
+        let keypair = MlDsa44Ed25519Keypair::random(&mut rng()).unwrap();
+        let ssh_key = ssh_key::PrivateKey::from(keypair.clone());
+        let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
+
+        SSHKeyData {
+            private_key: PrivateKey::MlDsa44Ed25519(keypair),
+            public_key: PublicKey {
+                alg: "ssh-mldsa44-ed25519@openssh.com".to_string(),
+                blob: public_key_bytes,
+            },
+            name: "test-mldsa44-ed25519-key".to_string(),
+            cipher_id: "test-cipher-mldsa44-ed25519".to_string(),
         }
     }
 
@@ -327,6 +344,29 @@ invalid_base64_data!!!
     #[test]
     fn test_keydata_ecdsa_to_from_bytes() {
         let original = create_test_keydata_ecdsa_p256();
+
+        let bytes: Vec<u8> = original.clone().try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
+
+        assert_eq!(restored.name(), original.name());
+        assert_eq!(restored.cipher_id(), original.cipher_id());
+        assert_eq!(restored.public_key(), original.public_key());
+        assert_eq!(restored.private_key(), original.private_key());
+    }
+
+    #[test]
+    fn test_privatekey_mldsa44_ed25519_to_string() {
+        let keypair = MlDsa44Ed25519Keypair::random(&mut rng()).unwrap();
+        let private_key = PrivateKey::MlDsa44Ed25519(keypair);
+
+        let pem = String::try_from(private_key).unwrap();
+        assert!(pem.contains("BEGIN OPENSSH PRIVATE KEY"));
+        assert!(pem.contains("END OPENSSH PRIVATE KEY"));
+    }
+
+    #[test]
+    fn test_keydata_mldsa44_ed25519_to_from_bytes() {
+        let original = create_test_keydata_mldsa44_ed25519();
 
         let bytes: Vec<u8> = original.clone().try_into().unwrap();
         let restored: SSHKeyData = bytes.try_into().unwrap();

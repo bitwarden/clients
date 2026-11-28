@@ -4635,9 +4635,8 @@ dependencies = [
 
 [[package]]
 name = "ssh-cipher"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d801accda99469cde6d73da741422610fdf6508a72d9a69d1b55cb241c720597"
+version = "0.4.0-pre"
+source = "git+https://github.com/quexten/SSH.git?rev=a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02#a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02"
 dependencies = [
  "aead",
  "aes 0.9.3",
@@ -4653,9 +4652,8 @@ dependencies = [
 
 [[package]]
 name = "ssh-encoding"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b54d0ed0498daf3f78d82e00e28c8eec9d75a067c4cfbcc7a0f7d0f4077749e"
+version = "0.4.0-rc.0"
+source = "git+https://github.com/quexten/SSH.git?rev=a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02#a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02"
 dependencies = [
  "base64ct",
  "crypto-bigint",
@@ -4668,12 +4666,12 @@ dependencies = [
 [[package]]
 name = "ssh-key"
 version = "0.7.0-rc.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0701b552e6bd8f13a6e07bde25307c32d7daad80a79b65832d110c0416e7b638"
+source = "git+https://github.com/quexten/SSH.git?rev=a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02#a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02"
 dependencies = [
  "bcrypt-pbkdf",
  "ctutils",
  "ed25519-dalek",
+ "ml-dsa",
  "p256",
  "p384",
  "p521",

@@ -11,11 +11,12 @@ use common::{
     framed_invalid_session_bind_extension, framed_request_identities,
     framed_session_bind_extension, framed_session_bind_extension_with_key, framed_sign_request,
     framed_unsupported_host_key_session_bind_extension, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, random_ecdsa_host_key, read_framed_response,
-    read_framed_response_or_eof, test_ecdsa_p256_key, test_ecdsa_p256_key_blob,
-    test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key, test_ecdsa_p521_key_blob,
-    test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
-    unsupported_dsa_key_blob, MockApprovalRequester,
+    parse_sign_response_algorithm, parse_sign_response_signature, random_ecdsa_host_key,
+    read_framed_response, read_framed_response_or_eof, test_ecdsa_p256_key,
+    test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key,
+    test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_mldsa44_ed25519_key,
+    test_mldsa44_ed25519_key_blob, test_mldsa44_ed25519_public_key, test_rsa_key,
+    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -877,6 +878,75 @@ async fn test_list_request_uninitialized_keystore_denied_returns_failure() {
         response[0], 5,
         "expected FAILURE when list callback is denied"
     );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_includes_mldsa44_ed25519_key() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_mldsa44_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    assert_eq!(
+        u32::from_be_bytes(response[1..5].try_into().unwrap()),
+        1,
+        "expected the composite key to be listed"
+    );
+    assert_eq!(
+        parse_first_key_name(&response),
+        "Test ML-DSA-44 + Ed25519 Key"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_request_mldsa44_ed25519_produces_verifiable_signature() {
+    use signature::Verifier as _;
+
+    const TEST_DATA: &[u8] = b"test data";
+
+    setup();
+    let mut agent = agent_with_keys(vec![test_mldsa44_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_sign_request(
+            &test_mldsa44_ed25519_key_blob(),
+            TEST_DATA,
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(response[0], 14, "expected SIGN_RESPONSE type byte");
+    assert_eq!(
+        parse_sign_response_algorithm(&response),
+        "ssh-mldsa44-ed25519@openssh.com",
+        "expected composite algorithm in response"
+    );
+
+    let signature = ssh_key::Signature::new(
+        ssh_key::Algorithm::MlDsa44Ed25519,
+        parse_sign_response_signature(&response),
+    )
+    .expect("agent signature should be well-formed");
+    test_mldsa44_ed25519_public_key()
+        .verify(TEST_DATA, &signature)
+        .expect("agent signature should verify against the composite public key");
 
     agent.stop();
 }

@@ -121,6 +121,9 @@ export class SshKeySectionComponent implements OnInit {
 
   private async generateSshKey() {
     await firstValueFrom(this.sdkService.client$);
+    // TODO: offer "MlDsa44Ed25519" here once that `KeyAlgorithm` variant ships in
+    // @bitwarden/sdk-internal (bitwarden/sdk-internal#1854). The desktop SSH agent already
+    // signs with composite keys imported from OpenSSH.
     const sshKey = generate_ssh_key("Ed25519");
     this.sshKeyForm.setValue({
       privateKey: sshKey.privateKey,

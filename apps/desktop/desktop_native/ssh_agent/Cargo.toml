@@ -17,9 +17,12 @@ rsa = "=0.10.0"
 secure_memory = { path = "../secure_memory" }
 sha2 = "=0.11.0"
 signature = "=3.0.0"
+# ssh-key, and its ssh-encoding/ssh-cipher dependencies, are redirected to a fork by
+# `[patch.crates-io]` in the workspace manifest, for the `mldsa-eddsa` composite key type.
 ssh-key = { version = "=0.7.0-rc.12", features = [
     "encryption",
     "ed25519",
+    "mldsa-eddsa",
     "p256",
     "p384",
     "p521",
