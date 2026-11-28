@@ -454,6 +454,122 @@ describe("EventService shortcode escaping", () => {
   });
 });
 
+describe("EventService ServiceAccount people events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}${p1 ?? ""}${p2 ?? ""}`,
+  );
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  const grantedMemberId = "org-user-1234-5678";
+  // Distinct from grantedMemberId so a wrong column read shows up as this value's presence in
+  // the message, not just the correct value's absence.
+  const otherId = "other-id-0000-1111";
+
+  const cases: [EventType, string][] = [
+    [EventType.ServiceAccount_UserAdded, "addedUserToServiceAccountWithId"],
+    [EventType.ServiceAccount_UserRemoved, "removedUserToServiceAccountWithId"],
+  ];
+
+  it.each(cases)(
+    "renders %s from OrganizationUserId on rows written since the server fix",
+    async (type, i18nKey) => {
+      // Rows written since the fix set OrganizationUserId and leave UserId empty.
+      const info = await sut.getEventInfo({
+        type,
+        organizationUserId: grantedMemberId,
+        actingUserId: otherId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(i18nKey);
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain(otherId.substring(0, 8));
+      expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
+    },
+  );
+
+  it.each(cases)(
+    "renders %s from UserId on rows written before the server fix",
+    async (type, i18nKey) => {
+      // Older rows stored the granted member's org-user id in UserId and left OrganizationUserId
+      // empty. The server does not back-fill these, so the client must fall back to UserId.
+      const info = await sut.getEventInfo({
+        type,
+        userId: grantedMemberId,
+        actingUserId: otherId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(i18nKey);
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain("undefined");
+      expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
+    },
+  );
+
+  it.each(cases)(
+    "prefers OrganizationUserId over UserId for %s when both are set",
+    async (type) => {
+      const info = await sut.getEventInfo({
+        type,
+        organizationUserId: grantedMemberId,
+        userId: otherId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain(otherId.substring(0, 8));
+    },
+  );
+
+  it.each(cases)("renders %s as plain text when links are disabled", async (type) => {
+    const options = new EventOptions();
+    options.disableLink = true;
+
+    const info = await sut.getEventInfo(
+      {
+        type,
+        organizationUserId: grantedMemberId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse,
+      options,
+    );
+
+    expect(info.message).not.toContain("<a ");
+    expect(info.message).toContain(grantedMemberId.substring(0, 8));
+  });
+
+  it.each(cases)("keeps the human readable %s message free of markup", async (type) => {
+    const info = await sut.getEventInfo({
+      type,
+      userId: grantedMemberId,
+      organizationId: "org",
+      grantedServiceAccountId: "sa-1",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).not.toContain("<");
+    expect(info.humanReadableMessage).toContain(grantedMemberId.substring(0, 8));
+    expect(info.humanReadableMessage).toContain("sa-1".substring(0, 8));
+  });
+});
+
 describe("EventService PAM events", () => {
   let sut: EventService;
 
