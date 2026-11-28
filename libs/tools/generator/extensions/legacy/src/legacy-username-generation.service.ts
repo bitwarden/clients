@@ -9,6 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   ApiOptions,
   EmailDomainOptions,
+  EmailForwardToOptions,
   EmailPrefixOptions,
   SelfHostedApiOptions,
   NoPolicy,
@@ -37,7 +38,10 @@ type MappedOptions = {
     duckDuckGo: ApiOptions & IntegrationRequest;
     fastmail: ApiOptions & EmailPrefixOptions & IntegrationRequest;
     firefoxRelay: ApiOptions & IntegrationRequest;
-    forwardEmail: ApiOptions & EmailDomainOptions & IntegrationRequest;
+    forwardEmail: ApiOptions &
+      EmailDomainOptions &
+      Partial<EmailForwardToOptions> &
+      IntegrationRequest;
     simpleLogin: SelfHostedApiOptions & IntegrationRequest;
   };
 };
@@ -283,6 +287,7 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
       forwardEmail: {
         token: options.forwardedForwardEmailApiToken,
         domain: options.forwardedForwardEmailDomain,
+        forwardTo: options.forwardedForwardEmailForwardTo,
         website: options.website,
       },
       simpleLogin: {
@@ -336,6 +341,7 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
       forwardedFastmailApiToken: options.forwarders.fastmail.token,
       forwardedForwardEmailApiToken: options.forwarders.forwardEmail.token,
       forwardedForwardEmailDomain: options.forwarders.forwardEmail.domain,
+      forwardedForwardEmailForwardTo: options.forwarders.forwardEmail.forwardTo,
       forwardedSimpleLoginApiKey: options.forwarders.simpleLogin.token,
       forwardedSimpleLoginBaseUrl: options.forwarders.simpleLogin.baseUrl,
     } as UsernameGeneratorOptions;

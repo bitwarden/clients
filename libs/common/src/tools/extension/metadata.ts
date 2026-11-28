@@ -8,7 +8,7 @@ export const DefaultFields: FieldId[] = Object.freeze(Object.keys(Field) as any)
 export const Extension: Record<string, SiteMetadata> = {
   [Site.forwarder]: {
     id: Site.forwarder,
-    availableFields: [Field.baseUrl, Field.domain, Field.prefix, Field.token],
+    availableFields: [Field.baseUrl, Field.domain, Field.forwardTo, Field.prefix, Field.token],
   },
 };
 

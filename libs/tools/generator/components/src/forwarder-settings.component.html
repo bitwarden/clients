@@ -32,6 +32,20 @@
       <bit-hint>{{ "forwarderWebsitePrefixHint" | i18n }}</bit-hint>
     </bit-form-control>
   }
+  @if (displayForwardTo) {
+    <bit-form-field>
+      <bit-label>{{ "forwarderForwardTo" | i18n }}</bit-label>
+      <input
+        bitInput
+        formControlName="forwardTo"
+        type="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+        (change)="save('forwardTo')"
+      />
+      <bit-hint>{{ "forwarderForwardToHint" | i18n }}</bit-hint>
+    </bit-form-field>
+  }
   @if (displayBaseUrl) {
     <bit-form-field>
       <bit-label>{{ "selfHostBaseUrl" | i18n }}</bit-label>

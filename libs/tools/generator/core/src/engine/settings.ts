@@ -18,3 +18,13 @@ export type EmailPrefixSettings = {
    */
   prefix: string;
 };
+
+/** Api configuration for forwarders that can forward messages to a recipient. */
+export type EmailForwardToSettings = {
+  /** An optional email address that receives messages sent to generated aliases.
+   *  @remarks When empty, the forwarder uses its default recipient.
+   *  @example If the address is `recipient@example.com`, messages sent to a
+   *  generated alias are forwarded to `recipient@example.com`.
+   */
+  forwardTo: string;
+};

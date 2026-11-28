@@ -12,19 +12,25 @@ import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { BufferedKeyDefinition } from "@bitwarden/common/tools/state/buffered-key-definition";
 import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
-import { ForwarderConfiguration, ForwarderContext, EmailDomainSettings } from "../engine";
+import {
+  ForwarderConfiguration,
+  ForwarderContext,
+  EmailDomainSettings,
+  EmailForwardToSettings,
+} from "../engine";
 import { CreateForwardingEmailRpcDef } from "../engine/forwarder-configuration";
 import { ApiOptions, EmailDomainOptions } from "../types";
 
 // integration types
-export type ForwardEmailSettings = ApiSettings & EmailDomainSettings;
-export type ForwardEmailOptions = ApiOptions & EmailDomainOptions;
+export type ForwardEmailSettings = ApiSettings & EmailDomainSettings & EmailForwardToSettings;
+export type ForwardEmailOptions = ApiOptions & EmailDomainOptions & EmailForwardToSettings;
 export type ForwardEmailConfiguration = ForwarderConfiguration<ForwardEmailSettings>;
 
 // default values
 const defaultSettings = Object.freeze({
   token: "",
   domain: "",
+  forwardTo: "",
 });
 
 // supported RPC calls
@@ -34,9 +40,11 @@ const createForwardingEmail = Object.freeze({
     return context.baseUrl() + `/v1/domains/${domain}/aliases`;
   },
   body(request: IntegrationRequest, context: ForwarderContext<ForwardEmailSettings>) {
+    const forwardTo = context.emailForwardTo()?.trim();
     return {
       labels: context.website(request),
       description: context.generatedBy(request),
+      ...(forwardTo ? { recipients: forwardTo } : {}),
     };
   },
   hasJsonPayload(response: Response) {
@@ -52,10 +60,11 @@ const createForwardingEmail = Object.freeze({
 // forwarder configuration
 const forwarder = Object.freeze({
   defaultSettings,
-  request: ["token", "domain"],
+  request: ["token", "domain", "forwardTo"],
   settingsConstraints: {
     token: { required: true },
     domain: { required: true },
+    forwardTo: {},
   },
   local: {
     settings: {
@@ -78,7 +87,7 @@ const forwarder = Object.freeze({
       key: "forwarder.ForwardEmail.local.import",
       target: "object",
       format: "plain",
-      classifier: new PublicClassifier<ForwardEmailSettings>(["token", "domain"]),
+      classifier: new PublicClassifier<ForwardEmailSettings>(["token", "domain", "forwardTo"]),
       state: GENERATOR_MEMORY,
       options: {
         deserializer: (value) => value,
