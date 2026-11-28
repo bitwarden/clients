@@ -9,6 +9,9 @@ const ENV_MENU_TRIGGER = 'environment-selector button[aria-haspopup="menu"]';
 const SELF_HOSTED_MENU_ITEM = /self-hosted/i;
 const BASE_URL_INPUT = "#self_hosted_env_settings_form_input_base_url";
 
+const EMAIL_INPUT = "login-email-input";
+const CREATE_ACCOUNT_LINK = "login-create-account-link";
+
 // Web lands on the vault, or on the extension pitch until it is dismissed once.
 const WEB_POST_LOGIN_URL = new RegExp(`#\\/vault|${SETUP_EXTENSION_URL.source}`);
 const WEB_POST_LOGIN_TIMEOUT_MS = 60_000;
@@ -30,14 +33,8 @@ export class LoginPage {
   constructor(private page: Page) {}
 
   async logIn(targetAccount: Account = account()) {
-    // Wait for the page before probing for the selector, which renders alongside it.
-    const email = this.page.getByTestId("login-email-input");
-    await expect(email).toBeVisible();
-
-    // On desktop and browser, the self-hosted server is not the default; switch to it if needed.
-    if ((await this.page.locator(ENV_MENU_TRIGGER).count()) > 0) {
-      await this.useSelfHostedServer(targetAccount.server);
-    }
+    const email = this.page.getByTestId(EMAIL_INPUT);
+    await this.selectServer(targetAccount.server);
 
     await email.fill(targetAccount.email);
     await this.page.getByTestId("login-continue-button").click();
@@ -47,6 +44,24 @@ export class LoginPage {
     await password.fill(targetAccount.password);
 
     await this.page.getByTestId("login-submit-button").click();
+  }
+
+  /**
+   * Points desktop and browser at the self-hosted server, which is not their default. Web's
+   * server is baked into its build, so web has nothing to select. Call it on the login page.
+   */
+  async selectServer(baseUrl: string) {
+    // Wait for the page before probing for the selector, which renders alongside it.
+    await expect(this.page.getByTestId(EMAIL_INPUT)).toBeVisible();
+
+    if ((await this.page.locator(ENV_MENU_TRIGGER).count()) > 0) {
+      await this.useSelfHostedServer(baseUrl);
+    }
+  }
+
+  /** Follows the login page's link to registration. */
+  async createAccount() {
+    await this.page.getByTestId(CREATE_ACCOUNT_LINK).click();
   }
 
   /** Starts a passkey login; an authenticator must be ready to answer the assertion. */
