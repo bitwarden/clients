@@ -6,6 +6,8 @@ import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
+// Everything but signRequestResponse serves the renderer-owned agent, which runs only while the
+// renderer teardown flag is off. Main ignores these channels once it owns the agent itself.
 const sshAgent = {
   init: async () => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT);

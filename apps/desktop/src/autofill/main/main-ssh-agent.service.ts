@@ -10,6 +10,10 @@ import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 
 import { FeatureStatus } from "./feature-status";
 
+/**
+ * The renderer-owned SSH agent: main serves the socket and relays every decision to the renderer.
+ * Disables itself once {@link NewMainSshAgentService} owns the agent instead.
+ */
 export class MainSshAgentService {
   // The napi callback requestSign() is awaited directly by the Rust agent,
   // so it must return a Promise that resolves with the user's decision.
@@ -25,9 +29,14 @@ export class MainSshAgentService {
   private agentState: sshagent.SshAgentState;
 
   constructor(
+    private readonly disabled: boolean,
     private logService: LogService,
     private messagingService: MessagingService,
   ) {
+    if (this.disabled) {
+      return;
+    }
+
     this.registerIpcHandlers();
   }
 

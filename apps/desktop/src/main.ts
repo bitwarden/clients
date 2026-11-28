@@ -52,6 +52,7 @@ import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.servi
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
+import { NewMainSshAgentService } from "./autofill/main/new-main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
@@ -122,6 +123,7 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
+  newSshAgentService: NewMainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
@@ -418,7 +420,23 @@ export class Main {
       this.createRendererTeardown(),
     );
 
-    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+    // Exactly one of these serves the agent; each stands down when the other owns it.
+    this.sshAgentService = new MainSshAgentService(
+      this.rendererTeardownFlag.isEnabled,
+      this.logService,
+      this.messagingService,
+    );
+    this.newSshAgentService = new NewMainSshAgentService(
+      this.rendererTeardownFlag.isEnabled,
+      this.logService,
+      this.messagingService,
+      this.serviceContainer.cipherService,
+      this.serviceContainer.authService,
+      accountService,
+      this.desktopSettingsService,
+      this.i18nService,
+      this.windowMain,
+    );
 
     new EphemeralValueStorageService();
 
@@ -449,6 +467,7 @@ export class Main {
       this.headlessVaultTimeout.dispose();
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
+      this.newSshAgentService.dispose();
       this.storageService.dispose();
     });
   }
@@ -549,6 +568,9 @@ export class Main {
           this.processDeepLink([url]);
         });
 
+        // Main owns the SSH agent; it signs with main's vault, with or without a renderer.
+        this.newSshAgentService.init();
+
         // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
         // A failure leaves that account locked rather than failing startup for the others. The
         // renderer still does this itself while the flag is off.
@@ -584,7 +606,6 @@ export class Main {
     return new RendererTeardownMain(
       this.rendererTeardownFlag.isEnabled,
       [
-        { name: "ssh-agent", active: () => this.sshAgentService.status === FeatureStatus.Active },
         {
           name: "autotype",
           active: () => this.mainDesktopAutotypeMvpService.status === FeatureStatus.Active,

@@ -22,6 +22,10 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
 }));
 
+// The service takes `disabled` first, so NewMainSshAgentService can own the agent instead.
+const ENABLED = false;
+const DISABLED = true;
+
 describe("MainSshAgentService", () => {
   let mockLogService: jest.Mocked<LogService>;
   let mockMessagingService: jest.Mocked<MessagingService>;
@@ -68,7 +72,7 @@ describe("MainSshAgentService", () => {
       },
     );
 
-    new MainSshAgentService(mockLogService, mockMessagingService);
+    new MainSshAgentService(ENABLED, mockLogService, mockMessagingService);
     await ipcHandlers.get("sshagent.init")!({});
     await Promise.resolve(); // let agentState settle
   });
@@ -88,10 +92,22 @@ describe("MainSshAgentService", () => {
     });
   });
 
+  describe("while NewMainSshAgentService owns the agent", () => {
+    it("registers no IPC handlers, leaving the channels to the main-owned agent", () => {
+      ipcHandlers.clear();
+      (ipcMain.handle as jest.Mock).mockClear();
+
+      new MainSshAgentService(DISABLED, mockLogService, mockMessagingService);
+
+      expect(ipcMain.handle).not.toHaveBeenCalled();
+      expect(ipcHandlers.size).toBe(0);
+    });
+  });
+
   describe("sshagent.isloaded IPC handler", () => {
     it("should return false before sshagent.init IPC is called", async () => {
       // Create a fresh service that has not received the INIT IPC call
-      new MainSshAgentService(mockLogService, mockMessagingService);
+      new MainSshAgentService(ENABLED, mockLogService, mockMessagingService);
       const handler = ipcHandlers.get("sshagent.isloaded")!;
       expect(await handler({})).toBe(false);
     });
@@ -125,7 +141,7 @@ describe("MainSshAgentService", () => {
       (sshagent.SshAgentState.serve as jest.Mock).mockRejectedValueOnce(error);
 
       // Re-create service and invoke INIT again with the rejecting mock
-      new MainSshAgentService(mockLogService, mockMessagingService);
+      new MainSshAgentService(ENABLED, mockLogService, mockMessagingService);
       await ipcHandlers.get("sshagent.init")!({});
       await Promise.resolve(); // propagates rejection through .then()
       await Promise.resolve(); // .catch() handler runs

@@ -35,6 +35,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { rendererTeardownEnabled } from "../../platform/renderer-teardown-flag";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
@@ -60,6 +61,12 @@ export class SshAgentService implements OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  /**
+   * Whether main owns the agent. Read once: main reads the same flag once at startup, so a value
+   * that changed mid-session would leave the two processes serving different paths.
+   */
+  private mainOwnsAgent = false;
+
   constructor(
     private cipherService: CipherService,
     private logService: LogService,
@@ -73,14 +80,38 @@ export class SshAgentService implements OnDestroy {
   ) {}
 
   async init() {
+    this.mainOwnsAgent = await rendererTeardownEnabled();
     await this.initListeners();
   }
 
   private async initListeners() {
+    // Approval dialog for a request main has already decided needs one. Main owns everything else
+    // about it, so this is a pure dialog host.
+    this.messageListener
+      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.APPROVAL_REQUEST))
+      .pipe(
+        filter(() => this.mainOwnsAgent),
+        concatMap(async (message) => {
+          const dialogRef = ApproveSshRequestComponent.open(
+            this.dialogService,
+            message.cipherName as string,
+            message.application as string,
+            message.isAgentForwarding as boolean,
+            message.namespace as string,
+          );
+
+          const accepted = await firstValueFrom(dialogRef.closed);
+          await ipc.autofill.sshAgent.signRequestResponse(message.requestId as number, accepted);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     // Sign request approval — renderer shows the approval dialog.
     this.messageListener
       .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST))
       .pipe(
+        filter(() => !this.mainOwnsAgent),
         withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
         concatMap(async ([message, enabled]) => {
           if (!enabled) {
@@ -191,6 +222,7 @@ export class SshAgentService implements OnDestroy {
     // it regardless of the user's current SSH-agent setting.
     this.accountService.activeAccount$
       .pipe(
+        filter(() => !this.mainOwnsAgent),
         // Dedupe by id because activeAccount$ also re-emits when
         // AccountInfo fields change (email/name/emailVerified/creationDate).
         distinctUntilChanged((a, b) => a?.id === b?.id),
@@ -216,6 +248,7 @@ export class SshAgentService implements OnDestroy {
     // Clear remembered sign-approvals whenever the vault is not unlocked
     this.authService.activeAccountStatus$
       .pipe(
+        filter(() => !this.mainOwnsAgent),
         filter((status) => status !== AuthenticationStatus.Unlocked),
         takeUntil(this.destroy$),
       )
@@ -229,6 +262,7 @@ export class SshAgentService implements OnDestroy {
     this.messageListener
       .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST))
       .pipe(
+        filter(() => !this.mainOwnsAgent),
         withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
         switchMap(([message, status, account]) => {
           const requestId = message.requestId as number;
@@ -289,6 +323,7 @@ export class SshAgentService implements OnDestroy {
     // Keys are cleared only when the feature is disabled or the active account changes.
     this.accountService.activeAccount$
       .pipe(
+        filter(() => !this.mainOwnsAgent),
         // Re-evaluate the entire pipeline whenever the active account changes or is cleared.
         switchMap((account) => {
           // All accounts logged out: clear keys and stop the server if it was running.
