@@ -4998,6 +4998,10 @@
   "chooseFile": {
     "message": "Choose File"
   },
+  "allFiles": {
+    "message": "All files",
+    "description": "Entry in a file picker's file type list that shows every file."
+  },
   "chooseFileSentenceCase": {
     "message": "Choose file"
   },

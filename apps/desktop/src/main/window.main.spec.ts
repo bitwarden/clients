@@ -40,7 +40,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 }));
 
 import { isSnapStore } from "./platform-utils.main";
-import { isConfinedSnap, WindowMain } from "./window.main";
+import { isConfinedSnap, shouldBypassXdgPortalFileDialogs, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
   describe("isLocalBundleUrl", () => {
@@ -551,5 +551,64 @@ describe("isConfinedSnap", () => {
 
     expect(isConfinedSnap()).toBe(false);
     expect(isSnapStore()).toBe(true);
+  });
+});
+
+describe("shouldBypassXdgPortalFileDialogs", () => {
+  const originalPlatform = process.platform;
+  const originalExecPath = process.execPath;
+  const originalContainer = process.env.container;
+
+  const setPlatform = (platform: NodeJS.Platform) => {
+    Object.defineProperty(process, "platform", { value: platform, configurable: true });
+  };
+
+  const setExecPath = (execPath: string) => {
+    Object.defineProperty(process, "execPath", { value: execPath, configurable: true });
+  };
+
+  let readFileSync: jest.SpyInstance;
+
+  beforeEach(() => {
+    readFileSync = jest.spyOn(fs, "readFileSync");
+    setPlatform("linux");
+    setExecPath("/opt/Bitwarden/bitwarden");
+    delete process.env.container;
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+    Object.defineProperty(process, "execPath", { value: originalExecPath, configurable: true });
+    if (originalContainer === undefined) {
+      delete process.env.container;
+    } else {
+      process.env.container = originalContainer;
+    }
+  });
+
+  it("returns true for an unsandboxed Linux build (deb, rpm, AppImage, tar.gz)", () => {
+    expect(shouldBypassXdgPortalFileDialogs()).toBe(true);
+  });
+
+  it("returns false on non-Linux platforms", () => {
+    setPlatform("darwin");
+    expect(shouldBypassXdgPortalFileDialogs()).toBe(false);
+  });
+
+  // Flatpak needs the portal to reach files outside its sandbox, and its portal calls succeed
+  // because Flatpak's D-Bus proxy identifies the app.
+  it("returns false in Flatpak", () => {
+    process.env.container = "flatpak";
+    expect(shouldBypassXdgPortalFileDialogs()).toBe(false);
+  });
+
+  // Snap is never isolated, so its portal file picker keeps working.
+  it("returns false in a confined snap", () => {
+    setExecPath("/snap/bitwarden/x1/opt/Bitwarden/bitwarden");
+    readFileSync.mockReturnValue(
+      "0::/user.slice/user-1000.slice/user@1000.service/app.slice/snap.bitwarden.bitwarden.f0e1d2c3.scope\n",
+    );
+    expect(shouldBypassXdgPortalFileDialogs()).toBe(false);
   });
 });
