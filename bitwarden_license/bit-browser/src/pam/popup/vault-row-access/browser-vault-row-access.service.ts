@@ -35,6 +35,7 @@ import {
 } from "@bitwarden/bit-pam";
 import {
   AccessBadgeTickerService,
+  AccessRequestCancelService,
   ExtendLeaseDialogComponent,
 } from "@bitwarden/bit-pam-components";
 import { VaultRowSubtitle } from "@bitwarden/browser/vault/popup/components/vault/vault-row-slots/vault-row-subtitle.token";
@@ -63,7 +64,7 @@ const SUBTITLE_SEPARATOR = " • ";
 
 /**
  * The status each popup vault row shows for a privileged-control item, off the SDK's badge
- * ranking, and the request, start, extend and end actions its overflow menu offers. Binds
+ * ranking, and the request, start, cancel, extend and end actions its overflow menu offers. Binds
  * `VAULT_ROW_SUBTITLE` and backs `VAULT_ROW_ICON` and `VAULT_ROW_ACTIONS`. Nothing is reported until
  * the member is known to be licensed.
  */
@@ -78,6 +79,7 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly accessLeaseSdkService = inject(AccessLeaseSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly accessRequestCancelService = inject(AccessRequestCancelService);
   private readonly ticker = inject(AccessBadgeTickerService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -169,7 +171,8 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
 
   /**
    * The row menu's access actions: Request access (disabled unless requestable) or Start access on
-   * a gated row, Extend and End access while active. Each reads the status its row last reported.
+   * a gated row, Cancel request while a request is pending or approved but not started, Extend and
+   * End access while active. Each reads the status its row last reported.
    */
   rowActions(): readonly VaultItemsTableRowAction<CipherViewLike>[] {
     const statusOf = (cipher: CipherViewLike) => this.reportedStatus(cipher);
@@ -193,6 +196,16 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
         },
         disabled: (cipher) => statusOf(cipher)?.kind !== "request",
         run: (cipher) => this.requestAccess(cipher),
+      },
+      {
+        id: "pamCancelRequest",
+        label: this.i18nService.t("pendingStateCancelRequest"),
+        icon: "bwi-close",
+        show: (cipher) => {
+          const kind = statusOf(cipher)?.kind;
+          return gated(cipher) && (kind === "pending" || kind === "ready");
+        },
+        run: (cipher) => this.cancelRequest(cipher),
       },
       {
         id: "pamExtendAccess",
@@ -385,6 +398,14 @@ export class BrowserVaultRowAccessService implements VaultRowSubtitle {
       });
       this.rowState.invalidate(cipherId);
     }
+  }
+
+  /** The shared cancel flow confirms, toasts the outcome and announces the change. */
+  async cancelRequest(cipher: CipherViewLike): Promise<void> {
+    if (cipher.id == null) {
+      return;
+    }
+    await this.accessRequestCancelService.cancelOutstandingRequest(String(cipher.id));
   }
 
   /** A denied extension resolves rather than throws, so the returned status picks the toast. */
