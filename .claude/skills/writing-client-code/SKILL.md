@@ -53,6 +53,7 @@ These rules apply **strictly to new files and components**. For existing code, f
 - **All Tailwind classes require `tw-` prefix** — `tw-flex`, `tw-mt-2`, not `flex`, `mt-2`
 - **Testing with Jest** — use `jest-mock-extended` for mocking services. `describe`/`it` blocks, not `test()`
 - **Imports from `@bitwarden/common`** must not pull in Angular-specific code (breaks CLI)
+- **Never add `// @ts-strict-ignore`** to new files — fix the underlying type error instead
 
 ## Examples
 
