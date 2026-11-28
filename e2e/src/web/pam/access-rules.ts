@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 
+import { exactly } from "./exactly";
 import { confirmSimpleDialog } from "./simple-dialog";
 
 const EMPTY_STATE = "access-rules-empty-state";
@@ -100,9 +101,4 @@ export class AccessRuleEditPage {
     await this.page.locator(EDIT_SAVE_BUTTON).click();
     await expect(this.page.locator(EDIT_SAVE_BUTTON)).toBeHidden();
   }
-}
-
-/** Matches the whole of an element's text, so one name never matches another it prefixes. */
-function exactly(text: string): RegExp {
-  return new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`);
 }
