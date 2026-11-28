@@ -278,6 +278,21 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAE3NrLXRlc3RAZXhhbXBsZS5jb20BAgMEBQY=
         assert_eq!(data.public_key().alg(), "ssh-rsa");
     }
 
+    #[test]
+    fn from_private_key_pem_mldsa44_ed25519_sets_correct_algorithm_string() {
+        // A composite private key is two seeds, so a fixed 64-byte value yields a stable test key
+        // without a multi-kilobyte PEM literal.
+        let keypair = ssh_key::private::MlDsa44Ed25519Keypair::from_seed(&[0x2a; 64]).unwrap();
+        let pem = ssh_key::PrivateKey::from(keypair)
+            .to_openssh(ssh_key::LineEnding::LF)
+            .unwrap()
+            .to_string();
+
+        let data = SSHKeyData::from_private_key_pem(&pem, "k".into(), "id".into()).unwrap();
+
+        assert_eq!(data.public_key().alg(), "ssh-mldsa44-ed25519@openssh.com");
+    }
+
     fn unparsed(pem: &str, name: &str) -> UnparsedSSHKeyData {
         UnparsedSSHKeyData {
             private_key_pem: pem.to_string(),

@@ -140,6 +140,49 @@ pub fn test_rsa_key_blob() -> Vec<u8> {
         .expect("RSA public key encoding should succeed")
 }
 
+/// Seed for the `ssh-mldsa44-ed25519@openssh.com` test key.
+///
+/// Both halves of a composite private key are seeds, so a fixed 64-byte value yields a stable
+/// test key without a multi-kilobyte PEM literal.
+const TEST_MLDSA44_ED25519_SEED: &[u8; 64] = &[0x2a; 64];
+
+fn test_mldsa44_ed25519_private_key() -> ssh_key::PrivateKey {
+    let keypair = ssh_key::private::MlDsa44Ed25519Keypair::from_seed(TEST_MLDSA44_ED25519_SEED)
+        .expect("composite test seed should be valid");
+    ssh_key::PrivateKey::from(keypair)
+}
+
+pub fn test_mldsa44_ed25519_key() -> SSHKeyData {
+    let pem = test_mldsa44_ed25519_private_key()
+        .to_openssh(ssh_key::LineEnding::LF)
+        .expect("composite key should encode to OpenSSH")
+        .to_string();
+
+    SSHKeyData::from_private_key_pem(
+        &pem,
+        "Test ML-DSA-44 + Ed25519 Key".to_string(),
+        "cipher-mldsa44-ed25519".to_string(),
+    )
+    .expect("composite test key should be importable")
+}
+
+/// Returns the SSH wire-format public key blob for the test composite key.
+pub fn test_mldsa44_ed25519_key_blob() -> Vec<u8> {
+    test_mldsa44_ed25519_private_key()
+        .public_key()
+        .to_bytes()
+        .expect("composite public key encoding should succeed")
+}
+
+/// Returns the public key of the test composite key, for verifying agent signatures.
+pub fn test_mldsa44_ed25519_public_key() -> ssh_key::public::MlDsa44Ed25519PublicKey {
+    test_mldsa44_ed25519_private_key()
+        .key_data()
+        .mldsa44_ed25519()
+        .expect("composite key data")
+        .into()
+}
+
 pub fn test_ecdsa_p256_key() -> SSHKeyData {
     SSHKeyData::from_private_key_pem(
         TEST_ECDSA_P256_PEM,
@@ -236,6 +279,19 @@ pub fn framed_sign_request(blob: &[u8], data: &[u8], flags: u32) -> Vec<u8> {
 pub fn parse_sign_response_algorithm(response: &[u8]) -> String {
     let alg_len = u32::from_be_bytes(response[5..9].try_into().expect("4-byte slice")) as usize;
     String::from_utf8(response[9..9 + alg_len].to_vec()).expect("valid UTF-8 algorithm name")
+}
+
+/// Extracts the raw signature bytes from a `SIGN_RESPONSE` message.
+pub fn parse_sign_response_signature(response: &[u8]) -> Vec<u8> {
+    let alg_len = u32::from_be_bytes(response[5..9].try_into().expect("4-byte slice")) as usize;
+    let sig_len_offset = 9 + alg_len;
+    let sig_len = u32::from_be_bytes(
+        response[sig_len_offset..sig_len_offset + 4]
+            .try_into()
+            .expect("4-byte slice"),
+    ) as usize;
+
+    response[sig_len_offset + 4..sig_len_offset + 4 + sig_len].to_vec()
 }
 
 /// Creates an agent whose approval handler always denies sign requests.
@@ -344,9 +400,10 @@ fn framed_session_bind_payload(bind_payload: &[u8]) -> Vec<u8> {
 
 /// Builds a framed EXTENSION message containing a valid Ed25519 session-bind payload.
 pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
-    use ssh_key::{rand_core::OsRng, Algorithm};
+    use bitwarden_random::rng;
+    use ssh_key::Algorithm;
 
-    let host_key = ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ed25519)
+    let host_key = ssh_key::PrivateKey::random(&mut rng(), Algorithm::Ed25519)
         .expect("key generation not to fail.");
     framed_session_bind_extension_with_key(&host_key, is_forwarding)
 }
@@ -366,9 +423,10 @@ pub fn framed_session_bind_extension_with_key(
 
 /// Generates a random ECDSA host key on `curve`.
 pub fn random_ecdsa_host_key(curve: ssh_key::EcdsaCurve) -> ssh_key::PrivateKey {
-    use ssh_key::{rand_core::OsRng, Algorithm};
+    use bitwarden_random::rng;
+    use ssh_key::Algorithm;
 
-    ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ecdsa { curve })
+    ssh_key::PrivateKey::random(&mut rng(), Algorithm::Ecdsa { curve })
         .expect("key generation not to fail.")
 }
 

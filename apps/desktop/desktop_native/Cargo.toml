@@ -108,3 +108,14 @@ cargo-sort = { version = "2.0.2", locked = true }
 cargo-udeps = { version = "0.1.57", locked = true }
 cargo-llvm-cov = { version = "0.6.16", locked = true }
 cargo-xwin = { version = "0.23.0", locked = true }
+
+# TEMPORARY: the RustCrypto SSH crates come from a fork that adds the `ssh-mldsa44-ed25519@openssh.com`
+# composite key type, https://github.com/RustCrypto/SSH/pull/583. Remove this section and move
+# ssh_agent back to crates.io releases once that PR merges and is published.
+#
+# All three crates must come from the same revision: it changes `Decode::decode` to take
+# `&mut Decoder<impl Reader>` instead of `&mut impl Reader`.
+[patch.crates-io]
+ssh-cipher = { git = "https://github.com/quexten/SSH.git", rev = "a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02" }
+ssh-encoding = { git = "https://github.com/quexten/SSH.git", rev = "a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02" }
+ssh-key = { git = "https://github.com/quexten/SSH.git", rev = "a3b41cc4027c5d7ffdf2d2e960a9f4a506fafe02" }
