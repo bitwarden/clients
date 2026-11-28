@@ -18,7 +18,9 @@ import { BehaviorSubject, firstValueFrom, NEVER, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumUpgradeNudgeService } from "@bitwarden/common/billing/abstractions/premium-upgrade-nudge.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/abstractions/event-collection.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -34,7 +36,11 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../cipher-form";
-import { AttachmentDialogResult } from "../cipher-view/attachments/attachments-v2.component";
+import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+} from "../cipher-view/attachments/attachments-v2.component";
+import { ATTACHMENTS_NUDGE_OPTIONS } from "../premium-upgrade-nudge-options";
 
 import {
   VaultItemDialogComponent,
@@ -162,9 +168,13 @@ describe("VaultItemDialogComponent", () => {
         { provide: CipherArchiveService, useValue: mockArchiveService },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+            getFeatureFlag: jest.fn().mockResolvedValue(false),
+          },
         },
         { provide: RevealedCipherService, useValue: revealedCipherServiceMock },
+        { provide: PremiumUpgradeNudgeService, useValue: mock<PremiumUpgradeNudgeService>() },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -744,6 +754,142 @@ describe("VaultItemDialogComponent", () => {
       await component.openAttachmentsDialog();
 
       expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(expect.any(Cipher), "test-user-id");
+    });
+
+    describe("premium gate", () => {
+      let promptForPremium: jest.Mock;
+      let nudgeService: MockProxy<PremiumUpgradeNudgeService>;
+
+      const setPremium = (hasPremium: boolean) =>
+        jest
+          .mocked(TestBed.inject(BillingAccountProfileStateService).hasPremiumFromAnySource$)
+          .mockReturnValue(of(hasPremium));
+
+      const setFlag = (enabled: boolean) =>
+        jest.mocked(TestBed.inject(ConfigService).getFeatureFlag).mockResolvedValue(enabled);
+
+      beforeEach(() => {
+        promptForPremium = TestBed.inject(PremiumUpgradePromptService)
+          .promptForPremium as jest.Mock;
+        nudgeService = TestBed.inject(
+          PremiumUpgradeNudgeService,
+        ) as MockProxy<PremiumUpgradeNudgeService>;
+        mockDialogService.open.mockReturnValue({
+          closed: of({ action: AttachmentDialogResult.Closed }),
+        });
+        component.mockCipherFormComponent(jest.fn());
+        component.setTestFormConfig({ originalCipher: { id: "cipher-id" } as any });
+        component.setTestCipher({ organizationId: undefined });
+        setPremium(false);
+      });
+
+      describe("when the feature-based upgrade flag is off", () => {
+        it("prompts for premium and does not open attachments for a personal item", async () => {
+          await component.openAttachmentsDialog();
+
+          expect(promptForPremium).toHaveBeenCalledWith(undefined);
+          expect(nudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+          expect(mockDialogService.open).not.toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+        });
+
+        it("prompts with the organization id for an organization item", async () => {
+          component.setTestCipher({ organizationId: "org-1" });
+
+          await component.openAttachmentsDialog();
+
+          expect(promptForPremium).toHaveBeenCalledWith("org-1");
+          expect(nudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+          expect(mockDialogService.open).not.toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+        });
+      });
+
+      describe("when the feature-based upgrade flag is on", () => {
+        beforeEach(() => {
+          setFlag(true);
+        });
+
+        it("shows the upgrade nudge with the attachments options for a personal item", async () => {
+          await component.openAttachmentsDialog();
+
+          expect(TestBed.inject(ConfigService).getFeatureFlag).toHaveBeenCalledWith(
+            FeatureFlag.PM42214_FeatureBasedUpgradePaths,
+          );
+          expect(nudgeService.hasPremiumOrShowUpgradeNudge).toHaveBeenCalledWith(
+            ATTACHMENTS_NUDGE_OPTIONS,
+          );
+          expect(promptForPremium).not.toHaveBeenCalled();
+        });
+
+        it("does not open attachments when the nudge returns false", async () => {
+          nudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(false);
+
+          await component.openAttachmentsDialog();
+
+          expect(mockDialogService.open).not.toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+          expect(promptForPremium).not.toHaveBeenCalled();
+        });
+
+        it("does not open attachments when the nudge check fails", async () => {
+          nudgeService.hasPremiumOrShowUpgradeNudge.mockRejectedValue(
+            new Error("premium read failed"),
+          );
+
+          await expect(component.openAttachmentsDialog()).rejects.toThrow("premium read failed");
+
+          expect(mockDialogService.open).not.toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+        });
+
+        it("opens attachments when the nudge returns true", async () => {
+          nudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(true);
+
+          await component.openAttachmentsDialog();
+
+          expect(mockDialogService.open).toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+          expect(promptForPremium).not.toHaveBeenCalled();
+        });
+
+        it("keeps the organization prompt for an organization item", async () => {
+          component.setTestCipher({ organizationId: "org-1" });
+          nudgeService.hasPremiumOrShowUpgradeNudge.mockResolvedValue(true);
+
+          await component.openAttachmentsDialog();
+
+          expect(promptForPremium).toHaveBeenCalledWith("org-1");
+          expect(nudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+          expect(mockDialogService.open).not.toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+        });
+
+        it("opens attachments without the nudge when the user has premium", async () => {
+          setPremium(true);
+
+          await component.openAttachmentsDialog();
+
+          expect(nudgeService.hasPremiumOrShowUpgradeNudge).not.toHaveBeenCalled();
+          expect(promptForPremium).not.toHaveBeenCalled();
+          expect(mockDialogService.open).toHaveBeenCalledWith(
+            AttachmentsV2Component,
+            expect.anything(),
+          );
+        });
+      });
     });
   });
 
