@@ -70,6 +70,28 @@ export class SdkPasswordRandomizer
   }
 }
 
+/** Converts an SDK password request to password settings. The opposite of `convertPasswordRequest`.
+ *  It leaves out `avoidAmbiguous`: password rules don't set it, so the user's setting stays.
+ */
+export function fromPasswordRequest(request: PasswordGeneratorRequest): PasswordGenerationOptions {
+  // the SDK puts at least one character of each enabled set in the output
+  const atLeastOne = (enabled: boolean, min: number | undefined) => (enabled ? (min ?? 1) : 0);
+  return {
+    length: request.length,
+    lowercase: request.lowercase,
+    minLowercase: atLeastOne(request.lowercase, request.minLowercase),
+    uppercase: request.uppercase,
+    minUppercase: atLeastOne(request.uppercase, request.minUppercase),
+    number: request.numbers,
+    minNumber: atLeastOne(request.numbers, request.minNumber),
+    special: request.special,
+    minSpecial: atLeastOne(request.special, request.minSpecial),
+    customRequiredChars: request.customRequiredChars,
+    customAllowedChars: request.customAllowedChars,
+    maxConsecutive: request.maxConsecutive,
+  };
+}
+
 function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGeneratorRequest {
   return {
     lowercase: settings.lowercase!,
@@ -82,6 +104,9 @@ function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGe
     minUppercase: settings.minUppercase!,
     minNumber: settings.minNumber!,
     minSpecial: settings.minSpecial!,
+    customRequiredChars: settings.customRequiredChars,
+    customAllowedChars: settings.customAllowedChars,
+    maxConsecutive: settings.maxConsecutive,
   };
 }
 

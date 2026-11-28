@@ -134,6 +134,77 @@ describe("DefaultCredentialGeneratorService", () => {
       expect(mockEngine.generate).toHaveBeenCalled();
     });
 
+    describe("with settings sent with the request", () => {
+      let mockEngine: { generate: jest.Mock };
+      let accountProfile: object;
+
+      beforeEach(() => {
+        mockEngine = {
+          generate: jest
+            .fn()
+            .mockResolvedValue(
+              new GeneratedCredential("generatedPassword", Type.password, Date.now(), "unit test"),
+            ),
+        };
+        accountProfile = {};
+        providers.metadata!.metadata = jest.fn().mockReturnValue({
+          id: Algorithm.password,
+          engine: { create: jest.fn().mockReturnValue(mockEngine) },
+          profiles: { [Profile.account]: accountProfile },
+        } as unknown as GeneratorMetadata<any>);
+        providers.profile!.constraints$ = jest
+          .fn()
+          .mockReturnValue(
+            of({ constraints: {}, adjust: (s: any) => ({ ...s, length: 20 }), fix: (s: any) => s }),
+          );
+        service = createService({
+          settings: () => new BehaviorSubject({ length: 12, ambiguous: true }) as any,
+        });
+      });
+
+      async function generate(request: GenerateRequest) {
+        const on$ = new Subject<GenerateRequest>();
+        const result$ = new BehaviorSubject<GeneratedCredential | null>(null);
+        service.generate$({ on$, account$: new BehaviorSubject(account) }).subscribe(result$);
+        on$.next(request);
+        await awaitAsync();
+        return result$.value;
+      }
+
+      it("puts them over the stored settings and applies policy when the algorithm matches", async () => {
+        const result = await generate({
+          algorithm: Algorithm.password,
+          settings: {
+            algorithm: Algorithm.password,
+            values: { length: 8, customRequiredChars: "-" },
+          },
+        });
+
+        expect(providers.profile!.constraints$).toHaveBeenCalledWith(
+          accountProfile,
+          expect.anything(),
+        );
+        expect(mockEngine.generate).toHaveBeenCalledWith(expect.anything(), {
+          length: 20,
+          ambiguous: true,
+          customRequiredChars: "-",
+        });
+        expect(result?.credential).toEqual("generatedPassword");
+      });
+
+      it("ignores them when the request resolves to another algorithm", async () => {
+        await generate({
+          algorithm: Algorithm.password,
+          settings: { algorithm: Algorithm.passphrase, values: { numWords: 6 } },
+        });
+
+        expect(mockEngine.generate).toHaveBeenCalledWith(expect.anything(), {
+          length: 12,
+          ambiguous: true,
+        });
+      });
+    });
+
     it("should determine preferred algorithm from credential type and generate credentials", async () => {
       const mockEngine = {
         generate: jest
@@ -412,6 +483,70 @@ describe("DefaultCredentialGeneratorService", () => {
       expect(() => service.policy$(mockMetadata, { account$: of(account) })).toThrow(
         "failed to load policy; profile metadata not found",
       );
+    });
+  });
+  describe("passwordRules", () => {
+    let passwordRules: jest.Mock;
+    let error: jest.Mock;
+
+    beforeEach(() => {
+      passwordRules = jest.fn();
+      error = jest.fn();
+      system.log = jest.fn().mockReturnValue({ ...log, error });
+      service = createService({
+        provide: {
+          ...providers,
+          generator: {
+            sdk: jest
+              .fn()
+              .mockResolvedValue({ generator: () => ({ password_rules: passwordRules }) }),
+          },
+        },
+      });
+    });
+
+    it("turns the rules into password settings", async () => {
+      passwordRules.mockReturnValue({
+        lowercase: true,
+        uppercase: true,
+        numbers: true,
+        special: false,
+        length: 16,
+        avoidAmbiguous: false,
+        minLowercase: undefined,
+        minUppercase: 2,
+        minNumber: undefined,
+        minSpecial: undefined,
+        customAllowedChars: "-_",
+        maxConsecutive: 3,
+      });
+
+      const result = await service.passwordRules("minlength: 8; required: upper, upper;");
+
+      expect(passwordRules).toHaveBeenCalledWith("minlength: 8; required: upper, upper;");
+      expect(result).toEqual({
+        length: 16,
+        lowercase: true,
+        minLowercase: 1,
+        uppercase: true,
+        minUppercase: 2,
+        number: true,
+        minNumber: 1,
+        special: false,
+        minSpecial: 0,
+        customRequiredChars: undefined,
+        customAllowedChars: "-_",
+        maxConsecutive: 3,
+      });
+    });
+
+    it("returns null and logs when the SDK rejects the rules", async () => {
+      passwordRules.mockImplementation(() => {
+        throw new Error("invalid rules");
+      });
+
+      expect(await service.passwordRules("nonsense")).toBeNull();
+      expect(error).toHaveBeenCalled();
     });
   });
 });

@@ -1,3 +1,4 @@
+export { constrain } from "./constrain";
 export { DefaultPolicyEvaluator } from "./default-policy-evaluator";
 export { DynamicPasswordPolicyConstraints } from "./dynamic-password-policy-constraints";
 export { PassphraseGeneratorOptionsEvaluator } from "./passphrase-generator-options-evaluator";
