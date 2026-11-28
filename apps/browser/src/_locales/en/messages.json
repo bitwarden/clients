@@ -9486,5 +9486,39 @@
   },
   "month": {
     "message": "month"
+  },
+  "confirmingYourUpgrade": {
+    "message": "Confirming your upgrade",
+    "description": "Title of the dialog shown after returning from Premium checkout while the payment is confirmed"
+  },
+  "confirmingYourUpgradeDesc": {
+    "message": "We're confirming your payment. If it went through, Premium features like $FEATURE$ will be available soon.",
+    "description": "$FEATURE$ is a separately translated Premium feature name inserted mid-sentence",
+    "placeholders": {
+      "feature": {
+        "content": "$1",
+        "example": "TOTP verification codes"
+      }
+    }
+  },
+  "upgradedToPremium": {
+    "message": "Upgraded to Premium",
+    "description": "Toast shown when Premium is confirmed after checkout"
+  },
+  "totpFeatureName": {
+    "message": "TOTP verification codes",
+    "description": "Feature name inserted mid-sentence after 'Premium features like'"
+  },
+  "fileSendFeatureName": {
+    "message": "file sends",
+    "description": "Feature name inserted mid-sentence after 'Premium features like'"
+  },
+  "attachmentsFeatureName": {
+    "message": "attachments",
+    "description": "Feature name inserted mid-sentence after 'Premium features like'"
+  },
+  "archiveFeatureName": {
+    "message": "archive",
+    "description": "Feature name inserted mid-sentence after 'Premium features like'"
   }
 }

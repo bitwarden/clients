@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EMPTY, of } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { PremiumCheckoutReturnService } from "@bitwarden/angular/billing/services/premium-checkout-return.service";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
   AuthRequestServiceAbstraction,
@@ -15,14 +16,12 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
-import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -37,8 +36,7 @@ describe("AppComponent (browser popup)", () => {
   let component: AppComponent;
 
   let accountService: MockProxy<AccountService>;
-  let syncService: MockProxy<SyncService>;
-  let premiumCheckoutPendingService: MockProxy<PremiumCheckoutPendingService>;
+  let premiumCheckoutReturnService: MockProxy<PremiumCheckoutReturnService>;
   let compactModeService: MockProxy<PopupCompactModeService>;
   let popupSizeService: MockProxy<PopupSizeService>;
   let authService: MockProxy<AuthService>;
@@ -53,8 +51,8 @@ describe("AppComponent (browser popup)", () => {
 
   beforeEach(() => {
     accountService = mock<AccountService>();
-    syncService = mock<SyncService>();
-    premiumCheckoutPendingService = mock<PremiumCheckoutPendingService>();
+    premiumCheckoutReturnService = mock<PremiumCheckoutReturnService>();
+    premiumCheckoutReturnService.handleReturn.mockResolvedValue();
     logService = mock<LogService>();
     compactModeService = mock<PopupCompactModeService>();
     popupSizeService = mock<PopupSizeService>();
@@ -85,6 +83,7 @@ describe("AppComponent (browser popup)", () => {
       providers: [
         { provide: PopupCompactModeService, useValue: compactModeService },
         { provide: SdkService, useValue: sdkService },
+        { provide: PremiumCheckoutReturnService, useValue: premiumCheckoutReturnService },
       ],
     });
 
@@ -118,8 +117,6 @@ describe("AppComponent (browser popup)", () => {
           mock<AuthRequestServiceAbstraction>(),
           mock<PendingAuthRequestsStateService>(),
           authRequestAnsweringService,
-          premiumCheckoutPendingService,
-          syncService,
         ),
     );
 
@@ -135,80 +132,56 @@ describe("AppComponent (browser popup)", () => {
     jest.clearAllMocks();
   });
 
-  it("syncs once when a premium checkout was pending on popup open", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
-
+  it("hands the active user to the checkout return service on popup open", async () => {
     await component.ngOnInit();
 
-    expect(premiumCheckoutPendingService.consumeCheckoutPending).toHaveBeenCalledWith(userId);
-    expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledTimes(1);
+    expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledWith(userId);
   });
 
-  it("does not sync when no premium checkout was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
-
-    await component.ngOnInit();
-
-    expect(syncService.fullSync).not.toHaveBeenCalled();
-  });
-
-  it("fails closed: ngOnInit resolves and logs when consume throws", async () => {
-    const error = new Error("boom");
-    premiumCheckoutPendingService.consumeCheckoutPending.mockRejectedValue(error);
-
-    await expect(component.ngOnInit()).resolves.toBeUndefined();
-
-    expect(syncService.fullSync).not.toHaveBeenCalled();
-    expect(logService.error).toHaveBeenCalledWith(
-      "Failed to sync after returning from premium checkout",
-      error,
-    );
-  });
-
-  it("does not consume or sync when there is no active user", async () => {
+  it("does not call the checkout return service when there is no active user", async () => {
     accountService.activeAccount$ = of(null);
 
     await component.ngOnInit();
 
-    expect(premiumCheckoutPendingService.consumeCheckoutPending).not.toHaveBeenCalled();
-    expect(syncService.fullSync).not.toHaveBeenCalled();
+    expect(premiumCheckoutReturnService.handleReturn).not.toHaveBeenCalled();
+  });
+
+  it("fails closed: ngOnInit resolves and logs when the return handling rejects", async () => {
+    const error = new Error("boom");
+    premiumCheckoutReturnService.handleReturn.mockRejectedValue(error);
+
+    await expect(component.ngOnInit()).resolves.toBeUndefined();
+
+    expect(logService.error).toHaveBeenCalledWith(
+      "Failed to handle the return from premium checkout",
+      error,
+    );
   });
 
   describe("window refocus (popout / sidebar)", () => {
     const flushAsync = () => new Promise(process.nextTick);
 
-    it("syncs when the window regains focus with a checkout pending", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
+    it("calls the checkout return service again when the window regains focus", async () => {
       await component.ngOnInit();
-      expect(syncService.fullSync).not.toHaveBeenCalled();
-
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
-      window.dispatchEvent(new Event("focus"));
-      await flushAsync();
-
-      expect(syncService.fullSync).toHaveBeenCalledWith(true);
-    });
-
-    it("does not sync on refocus when no checkout is pending", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
-      await component.ngOnInit();
+      premiumCheckoutReturnService.handleReturn.mockClear();
 
       window.dispatchEvent(new Event("focus"));
       await flushAsync();
 
-      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledTimes(1);
+      expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledWith(userId);
     });
 
     it("stops listening for focus after the component is destroyed", async () => {
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
       await component.ngOnInit();
       component.ngOnDestroy();
+      premiumCheckoutReturnService.handleReturn.mockClear();
 
-      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
       window.dispatchEvent(new Event("focus"));
       await flushAsync();
 
-      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(premiumCheckoutReturnService.handleReturn).not.toHaveBeenCalled();
     });
   });
 });

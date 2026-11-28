@@ -485,6 +485,7 @@ import {
 } from "../auth/registration";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
+import { PremiumCheckoutReturnService } from "../billing/services/premium-checkout-return.service";
 import { NoopPremiumInterestStateService } from "../billing/services/premium-interest/noop-premium-interest-state.service";
 import { PremiumInterestStateService } from "../billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { DefaultEncryptedMigrationsSchedulerService } from "../key-management/encrypted-migration/encrypted-migrations-scheduler.service";
@@ -1823,6 +1824,11 @@ const safeProviders: SafeProvider[] = [
     provide: PremiumCheckoutPendingService,
     useClass: DefaultPremiumCheckoutPendingService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: PremiumCheckoutReturnService,
+    useClass: PremiumCheckoutReturnService,
+    deps: [],
   }),
   safeProvider({
     provide: SubscriptionPricingServiceAbstraction,

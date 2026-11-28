@@ -49,22 +49,6 @@ describe("DefaultPremiumCheckoutPendingService", () => {
     });
   });
 
-  describe("consumeCheckoutPending", () => {
-    it("returns null when no checkout is pending", async () => {
-      expect(await sut.consumeCheckoutPending(userId)).toBeNull();
-    });
-
-    it("returns the pending checkout and clears it", async () => {
-      await sut.markCheckoutLaunched(userId, { featureNameKey: "premiumFeature" });
-
-      expect(await sut.consumeCheckoutPending(userId)).toEqual({
-        featureNameKey: "premiumFeature",
-      });
-      expect(await sut.consumeCheckoutPending(userId)).toBeNull();
-      expect(await sut.getCheckoutPending(userId)).toBeNull();
-    });
-  });
-
   it("is scoped per user", async () => {
     const otherUserId = "user-2" as UserId;
     await sut.markCheckoutLaunched(userId);

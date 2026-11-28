@@ -26,6 +26,7 @@ import {
 
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { PremiumCheckoutReturnService } from "@bitwarden/angular/billing/services/premium-checkout-return.service";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
   AuthRequestServiceAbstraction,
@@ -39,14 +40,12 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
-import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -82,6 +81,7 @@ const ACTIVE_USER_SYNC_TIMEOUT_MS = 1_000;
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
   private sdkService = inject(SdkService);
+  private readonly premiumCheckoutReturnService = inject(PremiumCheckoutReturnService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -123,8 +123,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestAnsweringService: AuthRequestAnsweringService,
-    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
-    private syncService: SyncService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -142,7 +140,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    await this.syncIfReturningFromCheckout();
+    await this.handleCheckoutReturn();
     window.addEventListener("focus", this.onWindowFocus);
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
@@ -318,20 +316,18 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private readonly onWindowFocus = (): void => {
-    void this.syncIfReturningFromCheckout();
+    void this.handleCheckoutReturn();
   };
 
-  private async syncIfReturningFromCheckout(): Promise<void> {
+  private async handleCheckoutReturn(): Promise<void> {
     try {
       const userId = await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$));
       if (userId == null) {
         return;
       }
-      if (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId)) {
-        await this.syncService.fullSync(true);
-      }
+      await this.premiumCheckoutReturnService.handleReturn(userId);
     } catch (e) {
-      this.logService.error("Failed to sync after returning from premium checkout", e);
+      this.logService.error("Failed to handle the return from premium checkout", e);
     }
   }
 

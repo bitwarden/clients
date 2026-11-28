@@ -6,6 +6,7 @@ import { EMPTY, of } from "rxjs";
 
 import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { PremiumCheckoutReturnService } from "@bitwarden/angular/billing/services/premium-checkout-return.service";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
@@ -22,7 +23,6 @@ import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -59,7 +59,7 @@ describe("AppComponent (desktop)", () => {
   let broadcasterService: MockProxy<BroadcasterService>;
   let syncService: MockProxy<SyncService>;
   let accountService: MockProxy<AccountService>;
-  let premiumCheckoutPendingService: MockProxy<PremiumCheckoutPendingService>;
+  let premiumCheckoutReturnService: MockProxy<PremiumCheckoutReturnService>;
   let ngZone: MockProxy<NgZone>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let logService: MockProxy<LogService>;
@@ -82,7 +82,8 @@ describe("AppComponent (desktop)", () => {
     broadcasterService = mock<BroadcasterService>();
     syncService = mock<SyncService>();
     accountService = mock<AccountService>();
-    premiumCheckoutPendingService = mock<PremiumCheckoutPendingService>();
+    premiumCheckoutReturnService = mock<PremiumCheckoutReturnService>();
+    premiumCheckoutReturnService.handleReturn.mockResolvedValue();
     ngZone = mock<NgZone>();
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     logService = mock<LogService>();
@@ -112,6 +113,12 @@ describe("AppComponent (desktop)", () => {
     deviceTrustToastService.setupListeners$ = EMPTY;
     const documentLangSetter = mock<DocumentLangSetter>();
     documentLangSetter.start.mockReturnValue({ unsubscribe: jest.fn() } as any);
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PremiumCheckoutReturnService, useValue: premiumCheckoutReturnService },
+      ],
+    });
 
     // The constructor calls `takeUntilDestroyed()`, which requires an injection context.
     component = TestBed.runInInjectionContext(
@@ -158,7 +165,6 @@ describe("AppComponent (desktop)", () => {
           authRequestAnsweringService,
           mock<SsoLoginServiceAbstraction>(),
           mock<AccountDeletionDialogService>(),
-          premiumCheckoutPendingService,
           mock<BillingAccountProfileStateService>(),
           accountSwitcherService,
         ),
@@ -173,64 +179,39 @@ describe("AppComponent (desktop)", () => {
     await lastZoneRunResult;
   };
 
-  it("syncs once on window focus when a premium checkout was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
-
+  it("hands the active user to the checkout return service on window focus", async () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
-    expect(premiumCheckoutPendingService.consumeCheckoutPending).toHaveBeenCalledWith(userId);
-    expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledTimes(1);
+    expect(premiumCheckoutReturnService.handleReturn).toHaveBeenCalledWith(userId);
   });
 
-  it("does not sync on window focus when nothing was pending", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
-
-    await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
-
-    expect(syncService.fullSync).not.toHaveBeenCalled();
-  });
-
-  it("does not consume or sync when the window lost focus (windowIsFocused: false)", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue({});
-
+  it("does not call the checkout return service when the window lost focus", async () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: false });
 
-    expect(premiumCheckoutPendingService.consumeCheckoutPending).not.toHaveBeenCalled();
-    expect(syncService.fullSync).not.toHaveBeenCalled();
+    expect(premiumCheckoutReturnService.handleReturn).not.toHaveBeenCalled();
   });
 
-  it("fails closed: window focus handling resolves and logs when consume throws", async () => {
+  it("does not call the checkout return service when there is no active user", async () => {
+    accountService.activeAccount$ = of(null);
+
+    await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
+
+    expect(premiumCheckoutReturnService.handleReturn).not.toHaveBeenCalled();
+  });
+
+  it("fails closed: window focus handling resolves and logs when the return handling rejects", async () => {
     const error = new Error("boom");
-    premiumCheckoutPendingService.consumeCheckoutPending.mockRejectedValue(error);
+    premiumCheckoutReturnService.handleReturn.mockRejectedValue(error);
 
     await expect(
       dispatchMessage({ command: "windowIsFocused", windowIsFocused: true }),
     ).resolves.toBeUndefined();
 
-    expect(syncService.fullSync).not.toHaveBeenCalled();
     expect(logService.error).toHaveBeenCalledWith(
-      "Failed to sync after returning from premium checkout",
+      "Failed to handle the return from premium checkout",
       error,
     );
-  });
-
-  it("does not consume or sync on window focus when there is no active user", async () => {
-    accountService.activeAccount$ = of(null);
-
-    await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
-
-    expect(premiumCheckoutPendingService.consumeCheckoutPending).not.toHaveBeenCalled();
-    expect(syncService.fullSync).not.toHaveBeenCalled();
-  });
-
-  it("syncs only once across repeated window focus events", async () => {
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValueOnce({});
-    premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(null);
-
-    await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
-    await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
-
-    expect(syncService.fullSync).toHaveBeenCalledTimes(1);
   });
 
   describe("importVault message", () => {
