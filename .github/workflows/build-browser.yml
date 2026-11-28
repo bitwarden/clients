@@ -29,7 +29,12 @@ on:
       - '!*.txt'
       - '.github/workflows/build-browser.yml'
   workflow_call:
-    inputs: {}
+    inputs:
+      safari_only:
+        description: "Skip all non-Safari builds (Chrome, Firefox, Edge, Opera, source archives). Used by build-desktop.yml."
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       sdk_branch:
@@ -143,6 +148,7 @@ jobs:
   build-source:
     name: Build browser source - ${{matrix.license_type.readable}}
     runs-on: ubuntu-22.04
+    if: ${{ !inputs.safari_only }}
     needs:
       - setup
       - locales-test
@@ -226,6 +232,7 @@ jobs:
   build:
     name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }}
     runs-on: ubuntu-22.04
+    if: ${{ !inputs.safari_only }}
     needs:
       - setup
       - locales-test

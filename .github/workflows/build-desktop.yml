@@ -1581,6 +1581,8 @@ jobs:
     needs: setup
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     uses: ./.github/workflows/build-browser.yml
+    with:
+      safari_only: true
     secrets: inherit
     permissions:
       contents: write
