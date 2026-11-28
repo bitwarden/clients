@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/release-channel",
+  "version": "0.0.1",
+  "description": "Exposes whether a client is a beta build and where it is in the beta sunset",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
