@@ -2617,6 +2617,7 @@ describe("AutofillService", () => {
             nonViewableFieldView,
           ];
           jest.spyOn(qualification, "fieldContainsKeyword");
+          jest.spyOn(qualification, "fieldContainsUsernameKeyword");
           jest.spyOn(AutofillService, "fillByOpid");
         });
 
@@ -2628,25 +2629,12 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
-            usernameField,
-            AutoFillConstants.UsernameFieldNames,
-          );
-          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
-            emailField,
-            AutoFillConstants.UsernameFieldNames,
-          );
-          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
-            telephoneField,
-            AutoFillConstants.UsernameFieldNames,
-          );
-          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
-            totpField,
-            AutoFillConstants.UsernameFieldNames,
-          );
-          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
+          expect(qualification.fieldContainsUsernameKeyword).toHaveBeenCalledWith(usernameField);
+          expect(qualification.fieldContainsUsernameKeyword).toHaveBeenCalledWith(emailField);
+          expect(qualification.fieldContainsUsernameKeyword).toHaveBeenCalledWith(telephoneField);
+          expect(qualification.fieldContainsUsernameKeyword).toHaveBeenCalledWith(totpField);
+          expect(qualification.fieldContainsUsernameKeyword).not.toHaveBeenCalledWith(
             nonViewableField,
-            AutoFillConstants.UsernameFieldNames,
           );
           expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(2);
           expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
@@ -2671,9 +2659,32 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
-            expect.anything(),
-            AutoFillConstants.UsernameFieldNames,
+          expect(qualification.fieldContainsUsernameKeyword).not.toHaveBeenCalled();
+        });
+
+        it("fills a localized username in a multi-step login", async () => {
+          const localizedField = createAutofillFieldMock({
+            opid: "horde-user",
+            type: "text",
+            form: "validFormId",
+            htmlID: "horde_user",
+            htmlName: "horde_user",
+            "label-tag": "Usuario",
+            autoCompleteType: "off",
+          });
+          pageDetails.fields = [localizedField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            localizedField,
+            options.cipher.login.username,
           );
         });
 

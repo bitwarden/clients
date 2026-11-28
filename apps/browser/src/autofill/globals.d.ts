@@ -1,6 +1,8 @@
 import { AutofillInit } from "./content/abstractions/autofill-init";
 
 declare global {
+  const AUTOFILL_LOGIN_FIELD_LABELS: readonly string[];
+
   interface Window {
     bitwardenAutofillInit?: AutofillInit;
   }

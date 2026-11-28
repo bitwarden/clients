@@ -2,11 +2,17 @@ const { pathsToModuleNameMapper } = require("ts-jest");
 
 const { compilerOptions } = require("../../tsconfig.base");
 
+const { getAutofillLoginLabels } = require("../../apps/browser/config/autofill-login-labels.mjs");
+
 const sharedConfig = require("../../libs/shared/jest.config.angular");
 
 /** @type {import('jest').Config} */
 module.exports = {
   ...sharedConfig,
+  globals: {
+    ...sharedConfig.globals,
+    AUTOFILL_LOGIN_FIELD_LABELS: getAutofillLoginLabels(),
+  },
   setupFilesAfterEnv: ["../../apps/browser/test.setup.ts"],
   moduleNameMapper: pathsToModuleNameMapper(
     {

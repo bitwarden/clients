@@ -60,6 +60,7 @@ import AutofillScript from "../models/autofill-script";
 import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../orchestration";
 import {
   fieldContainsKeyword,
+  fieldContainsUsernameKeyword,
   isNonLoginUsernameField,
   KeywordMatchMode,
 } from "../utils/qualification";
@@ -1250,12 +1251,11 @@ export default class AutofillService implements AutofillServiceInterface {
         const maybeUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
-          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
+          fieldContainsUsernameKeyword(field) &&
           !isNonLoginUsernameField(field, pageDetails);
 
         const isUsernameField =
-          maybeUsernameField &&
-          fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
+          maybeUsernameField && fieldContainsUsernameKeyword(field, { unambiguousOnly: true });
 
         // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
         // TOTP abbreviation (e.g. name="2fa"), then ambiguous username (e.g. "login"), then
@@ -2979,10 +2979,7 @@ export default class AutofillService implements AutofillServiceInterface {
       const isInSameForm =
         field.form != null && passwordField.form != null && field.form === passwordField.form;
 
-      const includesUsernameKeyword = fieldContainsKeyword(
-        field,
-        AutoFillConstants.UsernameFieldNames,
-      );
+      const includesUsernameKeyword = fieldContainsUsernameKeyword(field);
 
       // Email/tel fields in the same form are strong candidates even when visibility
       // checks are unreliable

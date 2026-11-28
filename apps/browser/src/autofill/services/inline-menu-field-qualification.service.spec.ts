@@ -3,7 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
-import { createAutofillFormMock } from "../spec/autofill-mocks";
+import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
@@ -489,6 +489,36 @@ describe("InlineMenuFieldQualificationService", () => {
     });
 
     describe("qualifying a username field for a login form", () => {
+      it.each([
+        ["Usuario", true],
+        ["Tipo de usuario", false],
+      ])("classifies a text field labelled %s in a login form", (label, expected) => {
+        const field = createAutofillFieldMock({
+          opid: "horde-user",
+          type: "text",
+          htmlID: "horde_user",
+          htmlName: "horde_user",
+          "label-tag": label,
+          autoCompleteType: "off",
+          form: "form",
+          viewable: true,
+        });
+        const passwordField = createAutofillFieldMock({
+          opid: "horde-password",
+          type: "password",
+          htmlID: "horde_pass",
+          htmlName: "horde_pass",
+          form: "form",
+          viewable: true,
+        });
+        pageDetails.forms = { form: createAutofillFormMock({ opid: "form" }) };
+        pageDetails.fields = [field, passwordField];
+
+        expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+          expected,
+        );
+      });
+
       describe("an invalid username field", () => {
         ["username", "email"].forEach((autoCompleteType) => {
           it(`has a ${autoCompleteType} 'autoCompleteType' value when structured on a page with new password fields`, () => {

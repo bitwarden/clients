@@ -3,6 +3,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { sendExtensionMessage } from "../utils";
 import {
   fieldContainsKeyword,
+  fieldContainsUsernameKeyword,
   getSubmitButtonKeywordsSet,
   isNonLoginUsernameField,
   isAmbiguousFieldNonLogin,
@@ -1005,7 +1006,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    return fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames);
+    return fieldContainsUsernameKeyword(field);
   };
 
   /**
