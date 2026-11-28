@@ -220,13 +220,24 @@ describe("accessRuleToFormValue", () => {
     );
   });
 
-  it("snaps off-preset durations to their nearest picker option", () => {
+  it("keeps off-preset durations as stored, so an unrelated edit doesn't change them", () => {
     const value = accessRuleToFormValue(
-      rule({ defaultLeaseDurationSeconds: 3500, maxExtensionDurationSeconds: 1700 }),
+      rule({
+        defaultLeaseDurationSeconds: 3500,
+        maxLeaseDurationSeconds: 50 * 60,
+        maxExtensionDurationSeconds: 1700,
+      }),
     );
 
+    expect(value.defaultLeaseDurationSeconds).toBe(3500);
+    expect(value.maxLeaseDurationSeconds).toBe(50 * 60);
+    expect(value.maxExtensionDurationSeconds).toBe(1700);
+  });
+
+  it("falls back to the default lease when the rule stores none", () => {
+    const value = accessRuleToFormValue(rule({ defaultLeaseDurationSeconds: undefined }));
+
     expect(value.defaultLeaseDurationSeconds).toBe(3600);
-    expect(value.maxExtensionDurationSeconds).toBe(1800);
   });
 
   it("encodes an absent max lease as NO_DURATION_CAP (no cap)", () => {

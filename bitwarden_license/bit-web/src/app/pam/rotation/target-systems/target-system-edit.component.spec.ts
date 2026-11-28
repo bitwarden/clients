@@ -7,6 +7,7 @@ import { ActivatedRoute, Params, Router, convertToParamMap, provideRouter } from
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -846,7 +847,38 @@ describe("TargetSystemEditComponent: create mode", () => {
     expect(request).toMatchObject({ supportsSessionTermination: false });
   });
 
-  it("honors the checkbox for a custom script", async () => {
+  it("submits supportsSessionTermination=true for a custom script with the box checked", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Legacy DB",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.CustomScript,
+    });
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: true,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("automatic");
+    expect(request).toMatchObject({ supportsSessionTermination: true });
+  });
+
+  it("submits supportsSessionTermination=false for a custom script with the box unchecked", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
@@ -1077,13 +1109,13 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
     expect(block.textContent).not.toContain("pamTargetSystemSessionTerminationSupported");
   });
 
-  it("shows Not supported for a custom script, with no session-termination checkbox", () => {
+  it("offers a session-termination checkbox for a custom script instead of a fixed badge", () => {
     patchKind(TargetSystemKind.CustomScript);
     const el = fixture.nativeElement as HTMLElement;
     const block = el.querySelector('[data-testid="target-system-edit-ending-sessions"]')!;
-    expect(block.textContent).toContain("pamTargetSystemSessionTerminationNo");
-    expect(block.textContent).toContain("pamTargetSystemEndingSessionsCustomScriptHint");
-    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+    expect(block.textContent).toContain("pamTargetSystemEndingSessionsCustomScriptSupportedHint");
+    expect(block.textContent).not.toContain("pamTargetSystemSessionTerminationNo");
+    expect(block.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
 
   it("shows Supported and the Entra helper for Entra, with no session-termination checkbox", () => {
@@ -1166,7 +1198,9 @@ describe("TargetSystemEditComponent: create mode (rendered)", () => {
   });
 
   it("marks the Target systems crumb with the target system icon", () => {
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
+    const crumbs = (fixture.nativeElement as HTMLElement).querySelector(
+      'bit-breadcrumbs[slot="breadcrumbs"]',
+    )!;
     expect(crumbs.querySelector("bit-icon.bwi-target-system")).not.toBeNull();
   });
 
@@ -1499,6 +1533,40 @@ describe("TargetSystemEditComponent: edit mode", () => {
     );
     expect(comp.showRetainedTermination()).toBe(true);
   });
+
+  it.each([
+    [false, true],
+    [true, false],
+  ])(
+    "saves a custom script's toggled session termination (sealed %s -> %s)",
+    async (sealedValue, toggled) => {
+      const [fx, sdk] = await buildEditFixture(
+        makeSystem({
+          sealed: targetSystemSealedFields({
+            kind: TargetSystemKind.CustomScript,
+            supportsSessionTermination: sealedValue,
+          }),
+        }),
+      );
+      const comp = fx.componentInstance as unknown as {
+        policyForm: {
+          controls: { supportsSessionTermination: { value: boolean } };
+          patchValue: (v: unknown) => void;
+        };
+        submitEdit: () => Promise<void>;
+      };
+
+      expect(comp.policyForm.controls.supportsSessionTermination.value).toBe(sealedValue);
+      comp.policyForm.patchValue({ supportsSessionTermination: toggled });
+      await comp.submitEdit();
+
+      expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
+        ORG_ID,
+        sysId("sys-1"),
+        expect.objectContaining({ supportsSessionTermination: toggled }),
+      );
+    },
+  );
 
   it("claims no session-termination capability the target was not sealed with", async () => {
     const [fx, sdk] = await buildEditFixture(
@@ -3150,7 +3218,7 @@ describe("TargetSystemEditComponent: loading skeleton", () => {
     await renderLoading();
 
     expect(el().querySelector('[data-testid="target-system-edit-loading"]')).not.toBeNull();
-    expect(el().querySelector("pam-detail-breadcrumb")).not.toBeNull();
+    expect(el().querySelector('bit-breadcrumbs[slot="breadcrumbs"]')).not.toBeNull();
   });
 });
 
@@ -3352,15 +3420,18 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
   const endingSessions = () =>
     el().querySelector('[data-testid="target-system-edit-ending-sessions"]')!.textContent;
 
-  it("shows what a custom script confirmed, with no checkbox to change it", async () => {
+  const checkbox = () =>
+    el().querySelector<HTMLInputElement>("#target-system-edit_checkbox_session-termination");
+
+  it("prefills the checkbox from what the custom script was sealed with", async () => {
     await render();
 
-    expect(endingSessions()).toContain("pamTargetSystemSessionTerminationSupported");
-    expect(endingSessions()).toContain("pamTargetSystemEndingSessionsCustomScriptSupportedHint");
-    expect(el().querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+    expect(checkbox()!.checked).toBe(true);
+    expect(endingSessions()).not.toContain("pamTargetSystemSessionTerminationSupported");
+    expect(el().querySelector("#target-system-edit_session-termination-withdrawn")).toBeNull();
   });
 
-  it("says a custom script that never confirmed it can't end sessions", async () => {
+  it("leaves the checkbox clear for a custom script sealed without it", async () => {
     await render({
       sealed: targetSystemSealedFields({
         kind: TargetSystemKind.CustomScript,
@@ -3368,8 +3439,17 @@ describe("TargetSystemEditComponent: session termination withdrawal (rendered)",
       }),
     });
 
-    expect(endingSessions()).toContain("pamTargetSystemSessionTerminationNo");
-    expect(endingSessions()).toContain("pamTargetSystemEndingSessionsCustomScriptHint");
+    expect(checkbox()!.checked).toBe(false);
+    expect(endingSessions()).not.toContain("pamTargetSystemSessionTerminationNo");
+  });
+
+  it("warns that managed credentials stop ending sessions when the box is cleared", async () => {
+    await render();
+
+    checkbox()!.click();
+    fixture.detectChanges();
+
+    expect(el().querySelector("#target-system-edit_session-termination-withdrawn")).toBeTruthy();
   });
 
   it("always reads Supported for a native integration", async () => {
@@ -3468,7 +3548,9 @@ describe("TargetSystemEditComponent: returning to a managed credential", () => {
   it("keeps the target systems breadcrumb, so the header fits beside its actions", async () => {
     await setup(true);
 
-    const crumbs = (fixture.nativeElement as HTMLElement).querySelector("pam-detail-breadcrumb")!;
+    const crumbs = (fixture.nativeElement as HTMLElement).querySelector(
+      'bit-breadcrumbs[slot="breadcrumbs"]',
+    )!;
     expect(crumbs.textContent).toContain("pamRotationTabTargetSystems");
     expect(crumbs.textContent).not.toContain("pamRotationTabManagedCredentials");
     expect(rotationSdk.getConfig).not.toHaveBeenCalled();
@@ -3508,5 +3590,81 @@ describe("TargetSystemEditComponent: returning to a managed credential", () => {
     await component().cancel();
 
     expect(navigate).toHaveBeenCalledWith(CREDENTIAL_ROUTE);
+  });
+});
+
+describe("TargetSystemEditComponent: breadcrumbs", () => {
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+
+  async function render(queryParams: Params = {}, { vfo1 = false } = {}): Promise<HTMLElement> {
+    const rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listConnectors.mockResolvedValue([]);
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: RotationSdkService, useValue: rotationSdk },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(vfo1) } },
+        {
+          provide: ActivatedRoute,
+          useValue: withParamMap({
+            snapshot: { params: { organizationId: ORG_ID }, queryParams },
+          }),
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  /** The text of each crumb as rendered, in order. */
+  const crumbTexts = (el: HTMLElement) =>
+    Array.from(el.querySelectorAll("bit-breadcrumbs [bitOverflowItem]")).map((crumb) =>
+      crumb.textContent?.trim(),
+    );
+
+  it("slots a bit-breadcrumbs straight into the header, with no wrapper or extra content", async () => {
+    const el = await render();
+
+    const slotted = el.querySelectorAll('bit-header [slot="breadcrumbs"]');
+    expect(slotted).toHaveLength(1);
+    expect(slotted[0].tagName).toBe("BIT-BREADCRUMBS");
+  });
+
+  it("leads back to the target systems list from the page title", async () => {
+    const el = await render();
+
+    expect(crumbTexts(el)).toEqual(["pamRotationTabTargetSystems", "pamTargetSystemCreateTitle"]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-target-system")).not.toBeNull();
+    expect(el.querySelector("bit-breadcrumbs bit-icon-tile")).toBeNull();
+  });
+
+  it("routes through the add-credential page when opened from it", async () => {
+    const el = await render({ then: "managed-credential" });
+
+    expect(crumbTexts(el)).toEqual([
+      "pamRotationTabManagedCredentials",
+      "pamRotationConfigCreateTitle",
+      "pamTargetSystemCreateTitle",
+    ]);
+    expect(el.querySelector("bit-breadcrumbs bit-icon.bwi-managed-credential")).not.toBeNull();
+    expect(el.querySelector("bit-breadcrumbs .bwi-plus")).toBeNull();
+  });
+
+  it("promotes the current crumb to the page's only heading under VFO1", async () => {
+    const el = await render({}, { vfo1: true });
+
+    const headings = el.querySelectorAll("h1");
+    expect(headings).toHaveLength(1);
+    expect(headings[0].closest("bit-breadcrumbs")).not.toBeNull();
+    expect(headings[0].getAttribute("aria-current")).toBe("page");
+    expect(headings[0].textContent?.trim()).toBe("pamTargetSystemCreateTitle");
   });
 });

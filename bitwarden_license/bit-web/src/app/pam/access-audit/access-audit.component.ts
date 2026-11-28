@@ -59,6 +59,7 @@ import {
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
 
 import {
   AUDIT_TIME_PERIOD_LABEL_KEYS,
@@ -166,6 +167,7 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     BitHeaderCellComponent,
     BitCellComponent,
     BitCellDefDirective,
+    PamActivateRowDirective,
     TooltipDirective,
     I18nPipe,
     TimestampPipe,

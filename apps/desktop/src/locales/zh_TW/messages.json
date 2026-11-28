@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "應用程式（URI）"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "應用程式（URI）$COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "已新增網站"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "新增網站或應用程式"
-  },
-  "app": {
-    "message": "應用程式"
   },
   "deleteWebsite": {
     "message": "刪除網站"
@@ -2000,17 +2002,8 @@
   "syncNow": {
     "message": "立即同步"
   },
-  "changeMasterPass": {
-    "message": "變更主密碼"
-  },
   "changeMasterPassword": {
     "message": "變更主密碼"
-  },
-  "continueToWebApp": {
-    "message": "前往網頁應用程式嗎？"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden 網頁應用程式上變更主密碼。"
   },
   "fingerprintPhrase": {
     "message": "指紋短語",
@@ -2433,6 +2426,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
     "message": "全部"
@@ -3375,6 +3372,10 @@
   "custom": {
     "message": "自訂"
   },
+  "deleteSend": {
+    "message": "Delete Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "您確定要刪除此 Send 嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3405,34 @@
   "disabled": {
     "message": "已停用"
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "移除密碼"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "已移除密碼"
   },
-  "removePasswordConfirmation": {
-    "message": "您確定要移除密碼嗎？"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "已達最大存取次數"
@@ -4596,6 +4617,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
   "total": {
     "message": "總計"
   },
@@ -5629,11 +5686,11 @@
   "onePasswordCheckCredentials": {
     "message": "發生錯誤。請檢查您的登入憑證，然後再試一次。"
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "僅支援使用密碼登入。"
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "僅支援使用密碼登入。請再試一次，或使用其他匯入方式。"
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "請輸入有效的電子郵件地址，或使用其他匯入方式。"
@@ -5652,6 +5709,9 @@
   },
   "enterValidSignInAddress": {
     "message": "請輸入有效的登入網址。"
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "必須輸入秘密金鑰。"
@@ -5674,6 +5734,9 @@
   "onePasswordEmailHint": {
     "message": "輸入您用來登入 1Password 的電子郵件地址"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "金鑰"
   },
@@ -5682,6 +5745,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "您的帳號已受金鑰及密碼保護。您需要輸入兩者才能繼續。"
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper 電子郵件"
@@ -6221,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "有安全疑慮的密碼。"
   },
-  "changeNow": {
-    "message": "立即變更"
-  },
   "missingPermissions": {
     "message": "您欠缺執行本動作必要的權限。"
   },
@@ -6257,8 +6341,35 @@
   "folderHintText": {
     "message": "在資料夾名稱後面使用「/」來建立樹狀結構。\n例如：社交網路/論壇"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "sendsTitleNoItems": {
     "message": "安全傳送機密的資訊",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
@@ -6267,6 +6378,9 @@
   "sendsBodyNoItems": {
     "message": "安全的和任何人及任何平臺分享檔案及資料。您的資料會受到端對端加密的保護。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "sendsBodyNoSearchResults": {
     "message": "清除過濾器或更換另一個搜尋條件"
@@ -6357,6 +6471,9 @@
   },
   "itemLower": {
     "message": "項目"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "項目"
@@ -6885,8 +7002,8 @@
   "howToManageMyVault": {
     "message": "我要如何管理我的密碼庫？"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "將項目轉移至 $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7011,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "點擊「接受」以轉移您項目的擁有權。"
   },
   "openTransferItemsHelpArticle": {
     "message": "開啟關於轉移項目的說明文章"
@@ -7352,8 +7466,8 @@
   "makeACopy": {
     "message": "製作副本"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "駕照詳細資訊"
@@ -7639,7 +7753,7 @@
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
-    "message": "匯出該新的密碼庫",
+    "message": "探索全新的密碼庫",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "customize": {
@@ -7718,45 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "自動填入瀏覽器登入提示",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "回應與此登入項目相符的網站所顯示的 HTTP 基本驗證提示。"
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "開啟自動填入瀏覽器登入提示的說明文章"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "網站可能在您不知情的情況下觸發這些提示，導致您的登入憑證外洩。",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "若要使用此設定，請為此登入項目的每個網站選取「預設」以外的比對偵測選項。"
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "要開啟瀏覽器登入提示的自動填入功能嗎？"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "此項目的主密碼重新提示功能將關閉。這兩項設定無法同時啟用。"
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "要開啟主密碼重新提示功能嗎？"
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "此項目的瀏覽器登入提示自動填入功能將關閉。這兩項設定無法同時啟用。"
+  "item": {
+    "message": "Item"
   },
-  "useDefaultMatchDetectionTitle": {
-    "message": "要使用預設比對偵測嗎？"
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "使用預設比對偵測的網站無法搭配瀏覽器登入提示使用。此項目的瀏覽器登入提示自動填入功能將關閉。"
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "已關閉瀏覽器登入提示自動填入功能"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "此項目已啟用主密碼重新提示功能，因此已關閉瀏覽器登入提示自動填入功能。請儲存項目以保留此變更。"
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

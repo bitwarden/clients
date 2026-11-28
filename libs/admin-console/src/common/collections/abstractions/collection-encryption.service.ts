@@ -21,11 +21,10 @@ export abstract class CollectionEncryptionService {
   /**
    * Decrypts many collections using the SDK for the given userId.
    *
-   * A collection that fails to decrypt never aborts the rest of the batch. What happens to it
-   * depends on the `CollectionsDecryptListFailures` feature flag: while the flag is off the
-   * failure is logged and the collection is dropped from the result; once it is on the collection
-   * is included with `decryptionFailure` set and its `name` replaced by the decrypt-error
-   * placeholder, so the item is still shown to the user rather than silently disappearing.
+   * A collection that fails to decrypt never aborts the rest of the batch. Instead, the failure is
+   * logged and the collection is included with `decryptionFailure` set and its `name` replaced by
+   * the decrypt-error placeholder, so the item is still shown to the user rather than silently
+   * disappearing.
    *
    * @param collections The encrypted collection objects
    * @param userId The user ID whose keys will be used for decryption

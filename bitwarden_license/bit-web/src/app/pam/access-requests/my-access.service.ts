@@ -17,7 +17,6 @@ import {
 } from "rxjs";
 
 import {
-  AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
   AccessLeaseView,
@@ -44,9 +43,6 @@ import {
   buildMyAccessRequestRows,
   extensionsByLeaseId,
   isRedeemableGrant,
-  lapsedGrantBadge,
-  lapsedInHistory,
-  resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
 } from "./my-access-row";
@@ -61,7 +57,6 @@ export class MyAccessService {
   private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
-  private readonly accessEvents = inject(AccessEventService);
   private readonly accessRefresh = inject(AccessRefreshService);
   private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
@@ -72,6 +67,9 @@ export class MyAccessService {
   private readonly _names$ = new BehaviorSubject<ResolvedNames>(emptyResolvedNames());
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
+
+  /** True only while this service announces, so its own reload trigger can skip the echo. */
+  private announcing = false;
 
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
@@ -127,31 +125,6 @@ export class MyAccessService {
   );
 
   /**
-   * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
-   * anything whose access is already over gets {@link lapsedGrantBadge}, see
-   * {@link lapsedInHistory}.
-   */
-  readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
-    this.rows$,
-    this.leases$,
-  ]).pipe(
-    map(([rows, leases]) => {
-      const nowMs = Date.now();
-      const activeLeaseIds = new Set(leases.map((l) => uuidAsString(l.id)));
-      return rows
-        .filter(
-          (r) =>
-            r.status !== "pending" &&
-            !isRedeemableGrant(r, nowMs) &&
-            !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
-        )
-        .map((r) => (lapsedInHistory(r) ? { ...r, statusBadge: lapsedGrantBadge } : r))
-        .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
-        .slice(0, MY_ACCESS_PAGE_LIMIT);
-    }),
-  );
-
-  /**
    * Decrypted gated ciphers by id, for favicons. A cipher absent from the caller's vault is
    * missing, so its row renders without one.
    */
@@ -169,7 +142,10 @@ export class MyAccessService {
       switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
     );
 
-    merge(this.accessEvents.accessChanged$(), lapsed$)
+    // Not the bare push: local changes elsewhere must refresh too; own echoes skipped.
+    const refresh$ = this.accessRefresh.accessChanged$().pipe(filter(() => !this.announcing));
+
+    merge(refresh$, lapsed$)
       .pipe(
         concatMap(() => from(this.load())),
         takeUntilDestroyed(this.destroyRef),
@@ -217,7 +193,7 @@ export class MyAccessService {
     const index = current.findIndex((r) => uuidAsString(r.id) === uuidAsString(id));
     if (index === -1) {
       await this.requestsApi.cancelAccessRequest(id);
-      this.accessRefresh.notifyAccessChanged();
+      this.announceAccessChanged();
       return;
     }
     const optimistic: AccessRequestView = {
@@ -232,7 +208,7 @@ export class MyAccessService {
       this._requests$.next(current);
       throw e;
     }
-    this.accessRefresh.notifyAccessChanged();
+    this.announceAccessChanged();
   }
 
   /**
@@ -263,7 +239,7 @@ export class MyAccessService {
       }
       throw e;
     }
-    this.accessRefresh.notifyAccessChanged();
+    this.announceAccessChanged();
   }
 
   /**
@@ -272,8 +248,21 @@ export class MyAccessService {
    */
   async activate(id: AccessRequestId): Promise<void> {
     await this.requestsApi.activateAccessRequest(id);
-    this.accessRefresh.notifyAccessChanged();
+    this.announceAccessChanged();
     await this.load();
+  }
+
+  /**
+   * Tells the nav badge and other readers to re-read. The subject emits synchronously, so the flag
+   * covers exactly this service's own echo and never a push or another surface's announcement.
+   */
+  private announceAccessChanged(): void {
+    this.announcing = true;
+    try {
+      this.accessRefresh.notifyAccessChanged();
+    } finally {
+      this.announcing = false;
+    }
   }
 }
 

@@ -1,0 +1,47 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    [pageTitle]="'fillLoginPopUpPromptsLogInTo' | i18n: requestOrigin()"
+  ></popup-header>
+
+  <div class="tw-p-2">
+    <ul
+      id="http-authentication_list_logins"
+      class="tw-m-0 tw-list-none tw-p-0"
+      [attr.aria-label]="'fillLoginPopUpPromptsChooseLogin' | i18n: requestOrigin()"
+    >
+      @for (cipher of ciphers(); track cipher.id) {
+        <li>
+          <bit-item>
+            <button
+              #loginButton
+              bit-item-content
+              type="button"
+              [disabled]="submitting()"
+              [attr.id]="'http-authentication_button_select-' + cipher.id"
+              (click)="selectCipher(cipher)"
+            >
+              <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+              <span data-testid="item-name">{{ cipher.name }}</span>
+              <ng-container slot="secondary">{{ cipher.login.username }}</ng-container>
+            </button>
+          </bit-item>
+        </li>
+      }
+    </ul>
+
+    <div class="tw-flex tw-justify-center tw-pt-2">
+      <button
+        id="http-authentication_button_use-browser-instead"
+        class="tw-text-sm"
+        bitLink
+        linkType="primary"
+        type="button"
+        [disabled]="submitting()"
+        (click)="useBrowserPrompt()"
+      >
+        {{ "fillLoginPopUpPromptsUseBrowserInstead" | i18n }}
+      </button>
+    </div>
+  </div>
+</popup-page>

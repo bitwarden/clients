@@ -51,6 +51,7 @@ import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "../services/member-dialog-manager/member-dialog-manager.service";
 import { MemberExportService } from "../services/member-export/member-export.service";
+import { NeedsConfirmationCountService } from "../services/needs-confirmation-count/needs-confirmation-count.service";
 import { OrganizationMembersService } from "../services/organization-members-service/organization-members.service";
 
 import { MembersV2Component } from "./members-v2.component";
@@ -281,6 +282,36 @@ const statusFilterMembers: OrganizationUserView[] = [
   ),
 ];
 
+/**
+ * More Accepted members than a page holds, named from A to Z so that by name alone they'd mix
+ * with everyone else.
+ */
+const needsConfirmationMembers: OrganizationUserView[] = [
+  ...mockMembers,
+  ...[
+    "Aaron Abbott",
+    "Bella Moore",
+    "Chris Nolan",
+    "Dana Lee",
+    "Felix Park",
+    "Grace Hall",
+    "Hugo Reyes",
+    "Iris West",
+    "Jack Wong",
+    "Nina Patel",
+    "Tom Young",
+    "Zoe Zimmer",
+  ].map((name, i) =>
+    mockUser({
+      id: `accepted-${i}` as Guid,
+      name,
+      email: `${name.split(" ")[0].toLowerCase()}@example.com`,
+      status: OrganizationUserStatusType.Accepted,
+      canConfirm: true,
+    }),
+  ),
+];
+
 function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
@@ -457,6 +488,7 @@ export default {
         { provide: BillingConstraintService, useValue: mockBillingConstraintService },
         { provide: MemberExportService, useValue: mockMemberExportService },
         { provide: ValidationService, useValue: mockValidationService },
+        { provide: NeedsConfirmationCountService, useValue: { update: () => {} } },
       ],
     }),
     applicationConfig({
@@ -555,12 +587,19 @@ export const RowActions: Story = {
 };
 
 /**
- * An admin who can't manage users gets search, but no Export or Invite member button, no checkbox
- * column, no Options column and no clickable cells.
+ * An admin who can't manage users but can recover accounts, like a custom role with only Manage
+ * account recovery. They get search, filters, the count and pagination, but no Export or Invite
+ * member button and no checkbox column. A member's name opens the member dialog read-only; no
+ * other cell is clickable. Recover account is their only action, so instead of the Options menu,
+ * members who can be recovered get a Recover button and the rest get an em dash: Alice Smith,
+ * enrolled in account recovery, has the button, and Bob Jones, not enrolled, doesn't.
  */
 export const ReadOnly: Story = {
   name: "Read only",
-  render: makeRender(mockMembers, mockOrganization({ canManageUsers: false })),
+  render: makeRender(
+    mockMembers,
+    mockOrganization({ canManageUsers: false, canManageUsersPassword: true }),
+  ),
 };
 
 /**
@@ -615,4 +654,14 @@ export const NoMatches: Story = {
   name: "No matches",
   render: makeRender(mockMembers),
   decorators: [atUrl(`/organizations/${ORG_ID}/members?members.status=revoked-4`)],
+};
+
+/**
+ * In the default view, Accepted members come first, so page 1 shows only Accepted members, each
+ * with a status berry on its avatar, and no "Confirm members" banner. Search, filter or sort by
+ * another column and they fall back into the usual order; clear them and they come first again.
+ */
+export const NeedsConfirmation: Story = {
+  name: "Needs confirmation",
+  render: makeRender(needsConfirmationMembers),
 };

@@ -40,14 +40,12 @@ export class NativeMessagingMain {
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
           try {
-            await this.listen();
             await this.generateManifests();
           } catch (e) {
             this.logService.error("Error generating manifests: " + e);
             return e;
           }
         } else {
-          this.stop();
           try {
             await this.removeManifests();
           } catch (e) {
@@ -64,14 +62,12 @@ export class NativeMessagingMain {
       async (_event: any, options: { create: boolean }) => {
         if (options.create) {
           try {
-            await this.listen();
             await this.generateDdgManifests();
           } catch (e) {
             this.logService.error("Error generating duckduckgo manifests: " + e);
             return e;
           }
         } else {
-          this.stop();
           try {
             await this.removeDdgManifests();
           } catch (e) {
@@ -135,10 +131,6 @@ export class NativeMessagingMain {
         this.send(msg);
       }
     });
-  }
-
-  stop() {
-    this.ipcServer?.stop();
   }
 
   /**
@@ -377,6 +369,7 @@ export class NativeMessagingMain {
       description: "Bitwarden desktop <-> DuckDuckGo bridge",
       path: this.binaryPath(),
       type: "stdio",
+      allowed_origins: await this.loadChromeIds(),
     };
 
     if (!existsSync(manifest.path)) {
@@ -385,9 +378,21 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.writeManifest(path, manifest);
+        for (const [variant, browserDirectory] of Object.entries(this.getDarwinDdgNMHS())) {
+          if (!existsSync(browserDirectory)) {
+            this.logService.warning(`${variant} not found, skipping.`);
+            continue;
+          }
+
+          const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
+
+          try {
+            await fs.mkdir(nmhsPath, { recursive: true });
+            await this.writeManifest(path.join(nmhsPath, "com.8bit.bitwarden.json"), manifest);
+          } catch (e) {
+            this.logService.error(`Unable to install the ${variant} manifest in ${nmhsPath}: ${e}`);
+          }
+        }
         break;
       }
       default:
@@ -445,9 +450,11 @@ export class NativeMessagingMain {
   async removeDdgManifests() {
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.removeIfExists(path);
+        for (const browserDirectory of Object.values(this.getDarwinDdgNMHS())) {
+          await this.removeIfExists(
+            path.join(browserDirectory, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
+          );
+        }
         break;
       }
       default:
@@ -466,44 +473,68 @@ export class NativeMessagingMain {
     This is because our code requires the browser paths to exist before installing the manifest,
     so the fallback included in these browsers won't work if the user hasn't installed Chrome
     first (or some other application created the folder for them).
+
+    Each map is split into two groups:
+
+      - Officially supported: Edge, Opera, Chrome, Firefox and Brave, including their
+        beta/dev/nightly channels. Bitwarden tests and supports these.
+      - Community maintained: contributed browsers. Kept on a best-effort basis.
   */
 
   private getWindowsNMHS() {
     return {
-      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      // Officially supported
       "Microsoft Edge": [
         "HKCU",
         "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
-      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Brave: [
         "HKCU",
         "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
+
+      // Community maintained
+      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
     };
   }
 
   private getDarwinNMHS() {
     /* eslint-disable no-useless-escape */
     return {
-      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
-      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
-      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
-      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
-      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
-      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge/`,
       "Microsoft Edge Beta": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Beta/`,
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
-      Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
-      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
-      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
+      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
+      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
+      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
+      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
       Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
       "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
       "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
+      Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
+      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
+      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Arbalete: `${this.homedir()}/Library/Application\ Support/Arbalete/`,
+      "Arbalete Dev": `${this.homedir()}/Library/Application\ Support/Arbalete\ Dev/`,
+    };
+    /* eslint-enable no-useless-escape */
+  }
+
+  /** The location of the DuckDuckGo native messaging manifests. */
+  private getDarwinDdgNMHS() {
+    /* eslint-disable no-useless-escape */
+    return {
+      DuckDuckGo: `${this.homedir()}/Library/Application\ Support/DuckDuckGo/`,
+      "DuckDuckGo App Store": `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -518,12 +549,15 @@ export class NativeMessagingMain {
 
   private getLinuxNMHS() {
     return {
-      Firefox: `${this.homedir()}/.mozilla/`,
-      Chrome: `${this.homedir()}/.config/google-chrome/`,
-      Chromium: `${this.homedir()}/.config/chromium/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
-      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
+      Chrome: `${this.homedir()}/.config/google-chrome/`,
+      Firefox: `${this.homedir()}/.mozilla/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/.config/chromium/`,
+      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
   }
@@ -541,10 +575,13 @@ export class NativeMessagingMain {
 
   private getFlatpakNMHS() {
     return {
-      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
-      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
-      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
+      // Officially supported
       "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/`,
+      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
+      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
+
+      // Community maintained
+      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
     };
   }
 

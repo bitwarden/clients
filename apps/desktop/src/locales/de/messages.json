@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop-App",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop-App $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Ungültige App-Kopplung",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Website hinzugefügt"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Website oder App hinzufügen"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website löschen"
@@ -2000,17 +2002,8 @@
   "syncNow": {
     "message": "Jetzt synchronisieren"
   },
-  "changeMasterPass": {
-    "message": "Master-Passwort ändern"
-  },
   "changeMasterPassword": {
     "message": "Master-Passwort ändern"
-  },
-  "continueToWebApp": {
-    "message": "Weiter zur Web-App?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern."
   },
   "fingerprintPhrase": {
     "message": "Fingerabdruck-Phrase",
@@ -2433,6 +2426,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 Eintrag",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
     "message": "Alle"
@@ -3375,6 +3372,10 @@
   "custom": {
     "message": "Benutzerdefiniert"
   },
+  "deleteSend": {
+    "message": "Send löschen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Bist du sicher, dass du dieses Send löschen möchtest?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3405,34 @@
   "disabled": {
     "message": "Deaktiviert"
   },
+  "removeAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernen"
+  },
+  "removedAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernt"
+  },
+  "removeAuthConfirmation": {
+    "message": "Bist du sicher, dass du die Passwort- oder E-Mail-Verifizierung für dieses Send entfernen möchtest?"
+  },
   "removePassword": {
     "message": "Passwort entfernen"
+  },
+  "removeEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernen"
   },
   "removedPassword": {
     "message": "Passwort entfernt"
   },
-  "removePasswordConfirmation": {
-    "message": "Bist du sicher, dass du das Passwort entfernen möchtest?"
+  "removedEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernt"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bist du sicher, dass du das Passwort für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bist du sicher, dass du die E-Mail-Verifizierung für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Maximale Zugriffsanzahl erreicht"
@@ -4596,6 +4617,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import erfolgreich"
+  },
+  "importConfirmationBody": {
+    "message": "Du hast erfolgreich $AMOUNT$ Einträge in Bitwarden importiert.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Du hast erfolgreich 1 Eintrag in Bitwarden importiert."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tipp:"
+  },
+  "importDeleteFileTip": {
+    "message": "Vergiss nicht, $FILENAME$ zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Vergiss nicht, deine Importdatei zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt."
+  },
+  "importingTitle": {
+    "message": "Wird importiert"
+  },
+  "importingDescription": {
+    "message": "Dieser Prozess kann einige Minuten dauern."
+  },
   "total": {
     "message": "Gesamt"
   },
@@ -5629,11 +5686,11 @@
   "onePasswordCheckCredentials": {
     "message": "Es ist ein Fehler aufgetreten. Überprüfe deine Zugangsdaten und versuche es erneut."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Nur die Anmeldung mit Passwort wird unterstützt."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Dieses 1Password-Konto verwendet eine Anmeldemethode, die nicht unterstützt wird. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
@@ -5652,6 +5709,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Gib eine gültige Anmeldeadresse ein."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Das findest du in deinem 1Password-Notfall-Kit."
   },
   "secretKeyIsRequired": {
     "message": "Ein geheimer Schlüssel ist erforderlich."
@@ -5674,6 +5734,9 @@
   "onePasswordEmailHint": {
     "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest. Es wird nur die Anmeldung mit Passwort unterstützt."
+  },
   "secretKey": {
     "message": "Geheimer Schlüssel"
   },
@@ -5682,6 +5745,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Mit SSO anmelden"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Wechsel zur SSO-Anmeldeseite, um den Import in Bitwarden abzuschließen."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Übertragung des Verschlüsselungsschlüssels"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Melde dich bei 1Password an und gehe zu \"Ausstehende Anmeldungen\", um diese Anfrage zu verifizieren."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Dieser Code hat nicht funktioniert. Schau auf deinem anderen Gerät nach, ob dort ein neuer Code verfügbar ist."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Die SSO-Anmeldeseite wurde geschlossen, bevor du die Anmeldung abgeschlossen hattest. Versuche es erneut, um den Import fortzusetzen."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Dieses Gerät wurde auf deinem anderen Gerät nicht autorisiert. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Zu viele falsche Verifizierungscodes. Bitte versuche es erneut oder verwende eine andere Importmethode."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -6221,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
-  "changeNow": {
-    "message": "Jetzt ändern"
-  },
   "missingPermissions": {
     "message": "Dir fehlen die erforderlichen Berechtigungen, um diese Aktion auszuführen."
   },
@@ -6257,8 +6341,35 @@
   "folderHintText": {
     "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Sozial/Foren"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "sendsTitleNoItems": {
     "message": "Sensible Informationen sicher versenden",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Du hast keine Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
@@ -6267,6 +6378,9 @@
   "sendsBodyNoItems": {
     "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Teile Texte oder Dateien sicher mit anderen. Deine Daten werden Ende-zu-Ende verschlüsselt."
   },
   "sendsBodyNoSearchResults": {
     "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
@@ -6356,6 +6470,9 @@
     "message": "Übertragen und hinzufügen"
   },
   "itemLower": {
+    "message": "Eintrag"
+  },
+  "itemUpper": {
     "message": "Eintrag"
   },
   "itemsLower": {
@@ -6885,8 +7002,8 @@
   "howToManageMyVault": {
     "message": "Wie kann ich meinen Tresor verwalten?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Einträge zu $ORGANIZATION$ übertragen",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Übertrage deine Einträge zu $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7011,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ verlangt nun, dass alle Einträge der Mitglieder im Besitz der Organisation sind. Deine persönlichen Einträge werden in einen Ordner namens „Meine Einträge“ verschoben, den nur du sehen kannst.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
   },
   "openTransferItemsHelpArticle": {
     "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
@@ -7352,8 +7466,8 @@
   "makeACopy": {
     "message": "Eine Kopie erstellen"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die zu mehreren Sammlungen gehören"
   },
   "driversLicenseDetails": {
     "message": "Führerscheindetails"
@@ -7718,45 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Anmelde-Aufforderungen im Browser automatisch ausfüllen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Wiederverwendet",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Auf einfache HTTP-Authentifizierungsanfragen von Websites antworten, die mit diesem Zugangsdaten-Eintrag übereinstimmen."
+  "exposed": {
+    "message": "Kompromittiert",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Hilfe-Artikel zum automatischen Ausfüllen von Anmelde-Aufforderungen im Browser öffnen"
+  "changePassword": {
+    "message": "Passwort ändern"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Passwort bei einem Datendiebstahl kompromittiert.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Um diese Einstellung zu verwenden, wähle für jede Website dieses Zugangsdaten-Eintrags eine andere Option zur Übereinstimmungserkennung als \"Standard\"."
+  "passwordTooShortOrSimple": {
+    "message": "Passwort zu kurz oder zu einfach.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" aktivieren?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Passwort wurde für mehrere Zugangsdaten wiederverwendet.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "\"Master-Passwort erneut abfragen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  "passwordAtRisk": {
+    "message": "Gefährdet",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "\"Master-Passwort erneut abfragen\" aktivieren?"
+  "passwordFlaggedByOrganization": {
+    "message": "Deine Organisation hat dich gebeten, dieses Passwort zu ändern.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  "item": {
+    "message": "Eintrag"
   },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standard-Übereinstimmungserkennung verwenden?"
+  "cancelAnytime": {
+    "message": "Jederzeit kündbar",
+    "description": "Reassurance under the Premium upgrade button"
   },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites, die die Standard-Übereinstimmungserkennung verwenden, können nicht mit Anmelde-Aufforderungen des Browsers genutzt werden. \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
+  "secureCheckoutViaStripe": {
+    "message": "Sichere Bezahlung über Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

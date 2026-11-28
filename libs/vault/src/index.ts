@@ -23,7 +23,6 @@ export {
 } from "./services/vault-copy-buttons.service";
 export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
-export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
 
 export * from "./cipher-view";
@@ -38,6 +37,7 @@ export { DownloadAttachmentComponent } from "./components/download-attachment/do
 export { TruncatedFilenameComponent } from "./components/truncated-filename";
 export { truncateFilename } from "./components/truncated-filename/truncate-filename";
 export { deleteFailureMessageKey } from "./utils/delete-failure-message";
+export { isRowActivationClick } from "./utils/row-activation";
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
@@ -162,7 +162,6 @@ export {
   PENDING_FILTER_ID,
   PRIVILEGED_FILTER_ID,
   READY_FILTER_ID,
-  UNAVAILABLE_FILTER_ID,
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "./tokens/vault-controlled-access-filter.token";
@@ -178,6 +177,7 @@ export {
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
 export { CIPHER_SHARE_ACCESS, CipherShareAccess } from "./tokens/cipher-share-access.token";
+export { REVEALABLE_CIPHERS, RevealableCiphers } from "./tokens/revealable-ciphers.token";
 export {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
@@ -210,6 +210,8 @@ export {
   matchesSharedFolder,
   matchesFolder,
   idString,
+  sharedFolderValues,
+  folderValues,
 } from "./utils/vault-filter-predicates";
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";

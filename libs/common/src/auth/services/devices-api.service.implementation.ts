@@ -5,8 +5,6 @@ import { ListResponse } from "../../models/response/list.response";
 import { Utils } from "../../platform/misc/utils";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
-import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
-import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
 import { TrustedDeviceKeysRequest } from "./devices/requests/trusted-device-keys.request";
 
@@ -70,34 +68,6 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     );
 
     return new DeviceResponse(result);
-  }
-
-  async updateTrust(
-    updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
-    deviceIdentifier: string,
-  ): Promise<void> {
-    await this.apiService.send(
-      "POST",
-      "/devices/update-trust",
-      updateDevicesTrustRequestModel,
-      true,
-      false,
-      null,
-      (headers) => {
-        headers.set("Device-Identifier", deviceIdentifier);
-      },
-    );
-  }
-
-  async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {
-    const result = await this.apiService.send(
-      "POST",
-      `/devices/${deviceIdentifier}/retrieve-keys`,
-      null,
-      true,
-      true,
-    );
-    return new ProtectedDeviceResponse(result);
   }
 
   async postDeviceTrustLoss(deviceIdentifier: string): Promise<void> {

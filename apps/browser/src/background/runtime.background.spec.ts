@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   Region,
@@ -24,24 +25,26 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
-import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
-import {
-  FillAssistEvent,
-  FillAssistEventReceiver,
-} from "../autofill/background/fill-assist-event-receiver";
+import { FillAssistEvent } from "../autofill/background/fill-assist-event";
+import { FillAssistEventReceiver } from "../autofill/background/fill-assist-event-receiver";
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
+import { AutofillOrchestrator } from "../autofill/orchestration";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
-import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
+import {
+  crossContextBoundary,
+  stampSender,
+  tagAsExternalMessage,
+} from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -67,6 +70,7 @@ type RuntimeBackgroundOverrides = {
   autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
   intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
   fillAssistEventReceiver?: MockProxy<FillAssistEventReceiver>;
+  configService?: MockProxy<ConfigService>;
 };
 
 function createRuntimeBackground({
@@ -79,6 +83,7 @@ function createRuntimeBackground({
   autofillOrchestrator = mock<AutofillOrchestrator>(),
   intraprocessMessageSender = mock<IntraprocessMessageSender>(),
   fillAssistEventReceiver = mock<FillAssistEventReceiver>(),
+  configService = mock<ConfigService>(),
 }: RuntimeBackgroundOverrides = {}) {
   // The `undefined` slots are collaborators no covered path reaches.
   // Give one a mock as soon as a test needs it.
@@ -90,7 +95,7 @@ function createRuntimeBackground({
     environmentService as any,
     messagingService as any,
     logService,
-    undefined as any, // configService
+    configService,
     undefined as any, // messageListener
     accountService,
     undefined as any, // lockService
@@ -485,6 +490,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
   let runtimeBackground: RuntimeBackground;
   let mainBackground: MockProxy<MainBackground>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let configService: MockProxy<ConfigService>;
 
   const message = { command: "getUrlAutofillTargetingRules" };
 
@@ -501,8 +507,10 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     domainSettingsService = mock<DomainSettingsService>();
     mainBackground = mock<MainBackground>();
     (mainBackground as any).domainSettingsService = domainSettingsService;
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false as any);
 
-    runtimeBackground = createRuntimeBackground({ main: mainBackground });
+    runtimeBackground = createRuntimeBackground({ main: mainBackground, configService });
   });
 
   afterEach(() => {
@@ -574,7 +582,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     expect(domainSettingsService.getTargetingRulesForUrl).toHaveBeenCalledWith(committedUrl);
   });
 
-  it("returns the resolved rules to the caller", async () => {
+  it("returns the resolved rules in the envelope under `targetingRules`", async () => {
     const rules = [{ category: "account-login", fields: {} }] as any;
     mockFrameLookup(routedUrl);
     domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
@@ -586,7 +594,23 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
 
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
-    expect(result).toBe(rules);
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: false });
+  });
+
+  it("sets ruleFailureFallback=true in the envelope when the fallback flag is on", async () => {
+    const rules = [{ category: "account-login", fields: {} }] as any;
+    mockFrameLookup(routedUrl);
+    domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
+    configService.getFeatureFlag.mockResolvedValue(true as any);
+    const sender = {
+      frameId: 0,
+      url: committedUrl,
+      tab: createChromeTabMock({ id: 1, url: routedUrl }),
+    } as chrome.runtime.MessageSender;
+
+    const result = await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: true });
   });
 });
 
@@ -922,6 +946,14 @@ describe("RuntimeBackground pageTransitionDetected", () => {
 describe("RuntimeBackground fillAssistEmit", () => {
   let runtimeBackground: RuntimeBackground;
   let fillAssistEventReceiver: MockProxy<FillAssistEventReceiver>;
+  // Fresh `message` per test. `tagAsExternalMessage` stamps a non-configurable
+  // symbol on the object that cannot be unstamped, so a shared reference would
+  // leak the tag from one test into the next.
+  let message: {
+    command: string;
+    name: FillAssistEvent["name"];
+    payload: FillAssistEvent["payload"];
+  };
 
   const event: FillAssistEvent = {
     name: "fill_assist_rule_qualification_failed",
@@ -931,31 +963,53 @@ describe("RuntimeBackground fillAssistEmit", () => {
       ruleId: "0",
     },
   };
-  const message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
-  const sender = {
-    frameId: 0,
-    tab: createChromeTabMock({ id: 1 }),
-  } as chrome.runtime.MessageSender;
 
   beforeEach(() => {
     (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
 
     fillAssistEventReceiver = mock<FillAssistEventReceiver>();
     runtimeBackground = createRuntimeBackground({ fillAssistEventReceiver });
+    message = { command: "fillAssistEmit", name: event.name, payload: event.payload };
   });
 
-  it("routes the event to the receiver on a content-script sender", async () => {
-    await runtimeBackground.processMessageWithSender(message, sender);
+  it("routes an externally-tagged message to the receiver with its event fields intact", async () => {
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(
+        stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+      ),
+    );
 
-    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(event);
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledWith(
+      expect.objectContaining({ name: event.name, payload: event.payload }),
+    );
   });
 
-  // Trusted-sender boundary: only content-script senders carry a sender.tab. Popup
-  // and options senders are rejected here.
-  it("security: rejects a message with no sender tab", async () => {
-    const tablessSender = { frameId: 0 } as chrome.runtime.MessageSender;
+  it("passes the original message through so the external tag survives for downstream consumers", async () => {
+    const taggedMessage = tagAsExternalMessage(
+      stampSender(message, { tab: { id: 7 } } as chrome.runtime.MessageSender),
+    );
 
-    await runtimeBackground.processMessageWithSender(message, tablessSender);
+    await runtimeBackground.processMessage(taggedMessage);
+
+    // Receiver must see the same object the handler received, not a reconstructed
+    // copy. Identity check pins the pass-through contract.
+    expect(fillAssistEventReceiver.receive).toHaveBeenCalledTimes(1);
+    expect(fillAssistEventReceiver.receive.mock.calls[0][0]).toBe(taggedMessage);
+  });
+
+  // Intraprocess messages are not externally tagged. The handler sits on the
+  // `allMessages$` ingest path, which emits both external and intraprocess
+  // messages, so the external-tag check is the real discriminator here.
+  it("security: rejects a tagged message whose sender is not a tab", async () => {
+    await runtimeBackground.processMessage(
+      tagAsExternalMessage(stampSender(message, {} as chrome.runtime.MessageSender)),
+    );
+
+    expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
+  });
+
+  it("security: rejects a message that was not tagged as external", async () => {
+    await runtimeBackground.processMessage(message);
 
     expect(fillAssistEventReceiver.receive).not.toHaveBeenCalled();
   });

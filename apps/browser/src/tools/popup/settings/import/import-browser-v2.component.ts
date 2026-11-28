@@ -11,6 +11,7 @@ import {
 import {
   ImportComponent,
   ImporterProviders,
+  OnePasswordSsoBrowser,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
@@ -19,6 +20,8 @@ import { PopOutComponent } from "../../../../platform/popup/components/pop-out.c
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+
+import { BrowserOnePasswordSsoBrowser } from "./browser-onepassword-sso-browser";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -42,6 +45,11 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
       provide: ImportMetadataServiceAbstraction,
       useClass: DefaultImportMetadataService,
       deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
+    safeProvider({
+      provide: OnePasswordSsoBrowser,
+      useClass: BrowserOnePasswordSsoBrowser,
+      deps: [],
     }),
   ],
 })

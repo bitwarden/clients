@@ -17,6 +17,12 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import {
+  RegistrationFinishComponent,
+  RegistrationStartComponent,
+  RegistrationStartSecondaryComponent,
+  RegistrationStartSecondaryComponentData,
+} from "@bitwarden/angular/auth/registration";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
@@ -35,10 +41,6 @@ import {
   LoginViaAuthRequestComponent,
   NewDeviceVerificationComponent,
   PasswordHintComponent,
-  RegistrationFinishComponent,
-  RegistrationStartComponent,
-  RegistrationStartSecondaryComponent,
-  RegistrationStartSecondaryComponentData,
   SsoComponent,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
@@ -67,6 +69,7 @@ import { autofillToolsDevFlagGuard } from "../autofill/popup/autofill-tools/auto
 import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
 import { DefaultPasswordManagerPromptGuard } from "../autofill/popup/default-password-manager/default-password-manager-prompt.guard";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
+import { HttpAuthenticationComponent } from "../autofill/popup/http-authentication/http-authentication.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
@@ -94,6 +97,7 @@ import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
+import { IMPORT_CONFIRMATION_ROUTE_PATH } from "../tools/popup/settings/import/import-confirmation-state.service";
 import { ImportShellBrowserComponent } from "../tools/popup/settings/import/import-shell-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
@@ -178,6 +182,12 @@ const routes: Routes = [
     path: "fido2",
     component: Fido2Component,
     canActivate: [fido2AuthGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "http-authentication",
+    component: HttpAuthenticationComponent,
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -346,6 +356,15 @@ const routes: Routes = [
     ],
   },
   {
+    path: IMPORT_CONFIRMATION_ROUTE_PATH,
+    loadComponent: () =>
+      import("../tools/popup/settings/import/import-confirmation-browser.component").then(
+        (m) => m.ImportConfirmationBrowserComponent,
+      ),
+    canActivate: [authGuard, importUpgradeRequiredGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "export",
     component: ExportBrowserV2Component,
     canActivate: [authGuard],
@@ -366,12 +385,7 @@ const routes: Routes = [
   {
     path: AuthExtensionRoute.SettingsPassword,
     component: ChangePasswordPageComponent,
-    canActivate: [
-      // TODO: PM-32419 - remove feature flag check
-      canAccessFeature(FeatureFlag.PM32413_MultiClientPasswordManagement),
-      authGuard,
-      hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`]),
-    ],
+    canActivate: [authGuard, hasPasswordGuard([`/${AuthExtensionRoute.AccountSecurity}`])],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
   {

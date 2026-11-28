@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Konto erstellen"
   },
+  "welcomeToBitwarden": {
+    "message": "Willkommen bei Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Erstelle dein Konto oder melde dich an"
+  },
   "newToBitwarden": {
     "message": "Neu bei Bitwarden?"
   },
@@ -338,9 +344,6 @@
   "continueToBrowserExtensionStoreDesc": {
     "message": "Hilf anderen herauszufinden, ob Bitwarden für sie das Richtige ist. Besuch den Erweiterungs-Store deines Browsers und hinterlasse jetzt eine Bewertung."
   },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern."
-  },
   "fingerprintPhrase": {
     "message": "Fingerabdruck-Phrase",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -432,6 +435,29 @@
   },
   "folderHintText": {
     "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Social/Foren"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "noFoldersAdded": {
     "message": "Keine Ordner hinzugefügt"
@@ -1508,17 +1534,6 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Alle Span-Elemente verwenden, die eine Website mit dem Attribut \"data-bwautofill\" markiert."
-  },
-  "enableBasicAuthResponseLabel": {
-    "message": "Anmeldefelder im Browser automatisch Ausfüllen",
-    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "enableBasicAuthResponseHint": {
-    "message": "Auf Aufforderungen zur einfachen HTTP-Authentifizierung reagieren, wenn ein Zugangsdaten-Eintrag in deinem Tresor mit der Website übereinstimmt."
-  },
-  "enableBasicAuthResponseWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -3194,6 +3209,30 @@
     "message": "Gut",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
+  "exposed": {
+    "message": "Kompromittiert",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Passwort bei einem Datendiebstahl kompromittiert.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Passwort zu kurz oder zu einfach.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Passwort wurde für mehrere Zugangsdaten wiederverwendet.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "Gefährdet",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Deine Organisation hat dich gebeten, dieses Passwort zu ändern.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
+  },
   "weak": {
     "message": "Schwach",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
@@ -3813,6 +3852,33 @@
   "sendTypeFile": {
     "message": "Datei"
   },
+  "item": {
+    "message": "Eintrag"
+  },
+  "sendsCount": {
+    "message": "$COUNT$ Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "oneSendCount": {
+    "message": "1 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "Du hast keine Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Teile Texte oder Dateien sicher mit anderen. Deine Daten werden Ende-zu-Ende verschlüsselt."
+  },
+  "pendingDeletion": {
+    "message": "Ausstehende Löschung"
+  },
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3837,14 +3903,14 @@
     "message": "Send-Link kopieren",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "removePassword": {
-    "message": "Passwort entfernen"
+  "removeAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernen"
   },
   "delete": {
     "message": "Löschen"
   },
-  "removedPassword": {
-    "message": "Passwort entfernt"
+  "removedAuth": {
+    "message": "Passwort oder E-Mail-Verifizierung entfernt"
   },
   "deletedSend": {
     "message": "Send gelöscht",
@@ -3857,8 +3923,28 @@
   "disabled": {
     "message": "Deaktiviert"
   },
-  "removePasswordConfirmation": {
-    "message": "Bist du sicher, dass du dieses Passwort entfernen möchtest?"
+  "removeAuthConfirmation": {
+    "message": "Bist du sicher, dass du die Passwort- oder E-Mail-Verifizierung für dieses Send entfernen möchtest?"
+  },
+  "removePassword": {
+    "message": "Passwort entfernen"
+  },
+  "removeEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernen"
+  },
+  "removedPassword": {
+    "message": "Passwort entfernt"
+  },
+  "removedEmailVerification": {
+    "message": "E-Mail-Verifizierung entfernt"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Bist du sicher, dass du das Passwort für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Bist du sicher, dass du die E-Mail-Verifizierung für dieses Send entfernen möchtest?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
     "message": "Send löschen",
@@ -5211,6 +5297,77 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import erfolgreich"
+  },
+  "importConfirmationBody": {
+    "message": "Du hast erfolgreich $AMOUNT$ Einträge in Bitwarden importiert.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Du hast erfolgreich 1 Eintrag in Bitwarden importiert."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tipp:"
+  },
+  "importDeleteFileTip": {
+    "message": "Vergiss nicht, $FILENAME$ zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Vergiss nicht, deine Importdatei zu löschen. Sie enthält sensible Daten und ist möglicherweise unverschlüsselt."
+  },
+  "importingTitle": {
+    "message": "Wird importiert"
+  },
+  "importingDescription": {
+    "message": "Dieser Prozess kann einige Minuten dauern."
+  },
+  "importingItemsTitle": {
+    "message": "$COUNT$ Einträge werden importiert!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "1 Eintrag wird importiert!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Browser-Erweiterung wird geöffnet"
+  },
+  "openedExtensionTitle": {
+    "message": "Browser-Erweiterung geöffnet"
+  },
+  "somethingWentWrong": {
+    "message": "Etwas ist schiefgelaufen..."
+  },
+  "openingExtensionError": {
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Klick auf den Button, um sie jetzt zu öffnen."
+  },
+  "openExtension": {
+    "message": "Erweiterung öffnen"
+  },
+  "openingExtensionToolbarErrorPart1": {
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol ",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openingExtensionToolbarErrorPart2": {
+    "message": " in der Symbolleiste.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "tryAgain": {
     "message": "Erneut versuchen"
   },
@@ -6133,11 +6290,11 @@
   "onePasswordCheckCredentials": {
     "message": "Es ist ein Fehler aufgetreten. Überprüfe deine Zugangsdaten und versuche es erneut."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Nur die Anmeldung mit Passwort wird unterstützt."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "Dieses 1Password-Konto verwendet eine Anmeldemethode, die nicht unterstützt wird. Versuche es erneut oder verwende eine andere Importmethode."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
@@ -6156,6 +6313,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Gib eine gültige Anmeldeadresse ein."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Das findest du in deinem 1Password-Notfall-Kit."
   },
   "secretKeyIsRequired": {
     "message": "Ein geheimer Schlüssel ist erforderlich."
@@ -6178,6 +6338,9 @@
   "onePasswordEmailHint": {
     "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest. Es wird nur die Anmeldung mit Passwort unterstützt."
+  },
   "secretKey": {
     "message": "Geheimer Schlüssel"
   },
@@ -6186,6 +6349,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Mit SSO anmelden"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Wechsel zur SSO-Anmeldeseite, um den Import in Bitwarden abzuschließen."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Übertragung des Verschlüsselungsschlüssels"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Melde dich bei 1Password an und gehe zu \"Ausstehende Anmeldungen\", um diese Anfrage zu verifizieren."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Dieser Code hat nicht funktioniert. Schau auf deinem anderen Gerät nach, ob dort ein neuer Code verfügbar ist."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Die SSO-Anmeldeseite wurde geschlossen, bevor du die Anmeldung abgeschlossen hattest. Versuche es erneut, um den Import fortzusetzen."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Dieses Gerät wurde auf deinem anderen Gerät nicht autorisiert. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Zu viele falsche Verifizierungscodes. Bitte versuche es erneut oder verwende eine andere Importmethode."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -6705,11 +6892,8 @@
   "copyAddress": {
     "message": "Adresse kopieren"
   },
-  "myItems": {
-    "message": "Meine Einträge"
-  },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Meine Einträge"
   },
   "adminConsole": {
     "message": "Administrator-Konsole"
@@ -7052,18 +7236,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "App (URI)"
+  "desktopApp": {
+    "message": "Desktop-App",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "App (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop-App $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Ungültige App-Kopplung",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Website hinzugefügt"
@@ -7073,9 +7262,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Website oder App hinzufügen"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Website löschen"
@@ -7756,9 +7942,6 @@
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
-  "changeNow": {
-    "message": "Jetzt ändern"
-  },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
   },
@@ -8163,8 +8346,8 @@
   "howToManageMyVault": {
     "message": "Wie kann ich meinen Tresor verwalten?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Einträge zu $ORGANIZATION$ übertragen",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Übertrage deine Einträge zu $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8172,17 +8355,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ verlangt nun, dass alle Einträge der Mitglieder im Besitz der Organisation sind. Deine persönlichen Einträge werden in einen Ordner namens „Meine Einträge“ verschoben, den nur du sehen kannst.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
   },
   "openTransferItemsHelpArticle": {
     "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
@@ -8443,8 +8623,8 @@
     "message": "Dieses Send läuft automatisch zum festgelegten Löschdatum ab",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "Du kannst keine Einträge in Meine Einträge importieren, die zu mehreren Sammlungen gehören"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Eintrag konnte nicht gespeichert werden. Du musst von der Organisation bestätigt werden, um Einträge zu speichern."
@@ -8825,45 +9005,486 @@
   "resetToDefault": {
     "message": "Auf Standard zurücksetzen"
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Anmelde-Aufforderungen im Browser automatisch ausfüllen",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "fillLoginPopUpPromptsLabel": {
+    "message": "Fill browser login pop-up prompts",
+    "description": "Label for the login item setting that lets the browser extension fill the username and password prompt that a browser shows for HTTP authentication"
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Auf einfache HTTP-Authentifizierungsanfragen von Websites antworten, die mit diesem Zugangsdaten-Eintrag übereinstimmen."
+  "fillLoginPopUpPromptsTitle": {
+    "message": "Filling pop-up prompts",
+    "description": "Title of the warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Hilfe-Artikel zum automatischen Ausfüllen von Anmelde-Aufforderungen im Browser öffnen"
+  "fillLoginPopUpPromptsWarning": {
+    "message": "When this setting is on, the browser may use your credentials again without prompting after the first fill.",
+    "description": "Warning shown before turning on the setting that fills browser login pop-up prompts"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "fillLoginPopUpPromptsHelpArticleSignpost": {
+    "message": "Learn more about filling pop-up prompts (opens in a new tab)",
+    "description": "Accessible label for the Learn more link in the warning about filling browser login pop-up prompts"
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Um diese Einstellung zu verwenden, wähle für jede Website dieses Zugangsdaten-Eintrags eine andere Option zur Übereinstimmungserkennung als \"Standard\"."
+  "fillLoginPopUpPromptsLogInTo": {
+    "message": "Log in to $ORIGIN$",
+    "description": "Title of the window that asks which login to use for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" aktivieren?"
+  "fillLoginPopUpPromptsChooseLogin": {
+    "message": "Choose a login for $ORIGIN$",
+    "description": "Label for the list of logins offered for a website's browser login pop-up prompt",
+    "placeholders": {
+      "origin": {
+        "content": "$1",
+        "example": "https://intranet.example.com"
+      }
+    }
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "\"Master-Passwort erneut abfragen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  "fillLoginPopUpPromptsUseBrowserInstead": {
+    "message": "Use browser instead",
+    "description": "Button that closes the Bitwarden window and shows the browser's own login pop-up prompt instead"
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "\"Master-Passwort erneut abfragen\" aktivieren?"
+  "vaultItem": {
+    "message": "Tresoreintrag"
   },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert. Beide Einstellungen können nicht gleichzeitig aktiviert sein."
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Das genehmigte Zugriffszeitfenster hat noch nicht begonnen."
   },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Standard-Übereinstimmungserkennung verwenden?"
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Das genehmigte Zugriffszeitfenster ist bereits abgelaufen."
   },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites, die die Standard-Übereinstimmungserkennung verwenden, können nicht mit Anmelde-Aufforderungen des Browsers genutzt werden. \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" wird für diesen Eintrag deaktiviert."
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Diese Anfrage wurde noch nicht genehmigt."
   },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "\"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert"
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Diese Anfrage kann nicht mehr aktiviert werden."
   },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "Für diesen Eintrag ist die Option \"Master-Passwort erneut abfragen\" aktiviert, daher wurde \"Anmelde-Aufforderungen im Browser automatisch ausfüllen\" deaktiviert. Speicher den Eintrag, um diese Änderung beizubehalten."
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Der Zugriff dieser Anfrage wurde bereits genutzt und ist nicht mehr aktiv."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Nur 1 Benutzer kann gleichzeitig aktiven Zugriff auf diesen Eintrag haben. Versuche es erneut, sobald der aktuelle Zugriff endet."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist aus deinem aktuellen Netzwerk nicht erlaubt."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist zu diesem Zeitpunkt nicht erlaubt."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist gerade nicht erlaubt."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Du hast bereits eine genehmigte Anfrage für diesen Eintrag."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Du hast bereits eine ausstehende Anfrage für diesen Eintrag."
+  },
+  "pamLeaseExpires": {
+    "message": "Läuft am $DATE$ um $TIME$ ab",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Nov 3, 2026"
+      },
+      "time": {
+        "content": "$2",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamLeaseExpiresToday": {
+    "message": "Läuft heute um $TIME$ ab",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:15 pm"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Zugriff starten"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Zugriff gestartet."
+  },
+  "pamStartLeaseError": {
+    "message": "Zugriff konnte nicht gestartet werden."
+  },
+  "pamEndLeaseButton": {
+    "message": "Zugriff beenden"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Zugriff beenden?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Dadurch wird dein Zugriff sofort widerrufen. Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Zugriff beendet."
+  },
+  "pamExtendLeaseButtonV2": {
+    "message": "Zugriff verlängern"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Zugriff verlängern"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Verlängerungsdauer"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Grund"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Zugriff verlängert."
+  },
+  "pamExtendLeaseError": {
+    "message": "Zugriff konnte nicht verlängert werden."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Dein Zugriff ist abgelaufen, bevor er verlängert werden konnte. Die Anfrage befindet sich in deinem Verlauf."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Berechtigt"
+  },
+  "pamAccessBadgePending": {
+    "message": "Warten auf Genehmigung"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Nicht verfügbar"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Einsatzbereit"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "Noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Endet bald • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sitzung beendet"
+  },
+  "pamActiveLeaseBannerTitleV2": {
+    "message": "Zugriff aktiv • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "20 days"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitleV2": {
+    "message": "Endet bald • noch $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 minutes"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Zugriffsanfrage wartet auf Genehmigung"
+  },
+  "pamPendingSubmittedJustNow": {
+    "message": "Gerade eben gesendet"
+  },
+  "pamPendingSubmittedAgo": {
+    "message": "Gesendet $WHEN$",
+    "placeholders": {
+      "when": {
+        "content": "$1",
+        "example": "5 minutes ago"
+      }
+    }
+  },
+  "pamPrivilegedCredentialsHeading": {
+    "message": "Berechtigte Zugangsdaten"
+  },
+  "pamLicenseNeededTooltip": {
+    "message": "Privileged Controls-Lizenz erforderlich",
+    "description": "Tooltip on the disabled Request access button of a member without a Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestToUse": {
+    "message": "Nutzung anfragen"
+  },
+  "pamUnavailableToRequest": {
+    "message": "Nicht anfragbar",
+    "description": "Subtitle of a vault row for a privileged item that cannot be requested right now, for example because another member holds it."
+  },
+  "pamExtendAccessMenuItem": {
+    "message": "Zugriff verlängern",
+    "description": "Overflow menu action on a vault row that extends the member's active access to a privileged item."
+  },
+  "pamAccessBadgeLessThanMinuteLeft": {
+    "message": "<1 Min. übrig",
+    "description": "Badge for a vault item whose access ends in under a minute."
+  },
+  "controlledAccess": {
+    "message": "Kontrollierter Zugriff"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "In Verwendung"
+  },
+  "pamControlledAccessFilterEndingSoon": {
+    "message": "Endet bald"
+  },
+  "pamEndedBannerHeading": {
+    "message": "Dein Zugriff ist beendet"
+  },
+  "pamEndedBannerBody": {
+    "message": "Die Leihfrist für diese Zugangsdaten ist abgelaufen. Da dein Zugriff beendet ist, werden diese Zugangsdaten jetzt erneuert."
+  },
+  "pamUnavailableBannerHeading": {
+    "message": "Du kannst gerade keinen Zugriff anfordern"
+  },
+  "pamUnavailableBannerBody": {
+    "message": "Die Zugriffsregel dieser Zugangsdaten erlaubt keine Anfragen aus deinem aktuellen Netzwerk oder zu diesem Zeitpunkt."
+  },
+  "pamApprovedRequestBannerHeadingV2": {
+    "message": "Einsatzbereit"
+  },
+  "pamApprovedAccessUntilToday": {
+    "message": "Du kannst bis heute $TIME$ auf diese Zugangsdaten zugreifen.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      }
+    }
+  },
+  "pamApprovedAccessUntil": {
+    "message": "Du kannst bis $DATE$ um $TIME$ auf diese Zugangsdaten zugreifen.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "4:45 PM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Nov 6, 2026"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Zugangsdaten bleiben verborgen, bis der Zugriff gewährt wird."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Du kannst Zugriff anfordern"
+  },
+  "pamUnlicensedBannerHeadingV2": {
+    "message": "Du benötigst eine Privileged Controls-Lizenz, um diesen Eintrag zu verwenden",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Ohne Lizenz kann kein Zugriff angefordert werden.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamUnlicensedBannerBodyV2": {
+    "message": "Bitte deinen Administrator, deine Lizenz zu aktivieren.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Eine Privileged Controls-Lizenz ist erforderlich. Bitte deinen Administrator, deine Lizenz zu aktivieren.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Zugriff bis zu $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Zugriff für bis zu $DURATION$. Wenn du die Voraussetzungen erfüllst, erhältst du sofort eine Genehmigung.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Zugriff anfordern"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Gerade hat jemand anderes Zugriff auf diesen Eintrag. Du kannst Zugriff anfordern, ihn aber erst starten, wenn die Person fertig ist."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Gerade hat jemand anderes Zugriff auf diesen Eintrag. Du kannst Zugriff anfordern, ihn aber erst ab $TIME$ starten.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Anfrage abbrechen"
+  },
+  "pamKeepRequest": {
+    "message": "Anfrage behalten"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Zugriffsanfrage abbrechen"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Damit ziehst du deine Anfrage zurück, bevor eine genehmigende Person darüber entschieden hat. Du kannst jederzeit eine neue Anfrage senden."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Damit verzichtest du auf bereits genehmigten Zugriff. Du kannst eine neue Anfrage senden, sie muss aber erneut genehmigt werden."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Anfrage abgebrochen"
+  },
+  "pendingStateCancelError": {
+    "message": "Die Anfrage konnte nicht abgebrochen werden."
+  },
+  "requestAccessModalSubmitV2": {
+    "message": "Anfrage senden"
+  },
+  "requestAccessModalDurationV2": {
+    "message": "Wie lange brauchst du ihn?"
+  },
+  "requestAccessModalDurationHint": {
+    "message": "Du erhältst eine Benachrichtigung, sobald die Anfrage genehmigt ist. Deine Zeit läuft erst, wenn du diese Zugangsdaten verwendest."
+  },
+  "requestAccessModalDetailsHeading": {
+    "message": "Anfragedetails"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Startdatum"
+  },
+  "requestAccessModalStart": {
+    "message": "Startzeit"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Enddatum"
+  },
+  "requestAccessModalEnd": {
+    "message": "Endzeit"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Das Ende muss nach dem Start liegen."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (jetzt)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Benutzerdefinierte Zeit…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Benutzerdefiniertes Enddatum und -zeit…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Vorgeschlagene Startzeiten anzeigen"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Zurück zu vorgeschlagenen Dauern"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, bis $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "$DURATION$ Zugriff angefordert: $START$ bis $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Das angeforderte Zeitfenster ist bereits abgelaufen. Wähle ein späteres Datum oder eine spätere Uhrzeit."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Das Zeitfenster darf $DURATION$ nicht überschreiten.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequiredV2": {
+    "message": "Warum brauchst du ihn?"
+  },
+  "requestAccessModalReasonOptionalV2": {
+    "message": "Warum brauchst du ihn?"
+  },
+  "requestAccessModalReasonPlaceholderV2": {
+    "message": "z. B. Quartalsprüfung, einige schreibgeschützte Abfragen ausführen"
+  },
+  "requestAccessModalAutomaticReasonHintV2": {
+    "message": "Für die genehmigende Person sichtbar und im Kontroll-Protokoll gespeichert."
+  },
+  "requestAccessModalHumanReasonHintV2": {
+    "message": "Für die genehmigende Person sichtbar und im Kontroll-Protokoll gespeichert."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Zugriff konnte nicht angefordert werden. Versuche es erneut."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Du hast bereits aktiven Zugriff auf diesen Eintrag."
+  },
+  "requestAccessModalApprovedSuccessV2": {
+    "message": "Zugriff genehmigt. Wähle Zugriff starten, um zu beginnen."
+  },
+  "requestAccessModalRequestCreatedSuccessV2": {
+    "message": "Zugriff angefragt"
+  },
+  "cancelAnytime": {
+    "message": "Jederzeit kündbar",
+    "description": "Reassurance under the Premium upgrade button"
+  },
+  "secureCheckoutViaStripe": {
+    "message": "Sichere Bezahlung über Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
+  },
+  "notNow": {
+    "message": "Nicht jetzt",
+    "description": "Dismisses the Premium upgrade prompt"
+  },
+  "month": {
+    "message": "Monat"
   }
 }

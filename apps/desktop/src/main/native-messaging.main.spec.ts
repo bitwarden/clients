@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os";
 import * as path from "path";
 
+import { ipcMain } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -35,6 +36,7 @@ describe("NativeMessagingMain", () => {
 
   let sut: NativeMessagingMain;
   let logService: MockProxy<LogService>;
+  let server: MockProxy<ipc.NativeIpcServer>;
   let emit: (error: unknown, message: ipc.IpcMessage) => void;
 
   /** Delivers a native message from `clientId`, as the napi server would. */
@@ -60,7 +62,8 @@ describe("NativeMessagingMain", () => {
 
     jest.mocked(ipc.NativeIpcServer.listen).mockImplementation((_name, callback) => {
       emit = callback as typeof emit;
-      return Promise.resolve(mock<ipc.NativeIpcServer>({ getPaths: () => [] }));
+      server = mock<ipc.NativeIpcServer>({ getPaths: () => [] });
+      return Promise.resolve(server);
     });
 
     logService = mock<LogService>();
@@ -137,6 +140,39 @@ describe("NativeMessagingMain", () => {
     emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
 
     expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  // Every browser reaches the app through the one server `listen` starts, so a manifest handler
+  // that started or stopped it would take the other browsers' native messaging with it.
+  describe.each([
+    ["nativeMessaging.manifests", "generateManifests", "removeManifests"],
+    ["nativeMessaging.ddgManifests", "generateDdgManifests", "removeDdgManifests"],
+  ])("%s", (channel, generate, remove) => {
+    /** Invokes the handler the constructor registered for `channel`, as the renderer would. */
+    function invoke(create: boolean): Promise<unknown> {
+      const handler = jest.mocked(ipcMain.handle).mock.calls.find(([c]) => c === channel)?.[1];
+
+      return handler!({} as any, { create });
+    }
+
+    beforeEach(() => {
+      jest.spyOn(sut as any, generate).mockResolvedValue(undefined);
+      jest.spyOn(sut as any, remove).mockResolvedValue(undefined);
+      jest.mocked(ipc.NativeIpcServer.listen).mockClear();
+    });
+
+    it("leaves the server running when the manifests are removed", async () => {
+      await invoke(false);
+
+      expect(server.stop).not.toHaveBeenCalled();
+    });
+
+    it("does not restart the server when the manifests are written", async () => {
+      await invoke(true);
+
+      expect(ipc.NativeIpcServer.listen).not.toHaveBeenCalled();
+      expect(server.stop).not.toHaveBeenCalled();
+    });
   });
 
   describe("generateManifests on linux", () => {
@@ -295,14 +331,107 @@ describe("NativeMessagingMain", () => {
       it("still installs the other browsers when the Firefox manifest cannot be written", async () => {
         mkdirSync(firefoxProfiles, { recursive: true });
         mkdirSync(chrome, { recursive: true });
+        const writeManifest = (sut as any).writeManifest.bind(sut);
         jest
           .spyOn(sut as any, "writeManifest")
-          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+          .mockImplementation((destination: string, manifest: object) =>
+            destination.startsWith(mozilla)
+              ? Promise.reject(new Error("EACCES: permission denied"))
+              : writeManifest(destination, manifest),
+          );
 
         await expect(sut.generateManifests()).resolves.toBeUndefined();
 
         expect(manifestIn(chrome)).toBeDefined();
         expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+      });
+    });
+
+    describe("generateDdgManifests", () => {
+      let ddg: string;
+      let ddgAppStore: string;
+
+      beforeEach(() => {
+        ddg = path.join(home, "Library", "Application Support", "DuckDuckGo");
+        ddgAppStore = path.join(
+          home,
+          "Library",
+          "Containers",
+          "com.duckduckgo.macos.browser",
+          "Data",
+          "Library",
+          "Application Support",
+        );
+      });
+
+      it("installs the manifest for the download from duckduckgo.com", async () => {
+        mkdirSync(ddg, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddg)).toEqual(
+          expect.objectContaining({
+            name: "com.8bit.bitwarden",
+            path: binary,
+            allowed_origins: expect.arrayContaining([
+              "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
+            ]),
+          }),
+        );
+      });
+
+      it("installs the manifest inside the App Store build's container", async () => {
+        mkdirSync(ddgAppStore, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+      });
+
+      it("installs the manifest for both distributions when both are present", async () => {
+        mkdirSync(ddg, { recursive: true });
+        mkdirSync(ddgAppStore, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddg)).toBeDefined();
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+      });
+
+      it("skips a distribution that is not installed", async () => {
+        mkdirSync(ddg, { recursive: true });
+
+        await sut.generateDdgManifests();
+
+        expect(manifestIn(ddgAppStore)).toBeUndefined();
+        expect(logService.warning).toHaveBeenCalledWith(
+          "DuckDuckGo App Store not found, skipping.",
+        );
+      });
+
+      it("still installs the other distribution when one manifest cannot be written", async () => {
+        mkdirSync(ddg, { recursive: true });
+        mkdirSync(ddgAppStore, { recursive: true });
+        jest
+          .spyOn(sut as any, "writeManifest")
+          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+
+        await expect(sut.generateDdgManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(ddgAppStore)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("DuckDuckGo"));
+      });
+
+      it("removes both manifests", async () => {
+        for (const directory of [ddg, ddgAppStore]) {
+          mkdirSync(path.join(directory, "NativeMessagingHosts"), { recursive: true });
+          writeFileSync(path.join(directory, "NativeMessagingHosts", manifestName), "{}");
+        }
+
+        await sut.removeDdgManifests();
+
+        expect(manifestIn(ddg)).toBeUndefined();
+        expect(manifestIn(ddgAppStore)).toBeUndefined();
       });
     });
 

@@ -1,4 +1,5 @@
 import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
+import { type SortState } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserView } from "../../core/views/organization-user.view";
@@ -41,11 +42,26 @@ export type MemberFilters = {
   policies?: PolicyOption[];
 };
 
-/** The roles offered in the Role filter, in display order. */
+/** Whether a filter value is unset: `null`/`undefined`, `""` or `[]`. */
+export const isEmptyFilter = (value: unknown): boolean =>
+  value == null || value === "" || (Array.isArray(value) && !value.length);
+
+/**
+ * Whether the table shows the default view: no search, every filter (Status included) at its
+ * default, and either no column sort, as on load, or Name ascending, which a header click on Name
+ * can't leave once picked.
+ */
+export function isDefaultView(sort: SortState, filters: MemberFilters): boolean {
+  const { column, direction } = sort;
+  const defaultSort = column == null || (column === "name" && direction === "asc");
+  return defaultSort && Object.values(filters).every(isEmptyFilter);
+}
+
+/** The roles offered in the Role filter, in display order. Also the Role column sort order. */
 export const ROLE_OPTIONS: readonly { value: OrganizationUserType; labelKey: string }[] = [
-  { value: OrganizationUserType.Owner, labelKey: "owner" },
-  { value: OrganizationUserType.Admin, labelKey: "admin" },
   { value: OrganizationUserType.User, labelKey: "user" },
+  { value: OrganizationUserType.Admin, labelKey: "admin" },
+  { value: OrganizationUserType.Owner, labelKey: "owner" },
   { value: OrganizationUserType.Custom, labelKey: "custom" },
 ];
 

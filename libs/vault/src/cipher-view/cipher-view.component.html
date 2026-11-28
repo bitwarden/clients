@@ -15,9 +15,9 @@
   <!-- ITEM DETAILS -->
   <app-item-details-v2
     [cipher]="cipher()"
-    [organization]="organization()"
+    [organization]="resolvedOrganization()"
     [collections]="resolvedCollections()"
-    [folder]="folder()"
+    [folder]="resolvedFolder()"
     [hideOwner]="isAdminConsole()"
     [isAdminConsole]="isAdminConsole()"
   >
@@ -42,6 +42,7 @@
       [cipher]="cipher()"
       [activeUserId]="activeUserId$ | async"
       [showChangePasswordLink]="showChangePasswordLink()"
+      [passwordRiskCategory]="passwordRiskCategory()"
       [changePasswordLink]="changePasswordLink()"
       (handleChangePassword)="launchChangePassword()"
       [hasAnonymousPremium]="hasAnonymousPremium()"

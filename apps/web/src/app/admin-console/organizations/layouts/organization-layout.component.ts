@@ -2,7 +2,17 @@ import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, take, withLatestFrom } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  Observable,
+  of,
+  switchMap,
+  take,
+  withLatestFrom,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AdminConsoleLogo } from "@bitwarden/assets/svg";
@@ -24,10 +34,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { ProviderService, ProviderStatusType, Provider } from "@bitwarden/common/provider";
-import { BannerModule, SvgModule } from "@bitwarden/components";
+import { BannerModule, BerryComponent, SvgModule, TooltipDirective } from "@bitwarden/components";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
@@ -39,6 +50,10 @@ import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
 import { InviteLinkCalloutService } from "../members/services/invite-link-callout/invite-link-callout.service";
+import { NeedsConfirmationCountService } from "../members/services/needs-confirmation-count/needs-confirmation-count.service";
+
+/** The Members nav item's count of members waiting for confirmation, with its labels. */
+type NeedsConfirmation = { count: number; tooltip: string; ariaLabel: string };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -57,6 +72,8 @@ import { InviteLinkCalloutService } from "../members/services/invite-link-callou
     Vfo1IconPipe,
     Vfo1I18nPipe,
     PamOrgNavSlotComponent,
+    BerryComponent,
+    TooltipDirective,
   ],
 })
 export class OrganizationLayoutComponent {
@@ -69,11 +86,14 @@ export class OrganizationLayoutComponent {
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
   private readonly inviteLinkCalloutService = inject(InviteLinkCalloutService);
+  private readonly configService = inject(ConfigService);
+  private readonly i18nService = inject(I18nService);
+  private readonly needsConfirmationCountService = inject(NeedsConfirmationCountService);
 
   protected readonly logo = AdminConsoleLogo;
 
   protected readonly vfo1Enabled = toSignal(
-    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 
@@ -112,7 +132,9 @@ export class OrganizationLayoutComponent {
     this.userId$,
   ]).pipe(
     switchMap(([organization, userId]) =>
-      this.providerService.get$(organization.providerId, userId),
+      organization.providerId == null
+        ? of(undefined)
+        : this.providerService.get$(organization.providerId, userId),
     ),
   );
 
@@ -143,6 +165,26 @@ export class OrganizationLayoutComponent {
     this.organization$.pipe(
       switchMap((organization) => this.organizationWarningsService.getTaxIdWarning$(organization)),
     );
+
+  /**
+   * Members waiting for an admin to confirm them, shown as a berry on the Members nav item in place
+   * of the v1 page's "Confirm members" banner. Only for admins who can confirm members, and
+   * `undefined` when there are none.
+   */
+  protected readonly needsConfirmation$: Observable<NeedsConfirmation | undefined> = combineLatest([
+    this.organization$.pipe(
+      map((organization) => (organization.canManageUsers ? organization.id : undefined)),
+      distinctUntilChanged(),
+    ),
+    this.configService.getFeatureFlag$(FeatureFlag.MembersTableV2),
+  ]).pipe(
+    switchMap(([organizationId, enabled]) =>
+      enabled && organizationId != null
+        ? this.needsConfirmationCountService.count$(organizationId)
+        : of(0),
+    ),
+    map((count) => (count > 0 ? this.describeNeedsConfirmation(count) : undefined)),
+  );
 
   constructor() {
     document.body.classList.remove("layout_frontend");
@@ -186,6 +228,14 @@ export class OrganizationLayoutComponent {
 
   getReportTabLabel(organization: Organization): string {
     return organization.useEvents ? "reporting" : "reports";
+  }
+
+  private describeNeedsConfirmation(count: number): NeedsConfirmation {
+    const tooltip =
+      count === 1
+        ? this.i18nService.t("memberNeedsConfirmation")
+        : this.i18nService.t("membersNeedConfirmation", count.toString());
+    return { count, tooltip, ariaLabel: `${this.i18nService.t("members")}, ${tooltip}` };
   }
 
   refreshTaxIdWarning() {

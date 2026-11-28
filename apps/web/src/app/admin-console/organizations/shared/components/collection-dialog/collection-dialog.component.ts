@@ -72,7 +72,10 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
-import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
+import {
+  COLLECTION_ACCESS_RULE_CALLOUT,
+  CollectionAccessRuleCallout,
+} from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -117,11 +120,8 @@ export class CollectionDialogComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  /**
-   * PAM's access-rule callout, provided by commercial code; null in OSS-only builds. Annotated
-   * because `inject` infers `unknown` from a SafeInjectionToken, which `ngComponentOutlet` rejects.
-   */
-  protected readonly accessRuleCallout: Type<unknown> | null = inject(
+  /** PAM's access-rule callout, provided by commercial code; null in OSS-only builds. */
+  protected readonly accessRuleCallout: Type<CollectionAccessRuleCallout> | null = inject(
     COLLECTION_ACCESS_RULE_CALLOUT,
     { optional: true },
   );
@@ -541,7 +541,7 @@ export class CollectionDialogComponent implements OnInit {
         ? "editedSharedFolderId"
         : "editedCollectionId"
       : vfo1Enabled
-        ? "createdSharedFolderId"
+        ? "addedSharedFolderId"
         : "createdCollectionId";
     this.toastService.showToast({
       variant: "success",

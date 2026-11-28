@@ -651,7 +651,7 @@
   },
   "desktopApp": {
     "message": "Desktop app",
-    "description": "Label for a field that shows an application installed on the computer that the item is paired with."
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
   "desktopAppCount": {
     "message": "Desktop app $COUNT$",
@@ -663,6 +663,10 @@
       }
     }
   },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
+  },
   "websiteAdded": {
     "message": "Website added"
   },
@@ -671,9 +675,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Add website or app"
-  },
-  "app": {
-    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -946,6 +947,29 @@
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
   },
   "deleteFolderPermanently": {
     "message": "Are you sure you want to permanently delete this folder?"
@@ -1803,9 +1827,6 @@
   "me": {
     "message": "Me"
   },
-  "myItems": {
-    "message": "My Items"
-  },
   "myItemsV2": {
     "message": "My items"
   },
@@ -1879,6 +1900,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "clearAll": {
     "message": "Clear all"
@@ -3488,6 +3513,42 @@
         "example": "2"
       }
     }
+  },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
   },
   "dataExportSuccess": {
     "message": "Data successfully exported"
@@ -5718,15 +5779,6 @@
       }
     }
   },
-  "trialThankYou": {
-    "message": "Thanks for signing up for Bitwarden for $PLAN$!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialSecretsManagerThankYou": {
     "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
     "placeholders": {
@@ -5735,22 +5787,6 @@
         "example": "Teams"
       }
     }
-  },
-  "trialPaidInfoMessageSpecificTrialLength": {
-    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      },
-      "trial_length": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
-  },
-  "trialConfirmationEmail": {
-    "message": "We've sent a confirmation email to your team's billing email at "
   },
   "trialIncludesPrivilegedControls": {
     "message": "Your trial includes Privileged Controls."
@@ -5797,6 +5833,12 @@
   },
   "organizationReadyToGo": {
     "message": "Your new organization is ready to go!"
+  },
+  "trialStarted": {
+    "message": "Trial started"
+  },
+  "trialActive": {
+    "message": "Your free trial is now active."
   },
   "organizationUpgraded": {
     "message": "Organization upgraded"
@@ -5854,6 +5896,12 @@
   },
   "addGroup": {
     "message": "Add group"
+  },
+  "addCollectionsToUseThisFilter": {
+    "message": "Add collections to use this filter."
+  },
+  "addSharedFoldersToUseThisFilter": {
+    "message": "Add shared folders to use this filter."
   },
   "editGroup": {
     "message": "Edit group"
@@ -5980,6 +6028,9 @@
   },
   "editMember": {
     "message": "Edit member"
+  },
+  "viewMember": {
+    "message": "View member"
   },
   "fieldOnTabRequiresAttention": {
     "message": "A field on the '$TAB$' tab requires your attention.",
@@ -6724,6 +6775,15 @@
   },
   "createdCollectionId": {
     "message": "Created collection $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    }
+  },
+  "addedSharedFolderId": {
+    "message": "Shared folder added $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8375,6 +8435,37 @@
     "message": "Good",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
+  },
+  "changePassword": {
+    "message": "Change password"
+  },
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
+  },
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
+  },
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
+  },
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
+  },
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
+  },
   "weak": {
     "message": "Weak",
     "description": "ex. A weak password. Scale: Very Weak -> Weak -> Good -> Strong"
@@ -8964,6 +9055,10 @@
     "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendConfirmation": {
+    "message": "Are you sure you want to delete this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deletionDate": {
     "message": "Deletion date"
   },
@@ -9538,6 +9633,39 @@
   },
   "desktopAppAutofillPolicyDrawerDesc": {
     "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut"
+  },
+  "appAutofillShortcut": {
+    "message": "App autofill shortcut"
+  },
+  "appAutofillShortcutDesc": {
+    "message": "Members can change this keyboard shortcut at any time."
+  },
+  "autotypeDefaultShortcutDesc": {
+    "message": "Use the Bitwarden default shortcut: $SHORTCUT$.",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Ctrl + Alt + B"
+      }
+    }
+  },
+  "autotypeCustomShortcutDesc": {
+    "message": "Enter your own custom shortcut."
+  },
+  "defaultKeyboardShortcutPolicyHint": {
+    "message": "Include Ctrl, Alt, or Win and at least 1 letter."
+  },
+  "alwaysAskBeforeFilling": {
+    "message": "Always ask before filling"
+  },
+  "alwaysAskBeforeFillingDesc": {
+    "message": "Always show members a confirmation prompt when the desktop shortcut is entered."
+  },
+  "invalidShortcut": {
+    "message": "Invalid shortcut"
   },
   "disableSend": {
     "message": "Remove Send"
@@ -12785,6 +12913,18 @@
   "needsConfirmation": {
     "message": "Needs confirmation"
   },
+  "membersNeedConfirmation": {
+    "message": "$COUNT$ members need confirmation",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "memberNeedsConfirmation": {
+    "message": "1 member needs confirmation"
+  },
   "memberRole": {
     "message": "Member role"
   },
@@ -13656,8 +13796,33 @@
   "recoverAccount": {
     "message": "Recover account"
   },
+  "recover": {
+    "message": "Recover",
+    "description": "Button in a member's row that opens the account recovery dialog."
+  },
+  "recoverAccountForMember": {
+    "message": "Recover account for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
+  "noActionsForMember": {
+    "message": "No actions for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice Smith"
+      }
+    }
+  },
   "recoverAccountWarning": {
     "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "recoverAccountRemovesFromOtherOrganizations": {
+    "message": "Recovering this account removes the user from their other organizations, except those they solely own."
   },
   "accountRecoveryPolicyDescV2": {
     "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
@@ -14347,9 +14512,6 @@
   },
   "confirmationDetails": {
     "message": "Confirmation details"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "We've sent a confirmation email to your email at "
@@ -16438,14 +16600,8 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Untrusted encryption keys"
   },
-  "atRiskPassword": {
-    "message": "At-risk password"
-  },
   "vulnerablePassword": {
     "message": "Vulnerable password."
-  },
-  "changeNow": {
-    "message": "Change now"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
@@ -16570,9 +16726,16 @@
     "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendsBodyNoItems": {
     "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "generatorNudgeTitle": {
     "message": "Quickly create passwords"
@@ -17387,8 +17550,8 @@
   "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -17396,17 +17559,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
@@ -17913,11 +18073,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -17936,6 +18096,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Enter a valid sign-in address."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Secret key is required."
@@ -17958,6 +18121,9 @@
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Secret key"
   },
@@ -17966,6 +18132,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper email"
@@ -18425,8 +18615,8 @@
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "Search licenses"
@@ -18921,6 +19111,12 @@
   "pamAuditKindCredentialAccessDenied": {
     "message": "Credential access denied"
   },
+  "pamAuditKindCredentialUngated": {
+    "message": "Controlled access bypassed"
+  },
+  "pamAuditKindVaultExported": {
+    "message": "Vault exported"
+  },
   "pamAuditKindRuleCreated": {
     "message": "Access rule created"
   },
@@ -19164,8 +19360,8 @@
       }
     }
   },
-  "pamRequestAccessBannerMaxDurationAutomatic": {
-    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+  "pamRequestAccessBannerMaxDurationInstantApproval": {
+    "message": "Access for up to $DURATION$. If you meet the conditions, you’ll get instant approval.",
     "placeholders": {
       "duration": {
         "content": "$1",
@@ -19430,6 +19626,38 @@
   },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
+  },
+  "pamHistoryLoadFailed": {
+    "message": "Could not load history"
+  },
+  "pamHistoryRequestCount": {
+    "message": "$COUNT$ requests",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "pamHistoryRequestCountSingular": {
+    "message": "1 request"
+  },
+  "pamHistoryRangeOfTotal": {
+    "message": "$START$–$END$ of $TOTAL$ requests",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "42"
+      }
+    }
   },
   "pamInboxRequestReasonLabel": {
     "message": "Request reason"
@@ -20133,47 +20361,6 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
-  },
-  "httpAuthenticationSettingLabel": {
-    "message": "Autofill browser login prompts",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
-  },
-  "httpAuthenticationSettingDescription": {
-    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
-  },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
-  },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
-  },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
-  },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
-  },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Turn on master password re-prompt?"
-  },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
-  },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
-  },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   },
   "pamRotation": {
     "message": "Rotation"
@@ -21649,8 +21836,11 @@
   "pamTargetSystemEndingSessionsEntraHint": {
     "message": "Entra can sign out active sessions after rotation."
   },
-  "pamTargetSystemEndingSessionsCustomScriptHint": {
-    "message": "This system type can't sign out active sessions after rotation."
+  "pamTargetSystemSignsOutSessionsHint": {
+    "message": "Managed credentials can then sign out active sessions after rotation. Only turn this on if the script handles the terminate operation."
+  },
+  "pamTargetSystemSignsOutSessionsWithdrawnHint": {
+    "message": "Managed credentials set to sign out active sessions will stop once you save."
   },
   "pamTargetSystemEndingSessionsUnsetHint": {
     "message": "Shows once you choose a system type."
@@ -21873,5 +22063,9 @@
         "example": "<a><code>1a2b3c4d</code></a>"
       }
     }
+  },
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   }
 }

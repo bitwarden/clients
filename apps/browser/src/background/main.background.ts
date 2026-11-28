@@ -78,6 +78,11 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import {
+  DefaultSsoJitProvisionFinishService,
+  SsoJitProvisionFinishApiService,
+  SsoJitProvisionFinishService,
+} from "@bitwarden/common/auth/sso-jit-provision-finish";
+import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -336,14 +341,12 @@ import {
 
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
-import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
-import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import {
   FillAssistEventReceiver,
@@ -365,6 +368,11 @@ import {
   BrowserFido2ParentWindowReference,
   BrowserFido2UserInterfaceService,
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
+import {
+  AutofillOrchestrator,
+  DefaultAutofillOrchestrator,
+  shouldAutoCopyTotp,
+} from "../autofill/orchestration";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
@@ -377,7 +385,6 @@ import { DefaultFillCipherPolicy } from "../autofill/services/default-fill-ciphe
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
-import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -429,7 +436,6 @@ import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-ciphe
 
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
-import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
 
 export default class MainBackground {
@@ -503,6 +509,8 @@ export default class MainBackground {
   organizationService: InternalOrganizationServiceAbstraction;
   providerService: ProviderServiceAbstraction;
   keyConnectorService: KeyConnectorServiceAbstraction;
+  ssoJitProvisionFinishService: SsoJitProvisionFinishService;
+  ssoJitProvisionFinishApiService: SsoJitProvisionFinishApiService;
   userVerificationService: UserVerificationServiceAbstraction;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
@@ -613,7 +621,6 @@ export default class MainBackground {
   private webRequestBackground: WebRequestBackground;
 
   private syncTimeout: any;
-  private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
@@ -647,8 +654,6 @@ export default class MainBackground {
       this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
       await this.logout(logoutReason, userId);
     };
-
-    const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
     const refreshAccessTokenErrorCallback = () => {
       // Send toast to popup
@@ -752,8 +757,6 @@ export default class MainBackground {
       this.logService,
     );
     this.accountService = new AccountServiceImplementation(
-      this.messagingService,
-      this.logService,
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
@@ -881,8 +884,6 @@ export default class MainBackground {
     // Constructed before the key service, which depends on it to delete platform-specific copies of
     // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
     const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
       this.logService,
       () => this.keyService,
       this.biometricStateService,
@@ -1044,7 +1045,6 @@ export default class MainBackground {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
-      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(
@@ -1058,7 +1058,7 @@ export default class MainBackground {
 
     this.pinService = new PinService(this.sdkService);
 
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService();
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.unlockService = new BackgroundUnlockService(
@@ -1083,6 +1083,16 @@ export default class MainBackground {
     this.unlockService.init();
     void browserBiometricsService.setUnlockService(this.unlockService);
 
+    this.ssoJitProvisionFinishService = new DefaultSsoJitProvisionFinishService(
+      this.registerSdkService,
+      this.configService,
+      this.globalStateProvider,
+    );
+    this.ssoJitProvisionFinishApiService = new SsoJitProvisionFinishApiService(
+      this.apiService,
+      this.logService,
+    );
+
     // Constructed after the unlock service, which it depends on.
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
@@ -1095,7 +1105,8 @@ export default class MainBackground {
       logoutCallback,
       this.stateProvider,
       this.configService,
-      this.registerSdkService,
+      this.ssoJitProvisionFinishService,
+      this.ssoJitProvisionFinishApiService,
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
@@ -1438,6 +1449,7 @@ export default class MainBackground {
       this.restrictedItemTypesService,
       this.configService,
       this.sdkService,
+      this.logService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1587,6 +1599,7 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.authService,
       permissionsPolicyBackground,
+      this.domainSettingsService,
     );
 
     const logoutService = new DefaultLogoutService(
@@ -1647,14 +1660,6 @@ export default class MainBackground {
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
       this.fillAssistEventReceiver,
-    );
-    this.nativeMessagingBackground = new NativeMessagingBackground(
-      this.encryptService,
-      this.cryptoFunctionService,
-      this.appIdService,
-      this.platformUtilsService,
-      this.logService,
-      this.accountService,
     );
     this.commandsBackground = new CommandsBackground(
       this,
@@ -1811,6 +1816,7 @@ export default class MainBackground {
         this.autofillSettingsService,
         this.eventCollectionService,
         this.logService,
+        this.messageListener,
       );
     }
 

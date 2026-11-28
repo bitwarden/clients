@@ -280,20 +280,18 @@
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
-          @if (fillAssistFeatureEnabled$ | async) {
-            <bit-form-control>
-              <input
-                formControlName="enableFillAssist"
-                bitCheckbox
-                id="fill-assist"
-                type="checkbox"
-              />
-              <bit-label for="fill-assist">
-                {{ "activateFillAssistV2" | i18n }}
-                <autofill-fill-assist-popover></autofill-fill-assist-popover>
-              </bit-label>
-            </bit-form-control>
-          }
+          <bit-form-control>
+            <input
+              formControlName="enableFillAssist"
+              bitCheckbox
+              id="fill-assist"
+              type="checkbox"
+            />
+            <bit-label for="fill-assist">
+              {{ "activateFillAssistV2" | i18n }}
+              <autofill-fill-assist-popover></autofill-fill-assist-popover>
+            </bit-label>
+          </bit-form-control>
           @if (bitwardenAutofillAttributesSettingsAreAvailable) {
             <bit-form-control>
               <input
@@ -321,26 +319,6 @@
               </bit-label>
               <bit-hint class="tw-text-sm">
                 {{ "honorDataBitwardenAutofillAttributeHint" | i18n }}
-              </bit-hint>
-            </bit-form-control>
-          }
-          @if (basicAuthResponseSettingIsAvailable$ | async) {
-            <bit-form-control>
-              <input
-                formControlName="enableBasicAuthResponse"
-                bitCheckbox
-                id="basic-auth-response"
-                type="checkbox"
-              />
-              <bit-label for="basic-auth-response">
-                {{ "enableBasicAuthResponseLabel" | i18n }}
-              </bit-label>
-              <bit-hint class="tw-text-sm">
-                {{ "enableBasicAuthResponseHint" | i18n }}
-                <span
-                  ><b>{{ "warningCapitalized" | i18n }}</b
-                  >: {{ "enableBasicAuthResponseWarning" | i18n }}</span
-                >
               </bit-hint>
             </bit-form-control>
           }

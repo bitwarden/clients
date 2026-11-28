@@ -3,10 +3,12 @@ import {
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   extensionDurationOptions,
+  maxRequestDurationSeconds,
   pickDurationUnit,
   requestDurationOptions,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
+  withStoredDurations,
 } from "./lease-window.utils";
 
 const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
@@ -68,6 +70,30 @@ describe("snapToNearestAccessRuleDuration", () => {
   });
 });
 
+describe("maxRequestDurationSeconds", () => {
+  const DAY = 24 * 60 * 60;
+
+  it("is the longest preset, not the one-year ceiling, for a rule with no maximum", () => {
+    expect(maxRequestDurationSeconds(365 * DAY, 60 * 60)).toBe(DAY);
+  });
+
+  it("is the rule's cap when it sits below the longest preset", () => {
+    expect(maxRequestDurationSeconds(4 * 60 * 60, 60 * 60)).toBe(4 * 60 * 60);
+  });
+
+  it("is the rule's cap when it sits between presets", () => {
+    expect(maxRequestDurationSeconds(45 * 60, 15 * 60)).toBe(45 * 60);
+  });
+
+  it("is the rule's cap when it is longer than every preset", () => {
+    expect(maxRequestDurationSeconds(7 * DAY, 60 * 60)).toBe(7 * DAY);
+  });
+
+  it("is a default longer than every preset, since the picker offers it", () => {
+    expect(maxRequestDurationSeconds(365 * DAY, 2 * DAY)).toBe(2 * DAY);
+  });
+});
+
 describe("requestDurationOptions", () => {
   it("drops presets above the rule's cap", () => {
     expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
@@ -121,5 +147,46 @@ describe("extensionDurationOptions", () => {
 
   it("stays non-empty for a cap below the smallest preset", () => {
     expect(seconds(extensionDurationOptions(15 * 60))).toEqual([15 * 60]);
+  });
+});
+
+describe("withStoredDurations", () => {
+  it("returns the presets unchanged when every stored value is a preset or absent", () => {
+    expect(
+      seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 3600, null, undefined)),
+    ).toEqual(seconds([...ACCESS_RULE_DURATION_PRESETS]));
+  });
+
+  it("adds an off-preset stored value in order", () => {
+    const result = seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 50 * 60, 3 * 86400));
+
+    expect(result).toContain(50 * 60);
+    expect(result).toContain(3 * 86400);
+    expect(result).toEqual([...result].sort((a, b) => a - b));
+    expect(result).toHaveLength(ACCESS_RULE_DURATION_PRESETS.length + 2);
+  });
+
+  it("does not duplicate a value stored twice", () => {
+    const result = seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 50 * 60, 50 * 60));
+
+    expect(result.filter((s) => s === 50 * 60)).toHaveLength(1);
+  });
+
+  it("places multi-day values past the 30 day preset, up to the server's 365 day ceiling", () => {
+    const DAY = 86400;
+    const result = seconds(
+      withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 3 * DAY, 60 * DAY, 365 * DAY),
+    );
+
+    // 3 days is not a preset (2 and 7 are), so it slots between them.
+    expect(result.slice(-6)).toEqual([2 * DAY, 3 * DAY, 7 * DAY, 30 * DAY, 60 * DAY, 365 * DAY]);
+    expect(result.slice(-2)).toEqual([60 * DAY, 365 * DAY]);
+    expect(result).toEqual([...result].sort((a, b) => a - b));
+  });
+
+  it("ignores non-positive values", () => {
+    expect(seconds(withStoredDurations(ACCESS_RULE_DURATION_PRESETS, 0, -5))).toEqual(
+      seconds([...ACCESS_RULE_DURATION_PRESETS]),
+    );
   });
 });

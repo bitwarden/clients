@@ -32,7 +32,7 @@
             }
             <span slot="secondary">{{ getSubtitle(cipher) }}</span>
           </button>
-          @if (cipher.permissions.restore) {
+          @if (cipherAuthorizationService.canRestoreCipher$(cipher) | async) {
             <ng-container slot="end">
               <bit-item-action>
                 <button

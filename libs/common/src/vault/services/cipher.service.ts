@@ -113,7 +113,7 @@ export class CipherService implements CipherServiceAbstraction {
    * Keep this the only full-view decrypt subscription so decryption and the decrypted-cipher cache
    * run once.
    */
-  private cipherViewsIncludingRestricted$ = perUserCache$(
+  protected cipherViewsIncludingRestricted$ = perUserCache$(
     (userId: UserId): Observable<CipherView[] | null> => {
       return combineLatest([
         this.encryptedCiphersState(userId).state$,
@@ -147,7 +147,9 @@ export class CipherService implements CipherServiceAbstraction {
    * Decrypted list views including restricted ciphers, for the vault lists and their filters;
    * everything else uses {@link cipherListViews$}.
    */
-  cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
+  cipherListViewsIncludingRestricted$: (
+    userId: UserId,
+  ) => Observable<CipherListView[] | CipherView[] | null> = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
     // `localData` stays out of this stream. It changes on every autofill and would decrypt the
@@ -485,7 +487,7 @@ export class CipherService implements CipherServiceAbstraction {
    * List views once decrypted, which also means the encrypted ciphers and keys are loaded.
    * Excludes restricted ciphers, like {@link cipherListViews$}.
    */
-  private async loadedListViews(userId: UserId): Promise<CipherListView[]> {
+  private async loadedListViews(userId: UserId): Promise<CipherViewLike[]> {
     const views = await firstValueFrom(
       this.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
     );

@@ -150,6 +150,37 @@ describe("GroupsV2Component", () => {
     await fixture.whenStable();
   }
 
+  describe("hasNoCollections", () => {
+    it("is false when the organization has collections to filter by", async () => {
+      createComponent();
+      await detectAndFlush();
+
+      expect(component.collectionFilterOptions().length).toBeGreaterThan(0);
+      expect(component.hasNoCollections()).toBe(false);
+    });
+
+    it("is true when the organization has no collections, so the filter chip is disabled", async () => {
+      mockCollectionService.decryptMany$.mockReturnValue(of([]));
+      mockApiService.getCollections.mockResolvedValue({ data: [] } as any);
+
+      createComponent();
+      await detectAndFlush();
+
+      expect(component.collectionFilterOptions()).toEqual([]);
+      expect(component.hasNoCollections()).toBe(true);
+    });
+
+    it("does not depend on whether any groups exist", async () => {
+      mockGroupService.getAllDetails.mockResolvedValue([]);
+
+      createComponent();
+      await detectAndFlush();
+
+      expect(component.hasNoGroups()).toBe(true);
+      expect(component.hasNoCollections()).toBe(false);
+    });
+  });
+
   describe("filterGroups", () => {
     const group = makeGroup({
       id: "group-1",

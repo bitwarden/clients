@@ -352,8 +352,8 @@ programmatically — for example, to persist and restore it:
 Filtering works like a reactive form. Filter controls — `bit-filter-menu`, `bit-filter-toggle`, and
 a `bit-search` — go in the toolbar, each with a `key`. The table collects their values into
 **`table.filterValues()`** (a `{ key: value }` object). You supply one **`[filter]`** function
-`(row, values)`, and the table derives everything from it: the visible rows, the select-all scope,
-the paginator count, and a "no matches" empty state.
+`(row, values)`, and the table derives everything from it: the visible rows, the paginator count,
+and a "no matches" empty state.
 
 Annotate the function's `values` parameter with your filter shape — `filterValues()` is typed to
 match. Seed initial values with `[filters]`.
@@ -458,9 +458,9 @@ selected rows:
 </bit-table-v2>
 ```
 
-The header checkbox selects the currently filtered rows, and selected rows pick up a soft
-background. Pass a **stable** config reference — a field or getter, not an inline object literal —
-so selection isn't rebuilt on every change.
+The header checkbox selects the currently filtered rows (only the current page when paginated), and
+selected rows pick up a soft background. Pass a **stable** config reference — a field or getter, not
+an inline object literal — so selection isn't rebuilt on every change.
 
 ### Selecting a subset of rows
 

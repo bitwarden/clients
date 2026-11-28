@@ -20,7 +20,6 @@ import {
   accessRuleMatchesFilter,
   classifyAccessRuleError,
   copyRuleName,
-  resolveCollectionNames,
   filterRulesToToggle,
 } from "@bitwarden/bit-pam";
 import {
@@ -63,6 +62,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { PamActivateRowDirective } from "../row-activation/activate-row.directive";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
@@ -75,6 +75,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
+    PamActivateRowDirective,
     TimestampPipe,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
@@ -130,18 +131,21 @@ export class AccessRulesComponent {
       BitTableV2Component,
     );
 
+  /** Collection name by id, which the search matches a rule's collections against. */
+  private readonly collectionNamesById = computed(
+    () => new Map<string, string>(this.collections().map((c) => [c.id, c.name])),
+  );
+
   /** The table's row test, given the search term and the chips' selections keyed by chip. */
   protected readonly rowMatchesFilter = (
     rule: AccessRuleView,
     values: AccessRuleFilterValues,
-  ): boolean => {
-    const ruleCollectionIds = rule.collections.map(uuidAsString);
-    return accessRuleMatchesFilter(
-      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-      resolveCollectionNames(ruleCollectionIds, this.collections()),
+  ): boolean =>
+    accessRuleMatchesFilter(
+      { name: rule.name, enabled: rule.enabled, collections: rule.collections.map(uuidAsString) },
+      this.collectionNamesById(),
       toAccessRuleFilter(values),
     );
-  };
 
   /** The rows the filters leave visible, which select-all spans. */
   private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);

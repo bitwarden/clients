@@ -103,7 +103,9 @@ export class AppVaultFabComponent {
   }
 
   protected openFolderDialog(): void {
-    AddEditFolderDialogComponent.open(this.dialogService);
+    AddEditFolderDialogComponent.open(this.dialogService, {
+      parentFolderId: this.getInitialValues().folderId,
+    });
   }
 
   private getInitialValues() {

@@ -331,7 +331,7 @@ export class VaultNextComponent implements OnInit {
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
-  private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+  protected readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
 
   private readonly failedCiphers = toSignal(this.failedCiphers$, { initialValue: [] });
 
@@ -442,6 +442,14 @@ export class VaultNextComponent implements OnInit {
     return collectionId != null && isGuid(collectionId)
       ? (collectionId as CollectionId)
       : undefined;
+  });
+
+  /** The collection {@link scopedCollectionId} names, once the user's collections have loaded. */
+  protected readonly scopedCollection = computed(() => {
+    const collectionId = this.scopedCollectionId();
+    return collectionId == null
+      ? undefined
+      : this.collections().find((collection) => collection.id === collectionId);
   });
 
   private readonly collectionMenuTarget = computed(() =>
@@ -714,7 +722,9 @@ export class VaultNextComponent implements OnInit {
 
   /** Handles `vault-new-cipher-menu`'s `folderAdded`, emitted by its legacy dropdown. */
   protected addFolder(): void {
-    AddEditFolderDialogComponent.open(this.dialogService);
+    AddEditFolderDialogComponent.open(this.dialogService, {
+      parentFolderId: this.scopedFolderId(),
+    });
   }
 
   /** Handles `vault-new-cipher-menu`'s `collectionAdded`, emitted by its legacy dropdown. */

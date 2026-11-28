@@ -1,7 +1,5 @@
 import { ListResponse } from "../../models/response/list.response";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
-import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
-import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
 export abstract class DevicesApiServiceAbstraction {
   abstract getKnownDevice(email: string, deviceIdentifier: string): Promise<boolean>;
@@ -16,13 +14,6 @@ export abstract class DevicesApiServiceAbstraction {
     userKeyEncryptedDevicePublicKey: string,
     deviceKeyEncryptedDevicePrivateKey: string,
   ): Promise<DeviceResponse>;
-
-  abstract updateTrust(
-    updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
-    deviceIdentifier: string,
-  ): Promise<void>;
-
-  abstract getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse>;
 
   /**
    * Notifies the server that the device has a device key, but didn't receive any associated decryption keys.

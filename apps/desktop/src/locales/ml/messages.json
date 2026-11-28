@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "ആപ്പ് (URI)"
+  "desktopApp": {
+    "message": "Desktop app",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "ആപ്പ് (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Desktop app $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Invalid app pairing",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "വെബ്സൈറ്റ് ചേർത്തു"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "വെബ്സൈറ്റ് അല്ലെങ്കിൽ ആപ്പ് ചേർക്കുക"
-  },
-  "app": {
-    "message": "ആപ്പ്"
   },
   "deleteWebsite": {
     "message": "വെബ്സൈറ്റ് ഇല്ലാതാക്കുക"
@@ -2000,17 +2002,8 @@
   "syncNow": {
     "message": "ഇപ്പോൾ സമന്വയിപ്പിക്കുക"
   },
-  "changeMasterPass": {
-    "message": "പ്രാഥമിക പാസ്‌വേഡ് മാറ്റുക"
-  },
   "changeMasterPassword": {
     "message": "മാസ്റ്റർ പാസ്വേഡ് മാറ്റുക"
-  },
-  "continueToWebApp": {
-    "message": "വെബ് ആപ്പിലേക്ക് തുടരണോ?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "നിങ്ങൾക്ക് Bitwarden വെബ് ആപ്പിൽ നിങ്ങളുടെ മാസ്റ്റർ പാസ്വേഡ് മാറ്റാം."
   },
   "fingerprintPhrase": {
     "message": "ഫിംഗർപ്രിന്റ് ഫ്രേസ്‌",
@@ -2433,6 +2426,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 item",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
     "message": "എല്ലാം"
@@ -3375,6 +3372,10 @@
   "custom": {
     "message": "ഇഷ്ടാനുസൃതം"
   },
+  "deleteSend": {
+    "message": "Delete Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "ഈ Send ഇല്ലാതാക്കണമെന്ന് തീർച്ചയാണോ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3405,34 @@
   "disabled": {
     "message": "നിർജ്ജീവമാക്കി"
   },
+  "removeAuth": {
+    "message": "Remove password or email verification"
+  },
+  "removedAuth": {
+    "message": "Password or email verification removed"
+  },
+  "removeAuthConfirmation": {
+    "message": "Are you sure you want to remove the password or email verification requirement from this Send?"
+  },
   "removePassword": {
     "message": "പാസ്വേഡ് നീക്കം ചെയ്യുക"
+  },
+  "removeEmailVerification": {
+    "message": "Remove email verification"
   },
   "removedPassword": {
     "message": "പാസ്വേഡ് നീക്കം ചെയ്തു"
   },
-  "removePasswordConfirmation": {
-    "message": "പാസ്വേഡ് നീക്കം ചെയ്യണമെന്ന് തീർച്ചയാണോ?"
+  "removedEmailVerification": {
+    "message": "Email verification removed"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Are you sure you want to remove the password requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Are you sure you want to remove the email verification requirement from this Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "പരമാവധി പ്രവേശന എണ്ണം എത്തി"
@@ -4596,6 +4617,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Import successful"
+  },
+  "importConfirmationBody": {
+    "message": "You’ve successfully imported $AMOUNT$ items into Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Tip:"
+  },
+  "importDeleteFileTip": {
+    "message": "Don't forget to delete $FILENAME$. It contains sensitive data and may be unencrypted.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
+  },
+  "importingTitle": {
+    "message": "Importing"
+  },
+  "importingDescription": {
+    "message": "This process may take a few minutes."
+  },
   "total": {
     "message": "ആകെ"
   },
@@ -5629,11 +5686,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -5652,6 +5709,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Enter a valid sign-in address."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Find this in your 1Password Emergency Kit."
   },
   "secretKeyIsRequired": {
     "message": "Secret key is required."
@@ -5674,6 +5734,9 @@
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Secret key"
   },
@@ -5682,6 +5745,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "That code didn't work. Check your other device for a new one."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Too many incorrect verification codes. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper ഇമെയിൽ"
@@ -6221,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "കേടായ പാസ്വേഡ്."
   },
-  "changeNow": {
-    "message": "ഇപ്പോൾ മാറ്റുക"
-  },
   "missingPermissions": {
     "message": "ഈ പ്രവർത്തനം നിർവഹിക്കുന്നതിന് ആവശ്യമായ അനുമതികൾ നിങ്ങൾക്ക് ഇല്ല."
   },
@@ -6257,8 +6341,35 @@
   "folderHintText": {
     "message": "പാരന്റ് ഫോൾഡറിന്റെ പേരിന് ശേഷം “/” ചേർത്ത് ഒരു ഫോൾഡർ നെസ്റ്റ് ചെയ്യുക. ഉദാഹരണം: Social/Forums"
   },
+  "nestFolderUnder": {
+    "message": "Nest folder under"
+  },
+  "nestFolderUnderNone": {
+    "message": "None",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ is not allowed in folder names. Remove the /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "To nest a folder, choose its parent from the Nest folder under field. You no longer need to add a slash to the name."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (Deleted)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "sendsTitleNoItems": {
     "message": "സെൻസിറ്റീവ് വിവരങ്ങൾ സുരക്ഷിതമായി അയയ്ക്കുക",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "You have no Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
@@ -6267,6 +6378,9 @@
   "sendsBodyNoItems": {
     "message": "ഏത് പ്ലാറ്റ്ഫോമിലും ആർക്കും സുരക്ഷിതമായി ഫയലുകളും ഡാറ്റയും പങ്കിടുക. തുറന്നുകാണൽ പരിമിതപ്പെടുത്തുമ്പോൾ നിങ്ങളുടെ വിവരങ്ങൾ എൻഡ്-ടു-എൻഡ് എൻക്രിപ്റ്റ് ചെയ്ത നിലയിൽ തുടരും.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Share text or files securely with anyone. Your information will be end-to-end encrypted."
   },
   "sendsBodyNoSearchResults": {
     "message": "ഫിൽട്ടറുകൾ മായ്ക്കുക അല്ലെങ്കിൽ മറ്റൊരു തിരയൽ പദം പരീക്ഷിക്കുക"
@@ -6357,6 +6471,9 @@
   },
   "itemLower": {
     "message": "ഇനം"
+  },
+  "itemUpper": {
+    "message": "Item"
   },
   "itemsLower": {
     "message": "ഇനങ്ങൾ"
@@ -6885,8 +7002,8 @@
   "howToManageMyVault": {
     "message": "ഞാൻ എങ്ങനെ എന്റെ വോൾട്ട് കൈകാര്യം ചെയ്യും?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "ഇനങ്ങൾ $ORGANIZATION$ എന്നതിലേക്ക് കൈമാറുക",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7011,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "സുരക്ഷയ്ക്കും അനുസരണത്തിനുമായി എല്ലാ ഇനങ്ങളും സംഘടനയുടെ ഉടമസ്ഥതയിലായിരിക്കണമെന്ന് $ORGANIZATION$ ആവശ്യപ്പെടുന്നു.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "നിങ്ങളുടെ ഇനങ്ങളുടെ ഉടമസ്ഥാവകാശം കൈമാറാൻ accept ക്ലിക്ക് ചെയ്യുക."
   },
   "openTransferItemsHelpArticle": {
     "message": "ഇനങ്ങൾ കൈമാറുന്നതിനെ കുറിച്ചുള്ള സഹായ ലേഖനം തുറക്കുക"
@@ -7352,8 +7466,8 @@
   "makeACopy": {
     "message": "ഒരു പകർപ്പ് ഉണ്ടാക്കുക"
   },
-  "errorImportingMyItemsMultiCollection": {
-    "message": "ഒന്നിലധികം ശേഖരങ്ങളുടെ ഭാഗമായ ഇനങ്ങൾ My Items എന്നതിലേക്ക് ഇറക്കുമതി ചെയ്യാൻ കഴിയില്ല"
+  "errorImportingMyItemsMultiCollectionV2": {
+    "message": "You cannot import items into My items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "ലൈസൻസ് വിവരങ്ങൾ"
@@ -7718,45 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Autofill browser login prompts",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  "exposed": {
+    "message": "Exposed",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Open help article on autofilling browser login prompts"
+  "changePassword": {
+    "message": "Change password"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Password exposed in data breach.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  "passwordTooShortOrSimple": {
+    "message": "Password is too short or simple.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Turn on autofill for browser login prompts?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Password reused for several logins.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  "passwordAtRisk": {
+    "message": "At risk",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Turn on master password re-prompt?"
+  "passwordFlaggedByOrganization": {
+    "message": "Your organization asked you to change this password.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  "item": {
+    "message": "Item"
   },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Use default match detection?"
+  "cancelAnytime": {
+    "message": "Cancel anytime",
+    "description": "Reassurance under the Premium upgrade button"
   },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Autofill for browser login prompts turned off"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  "secureCheckoutViaStripe": {
+    "message": "Secure checkout via Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

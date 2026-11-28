@@ -971,18 +971,23 @@
       }
     }
   },
-  "appUri": {
-    "message": "Приложение (URI)"
+  "desktopApp": {
+    "message": "Приложение для компьютера",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. Also the menu option that adds one."
   },
-  "appUriCount": {
-    "message": "Приложение (URI) $COUNT$",
-    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+  "desktopAppCount": {
+    "message": "Приложение для компьютера $COUNT$",
+    "description": "Label for a field that shows an application installed on the computer that the item is paired with. The field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "invalidAppPairing": {
+    "message": "Неверное сопряжение приложения",
+    "description": "Shown instead of an application name when the saved desktop app pairing is invalid."
   },
   "websiteAdded": {
     "message": "Сайт добавлен"
@@ -992,9 +997,6 @@
   },
   "addWebsiteOrApp": {
     "message": "Добавить сайт или приложение"
-  },
-  "app": {
-    "message": "Приложение"
   },
   "deleteWebsite": {
     "message": "Удалить сайт"
@@ -2000,17 +2002,8 @@
   "syncNow": {
     "message": "Синхронизировать"
   },
-  "changeMasterPass": {
-    "message": "Изменить мастер-пароль"
-  },
   "changeMasterPassword": {
     "message": "Изменить мастер-пароль"
-  },
-  "continueToWebApp": {
-    "message": "Перейти к веб-приложению?"
-  },
-  "changeMasterPasswordOnWebConfirmation": {
-    "message": "Изменить мастер-пароль можно в веб-приложении Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Фраза отпечатка",
@@ -2433,6 +2426,10 @@
         "example": "12"
       }
     }
+  },
+  "itemSingular": {
+    "message": "1 элемент",
+    "description": "Count of exactly one item, e.g. on a folder card holding a single item."
   },
   "all": {
     "message": "Все"
@@ -3375,6 +3372,10 @@
   "custom": {
     "message": "Пользовательский"
   },
+  "deleteSend": {
+    "message": "Удалить Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "deleteSendConfirmation": {
     "message": "Вы действительно хотите удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3404,14 +3405,34 @@
   "disabled": {
     "message": "Отключено"
   },
+  "removeAuth": {
+    "message": "Удалить пароль или подтверждение по email"
+  },
+  "removedAuth": {
+    "message": "Пароль или подтверждение по email удалены"
+  },
+  "removeAuthConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля или подтверждения по email для этой Send?"
+  },
   "removePassword": {
     "message": "Удалить пароль"
+  },
+  "removeEmailVerification": {
+    "message": "Удалить подтверждение по email"
   },
   "removedPassword": {
     "message": "Пароль удален"
   },
-  "removePasswordConfirmation": {
-    "message": "Вы уверены, что хотите удалить пароль?"
+  "removedEmailVerification": {
+    "message": "Подтверждение по email удалено"
+  },
+  "removeSendPasswordConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование ввода пароля для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "removeSendEmailVerificationConfirmation": {
+    "message": "Вы уверены, что хотите удалить требование подтверждения по email для этой Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
     "message": "Достигнут максимум обращений"
@@ -4596,6 +4617,42 @@
       }
     }
   },
+  "importSuccessful": {
+    "message": "Импорт выполнен успешно"
+  },
+  "importConfirmationBody": {
+    "message": "Вы успешно импортировали $AMOUNT$ элементов в Bitwarden.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importConfirmationBodySingular": {
+    "message": "Вы успешно импортировали 1 элемент в Bitwarden."
+  },
+  "importConfirmationTipLabel": {
+    "message": "Совет:"
+  },
+  "importDeleteFileTip": {
+    "message": "Не забудьте удалить $FILENAME$. В нем содержатся конфиденциальные данные, и он может быть незашифрованным.",
+    "placeholders": {
+      "filename": {
+        "content": "$1",
+        "example": "bitwarden_export.json"
+      }
+    }
+  },
+  "importDeleteFileTipGeneric": {
+    "message": "Не забудьте удалить файл импорта. В нем содержатся конфиденциальные данные, и он может быть незашифрованным."
+  },
+  "importingTitle": {
+    "message": "Импорт"
+  },
+  "importingDescription": {
+    "message": "Этот процесс может занять несколько минут."
+  },
   "total": {
     "message": "Всего"
   },
@@ -5629,11 +5686,11 @@
   "onePasswordCheckCredentials": {
     "message": "Произошла ошибка. Проверьте свои учетные данные и попробуйте еще раз."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Поддерживается только вход с использованием пароля."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Поддерживается только вход с использованием пароля. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "В этом аккаунте 1Password используется неподдерживаемый способ авторизации. Попробуйте еще раз или воспользуйтесь другим способом импорта."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Введите действительный адрес email или воспользуйтесь другим способом импорта."
@@ -5652,6 +5709,9 @@
   },
   "enterValidSignInAddress": {
     "message": "Введите действительный адрес входа."
+  },
+  "onePasswordSignInAddressHint": {
+    "message": "Вы найдете это в своем 1Password Emergency."
   },
   "secretKeyIsRequired": {
     "message": "Требуется секретный ключ."
@@ -5674,6 +5734,9 @@
   "onePasswordEmailHint": {
     "message": "Введите адрес email, который вы используете для авторизации в 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Введите адрес email, который вы используете для входа в 1Password. Поддерживается авторизация только с помощью пароля."
+  },
   "secretKey": {
     "message": "Секретный ключ"
   },
@@ -5682,6 +5745,30 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Ваш аккаунт защищен секретным ключом и паролем. Для продолжения необходимо ввести и то, и другое."
+  },
+  "onePasswordSsoLogInTitle": {
+    "message": "Войти с помощью SSO"
+  },
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Перейдите на страницу входа через SSO, чтобы завершить импорт в Bitwarden."
+  },
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Передача ключа шифрования"
+  },
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Войдите в 1Password и перейдите в ожидающие входы, чтобы подтвердить этот запрос."
+  },
+  "onePasswordSsoCodeDidNotWork": {
+    "message": "Этот код не сработал. Попробуйте ввести новый код на другом устройстве."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "Страница входа через SSO была закрыта до того, как вы завершили авторизацию. Попробуйте еще раз, чтобы продолжить импорт."
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "Это устройство не было подтверждено на другом вашем устройстве. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordSsoTooManyWrongCodes": {
+    "message": "Введено слишком много неверных кодов подтверждения. Попробуйте еще раз или воспользуйтесь другим способом импорта."
   },
   "keeperEmail": {
     "message": "Адрес email Keeper"
@@ -6221,9 +6308,6 @@
   "vulnerablePassword": {
     "message": "Уязвимый пароль."
   },
-  "changeNow": {
-    "message": "Изменить сейчас"
-  },
   "missingPermissions": {
     "message": "У вас нет необходимых разрешений для выполнения этого действия."
   },
@@ -6257,8 +6341,35 @@
   "folderHintText": {
     "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
   },
+  "nestFolderUnder": {
+    "message": "Создать папку в подкаталоге"
+  },
+  "nestFolderUnderNone": {
+    "message": "Нет",
+    "description": "Option in the 'Nest folder under' select for a folder that is not nested under another folder."
+  },
+  "folderNameSlashNotAllowed": {
+    "message": "/ не допускается в именах папок. Удалите /."
+  },
+  "folderNestingCalloutDesc": {
+    "message": "Чтобы вложить папку, выберите ее родительскую папку в поле Вложить папку. Теперь не нужно добавлять слеш к названию."
+  },
+  "deletedParentFolder": {
+    "message": "$NAME$ (удалена)",
+    "description": "A parent folder in the Nest folder under list that no longer exists, for example because it was renamed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Family"
+      }
+    }
+  },
   "sendsTitleNoItems": {
     "message": "Безопасная отправка конфиденциальной информации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItemsV2": {
+    "message": "У вас нет Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
@@ -6267,6 +6378,9 @@
   "sendsBodyNoItems": {
     "message": "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItemsV2": {
+    "message": "Безопасно делитесь текстовыми сообщениями или файлами с кем угодно. Ваша информация зашифрована сквозным шифрованием."
   },
   "sendsBodyNoSearchResults": {
     "message": "Очистите фильтры или попробуйте другой поисковый запрос"
@@ -6357,6 +6471,9 @@
   },
   "itemLower": {
     "message": "элемент"
+  },
+  "itemUpper": {
+    "message": "Элемент"
   },
   "itemsLower": {
     "message": "элементы"
@@ -6885,8 +7002,8 @@
   "howToManageMyVault": {
     "message": "Как я могу управлять своим хранилищем?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Перенести элементы в $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Перенести ваши элементы в $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6894,17 +7011,14 @@
       }
     }
   },
-  "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ теперь требует, чтобы все элементы пользователя принадлежали организации. Ваши личные элементы будут перемещены в папку Мои элементы, доступную только вам.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
   },
   "openTransferItemsHelpArticle": {
     "message": "Открыть статью помощь по передаче элементов"
@@ -7352,7 +7466,7 @@
   "makeACopy": {
     "message": "Сделать копию"
   },
-  "errorImportingMyItemsMultiCollection": {
+  "errorImportingMyItemsMultiCollectionV2": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
   },
   "driversLicenseDetails": {
@@ -7718,45 +7832,46 @@
       }
     }
   },
-  "httpAuthenticationSettingLabel": {
-    "message": "Автозаполнение логинов в браузере",
-    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  "reused": {
+    "message": "Повторный",
+    "description": "ex. A password that is reused across multiple logins."
   },
-  "httpAuthenticationSettingDescription": {
-    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
+  "exposed": {
+    "message": "Скомпрометирован",
+    "description": "ex. A password that has been exposed in a data breach."
   },
-  "openHttpAuthenticationHelpArticleSignpost": {
-    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
+  "changePassword": {
+    "message": "Изменить пароль"
   },
-  "httpAuthenticationSettingWarning": {
-    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
-    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  "passwordExposedInDataBreach": {
+    "message": "Пароль был скомпрометирован в результате утечки данных.",
+    "description": "Tooltip for the exposed password risk badge on the view login page."
   },
-  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
-    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
+  "passwordTooShortOrSimple": {
+    "message": "Пароль слишком короткий или простой.",
+    "description": "Tooltip for the weak password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationTitle": {
-    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
+  "passwordReusedForSeveralLogins": {
+    "message": "Пароль повторно используется для нескольких логинов.",
+    "description": "Tooltip for the reused password risk badge on the view login page."
   },
-  "turnOnHttpAuthenticationRepromptConflictPrompt": {
-    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
+  "passwordAtRisk": {
+    "message": "Подвержен риску",
+    "description": "Label for the risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptTitle": {
-    "message": "Включить запрос мастер-пароля?"
+  "passwordFlaggedByOrganization": {
+    "message": "Ваша организация попросила вас сменить этот пароль.",
+    "description": "Tooltip for the at-risk badge on the view login page when an organization has asked the user to change the password."
   },
-  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
-    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
+  "item": {
+    "message": "Элемент"
   },
-  "useDefaultMatchDetectionTitle": {
-    "message": "Использовать метод обнаружения совпадений по умолчанию?"
+  "cancelAnytime": {
+    "message": "Отменить в любое время",
+    "description": "Reassurance under the Premium upgrade button"
   },
-  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
-    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
-  },
-  "httpAuthenticationTurnedOffTitle": {
-    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
-  },
-  "httpAuthenticationTurnedOffNotice": {
-    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
+  "secureCheckoutViaStripe": {
+    "message": "Безопасная оплата через Stripe",
+    "description": "Shown with the Premium price where checkout opens in the browser"
   }
 }

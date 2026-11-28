@@ -539,6 +539,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
   );
   protected ciphers: C[] = [];
+  /** Every allowed item, unfiltered by the page, for the card grid's item counts. */
+  protected allCiphers: CipherViewLike[] = [];
   protected isEmpty: boolean;
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
     map((queryParams) => queryParams.search),
@@ -843,12 +845,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             collections$,
             this.vfo1Foundation$,
             this.vaultScope$,
+            allowedCiphers$,
           ]),
         ),
         takeUntil(this.destroy$),
       )
       .subscribe(
-        ([allCollections, allOrganizations, ciphers, collections, vfo1Foundation, scope]) => {
+        ([
+          allCollections,
+          allOrganizations,
+          ciphers,
+          collections,
+          vfo1Foundation,
+          scope,
+          allowedCiphers,
+        ]) => {
           this.allCollections = allCollections;
           this.allOrganizations = allOrganizations;
           this.scopedCollections = vfo1Foundation
@@ -861,6 +872,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
           this.ciphers = ciphers;
+          this.allCiphers = allowedCiphers;
           this.collectionsToDisplay = collections;
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           const initialLoad = this.performingInitialLoad;
@@ -1192,7 +1204,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   async addFolder() {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
-      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService, {
+        parentFolderId: this.scopedFolderId(),
+      });
       const folderResult = await firstValueFrom(folderRef.closed);
       if (folderResult === AddEditFolderDialogResult.Created) {
         await this.syncService.fullSync(false);
