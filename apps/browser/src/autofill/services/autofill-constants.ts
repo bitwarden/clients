@@ -282,14 +282,19 @@ export class CreditCardAutoFillConstants {
     "label-right",
   ];
 
+  /**
+   * Cardholder keywords too generic to identify a card field on their own, since they also match
+   * identity fields like "First Name" or "Company Name".
+   */
+  static readonly AmbiguousCardHolderFieldNames: string[] = ["name", "nom"];
+
   static readonly CardHolderFieldNames: string[] = [
     "accountholdername",
     "cc-name",
     "card-name",
     "cardholder-name",
     "cardholder",
-    "name",
-    "nom",
+    ...CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames,
   ];
 
   static readonly CardHolderFieldNameValues: string[] = [

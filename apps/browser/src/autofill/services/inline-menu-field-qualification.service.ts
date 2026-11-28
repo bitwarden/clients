@@ -51,6 +51,13 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       ...CreditCardAutoFillConstants.CardBrandFieldNames,
     ]),
   ];
+  // Form-level CC qualifier keywords. isFieldForCardholderName still uses the full list.
+  private creditCardFormFieldKeywords = this.creditCardFieldKeywords.filter(
+    (k) => !CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames.includes(k),
+  );
+  private cardholderStructuralKeywords = new Set(
+    CreditCardAutoFillConstants.CardHolderFieldNames.map((k) => k.toLowerCase().replace(/-/g, "")),
+  );
   private sshKeyPublicKeyFieldKeywords = [...SshKeyAutoFillConstants.PublicKeyFieldNames];
   private sshKeyAlgorithmKeywords = [...SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes];
   private sshKeyTitleFieldKeywords = [...SshKeyAutoFillConstants.TitleFieldNames];
@@ -218,19 +225,31 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     if (!parentForm) {
       // If a credit card number field is not present on the page or there are multiple credit
       // card number fields, this field is not part of a credit card form.
-      const numberFieldsInPageDetails = pageDetails.fields.filter(this.isFieldForCardNumber);
+      // Cardholder name fields are excluded from the count because their structural attributes
+      // (e.g. htmlName="nameOnCard") can produce tokens that match card-number keywords.
+      const numberFieldsInPageDetails = pageDetails.fields
+        .filter(this.isFieldForCardNumber)
+        .filter((f) => !this.isCardholderNameByStructuralAttributes(f));
       if (numberFieldsInPageDetails.length !== 1) {
         return false;
       }
 
       // If a credit card CVV field is not present on the page or there are multiple credit card
       // CVV fields, this field is not part of a credit card form.
-      const cvvFieldsInPageDetails = pageDetails.fields.filter(this.isFieldForCardCvv);
+      // Card-number fields are excluded from the count because their autocomplete or keyword
+      // tokens can overlap with CVV keywords (e.g. a "cc-number" field matching "csc" via label).
+      const cvvFieldsInPageDetails = pageDetails.fields
+        .filter(this.isFieldForCardCvv)
+        .filter((f) => !this.isFieldForCardNumber(f));
       if (cvvFieldsInPageDetails.length !== 1) {
         return false;
       }
 
-      return fieldContainsKeyword(field, this.creditCardFieldKeywords);
+      return (
+        this.isCardholderNameByStructuralAttributes(field) ||
+        this.isLikelyCardholderByNameCount(field, pageDetails.fields) ||
+        fieldContainsKeyword(field, this.creditCardFormFieldKeywords)
+      );
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -238,19 +257,31 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
 
     // If a credit card number field is not present on the page or there are multiple credit
     // card number fields, this field is not part of a credit card form.
-    const numberFieldsInPageDetails = fieldsFromSameForm.filter(this.isFieldForCardNumber);
+    // Cardholder name fields are excluded from the count because their structural attributes
+    // (e.g. htmlName="nameOnCard") can produce tokens that match card-number keywords.
+    const numberFieldsInPageDetails = fieldsFromSameForm
+      .filter(this.isFieldForCardNumber)
+      .filter((f) => !this.isCardholderNameByStructuralAttributes(f));
     if (numberFieldsInPageDetails.length !== 1) {
       return false;
     }
 
     // If a credit card CVV field is not present on the page or there are multiple credit card
     // CVV fields, this field is not part of a credit card form.
-    const cvvFieldsInPageDetails = fieldsFromSameForm.filter(this.isFieldForCardCvv);
+    // Card-number fields are excluded from the count because their autocomplete or keyword
+    // tokens can overlap with CVV keywords (e.g. a "cc-number" field matching "csc" via label).
+    const cvvFieldsInPageDetails = fieldsFromSameForm
+      .filter(this.isFieldForCardCvv)
+      .filter((f) => !this.isFieldForCardNumber(f));
     if (cvvFieldsInPageDetails.length !== 1) {
       return false;
     }
 
-    return fieldContainsKeyword(field, [...this.creditCardFieldKeywords]);
+    return (
+      this.isCardholderNameByStructuralAttributes(field) ||
+      this.isLikelyCardholderByNameCount(field, fieldsFromSameForm) ||
+      fieldContainsKeyword(field, this.creditCardFormFieldKeywords)
+    );
   }
 
   /** Validates the provided field as a field for an account creation form.
@@ -593,6 +624,77 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
 
     // If no visible password fields are found, this field might be part of a multipart form.
     return true;
+  }
+
+  /**
+   * Returns true if the field's structural attributes (htmlName, htmlID, htmlClass,
+   * placeholder, title, autoCompleteType — labels excluded) identify it as a cardholder
+   * name field. Used by isFieldForCreditCardForm so that:
+   *
+   * - Fields whose htmlName/htmlID is exactly a cardholder keyword (e.g. `name="name"`,
+   *   `name="cardholder"`, `name="cc-name"`) qualify.
+   * - CamelCase compounds whose htmlName/htmlID contains both "name" and "card" as
+   *   substrings (e.g. `name="nameOnCard"`, `name="cardholderName"`) qualify.
+   * - Fields that only carry "name" in their label text (e.g. a "Company Name" label
+   *   or a "Name *" group label on an identity first-name field) do NOT qualify.
+   *
+   * @param field - The field to check
+   */
+  private isCardholderNameByStructuralAttributes(field: AutofillField): boolean {
+    // Strips all non-alphanumerics, matching how isFieldMatch normalises values.
+    const [htmlName, htmlID, ...otherValues] = [
+      field.htmlName,
+      field.htmlID,
+      field.htmlClass,
+      field.placeholder,
+      field.title,
+      field.autoCompleteType,
+    ].map((value) =>
+      typeof value === "string" ? value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "") : "",
+    );
+
+    if ([htmlName, htmlID, ...otherValues].some((v) => this.cardholderStructuralKeywords.has(v))) {
+      return true;
+    }
+
+    // CamelCase ids like "nameOnCard" are one opaque token, so check for both substrings.
+    // htmlName/htmlID only: class names can contain both by coincidence.
+    return [htmlName, htmlID].some((v) => v.includes("name") && v.includes("card"));
+  }
+
+  /**
+   * Returns true if this field is the sole field in `fieldsInScope` that contains "name" or "nom".
+   * When multiple fields contain it (e.g. a form with First Name, Last Name, and Company Name
+   * labels) it is too ambiguous to signal cardholder name, so the method returns false and lets
+   * the caller fall through to other checks. When only one field in scope matches, it is almost
+   * certainly the cardholder name field.
+   *
+   * Matches within words (not whole tokens only), the same rule as the card fill fallback, so
+   * compound names like "fullName" or "holderName" still qualify as they did before this check.
+   *
+   * @param field - The candidate field
+   * @param fieldsInScope - All fields to count against (page-level or form-scoped)
+   */
+  private isLikelyCardholderByNameCount(
+    field: AutofillField,
+    fieldsInScope: AutofillField[],
+  ): boolean {
+    const ambiguousNameKeywords = CreditCardAutoFillConstants.AmbiguousCardHolderFieldNames;
+    if (!fieldContainsKeyword(field, ambiguousNameKeywords)) {
+      return false;
+    }
+    // A first, middle or last name is only part of a name, so it is never the cardholder name.
+    if (
+      this.isFieldForIdentityFirstName(field) ||
+      this.isFieldForIdentityMiddleName(field) ||
+      this.isFieldForIdentityLastName(field)
+    ) {
+      return false;
+    }
+    const nameMatchingFields = fieldsInScope.filter((f) =>
+      fieldContainsKeyword(f, ambiguousNameKeywords),
+    );
+    return nameMatchingFields.length === 1;
   }
 
   /**

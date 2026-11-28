@@ -3669,6 +3669,121 @@ describe("AutofillService", () => {
       });
     });
 
+    describe("given no field matching a cardholder name keyword", () => {
+      const cardholderNameFill = expect.arrayContaining(["testCardholderName"]);
+      let cardNumberField: AutofillField;
+      let codeField: AutofillField;
+      let nameOnCardField: AutofillField;
+
+      beforeEach(() => {
+        cardNumberField = createAutofillFieldMock({
+          opid: "cardNumber",
+          form: "validFormId",
+          htmlName: "cc-number",
+        });
+        codeField = createAutofillFieldMock({ opid: "code", form: "validFormId", htmlName: "cvc" });
+        nameOnCardField = createAutofillFieldMock({
+          opid: "nameOnCard",
+          form: "validFormId",
+          htmlName: "nameOnCard",
+        });
+        options.cipher.card.cardholderName = "testCardholderName";
+        options.cipher.card.number = "testCardNumber";
+        options.cipher.card.code = "testCode";
+      });
+
+      it("fills the sole name-like field in the card form with the cardholder name", async () => {
+        pageDetails.fields = [nameOnCardField, cardNumberField, codeField];
+
+        const value = await autofillService["generateCardFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.script).toContainEqual(["fill_by_opid", "nameOnCard", "testCardholderName"]);
+      });
+
+      it("does not fill a cardholder name when several fields in the card form look like names", async () => {
+        pageDetails.fields = [
+          createAutofillFieldMock({
+            opid: "firstName",
+            form: "validFormId",
+            htmlName: "firstName",
+          }),
+          createAutofillFieldMock({ opid: "lastName", form: "validFormId", htmlName: "lastName" }),
+          cardNumberField,
+          codeField,
+        ];
+
+        const value = await autofillService["generateCardFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.script).not.toContainEqual(cardholderNameFill);
+      });
+
+      it("does not fill a cardholder name when the page has no CVV field", async () => {
+        pageDetails.fields = [nameOnCardField, cardNumberField];
+
+        const value = await autofillService["generateCardFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.script).not.toContainEqual(cardholderNameFill);
+      });
+
+      it.each([
+        { htmlName: "firstName" },
+        { htmlName: "lastName" },
+        { htmlName: "field_1", autoCompleteType: "given-name" },
+      ])("does not fill a cardholder name into a lone partial name field %o", async (attrs) => {
+        pageDetails.fields = [
+          createAutofillFieldMock({ opid: "partialName", form: "validFormId", ...attrs }),
+          cardNumberField,
+          codeField,
+        ];
+
+        const value = await autofillService["generateCardFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.script).not.toContainEqual(cardholderNameFill);
+      });
+
+      it("ignores name-like fields outside the card number's form", async () => {
+        pageDetails.fields = [
+          nameOnCardField,
+          createAutofillFieldMock({
+            opid: "shippingName",
+            form: "otherFormId",
+            htmlName: "shippingName",
+          }),
+          cardNumberField,
+          codeField,
+        ];
+
+        const value = await autofillService["generateCardFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.script).toContainEqual(["fill_by_opid", "nameOnCard", "testCardholderName"]);
+      });
+    });
+
     describe("given an expiration month field", () => {
       let expMonthField: AutofillField;
       let expMonthFieldView: FieldView;
