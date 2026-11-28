@@ -42,6 +42,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SvgComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -91,6 +92,7 @@ interface ViewData {
     SectionComponent,
     SectionHeaderComponent,
     SvgComponent,
+    TypographyModule,
   ],
 })
 export class Fido2Component implements OnInit, OnDestroy {
