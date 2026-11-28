@@ -1,0 +1,27 @@
+# Owner review list for @bitwarden/dept-bre
+#
+# This file is YAML. It has two keys, and each key contains a list of path patterns:
+#   include   Required. Paths where a change always needs this team's review.
+#   exclude   Optional. Paths that never need this team's review, even when an include pattern
+#             matches them.
+# Any other key makes the list invalid.
+#
+# Patterns use CODEOWNERS syntax, such as `libs/auth`, `*.spec.ts`, and `apps/**/auth`. Negation
+# with `!` and ranges with `[ ]` are not supported. Put quotes around a pattern that starts with
+# `*`, because YAML reads a leading `*` as an alias.
+
+include:
+  ## Always-review lists are owned by their teams
+  - .github/review/dept-bre.yml
+
+  ## BRE team owns these workflows ##
+  - .github/workflows/retrieve-current-desktop-rollout.yml
+  - .github/workflows/version-auto-bump-desktop.yml
+  - .github/workflows/version-auto-bump-desktop-signal.yml
+  - .github/workflows/publish-cli.yml
+
+  ## Docker-related files
+  - "**/Dockerfile"
+  - "**/*.dockerignore"
+  - "**/docker-compose.yml"
+  - "**/entrypoint.sh"

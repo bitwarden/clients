@@ -1,0 +1,39 @@
+# Owner review list for @bitwarden/team-desktop-native-dev
+#
+# This file is YAML. It has two keys, and each key contains a list of path patterns:
+#   include   Required. Paths where a change always needs this team's review.
+#   exclude   Optional. Paths that never need this team's review, even when an include pattern
+#             matches them.
+# Any other key makes the list invalid.
+#
+# Patterns use CODEOWNERS syntax, such as `libs/auth`, `*.spec.ts`, and `apps/**/auth`. Negation
+# with `!` and ranges with `[ ]` are not supported. Put quotes around a pattern that starts with
+# `*`, because YAML reads a leading `*` as an alias.
+
+include:
+  ## Always-review lists are owned by their teams
+  - .github/review/team-desktop-native-dev.yml
+
+  ## Desktop Native team files ##
+  - apps/desktop/src/autofill
+  - apps/desktop/desktop_native/autotype
+  - apps/desktop/desktop_native/napi/src/autotype_mvp.rs
+  - libs/common/src/desktop-native
+  - libs/angular/src/desktop-native
+
+  ## Desktop Native team files + SSH working group co-owned files ##
+  - apps/desktop/desktop_native/ssh_agent
+  - apps/desktop/desktop_native/napi/src/sshagent.rs
+  - apps/desktop/src/autofill/services/ssh-agent.service.ts
+  - apps/desktop/src/autofill/services/ssh-agent.service.spec.ts
+  - apps/desktop/src/autofill/main/main-ssh-agent.service.ts
+  - apps/desktop/src/autofill/main/main-ssh-agent.service.spec.ts
+  - apps/desktop/src/autofill/models/ssh-agent-setting.ts
+  - apps/desktop/src/autofill/components/approve-ssh-request.html
+  - apps/desktop/src/autofill/components/approve-ssh-request.ts
+
+  # DuckDuckGo integration
+  - apps/desktop/native-messaging-test-runner
+  - apps/desktop/src/services/duckduckgo-message-handler.service.ts
+  - apps/desktop/src/services/encrypted-message-handler.service.ts
+  - .github/workflows/alert-ddg-files-modified.yml
