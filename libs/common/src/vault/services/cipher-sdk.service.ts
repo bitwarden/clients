@@ -56,7 +56,8 @@ export class DefaultCipherSdkService implements CipherSdkService {
           const sdkCreateRequest = cipherView.toSdkCreateCipherRequest();
 
           let result: SdkCipherView;
-          if (orgAdmin) {
+          // The admin endpoint requires an org; a personal-owned clone must use the user endpoint.
+          if (orgAdmin && cipherView.organizationId != null) {
             result = await sdkCiphersClient.admin().create(sdkCreateRequest);
           } else {
             result = await sdkCiphersClient.create(sdkCreateRequest);
