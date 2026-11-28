@@ -43,8 +43,8 @@ export class SendStateProvider implements SendStateProviderAbstraction {
     return await firstValueFrom(this.decryptedState$);
   }
 
-  /** Sets the decrypted send state for an active user */
-  async setDecryptedSends(value: SendView[]): Promise<void> {
-    await this.activeUserDecryptedState.update(() => value);
+  /** Sets the decrypted send state for a user */
+  async setDecryptedSends(value: SendView[], userId: UserId): Promise<void> {
+    await this.stateProvider.getUser(userId, SEND_USER_DECRYPTED).update(() => value);
   }
 }

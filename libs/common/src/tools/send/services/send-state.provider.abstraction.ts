@@ -19,5 +19,5 @@ export abstract class SendStateProvider {
 
   getDecryptedSends: () => Promise<SendView[]>;
 
-  setDecryptedSends: (value: SendView[]) => Promise<void>;
+  setDecryptedSends: (value: SendView[], userId: UserId) => Promise<void>;
 }
