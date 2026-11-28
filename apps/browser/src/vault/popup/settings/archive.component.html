@@ -71,15 +71,20 @@
                   [bitMenuTriggerFor]="moreOptions"
                 ></button>
                 <bit-menu #moreOptions>
-                  <button type="button" bitMenuItem (click)="edit(cipher)">
-                    {{ "edit" | i18n }}
-                  </button>
-                  @if (userHasPremium$ | async) {
+                  @if (allows(cipher, RestrictedCipherAction.Edit)) {
+                    <button type="button" bitMenuItem (click)="edit(cipher)">
+                      {{ "edit" | i18n }}
+                    </button>
+                  }
+                  @if ((userHasPremium$ | async) && allows(cipher, RestrictedCipherAction.Clone)) {
                     <button type="button" bitMenuItem (click)="clone(cipher)">
                       {{ "clone" | i18n }}
                     </button>
                   }
-                  @if (canAssignCollections$ | async) {
+                  @if (
+                    (canAssignCollections$ | async) &&
+                    allows(cipher, RestrictedCipherAction.AssignCollections)
+                  ) {
                     <button
                       type="button"
                       bitMenuItem
@@ -91,15 +96,17 @@
                   <button type="button" bitMenuItem (click)="unarchive(cipher)">
                     {{ "unArchive" | i18n }}
                   </button>
-                  <button
-                    type="button"
-                    bitMenuItem
-                    variant="danger"
-                    *appCanDeleteCipher="cipher"
-                    (click)="delete(cipher)"
-                  >
-                    {{ "delete" | i18n }}
-                  </button>
+                  @if (allows(cipher, RestrictedCipherAction.Delete)) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      variant="danger"
+                      *appCanDeleteCipher="cipher"
+                      (click)="delete(cipher)"
+                    >
+                      {{ "delete" | i18n }}
+                    </button>
+                  }
                 </bit-menu>
               </bit-item-action>
             </bit-item>

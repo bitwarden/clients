@@ -23,6 +23,10 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+import {
   DialogService,
   IconButtonModule,
   ItemModule,
@@ -135,6 +139,12 @@ export class ArchiveComponent {
     switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
   );
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+  protected RestrictedCipherAction = RestrictedCipherAction;
+
+  /** False when the restricted-cipher rule blocks the action, as for a PAM-gated item. */
+  protected allows(cipher: CipherViewLike, action: RestrictedCipherAction): boolean {
+    return RestrictedCipherPolicy.allows(cipher, action);
+  }
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
