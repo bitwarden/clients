@@ -15,6 +15,8 @@ import {
   AutofillIpcResponse,
 } from "../models/autofill-ipc-channels";
 
+import { FeatureStatus } from "./feature-status";
+
 import AutofillIpcServer = autofill.AutofillIpcServer;
 import WindowHandleQueryResponse = autofill.WindowHandleQueryResponse;
 
@@ -52,6 +54,11 @@ export class DesktopAutofillMain {
     private logService: LogService,
     private windowMain: WindowMain,
   ) {}
+
+  /** Whether the OS autofill / passkey provider is serving requests. */
+  get status(): FeatureStatus {
+    return this.enabled ? FeatureStatus.Active : FeatureStatus.Inactive;
+  }
 
   /**
    * Safely sends a message to the renderer, buffering it if the server isn't ready yet

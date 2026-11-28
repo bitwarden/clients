@@ -57,6 +57,7 @@ export enum FeatureFlag {
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
+  DesktopRendererTeardown = "desktop-renderer-teardown",
 
   /* Tools */
   ImportUpgrade = "pm-35053-import-upgrade",
@@ -184,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
+  [FeatureFlag.DesktopRendererTeardown]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,

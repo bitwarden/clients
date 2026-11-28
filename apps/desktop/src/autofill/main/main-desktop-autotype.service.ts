@@ -5,8 +5,11 @@ import { LogService } from "@bitwarden/logging";
 import { WindowMain } from "../../main/window.main";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
+import { FeatureStatus } from "./feature-status";
+
 export class MainDesktopAutotypeService {
   private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private currentStatus: FeatureStatus = FeatureStatus.Inactive;
 
   constructor(
     private logService: LogService,
@@ -25,6 +28,7 @@ export class MainDesktopAutotypeService {
       this.logService.debug(
         "Autotype is already enabled with this keyboard shortcut: " + formattedKeyboardShortcut,
       );
+      this.currentStatus = FeatureStatus.Active;
       return;
     }
 
@@ -50,6 +54,7 @@ export class MainDesktopAutotypeService {
       },
     );
 
+    this.currentStatus = result ? FeatureStatus.Active : FeatureStatus.Inactive;
     result
       ? this.logService.debug("Autotype enabled.")
       : this.logService.error("Failed to enable Autotype.");
@@ -66,6 +71,12 @@ export class MainDesktopAutotypeService {
     } else {
       this.logService.debug("Autotype is not registered, implicitly disabled.");
     }
+    this.currentStatus = FeatureStatus.Inactive;
+  }
+
+  /** Whether the autotype keyboard shortcut is registered. */
+  get status(): FeatureStatus {
+    return this.currentStatus;
   }
 
   dispose() {

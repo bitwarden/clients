@@ -13,8 +13,11 @@ import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
 import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
 
+import { FeatureStatus } from "./feature-status";
+
 export class MainDesktopAutotypeMvpService {
   private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private currentStatus: FeatureStatus = FeatureStatus.Inactive;
 
   constructor(
     private logService: LogService,
@@ -77,6 +80,12 @@ export class MainDesktopAutotypeMvpService {
     } else {
       this.logService.debug("Autotype is not registered, implicitly disabled.");
     }
+    this.currentStatus = FeatureStatus.Inactive;
+  }
+
+  /** Whether the autotype keyboard shortcut is registered. */
+  get status(): FeatureStatus {
+    return this.currentStatus;
   }
 
   dispose() {
@@ -96,6 +105,7 @@ export class MainDesktopAutotypeMvpService {
       this.logService.debug(
         "Autotype is already enabled with this keyboard shortcut: " + formattedKeyboardShortcut,
       );
+      this.currentStatus = FeatureStatus.Active;
       return;
     }
 
@@ -116,6 +126,7 @@ export class MainDesktopAutotypeMvpService {
       },
     );
 
+    this.currentStatus = result ? FeatureStatus.Active : FeatureStatus.Inactive;
     result
       ? this.logService.debug("Autotype enabled.")
       : this.logService.error("Failed to enable Autotype.");

@@ -46,6 +46,7 @@ import {
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
+import { FeatureStatus } from "./autofill/main/feature-status";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
@@ -59,6 +60,7 @@ import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { RendererTeardownMain } from "./main/renderer-teardown.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { OnePasswordSsoMain } from "./main/tools/import/onepassword-sso.main";
@@ -70,6 +72,7 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { MainSdkService } from "./platform/main/main-sdk.service";
+import { RendererTeardownFlagMain } from "./platform/main/renderer-teardown-flag.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -120,6 +123,8 @@ export class Main {
   ipcService: IpcService;
   /** Read-only: main must not write policy state, the renderer would not observe it. */
   policyService: PolicyService;
+  /** The single source of truth for whether the renderer may be destroyed. */
+  rendererTeardownFlag: RendererTeardownFlagMain;
 
   constructor() {
     // Set paths for portable builds
@@ -158,6 +163,8 @@ export class Main {
       new ElectronStoreBackend(app.getPath("userData")),
       (error) => this.logService.error("Failed to write the storage file, will retry", error),
     );
+
+    this.rendererTeardownFlag = new RendererTeardownFlagMain(storageBackend);
 
     // Main has no ConfigService, so it reads the cached server configs straight from the store.
     let flightRecorderEnabled = false;
@@ -292,14 +299,6 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain, this.shell),
     );
 
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
-    );
-
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -322,14 +321,6 @@ export class Main {
       this.desktopSettingsService,
       this.versionMain,
       this.shell,
-    );
-
-    this.trayMain = new TrayMain(
-      this.windowMain,
-      this.i18nService,
-      this.desktopSettingsService,
-      this.messagingService,
-      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -362,6 +353,15 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
+      this.createRendererTeardown(),
+    );
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
@@ -495,6 +495,40 @@ export class Main {
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
       },
+    );
+  }
+
+  /**
+   * Features below answer through the renderer until main owns them, so each keeps it alive.
+   * Services are read lazily: most are constructed after the tray.
+   */
+  private createRendererTeardown(): RendererTeardownMain {
+    let ddgEnabled = false;
+    this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$.subscribe((enabled) => {
+      ddgEnabled = enabled;
+    });
+
+    return new RendererTeardownMain(
+      this.rendererTeardownFlag.isEnabled,
+      [
+        { name: "ssh-agent", active: () => this.sshAgentService.status === FeatureStatus.Active },
+        {
+          name: "autotype",
+          active: () => this.mainDesktopAutotypeMvpService.status === FeatureStatus.Active,
+        },
+        {
+          name: "autotype-ga",
+          active: () => this.mainDesktopAutotypeService.status === FeatureStatus.Active,
+        },
+        {
+          name: "autofill-provider",
+          active: () => this.desktopAutofillMain.status === FeatureStatus.Active,
+        },
+        { name: "duckduckgo", active: () => ddgEnabled },
+      ],
+      this.windowMain,
+      this.clipboardMain,
+      this.logService,
     );
   }
 
