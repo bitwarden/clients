@@ -10,6 +10,16 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
+  transform: {
+    ...sharedConfig.transform,
+    "^.+\\.js$": [
+      "babel-jest",
+      { presets: [["@babel/preset-env", { targets: { node: "current" } }]] },
+    ],
+  },
+  transformIgnorePatterns: [
+    "node_modules/(?!(https-proxy-agent|agent-base|proxy-agent-negotiate)/)",
+  ],
   moduleNameMapper: {
     "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
       "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
