@@ -1,9 +1,12 @@
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { ALL_ITEMS_SCOPE, MY_ITEMS_ROUTE, VaultScope, VaultScopeType } from "@bitwarden/vault";
 
@@ -129,5 +132,67 @@ describe("VaultComponent openImport", () => {
         data: { defaultOrganizationId: undefined, defaultCollectionId: undefined },
       });
     });
+  });
+});
+
+// `openDeepLinkedCipher` uses only the cipher service and `viewCipher`, so it is run on the
+// component's prototype with just those.
+describe("VaultComponent openDeepLinkedCipher", () => {
+  const userId = "a7c1e2b3-4d5e-4f60-8a9b-0c1d2e3f4a5b" as UserId;
+  const cipherId = "1d2e3f4a-5b6c-4d7e-8f90-a1b2c3d4e5f6";
+  const cipherService = mock<CipherService>();
+  const viewCipher = jest.fn();
+  let listViews$: BehaviorSubject<CipherView[] | null>;
+
+  const openDeepLinkedCipher = (id: string) => {
+    const component = Object.assign(Object.create(VaultComponent.prototype), {
+      cipherService,
+      viewCipher,
+    }) as unknown as { openDeepLinkedCipher(userId: UserId, id: string): Promise<void> };
+    return component.openDeepLinkedCipher(userId, id);
+  };
+
+  const viewOf = (id: string) => Object.assign(new CipherView(), { id });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    listViews$ = new BehaviorSubject<CipherView[] | null>([viewOf(cipherId)]);
+    cipherService.cipherListViews$.mockReturnValue(listViews$);
+  });
+
+  it("decrypts and opens a cipher that is in the list", async () => {
+    const cipher = viewOf(cipherId);
+    cipherService.decryptByIds.mockResolvedValue([cipher]);
+
+    await openDeepLinkedCipher(cipherId);
+
+    expect(cipherService.decryptByIds).toHaveBeenCalledWith(userId, [cipherId]);
+    expect(viewCipher).toHaveBeenCalledWith(cipher);
+  });
+
+  it("waits for the list to load before looking up the cipher", async () => {
+    listViews$.next(null);
+    cipherService.decryptByIds.mockResolvedValue([viewOf(cipherId)]);
+
+    const opened = openDeepLinkedCipher(cipherId);
+    listViews$.next([viewOf(cipherId)]);
+    await opened;
+
+    expect(viewCipher).toHaveBeenCalled();
+  });
+
+  it("neither decrypts nor opens a cipher that is not in the list", async () => {
+    await openDeepLinkedCipher("4f5a6b7c-8d9e-4a0b-9c1d-2e3f4a5b6c7d");
+
+    expect(cipherService.decryptByIds).not.toHaveBeenCalled();
+    expect(viewCipher).not.toHaveBeenCalled();
+  });
+
+  it("does not open anything when the cipher fails to decrypt", async () => {
+    cipherService.decryptByIds.mockResolvedValue([]);
+
+    await openDeepLinkedCipher(cipherId);
+
+    expect(viewCipher).not.toHaveBeenCalled();
   });
 });
