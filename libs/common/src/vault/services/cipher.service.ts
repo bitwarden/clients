@@ -1146,34 +1146,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId?: UserId,
   ): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
-    const keepsStored = (stored: CipherData | undefined, incoming: CipherData) =>
-      stored?.partialData != null && incoming.partialData == null;
-    const logKept = (count: number) =>
-      this.logService.debug(`Kept ${count} stored restricted cipher(s); did not save a full copy.`);
-
-    // When every item is kept, skip the write: an unchanged record clears the cache but emits
-    // nothing in the extension, the case replace() also guards against.
-    userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
-    const stored = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
-    if (ciphers.length > 0 && ciphers.every((c) => keepsStored(stored[c.id as CipherId], c))) {
-      logKept(ciphers.length);
-      return stored;
-    }
-
-    const kept: CipherId[] = [];
+    let kept: CipherId[] = [];
     const res = await this.updateEncryptedCipherState((current) => {
-      ciphers.forEach((c) => {
-        const id = c.id as CipherId;
-        if (keepsStored(current[id], c)) {
-          kept.push(id);
-          return;
-        }
-        current[id] = c;
-      });
-      return current;
+      const merged = mergeIncoming(current, ciphers);
+      kept = merged.kept;
+      return merged.next;
     }, userId);
     if (kept.length > 0) {
-      logKept(kept.length);
+      this.logService.debug(
+        `Kept ${kept.length} stored restricted cipher(s); did not save a full copy.`,
+      );
     }
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
@@ -1182,25 +1164,19 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
-    const current = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
-
-    // The extension relies on chrome.storage.StorageArea.onChanged to detect updates.
-    // If stored and provided data are identical, this event doesn’t fire and the ciphers$
-    // observable won’t emit a new value. In this case we can skip the update to avoid calling
-    // clearCache and causing an empty state.
-    // If the current state is empty (eg. for new users), we still want to perform the update to ensure
-    // we trigger an emission as many subscribers rely on it during initialization.
-    if (Object.keys(current).length > 0 && JSON.stringify(current) === JSON.stringify(ciphers)) {
-      return;
-    }
-
     await this.updateEncryptedCipherState(() => ciphers, userId);
   }
 
   /**
-   * Updates ciphers for the currently active user. Inactive users can only clear all ciphers, for now.
-   * @param update update callback for encrypted cipher data
-   * @returns
+   * Updates ciphers for the given user, or the active user when none is given.
+   *
+   * Runs `update` on a copy of the stored ciphers and skips both {@link clearCache} and the write
+   * when the result equals what is stored. The extension's `state$` emits only when
+   * `chrome.storage` fires `onChanged`, which it does not do for an unchanged value, so clearing
+   * the cache for such a write would leave it empty with nothing to rebuild it. When nothing is
+   * stored yet, it always writes so that subscribers waiting on a first emission get one.
+   * @param update update callback for encrypted cipher data; may mutate and return its argument
+   * @returns the stored ciphers after the update
    */
   private async updateEncryptedCipherState(
     update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
@@ -1208,14 +1184,17 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
 
+    const state = this.encryptedCiphersState(userId);
+    const stored = await firstValueFrom(state.state$);
+    // The snapshot only decides whether to skip; the write re-applies `update` to fresh storage so
+    // concurrent writes landing after this read are not overwritten.
+    if (stored != null && JSON.stringify(update({ ...stored })) === JSON.stringify(stored)) {
+      return stored;
+    }
+
     await this.clearCache(userId);
 
-    const updatedCiphers = await this.stateProvider
-      .getUser(userId, ENCRYPTED_CIPHERS)
-      .update((current) => {
-        const result = update(current ?? {});
-        return result;
-      });
+    const updatedCiphers = await state.update((current) => update({ ...(current ?? {}) }));
 
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
@@ -1235,25 +1214,11 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async delete(id: string | string[], userId: UserId): Promise<any> {
-    const ciphers = await firstValueFrom(this.ciphers$(userId));
-    if (ciphers == null) {
-      return;
-    }
-
-    if (typeof id === "string") {
-      const cipherId = id as CipherId;
-      if (ciphers[cipherId] == null) {
-        return;
-      }
-      delete ciphers[cipherId];
-    } else {
-      (id as CipherId[]).forEach((i) => {
-        delete ciphers[i];
-      });
-    }
-
-    await this.clearCache();
-    await this.encryptedCiphersState(userId).update(() => ciphers);
+    const ids = (typeof id === "string" ? [id] : id) as CipherId[];
+    await this.updateEncryptedCipherState((current) => {
+      ids.forEach((i) => delete current[i]);
+      return current;
+    }, userId);
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
@@ -1780,4 +1745,26 @@ export class CipherService implements CipherServiceAbstraction {
 
     return Promise.resolve(c);
   }
+}
+
+/**
+ * Merges incoming ciphers into the stored ones. Never replaces a stored restricted cipher with an
+ * unrestricted copy; those IDs are returned in `kept`.
+ * @returns a new record; `stored` is not modified
+ */
+function mergeIncoming(
+  stored: Record<CipherId, CipherData>,
+  incoming: CipherData[],
+): { next: Record<CipherId, CipherData>; kept: CipherId[] } {
+  const next = { ...stored };
+  const kept: CipherId[] = [];
+  for (const c of incoming) {
+    const id = c.id as CipherId;
+    if (next[id]?.partialData != null && c.partialData == null) {
+      kept.push(id);
+      continue;
+    }
+    next[id] = c;
+  }
+  return { next, kept };
 }
