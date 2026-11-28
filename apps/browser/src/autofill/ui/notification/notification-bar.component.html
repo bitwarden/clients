@@ -1,0 +1,190 @@
+<header
+  class="tw-flex tw-items-center tw-gap-2 tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-primary tw-ps-4 tw-pe-2 tw-py-2"
+>
+  <bit-icon name="bwi-shield" class="tw-text-2xl tw-text-fg-brand" />
+  <h1
+    bitTypography="h4"
+    noMargin
+    class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-semibold tw-text-fg-heading"
+    [title]="heading()"
+  >
+    {{ heading() }}
+  </h1>
+  <button
+    id="notification-bar_button_close"
+    type="button"
+    bitIconButton="bwi-close"
+    buttonType="subtleGhost"
+    [label]="'close' | i18n"
+    (click)="closeNotification.emit()"
+  ></button>
+</header>
+
+@if (saveState(); as state) {
+  @if (state.view !== NotificationTypes.Unlock && state.ciphers?.length) {
+    <bit-item-group class="tw-bit-compact tw-block tw-max-h-40 tw-overflow-y-auto tw-p-3">
+      @for (cipher of state.ciphers; track cipher.id) {
+        <bit-item>
+          <div bit-item-content>
+            <autofill-cipher-icon slot="start" [uri]="cipherIconUri(cipher)" />
+            <span [title]="cipher.name">{{ cipher.name }}</span>
+            @for (icon of organizationIcons(cipher); track icon) {
+              <bit-icon slot="default-trailing" [name]="icon" class="tw-text-fg-body-subtle" />
+            }
+            @if (cipher.login?.username; as username) {
+              <span slot="secondary" [title]="username">{{ username }}</span>
+            }
+          </div>
+          <bit-item-action slot="end">
+            @if (state.view === NotificationTypes.Change) {
+              <button
+                id="notification-bar_button_update"
+                type="button"
+                bitButton
+                buttonType="primaryOutline"
+                size="small"
+                [attr.aria-description]="cipherDescription(cipher)"
+                (click)="update.emit(cipher.id)"
+              >
+                {{ "notificationChangeSave" | i18n }}
+              </button>
+            } @else {
+              <button
+                id="notification-bar_button_edit"
+                type="button"
+                bitIconButton="bwi-pencil-square"
+                buttonType="subtleGhost"
+                size="small"
+                [label]="'notificationEditTooltip' | i18n"
+                (click)="edit.emit(cipher.id)"
+              ></button>
+            }
+          </bit-item-action>
+        </bit-item>
+      }
+    </bit-item-group>
+  }
+
+  @if (state.view !== NotificationTypes.Change) {
+    <footer class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-px-4 tw-pb-4 tw-pt-2">
+      <button
+        id="notification-bar_button_save"
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        [loading]="state.loading ?? false"
+        (click)="save.emit(selection())"
+      >
+        {{
+          (state.view === NotificationTypes.Unlock ? "notificationUnlock" : "notificationAddSave")
+            | i18n
+        }}
+      </button>
+      <div class="tw-flex tw-min-w-0 tw-items-center tw-justify-end tw-gap-2">
+        @if (vaultOptions().length > 1) {
+          <autofill-notification-option-select
+            name="organization"
+            [label]="'vault' | i18n"
+            [options]="vaultOptions()"
+            [value]="vault()"
+            (valueChange)="selectedVault.set($event)"
+          />
+        }
+        @if (folderOptions().length > 1 && !collectionOptions().length) {
+          <autofill-notification-option-select
+            name="folder"
+            [label]="'folder' | i18n"
+            [options]="folderOptions()"
+            [value]="selectedFolder()"
+            (valueChange)="selectedFolder.set($event)"
+          />
+        }
+        @if (collectionOptions().length > 1) {
+          <autofill-notification-option-select
+            name="collection"
+            [label]="'collection' | i18n"
+            [options]="collectionOptions()"
+            [value]="collection()"
+            (valueChange)="selectedCollection.set($event)"
+          />
+        }
+      </div>
+    </footer>
+  }
+}
+
+@if (confirmationState(); as state) {
+  <div class="tw-flex tw-items-center tw-gap-4 tw-p-3">
+    @if (state.error) {
+      <bit-icon name="bwi-exclamation-triangle" class="tw-text-4xl tw-text-fg-warning" />
+    } @else {
+      <bit-svg [content]="lastTaskComplete() ? Keyhole : Celebrate" class="tw-w-12 tw-shrink-0" />
+    }
+    <div class="tw-flex tw-min-w-0 tw-flex-col tw-gap-1">
+      <p bitTypography="body1" noMargin class="tw-break-words tw-text-fg-heading">
+        @if (!state.error) {
+          <span
+            class="tw-inline-block tw-max-w-72 tw-truncate tw-align-bottom"
+            [title]="state.itemName"
+          >
+            {{ state.itemName }}
+          </span>
+        }
+        {{ confirmationMessage() }}
+        <button
+          id="notification-bar_button_open-vault"
+          type="button"
+          bitLink
+          [attr.aria-label]="openVaultAriaLabel()"
+          (click)="openVault.emit()"
+        >
+          {{ (state.error ? "newItem" : "view") | i18n }}
+        </button>
+      </p>
+      @if (taskMessage(); as taskMessage) {
+        <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">{{ taskMessage }}</p>
+      }
+    </div>
+  </div>
+  @if (!state.error && remainingTasks()) {
+    <footer class="tw-px-3 tw-pb-4">
+      <button
+        id="notification-bar_button_next-task"
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        endIcon="bwi-external-link"
+        (click)="openTasks.emit()"
+      >
+        {{ "nextSecurityTaskAction" | i18n }}
+      </button>
+    </footer>
+  }
+}
+
+@if (atRiskState(); as state) {
+  <div class="tw-flex tw-items-center tw-gap-4 tw-p-4">
+    <bit-icon name="bwi-exclamation-triangle" class="tw-shrink-0 tw-text-4xl tw-text-fg-heading" />
+    <p bitTypography="body1" noMargin class="tw-break-words tw-text-fg-heading">
+      {{ atRiskMessage() }}
+    </p>
+  </div>
+  @if (state.passwordChangeUri) {
+    <footer class="tw-px-4 tw-pb-4 tw-pt-2">
+      <button
+        id="notification-bar_button_change-password"
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        endIcon="bwi-external-link"
+        data-testid="change-password-button"
+        (click)="changePassword.emit()"
+      >
+        {{ "changePassword" | i18n }}
+      </button>
+    </footer>
+  }
+}
