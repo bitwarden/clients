@@ -1249,7 +1249,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
         const maybeUsernameField =
           !options.skipUsernameOnlyFill &&
-          ["email", "tel", "text"].some((t) => t === field.type) &&
+          ["email", "tel", "text", "number"].some((t) => t === field.type) &&
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
@@ -2970,7 +2970,13 @@ export default class AutofillService implements AutofillServiceInterface {
 
       const isUsernameFieldType =
         field.type === "text" || field.type === "email" || field.type === "tel";
-      if (!isUsernameFieldType) {
+      // Allow type="number" or type="tel" inputs (e.g. government / banking portals
+      // that implement national identity numbers as numeric inputs) when the field
+      // carries explicit username or identity keywords in its attributes.
+      const isNumericIdentifierField =
+        field.type === "number" &&
+        fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames);
+      if (!isUsernameFieldType && !isNumericIdentifierField) {
         continue;
       }
 
