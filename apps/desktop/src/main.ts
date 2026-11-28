@@ -99,6 +99,7 @@ export class Main {
   ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
+  runInBackground: boolean;
   messagingMain: MessagingMain;
   updaterMain: UpdaterMain;
   menuMain: MenuMain;
@@ -390,10 +391,24 @@ export class Main {
       this.windowMain,
     );
 
-    app.on("will-quit", () => {
-      this.mainDesktopAutotypeMvpService.dispose();
-      this.mainDesktopAutotypeService.dispose();
-      this.storageService.dispose();
+    // React to run in background to prevent application from quitting when using ctrl/cmd+Q.
+    this.desktopSettingsService.runInBackground$.subscribe(
+      (runInBackground) => (this.runInBackground = runInBackground),
+    );
+
+    // Register the quit listener.
+    app.on("will-quit", (e) => {
+      if (this.runInBackground) {
+        // If the app is set to "keep running in the background" prevent the app from quitting
+        // and instead minimize to tray.
+        e.preventDefault();
+        this.trayMain.hideToTray();
+      } else {
+        // The app is not set to run in background, proceed to quit.
+        this.mainDesktopAutotypeMvpService.dispose();
+        this.mainDesktopAutotypeService.dispose();
+        this.storageService.dispose();
+      }
     });
   }
 
