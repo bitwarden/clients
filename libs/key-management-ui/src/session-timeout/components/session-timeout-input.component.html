@@ -1,7 +1,7 @@
 <div [formGroup]="form" class="tw-mb-4">
   <bit-form-field [disableMargin]="!isCustomTimeoutType">
     <bit-label>{{ "vaultTimeout1" | i18n }}</bit-label>
-    <bit-select formControlName="vaultTimeout">
+    <bit-select formControlName="vaultTimeout" data-testid="session-timeout-input-select">
       @for (option of availableTimeoutOptions(); track option.value) {
         <bit-option [value]="option.value" [label]="option.name | i18n"></bit-option>
       }

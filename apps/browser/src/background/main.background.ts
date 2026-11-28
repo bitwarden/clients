@@ -1777,6 +1777,7 @@ export default class MainBackground {
       this.lockService,
       logoutService,
       this.authService,
+      this.logService,
     );
 
     this.usernameGenerationService = legacyUsernameGenerationServiceFactory(

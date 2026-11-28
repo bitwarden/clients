@@ -13,6 +13,7 @@
       id="timeoutAction"
       [formControl]="formGroup.controls.timeoutAction"
       [required]="false"
+      data-testid="session-timeout-settings-action-select"
     >
       @for (action of availableTimeoutActions(); track action) {
         <bit-option [value]="action" [label]="action | i18n"></bit-option>
