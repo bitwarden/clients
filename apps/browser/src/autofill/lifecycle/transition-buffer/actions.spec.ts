@@ -8,7 +8,7 @@ import {
   resolvePageTransition,
   retirePageTransition,
 } from "./actions";
-import type { BufferAction } from "./types";
+import { BufferAction } from "./enums";
 
 /**
  * An edge arriving at `to`. The predicates read an edge rather than a state, so a test has to name
@@ -80,13 +80,13 @@ describe("edge predicates", () => {
 describe("buffer actions", () => {
   describe("reportBufferAction — a transition reported after the tab's last edge", () => {
     const cases: Array<[TabState | undefined, BufferAction]> = [
-      [undefined, "keep"], // no machine edge observed yet
-      [TabState.Frozen, "drop"],
-      [TabState.Cold, "keep"],
-      [TabState.WarmUp, "keep"],
-      [TabState.Warm, "drop"], // background window's active tab is out of scope
-      [TabState.Hot, "resolve"], // reported while hot resolves at once
-      [TabState.CoolDown, "keep"],
+      [undefined, BufferAction.Buffer], // no machine edge observed yet
+      [TabState.Frozen, BufferAction.Drop],
+      [TabState.Cold, BufferAction.Buffer],
+      [TabState.WarmUp, BufferAction.Buffer],
+      [TabState.Warm, BufferAction.Drop], // background window's active tab is out of scope
+      [TabState.Hot, BufferAction.Resolve], // reported while hot resolves at once
+      [TabState.CoolDown, BufferAction.Buffer],
     ];
     it.each(cases)("arriving at %s → %s", (to, expected) => {
       expect(reportBufferAction(to === undefined ? undefined : arrivingAt(to))).toBe(expected);
@@ -99,54 +99,84 @@ describe("buffer actions", () => {
       // Falling edge retires. Leaving Frozen is the case this rule exists for: a transition
       // reported before the machine classified the tab is kept, and the login edge is what settles
       // it — dropped, because it was reported while no account could have filled it.
-      ["Frozen → Cold (login)", TabState.Frozen, TabState.Cold, TabEdgeCause.Login, "drop"],
+      [
+        "Frozen → Cold (login)",
+        TabState.Frozen,
+        TabState.Cold,
+        TabEdgeCause.Login,
+        BufferAction.Drop,
+      ],
       // Leaving Warm or Hot cannot normally hold a transition to retire; these rows pin the rule as
       // total, so no edge sequence can carry one through a state that does not hold it.
-      ["Warm → Hot (focus)", TabState.Warm, TabState.Hot, TabEdgeCause.Focus, "drop"],
-      ["Warm → Cold (deactivate)", TabState.Warm, TabState.Cold, TabEdgeCause.Deactivate, "drop"],
+      ["Warm → Hot (focus)", TabState.Warm, TabState.Hot, TabEdgeCause.Focus, BufferAction.Drop],
+      [
+        "Warm → Cold (deactivate)",
+        TabState.Warm,
+        TabState.Cold,
+        TabEdgeCause.Deactivate,
+        BufferAction.Drop,
+      ],
       [
         "Hot → CoolDown (deactivate)",
         TabState.Hot,
         TabState.CoolDown,
         TabEdgeCause.Deactivate,
-        "drop",
+        BufferAction.Drop,
       ],
       // Leading edge resolves into Hot from a buffering state.
-      ["WarmUp → Hot (settle)", TabState.WarmUp, TabState.Hot, settle, "resolve"],
+      ["WarmUp → Hot (settle)", TabState.WarmUp, TabState.Hot, settle, BufferAction.Resolve],
       [
         "CoolDown → Hot (return)",
         TabState.CoolDown,
         TabState.Hot,
         TabEdgeCause.Activate,
-        "resolve",
+        BufferAction.Resolve,
       ],
       // A command-driven hot entry consumes rather than resolves.
-      ["WarmUp → Hot (command)", TabState.WarmUp, TabState.Hot, TabEdgeCause.Command, "drop"],
+      [
+        "WarmUp → Hot (command)",
+        TabState.WarmUp,
+        TabState.Hot,
+        TabEdgeCause.Command,
+        BufferAction.Drop,
+      ],
       // Leading edge into a non-buffering state retires — logout is dominant.
-      ["Cold → Frozen (logout)", TabState.Cold, TabState.Frozen, TabEdgeCause.Logout, "drop"],
-      ["WarmUp → Warm (settle bg)", TabState.WarmUp, TabState.Warm, settle, "drop"],
+      [
+        "Cold → Frozen (logout)",
+        TabState.Cold,
+        TabState.Frozen,
+        TabEdgeCause.Logout,
+        BufferAction.Drop,
+      ],
+      ["WarmUp → Warm (settle bg)", TabState.WarmUp, TabState.Warm, settle, BufferAction.Drop],
       [
         "CoolDown → Warm (return bg)",
         TabState.CoolDown,
         TabState.Warm,
         TabEdgeCause.Activate,
-        "drop",
+        BufferAction.Drop,
       ],
       // Buffering → buffering keeps waiting; cool-down → cold survives.
-      ["Cold → WarmUp (activate)", TabState.Cold, TabState.WarmUp, TabEdgeCause.Activate, "keep"],
+      [
+        "Cold → WarmUp (activate)",
+        TabState.Cold,
+        TabState.WarmUp,
+        TabEdgeCause.Activate,
+        BufferAction.Buffer,
+      ],
       [
         "WarmUp → Cold (deactivate)",
         TabState.WarmUp,
         TabState.Cold,
         TabEdgeCause.Deactivate,
-        "keep",
+        BufferAction.Buffer,
       ],
       [
         "CoolDown → Cold (elapse)",
         TabState.CoolDown,
         TabState.Cold,
         TabEdgeCause.CoolDownElapsed,
-        "keep",
+        BufferAction.Buffer,
       ],
     ];
     // `focused` is fixed because the action does not read it; the endpoints and the cause decide.

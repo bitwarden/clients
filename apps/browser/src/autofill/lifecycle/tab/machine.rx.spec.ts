@@ -4,6 +4,7 @@ import { TestScheduler } from "rxjs/testing";
 import { TabEdgeCause, TabState } from "../enums";
 import type { TabEdge } from "../types";
 
+import { TabEvent } from "./enums";
 import { tabLifecycle } from "./machine.rx";
 import type { TabLifecycleEvent } from "./types";
 
@@ -24,13 +25,13 @@ function edge(from: TabState, to: TabState, cause: TabEdgeCause, focused: boolea
   return { from, to, cause, focused };
 }
 
-const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
-const deactivate: TabLifecycleEvent = { kind: "deactivate" };
-const focus: TabLifecycleEvent = { kind: "focus" };
-const blur: TabLifecycleEvent = { kind: "blur" };
-const command: TabLifecycleEvent = { kind: "command" };
-const login: TabLifecycleEvent = { kind: "login" };
-const logout: TabLifecycleEvent = { kind: "logout" };
+const activate = (focused: boolean): TabLifecycleEvent => ({ kind: TabEvent.Activate, focused });
+const deactivate: TabLifecycleEvent = { kind: TabEvent.Deactivate };
+const focus: TabLifecycleEvent = { kind: TabEvent.Focus };
+const blur: TabLifecycleEvent = { kind: TabEvent.Blur };
+const command: TabLifecycleEvent = { kind: TabEvent.Command };
+const login: TabLifecycleEvent = { kind: TabEvent.Login };
+const logout: TabLifecycleEvent = { kind: TabEvent.Logout };
 
 describe("tabLifecycle", () => {
   let scheduler: TestScheduler;

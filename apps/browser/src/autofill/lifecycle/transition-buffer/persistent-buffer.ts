@@ -7,8 +7,6 @@ import {
   StateProvider,
 } from "@bitwarden/state";
 
-import type { TabEdge } from "../types";
-
 import { TransitionBuffer } from "./abstractions";
 import { DefaultTransitionBuffer } from "./default-buffer";
 import type { BufferedTransitionReport } from "./types";
@@ -28,6 +26,7 @@ function isBufferedTransitionReport(value: unknown): value is BufferedTransition
     (entry.frameId === undefined || typeof entry.frameId === "number") &&
     typeof entry.documentId === "string" &&
     entry.documentId.length > 0 &&
+    (entry.url === undefined || typeof entry.url === "string") &&
     typeof entry.stampedAt === "number" &&
     Number.isFinite(entry.stampedAt) &&
     typeof entry.expiresAt === "number" &&
@@ -64,7 +63,7 @@ export const BUFFERED_TRANSITIONS = new KeyDefinition<BufferedTransitions>(
 );
 
 /**
- * Extends {@link DefaultTransitionBuffer} to survive an MV3 restart.
+ * Wraps a {@link DefaultTransitionBuffer} to survive an MV3 restart. See `model.md`.
  *
  * Storage is a copy of what is buffered. A report resolved since the last write that landed is
  * still stored until the next one does, and is restored and resolved again if the worker restarts
@@ -72,9 +71,8 @@ export const BUFFERED_TRANSITIONS = new KeyDefinition<BufferedTransitions>(
  * received.
  *
  * The first {@link PersistentTransitionBuffer.setEnabled} decides what happens to the stored
- * record: `true` restores the unexpired reports it finds, which take the same path as fresh ones;
- * `false` restores nothing, and its clear empties storage. A clear while the record is still being
- * read discards it.
+ * record: `true` restores the unexpired reports it finds into the buffer; `false` restores nothing,
+ * and its clear empties storage. A clear while the record is still being read discards it.
  *
  * Storage that fails, reading or writing, errors {@link PersistentTransitionBuffer.resolved$}. Once
  * a failure occurs, the buffer neither writes nor emits and must be rebuilt to resume operation.
@@ -82,9 +80,10 @@ export const BUFFERED_TRANSITIONS = new KeyDefinition<BufferedTransitions>(
  * Use {@link resetTransitionBuffer} to categorically discard transitions.
  */
 export class PersistentTransitionBuffer implements TransitionBuffer {
-  private readonly buffer: DefaultTransitionBuffer;
+  private readonly inner: DefaultTransitionBuffer;
   private readonly subscriptions = new Subscription();
   private readonly resolvedReports = new Subject<BufferedTransitionReport>();
+  private readonly restoredReports = new Subject<BufferedTransitionReport>();
   private readonly loaded: Promise<BufferedTransitions | null>;
   private saving: Promise<unknown>;
   private writePending = false;
@@ -93,6 +92,7 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
   private stopped = false;
 
   readonly resolved$ = this.resolvedReports.asObservable();
+  readonly restored$ = this.restoredReports.asObservable();
 
   /**
    * @param state Where the buffer is stored. Each instance writes the whole record, so only one may
@@ -103,29 +103,38 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
     private readonly state: GlobalState<BufferedTransitions>,
     private readonly now: () => number,
   ) {
-    this.buffer = new DefaultTransitionBuffer(now);
+    this.inner = new DefaultTransitionBuffer(now);
     this.loaded = firstValueFrom(state.state$);
     this.saving = this.loaded.catch((error: unknown) => this.fail(error));
-    this.subscriptions.add(this.buffer.buffered$.subscribe(() => this.save()));
+    this.subscriptions.add(this.inner.buffered$.subscribe(() => this.save()));
     this.subscriptions.add(
-      this.buffer.resolved$.subscribe((report) => this.resolvedReports.next(report)),
+      this.inner.resolved$.subscribe((report) => this.resolvedReports.next(report)),
     );
   }
 
-  report(report: BufferedTransitionReport): void {
-    this.buffer.report(report);
+  buffer(report: BufferedTransitionReport): void {
+    this.inner.buffer(report);
   }
 
-  lifecycleChanged(tabId: number, edge: TabEdge): void {
-    this.buffer.lifecycleChanged(tabId, edge);
+  resolve(tabId: number): void {
+    this.inner.resolve(tabId);
   }
 
-  frameLost(tabId: number, frameId: number | undefined): void {
-    this.buffer.frameLost(tabId, frameId);
+  drop(tabId: number): void {
+    this.inner.drop(tabId);
   }
 
-  tabRemoved(tabId: number): void {
-    this.buffer.tabRemoved(tabId);
+  dropFrame(tabId: number, frameId: number | undefined): void {
+    this.inner.dropFrame(tabId, frameId);
+  }
+
+  forget(tabId: number): void {
+    this.inner.forget(tabId);
+  }
+
+  clear(): void {
+    this.clears++;
+    this.inner.clear();
   }
 
   setEnabled(enabled: boolean): void {
@@ -134,7 +143,7 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
     if (!enabled) {
       this.clears++;
     }
-    this.buffer.setEnabled(enabled);
+    this.inner.setEnabled(enabled);
     if (enabled && first) {
       // on the write chain, ahead of every write, so storage never drops the stored reports
       const clearsAtStart = this.clears;
@@ -149,6 +158,7 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
     this.stop();
     // a no-op once a storage failure has errored it
     this.resolvedReports.complete();
+    this.restoredReports.complete();
   }
 
   private async restore(clearsAtStart: number): Promise<void> {
@@ -156,13 +166,13 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
       return;
     }
     const record = await this.loaded;
-    // `report` would drop an expired report too, but would record its stamp
+    // handed on rather than buffered: the report's tab decides what it deserves
     for (const report of Object.values(record ?? {})) {
       if (this.now() < report.expiresAt) {
-        this.buffer.report(report);
+        this.restoredReports.next(report);
       }
     }
-    // what the restore skipped or resolved at once leaves no change behind to write it away
+    // what the restore skipped, or the tab resolved or dropped, leaves no change behind to write it away
     this.save();
   }
 
@@ -181,7 +191,7 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
         if (this.stopped) {
           return;
         }
-        const record = Object.fromEntries(this.buffer.buffered);
+        const record = Object.fromEntries(this.inner.buffered);
         return this.state.update(() => record);
       })
       .catch((error: unknown) => this.fail(error));
@@ -191,13 +201,14 @@ export class PersistentTransitionBuffer implements TransitionBuffer {
     if (!this.stopped) {
       this.stop();
       this.resolvedReports.error(error);
+      this.restoredReports.complete();
     }
   }
 
   private stop(): void {
     this.stopped = true;
     this.subscriptions.unsubscribe();
-    this.buffer[Symbol.dispose]();
+    this.inner[Symbol.dispose]();
   }
 }
 

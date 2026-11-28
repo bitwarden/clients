@@ -1,6 +1,45 @@
 import { VaultTimeout, VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import type { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
+import type { InlineMenuFillType } from "../enums/autofill-overlay.enum";
+import type AutofillPageDetails from "../models/autofill-page-details";
+
+/** The details a frame of a tab answered a collect with. */
+export interface PageDetail {
+  frameId: number;
+  tab: chrome.tabs.Tab;
+  details: AutofillPageDetails;
+}
+
+/** A tab the browser has given an id. */
+export type IdentifiedTab = chrome.tabs.Tab & { id: number };
+
+/**
+ * Everything the autofill service needs to fill a cipher into a page: the cipher, the page's
+ * details, the tab, and the flags that shape the fill.
+ */
+export interface AutoFillOptions {
+  cipher: CipherView;
+  pageDetails: PageDetail[];
+  doc?: typeof self.document;
+  tab: chrome.tabs.Tab;
+  skipUsernameOnlyFill?: boolean;
+  onlyEmptyFields?: boolean;
+  fillNewPassword?: boolean;
+  skipLastUsed?: boolean;
+  /**
+   * Whether a frame whose URL is not the tab's, and matches none of the cipher's URIs, may be
+   * filled. Absent allows it.
+   */
+  allowUntrustedIframe?: boolean;
+  allowTotpAutofill?: boolean;
+  autoSubmitLogin?: boolean;
+  focusedFieldForm?: string;
+  focusedFieldOpid?: string;
+  inlineMenuFillType?: InlineMenuFillType;
+}
 
 export type UserSettings = {
   avatarColor: string | null;

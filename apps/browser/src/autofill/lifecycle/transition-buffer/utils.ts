@@ -1,11 +1,17 @@
 import { TransitionValidity } from "./enums";
-import type { BufferedTransitionReport, LiveFrame, TransitionReport } from "./types";
+import type {
+  BufferedTransitionReport,
+  LiveFrame,
+  ResolvedTransitionReport,
+  TransitionReport,
+} from "./types";
 
 /**
  * Stamps a reported transition with the time it was reported and the deadline it expires at.
  *
  * Stamping fails closed: a report that belongs to no account (no `userId`), cannot be targeted
- * (no `tabId`), or cannot be validated later (no `documentId`, or an empty one) is rejected.
+ * (no `tabId`), or cannot be validated later (no `documentId`, or an empty one) is rejected, as is
+ * one whose age bound is not a positive number, which would be expired as it is stamped.
  *
  * @param report The facts of the transition.
  * @param options.now Epoch ms of stamping.
@@ -16,8 +22,8 @@ export function registerTransition(
   report: TransitionReport,
   options: { now: number; maxAgeMs: number },
 ): BufferedTransitionReport | undefined {
-  const { userId, tabId, frameId, documentId } = report;
-  if (!userId || tabId === undefined || !documentId) {
+  const { userId, tabId, frameId, documentId, url } = report;
+  if (!userId || tabId === undefined || !documentId || !(options.maxAgeMs > 0)) {
     return undefined;
   }
 
@@ -26,6 +32,7 @@ export function registerTransition(
     tabId,
     frameId,
     documentId,
+    url,
     stampedAt: options.now,
     expiresAt: options.now + options.maxAgeMs,
   };
@@ -39,7 +46,7 @@ export function registerTransition(
  * @param now Epoch ms.
  */
 export function validateTransition(
-  report: BufferedTransitionReport,
+  report: Pick<ResolvedTransitionReport, "documentId" | "expiresAt">,
   live: LiveFrame | undefined,
   now: number,
 ): TransitionValidity {

@@ -1,15 +1,16 @@
 import { TabEdgeCause, TabState } from "../enums";
 
+import { TabEvent } from "./enums";
 import { transition } from "./machine";
 import type { TabLifecycleEvent } from "./types";
 
-const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
-const deactivate: TabLifecycleEvent = { kind: "deactivate" };
-const focus: TabLifecycleEvent = { kind: "focus" };
-const blur: TabLifecycleEvent = { kind: "blur" };
-const command: TabLifecycleEvent = { kind: "command" };
-const login: TabLifecycleEvent = { kind: "login" };
-const logout: TabLifecycleEvent = { kind: "logout" };
+const activate = (focused: boolean): TabLifecycleEvent => ({ kind: TabEvent.Activate, focused });
+const deactivate: TabLifecycleEvent = { kind: TabEvent.Deactivate };
+const focus: TabLifecycleEvent = { kind: TabEvent.Focus };
+const blur: TabLifecycleEvent = { kind: TabEvent.Blur };
+const command: TabLifecycleEvent = { kind: TabEvent.Command };
+const login: TabLifecycleEvent = { kind: TabEvent.Login };
+const logout: TabLifecycleEvent = { kind: TabEvent.Logout };
 
 describe("transition (pure)", () => {
   // A context builder; `cause` is immaterial to a transition's outcome, so any member does.

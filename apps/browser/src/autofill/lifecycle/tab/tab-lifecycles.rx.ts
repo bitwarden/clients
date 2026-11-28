@@ -7,8 +7,7 @@ import type { ReducerSources, TabSignal } from "./types";
 /**
  * Feeds {@link TabLifecycles} from the browser's signals. Subscribe to run; it emits nothing.
  *
- * Subscribe to the lifecycles' streams first: they do not replay what they missed, apart from
- * `latestEdges$` and `ready$`.
+ * Subscribe to the lifecycles' streams first: they do not replay what they missed.
  */
 export function feedTabLifecycles(
   lifecycles: TabLifecycles,

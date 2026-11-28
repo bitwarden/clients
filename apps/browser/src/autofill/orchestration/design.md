@@ -46,17 +46,15 @@ is what they protect.
 A commit fills only the active, foreground tab — never a background one. Two layers uphold this. The
 [monitoring lifecycle](../lifecycle/design.md) engages only the tab the user is working in, so a
 page-load opportunity is aimed at the foreground from the start. The commit then re-verifies
-foreground at the instant it fills — defense-in-depth against a race the first layer cannot close: an
-opportunity can resolve, or a user-initiated fill be issued, and then the user switches tabs before
-the fill reaches the commit. Re-checking as the credential is placed keeps it off a tab that was
-foreground when the fill began but is not when it lands.
+foreground when it fills to ensure fills are user-visible. Re-checking as the credential is placed
+keeps it off a tab that was foreground when the fill began but is not when it lands.
 
 Verifying the target is foreground is the **default** for every fill, and exactly one path opts out:
 the popup's fill round-trip. When a popout window is focused there is no active content tab for the
-check to match, so it names its own target instead. Its target must still be its window's active
-tab, as the [tab lifecycle](../lifecycle/design.md#the-tab-lifecycle) tracks it: warming up, warm or
-hot. Opting out of the foreground check does not opt out of attention altogether. Every other
-caller-supplied fill is supplied by active-tab controls, and thus stays foreground-verified.
+check to match, so it names its own target instead. Opting out of the foreground check does not opt
+out of attention altogether: like every fill, it reads its target only once the tab is monitoring.
+Every other caller-supplied fill is supplied by active-tab controls, and thus stays
+foreground-verified.
 
 The opt-out is more than a convention. Two barriers keep it deliberate and contained. Only the
 orchestrator can request it; no other part of the extension can. And every use of the single
@@ -81,9 +79,12 @@ reported. If the tab or frame is gone, or the frame holds a different document, 
 rather than redirected: a **denied** outcome, never re-attempted. The document is checked again
 after the page's fields are collected, so a navigation during the collect also abandons the fill.
 
-When the browser cannot say which document a frame holds, the fill is denied as well. A page-load
-fill is unprompted and no user is waiting on it, so declining to fill costs little, while guessing
-risks the wrong page.
+When the browser cannot say which document a frame holds, the attempt is **invalid**: a warning is
+logged, and the attempt is read as a denial is. The two differ in what the check found. A denied
+attempt verified that the frame holds another document. An invalid attempt could not verify
+anything, so the guard was not applied at all, and the warning marks the failure of the guard. A
+page-load fill is unprompted and no user is waiting on it, so declining to fill costs little, while
+guessing risks the wrong page.
 
 A user-initiated fill acts on the tab the user just used, so its window is far narrower — but not
 zero: the tab can navigate between the command and the fill. The commit guards _every_ fill against
@@ -105,24 +106,39 @@ The re-attempt is internal to executing a single opportunity, so the orchestrato
 across opportunities. Each opportunity is judged only on its own merits, and there is no state to leak
 or desynchronize between them.
 
-When the lifecycle [retires](../lifecycle/design.md#retiring-an-opportunity) an opportunity, its
-execution cancels the remainder of its operations. For example, an opportunity cancelled while
-selecting a cipher will not re-attempt or commit the fill. A retired opportunity has no execution
-in flight.
+### Cancellation
+
+Every fill that performs collection, except auto-submit, supports cancellation via a cancellation
+token. Cancellation is checked periodically until the fill is committed. A cancelled fill reports
+**cancelled** to its caller when it has one, which ends the request as a denial does.
+
+Commit is the point of no return. The orchestrator looks for cancellation immediately before it
+commits. A fill that has committed is seen through, along with the effects it books.
+
+A fill's cancellation source is usually outside the scope of the orchestrator using a caller-supplied token.
+Fills derived from page transition reports embed a cancellation token from their report. The orchestrator
+extends these tokens to also cancel if the
+[lifecycle of the fill's target completes](../lifecycle/design.md#completing-a-lifecycle).
+
+A page-load fill does not re-attempt once cancelled.
 
 > [!IMPORTANT]
-> Cancellation keeps a fill begun with one account from completing after a switch to another.
-> It also prevents fill-after-lock.
+> Among other things, cancellation keeps a fill begun with one account from filling after a
+> switch to another. It also prevents fill-after-lock.
 
 ### Fills do not race
 
 The orchestrator collects the details it fills rather than acting on details gathered elsewhere, so a
-collect is always sequenced with the fill it feeds. Fills serialize at the granularity they target:
-a page-load fill per frame, so a newer opportunity for a frame already filling
-[retires](../lifecycle/design.md#retiring-an-opportunity) the one in flight and runs once its
-execution has ended; a user-initiated fill per tab, since it fills the whole tab in one pass. Sequencing collect-then-fill
-this way prevents two fills of the same scope from interleaving into a double fill or a fill of the
-wrong page.
+collect is always sequenced with the fill it feeds. The fills and collects that touch a tab are
+ordered by [leases](./lease/model.md). A fill holds an exclusive lease on the part of the tab it
+targets, from its target to its effects; a collect holds a shared one. A page-load fill targets its
+frame, so a newer opportunity for a frame already filling
+[cancels](../lifecycle/design.md#completing-an-opportunity) the one in flight and runs once its
+execution has ended. A user-initiated fill targets the whole tab, since it fills the tab in one pass,
+and preempts the page-load fills in its way. A fill never waits in line behind a fill that does not
+rank below it; it is cancelled before it starts. This prevents two fills of the same scope from
+interleaving into a double fill or a fill of the wrong page. The inline menu's generated password is
+the one fill that brings page details gathered elsewhere.
 
 ### Recorded activity reflects a real fill
 
