@@ -510,11 +510,15 @@ export class Fido2Background implements Fido2BackgroundInterface {
         try {
           return await callback(data!, tab, abortController);
         } finally {
-          if (tab.id != null) {
-            await BrowserApi.focusTab(tab.id);
-          }
-          if (tab.windowId != null) {
-            await BrowserApi.focusWindow(tab.windowId);
+          // Only restore focus if a popout was shown; otherwise (e.g. an aborted conditional
+          // mediation request) refocusing would steal focus from the user's current app.
+          if (tab.popoutOpened) {
+            if (tab.id != null) {
+              await BrowserApi.focusTab(tab.id);
+            }
+            if (tab.windowId != null) {
+              await BrowserApi.focusWindow(tab.windowId);
+            }
           }
         }
       });
