@@ -1,11 +1,12 @@
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogoutService } from "@bitwarden/common/auth/logout";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -19,10 +20,12 @@ import { PureCrypto, SymmetricKey } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
+import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 import { CliBiometricsService } from "../cli-biometrics-service";
+import { CliSharedUnlockService } from "../cli-shared-unlock.service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 
 import { UnlockCommand } from "./unlock.command";
@@ -40,6 +43,8 @@ describe("UnlockCommand", () => {
   const encryptedMigrator = mock<EncryptedMigrator>();
   const unlockService = mock<UnlockService>();
   const biometricsService = mock<CliBiometricsService>();
+  const sharedUnlockPeerService = mock<SharedUnlockPeerService>();
+  const cliSharedUnlockService = mock<CliSharedUnlockService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -73,10 +78,14 @@ describe("UnlockCommand", () => {
     delete process.env.BW_NOINTERACTION;
     delete process.env.BW_QUIET;
     delete process.env.BW_RESPONSE;
+    delete process.env.BW_SESSION;
 
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
     keyConnectorService.convertAccountRequired$ = of(false);
+    // No peer answers unless a test says one does.
+    sharedUnlockPeerService.peerState$.mockReturnValue(EMPTY);
+    cliSharedUnlockService.start.mockResolvedValue(true);
 
     Object.defineProperty(SdkLoadService, "Ready", {
       value: Promise.resolve(),
@@ -98,6 +107,8 @@ describe("UnlockCommand", () => {
       encryptedMigrator,
       unlockService,
       biometricsService,
+      sharedUnlockPeerService,
+      cliSharedUnlockService,
     );
   });
 
@@ -145,6 +156,98 @@ describe("UnlockCommand", () => {
         mockMasterPassword,
       );
       expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+    });
+
+    it("adopts the desktop app's session when it reports itself unlocked", async () => {
+      sharedUnlockPeerService.peerState$.mockReturnValue(of("Unlocked"));
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(response.data).toEqual(expectedSuccessMessage);
+      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+    });
+
+    it("falls back without waiting when the desktop app reports itself locked", async () => {
+      sharedUnlockPeerService.peerState$.mockReturnValue(of("Locked"));
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.NotEnabledInConnectedDesktopApp,
+      );
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(mockMasterPassword);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+    });
+
+    it("falls back when no peer answers, which is how an absent desktop app looks", async () => {
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(mockMasterPassword);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+    });
+
+    it("starts the shared unlock peer before a master password unlock, so it is announced", async () => {
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      await command.run(mockMasterPassword, {});
+
+      expect(cliSharedUnlockService.start).toHaveBeenCalled();
+      expect(cliSharedUnlockService.start.mock.invocationCallOrder[0]).toBeLessThan(
+        unlockService.unlockWithMasterPassword.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("unlocks with the master password when the shared unlock peer cannot start", async () => {
+      cliSharedUnlockService.start.mockResolvedValue(false);
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(mockMasterPassword);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+    });
+
+    it("unlocks with a provided master password when the peer cannot start", async () => {
+      cliSharedUnlockService.start.mockResolvedValue(false);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(mockMasterPassword, {});
+
+      expect(response.success).toEqual(true);
+      expect(response.data).toEqual(expectedSuccessMessage);
+    });
+
+    it("leaves BW_SESSION alone when no peer unlocks the vault", async () => {
+      process.env.BW_SESSION = "existing-session-key";
+      sharedUnlockPeerService.peerState$.mockReturnValue(of("Locked"));
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(Response.error("cancelled"));
+
+      await command.run(null, {});
+
+      expect(process.env.BW_SESSION).toEqual("existing-session-key");
     });
 
     it("unlocks with a desktop biometric user key when no password was provided", async () => {

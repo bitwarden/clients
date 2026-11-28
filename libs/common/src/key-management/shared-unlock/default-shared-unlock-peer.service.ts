@@ -2,13 +2,14 @@ import {
   combineLatest,
   concatMap,
   distinctUntilChanged,
+  filter,
   firstValueFrom,
   map,
   Observable,
   Subscription,
 } from "rxjs";
 
-import { SharedUnlockClient, SharedUnlockPeer } from "@bitwarden/sdk-internal";
+import { PeerLockState, SharedUnlockClient, SharedUnlockPeer } from "@bitwarden/sdk-internal";
 import { LockService, LockSource, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -28,8 +29,12 @@ import { SharedUnlockPeerService } from "./shared-unlock-peer.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 
 const NO_DESTINATIONS: SharedUnlockClient[] = [];
-// Desktop and web do not choose peers; they only ever share with the extension.
+// Web does not choose peers; it only ever shares with the extension.
 const BROWSER_ONLY: SharedUnlockClient[] = ["Browser"];
+// The desktop app serves every client that syncs to it.
+const DESKTOP_DESTINATIONS: SharedUnlockClient[] = ["Browser", "Cli"];
+// The CLI only ever shares with the desktop app, which is its leader.
+const DESKTOP_ONLY: SharedUnlockClient[] = ["Desktop"];
 
 function sameDestinations(a: SharedUnlockClient[], b: SharedUnlockClient[]): boolean {
   return a.length === b.length && a.every((client, i) => client === b[i]);
@@ -39,6 +44,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
   private peer: SharedUnlockPeer | null = null;
   /** The live destination subscription per account, which is also the set of accounts seen so far. */
   private readonly destinationSubscriptions = new Map<UserId, Subscription>();
+  private readonly driver: JsSharedUnlockDriver;
 
   constructor(
     private ipcService: IpcService,
@@ -51,10 +57,9 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private unlockService: UnlockService,
     private configService: ConfigService,
     private stateProvider: StateProvider,
-  ) {}
-
-  async start(): Promise<void> {
-    const sharedUnlockDriver = new JsSharedUnlockDriver(
+  ) {
+    // Built here rather than in start(), so peerState$ can be subscribed to before the peer runs.
+    this.driver = new JsSharedUnlockDriver(
       this.accountService,
       this.lockService,
       this.unlockService,
@@ -63,8 +68,17 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.environmentService,
       this.stateProvider,
     );
+  }
 
-    const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
+  peerState$(userId: UserId): Observable<PeerLockState> {
+    return this.driver.peerState$.pipe(
+      filter((event) => event.userId === userId),
+      map((event) => event.lockState),
+    );
+  }
+
+  async start(): Promise<void> {
+    const peer = new SharedUnlockPeer(this.ipcService.client, this.driver);
     this.peer = peer;
 
     // Prevent a race condition where the subscription for destinations sets the allowed destinations
@@ -179,8 +193,9 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
    * The clients this peer shares the user's unlock state with.
    *
    *   browser  ->  web, and desktop if the user allows it
-   *   desktop  ->  browser
+   *   desktop  ->  browser, cli
    *   web      ->  browser
+   *   cli      ->  desktop
    */
   private destinations$(userId: UserId): Observable<SharedUnlockClient[]> {
     return combineLatest([
@@ -193,7 +208,17 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
           return NO_DESTINATIONS;
         }
 
-        if (this.platformUtilsService.getClientType() !== ClientType.Browser) {
+        const clientType = this.platformUtilsService.getClientType();
+
+        if (clientType === ClientType.Desktop) {
+          return DESKTOP_DESTINATIONS;
+        }
+
+        if (clientType === ClientType.Cli) {
+          return DESKTOP_ONLY;
+        }
+
+        if (clientType !== ClientType.Browser) {
           return BROWSER_ONLY;
         }
 

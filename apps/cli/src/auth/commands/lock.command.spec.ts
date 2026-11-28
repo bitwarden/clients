@@ -9,6 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
+import { CliSharedUnlockService } from "../../key-management/cli-shared-unlock.service";
 import { NodeEnvSecureStorageService } from "../../platform/services/node-env-secure-storage.service";
 
 import { LockCommand } from "./lock.command";
@@ -20,6 +21,7 @@ describe("LockCommand", () => {
   let lockService: jest.Mocked<LockService>;
   let logService: jest.Mocked<LogService>;
   let secureStorage: NodeEnvSecureStorageService;
+  let cliSharedUnlockService: jest.Mocked<CliSharedUnlockService>;
   let lockCommand: LockCommand;
 
   beforeEach(() => {
@@ -35,7 +37,14 @@ describe("LockCommand", () => {
       mock<EncryptService>(),
     );
 
-    lockCommand = new LockCommand(lockService, mockAccountServiceWith(userId));
+    cliSharedUnlockService = mock<CliSharedUnlockService>();
+    cliSharedUnlockService.start.mockResolvedValue(true);
+
+    lockCommand = new LockCommand(
+      lockService,
+      mockAccountServiceWith(userId),
+      cliSharedUnlockService,
+    );
   });
 
   afterEach(() => {
@@ -43,6 +52,23 @@ describe("LockCommand", () => {
   });
 
   it("locks the active user", async () => {
+    await lockCommand.run();
+
+    expect(lockService.lock).toHaveBeenCalledWith(userId, LockSource.Manual);
+  });
+
+  it("starts the shared unlock peer before locking, so the lock reaches the desktop app", async () => {
+    await lockCommand.run();
+
+    expect(cliSharedUnlockService.start).toHaveBeenCalled();
+    expect(cliSharedUnlockService.start.mock.invocationCallOrder[0]).toBeLessThan(
+      lockService.lock.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("locks even when no peer could be started", async () => {
+    cliSharedUnlockService.start.mockResolvedValue(false);
+
     await lockCommand.run();
 
     expect(lockService.lock).toHaveBeenCalledWith(userId, LockSource.Manual);

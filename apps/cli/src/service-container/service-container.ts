@@ -97,6 +97,12 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
+import {
+  DefaultSharedUnlockPeerService,
+  DefaultSharedUnlockSettingsService,
+  SharedUnlockPeerService,
+  SharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
@@ -259,6 +265,7 @@ import { createLogoutCallback } from "../auth/logout/create-logout-callback";
 import { DeferredLogoutService } from "../auth/logout/deferred-logout.service";
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSharedUnlockService } from "../key-management/cli-shared-unlock.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { CliLicenseType } from "../platform/cli-license-type";
@@ -405,6 +412,9 @@ export class ServiceContainer {
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
   ipcService: CliIpcService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
+  sharedUnlockPeerService: SharedUnlockPeerService;
+  cliSharedUnlockService: CliSharedUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -1078,6 +1088,26 @@ export class ServiceContainer {
       this.logService,
       this.lockService,
       undefined,
+    );
+
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
+    this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
+      this.ipcService,
+      this.accountService,
+      this.lockService,
+      this.platformUtilsService,
+      this.vaultTimeoutSettingsService,
+      this.environmentService,
+      this.sharedUnlockSettingsService,
+      this.unlockService,
+      this.configService,
+      this.stateProvider,
+    );
+
+    this.cliSharedUnlockService = new CliSharedUnlockService(
+      this.sharedUnlockPeerService,
+      this.configService,
+      this.logService,
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);

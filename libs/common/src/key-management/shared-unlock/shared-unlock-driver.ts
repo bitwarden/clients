@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -33,11 +33,26 @@ function fromSdkUserId(userId: UserId): TSUserId {
   return uuidAsString(userId) as TSUserId;
 }
 
+/** A lock state a peer reported for one user. */
+export type PeerStateEvent = {
+  userId: TSUserId;
+  lockState: PeerLockState;
+};
+
 /**
  * A driver that exposes client capabilities (lock/unlock, user enumeration, etc.) to this device's
  * shared unlock peer.
  */
 export class JsSharedUnlockDriver implements SharedUnlockDriver {
+  private readonly peerState = new Subject<PeerStateEvent>();
+
+  /**
+   * Lock states reported by peers, one per accepted sync. Tells "a peer answered, and it is
+   * locked" apart from "no peer answered at all", which is the difference between falling back to
+   * another unlock method now and waiting for a shared unlock that may still arrive.
+   */
+  readonly peerState$: Observable<PeerStateEvent> = this.peerState.asObservable();
+
   constructor(
     private accountService: AccountService,
     private lockService: LockService,
@@ -84,10 +99,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
   }
 
   async on_peer_state(user_id: UserId, lock_state: PeerLockState): Promise<void> {
-    // no-op: the SDK reports a responding peer's lock state after every accepted sync, but no
-    // client consumer exists for it yet. Implemented as an empty stub to satisfy the driver
-    // interface; wire this up when a consumer needs to distinguish "a peer answered and is locked"
-    // from "no peer answered at all".
+    this.peerState.next({ userId: fromSdkUserId(user_id), lockState: lock_state });
   }
 
   async set_last_manual_lock(user_id: UserId, locked_at: number): Promise<void> {

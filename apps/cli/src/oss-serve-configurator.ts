@@ -168,6 +168,7 @@ export class OssServeConfigurator {
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
       serviceContainer.accountService,
+      serviceContainer.cliSharedUnlockService,
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
@@ -180,6 +181,8 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.unlockService,
       this.serviceContainer.biometricsService,
+      this.serviceContainer.sharedUnlockPeerService,
+      this.serviceContainer.cliSharedUnlockService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
