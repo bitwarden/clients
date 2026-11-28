@@ -68,6 +68,7 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { rendererTeardownEnabled } from "../platform/renderer-teardown-flag";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
@@ -159,12 +160,17 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   // remove when VFO1 flag is removed
+  /** Feature flag rollout; this toggles whether main or the renderer owns the clear timer. */
+  private mainOwnsClipboardClear = false;
+
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 
   ngOnInit() {
+    void rendererTeardownEnabled().then((enabled) => (this.mainOwnsClipboardClear = enabled));
+
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });
@@ -207,7 +213,7 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
-            await this.systemService.clearPendingClipboard();
+            await this.clearPendingClipboard();
             break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -236,7 +242,7 @@ export class AppComponent implements OnInit, OnDestroy {
               await this.router.navigate(["lock"]);
             }
             await this.updateAppMenu();
-            await this.systemService.clearPendingClipboard();
+            await this.clearPendingClipboard();
             break;
           case "reloadProcess":
             ipc.platform.reloadProcess();
@@ -300,7 +306,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.toastService._showToast(message);
             break;
           case "copiedToClipboard":
-            if (!message.clearing) {
+            if (!this.mainOwnsClipboardClear && !message.clearing) {
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.systemService.clearClipboard(message.clipboardValue, message.clearMs);
@@ -712,6 +718,15 @@ export class AppComponent implements OnInit, OnDestroy {
   // (requires creating a desktop specific implementation of the LogoutService)
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
+  /** Runs the pending clear early, through whichever process scheduled it. */
+  private async clearPendingClipboard(): Promise<void> {
+    if (this.mainOwnsClipboardClear) {
+      await ipc.platform.clipboard.clearNow();
+      return;
+    }
+    await this.systemService.clearPendingClipboard();
+  }
+
   private async logOut(logoutReason: LogoutReason, userId: UserId) {
     // Desktop logout paths bypass DefaultLogoutService (see PM-21212 TODO above),
     // so the log line that lives there is mirrored here to cover every caller.

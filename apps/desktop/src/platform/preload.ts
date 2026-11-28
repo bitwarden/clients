@@ -54,6 +54,7 @@ const passwords = {
 const clipboard = {
   read: (): Promise<string> => ipcRenderer.invoke("clipboard.read"),
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
+  clearNow: (): Promise<void> => ipcRenderer.invoke("clipboard.clearNow"),
 };
 
 const powermonitor = {

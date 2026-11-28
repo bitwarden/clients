@@ -1,7 +1,5 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { ClipboardMain } from "../platform/main/clipboard.main";
-
 import { WindowMain } from "./window.main";
 
 /** A background feature that only works while a renderer exists. */
@@ -22,7 +20,7 @@ export type RendererBlocker = {
  * ```
  *  hideToTray ─▶ tryTearDown() ─ blocked/flag off ─▶ false: caller hides the window
  *                     │
- *                     └─ allowed ─▶ clear clipboard, destroy renderer ─▶ true
+ *                     └─ allowed ─▶ destroy renderer ─▶ true
  * ```
  */
 export class RendererTeardownMain {
@@ -30,7 +28,6 @@ export class RendererTeardownMain {
     private readonly flagEnabled: boolean,
     private readonly blockers: RendererBlocker[],
     private readonly windowMain: WindowMain,
-    private readonly clipboardMain: ClipboardMain,
     private readonly logService: LogService,
   ) {}
 
@@ -39,11 +36,6 @@ export class RendererTeardownMain {
     if (!this.allowed()) {
       return false;
     }
-
-    // The renderer's delayed clipboard clear dies with it, so clear now, as on quit.
-    this.clipboardMain.clearIfUnchanged().catch((e) => {
-      this.logService.error("[Renderer teardown] Failed to clear clipboard", e);
-    });
 
     this.logService.info("[Renderer teardown] Destroying renderer");
     this.windowMain.destroyRenderer();
