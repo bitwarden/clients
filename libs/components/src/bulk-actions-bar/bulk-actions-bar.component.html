@@ -49,6 +49,14 @@
       class="tw-flex tw-items-center tw-flex-auto tw-min-w-0"
       [class.tw-invisible]="!ovf.ready() || overflowContainerWidth() === null"
     >
+      @if (hasNoActions()) {
+        <span
+          [class]="elementWithDividerClasses"
+          class="tw-text-sm tw-text-fg-contrast-strong tw-px-2 tw-select-none"
+        >
+          {{ "noActionsAvailable" | i18n }}
+        </span>
+      }
       @for (primary of primaryActions(); track primary) {
         <button
           bitBulkActionButton
@@ -90,7 +98,13 @@
 <bit-menu #additionalActionsMenu>
   @for (i of ovf.overflow(); track i) {
     @let primary = primaryActions()[i];
-    <button bitMenuItem type="button" [disabled]="primary.disabled()" (click)="primary.action()()">
+    <button
+      bitMenuItem
+      type="button"
+      [variant]="primary.variant()"
+      [disabled]="primary.disabled()"
+      (click)="primary.action()()"
+    >
       <bit-icon slot="start" [name]="primary.icon()" />
       {{ primary.label() }}
     </button>
@@ -102,6 +116,7 @@
     <button
       bitMenuItem
       type="button"
+      [variant]="additional.variant()"
       [disabled]="additional.disabled()"
       (click)="additional.action()()"
     >

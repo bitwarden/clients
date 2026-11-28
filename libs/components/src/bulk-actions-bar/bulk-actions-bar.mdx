@@ -36,6 +36,9 @@ renders no DOM itself; the bar reads its inputs and renders the toolbar button.
 - `[icon]` — required `BitwardenIcon`. Every action in the toolbar row carries an icon so it has
   something to fall back to when compact mode collapses labels.
 - `[disabled]` — optional boolean; propagates to the rendered button.
+- `[variant]` — optional `"primary" | "danger"`, default `"primary"`. When a primary action packs
+  into the overflow menu, the bar passes this variant to the rendered `<button bitMenuItem>`,
+  turning the item red for destructive actions.
 
 The consumer's `[action]` callback is the only place a primary action's click logic lives. There is
 no `(click)` event on `<bit-bulk-action>`.
@@ -67,12 +70,26 @@ The `[icon]` input is **optional** on additional actions (unlike primary actions
 required) — menu items can be label-only. When provided, the icon renders as a leading affordance
 inside the menu item.
 
+The `[variant]` input is **optional** (`"primary" | "danger"`, default `"primary"`). Set it to
+`"danger"` to render the menu item in red for destructive actions.
+
 ```html
 <bit-bulk-additional-action [action]="share" icon="bwi-share" label="Share" />
 <bit-bulk-additional-action [action]="export" label="Export" />
+<bit-bulk-additional-action [action]="delete" icon="bwi-trash" label="Delete" variant="danger" />
 ```
 
 <Canvas of={stories.WithAdditionalActions} />
+
+<Canvas of={stories.WithDangerActions} />
+
+## Empty state
+
+When no `<bit-bulk-action>` elements are projected (regardless of additional actions), the bar shows
+"No actions available" in place of the action buttons. The text is non-interactive and carries a
+divider on its leading edge, consistent with the count and Clear button layout.
+
+<Canvas of={stories.NoActions} />
 
 ## Compact mode
 
