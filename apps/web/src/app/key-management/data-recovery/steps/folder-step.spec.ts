@@ -53,6 +53,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [],
       };
 
@@ -72,6 +73,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2] as Folder[],
       };
 
@@ -103,6 +105,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };
 
@@ -128,6 +131,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };
 
@@ -163,6 +167,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2] as Folder[],
       };
 
@@ -198,6 +203,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
@@ -219,6 +225,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
@@ -244,6 +251,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [
           { id: "folder-1", name: { encryptedString: "encrypted-name-1" } },
           { id: "folder-2", name: { encryptedString: "encrypted-name-2" } },
@@ -269,6 +277,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [],
       };
 
@@ -288,6 +297,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1] as Folder[],
       };
 
@@ -313,6 +323,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1] as Folder[],
       };
 
@@ -343,6 +354,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2] as Folder[],
       };
 
@@ -377,6 +389,7 @@ describe("FolderStep", () => {
         encryptedPrivateKey: null,
         isPrivateKeyCorrupt: false,
         ciphers: [],
+        decryptedCiphers: [],
         folders: [folder1, folder2, folder3] as Folder[],
       };
 

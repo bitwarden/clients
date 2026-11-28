@@ -36,7 +36,14 @@ function orgCipher(id: string, organizationId: OrganizationId, canDelete = true)
 }
 
 function workingDataWith(ciphers: Cipher[]): RecoveryWorkingData {
-  return { userId, userKey: null, isPrivateKeyCorrupt: false, ciphers, folders: [] };
+  return {
+    userId,
+    userKey: null,
+    isPrivateKeyCorrupt: false,
+    ciphers,
+    decryptedCiphers: [],
+    folders: [],
+  };
 }
 
 describe("CipherStep", () => {
@@ -52,7 +59,7 @@ describe("CipherStep", () => {
   /** Makes the given ciphers fail to decrypt; every other cipher succeeds. */
   const failDecryptionFor = (failing: Cipher[]) => {
     cipherEncryptionService.decryptManyLegacy.mockImplementation(async (ciphers) => [
-      [],
+      ciphers.filter((c) => !failing.includes(c)).map((c) => ({ id: c.id }) as CipherView),
       // decryptManyLegacy reports failures as placeholder views carrying the cipher's ID.
       ciphers.filter((c) => failing.includes(c)).map((c) => ({ id: c.id }) as CipherView),
     ]);
@@ -88,6 +95,38 @@ describe("CipherStep", () => {
   });
 
   describe("runDiagnostics", () => {
+    it("hands the ciphers that decrypted to later steps", async () => {
+      // With strict decryption, a cipher with one bad field fails as a whole; with lenient
+      // decryption it decrypts. Either way, only what decryptManyLegacy returns is handed on.
+      const healthy = personalCipher("personal-1");
+      const failing = personalCipher("personal-2");
+      failDecryptionFor([failing]);
+      const workingData = workingDataWith([healthy, failing]);
+
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(workingData.decryptedCiphers.map((v) => v.id)).toEqual(["personal-1"]);
+    });
+
+    it("clears ciphers handed on by a previous run when decryption can't run", async () => {
+      const workingData = workingDataWith([personalCipher("personal-1")]);
+      await cipherStep.runDiagnostics(workingData, logger);
+      cipherEncryptionService.decryptManyLegacy.mockRejectedValue(new Error("no SDK client"));
+
+      await expect(cipherStep.runDiagnostics(workingData, logger)).rejects.toThrow();
+
+      // null tells the attachment step that nothing was decrypted, rather than "no items".
+      expect(workingData.decryptedCiphers).toBeNull();
+    });
+
+    it("hands on an empty list when there are no items to decrypt", async () => {
+      const workingData = workingDataWith([]);
+
+      await cipherStep.runDiagnostics(workingData, logger);
+
+      expect(workingData.decryptedCiphers).toEqual([]);
+    });
+
     it("returns false and logs error when userId is missing", async () => {
       const result = await cipherStep.runDiagnostics(
         { ...workingDataWith([]), userId: null },
@@ -225,6 +264,30 @@ describe("CipherStep", () => {
         "Cipher ID org-1 (organization org-a) cannot be deleted (other items encrypted with the same key decrypt: true, delete permission: false)",
       );
       expect(cipherStep.message).toBe("recoveryOrgItemsContactSupport:1");
+    });
+
+    it("says how many items Repair will delete", async () => {
+      const bad = personalCipher("p-bad");
+      failDecryptionFor([bad]);
+
+      await cipherStep.runDiagnostics(workingDataWith([bad, personalCipher("ok")]), logger);
+
+      expect(cipherStep.message).toBe("recoveryCiphersWillBeDeleted:1");
+    });
+
+    it("lists items Repair will delete before organization items it can't delete", async () => {
+      const deletable = orgCipher("org-1", orgA);
+      const notDeletable = orgCipher("org-2", orgA, false);
+      failDecryptionFor([deletable, notDeletable]);
+
+      await cipherStep.runDiagnostics(
+        workingDataWith([deletable, notDeletable, orgCipher("org-ok", orgA)]),
+        logger,
+      );
+
+      expect(cipherStep.message).toBe(
+        "recoveryCiphersWillBeDeleted:1 recoveryOrgItemsContactSupport:1",
+      );
     });
 
     it("throws a readable error when decryption cannot run at all", async () => {
