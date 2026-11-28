@@ -40,6 +40,7 @@ import {
   InitAutofillInlineMenuListMessage,
   UpdateAutofillInlineMenuGeneratedPasswordMessage,
   UpdateAutofillInlineMenuListCiphersParams,
+  UpdateAutofillInlineMenuListMaxHeightMessage,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
@@ -78,7 +79,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private theme: Theme = ThemeTypes.Light;
   private litHost?: HTMLDivElement;
   private litCipherListScrollElement?: HTMLElement;
+  private listMaxHeight: number | null = null;
   private readonly showCiphersPerPage = 6;
+  private readonly listMaxHeightCssProperty = "--inline-menu-list-max-height";
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
@@ -87,6 +90,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message),
       updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
         this.handleUpdateAutofillInlineMenuGeneratedPassword(message),
+      updateAutofillInlineMenuListMaxHeight: ({ message }) =>
+        this.handleUpdateListMaxHeight(message),
       showSaveLoginInlineMenuList: () => this.handleShowSaveLoginInlineMenuList(),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
@@ -674,6 +679,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (this.useLitComponents) {
       this.loadLitPageOfCiphers();
       this.renderLitCipherList();
+      this.fillVisibleCipherList();
       return;
     }
 
@@ -685,16 +691,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.loadPageOfCiphers();
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
-    this.toggleScrollClass();
 
-    if (!this.showInlineMenuAccountCreation) {
-      return;
+    if (this.showInlineMenuAccountCreation) {
+      const addNewLoginButtonContainer = this.buildNewItemButton();
+      this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
+      this.inlineMenuListContainer.classList.add(
+        "inline-menu-list-container--with-new-item-button",
+      );
+      this.newItemButtonElement?.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
     }
 
-    const addNewLoginButtonContainer = this.buildNewItemButton();
-    this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
-    this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
-    this.newItemButtonElement!.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+    this.fillVisibleCipherList();
   }
 
   private renderLitCipherList() {
@@ -987,6 +994,93 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private allCiphersLoaded() {
     return this.currentCipherIndex >= this.ciphers.length;
+  }
+
+  /**
+   * Applies the host-computed max height so the cipher list can fill the
+   * available viewport and scroll internally when content is taller.
+   */
+  private handleUpdateListMaxHeight(message: UpdateAutofillInlineMenuListMaxHeightMessage) {
+    if (message.maxHeight == null || message.maxHeight < 0) {
+      return;
+    }
+
+    this.listMaxHeight = message.maxHeight;
+    globalThis.document.documentElement.style.setProperty(
+      this.listMaxHeightCssProperty,
+      `${message.maxHeight}px`,
+    );
+    this.fillVisibleCipherList();
+  }
+
+  /**
+   * Loads additional cipher pages until the list overflows the available
+   * height (so the user can scroll to load more) or every cipher is rendered.
+   */
+  private fillVisibleCipherList() {
+    if (this.listMaxHeight == null || this.allCiphersLoaded()) {
+      return;
+    }
+
+    if (this.useLitComponents) {
+      this.fillVisibleLitCipherList();
+      return;
+    }
+
+    if (!this.ciphersList) {
+      return;
+    }
+
+    let safetyCounter = 0;
+    while (!this.allCiphersLoaded() && safetyCounter < 50) {
+      if (this.ciphersList.scrollHeight > this.getAvailableCipherListHeight()) {
+        break;
+      }
+
+      const previousIndex = this.currentCipherIndex;
+      this.loadPageOfCiphers();
+      if (this.currentCipherIndex === previousIndex) {
+        break;
+      }
+      safetyCounter++;
+    }
+  }
+
+  /**
+   * Lit cipher lists paginate separately from the legacy DOM list. Keep loading
+   * pages and re-rendering until the scroll area overflows or all ciphers are shown.
+   */
+  private fillVisibleLitCipherList() {
+    let safetyCounter = 0;
+    while (!this.allCiphersLoaded() && safetyCounter < 50) {
+      const scrollEl =
+        this.litCipherListScrollElement ??
+        this.litHost?.querySelector<HTMLElement>("[data-cipher-list-scroll]");
+      if (scrollEl && scrollEl.scrollHeight > this.getAvailableCipherListHeight()) {
+        break;
+      }
+
+      const previousIndex = this.currentCipherIndex;
+      this.loadLitPageOfCiphers();
+      if (this.currentCipherIndex === previousIndex) {
+        break;
+      }
+      this.renderLitCipherList();
+      safetyCounter++;
+    }
+  }
+
+  /**
+   * Height available for cipher rows after reserving the "Add new login"
+   * footer when it is present.
+   */
+  private getAvailableCipherListHeight() {
+    if (this.listMaxHeight == null) {
+      return 0;
+    }
+
+    const footerHeight = this.newItemButtonElement?.parentElement?.offsetHeight ?? 0;
+    return Math.max(0, this.listMaxHeight - footerHeight);
   }
 
   /**
@@ -1923,38 +2017,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       }
 
       const { height } = entry.contentRect;
-      this.toggleScrollClass(height);
       this.postMessageToParent({
         command: "updateAutofillInlineMenuListHeight",
         styles: { height: `${height}px` },
       });
       break;
     }
-  };
-
-  /**
-   * Toggles the scrollbar class on the inline menu list actions container.
-   *
-   * @param height - The height of the inline menu list actions container.
-   */
-  private toggleScrollClass = (height?: number) => {
-    if (!this.ciphersList) {
-      return;
-    }
-    const scrollbarClass = "inline-menu-list-actions--scrollbar";
-
-    let containerHeight = height;
-    if (!containerHeight) {
-      const inlineMenuListContainerRects = this.inlineMenuListContainer.getBoundingClientRect();
-      containerHeight = inlineMenuListContainerRects.height;
-    }
-
-    if (containerHeight >= 170) {
-      this.ciphersList.classList.add(scrollbarClass);
-      return;
-    }
-
-    this.ciphersList.classList.remove(scrollbarClass);
   };
 
   /**

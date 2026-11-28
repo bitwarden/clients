@@ -2,6 +2,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
+import { AutofillOverlayPort } from "../../../enums/autofill-overlay.enum";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -54,6 +55,13 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout | null = null;
+  /**
+   * Last computed max height for the list iframe. Null until a list position
+   * update provides a `top` (or the iframe already has a layout top).
+   */
+  private currentListMaxHeight: number | null = null;
+  private readonly listIframeBorderWidth = 1;
+  private readonly listViewportBottomPadding = 8;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
@@ -190,6 +198,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     this.updateElementStyles(this.iframe, { opacity: "0", height: "0px" });
+    this.currentListMaxHeight = null;
     this.unobserveIframe();
     this.clearAriaAlert();
     this.port?.onMessage.removeListener(this.handlePortMessage);
@@ -285,7 +294,15 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
-    const styles = this.fadeInTimeout ? Object.assign(position, { opacity: "0" }) : position;
+    const styles: Partial<CSSStyleDeclaration> = { ...position };
+    if (this.fadeInTimeout) {
+      styles.opacity = "0";
+    }
+
+    if (this.portName === AutofillOverlayPort.List) {
+      this.applyListIframeHeightConstraints(styles);
+    }
+
     this.updateElementStyles(this.iframe, styles);
 
     const elementHeightCompletelyInViewport = this.isElementCompletelyWithinViewport(
@@ -340,6 +357,55 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     return [globalThis.window.innerHeight, globalThis.window.innerWidth];
+  }
+
+  /**
+   * Clamps the list iframe to the remaining viewport space below its `top` so the
+   * menu can grow with cipher count without extending outside the viewport (which
+   * would force-close it). Also informs the list page of the max height so the
+   * inner cipher list can scroll.
+   */
+  private applyListIframeHeightConstraints(styles: Partial<CSSStyleDeclaration>) {
+    const parsedTop = this.parseStylePixelValue(styles.top);
+    const listTop = parsedTop ?? this.iframe.getBoundingClientRect().top;
+    if (listTop != null && !Number.isNaN(listTop)) {
+      this.currentListMaxHeight = this.computeListMaxHeight(listTop);
+    }
+
+    if (this.currentListMaxHeight == null) {
+      return;
+    }
+
+    styles.maxHeight = `${this.currentListMaxHeight}px`;
+
+    const parsedHeight = this.parseStylePixelValue(styles.height);
+    if (parsedHeight != null) {
+      styles.height = `${Math.min(parsedHeight, this.currentListMaxHeight)}px`;
+    }
+
+    this.postMessageToIFrame({
+      command: "updateAutofillInlineMenuListMaxHeight",
+      maxHeight: this.currentListMaxHeight,
+    });
+  }
+
+  /**
+   * Remaining viewport space below the list iframe, minus border and a small
+   * padding so `getBoundingClientRect().bottom` stays within the viewport check.
+   */
+  private computeListMaxHeight(listTop: number): number {
+    const [viewportHeight] = this.getViewportSize();
+    const reserved = this.listIframeBorderWidth * 2 + this.listViewportBottomPadding;
+    return Math.max(0, Math.floor(viewportHeight - listTop - reserved));
+  }
+
+  private parseStylePixelValue(value?: string): number | null {
+    if (value == null || value === "") {
+      return null;
+    }
+
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
   }
 
   /**

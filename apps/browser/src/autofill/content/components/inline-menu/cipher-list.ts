@@ -51,7 +51,7 @@ export function InlineMenuCipherList({
     theme,
     dataTestId: "inline-menu-cipher-list",
     children: html`
-      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme)}>
+      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme, !!newItem)}>
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,
@@ -64,15 +64,13 @@ export function InlineMenuCipherList({
           }),
         )}
       </div>
-      ${
-        newItem
-          ? InlineMenuAction({
-              ...newItem,
-              theme,
-              borderedTop: true,
-            })
-          : nothing
-      }
+      ${newItem
+        ? InlineMenuAction({
+            ...newItem,
+            theme,
+            borderedTop: true,
+          })
+        : nothing}
     `,
   });
 }
@@ -122,12 +120,16 @@ function heading(theme: Theme, text: string) {
   `;
 }
 
-const cipherListStyles = (theme: Theme) => {
+const cipherListStyles = (theme: Theme, hasNewItem = false) => {
   const scrollbars = scrollbarStyles(theme);
+  const fallbackMaxHeight = `calc(${spacing["4"]} * 11 + ${spacing["1"]})`;
+  const maxHeight = hasNewItem
+    ? `calc(var(--inline-menu-list-max-height, ${fallbackMaxHeight}) - 4.2rem)`
+    : `var(--inline-menu-list-max-height, ${fallbackMaxHeight})`;
 
   return css`
     box-sizing: border-box;
-    max-height: calc(${spacing["4"]} * 11 + ${spacing["1"]});
+    max-height: ${maxHeight};
     overflow-x: hidden;
     overflow-y: auto;
     background-color: ${themes[theme].background.DEFAULT};

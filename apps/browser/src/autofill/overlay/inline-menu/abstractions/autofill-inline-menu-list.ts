@@ -17,6 +17,10 @@ export type UpdateAutofillInlineMenuGeneratedPasswordMessage = AutofillInlineMen
   generatedPassword: string;
 };
 
+export type UpdateAutofillInlineMenuListMaxHeightMessage = AutofillInlineMenuListMessage & {
+  maxHeight: number;
+};
+
 export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & {
   authStatus: AuthenticationStatus;
   styleSheetUrl: string;
@@ -47,6 +51,11 @@ export type AutofillInlineMenuListWindowMessageHandlers = {
     message,
   }: {
     message: UpdateAutofillInlineMenuGeneratedPasswordMessage;
+  }) => void;
+  updateAutofillInlineMenuListMaxHeight: ({
+    message,
+  }: {
+    message: UpdateAutofillInlineMenuListMaxHeightMessage;
   }) => void;
   focusAutofillInlineMenuList: () => void;
 };

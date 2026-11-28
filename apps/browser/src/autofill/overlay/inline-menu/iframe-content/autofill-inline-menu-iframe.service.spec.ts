@@ -938,4 +938,121 @@ describe("AutofillInlineMenuIframeService", () => {
       });
     });
   });
+
+  describe("list iframe height constraints", () => {
+    let listIframeService: AutofillInlineMenuIframeService;
+    const viewportHeight = 800;
+    const reservedHeight = 10; // 1px border * 2 + 8px bottom padding
+
+    const mockViewportHeight = (height: number) => {
+      Object.defineProperty(globalThis.window, "visualViewport", {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(globalThis.window, "innerHeight", {
+        value: height,
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(globalThis.window, "innerWidth", {
+        value: 1200,
+        writable: true,
+        configurable: true,
+      });
+    };
+
+    beforeEach(() => {
+      const shadow = document.createElement("div").attachShadow({ mode: "open" });
+      listIframeService = new AutofillInlineMenuIframeService(
+        shadow,
+        AutofillOverlayPort.List,
+        { height: "0px" },
+        "title",
+      );
+      listIframeService.initMenuIframe();
+      listIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+      Object.defineProperty(listIframeService["iframe"], "contentWindow", {
+        value: { postMessage: jest.fn() },
+        writable: true,
+      });
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
+      mockViewportHeight(viewportHeight);
+      jest.spyOn(listIframeService["iframe"], "getBoundingClientRect").mockReturnValue({
+        top: 100,
+        left: 0,
+        right: 260,
+        bottom: 100,
+        height: 0,
+        width: 260,
+      } as DOMRect);
+    });
+
+    it("sets maxHeight from remaining viewport space and posts it to the list page", () => {
+      sendPortMessage(listIframeService["port"], {
+        command: "updateAutofillInlineMenuPosition",
+        styles: { top: "100px", left: "10px" },
+      });
+
+      const expectedMaxHeight = viewportHeight - 100 - reservedHeight;
+      expect(listIframeService["iframe"].style.maxHeight).toBe(`${expectedMaxHeight}px`);
+      expect(listIframeService["iframe"].contentWindow?.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          command: "updateAutofillInlineMenuListMaxHeight",
+          maxHeight: expectedMaxHeight,
+        }),
+        listIframeService["extensionOrigin"],
+      );
+    });
+
+    it("clamps a content height update to the remaining viewport space", () => {
+      sendPortMessage(listIframeService["port"], {
+        command: "updateAutofillInlineMenuPosition",
+        styles: { top: "100px", left: "10px" },
+      });
+
+      sendPortMessage(listIframeService["port"], {
+        command: "updateAutofillInlineMenuPosition",
+        styles: { height: "2000px" },
+      });
+
+      const expectedMaxHeight = viewportHeight - 100 - reservedHeight;
+      expect(listIframeService["iframe"].style.height).toBe(`${expectedMaxHeight}px`);
+      expect(listIframeService["iframe"].style.maxHeight).toBe(`${expectedMaxHeight}px`);
+    });
+
+    it("does not force a 180px minimum when little space remains below the field", () => {
+      sendPortMessage(listIframeService["port"], {
+        command: "updateAutofillInlineMenuPosition",
+        styles: { top: "760px", height: "400px" },
+      });
+
+      const expectedMaxHeight = viewportHeight - 760 - reservedHeight;
+      expect(expectedMaxHeight).toBeLessThan(180);
+      expect(listIframeService["iframe"].style.maxHeight).toBe(`${expectedMaxHeight}px`);
+      expect(listIframeService["iframe"].style.height).toBe(`${expectedMaxHeight}px`);
+    });
+
+    it("does not close the menu when the clamped height fits in the viewport", () => {
+      const expectedMaxHeight = viewportHeight - 100 - reservedHeight;
+      jest.spyOn(listIframeService["iframe"], "getBoundingClientRect").mockReturnValue({
+        top: 100,
+        left: 0,
+        right: 260,
+        bottom: 100 + expectedMaxHeight,
+        height: expectedMaxHeight,
+        width: 260,
+      } as DOMRect);
+      const sendExtensionMessageSpy = jest.spyOn(listIframeService as any, "sendExtensionMessage");
+
+      sendPortMessage(listIframeService["port"], {
+        command: "updateAutofillInlineMenuPosition",
+        styles: { top: "100px", height: "2000px" },
+      });
+
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("closeAutofillInlineMenu", {
+        forceCloseInlineMenu: true,
+      });
+    });
+  });
 });
