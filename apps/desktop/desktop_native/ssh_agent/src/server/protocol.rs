@@ -570,10 +570,11 @@ mod tests {
 
     #[test]
     fn build_sign_response_has_sign_response_type_byte() {
+        use bitwarden_random::rng;
         use signature::Signer as _;
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let sig = keypair.sign(TEST_DATA);
 
         let msg = build_sign_response(&sig);
@@ -583,10 +584,11 @@ mod tests {
 
     #[test]
     fn build_sign_response_encodes_algorithm_name() {
+        use bitwarden_random::rng;
         use signature::Signer as _;
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let sig = keypair.sign(TEST_DATA);
 
         let msg = build_sign_response(&sig);
@@ -598,10 +600,11 @@ mod tests {
 
     #[test]
     fn build_sign_response_encodes_signature_bytes() {
+        use bitwarden_random::rng;
         use signature::Signer as _;
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let sig = keypair.sign(TEST_DATA);
 
         let msg = build_sign_response(&sig);

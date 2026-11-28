@@ -166,10 +166,10 @@ impl fmt::Display for PublicKey {
 
 #[cfg(test)]
 mod tests {
+    use bitwarden_random::rng;
     use signature::Verifier as _;
     use ssh_key::{
         private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
-        rand_core::OsRng,
         EcdsaCurve, LineEnding,
     };
 
@@ -179,7 +179,7 @@ mod tests {
     const TEST_DATA: &[u8] = b"test data";
 
     fn create_valid_ed25519_key_string() -> String {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut rng());
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ed25519(ed25519_keypair), "")
                 .unwrap();
@@ -187,7 +187,7 @@ mod tests {
     }
 
     fn ecdsa_keypair(curve: EcdsaCurve) -> EcdsaKeypair {
-        EcdsaKeypair::random(&mut OsRng, curve).unwrap()
+        EcdsaKeypair::random(&mut rng(), curve).unwrap()
     }
 
     fn ecdsa_private_key_from_ssh_key(curve: EcdsaCurve) -> PrivateKey {
@@ -210,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_privatekey_from_rsa() {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair), "").unwrap();
 
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_from_ed25519_always_succeeds() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let private_key = PrivateKey::Ed25519(keypair);
 
         assert!(SignablePrivateKey::try_from((private_key, None)).is_ok());
@@ -228,7 +228,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_from_rsa_without_flags_returns_error() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let private_key = PrivateKey::Rsa(keypair);
 
         assert!(SignablePrivateKey::try_from((private_key, None)).is_err());
@@ -236,7 +236,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_from_rsa_with_sha256_flag_succeeds() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let private_key = PrivateKey::Rsa(keypair);
 
         assert!(SignablePrivateKey::try_from((
@@ -248,7 +248,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_from_rsa_with_sha512_flag_succeeds() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let private_key = PrivateKey::Rsa(keypair);
 
         assert!(SignablePrivateKey::try_from((
@@ -260,7 +260,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_sign_ed25519_algorithm() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let signing_key = SignablePrivateKey::Ed25519(keypair);
 
         let sig = signing_key.sign(TEST_DATA);
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_sign_rsa_sha512_algorithm() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha512);
 
         let sig = signing_key.sign(TEST_DATA);
@@ -285,7 +285,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_sign_rsa_sha256_algorithm() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
         let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha256);
 
         let sig = signing_key.sign(TEST_DATA);
@@ -300,7 +300,7 @@ mod tests {
 
     #[test]
     fn test_signing_key_sign_ed25519_produces_valid_signature() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut rng());
         let public_key = keypair.public;
         let signing_key = SignablePrivateKey::Ed25519(keypair);
 
@@ -311,8 +311,8 @@ mod tests {
 
     #[test]
     fn test_signing_key_sign_rsa_sha512_produces_valid_signature() {
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
-        let public_key = keypair.public.clone();
+        let keypair = RsaKeypair::random(&mut rng(), MIN_KEY_BIT_SIZE).unwrap();
+        let public_key = keypair.public().clone();
         let signing_key = SignablePrivateKey::Rsa(keypair, crate::server::SignFlags::RsaSha512);
 
         let sig = signing_key.sign(TEST_DATA);

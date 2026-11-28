@@ -344,9 +344,10 @@ fn framed_session_bind_payload(bind_payload: &[u8]) -> Vec<u8> {
 
 /// Builds a framed EXTENSION message containing a valid Ed25519 session-bind payload.
 pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
-    use ssh_key::{rand_core::OsRng, Algorithm};
+    use bitwarden_random::rng;
+    use ssh_key::Algorithm;
 
-    let host_key = ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ed25519)
+    let host_key = ssh_key::PrivateKey::random(&mut rng(), Algorithm::Ed25519)
         .expect("key generation not to fail.");
     framed_session_bind_extension_with_key(&host_key, is_forwarding)
 }
@@ -366,9 +367,10 @@ pub fn framed_session_bind_extension_with_key(
 
 /// Generates a random ECDSA host key on `curve`.
 pub fn random_ecdsa_host_key(curve: ssh_key::EcdsaCurve) -> ssh_key::PrivateKey {
-    use ssh_key::{rand_core::OsRng, Algorithm};
+    use bitwarden_random::rng;
+    use ssh_key::Algorithm;
 
-    ssh_key::PrivateKey::random(&mut OsRng, Algorithm::Ecdsa { curve })
+    ssh_key::PrivateKey::random(&mut rng(), Algorithm::Ecdsa { curve })
         .expect("key generation not to fail.")
 }
 

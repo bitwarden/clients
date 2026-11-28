@@ -262,14 +262,15 @@ pub(crate) mod test_common {
     /// (`ssh-ed25519-cert-v01@openssh.com`) issued by a random CA, with the session signature made
     /// by the certified host key. Host certificates are not supported for session-bind.
     pub(crate) fn make_session_bind_payload_host_certificate(is_forwarding: bool) -> Vec<u8> {
-        use ssh_key::{certificate, rand_core::OsRng, Algorithm, PrivateKey};
+        use bitwarden_random::rng;
+        use ssh_key::{certificate, Algorithm, PrivateKey};
 
-        let ca = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+        let ca = PrivateKey::random(&mut rng(), Algorithm::Ed25519).unwrap();
         // Validity is irrelevant to session-bind handling; the end bound only needs to be a
         // timestamp every platform's `SystemTime` can represent (2100-01-01T00:00:00Z).
         const VALID_BEFORE: u64 = 4_102_444_800;
 
-        let host = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+        let host = PrivateKey::random(&mut rng(), Algorithm::Ed25519).unwrap();
         let mut builder = certificate::Builder::new(
             [0x11u8; 16],
             host.public_key().key_data().clone(),
