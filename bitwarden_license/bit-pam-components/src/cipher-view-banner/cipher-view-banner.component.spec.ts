@@ -1035,6 +1035,131 @@ describe("CipherViewBannerComponent", () => {
     });
   });
 
+  describe("while another member holds the single active lease", () => {
+    const START = "#pam-cipher-view-banner_button_start";
+    const TOGGLE = "#pam-cipher-view-banner_button_request-toggle";
+
+    function takeSlot(approvalMode: AccessPreCheckView["approvalMode"]): void {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode,
+          canStartLease: false,
+          slotFreesAt: new Date(Date.now() + 3600_000).toISOString(),
+        } as Partial<AccessPreCheckView>),
+      );
+    }
+
+    function startDisabled(): boolean {
+      return query(START)?.getAttribute("aria-disabled") === "true";
+    }
+
+    it("still offers the request when the rule needs an approver, saying it won't reserve the slot", async () => {
+      takeSlot("human");
+
+      await create(gatedCipher());
+
+      const card = query('bit-card[data-testid="cipher-view-banner-request"]');
+      expect(
+        card?.querySelector(`bit-icon-tile bit-icon.${ACCESS_BADGE_LOOK.unavailable.icon}`),
+      ).not.toBeNull();
+      expect(text()).toContain("pamSlotTakenHeading");
+      expect(text()).toContain("pamSlotTakenRequestBody");
+      expect(text()).not.toContain("pamRequestAccessBannerHeading");
+      expect(query('[data-testid="cipher-view-banner-max-duration"]')).not.toBeNull();
+      expect(query(TOGGLE)).not.toBeNull();
+    });
+
+    it("refuses the request when the rule auto-approves, with Request access disabled", async () => {
+      takeSlot("automatic");
+
+      await create(gatedCipher());
+
+      const card = query('[data-testid="cipher-view-banner-unavailable"]');
+      expect(card).not.toBeNull();
+      expect(text()).toContain("pamSlotTakenHeading");
+      expect(text()).toContain("pamSlotTakenRequestLaterBody");
+      expect(text()).not.toContain("pamUnavailableBannerBody");
+      expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
+      expect(card?.querySelector(TOGGLE)?.getAttribute("aria-disabled")).toBe("true");
+
+      query(TOGGLE)?.click();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="request-fold-out"]')).toBeNull();
+    });
+
+    it("offers no Request access on the rule's own refusal", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(TOGGLE)).toBeNull();
+    });
+
+    it("keeps the rule's own refusal copy when the slot is free", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ badgeState: "unavailable" }),
+      );
+
+      await create(gatedCipher());
+
+      expect(text()).toContain("pamUnavailableBannerHeading");
+      expect(text()).not.toContain("pamSlotTakenHeading");
+    });
+
+    it("disables Start access on an approved request, keeping the approved window", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+      takeSlot("human");
+
+      await create(gatedCipher());
+
+      const card = query('bit-card[data-testid="cipher-view-banner-approved"]');
+      expect(
+        card?.querySelector(`bit-icon-tile bit-icon.${ACCESS_BADGE_LOOK.unavailable.icon}`),
+      ).not.toBeNull();
+      expect(text()).toContain("pamSlotTakenHeading");
+      expect(text()).not.toContain("pamApprovedRequestBannerHeadingV2");
+      const hint = query('[data-testid="cipher-view-banner-approved-hint"]')?.textContent;
+      expect(hint).toContain("pamSlotTakenStartBody");
+      expect(hint).toContain("pamApprovedAccessUntil");
+      expect(startDisabled()).toBe(true);
+
+      query(START)?.click();
+      await fixture.whenStable();
+
+      expect(requestsApi.activateAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("re-enables Start access once a refresh finds the slot free", async () => {
+      const approved = accessState({ approvedRequest: requestView(grantedWindow(3600)) });
+      requestsApi.getCipherAccessState.mockResolvedValue(approved);
+      takeSlot("human");
+      await create(gatedCipher());
+
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await refreshTo(accessState({ approvedRequest: requestView(grantedWindow(3600)) }));
+
+      expect(startDisabled()).toBe(false);
+      expect(text()).toContain("pamApprovedRequestBannerHeadingV2");
+    });
+
+    it("leaves Start access enabled when the pre-check fails", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+      requestsApi.preCheck.mockRejectedValue(new Error("boom"));
+
+      await create(gatedCipher());
+
+      expect(startDisabled()).toBe(false);
+      expect(text()).toContain("pamApprovedRequestBannerHeadingV2");
+    });
+  });
+
   describe("the inline request form", () => {
     const TOGGLE = "#pam-cipher-view-banner_button_request-toggle";
     const CANCEL = "#pam-cipher-view-banner_button_request-cancel";

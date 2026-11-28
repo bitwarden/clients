@@ -11,7 +11,8 @@ import { BannerCardHeaderComponent } from "./banner-card-header.component";
 
 /**
  * The resting state of an item the user can request, with the rule's cap when it is known. Projected
- * content, such as the host's action, follows the cap.
+ * content, such as the host's action, follows the cap. A taken single-active-lease slot still allows
+ * the request, but the card says it won't reserve the credential.
  */
 @Component({
   selector: "app-pam-request-access-card",
@@ -29,6 +30,7 @@ import { BannerCardHeaderComponent } from "./banner-card-header.component";
 })
 export class RequestAccessCardComponent {
   readonly terms = input<RequestTerms | null>(null);
+  readonly slotTaken = input(false);
 
   protected readonly badgeLook = ACCESS_BADGE_LOOK;
 }

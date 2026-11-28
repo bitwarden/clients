@@ -1,6 +1,16 @@
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { catchError, combineLatest, concat, from, merge, Observable, of, switchMap } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  concat,
+  from,
+  map,
+  merge,
+  Observable,
+  of,
+  switchMap,
+} from "rxjs";
 
 import {
   AccessRefreshService,
@@ -73,6 +83,7 @@ export class ItemDetailsStateBadgeComponent {
       const cipherId = String(cipher.id);
       const read$ = () =>
         from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
+          switchMap((state) => this.withSlotTaken$(cipherId, state)),
           catchError((e: unknown) => {
             // No pill rather than an error, since the item is still usable; the banner below
             // does the same.
@@ -86,6 +97,29 @@ export class ItemDetailsStateBadgeComponent {
       );
     }),
   );
+
+  /**
+   * Re-badges `state` as unavailable while another member holds the rule's single active lease and
+   * the caller's next step, a request or a start, can't take it. The access state carries no slot,
+   * so this asks `preCheck`; a failed pre-check keeps the SDK's badge.
+   */
+  private withSlotTaken$(
+    cipherId: string,
+    state: CipherAccessStateView,
+  ): Observable<CipherAccessStateView> {
+    if (state.badgeState !== "privileged" && state.badgeState !== "ready") {
+      return of(state);
+    }
+    return from(this.accessRequestSdkService.preCheck(cipherId)).pipe(
+      map((preCheck) =>
+        preCheck.canStartLease === false ? { ...state, badgeState: "unavailable" as const } : state,
+      ),
+      catchError((e: unknown) => {
+        this.logService.error(e);
+        return of(state);
+      }),
+    );
+  }
 
   /**
    * `state`'s badge, withheld while the lease is live on this clock. Keying on the SDK's `active`

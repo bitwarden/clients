@@ -10,10 +10,10 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter } from "rxjs";
+import { catchError, filter, from, map, of, switchMap } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import {
@@ -74,6 +74,7 @@ type DialogBadge = {
  */
 const READY_BADGE: DialogBadge = { badgeState: { kind: "ready" }, statusBadge: null };
 const LAPSED_BADGE: DialogBadge = { badgeState: null, statusBadge: lapsedGrantBadge };
+const UNAVAILABLE_BADGE: DialogBadge = { badgeState: { kind: "unavailable" }, statusBadge: null };
 
 export type AccessRequestDialogParams = {
   /**
@@ -205,7 +206,10 @@ export class AccessRequestDialogComponent implements OnInit {
     if (isUnstartedApproval(request)) {
       // An approval still inside its window badges "Ready to use" on both sides of the dialog.
       // The tables keep saying "Approved" to an approver, who has nothing to use themselves.
-      return (this.leaseNotAfterMs() ?? 0) <= this.nowMs() ? LAPSED_BADGE : READY_BADGE;
+      if ((this.leaseNotAfterMs() ?? 0) <= this.nowMs()) {
+        return LAPSED_BADGE;
+      }
+      return this.slotTaken() ? UNAVAILABLE_BADGE : READY_BADGE;
     }
     return historyDisplayStatus(request);
   });
@@ -352,6 +356,27 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
+  /**
+   * Another member holds the item's single active lease, so Start session waits for it to free up.
+   * Asked again on every reload of the request; a failed pre-check reads as free.
+   */
+  protected readonly slotTaken = toSignal(
+    toObservable(computed(() => (this.canStart() ? this.request() : null))).pipe(
+      switchMap((request) =>
+        request == null
+          ? of(false)
+          : from(this.detail.canStartLease(request)).pipe(
+              map((canStartLease) => !canStartLease),
+              catchError((e: unknown) => {
+                this.logService.error(e);
+                return of(false);
+              }),
+            ),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   /** Only while the request is still undecided. */
   protected readonly canCancel = computed(
     () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
@@ -467,7 +492,7 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   protected async startAccess(): Promise<void> {
-    if (!this.canStart() || this.starting()) {
+    if (!this.canStart() || this.starting() || this.slotTaken()) {
       return;
     }
     this.starting.set(true);

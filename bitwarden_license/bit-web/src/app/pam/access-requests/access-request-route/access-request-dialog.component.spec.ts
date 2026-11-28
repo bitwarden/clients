@@ -58,6 +58,7 @@ describe("AccessRequestDialogComponent", () => {
     managed$: BehaviorSubject<boolean>;
     cancel: jest.Mock;
     activate: jest.Mock;
+    canStartLease: jest.Mock;
     endLease: jest.Mock;
     decide: jest.Mock;
     withdrawApproval: jest.Mock;
@@ -95,6 +96,8 @@ describe("AccessRequestDialogComponent", () => {
       managed$: new BehaviorSubject<boolean>(false),
       cancel: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(undefined),
+      // The slot is free unless a case takes it.
+      canStartLease: jest.fn().mockResolvedValue(true),
       endLease: jest.fn().mockResolvedValue(undefined),
       decide: jest.fn().mockResolvedValue(undefined),
       withdrawApproval: jest.fn().mockResolvedValue(undefined),
@@ -756,6 +759,81 @@ describe("AccessRequestDialogComponent", () => {
       expect(detail.endLease).not.toHaveBeenCalled();
     });
   });
+  describe("while another member holds the single active lease", () => {
+    const START = "#access-request-dialog_button_start";
+
+    /** Lets the pre-check resolve. `whenStable` would start the dialog's IntersectionObserver. */
+    async function settle(): Promise<void> {
+      // A pushed request reaches the pre-check through an effect, so it needs a cycle to ask.
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+      // The button mirrors `disabled` onto `aria-disabled` from an effect, a cycle later.
+      fixture.detectChanges();
+    }
+
+    async function createSettled(): Promise<void> {
+      create();
+      await settle();
+    }
+
+    it("badges an unstarted approval Unavailable and disables Start session", async () => {
+      detail.canStartLease.mockResolvedValue(false);
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+      await createSettled();
+
+      expect(component["badge"]()).toEqual({
+        badgeState: { kind: "unavailable" },
+        statusBadge: null,
+      });
+      const start = fixture.nativeElement.querySelector(START) as HTMLElement;
+      expect(start.getAttribute("aria-disabled")).toBe("true");
+    });
+
+    it("does not start access while the slot is taken", async () => {
+      detail.canStartLease.mockResolvedValue(false);
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+      await createSettled();
+
+      await component["startAccess"]();
+
+      expect(detail.activate).not.toHaveBeenCalled();
+    });
+
+    it("keeps Ready to use and Start session once a reload finds the slot free", async () => {
+      detail.canStartLease.mockResolvedValue(false);
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+      await createSettled();
+
+      detail.canStartLease.mockResolvedValue(true);
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+      await settle();
+
+      expect(component["badge"]()?.badgeState).toEqual({ kind: "ready" });
+      const start = fixture.nativeElement.querySelector(START) as HTMLElement;
+      expect(start.getAttribute("aria-disabled")).toBeNull();
+    });
+
+    it("reads a failed pre-check as free", async () => {
+      detail.canStartLease.mockRejectedValue(new Error("boom"));
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+      await createSettled();
+
+      expect(component["badge"]()?.badgeState).toEqual({ kind: "ready" });
+    });
+
+    it("asks only when the viewer could start the request", async () => {
+      detail.viewer$.next("approver");
+      detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+      await createSettled();
+
+      expect(detail.canStartLease).not.toHaveBeenCalled();
+    });
+  });
+
   describe("viewed by an approver", () => {
     /** Someone else's request, as it sits in the viewer's approvals inbox. */
     function inboxRow(): ApprovalRow {

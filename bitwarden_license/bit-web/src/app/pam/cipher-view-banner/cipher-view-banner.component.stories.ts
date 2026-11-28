@@ -91,6 +91,7 @@ function pam(
     enabled?: boolean;
     maxDurationSeconds?: number;
     licensed?: boolean;
+    slotTaken?: boolean;
   } = {},
 ) {
   const {
@@ -99,6 +100,7 @@ function pam(
     enabled = true,
     maxDurationSeconds = 4 * 60 * 60,
     licensed = true,
+    slotTaken = false,
   } = options;
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
@@ -125,6 +127,8 @@ function pam(
               hasActiveLease: false,
               maxDurationSeconds,
               defaultDurationSeconds: 60 * 60,
+              canStartLease: !slotTaken,
+              slotFreesAt: slotTaken ? liveFromNow(HOUR) : undefined,
             }),
           submitAccessRequest: () => Promise.resolve({}),
           activateAccessRequest: () => Promise.resolve({}),
@@ -220,6 +224,41 @@ export const PendingRequest: Story = {
 export const ApprovedReadyToStart: Story = {
   decorators: [
     pam({
+      state: () => ({
+        badgeState: "ready",
+        approvedRequest: accessRequest({
+          status: "approved",
+          leaseNotBefore: liveFromNow(0),
+          leaseNotAfter: liveFromNow(2 * HOUR),
+        }),
+      }),
+    }),
+  ],
+};
+
+/** Another member holds the single active lease; the request still goes through to an approver. */
+export const SlotTakenHumanApproval: Story = {
+  decorators: [
+    pam({
+      state: () => ({ badgeState: "privileged" }),
+      mode: "human",
+      maxDurationSeconds: 24 * 60 * 60,
+      slotTaken: true,
+    }),
+  ],
+};
+
+/** Another member holds the single active lease, so an auto-approving rule refuses the request. */
+export const SlotTakenAutomatic: Story = {
+  decorators: [pam({ state: () => ({ badgeState: "privileged" }), slotTaken: true })],
+};
+
+/** Approved, but another member holds the single active lease, so Start access is disabled. */
+export const SlotTakenApproved: Story = {
+  decorators: [
+    pam({
+      mode: "human",
+      slotTaken: true,
       state: () => ({
         badgeState: "ready",
         approvedRequest: accessRequest({
