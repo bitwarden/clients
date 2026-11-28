@@ -734,6 +734,22 @@ describe("VaultItemsTableComponent", () => {
    * so what they assert is the behavior a client's own vault search has.
    */
   describe("search", () => {
+    function searchInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css("bit-search input")).nativeElement;
+    }
+
+    async function render(): Promise<void> {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    it("is focused on render", async () => {
+      await render();
+      expect(document.activeElement).toBe(searchInput());
+    });
+  });
+
+  describe("search", () => {
     /** A login carrying a URI and a username, the fields only `SearchService` reaches. */
     function loginCipher(overrides: Partial<CipherView> = {}): CipherView {
       const login = new LoginView();

@@ -164,6 +164,22 @@ describe("MyFoldersComponent", () => {
     fixture.detectChanges();
   });
 
+  describe("search", () => {
+    function searchInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css("bit-search input")).nativeElement;
+    }
+
+    async function render(): Promise<void> {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    it("is focused on render", async () => {
+      await render();
+      expect(document.activeElement).toBe(searchInput());
+    });
+  });
+
   describe("add and edit", () => {
     let open: jest.SpyInstance;
 

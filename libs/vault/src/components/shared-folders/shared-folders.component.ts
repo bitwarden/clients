@@ -30,6 +30,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
+  AutofocusDirective,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -163,6 +164,7 @@ export type SharedFoldersTableFilters = {
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
+    AutofocusDirective,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,

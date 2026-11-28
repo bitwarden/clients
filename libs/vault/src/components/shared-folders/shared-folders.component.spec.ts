@@ -327,6 +327,26 @@ describe("SharedFoldersComponent", () => {
     return found;
   }
 
+  describe("search", () => {
+    beforeEach(async () => {
+      await setup();
+    });
+
+    function searchInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css("bit-search input")).nativeElement;
+    }
+
+    async function render(): Promise<void> {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    it("is focused on render", async () => {
+      await render();
+      expect(document.activeElement).toBe(searchInput());
+    });
+  });
+
   describe("loading the organization's folders", () => {
     it("renders a row per shared folder", async () => {
       await setup({

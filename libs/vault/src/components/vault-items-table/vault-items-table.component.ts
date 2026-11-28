@@ -42,6 +42,7 @@ import {
   RestrictedCipherPolicy,
 } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
+  AutofocusDirective,
   BitwardenIcon,
   BitCellComponent,
   BitCellDefDirective,
@@ -279,6 +280,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
+    AutofocusDirective,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,

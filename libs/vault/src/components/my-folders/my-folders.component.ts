@@ -23,6 +23,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
+  AutofocusDirective,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -79,6 +80,7 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
     "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
+    AutofocusDirective,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
