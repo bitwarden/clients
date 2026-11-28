@@ -4704,6 +4704,173 @@ describe("AutofillService", () => {
             );
             expect(value.script[2]).toStrictEqual(["fill_by_opid", countryField.opid, "SO"]);
           });
+
+          it("will fill the stored state value when it is not the name of a US state or Canadian province", async () => {
+            const stateField = createAutofillFieldMock({ opid: "state", htmlName: "state" });
+            pageDetails.fields = [stateField];
+            options.cipher.identity.state = "Huelva";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", stateField.opid, "Huelva"]);
+          });
+
+          it("will select the state option that matches the stored value when it is not the name of a US state or Canadian province", async () => {
+            const stateField = createAutofillFieldMock({
+              opid: "state",
+              htmlName: "id_state",
+              tagName: "select",
+              type: "select-one",
+              selectInfo: {
+                options: [
+                  ["-- Seleccione --", ""],
+                  ["Huelva", "339"],
+                  ["Sevilla", "349"],
+                ],
+              },
+            });
+            pageDetails.fields = [stateField];
+            options.cipher.identity.state = "Huelva";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", stateField.opid, "339"]);
+          });
+
+          it("will select the state option by its full name when the select has no option for the ISO code", async () => {
+            const stateField = createAutofillFieldMock({
+              opid: "state",
+              htmlName: "state",
+              tagName: "select",
+              type: "select-one",
+              selectInfo: {
+                options: [
+                  ["California", "5"],
+                  ["Texas", "43"],
+                ],
+              },
+            });
+            pageDetails.fields = [stateField];
+            options.cipher.identity.state = "California";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", stateField.opid, "5"]);
+          });
+
+          it("will still prefer the ISO code for a state select that lists it", async () => {
+            const stateField = createAutofillFieldMock({
+              opid: "state",
+              htmlName: "state",
+              tagName: "select",
+              type: "select-one",
+              selectInfo: {
+                options: [
+                  ["CA", "CA"],
+                  ["California", "california-full-name"],
+                ],
+              },
+            });
+            pageDetails.fields = [stateField];
+            options.cipher.identity.state = "California";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", stateField.opid, "CA"]);
+            expect(value.script).not.toContainEqual([
+              "fill_by_opid",
+              stateField.opid,
+              "california-full-name",
+            ]);
+          });
+
+          it("will not fill a state select that has no option for the ISO code or the stored value", async () => {
+            const stateField = createAutofillFieldMock({
+              opid: "state",
+              htmlName: "state",
+              tagName: "select",
+              type: "select-one",
+              selectInfo: {
+                options: [["Sevilla", "349"]],
+              },
+            });
+            pageDetails.fields = [stateField];
+            options.cipher.identity.state = "Huelva";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(
+              value.script.filter(
+                ([action, opid]) => action === "fill_by_opid" && opid === stateField.opid,
+              ),
+            ).toHaveLength(0);
+          });
+
+          it("will fill the stored country value when no ISO code is known for it", async () => {
+            const countryField = createAutofillFieldMock({ opid: "country", htmlName: "country" });
+            pageDetails.fields = [countryField];
+            options.cipher.identity.country = "España";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", countryField.opid, "España"]);
+          });
+
+          it("will select the country option by its full name when the select has no option for the ISO code", async () => {
+            const countryField = createAutofillFieldMock({
+              opid: "country",
+              htmlName: "id_country",
+              tagName: "select",
+              type: "select-one",
+              selectInfo: {
+                options: [
+                  ["Germany", "1"],
+                  ["Spain", "6"],
+                ],
+              },
+            });
+            pageDetails.fields = [countryField];
+            options.cipher.identity.country = "Spain";
+
+            const value = await autofillService["generateIdentityFillScript"](
+              fillScript,
+              pageDetails,
+              filledFields,
+              options,
+            );
+
+            expect(value.script).toContainEqual(["fill_by_opid", countryField.opid, "6"]);
+          });
         });
       }
     });
