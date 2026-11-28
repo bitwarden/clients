@@ -1860,6 +1860,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
     const field = this.autofillFieldElements.get(target as ElementWithOpId<FormFieldElement>);
+    if (attributeName === "type" && elementIsInputElement(target)) {
+      const eligible = this.isElementFormFieldElement(target);
+      if (Boolean(field) !== eligible) {
+        // Type changes can add an uncached input or exclude a cached input without a
+        // child-list mutation. Rebuild both indexes so later cached reads agree too.
+        this.clearFieldCache();
+        this.requirePageDetailsUpdate();
+        return;
+      }
+    }
     if (field) {
       this.updateAutofillFieldElementData(
         attributeName,
