@@ -229,11 +229,24 @@ const ROTATION_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
+/** An item name with no break opportunity, longer than the Item column. */
+const LONG_NAME_CIPHER_ID = "cipher-4";
+names.cipherNameById.set(
+  LONG_NAME_CIPHER_ID,
+  "PROD_POSTGRES_PRIMARY_BREAK_GLASS_ADMINISTRATOR_CREDENTIAL",
+);
+
 /**
- * A rule name past sixty characters, and a token longer than the column cap, which must break
- * mid-word.
+ * A rule name past sixty characters, and tokens longer than the column cap (one of them an item
+ * name in a link), which must break mid-word.
  */
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
+  event({
+    kind: AccessAuditEventKind.CredentialAccessed,
+    occurredAt: fromNow(-5 * MINUTE),
+    cipherId: LONG_NAME_CIPHER_ID,
+    ...APPROVER,
+  }),
   event({
     kind: AccessAuditEventKind.RuleDeleted,
     occurredAt: fromNow(-10 * MINUTE),
