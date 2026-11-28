@@ -47,6 +47,26 @@ export function emailAndOtpRequired(e: SendAccessTokenApiErrorResponse): e is Em
   return e.error === "invalid_request" && e.send_access_error_type === "email_and_otp_required";
 }
 
+export type DeviceIdentifierRequired = InvalidRequest & {
+  send_access_error_type: "device_identifier_required";
+};
+
+export function deviceIdentifierRequired(
+  e: SendAccessTokenApiErrorResponse,
+): e is DeviceIdentifierRequired {
+  return e.error === "invalid_request" && e.send_access_error_type === "device_identifier_required";
+}
+
+export type DeviceIdentifierInvalid = InvalidRequest & {
+  send_access_error_type: "device_identifier_invalid";
+};
+
+export function deviceIdentifierInvalid(
+  e: SendAccessTokenApiErrorResponse,
+): e is DeviceIdentifierInvalid {
+  return e.error === "invalid_request" && e.send_access_error_type === "device_identifier_invalid";
+}
+
 export type UnknownInvalidRequest = InvalidRequest & {
   send_access_error_type: "unknown";
 };
