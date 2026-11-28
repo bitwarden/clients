@@ -97,6 +97,10 @@ export enum CipherType {
 }
 ```
 
+## Stories
+
+New components get a story. Use the `storybook-stories` skill.
+
 ## Further Reading
 
 - [Angular conventions](https://contributing.bitwarden.com/contributing/code-style/web/angular)
