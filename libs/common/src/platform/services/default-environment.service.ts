@@ -337,7 +337,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   }
 }
 
-function formatUrl(url: string): string {
+export function formatUrl(url: string): string {
   if (url == null || url === "") {
     return null;
   }

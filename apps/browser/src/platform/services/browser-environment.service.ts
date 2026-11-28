@@ -5,11 +5,24 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Region, RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import {
+  DefaultEnvironmentService,
+  formatUrl,
+} from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { GroupPolicyEnvironment } from "../../admin-console/types/group-policy-environment";
 import { devFlagEnabled, devFlagValue } from "../flags";
+
+const MANAGED_URL_KEYS = [
+  "base",
+  "webVault",
+  "api",
+  "identity",
+  "icons",
+  "notifications",
+  "events",
+] as const;
 
 export class BrowserEnvironmentService extends DefaultEnvironmentService {
   constructor(
@@ -70,6 +83,15 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
 
   async setUrlsToManagedEnvironment() {
     const env = await this.getManagedEnvironment();
+
+    // Managed URLs that belong to a Bitwarden cloud region (e.g. https://vault.bitwarden.eu)
+    // select that region instead of being treated as a self-hosted server.
+    const cloudRegion = this.findCloudRegion(env);
+    if (cloudRegion != null) {
+      await this.setEnvironment(cloudRegion);
+      return;
+    }
+
     await this.setEnvironment(Region.SelfHosted, {
       base: env.base,
       webVault: env.webVault,
@@ -79,5 +101,26 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
       notifications: env.notifications,
       events: env.events,
     });
+  }
+
+  /**
+   * Returns the cloud region whose URLs match every URL set in the managed environment,
+   * or null if any URL points elsewhere (self-hosted).
+   */
+  private findCloudRegion(env: GroupPolicyEnvironment): Region | null {
+    const providedKeys = MANAGED_URL_KEYS.filter((key) => !!env[key]);
+    if (providedKeys.length === 0) {
+      return null;
+    }
+
+    const match = this.availableRegions().find((config) =>
+      providedKeys.every((key) => {
+        // A cloud region's base URL is its web vault, e.g. https://vault.bitwarden.eu
+        const regionUrl = key === "base" ? config.urls.webVault : config.urls[key];
+        return formatUrl(env[key].trim())?.toLowerCase() === formatUrl(regionUrl)?.toLowerCase();
+      }),
+    );
+
+    return match?.key ?? null;
   }
 }
