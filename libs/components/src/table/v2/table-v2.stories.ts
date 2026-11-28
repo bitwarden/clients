@@ -2061,13 +2061,14 @@ async function filterSurface() {
  * story snapshot both surfaces across viewports.
  *
  * The names here track the kitchen sink's `placeholderText`, so renaming that chip breaks these
- * queries — anchored so the sibling "My folders" chip can't match instead.
+ * queries — anchored so the sibling "My folders" chip can't match instead. The optional trailing
+ * number is the chip's count badge, which is part of the trigger's accessible name.
  */
 async function openSharedFoldersFilter(canvasElement: HTMLElement): Promise<void> {
   // A wide toolbar shows the chip; a narrow one collapses the row to one icon trigger. The hidden
   // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
   const trigger = await within(canvasElement).findByRole("button", {
-    name: /^(Shared folders|Filters)$/,
+    name: /^(Shared folders|Filters)(\s\d+)?$/,
   });
   await userEvent.click(trigger);
 

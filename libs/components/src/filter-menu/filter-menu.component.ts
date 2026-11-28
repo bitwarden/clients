@@ -15,6 +15,7 @@ import {
   inject,
   input,
   signal,
+  linkedSignal,
   viewChild,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -348,11 +349,22 @@ export class FilterMenuComponent
     return this.multiple() && Array.isArray(value) ? value.length : 0;
   });
 
+  /** Whether the chip's own menu is open, so the berry can hold still while it is. */
+  protected readonly menuOpen = computed(() => this.menuTrigger()?.isOpen() ?? false);
+
   /**
-   * Snapshotted from {@link selectedCount} on menu close, so the chip's width doesn't
-   * shift while the user toggles options.
+   * The berry's value: {@link selectedCount}, held at its previous value while the menu is open so
+   * the chip's width doesn't shift under the user mid-decision, and caught up the moment the menu
+   * closes — or immediately for a change made with the menu already closed (the applied-filters
+   * row, the chip's own dismiss button, a host-level clear, seeding).
+   *
+   * Only the berry is held. The chip's active styling, chevron, dismiss button and label follow
+   * {@link active} immediately, per Design.
    */
-  protected readonly committedCount = signal(0);
+  protected readonly committedCount = linkedSignal<{ open: boolean; count: number }, number>({
+    source: () => ({ open: this.menuOpen(), count: this.selectedCount() }),
+    computation: (next, previous) => (next.open && previous ? previous.value : next.count),
+  });
 
   // `bitRadio` itself can't be used here: it drives `checked` and `name` from a form
   // control group this row doesn't have. Its classes are the same definition.
@@ -373,6 +385,8 @@ export class FilterMenuComponent
 
   /** @see FilterPresenter.selections */
   readonly selections = this.selected.asReadonly();
+
+  private readonly menuTrigger = viewChild<MenuTriggerForDirective>("menuTrigger");
 
   /**
    * The menu body as a template, so the popover and the dialog's drill-in stamp the
@@ -503,12 +517,6 @@ export class FilterMenuComponent
     effect(() => this.baseChip.selectedState.set(this.active()));
     // Tighter trailing padding while the dismiss button shows.
     effect(() => this.baseChip.hasTrailingIcon.set(this.active()));
-    // Otherwise only committed on menu close, leaving a stale berry on the chip.
-    effect(() => {
-      if (!this.active()) {
-        this.committedCount.set(0);
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -829,10 +837,9 @@ export class FilterMenuComponent
     );
   }
 
-  /** Resets the search and commits the selected count to the berry when the menu closes. */
+  /** Resets the search when the menu closes; the chip's look is committed by the effect. */
   protected onMenuClosed(): void {
     this.setSearchTerm("");
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Sets the chip's value — used to seed initial filters. */
@@ -841,7 +848,6 @@ export class FilterMenuComponent
     // wrap it so active() and isSelected() can treat it uniformly as an array.
     const normalized = this.multiple() && !Array.isArray(value) && value != null ? [value] : value;
     this._value.set(normalized);
-    this.committedCount.set(this.selectedCount());
   }
 
   /**
@@ -879,15 +885,12 @@ export class FilterMenuComponent
     }
     const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
     this._value.set(current.filter((v) => v !== value));
-    // The menu never closed, so commit the berry count here instead of in `onMenuClosed`.
-    this.committedCount.set(this.selectedCount());
   }
 
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
     this._value.set(this.clearedValue());
     this.selected.set([]);
-    this.committedCount.set(0);
   }
 
   /** @see FilterPresenter.flip — a chip drills into its options, so there's nothing to flip. */

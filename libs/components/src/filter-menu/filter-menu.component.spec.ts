@@ -161,6 +161,90 @@ describe("FilterMenuComponent selections", () => {
     expect(berryValue(host.multi())).toBe(1);
   });
 
+  /*
+   * PAM-570: the chip is the user's record of what the filter currently is, so it has to hold
+   * still while they are mid-decision in the menu. Only closing the menu commits the new look.
+   */
+  describe("while the menu is open", () => {
+    const multiTrigger = () =>
+      fixture.debugElement.queryAll(By.directive(MenuTriggerForDirective))[0];
+
+    const openMenu = () => {
+      (multiTrigger().nativeElement as HTMLElement).click();
+      fixture.detectChanges();
+    };
+
+    /** The trigger toggles, so a second click closes it — the same way a user does. */
+    const closeMenu = () => {
+      (multiTrigger().nativeElement as HTMLElement).click();
+      fixture.detectChanges();
+    };
+
+    const chipIsActive = () => host.multi().active();
+    const chipReadsActive = () =>
+      (multiTrigger().nativeElement as HTMLElement)
+        .closest("bit-chip-content, [bitChip]")
+        ?.querySelector("[bit-chip-dismiss-button]") != null;
+
+    it("holds the berry while selections change, then commits on close", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+      expect(berryValue(host.multi())).toBe(2);
+
+      openMenu();
+      host.multi().toggle("login");
+      fixture.detectChanges();
+
+      // The live state moved; the chip has not.
+      expect(host.multi().selections()).toHaveLength(1);
+      expect(berryValue(host.multi())).toBe(2);
+
+      closeMenu();
+      expect(berryValue(host.multi())).toBe(1);
+    });
+
+    it("keeps the berry rather than zeroing it when the menu's Clear empties the chip", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+
+      openMenu();
+      host.multi().clear();
+      fixture.detectChanges();
+
+      // The reported bug: the count dropped to 0 the moment the last selection went.
+      expect(chipIsActive()).toBe(false);
+      expect(berryValue(host.multi())).toBe(2);
+
+      closeMenu();
+      expect(berryValue(host.multi())).toBe(0);
+    });
+
+    it("takes its active styling straight away, while the berry holds until close", () => {
+      openMenu();
+      host.multi().toggle("login");
+      fixture.detectChanges();
+
+      // Design wants the active colour immediately; only the count waits for the menu to close.
+      expect(chipIsActive()).toBe(true);
+      expect(chipReadsActive()).toBe(true);
+      expect(berryValue(host.multi())).toBe(0);
+
+      closeMenu();
+      expect(berryValue(host.multi())).toBe(1);
+    });
+
+    it("still updates immediately when the chip changes with the menu closed", () => {
+      host.multi().setValue(["login", "card"]);
+      fixture.detectChanges();
+
+      host.multi().clear();
+      fixture.detectChanges();
+
+      expect(berryValue(host.multi())).toBe(0);
+      expect(chipReadsActive()).toBe(false);
+    });
+  });
+
   it("ignores a value that isn't selected", () => {
     host.multi().setValue(["login"]);
     fixture.detectChanges();
@@ -693,6 +777,88 @@ describe("FilterMenuComponent host counts", () => {
     expect(filterHost.optionCounts).toHaveBeenCalledWith("vault", [["org-1"], ["org-2"]]);
   });
 });
+
+/*
+ * A single-select chip shows its selection in the label, and picking an option doesn't close the
+ * menu. Only the berry is held while the menu is open, so the label follows the selection live.
+ */
+describe("FilterMenuComponent single-select label while the menu is open", () => {
+  let fixture: ComponentFixture<UnsetLabelHostComponent>;
+  let host: UnsetLabelHostComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UnsetLabelHostComponent],
+      providers: [{ provide: I18nService, useValue: mockI18nService }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UnsetLabelHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  const triggerEl = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective)).nativeElement as HTMLElement;
+
+  /** The trigger toggles, so the same click opens and closes it. */
+  const toggleMenu = () => {
+    triggerEl().click();
+    fixture.detectChanges();
+  };
+
+  const label = () => triggerEl().textContent?.trim();
+
+  it("reads the cleared state straight away when the menu's All row clears the selection", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+    expect(label()).toBe("Type: Login");
+
+    toggleMenu();
+    host.single().clear();
+    fixture.detectChanges();
+
+    // Never a bare "Type": the label and the active state move together.
+    expect(label()).toBe("Type: All");
+  });
+
+  it("follows the selection straight away while another option is picked", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+
+    toggleMenu();
+    host.single().toggle("card");
+    fixture.detectChanges();
+
+    expect(host.single().selections()).toEqual([{ value: "card", label: "Card" }]);
+    expect(label()).toBe("Type: Card");
+  });
+
+  it("updates straight away when the selection changes with the menu closed", () => {
+    host.single().setValue("login");
+    fixture.detectChanges();
+    expect(label()).toBe("Type: Login");
+
+    host.single().clear();
+    fixture.detectChanges();
+
+    expect(label()).toBe("Type: All");
+  });
+});
+
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuComponent, FilterOptionComponent],
+  template: `
+    <bit-filter-menu #single key="type" placeholderText="Type" unsetLabel="All">
+      <bit-filter-option value="login">Login</bit-filter-option>
+      <bit-filter-option value="card">Card</bit-filter-option>
+    </bit-filter-menu>
+  `,
+})
+class UnsetLabelHostComponent {
+  readonly single = viewChild.required<FilterMenuComponent>("single");
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

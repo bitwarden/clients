@@ -15,9 +15,13 @@
     #menuTrigger="menuTrigger"
     #chipTrigger
   >
-    <span class="tw-block tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
+    <!-- The berry sits inside the trigger, after the label, so it hugs the text instead of
+         being pushed to the chip's far edge by the full-width button. -->
+    <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+      <span class="tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
+      <bit-berry class="tw-flex-none" [value]="committedCount()"></bit-berry>
+    </span>
   </button>
-  <bit-berry slot="end" [value]="committedCount()"></bit-berry>
   @if (active()) {
     <button
       bit-chip-dismiss-button
