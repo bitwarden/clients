@@ -106,6 +106,33 @@ describe("event upload service", () => {
 
         expect(stateProvider.mock.setUserState).not.toHaveBeenCalled();
       });
+
+      it("clears stored events after taking them for upload", async () => {
+        const events = makeEventData(3);
+        const eventState = stateProvider.singleUser.mockFor(userId, EVENT_COLLECTION, events);
+
+        await eventUploadService.uploadEvents(userId);
+
+        expect(eventState.nextMock).toHaveBeenCalledWith([]);
+      });
+
+      it("does not write state when no events are stored", async () => {
+        const eventState = stateProvider.singleUser.mockFor(userId, EVENT_COLLECTION);
+
+        await eventUploadService.uploadEvents(userId);
+
+        expect(eventState.nextMock).not.toHaveBeenCalled();
+        expect(apiService.postEventsCollect).not.toHaveBeenCalled();
+      });
+
+      it("does not write state when stored events are empty", async () => {
+        const eventState = stateProvider.singleUser.mockFor(userId, EVENT_COLLECTION, []);
+
+        await eventUploadService.uploadEvents(userId);
+
+        expect(eventState.nextMock).not.toHaveBeenCalled();
+        expect(apiService.postEventsCollect).not.toHaveBeenCalled();
+      });
     });
   });
 });
