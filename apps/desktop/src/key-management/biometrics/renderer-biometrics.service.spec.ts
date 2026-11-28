@@ -1,13 +1,15 @@
 import { mock } from "jest-mock-extended";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { CryptoClient } from "@bitwarden/sdk-internal";
+import { CryptoClient, ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { RendererBiometricsService } from "./renderer-biometrics.service";
 
@@ -15,6 +17,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   CryptoClient: {
     get_key_id_for_symmetric_key: jest.fn(),
   },
+  ipcRegisterBiometricsHandlers: jest.fn(),
 }));
 
 jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
@@ -24,10 +27,12 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 describe("renderer biometrics service tests", function () {
   let tokenService: TokenService;
   let biometricStateService: BiometricStateService;
+  let ipcService: IpcService;
 
   beforeEach(() => {
     tokenService = mock<TokenService>();
     biometricStateService = mock<BiometricStateService>();
+    ipcService = mock<IpcService>();
     (global as any).ipc = {
       keyManagement: {
         biometric: {
@@ -68,7 +73,7 @@ describe("renderer biometrics service tests", function () {
 
   describe("unlockWithBiometricsForUser", () => {
     const testUserId = "userId1" as UserId;
-    const service = new RendererBiometricsService(tokenService, biometricStateService);
+    const service = new RendererBiometricsService(tokenService, biometricStateService, ipcService);
 
     it("should return null if no user key is returned", async () => {
       (global as any).ipc.keyManagement.biometric.unlockWithBiometricsForUser.mockResolvedValue(
@@ -104,7 +109,11 @@ describe("renderer biometrics service tests", function () {
     const getKeyIdMock = () => (CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock;
 
     it("stores the derived key id when the SDK returns a key id", async () => {
-      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        ipcService,
+      );
       getKeyIdMock().mockReturnValue(mockKeyId);
 
       await service.enrollPersistent(testUserId, mockUserKey);
@@ -126,7 +135,11 @@ describe("renderer biometrics service tests", function () {
       (global as any).ipc.keyManagement.biometric.enrollPersistent.mockRejectedValue(
         enrollmentError,
       );
-      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        ipcService,
+      );
       getKeyIdMock().mockReturnValue(mockKeyId);
 
       await expect(service.enrollPersistent(testUserId, mockUserKey)).rejects.toThrow(
@@ -136,7 +149,11 @@ describe("renderer biometrics service tests", function () {
     });
 
     it("clears the enrolled key id when the SDK returns no key id", async () => {
-      const service = new RendererBiometricsService(tokenService, biometricStateService);
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        ipcService,
+      );
       getKeyIdMock().mockReturnValue(null);
 
       await service.enrollPersistent(testUserId, mockUserKey);
@@ -144,6 +161,23 @@ describe("renderer biometrics service tests", function () {
       expect(biometricStateService.setBiometricEnrolledKeyId).toHaveBeenCalledWith(
         testUserId,
         null,
+      );
+    });
+  });
+
+  describe("setUnlockService", () => {
+    it("serves biometrics requests addressed to the renderer's own endpoint", async () => {
+      const service = new RendererBiometricsService(
+        tokenService,
+        biometricStateService,
+        ipcService,
+      );
+
+      await service.setUnlockService(mock<UnlockService>());
+
+      expect(ipcRegisterBiometricsHandlers).toHaveBeenCalledWith(
+        ipcService.client,
+        expect.anything(),
       );
     });
   });

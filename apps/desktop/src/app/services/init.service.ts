@@ -87,15 +87,17 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
-      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
-      await this.sharedUnlockPeerService.start();
-
-      // For each acct, we must await the process of unlocking with the never-lock key
-      // if it is set, to avoid race conditions of any code trying to access the user key
-      // from mem. A failure to unlock one account leaves that account locked rather than
-      // failing app initialization for every other account. Main does this instead once it
-      // owns the session.
+      // Main takes both of these over when the flag is on: exactly one shared-unlock peer may run
+      // per device, and whichever process owns the session restores the never-lock unlocks.
       if (!(await rendererTeardownEnabled())) {
+        // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored
+        // unlock.
+        await this.sharedUnlockPeerService.start();
+
+        // For each acct, we must await the process of unlocking with the never-lock key
+        // if it is set, to avoid race conditions of any code trying to access the user key
+        // from mem. A failure to unlock one account leaves that account locked rather than
+        // failing app initialization for every other account.
         await Promise.all(
           userIds.map(async (userId) => {
             try {
